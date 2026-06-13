@@ -1,0 +1,6 @@
+export enum SessionStatus {
+  IN_PROGRESS = 'IN_PROGRESS',
+  SUSPENDED = 'SUSPENDED',
+  COMPLETED = 'COMPLETED',
+  ABANDONED = 'ABANDONED',
+}

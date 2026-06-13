@@ -1,0 +1,7 @@
+export enum EnergyLedgerReason {
+  DAILY_RESET = 'DAILY_RESET',
+  SESSION_SPENT = 'SESSION_SPENT',
+  AXIS_SPENT = 'AXIS_SPENT',
+  REFUND = 'REFUND',
+  ADMIN_GRANT = 'ADMIN_GRANT',
+}
