@@ -174,11 +174,8 @@ describe('SessionsService.submitAxis', () => {
       axis: AxisType.LOGIC,
       metrics: {
         axis: AxisType.LOGIC,
-        precision: 82,
-        itemsAnswered: 40,
-        itemsSkipped: 0,
-        avgTimePerItemMs: 1100,
-        accuracyByType: { numeric: 85, letters: 80, symbols: 80, mixed: 82 },
+        pointsEarned: 50,
+        itemsProcessed: 18,
       },
     });
 

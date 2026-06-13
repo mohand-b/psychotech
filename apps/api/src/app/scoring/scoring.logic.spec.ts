@@ -1,5 +1,6 @@
 import {
   AxisType,
+  MotorCourseMetrics,
   RecommendationPriority,
   ScoreBand,
 } from '@psychotech/shared';
@@ -20,54 +21,89 @@ const RAILWAY_THRESHOLDS: SessionThresholds = {
   eliminatoryThreshold: 55,
 };
 
-describe('normalizeAxis', () => {
-  it('scores logic from its precision', () => {
+describe('normalizeAxis logic', () => {
+  it('combines points precision (/60) and coverage (/20)', () => {
     expect(
-      normalizeAxis({
-        axis: AxisType.LOGIC,
-        precision: 85,
-        itemsAnswered: 40,
-        itemsSkipped: 0,
-        avgTimePerItemMs: 1200,
-        accuracyByType: { numeric: 90, letters: 80, symbols: 85, mixed: 85 },
-      }),
-    ).toBe(85);
+      normalizeAxis({ axis: AxisType.LOGIC, pointsEarned: 42, itemsProcessed: 16 }),
+    ).toBe(71.5);
   });
 
-  it('scores memory from the average memorized sequence length', () => {
+  it('reaches the maximum when both precision and coverage are full', () => {
     expect(
-      normalizeAxis({
-        axis: AxisType.MEMORY,
-        maxLengthNormal: 9,
-        maxLengthInverse: 9,
-        errorProfile: { position: 0, content: 0 },
-        dropOffStep: 9,
-      }),
+      normalizeAxis({ axis: AxisType.LOGIC, pointsEarned: 60, itemsProcessed: 20 }),
     ).toBe(100);
+  });
+
+  it('clamps over-maximal point totals to 100', () => {
     expect(
-      normalizeAxis({
-        axis: AxisType.MEMORY,
-        maxLengthNormal: 4,
-        maxLengthInverse: 5,
-        errorProfile: { position: 1, content: 1 },
-        dropOffStep: 4,
-      }),
+      normalizeAxis({ axis: AxisType.LOGIC, pointsEarned: 120, itemsProcessed: 20 }),
+    ).toBe(100);
+  });
+});
+
+describe('normalizeAxis memory', () => {
+  it('weights the inverse span more than the normal span', () => {
+    expect(
+      normalizeAxis({ axis: AxisType.MEMORY, maxLengthNormal: 9, maxLengthInverse: 2 }),
+    ).toBe(40);
+  });
+
+  it('maps mid spans to fifty', () => {
+    expect(
+      normalizeAxis({ axis: AxisType.MEMORY, maxLengthNormal: 6, maxLengthInverse: 5 }),
     ).toBe(50);
   });
 
-  it('penalizes visual discrimination false alarms', () => {
+  it('clamps spans at the lower bounds to zero', () => {
+    expect(
+      normalizeAxis({ axis: AxisType.MEMORY, maxLengthNormal: 3, maxLengthInverse: 2 }),
+    ).toBe(0);
+  });
+});
+
+describe('normalizeAxis visual discrimination', () => {
+  it('rewards perfect accuracy and speed', () => {
     expect(
       normalizeAxis({
         axis: AxisType.VISUAL_DISCRIMINATION,
-        precision: 90,
-        avgDecisionTimeMs: 800,
-        falseAlarmRate: 0.1,
-        accuracyByLength: { short: 95, medium: 90, long: 85 },
+        truePositives: 18,
+        trueNegatives: 18,
+        avgCorrectDecisionTimeMs: 300,
+        falsePositives: 0,
+        identicalPairs: 18,
       }),
-    ).toBe(81);
+    ).toBe(100);
   });
 
-  it('scores reactivity from reaction time and penalizes errors', () => {
+  it('subtracts the false positive penalty above the threshold', () => {
+    expect(
+      normalizeAxis({
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        truePositives: 15,
+        trueNegatives: 12,
+        avgCorrectDecisionTimeMs: 900,
+        falsePositives: 9,
+        identicalPairs: 18,
+      }),
+    ).toBe(52.5);
+  });
+
+  it('applies no penalty below the false positive threshold', () => {
+    expect(
+      normalizeAxis({
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        truePositives: 15,
+        trueNegatives: 12,
+        avgCorrectDecisionTimeMs: 900,
+        falsePositives: 2,
+        identicalPairs: 18,
+      }),
+    ).toBe(67.5);
+  });
+});
+
+describe('normalizeAxis reactivity', () => {
+  it('rewards fast, stable and error-free responses', () => {
     expect(
       normalizeAxis({
         axis: AxisType.REACTIVITY,
@@ -76,32 +112,67 @@ describe('normalizeAxis', () => {
         anticipations: 0,
         omissions: 0,
         inhibitionErrors: 0,
-        fatigueDriftMsPerMin: 1,
+        totalTrials: 60,
       }),
     ).toBe(100);
+  });
+
+  it('blends speed, stability and accuracy', () => {
     expect(
       normalizeAxis({
         axis: AxisType.REACTIVITY,
-        meanReactionTimeMs: 425,
-        reactionTimeSd: 40,
+        meanReactionTimeMs: 525,
+        reactionTimeSd: 115,
         anticipations: 1,
         omissions: 1,
-        inhibitionErrors: 0,
-        fatigueDriftMsPerMin: 2,
+        inhibitionErrors: 1,
+        totalTrials: 60,
       }),
-    ).toBe(46);
+    ).toBe(59);
   });
+});
 
-  it('scores motor skills from course averages minus penalties', () => {
+describe('normalizeAxis motor skills', () => {
+  const perfectCourse: MotorCourseMetrics = {
+    progression: 100,
+    avgDistanceToCenter: 2,
+    realTimeSeconds: 20,
+    exits: 0,
+    handCorrelation: 0.1,
+  };
+
+  it('reaches the maximum for three perfect courses', () => {
     expect(
       normalizeAxis({
         axis: AxisType.MOTOR_SKILLS,
-        scoresByCourse: [80, 80, 80],
-        avgPrecisionPx: 3,
-        exits: 0,
-        handIndependence: 0,
+        courses: [perfectCourse, perfectCourse, perfectCourse],
       }),
-    ).toBe(80);
+    ).toBe(100);
+  });
+
+  it('weights the third course more heavily in the aggregate', () => {
+    expect(
+      normalizeAxis({
+        axis: AxisType.MOTOR_SKILLS,
+        courses: [
+          perfectCourse,
+          {
+            progression: 100,
+            avgDistanceToCenter: 16,
+            realTimeSeconds: 55,
+            exits: 2,
+            handCorrelation: 0.5,
+          },
+          {
+            progression: 50,
+            avgDistanceToCenter: 16,
+            realTimeSeconds: 40,
+            exits: 0,
+            handCorrelation: 0.8,
+          },
+        ],
+      }),
+    ).toBe(68.1);
   });
 });
 
