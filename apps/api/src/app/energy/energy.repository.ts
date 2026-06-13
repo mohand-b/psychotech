@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   EnergyLedgerReason,
   EnergyWallet,
+  Prisma,
   SubscriptionTier,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,12 +13,70 @@ export interface EnergyContext {
   timezone: string;
 }
 
+type PrismaClientLike = Prisma.TransactionClient;
+
 @Injectable()
 export class EnergyRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findEnergyContext(userId: string): Promise<EnergyContext | null> {
-    const user = await this.prisma.user.findUnique({
+  findEnergyContext(userId: string): Promise<EnergyContext | null> {
+    return this.queryContext(this.prisma, userId);
+  }
+
+  findEnergyContextWithin(
+    client: PrismaClientLike,
+    userId: string,
+  ): Promise<EnergyContext | null> {
+    return this.queryContext(client, userId);
+  }
+
+  applyDailyReset(
+    userId: string,
+    capacity: number,
+    resetAt: Date,
+    previousBalance: number,
+  ): Promise<EnergyWallet> {
+    return this.prisma.$transaction((tx) =>
+      this.resetWithin(tx, userId, capacity, resetAt, previousBalance),
+    );
+  }
+
+  resetWithin(
+    client: PrismaClientLike,
+    userId: string,
+    capacity: number,
+    resetAt: Date,
+    previousBalance: number,
+  ): Promise<EnergyWallet> {
+    return this.debitReset(client, userId, capacity, resetAt, previousBalance);
+  }
+
+  spend(
+    userId: string,
+    cost: number,
+    reason: EnergyLedgerReason,
+    sessionId?: string,
+  ): Promise<EnergyWallet> {
+    return this.prisma.$transaction((tx) =>
+      this.spendWithin(tx, userId, cost, reason, sessionId),
+    );
+  }
+
+  spendWithin(
+    client: PrismaClientLike,
+    userId: string,
+    cost: number,
+    reason: EnergyLedgerReason,
+    sessionId?: string,
+  ): Promise<EnergyWallet> {
+    return this.applySpend(client, userId, cost, reason, sessionId);
+  }
+
+  private async queryContext(
+    client: PrismaClientLike,
+    userId: string,
+  ): Promise<EnergyContext | null> {
+    const user = await client.user.findUnique({
       where: { id: userId },
       include: { energyWallet: true, subscription: true },
     });
@@ -31,50 +90,48 @@ export class EnergyRepository {
     };
   }
 
-  async applyDailyReset(
+  private async debitReset(
+    client: PrismaClientLike,
     userId: string,
     capacity: number,
     resetAt: Date,
     previousBalance: number,
   ): Promise<EnergyWallet> {
-    return this.prisma.$transaction(async (tx) => {
-      const wallet = await tx.energyWallet.update({
-        where: { userId },
-        data: { balance: capacity, lastResetAt: resetAt },
-      });
-      await tx.energyLedger.create({
-        data: {
-          userId,
-          delta: capacity - previousBalance,
-          reason: EnergyLedgerReason.DAILY_RESET,
-          balanceAfter: capacity,
-        },
-      });
-      return wallet;
+    const wallet = await client.energyWallet.update({
+      where: { userId },
+      data: { balance: capacity, lastResetAt: resetAt },
     });
+    await client.energyLedger.create({
+      data: {
+        userId,
+        delta: capacity - previousBalance,
+        reason: EnergyLedgerReason.DAILY_RESET,
+        balanceAfter: capacity,
+      },
+    });
+    return wallet;
   }
 
-  async spend(
+  private async applySpend(
+    client: PrismaClientLike,
     userId: string,
     cost: number,
     reason: EnergyLedgerReason,
     sessionId?: string,
   ): Promise<EnergyWallet> {
-    return this.prisma.$transaction(async (tx) => {
-      const wallet = await tx.energyWallet.update({
-        where: { userId },
-        data: { balance: { decrement: cost } },
-      });
-      await tx.energyLedger.create({
-        data: {
-          userId,
-          delta: -cost,
-          reason,
-          balanceAfter: wallet.balance,
-          sessionId: sessionId ?? null,
-        },
-      });
-      return wallet;
+    const wallet = await client.energyWallet.update({
+      where: { userId },
+      data: { balance: { decrement: cost } },
     });
+    await client.energyLedger.create({
+      data: {
+        userId,
+        delta: -cost,
+        reason,
+        balanceAfter: wallet.balance,
+        sessionId: sessionId ?? null,
+      },
+    });
+    return wallet;
   }
 }

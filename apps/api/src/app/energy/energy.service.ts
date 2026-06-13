@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   EnergyLedgerReason,
   EnergyStateDto,
@@ -59,6 +60,45 @@ export class EnergyService {
       sessionId,
     );
     return buildEnergyState({ ...wallet, balance: updated.balance }, now);
+  }
+
+  async spendWithin(
+    client: Prisma.TransactionClient,
+    userId: string,
+    cost: number,
+    reason: EnergyLedgerReason,
+    sessionId?: string,
+  ): Promise<void> {
+    const now = new Date();
+    const context = await this.repository.findEnergyContextWithin(client, userId);
+    if (!context) {
+      throw new NotFoundException('Energy wallet not found');
+    }
+    const tier = toSharedTier(context.tier);
+    let balance = context.wallet.balance;
+    if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
+      const reset = await this.repository.resetWithin(
+        client,
+        userId,
+        context.wallet.capacity,
+        now,
+        context.wallet.balance,
+      );
+      balance = reset.balance;
+    }
+    if (!canAfford({ tier, balance, cost })) {
+      throw new ForbiddenException('Insufficient energy balance');
+    }
+    if (tier === SubscriptionTier.UNLIMITED || cost === 0) {
+      return;
+    }
+    await this.repository.spendWithin(
+      client,
+      userId,
+      cost,
+      toDbReason(reason),
+      sessionId,
+    );
   }
 
   private async ensureFreshWallet(
