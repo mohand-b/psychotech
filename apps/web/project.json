@@ -1,26 +1,26 @@
 {
-  "name": "psychotech",
+  "name": "web",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/psychotech/src",
+  "sourceRoot": "apps/web/src",
   "tags": [],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/psychotech",
-        "browser": "apps/psychotech/src/main.ts",
-        "tsConfig": "apps/psychotech/tsconfig.app.json",
+        "outputPath": "dist/apps/web",
+        "browser": "apps/web/src/main.ts",
+        "tsConfig": "apps/web/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/psychotech/public"
+            "input": "apps/web/public"
           }
         ],
-        "styles": ["apps/psychotech/src/styles.scss"]
+        "styles": ["apps/web/src/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -51,10 +51,10 @@
       "executor": "@angular/build:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "psychotech:build:production"
+          "buildTarget": "web:build:production"
         },
         "development": {
-          "buildTarget": "psychotech:build:development"
+          "buildTarget": "web:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -72,8 +72,8 @@
       "continuous": true,
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "psychotech:build",
-        "staticFilePath": "dist/apps/psychotech/browser",
+        "buildTarget": "web:build",
+        "staticFilePath": "dist/apps/web/browser",
         "spa": true
       }
     }
