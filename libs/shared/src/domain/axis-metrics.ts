@@ -2,39 +2,23 @@ import { AxisType } from '../enums';
 
 export interface LogicMetrics {
   axis: AxisType.LOGIC;
-  precision: number;
-  itemsAnswered: number;
-  itemsSkipped: number;
-  avgTimePerItemMs: number;
-  accuracyByType: {
-    numeric: number;
-    letters: number;
-    symbols: number;
-    mixed: number;
-  };
+  pointsEarned: number;
+  itemsProcessed: number;
 }
 
 export interface MemoryMetrics {
   axis: AxisType.MEMORY;
   maxLengthNormal: number;
   maxLengthInverse: number;
-  errorProfile: {
-    position: number;
-    content: number;
-  };
-  dropOffStep: number;
 }
 
 export interface VisualDiscriminationMetrics {
   axis: AxisType.VISUAL_DISCRIMINATION;
-  precision: number;
-  avgDecisionTimeMs: number;
-  falseAlarmRate: number;
-  accuracyByLength: {
-    short: number;
-    medium: number;
-    long: number;
-  };
+  truePositives: number;
+  trueNegatives: number;
+  avgCorrectDecisionTimeMs: number;
+  falsePositives: number;
+  identicalPairs: number;
 }
 
 export interface ReactivityMetrics {
@@ -44,15 +28,20 @@ export interface ReactivityMetrics {
   anticipations: number;
   omissions: number;
   inhibitionErrors: number;
-  fatigueDriftMsPerMin: number;
+  totalTrials: number;
+}
+
+export interface MotorCourseMetrics {
+  progression: number;
+  avgDistanceToCenter: number;
+  realTimeSeconds: number;
+  exits: number;
+  handCorrelation: number;
 }
 
 export interface MotorSkillsMetrics {
   axis: AxisType.MOTOR_SKILLS;
-  scoresByCourse: [number, number, number];
-  avgPrecisionPx: number;
-  exits: number;
-  handIndependence: number;
+  courses: [MotorCourseMetrics, MotorCourseMetrics, MotorCourseMetrics];
 }
 
 export type AxisMetrics =
