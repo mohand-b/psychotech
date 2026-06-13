@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { EnergyController } from './energy.controller';
+import { EnergyRepository } from './energy.repository';
+import { EnergyService } from './energy.service';
+
+@Module({
+  controllers: [EnergyController],
+  providers: [EnergyService, EnergyRepository],
+  exports: [EnergyService],
+})
+export class EnergyModule {}

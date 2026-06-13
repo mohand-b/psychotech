@@ -18,6 +18,13 @@
         }
       }
     },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "apps/api/vitest.config.ts"
+      }
+    },
     "prisma-generate": {
       "executor": "nx:run-commands",
       "options": {
