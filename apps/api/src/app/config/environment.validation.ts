@@ -1,4 +1,10 @@
-const REQUIRED_ENVIRONMENT_VARIABLES = ['DATABASE_URL', 'DIRECT_URL'] as const;
+const REQUIRED_ENVIRONMENT_VARIABLES = [
+  'DATABASE_URL',
+  'DIRECT_URL',
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+  'CORS_ORIGIN',
+] as const;
 
 export function validateEnvironment(
   environment: Record<string, unknown>,

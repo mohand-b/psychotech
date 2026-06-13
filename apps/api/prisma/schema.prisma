@@ -90,15 +90,16 @@ enum BadgeCategory {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  displayName   String
-  passwordHash  String?
-  locale        String   @default("fr")
-  timezone      String   @default("Europe/Paris")
-  currentSector Sector   @default(RAILWAY)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(uuid())
+  email            String   @unique
+  displayName      String
+  passwordHash     String?
+  refreshTokenHash String?
+  locale           String   @default("fr")
+  timezone         String   @default("Europe/Paris")
+  currentSector    Sector   @default(RAILWAY)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   subscription Subscription?
   energyWallet EnergyWallet?
