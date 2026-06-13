@@ -13,11 +13,12 @@ export interface StartSessionDto {
   mode: SessionMode;
   sector: Sector;
   difficulty: DifficultyLevel;
+  axis?: AxisType;
 }
 
 export interface SubmitAxisResultDto {
   axis: AxisType;
-  metrics: AxisMetrics;
+  metrics?: AxisMetrics;
   skipped?: boolean;
 }
 
@@ -57,4 +58,19 @@ export interface SessionDto {
   abandonedAt: string | null;
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
+}
+
+export interface SessionResultDto {
+  sessionId: string;
+  mode: SessionMode;
+  sector: Sector;
+  status: SessionStatus;
+  globalScore: number | null;
+  globalBand: ScoreBand | null;
+  isAdmissible: boolean | null;
+  isEliminated: boolean | null;
+  sectorThreshold: number;
+  axisResults: SessionAxisResultDto[];
+  recommendations: RecommendationDto[];
+  completedAt: string | null;
 }
