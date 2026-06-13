@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Sector {
+  RAILWAY
+  AVIATION
+  SECURITY
+  INDUSTRY
+  HEALTHCARE
+}
+
+enum AxisType {
+  LOGIC
+  MEMORY
+  VISUAL_DISCRIMINATION
+  REACTIVITY
+  MOTOR_SKILLS
+}
+
+enum SessionMode {
+  FULL
+  TARGETED
+  TUTORIAL
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  SUSPENDED
+  COMPLETED
+  ABANDONED
+}
+
+enum DifficultyLevel {
+  EASY
+  NORMAL
+  HARD
+}
+
+enum ScoreBand {
+  EXCELLENT
+  ACCEPTABLE
+  FRAGILE
+  INSUFFICIENT
+}
+
+enum SubscriptionTier {
+  FREE
+  ESSENTIAL
+  UNLIMITED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+  PAST_DUE
+}
+
+enum BillingPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+enum EnergyLedgerReason {
+  DAILY_RESET
+  SESSION_SPENT
+  AXIS_SPENT
+  REFUND
+  ADMIN_GRANT
+}
+
+enum RecommendationPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum BadgeCategory {
+  STREAK
+  PERFORMANCE
+  VOLUME
+  MASTERY
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  displayName   String
+  passwordHash  String?
+  locale        String   @default("fr")
+  timezone      String   @default("Europe/Paris")
+  currentSector Sector   @default(RAILWAY)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscription Subscription?
+  energyWallet EnergyWallet?
+  streak       Streak?
+  sessions     Session[]
+  axisBests    AxisBest[]
+  badges       UserBadge[]
+  energyLedger EnergyLedger[]
+}
+
+model Subscription {
+  id                     String             @id @default(uuid())
+  userId                 String             @unique
+  tier                   SubscriptionTier   @default(FREE)
+  status                 SubscriptionStatus @default(ACTIVE)
+  billingPeriod          BillingPeriod?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  externalCustomerId     String?
+  externalSubscriptionId String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EnergyWallet {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  balance     Int      @default(5)
+  capacity    Int      @default(5)
+  lastResetAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EnergyLedger {
+  id           String             @id @default(uuid())
+  userId       String
+  delta        Int
+  reason       EnergyLedgerReason
+  balanceAfter Int
+  sessionId    String?
+  createdAt    DateTime           @default(now())
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Session {
+  id               String          @id @default(uuid())
+  userId           String
+  mode             SessionMode
+  sector           Sector
+  difficulty       DifficultyLevel
+  status           SessionStatus   @default(IN_PROGRESS)
+  seed             String
+  energyCost       Int
+  currentAxisIndex Int             @default(0)
+  globalScore      Float?
+  globalBand       ScoreBand?
+  isAdmissible     Boolean?
+  isEliminated     Boolean?
+  sectorThreshold  Int
+  startedAt        DateTime        @default(now())
+  completedAt      DateTime?
+  abandonedAt      DateTime?
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  axisResults      SessionAxis[]
+  recommendations  Recommendation[]
+
+  @@index([userId, startedAt])
+  @@index([userId, status])
+}
+
+model SessionAxis {
+  id              String     @id @default(uuid())
+  sessionId       String
+  axis            AxisType
+  order           Int
+  normalizedScore Float?
+  band            ScoreBand?
+  skipped         Boolean    @default(false)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  metrics         Json?
+  session         Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, axis])
+}
+
+model AxisBest {
+  id            String    @id @default(uuid())
+  userId        String
+  axis          AxisType
+  bestScore     Float
+  band          ScoreBand
+  achievedAt    DateTime
+  sessionAxisId String?
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, axis])
+}
+
+model Recommendation {
+  id        String                 @id @default(uuid())
+  sessionId String
+  axis      AxisType
+  priority  RecommendationPriority
+  code      String
+  label     String
+  createdAt DateTime               @default(now())
+  session   Session                @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Streak {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  current          Int       @default(0)
+  longest          Int       @default(0)
+  lastActivityDate DateTime?
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  name        String
+  description String
+  category    BadgeCategory
+  icon        String
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id         String   @id @default(uuid())
+  userId     String
+  badgeId    String
+  unlockedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model SectorConfig {
+  sector                 Sector             @id
+  label                  String
+  isActive               Boolean            @default(false)
+  admissibilityThreshold Int
+  vigilanceThreshold     Int                @default(65)
+  eliminatoryThreshold   Int                @default(55)
+  axisWeights            SectorAxisWeight[]
+}
+
+model SectorAxisWeight {
+  id          String       @id @default(uuid())
+  sector      Sector
+  axis        AxisType
+  coefficient Float
+  isCritical  Boolean      @default(false)
+  config      SectorConfig @relation(fields: [sector], references: [sector], onDelete: Cascade)
+
+  @@unique([sector, axis])
+}
