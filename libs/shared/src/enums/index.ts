@@ -11,3 +11,4 @@ export * from './energy-ledger-reason';
 export * from './recommendation-priority';
 export * from './badge-category';
 export * from './memory-phase';
+export * from './axis-featured-metric';
