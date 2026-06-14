@@ -1,6 +1,5 @@
 import {
   AxisType,
-  DifficultyLevel,
   RecommendationPriority,
   ScoreBand,
   Sector,
@@ -13,7 +12,6 @@ import { BadgeDto } from './badge';
 export interface StartSessionDto {
   mode: SessionMode;
   sector: Sector;
-  difficulty: DifficultyLevel;
   axis?: AxisType;
 }
 
@@ -45,7 +43,6 @@ export interface SessionDto {
   id: string;
   mode: SessionMode;
   sector: Sector;
-  difficulty: DifficultyLevel;
   status: SessionStatus;
   energyCost: number;
   currentAxisIndex: number;

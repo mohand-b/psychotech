@@ -2,7 +2,6 @@ export * from './sector';
 export * from './axis-type';
 export * from './session-mode';
 export * from './session-status';
-export * from './difficulty-level';
 export * from './score-band';
 export * from './subscription-tier';
 export * from './subscription-status';
