@@ -27,7 +27,7 @@ export class ProgressionRepository {
 
   countCompletedSessions(userId: string): Promise<number> {
     return this.prisma.session.count({
-      where: { userId, status: 'COMPLETED' },
+      where: { userId, status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },
     });
   }
 
