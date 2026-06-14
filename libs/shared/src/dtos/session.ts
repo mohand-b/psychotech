@@ -8,6 +8,7 @@ import {
   SessionStatus,
 } from '../enums';
 import { AxisMetrics } from '../domain';
+import { BadgeDto } from './badge';
 
 export interface StartSessionDto {
   mode: SessionMode;
@@ -72,5 +73,6 @@ export interface SessionResultDto {
   sectorThreshold: number;
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
+  unlockedBadges: BadgeDto[];
   completedAt: string | null;
 }
