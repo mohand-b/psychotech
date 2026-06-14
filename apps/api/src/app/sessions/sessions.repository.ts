@@ -12,6 +12,7 @@ import {
 import {
   AxisMetrics,
   AxisType,
+  BadgeDto,
   DifficultyLevel,
   RecommendationDto,
   ScoreBand,
@@ -24,6 +25,11 @@ import {
   SESSION_INCLUDE,
   SessionWithRelations,
 } from './sessions.mappers';
+
+export interface CompleteSessionResult {
+  session: SessionWithRelations;
+  unlockedBadges: BadgeDto[];
+}
 
 export interface CreateSessionParams {
   userId: string;
@@ -200,7 +206,8 @@ export class SessionsRepository {
 
   async completeSession(
     params: CompleteSessionParams,
-  ): Promise<SessionWithRelations> {
+    unlockBadges: (client: Prisma.TransactionClient) => Promise<BadgeDto[]>,
+  ): Promise<CompleteSessionResult> {
     return this.prisma.$transaction(async (tx) => {
       await tx.session.update({
         where: { id: params.sessionId },
@@ -242,10 +249,12 @@ export class SessionsRepository {
           lastActivityDate: params.streak.lastActivityDate,
         },
       });
-      return tx.session.findUniqueOrThrow({
+      const unlockedBadges = await unlockBadges(tx);
+      const session = await tx.session.findUniqueOrThrow({
         where: { id: params.sessionId },
         include: SESSION_INCLUDE,
       });
+      return { session, unlockedBadges };
     });
   }
 

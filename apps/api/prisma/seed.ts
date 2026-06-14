@@ -1,4 +1,5 @@
 import { AxisType, PrismaClient, Sector } from '@prisma/client';
+import { BADGE_DEFINITIONS } from '../src/app/badges/badge.catalog';
 
 const prisma = new PrismaClient();
 
@@ -81,9 +82,31 @@ async function seedInactiveSectors(): Promise<void> {
   }
 }
 
+async function seedBadges(): Promise<void> {
+  for (const badge of BADGE_DEFINITIONS) {
+    await prisma.badge.upsert({
+      where: { code: badge.code },
+      update: {
+        name: badge.name,
+        description: badge.description,
+        category: badge.category,
+        icon: badge.icon,
+      },
+      create: {
+        code: badge.code,
+        name: badge.name,
+        description: badge.description,
+        category: badge.category,
+        icon: badge.icon,
+      },
+    });
+  }
+}
+
 async function main(): Promise<void> {
   await seedRailway();
   await seedInactiveSectors();
+  await seedBadges();
 }
 
 main()

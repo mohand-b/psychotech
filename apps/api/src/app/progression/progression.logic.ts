@@ -7,6 +7,7 @@ import {
   RadarAxisScoreDto,
   ScoreBand,
 } from '@psychotech/shared';
+import { isJsonRecord, readJsonNumber } from '../common/json.util';
 import { MS_PER_DAY } from './progression.constants';
 
 export interface AxisTimelinePoint {
@@ -76,12 +77,12 @@ export function extractFeaturedMetric(
   axis: AxisType,
   metrics: unknown,
 ): AxisFeaturedMetricDto | null {
-  if (!isRecord(metrics)) {
+  if (!isJsonRecord(metrics)) {
     return null;
   }
   if (axis === AxisType.MEMORY) {
-    const normal = readNumber(metrics, 'maxLengthNormal');
-    const inverse = readNumber(metrics, 'maxLengthInverse');
+    const normal = readJsonNumber(metrics, 'maxLengthNormal');
+    const inverse = readJsonNumber(metrics, 'maxLengthInverse');
     if (normal === null && inverse === null) {
       return null;
     }
@@ -91,7 +92,7 @@ export function extractFeaturedMetric(
     };
   }
   if (axis === AxisType.REACTIVITY) {
-    const meanReactionTime = readNumber(metrics, 'meanReactionTimeMs');
+    const meanReactionTime = readJsonNumber(metrics, 'meanReactionTimeMs');
     if (meanReactionTime === null) {
       return null;
     }
@@ -111,15 +112,6 @@ export function buildRadarScores(
     const match = axisScores?.find((entry) => entry.axis === axis);
     return { axis, score: match ? match.score : null };
   });
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function readNumber(source: Record<string, unknown>, key: string): number | null {
-  const value = source[key];
-  return typeof value === 'number' ? value : null;
 }
 
 function roundToOneDecimal(value: number): number {

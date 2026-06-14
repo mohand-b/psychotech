@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { BadgesModule } from './badges/badges.module';
 import { EnergyModule } from './energy/energy.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
@@ -25,6 +26,7 @@ import { validateEnvironment } from './config/environment.validation';
     ScoringModule,
     SessionsModule,
     ProgressionModule,
+    BadgesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

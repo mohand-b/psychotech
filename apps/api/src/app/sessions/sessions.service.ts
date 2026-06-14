@@ -15,6 +15,8 @@ import {
   SessionResultDto,
   SessionStatus,
 } from '@psychotech/shared';
+import { isFlawlessVisualMetrics } from '../badges/badge.logic';
+import { BadgesService } from '../badges/badges.service';
 import { mapEnumValue } from '../common/enum.util';
 import { energyCost } from '../energy/energy.logic';
 import { EnergyService } from '../energy/energy.service';
@@ -37,6 +39,7 @@ export class SessionsService {
     private readonly repository: SessionsRepository,
     private readonly energyService: EnergyService,
     private readonly scoringService: ScoringService,
+    private readonly badgesService: BadgesService,
   ) {}
 
   async start(userId: string, request: StartSessionRequest): Promise<SessionDto> {
@@ -166,24 +169,39 @@ export class SessionsService {
       now,
       streakContext.timezone,
     );
-    const completed = await this.repository.completeSession({
-      sessionId,
-      userId,
-      globalScore: evaluation.globalScore,
-      globalBand: evaluation.globalBand,
-      isAdmissible: evaluation.isAdmissible,
-      isEliminated: evaluation.isEliminated,
-      completedAt: now,
-      axisCount: session.axisResults.length,
-      recommendations: evaluation.recommendations,
-      axisBests,
-      streak: {
-        current: streak.current,
-        longest: streak.longest,
-        lastActivityDate: now,
+    const visualResult = session.axisResults.find(
+      (result) =>
+        !result.skipped &&
+        mapEnumValue(AxisType, result.axis) === AxisType.VISUAL_DISCRIMINATION,
+    );
+    const flawlessVisualDiscrimination = visualResult
+      ? isFlawlessVisualMetrics(visualResult.metrics)
+      : false;
+    const completed = await this.repository.completeSession(
+      {
+        sessionId,
+        userId,
+        globalScore: evaluation.globalScore,
+        globalBand: evaluation.globalBand,
+        isAdmissible: evaluation.isAdmissible,
+        isEliminated: evaluation.isEliminated,
+        completedAt: now,
+        axisCount: session.axisResults.length,
+        recommendations: evaluation.recommendations,
+        axisBests,
+        streak: {
+          current: streak.current,
+          longest: streak.longest,
+          lastActivityDate: now,
+        },
       },
-    });
-    return toSessionResultDto(completed);
+      (client) =>
+        this.badgesService.evaluateAndUnlockWithin(client, userId, {
+          currentStreak: streak.current,
+          flawlessVisualDiscrimination,
+        }),
+    );
+    return toSessionResultDto(completed.session, completed.unlockedBadges);
   }
 
   async suspend(userId: string, sessionId: string): Promise<SessionDto> {

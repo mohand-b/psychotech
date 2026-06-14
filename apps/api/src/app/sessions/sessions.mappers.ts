@@ -2,6 +2,7 @@ import { Prisma, Recommendation, SessionAxis } from '@prisma/client';
 import {
   AxisMetrics,
   AxisType,
+  BadgeDto,
   DifficultyLevel,
   RecommendationDto,
   RecommendationPriority,
@@ -46,7 +47,10 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
   };
 }
 
-export function toSessionResultDto(session: SessionWithRelations): SessionResultDto {
+export function toSessionResultDto(
+  session: SessionWithRelations,
+  unlockedBadges: BadgeDto[] = [],
+): SessionResultDto {
   return {
     sessionId: session.id,
     mode: mapEnumValue(SessionMode, session.mode),
@@ -59,6 +63,7 @@ export function toSessionResultDto(session: SessionWithRelations): SessionResult
     sectorThreshold: session.sectorThreshold,
     axisResults: sortedAxisResults(session.axisResults).map(toAxisResultDto),
     recommendations: session.recommendations.map(toRecommendationDto),
+    unlockedBadges,
     completedAt: session.completedAt ? session.completedAt.toISOString() : null,
   };
 }

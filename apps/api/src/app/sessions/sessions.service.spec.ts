@@ -1,5 +1,5 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
-import { Prisma, SessionAxis } from '@prisma/client';
+import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
   DifficultyLevel,
@@ -9,6 +9,7 @@ import {
   SessionMode,
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BadgesService } from '../badges/badges.service';
 import { EnergyService } from '../energy/energy.service';
 import { ScoringService } from '../scoring/scoring.service';
 import { SessionWithRelations } from './sessions.mappers';
@@ -72,11 +73,13 @@ const repository = {
 
 const energyService = { spendWithin: vi.fn() };
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
+const badgesService = { evaluateAndUnlockWithin: vi.fn() };
 
 const service = new SessionsService(
   repository as unknown as SessionsRepository,
   energyService as unknown as EnergyService,
   scoringService as unknown as ScoringService,
+  badgesService as unknown as BadgesService,
 );
 
 const SECTOR_CONFIG = {
@@ -204,5 +207,66 @@ describe('SessionsService.submitAxis', () => {
     await expect(
       service.submitAxis('user-1', sessionId, AxisType.LOGIC, { axis: AxisType.LOGIC, skipped: true }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('SessionsService.complete', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const unlockedBadge = {
+    code: 'VOLUME_FIRST_SIMULATION',
+    name: 'Première simulation',
+    description: 'Terminez votre première simulation complète.',
+    category: BadgeCategory.VOLUME,
+    icon: 'rocket',
+  };
+
+  it('evaluates badges within the completion transaction and returns the freshly unlocked ones', async () => {
+    const scoredAxis = buildAxis({ normalizedScore: 75, band: 'ACCEPTABLE' });
+    repository.findUserSession.mockResolvedValue(
+      buildSession({ status: 'IN_PROGRESS', axisResults: [scoredAxis] }),
+    );
+    repository.findSectorConfig.mockResolvedValue({
+      ...SECTOR_CONFIG,
+      weights: [{ axis: AxisType.LOGIC, coefficient: 1, isCritical: false }],
+    });
+    scoringService.evaluateSession.mockReturnValue({
+      globalScore: 75,
+      globalBand: ScoreBand.ACCEPTABLE,
+      isAdmissible: true,
+      isEliminated: false,
+      recommendations: [],
+    });
+    repository.findStreakContext.mockResolvedValue({
+      timezone: 'Europe/Paris',
+      streak: null,
+    });
+    badgesService.evaluateAndUnlockWithin.mockResolvedValue([unlockedBadge]);
+    repository.completeSession.mockImplementation(
+      async (
+        _params: unknown,
+        unlockBadges: (client: Prisma.TransactionClient) => Promise<unknown>,
+      ) => {
+        const unlockedBadges = await unlockBadges({} as Prisma.TransactionClient);
+        return {
+          session: buildSession({
+            status: 'COMPLETED',
+            globalScore: 75,
+            globalBand: 'ACCEPTABLE',
+            axisResults: [scoredAxis],
+          }),
+          unlockedBadges,
+        };
+      },
+    );
+
+    const result = await service.complete('user-1', sessionId);
+
+    expect(badgesService.evaluateAndUnlockWithin).toHaveBeenCalledTimes(1);
+    expect(badgesService.evaluateAndUnlockWithin).toHaveBeenCalledWith(
+      expect.anything(),
+      'user-1',
+      { currentStreak: 1, flawlessVisualDiscrimination: false },
+    );
+    expect(result.unlockedBadges).toEqual([unlockedBadge]);
   });
 });
