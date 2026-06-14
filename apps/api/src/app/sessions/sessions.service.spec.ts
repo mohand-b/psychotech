@@ -2,7 +2,6 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
-  DifficultyLevel,
   EnergyLedgerReason,
   ScoreBand,
   Sector,
@@ -24,7 +23,6 @@ function buildSession(
     userId: 'user-1',
     mode: 'FULL',
     sector: 'RAILWAY',
-    difficulty: 'NORMAL',
     status: 'IN_PROGRESS',
     seed: 'seed',
     energyCost: 5,
@@ -112,7 +110,6 @@ describe('SessionsService.start', () => {
     await service.start('user-1', {
       mode: SessionMode.FULL,
       sector: Sector.RAILWAY,
-      difficulty: DifficultyLevel.NORMAL,
     });
 
     expect(energyService.spendWithin).toHaveBeenCalledWith(
@@ -141,7 +138,6 @@ describe('SessionsService.start', () => {
       service.start('user-1', {
         mode: SessionMode.TARGETED,
         sector: Sector.RAILWAY,
-        difficulty: DifficultyLevel.NORMAL,
         axis: AxisType.LOGIC,
       }),
     ).rejects.toThrow('insufficient');
@@ -154,7 +150,6 @@ describe('SessionsService.start', () => {
       service.start('user-1', {
         mode: SessionMode.FULL,
         sector: Sector.AVIATION,
-        difficulty: DifficultyLevel.NORMAL,
       }),
     ).rejects.toBeDefined();
     expect(repository.createSession).not.toHaveBeenCalled();

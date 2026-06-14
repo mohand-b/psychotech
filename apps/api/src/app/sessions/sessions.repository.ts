@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
   AxisType as DbAxisType,
-  DifficultyLevel as DbDifficultyLevel,
   Prisma,
   RecommendationPriority as DbRecommendationPriority,
   ScoreBand as DbScoreBand,
@@ -13,7 +12,6 @@ import {
   AxisMetrics,
   AxisType,
   BadgeDto,
-  DifficultyLevel,
   RecommendationDto,
   ScoreBand,
   Sector,
@@ -35,7 +33,6 @@ export interface CreateSessionParams {
   userId: string;
   mode: SessionMode;
   sector: Sector;
-  difficulty: DifficultyLevel;
   seed: string;
   energyCost: number;
   sectorThreshold: number;
@@ -115,7 +112,6 @@ export class SessionsRepository {
           userId: params.userId,
           mode: mapEnumValue(DbSessionMode, params.mode),
           sector: mapEnumValue(DbSector, params.sector),
-          difficulty: mapEnumValue(DbDifficultyLevel, params.difficulty),
           seed: params.seed,
           energyCost: params.energyCost,
           sectorThreshold: params.sectorThreshold,

@@ -58,7 +58,6 @@ export class SessionsService {
         userId,
         mode: request.mode,
         sector: request.sector,
-        difficulty: request.difficulty,
         seed: randomUUID(),
         energyCost: cost,
         sectorThreshold: config.admissibilityThreshold,

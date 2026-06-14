@@ -37,12 +37,6 @@ enum SessionStatus {
   ABANDONED
 }
 
-enum DifficultyLevel {
-  EASY
-  NORMAL
-  HARD
-}
-
 enum ScoreBand {
   EXCELLENT
   ACCEPTABLE
@@ -153,7 +147,6 @@ model Session {
   userId           String
   mode             SessionMode
   sector           Sector
-  difficulty       DifficultyLevel
   status           SessionStatus   @default(IN_PROGRESS)
   seed             String
   energyCost       Int

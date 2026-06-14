@@ -1,10 +1,4 @@
-import {
-  AxisType,
-  DifficultyLevel,
-  Sector,
-  SessionMode,
-  StartSessionDto,
-} from '@psychotech/shared';
+import { AxisType, Sector, SessionMode, StartSessionDto } from '@psychotech/shared';
 import { IsEnum, IsOptional } from 'class-validator';
 
 export class StartSessionRequest implements StartSessionDto {
@@ -13,9 +7,6 @@ export class StartSessionRequest implements StartSessionDto {
 
   @IsEnum(Sector)
   sector!: Sector;
-
-  @IsEnum(DifficultyLevel)
-  difficulty!: DifficultyLevel;
 
   @IsOptional()
   @IsEnum(AxisType)
