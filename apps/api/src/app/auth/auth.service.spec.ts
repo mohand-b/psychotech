@@ -1,6 +1,12 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
+import { Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { UsersRepository } from '../users/users.repository';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
 import { PasswordHasher } from './password.service';
@@ -35,11 +41,13 @@ const tokenService = {
   signRefreshToken: vi.fn(),
   verifyRefreshToken: vi.fn(),
 };
+const usersRepository = { isSectorActive: vi.fn() };
 
 const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
   tokenService as unknown as TokenService,
+  usersRepository as unknown as UsersRepository,
 );
 
 beforeEach(() => {
@@ -47,6 +55,7 @@ beforeEach(() => {
   tokenService.signAccessToken.mockResolvedValue('access-token');
   tokenService.signRefreshToken.mockResolvedValue('refresh-token');
   repository.updateRefreshTokenHash.mockResolvedValue(buildUser());
+  usersRepository.isSectorActive.mockResolvedValue(true);
 });
 
 describe('AuthService.register', () => {
@@ -61,14 +70,17 @@ describe('AuthService.register', () => {
       email: 'alice@example.com',
       password: 'super-secret',
       displayName: 'Alice',
+      currentSector: Sector.RAILWAY,
     });
 
+    expect(usersRepository.isSectorActive).toHaveBeenCalledWith(Sector.RAILWAY);
     expect(repository.createAccount).toHaveBeenCalledWith({
       email: 'alice@example.com',
       passwordHash: 'hashed-password',
       displayName: 'Alice',
       timezone: 'Europe/Paris',
       locale: undefined,
+      currentSector: Sector.RAILWAY,
     });
     expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
       'user-1',
@@ -90,8 +102,24 @@ describe('AuthService.register', () => {
         email: 'alice@example.com',
         password: 'super-secret',
         displayName: 'Alice',
+        currentSector: Sector.RAILWAY,
       }),
     ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.createAccount).not.toHaveBeenCalled();
+  });
+
+  it('rejects registration on an inactive sector', async () => {
+    repository.findByEmail.mockResolvedValue(null);
+    usersRepository.isSectorActive.mockResolvedValue(false);
+
+    await expect(
+      service.register({
+        email: 'alice@example.com',
+        password: 'super-secret',
+        displayName: 'Alice',
+        currentSector: Sector.AVIATION,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.createAccount).not.toHaveBeenCalled();
   });
 });

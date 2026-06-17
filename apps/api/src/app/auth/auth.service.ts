@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -7,6 +8,7 @@ import {
 import { User } from '@prisma/client';
 import { LoginDto, RegisterDto, UserProfileDto } from '@psychotech/shared';
 import { toUserProfileDto } from '../users/users.mappers';
+import { UsersRepository } from '../users/users.repository';
 import { AuthTokens } from './auth.cookie.service';
 import { AuthRepository } from './auth.repository';
 import { PasswordHasher } from './password.service';
@@ -27,12 +29,16 @@ export class AuthService {
     private readonly repository: AuthRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
+    private readonly usersRepository: UsersRepository,
   ) {}
 
   async register(input: RegisterDto): Promise<AuthResult> {
     const existing = await this.repository.findByEmail(input.email);
     if (existing) {
       throw new ConflictException('Email already registered');
+    }
+    if (!(await this.usersRepository.isSectorActive(input.currentSector))) {
+      throw new BadRequestException('The selected sector is not available');
     }
     const passwordHash = await this.passwordHasher.hash(input.password);
     const user = await this.repository.createAccount({
@@ -41,6 +47,7 @@ export class AuthService {
       displayName: input.displayName,
       timezone: input.timezone ?? DEFAULT_TIMEZONE,
       locale: input.locale,
+      currentSector: input.currentSector,
     });
     return this.issueSession(user);
   }

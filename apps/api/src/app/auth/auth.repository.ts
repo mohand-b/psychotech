@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SubscriptionStatus, SubscriptionTier, User } from '@prisma/client';
+import {
+  Sector as DbSector,
+  SubscriptionStatus,
+  SubscriptionTier,
+  User,
+} from '@prisma/client';
+import { Sector } from '@psychotech/shared';
+import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface CreateAccountData {
@@ -7,6 +14,7 @@ export interface CreateAccountData {
   passwordHash: string;
   displayName: string;
   timezone: string;
+  currentSector: Sector;
   locale?: string;
 }
 
@@ -34,6 +42,7 @@ export class AuthRepository {
           displayName: data.displayName,
           timezone: data.timezone,
           locale: data.locale,
+          currentSector: mapEnumValue(DbSector, data.currentSector),
           energyWallet: {
             create: {
               balance: INITIAL_ENERGY_BALANCE,

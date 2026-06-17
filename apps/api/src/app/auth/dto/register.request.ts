@@ -1,6 +1,7 @@
-import { RegisterDto } from '@psychotech/shared';
+import { RegisterDto, Sector } from '@psychotech/shared';
 import {
   IsEmail,
+  IsEnum,
   IsOptional,
   IsString,
   MaxLength,
@@ -22,6 +23,9 @@ export class RegisterRequest implements RegisterDto {
   @IsString()
   @MinLength(1)
   displayName!: string;
+
+  @IsEnum(Sector)
+  currentSector!: Sector;
 
   @IsOptional()
   @IsString()
