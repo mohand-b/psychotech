@@ -1,7 +1,10 @@
+import { Sector } from '../enums';
+
 export interface RegisterDto {
   email: string;
   password: string;
   displayName: string;
+  currentSector: Sector;
   locale?: string;
   timezone?: string;
 }
