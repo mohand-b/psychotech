@@ -5,13 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import {
-  LoginDto,
-  RegisterDto,
-  Sector,
-  UserProfileDto,
-} from '@psychotech/shared';
-import { mapEnumValue } from '../common/enum.util';
+import { LoginDto, RegisterDto, UserProfileDto } from '@psychotech/shared';
+import { toUserProfileDto } from '../users/users.mappers';
 import { AuthTokens } from './auth.cookie.service';
 import { AuthRepository } from './auth.repository';
 import { PasswordHasher } from './password.service';
@@ -103,7 +98,7 @@ export class AuthService {
     const refreshTokenHash = await this.passwordHasher.hash(refreshToken);
     await this.repository.updateRefreshTokenHash(user.id, refreshTokenHash);
     return {
-      user: this.toProfile(user),
+      user: toUserProfileDto(user),
       tokens: { accessToken, refreshToken },
       csrfToken: randomBytes(CSRF_TOKEN_BYTES).toString('hex'),
     };
@@ -117,17 +112,5 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  private toProfile(user: User): UserProfileDto {
-    return {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      locale: user.locale,
-      timezone: user.timezone,
-      currentSector: mapEnumValue(Sector, user.currentSector),
-      createdAt: user.createdAt.toISOString(),
-    };
   }
 }
