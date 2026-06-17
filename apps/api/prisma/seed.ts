@@ -21,12 +21,12 @@ const SECTOR_LABELS: Record<Sector, string> = {
   HEALTHCARE: 'Santé',
 };
 
-const RAILWAY_AXIS_COEFFICIENTS: Record<AxisType, number> = {
-  LOGIC: 1.0,
-  MEMORY: 1.2,
-  VISUAL_DISCRIMINATION: 1.2,
-  REACTIVITY: 1.4,
-  MOTOR_SKILLS: 1.0,
+const RAILWAY_AXES: Record<AxisType, { coefficient: number; order: number }> = {
+  LOGIC: { coefficient: 1.0, order: 0 },
+  MEMORY: { coefficient: 1.2, order: 1 },
+  VISUAL_DISCRIMINATION: { coefficient: 1.2, order: 2 },
+  REACTIVITY: { coefficient: 1.4, order: 3 },
+  MOTOR_SKILLS: { coefficient: 1.0, order: 4 },
 };
 
 async function seedRailway(): Promise<void> {
@@ -49,16 +49,16 @@ async function seedRailway(): Promise<void> {
     },
   });
 
-  const axes = Object.keys(RAILWAY_AXIS_COEFFICIENTS) as AxisType[];
+  const axes = Object.keys(RAILWAY_AXES) as AxisType[];
 
   for (const axis of axes) {
-    const coefficient = RAILWAY_AXIS_COEFFICIENTS[axis];
+    const { coefficient, order } = RAILWAY_AXES[axis];
     const isCritical = coefficient >= CRITICAL_COEFFICIENT_THRESHOLD;
 
     await prisma.sectorAxisWeight.upsert({
       where: { sector_axis: { sector: Sector.RAILWAY, axis } },
-      update: { coefficient, isCritical },
-      create: { sector: Sector.RAILWAY, axis, coefficient, isCritical },
+      update: { coefficient, isCritical, order },
+      create: { sector: Sector.RAILWAY, axis, coefficient, isCritical, order },
     });
   }
 }

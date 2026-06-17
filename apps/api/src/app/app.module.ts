@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { BadgesModule } from './badges/badges.module';
+import { CatalogModule } from './catalog/catalog.module';
 import { EnergyModule } from './energy/energy.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
@@ -22,6 +23,7 @@ import { validateEnvironment } from './config/environment.validation';
     }),
     PrismaModule,
     AuthModule,
+    CatalogModule,
     EnergyModule,
     ScoringModule,
     SessionsModule,

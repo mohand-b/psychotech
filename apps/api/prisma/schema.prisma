@@ -254,6 +254,7 @@ model SectorAxisWeight {
   axis        AxisType
   coefficient Float
   isCritical  Boolean      @default(false)
+  order       Int          @default(0)
   config      SectorConfig @relation(fields: [sector], references: [sector], onDelete: Cascade)
 
   @@unique([sector, axis])
