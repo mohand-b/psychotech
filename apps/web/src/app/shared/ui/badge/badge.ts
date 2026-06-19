@@ -19,24 +19,29 @@ export type BadgeTone = 'neutral' | 'info' | 'soon' | 'sector';
       display: inline-flex;
       align-items: center;
       padding: 3px 8px;
-      border-radius: var(--radius-chip);
+      border: 1px solid transparent;
+      border-radius: var(--radius-badge);
       font: 600 11px/14px var(--font-sans);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
     }
     .ui-badge--neutral {
-      background: color-mix(in srgb, var(--color-label) 14%, transparent);
+      background: var(--color-surface-neutral);
+      border-color: var(--color-border);
       color: var(--color-text-secondary);
     }
     .ui-badge--info {
-      background: color-mix(in srgb, var(--color-brand) 12%, transparent);
+      background: var(--color-brand-pastel);
+      border-color: var(--color-brand-pastel-border);
       color: var(--color-brand);
     }
     .ui-badge--soon {
-      background: color-mix(in srgb, var(--color-label) 12%, transparent);
+      background: var(--color-surface-neutral);
+      border-color: var(--color-border);
       color: var(--color-label);
     }
     .ui-badge--sector {
-      background: color-mix(in srgb, var(--color-secondary) 16%, transparent);
+      background: var(--color-secondary-pastel);
+      border-color: var(--color-secondary-pastel-border);
       color: var(--color-secondary-label);
     }
   `,
@@ -44,5 +49,7 @@ export type BadgeTone = 'neutral' | 'info' | 'soon' | 'sector';
 export class Badge {
   readonly tone = input<BadgeTone>('neutral');
 
-  protected readonly classes = computed(() => `ui-badge ui-badge--${this.tone()}`);
+  protected readonly classes = computed(
+    () => `ui-badge ui-badge--${this.tone()}`,
+  );
 }

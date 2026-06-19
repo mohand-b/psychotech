@@ -23,20 +23,20 @@ function resolveScorePresentation(score: number): ScorePresentation {
   if (score >= 70) {
     return {
       band: ScoreBand.ACCEPTABLE,
-      colorVar: 'var(--color-score-good)',
+      colorVar: 'var(--color-score-acceptable)',
       label: 'Acceptable',
     };
   }
   if (score >= 60) {
     return {
       band: ScoreBand.FRAGILE,
-      colorVar: 'var(--color-score-fair)',
+      colorVar: 'var(--color-score-fragile)',
       label: 'Fragile',
     };
   }
   return {
     band: ScoreBand.INSUFFICIENT,
-    colorVar: 'var(--color-score-poor)',
+    colorVar: 'var(--color-score-insufficient)',
     label: 'Insuffisant',
   };
 }
@@ -62,7 +62,7 @@ function resolveScorePresentation(score: number): ScorePresentation {
     .ui-score-pill__dot {
       width: 10px;
       height: 10px;
-      border-radius: 999px;
+      border-radius: 50%;
       background: var(--score-color);
     }
     .ui-score-pill__label {

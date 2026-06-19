@@ -13,7 +13,12 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icon],
   template: `
-    <span class="ui-axis-chip" [style.--axis-color]="presentation().colorVar">
+    <span
+      class="ui-axis-chip"
+      [style.--axis-pastel]="presentation().pastelVar"
+      [style.--axis-border]="presentation().pastelBorderVar"
+      [style.--axis-text]="presentation().textVar"
+    >
       <ui-icon [img]="presentation().icon" />
       <span class="ui-axis-chip__label">{{ presentation().label }}</span>
     </span>
@@ -26,10 +31,11 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 10px;
+      padding: 7px 12px;
+      border: 1px solid var(--axis-border);
       border-radius: var(--radius-chip);
-      background: color-mix(in srgb, var(--axis-color) 12%, transparent);
-      color: var(--axis-color);
+      background: var(--axis-pastel);
+      color: var(--axis-text);
       font: 600 13px/18px var(--font-sans);
     }
   `,
