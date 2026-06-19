@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  padding: 32px;
+}
+
+.ui-kit-swatch {
+  height: 56px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+}
