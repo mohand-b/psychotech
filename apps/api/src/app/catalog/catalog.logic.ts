@@ -28,11 +28,18 @@ export interface SectorReferentialRecord extends SectorRecord {
 }
 
 export function buildSectorSummaries(sectors: SectorRecord[]): SectorSummaryDto[] {
-  return sectors.map((sector) => ({
-    code: sector.code,
-    label: sector.label,
-    isActive: sector.isActive,
-  }));
+  return [...sectors]
+    .sort((first, second) => {
+      if (first.isActive !== second.isActive) {
+        return first.isActive ? -1 : 1;
+      }
+      return first.label.localeCompare(second.label);
+    })
+    .map((sector) => ({
+      code: sector.code,
+      label: sector.label,
+      isActive: sector.isActive,
+    }));
 }
 
 export function buildSectorReferential(

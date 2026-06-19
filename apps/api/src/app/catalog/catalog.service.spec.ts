@@ -56,14 +56,16 @@ describe('CatalogService.getSectorReferential', () => {
 });
 
 describe('CatalogService.getSectors', () => {
-  it('maps the sector records to summaries', async () => {
+  it('returns active sectors first, then the rest ordered by label', async () => {
     repository.findAllSectors.mockResolvedValue([
+      { code: Sector.AVIATION, label: 'Aérien', isActive: false },
       { code: Sector.RAILWAY, label: 'Ferroviaire', isActive: true },
       { code: Sector.SECURITY, label: 'Sécurité', isActive: false },
     ]);
 
     expect(await service.getSectors()).toEqual([
       { code: Sector.RAILWAY, label: 'Ferroviaire', isActive: true },
+      { code: Sector.AVIATION, label: 'Aérien', isActive: false },
       { code: Sector.SECURITY, label: 'Sécurité', isActive: false },
     ]);
   });
