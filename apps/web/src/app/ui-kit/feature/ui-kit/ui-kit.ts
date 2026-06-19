@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AxisType } from '@psychotech/shared';
-import { Check, Lock, Mail, Rocket } from 'lucide-angular';
+import { Check, Lock, Mail, Play, Zap } from 'lucide-angular';
 import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
-import { Badge, BadgeTone } from '../../../shared/ui/badge/badge';
+import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
 import { FormField } from '../../../shared/ui/form-field/form-field';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { ScorePill } from '../../../shared/ui/score-pill/score-pill';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 
@@ -29,20 +30,20 @@ interface AxisShades {
   shades: Shade[];
 }
 
-interface TypeSample {
-  className: string;
+interface AxisEntry {
+  axis: AxisType;
   label: string;
 }
 
-interface BadgeSample {
-  tone: BadgeTone;
+interface TypeSample {
+  className: string;
   label: string;
 }
 
 @Component({
   selector: 'app-ui-kit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisChip, Badge, Button, Card, FormField, ScorePill],
+  imports: [AxisChip, Badge, Button, Card, FormField, Icon, ScorePill],
   templateUrl: './ui-kit.html',
   styleUrl: './ui-kit.css',
 })
@@ -54,6 +55,10 @@ export class UiKit {
     AxisType.REACTIVITY,
     AxisType.MOTOR_SKILLS,
   ];
+
+  protected readonly axisEntries: readonly AxisEntry[] = this.axes.map(
+    (axis) => ({ axis, label: AXIS_PRESENTATION[axis].label }),
+  );
 
   protected readonly axisShades: readonly AxisShades[] = this.axes.map(
     (axis) => {
@@ -72,63 +77,51 @@ export class UiKit {
 
   protected readonly scores: readonly number[] = [92, 74, 64, 48];
 
+  protected readonly playIcon = Play;
+  protected readonly checkIcon = Check;
   protected readonly mailIcon = Mail;
   protected readonly lockIcon = Lock;
-  protected readonly checkIcon = Check;
-  protected readonly rocketIcon = Rocket;
+  protected readonly zapIcon = Zap;
 
   protected readonly palette: readonly PaletteGroup[] = [
     {
-      title: 'Marque (violet)',
+      title: 'Fondations',
       swatches: [
-        { label: 'Brand', token: '--color-brand' },
-        { label: 'Brand foncé (hover)', token: '--color-brand-dark' },
-        { label: 'Brand pastel', token: '--color-brand-pastel' },
-        { label: 'Brand pastel bordure', token: '--color-brand-pastel-border' },
-        { label: 'Brand chargement', token: '--color-brand-loading' },
+        { label: 'Brand', token: '--brand' },
+        { label: 'Brand hover', token: '--brand-hover' },
+        { label: 'Brand pastel', token: '--brand-pastel' },
+        { label: 'Brand pastel bd', token: '--brand-pastel-bd' },
+        { label: 'Ink', token: '--ink' },
+        { label: 'Texte secondaire', token: '--text-secondary' },
+        { label: 'Label', token: '--label' },
+        { label: 'Bordure', token: '--border' },
+        { label: 'Bordure survol', token: '--border-hover' },
+        { label: 'Fond', token: '--bg' },
+        { label: 'Carte', token: '--card' },
+        { label: 'Surface muette', token: '--surface-muted' },
+        { label: 'Texte désactivé', token: '--text-disabled' },
+        { label: 'Séparateur doux', token: '--divider-soft' },
       ],
     },
     {
-      title: 'Marque secondaire (vert)',
+      title: 'Marque secondaire',
       swatches: [
-        { label: 'Secondary', token: '--color-secondary' },
-        { label: 'Secondary foncé', token: '--color-secondary-dark' },
-        { label: 'Secondary relief', token: '--color-secondary-relief' },
-        { label: 'Secondary pastel', token: '--color-secondary-pastel' },
-        {
-          label: 'Secondary pastel bordure',
-          token: '--color-secondary-pastel-border',
-        },
-        { label: 'Secondary label', token: '--color-secondary-label' },
-      ],
-    },
-    {
-      title: 'Surfaces & bordures',
-      swatches: [
-        { label: 'Fond', token: '--color-bg' },
-        { label: 'Carte', token: '--color-surface' },
-        { label: 'Surface neutre', token: '--color-surface-neutral' },
-        { label: 'Surface survol', token: '--color-surface-hover' },
-        { label: 'Bordure', token: '--color-border' },
-        { label: 'Bordure survol', token: '--color-border-hover' },
-      ],
-    },
-    {
-      title: 'Texte',
-      swatches: [
-        { label: 'Encre', token: '--color-ink' },
-        { label: 'Texte secondaire', token: '--color-text-secondary' },
-        { label: 'Label', token: '--color-label' },
-        { label: 'Texte désactivé', token: '--color-text-disabled' },
+        { label: 'Secondary', token: '--secondary' },
+        { label: 'Secondary dark', token: '--secondary-dark' },
+        { label: 'Secondary hover', token: '--secondary-hover' },
+        { label: 'Secondary relief', token: '--secondary-relief' },
+        { label: 'Secondary pastel', token: '--secondary-pastel' },
+        { label: 'Secondary pastel bd', token: '--secondary-pastel-bd' },
+        { label: 'Secondary label', token: '--secondary-label' },
       ],
     },
     {
       title: "Pastilles d'avis",
       swatches: [
-        { label: 'Très bon', token: '--color-score-excellent' },
-        { label: 'Acceptable', token: '--color-score-acceptable' },
-        { label: 'Fragile', token: '--color-score-fragile' },
-        { label: 'Insuffisant', token: '--color-score-insufficient' },
+        { label: 'Très bon', token: '--rating-good' },
+        { label: 'Acceptable', token: '--rating-ok' },
+        { label: 'Fragile', token: '--rating-weak' },
+        { label: 'Insuffisant', token: '--rating-bad' },
       ],
     },
   ];
@@ -140,12 +133,5 @@ export class UiKit {
     { className: 't-body', label: 'Corps de texte 15 / 22' },
     { className: 't-support', label: "Texte d'appui 13 / 18" },
     { className: 't-label', label: 'Label de section 11 / 14' },
-  ];
-
-  protected readonly badges: readonly BadgeSample[] = [
-    { tone: 'neutral', label: 'Neutre' },
-    { tone: 'info', label: 'Info' },
-    { tone: 'soon', label: 'Bientôt' },
-    { tone: 'sector', label: 'Ferroviaire' },
   ];
 }

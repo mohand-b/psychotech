@@ -1,9 +1,7 @@
 <div class="flex flex-col gap-10">
   <header class="flex flex-col gap-2">
     <h1 class="t-page-title">Design system</h1>
-    <p class="t-support">
-      Thème clair — fondations, composants et états du produit.
-    </p>
+    <p class="t-support">Fondations, composants et états du produit.</p>
   </header>
 
   <section class="flex flex-col gap-4">
@@ -12,7 +10,7 @@
       @for (group of palette; track group.title) {
         <div class="flex flex-col gap-3">
           <h3 class="t-card-title">{{ group.title }}</h3>
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
             @for (swatch of group.swatches; track swatch.token) {
               <div class="flex flex-col gap-2">
                 <div
@@ -53,24 +51,22 @@
   <section class="flex flex-col gap-4">
     <h2 class="t-label">Typographie</h2>
     <ui-card>
-      <div class="flex flex-col gap-4">
-        @for (sample of typography; track sample.className; let last = $last) {
-          <div class="flex flex-col gap-1">
-            <span class="t-support t-mono">.{{ sample.className }}</span>
-            <span [class]="sample.className">{{ sample.label }}</span>
-          </div>
-          @if (!last) {
-            <div class="hairline"></div>
-          }
-        }
-        <div class="hairline"></div>
+      @for (sample of typography; track sample.className; let last = $last) {
         <div class="flex flex-col gap-1">
-          <span class="t-support t-mono">.t-mono</span>
-          <div class="flex flex-wrap items-baseline gap-6">
-            <span class="t-mono t-body">74,8/100</span>
-            <span class="t-mono t-body">312 ms</span>
-            <span class="t-mono t-body">−18 ms</span>
-          </div>
+          <span class="t-support t-mono">.{{ sample.className }}</span>
+          <span [class]="sample.className">{{ sample.label }}</span>
+        </div>
+        @if (!last) {
+          <div class="hairline"></div>
+        }
+      }
+      <div class="hairline"></div>
+      <div class="flex flex-col gap-1">
+        <span class="t-support t-mono">.t-mono</span>
+        <div class="flex flex-wrap items-baseline gap-6">
+          <span class="t-mono t-body">74,8/100</span>
+          <span class="t-mono t-body">312 ms</span>
+          <span class="t-mono t-body">−18 ms</span>
         </div>
       </div>
     </ui-card>
@@ -79,43 +75,30 @@
   <section class="flex flex-col gap-4">
     <h2 class="t-label">Boutons</h2>
     <ui-card>
-      <div class="flex flex-col gap-6">
-        <div class="flex flex-wrap items-center gap-4">
-          <ui-button variant="primary">Primaire</ui-button>
-          <ui-button variant="primary-green">Primaire vert</ui-button>
-          <ui-button variant="secondary">Secondaire</ui-button>
-          <ui-button variant="primary" [disabled]="true">Désactivé</ui-button>
-        </div>
-        <div class="flex flex-wrap items-center gap-4">
-          <ui-button variant="primary" [showArrow]="true">Continuer</ui-button>
-          <ui-button variant="secondary" [icon]="checkIcon">Validé</ui-button>
-          <ui-button
-            variant="primary-green"
-            [icon]="rocketIcon"
-            [showArrow]="true"
-          >
-            Lancer la simulation
-          </ui-button>
-          <ui-button variant="primary" [loading]="true">Chargement</ui-button>
-        </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <ui-button variant="primary" [icon]="playIcon">Reprendre</ui-button>
+        <ui-button variant="primary-green">Lancer la simulation</ui-button>
+        <ui-button variant="secondary">Voir le détail</ui-button>
+        <ui-button variant="primary" [disabled]="true">Commencer</ui-button>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <ui-button variant="primary" [showArrow]="true">Continuer</ui-button>
+        <ui-button variant="secondary" [icon]="checkIcon">Validé</ui-button>
       </div>
     </ui-card>
   </section>
 
   <section class="flex flex-col gap-4">
-    <h2 class="t-label">Carte</h2>
-    <ui-card sectionLabel="Progression">
-      <ui-button ui-card-action variant="secondary">Voir tout</ui-button>
-      <div class="flex flex-col gap-4">
-        <p class="t-body">
-          Contenu projeté dans la carte, sous un en-tête avec label de section et
-          action discrète à droite.
-        </p>
-        <div class="hairline"></div>
-        <div class="flex items-center gap-3">
-          <ui-button variant="primary" [showArrow]="true">Action</ui-button>
-          <ui-button variant="secondary">Annuler</ui-button>
-        </div>
+    <h2 class="t-label">Carte de données</h2>
+    <ui-card sectionLabel="Temps de réaction" [footer]="true">
+      <ui-icon card-action class="ui-kit-zap" [img]="zapIcon" [size]="16" />
+      <div class="ui-kit-metric-row">
+        <span class="ui-kit-metric">312 ms</span>
+        <span class="ui-kit-delta">−18 ms</span>
+      </div>
+      <div card-footer class="ui-kit-card-footer">
+        <span class="t-support">10 dernières sessions</span>
+        <a href="#" class="ui-kit-link">Détail →</a>
       </div>
     </ui-card>
   </section>
@@ -125,7 +108,7 @@
     <ui-card>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <ui-form-field
-          label="Adresse e-mail"
+          label="Adresse email"
           placeholder="vous@exemple.fr"
           [icon]="mailIcon"
         />
@@ -138,10 +121,10 @@
           value="motdepasse"
         />
         <ui-form-field
-          label="Adresse e-mail"
+          label="Adresse email"
           placeholder="vous@exemple.fr"
           [icon]="mailIcon"
-          error="Adresse e-mail invalide."
+          error="Adresse email invalide."
           value="vous@"
         />
       </div>
@@ -152,8 +135,10 @@
     <h2 class="t-label">Badges</h2>
     <ui-card>
       <div class="flex flex-wrap items-center gap-3">
-        @for (badge of badges; track badge.tone) {
-          <ui-badge [tone]="badge.tone">{{ badge.label }}</ui-badge>
+        <ui-badge tone="brand">Recommandé</ui-badge>
+        <ui-badge tone="neutral">À venir</ui-badge>
+        @for (entry of axisEntries; track entry.axis) {
+          <ui-badge [axis]="entry.axis">{{ entry.label }}</ui-badge>
         }
       </div>
     </ui-card>
@@ -173,12 +158,9 @@
   <section class="flex flex-col gap-4">
     <h2 class="t-label">Pastilles d'avis</h2>
     <ui-card>
-      <div class="flex flex-wrap items-center gap-6">
+      <div class="flex flex-wrap items-center gap-4">
         @for (score of scores; track score) {
-          <div class="flex items-center gap-3">
-            <span class="t-mono t-body">{{ score }}</span>
-            <ui-score-pill [score]="score" />
-          </div>
+          <ui-score-pill [score]="score" />
         }
       </div>
     </ui-card>
