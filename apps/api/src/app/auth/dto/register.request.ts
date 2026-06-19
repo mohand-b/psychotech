@@ -22,7 +22,11 @@ export class RegisterRequest implements RegisterDto {
 
   @IsString()
   @MinLength(1)
-  displayName!: string;
+  firstName!: string;
+
+  @IsString()
+  @MinLength(1)
+  lastName!: string;
 
   @IsEnum(Sector)
   currentSector!: Sector;

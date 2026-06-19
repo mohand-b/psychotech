@@ -86,7 +86,8 @@ enum BadgeCategory {
 model User {
   id               String   @id @default(uuid())
   email            String   @unique
-  displayName      String
+  firstName        String
+  lastName         String
   passwordHash     String?
   refreshTokenHash String?
   locale           String   @default("fr")

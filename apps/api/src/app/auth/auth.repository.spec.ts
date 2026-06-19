@@ -7,7 +7,8 @@ function buildUser(): User {
   return {
     id: 'user-1',
     email: 'alice@example.com',
-    displayName: 'Alice',
+    firstName: 'Alice',
+    lastName: 'Martin',
     passwordHash: 'hashed-password',
     refreshTokenHash: null,
     locale: 'fr',
@@ -29,8 +30,10 @@ describe('AuthRepository.createAccount', () => {
     await repository.createAccount({
       email: 'alice@example.com',
       passwordHash: 'hashed-password',
-      displayName: 'Alice',
+      firstName: 'Alice',
+      lastName: 'Martin',
       timezone: 'Europe/Paris',
+      currentSector: 'RAILWAY',
     });
 
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
@@ -38,9 +41,11 @@ describe('AuthRepository.createAccount', () => {
       data: {
         email: 'alice@example.com',
         passwordHash: 'hashed-password',
-        displayName: 'Alice',
+        firstName: 'Alice',
+        lastName: 'Martin',
         timezone: 'Europe/Paris',
         locale: undefined,
+        currentSector: 'RAILWAY',
         energyWallet: { create: { balance: 5, capacity: 5 } },
         subscription: { create: { tier: 'FREE', status: 'ACTIVE' } },
       },

@@ -11,7 +11,12 @@ export class UpdateUserProfileRequest implements UpdateUserProfileDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
-  displayName?: string;
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  lastName?: string;
 
   @IsOptional()
   @IsString()

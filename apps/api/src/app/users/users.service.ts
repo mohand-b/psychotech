@@ -30,7 +30,8 @@ export class UsersService {
       throw new BadRequestException('The selected sector is not available');
     }
     const user = await this.repository.updateProfile(userId, {
-      displayName: update.displayName,
+      firstName: update.firstName,
+      lastName: update.lastName,
       locale: update.locale,
       timezone: update.timezone,
       currentSector: update.currentSector,

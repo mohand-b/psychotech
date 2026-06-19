@@ -12,7 +12,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface CreateAccountData {
   email: string;
   passwordHash: string;
-  displayName: string;
+  firstName: string;
+  lastName: string;
   timezone: string;
   currentSector: Sector;
   locale?: string;
@@ -39,7 +40,8 @@ export class AuthRepository {
         data: {
           email: data.email,
           passwordHash: data.passwordHash,
-          displayName: data.displayName,
+          firstName: data.firstName,
+          lastName: data.lastName,
           timezone: data.timezone,
           locale: data.locale,
           currentSector: mapEnumValue(DbSector, data.currentSector),

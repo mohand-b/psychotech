@@ -5,7 +5,8 @@ import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface ProfileUpdate {
-  displayName?: string;
+  firstName?: string;
+  lastName?: string;
   locale?: string;
   timezone?: string;
   currentSector?: Sector;
@@ -23,7 +24,8 @@ export class UsersRepository {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
-        displayName: update.displayName,
+        firstName: update.firstName,
+        lastName: update.lastName,
         locale: update.locale,
         timezone: update.timezone,
         currentSector: update.currentSector

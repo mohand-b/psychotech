@@ -16,7 +16,8 @@ function buildUser(overrides: Partial<User> = {}): User {
   return {
     id: 'user-1',
     email: 'alice@example.com',
-    displayName: 'Alice',
+    firstName: 'Alice',
+    lastName: 'Martin',
     passwordHash: 'stored-password-hash',
     refreshTokenHash: null,
     locale: 'fr',
@@ -69,7 +70,8 @@ describe('AuthService.register', () => {
     const result = await service.register({
       email: 'alice@example.com',
       password: 'super-secret',
-      displayName: 'Alice',
+      firstName: 'Alice',
+      lastName: 'Martin',
       currentSector: Sector.RAILWAY,
     });
 
@@ -77,7 +79,8 @@ describe('AuthService.register', () => {
     expect(repository.createAccount).toHaveBeenCalledWith({
       email: 'alice@example.com',
       passwordHash: 'hashed-password',
-      displayName: 'Alice',
+      firstName: 'Alice',
+      lastName: 'Martin',
       timezone: 'Europe/Paris',
       locale: undefined,
       currentSector: Sector.RAILWAY,
@@ -101,7 +104,8 @@ describe('AuthService.register', () => {
       service.register({
         email: 'alice@example.com',
         password: 'super-secret',
-        displayName: 'Alice',
+        firstName: 'Alice',
+        lastName: 'Martin',
         currentSector: Sector.RAILWAY,
       }),
     ).rejects.toBeInstanceOf(ConflictException);
@@ -116,7 +120,8 @@ describe('AuthService.register', () => {
       service.register({
         email: 'alice@example.com',
         password: 'super-secret',
-        displayName: 'Alice',
+        firstName: 'Alice',
+        lastName: 'Martin',
         currentSector: Sector.AVIATION,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);

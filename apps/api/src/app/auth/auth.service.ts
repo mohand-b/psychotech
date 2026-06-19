@@ -44,7 +44,8 @@ export class AuthService {
     const user = await this.repository.createAccount({
       email: input.email,
       passwordHash,
-      displayName: input.displayName,
+      firstName: input.firstName,
+      lastName: input.lastName,
       timezone: input.timezone ?? DEFAULT_TIMEZONE,
       locale: input.locale,
       currentSector: input.currentSector,

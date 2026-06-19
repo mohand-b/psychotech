@@ -6,7 +6,8 @@ export function toUserProfileDto(user: User): UserProfileDto {
   return {
     id: user.id,
     email: user.email,
-    displayName: user.displayName,
+    firstName: user.firstName,
+    lastName: user.lastName,
     locale: user.locale,
     timezone: user.timezone,
     currentSector: mapEnumValue(Sector, user.currentSector),

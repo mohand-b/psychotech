@@ -9,7 +9,8 @@ function buildUser(overrides: Partial<User> = {}): User {
   return {
     id: 'user-1',
     email: 'alice@example.com',
-    displayName: 'Alice',
+    firstName: 'Alice',
+    lastName: 'Martin',
     passwordHash: 'hash',
     refreshTokenHash: null,
     locale: 'fr',
@@ -42,7 +43,8 @@ describe('UsersService.getProfile', () => {
     expect(profile).toMatchObject({
       id: 'user-1',
       email: 'alice@example.com',
-      displayName: 'Alice',
+      firstName: 'Alice',
+      lastName: 'Martin',
       timezone: 'Europe/Paris',
       currentSector: Sector.RAILWAY,
     });
@@ -60,22 +62,23 @@ describe('UsersService.getProfile', () => {
 describe('UsersService.updateProfile', () => {
   it('updates the editable fields without touching the sector check', async () => {
     repository.updateProfile.mockResolvedValue(
-      buildUser({ displayName: 'Bob', timezone: 'America/New_York' }),
+      buildUser({ firstName: 'Bob', timezone: 'America/New_York' }),
     );
 
     const profile = await service.updateProfile('user-1', {
-      displayName: 'Bob',
+      firstName: 'Bob',
       timezone: 'America/New_York',
     });
 
     expect(repository.updateProfile).toHaveBeenCalledWith('user-1', {
-      displayName: 'Bob',
+      firstName: 'Bob',
+      lastName: undefined,
       locale: undefined,
       timezone: 'America/New_York',
       currentSector: undefined,
     });
     expect(repository.isSectorActive).not.toHaveBeenCalled();
-    expect(profile.displayName).toBe('Bob');
+    expect(profile.firstName).toBe('Bob');
     expect(profile.timezone).toBe('America/New_York');
   });
 
