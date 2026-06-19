@@ -3,7 +3,8 @@ import { Sector } from '../enums';
 export interface UserProfileDto {
   id: string;
   email: string;
-  displayName: string;
+  firstName: string;
+  lastName: string;
   locale: string;
   timezone: string;
   currentSector: Sector;
@@ -11,7 +12,8 @@ export interface UserProfileDto {
 }
 
 export interface UpdateUserProfileDto {
-  displayName?: string;
+  firstName?: string;
+  lastName?: string;
   locale?: string;
   timezone?: string;
   currentSector?: Sector;

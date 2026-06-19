@@ -3,7 +3,8 @@ import { Sector } from '../enums';
 export interface RegisterDto {
   email: string;
   password: string;
-  displayName: string;
+  firstName: string;
+  lastName: string;
   currentSector: Sector;
   locale?: string;
   timezone?: string;
