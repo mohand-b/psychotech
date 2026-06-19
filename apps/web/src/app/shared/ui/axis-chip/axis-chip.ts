@@ -16,7 +16,7 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
     <span
       class="ui-axis-chip"
       [style.--axis-pastel]="presentation().pastelVar"
-      [style.--axis-border]="presentation().pastelBorderVar"
+      [style.--axis-pastel-bd]="presentation().pastelBorderVar"
       [style.--axis-text]="presentation().textVar"
     >
       <ui-icon [img]="presentation().icon" />
@@ -32,11 +32,11 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
       align-items: center;
       gap: 8px;
       padding: 7px 12px;
-      border: 1px solid var(--axis-border);
+      border: 1px solid var(--axis-pastel-bd);
       border-radius: var(--radius-chip);
       background: var(--axis-pastel);
       color: var(--axis-text);
-      font: 600 13px/18px var(--font-sans);
+      font: 600 13px/18px var(--font-ui);
     }
   `,
 })

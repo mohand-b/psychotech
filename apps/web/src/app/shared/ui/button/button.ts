@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { ArrowRight, LoaderCircle, LucideIconData } from 'lucide-angular';
+import { ArrowRight, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 
 export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
@@ -14,14 +14,12 @@ export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icon],
   template: `
-    <button type="button" [class]="classes()" [disabled]="disabled() || loading()">
-      @if (loading()) {
-        <ui-icon [img]="spinnerIcon" class="ui-button__spinner" />
-      } @else if (icon(); as glyph) {
+    <button type="button" [class]="classes()" [disabled]="disabled()">
+      @if (icon(); as glyph) {
         <ui-icon [img]="glyph" />
       }
       <span class="ui-button__label"><ng-content /></span>
-      @if (showArrow() && !loading()) {
+      @if (showArrow()) {
         <ui-icon [img]="arrowIcon" />
       }
     </button>
@@ -35,69 +33,59 @@ export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 18px;
-      border: 1px solid transparent;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 20px;
       border-radius: var(--radius-button);
-      font: 600 15px/22px var(--font-sans);
       cursor: pointer;
     }
     .ui-button--primary {
-      background: var(--color-brand);
-      color: #ffffff;
+      padding: 10px 16px;
+      border: none;
+      background: var(--brand);
+      color: var(--card);
     }
     .ui-button--primary:hover:not(:disabled) {
-      background: var(--color-brand-dark);
+      background: var(--brand-hover);
     }
     .ui-button--primary-green {
-      background: var(--color-secondary-dark);
-      color: #ffffff;
+      padding: 10px 16px;
+      border: none;
+      background: var(--secondary-dark);
+      color: var(--card);
     }
     .ui-button--primary-green:hover:not(:disabled) {
-      background: var(--color-secondary-hover);
+      background: var(--secondary-hover);
     }
     .ui-button--secondary {
-      background: var(--color-surface);
-      color: var(--color-ink);
-      border-color: var(--color-border);
+      padding: 9px 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--ink);
     }
     .ui-button--secondary:hover:not(:disabled) {
-      background: var(--color-surface-hover);
-      border-color: var(--color-border-hover);
+      border-color: var(--border-hover);
+      background: var(--surface-hover);
     }
     .ui-button:disabled {
-      background: var(--color-surface-neutral);
-      color: var(--color-text-disabled);
-      border-color: transparent;
+      padding: 10px 16px;
+      border: none;
+      background: var(--surface-muted);
+      color: var(--text-disabled);
       cursor: not-allowed;
-    }
-    .ui-button--loading:disabled {
-      background: var(--color-brand-loading);
-      color: #ffffff;
-      cursor: progress;
-    }
-    .ui-button__spinner {
-      animation: ui-button-spin 0.7s linear infinite;
-    }
-    @keyframes ui-button-spin {
-      to {
-        transform: rotate(360deg);
-      }
     }
   `,
 })
 export class Button {
   readonly variant = input<ButtonVariant>('primary');
   readonly disabled = input(false);
-  readonly loading = input(false);
   readonly showArrow = input(false);
   readonly icon = input<LucideIconData | null>(null);
 
   protected readonly arrowIcon = ArrowRight;
-  protected readonly spinnerIcon = LoaderCircle;
 
-  protected readonly classes = computed(() => {
-    const variant = `ui-button--${this.variant()}`;
-    const loading = this.loading() ? ' ui-button--loading' : '';
-    return `ui-button ${variant}${loading}`;
-  });
+  protected readonly classes = computed(
+    () => `ui-button ui-button--${this.variant()}`,
+  );
 }
