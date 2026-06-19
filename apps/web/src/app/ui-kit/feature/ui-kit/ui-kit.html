@@ -2,7 +2,7 @@
   <header class="flex flex-col gap-2">
     <h1 class="t-page-title">Design system</h1>
     <p class="t-support">
-      Thème clair — référence visuelle de la direction artistique.
+      Thème clair — fondations, composants et états du produit.
     </p>
   </header>
 
@@ -32,6 +32,25 @@
   </section>
 
   <section class="flex flex-col gap-4">
+    <h2 class="t-label">Axes — 4 nuances</h2>
+    <div class="flex flex-col gap-3">
+      @for (axis of axisShades; track axis.label) {
+        <div class="flex flex-col gap-2">
+          <h3 class="t-card-title">{{ axis.label }}</h3>
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            @for (shade of axis.shades; track shade.label) {
+              <div class="flex flex-col gap-2">
+                <div class="ui-kit-swatch" [style.background]="shade.value"></div>
+                <span class="t-support">{{ shade.label }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-4">
     <h2 class="t-label">Typographie</h2>
     <ui-card>
       <div class="flex flex-col gap-4">
@@ -44,6 +63,15 @@
             <div class="hairline"></div>
           }
         }
+        <div class="hairline"></div>
+        <div class="flex flex-col gap-1">
+          <span class="t-support t-mono">.t-mono</span>
+          <div class="flex flex-wrap items-baseline gap-6">
+            <span class="t-mono t-body">74,8/100</span>
+            <span class="t-mono t-body">312 ms</span>
+            <span class="t-mono t-body">−18 ms</span>
+          </div>
+        </div>
       </div>
     </ui-card>
   </section>
@@ -54,21 +82,21 @@
       <div class="flex flex-col gap-6">
         <div class="flex flex-wrap items-center gap-4">
           <ui-button variant="primary">Primaire</ui-button>
+          <ui-button variant="primary-green">Primaire vert</ui-button>
           <ui-button variant="secondary">Secondaire</ui-button>
-          <ui-button variant="accent">Accent</ui-button>
           <ui-button variant="primary" [disabled]="true">Désactivé</ui-button>
         </div>
         <div class="flex flex-wrap items-center gap-4">
           <ui-button variant="primary" [showArrow]="true">Continuer</ui-button>
           <ui-button variant="secondary" [icon]="checkIcon">Validé</ui-button>
-          <ui-button variant="accent" [icon]="rocketIcon" [showArrow]="true">
-            Lancer
+          <ui-button
+            variant="primary-green"
+            [icon]="rocketIcon"
+            [showArrow]="true"
+          >
+            Lancer la simulation
           </ui-button>
-        </div>
-        <div class="flex flex-wrap items-center gap-4">
-          @for (entry of axisEntries; track entry.axis) {
-            <ui-button [axis]="entry.axis">{{ entry.label }}</ui-button>
-          }
+          <ui-button variant="primary" [loading]="true">Chargement</ui-button>
         </div>
       </div>
     </ui-card>
@@ -76,15 +104,12 @@
 
   <section class="flex flex-col gap-4">
     <h2 class="t-label">Carte</h2>
-    <ui-card>
+    <ui-card sectionLabel="Progression">
+      <ui-button ui-card-action variant="secondary">Voir tout</ui-button>
       <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-1">
-          <h3 class="t-card-title">Titre de la carte</h3>
-          <p class="t-support">Sous-titre descriptif de la section.</p>
-        </div>
-        <div class="hairline"></div>
         <p class="t-body">
-          Contenu projeté dans la carte, séparé par une ligne hairline interne.
+          Contenu projeté dans la carte, sous un en-tête avec label de section et
+          action discrète à droite.
         </p>
         <div class="hairline"></div>
         <div class="flex items-center gap-3">
@@ -98,13 +123,26 @@
   <section class="flex flex-col gap-4">
     <h2 class="t-label">Champs de formulaire</h2>
     <ui-card>
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <ui-form-field label="Adresse e-mail" placeholder="vous@exemple.fr" />
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <ui-form-field
+          label="Adresse e-mail"
+          placeholder="vous@exemple.fr"
+          [icon]="mailIcon"
+        />
         <ui-form-field
           label="Mot de passe"
           type="password"
           placeholder="••••••••"
-          error="Au moins 8 caractères."
+          [icon]="lockIcon"
+          [valid]="true"
+          value="motdepasse"
+        />
+        <ui-form-field
+          label="Adresse e-mail"
+          placeholder="vous@exemple.fr"
+          [icon]="mailIcon"
+          error="Adresse e-mail invalide."
+          value="vous@"
         />
       </div>
     </ui-card>
