@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.register {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.register__card {
+  width: 100%;
+  max-width: 460px;
+}
+
+.register__field-label {
+  font: 600 13px/18px var(--font-ui);
+  color: var(--ink);
+}
+
+.register-sector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--card);
+  color: var(--ink);
+  font: 400 15px/22px var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+
+.register-sector:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.register-sector--selected {
+  border-color: var(--brand);
+  background: var(--brand-pastel);
+}
+
+.register-sector--disabled {
+  background: var(--surface-muted);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.register__error {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--axis-motricite-text);
+}
+
+.register__link {
+  font: 600 13px/18px var(--font-ui);
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.register__link:hover {
+  text-decoration: underline;
+}

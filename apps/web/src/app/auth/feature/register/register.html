@@ -1,34 +1,59 @@
-<div class="flex flex-col gap-4">
-  <h1 class="text-2xl font-bold">Inscription</h1>
-  <input
-    type="email"
-    placeholder="Email"
-    [value]="email()"
-    (input)="email.set(inputValue($event))"
-  />
-  <input
-    type="text"
-    placeholder="Nom affiché"
-    [value]="displayName()"
-    (input)="displayName.set(inputValue($event))"
-  />
-  <input
-    type="password"
-    placeholder="Mot de passe"
-    [value]="password()"
-    (input)="password.set(inputValue($event))"
-  />
-  <select (change)="selectSector($event)">
-    <option value="">Choisir un secteur</option>
-    @for (sector of sectors(); track sector.code) {
-      <option [value]="sector.code">{{ sector.label }}</option>
-    }
-  </select>
-  @if (error(); as message) {
-    <p>{{ message }}</p>
-  }
-  <button type="button" [disabled]="submitting()" (click)="submit()">
-    S'inscrire
-  </button>
-  <a routerLink="/login">J'ai déjà un compte</a>
+<div class="register">
+  <ui-card class="register__card" [padding]="32">
+    <div class="flex flex-col gap-5">
+      <h1 class="t-page-title">Inscription</h1>
+
+      <ui-form-field
+        label="Adresse email"
+        type="email"
+        placeholder="vous@exemple.fr"
+        [icon]="mailIcon"
+        [(value)]="email"
+      />
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ui-form-field label="Prénom" [icon]="userIcon" [(value)]="firstName" />
+        <ui-form-field label="Nom" [icon]="userIcon" [(value)]="lastName" />
+      </div>
+
+      <ui-form-field
+        label="Mot de passe"
+        type="password"
+        placeholder="••••••••"
+        [icon]="lockIcon"
+        [(value)]="password"
+      />
+
+      <div class="flex flex-col gap-2">
+        <span class="register__field-label">Secteur</span>
+        <div class="flex flex-col gap-2">
+          @for (sector of sectors(); track sector.code) {
+            <button
+              type="button"
+              class="register-sector"
+              [class.register-sector--selected]="sector.code === currentSector()"
+              [class.register-sector--disabled]="!sector.isActive"
+              [disabled]="!sector.isActive"
+              (click)="selectSector(sector)"
+            >
+              <span>{{ sector.label }}</span>
+              @if (!sector.isActive) {
+                <ui-badge tone="neutral">Bientôt</ui-badge>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (error(); as message) {
+        <p class="register__error">{{ message }}</p>
+      }
+
+      <ui-button variant="primary" [disabled]="submitting()" (click)="submit()">
+        S'inscrire
+      </ui-button>
+
+      <a routerLink="/login" class="register__link">J'ai déjà un compte</a>
+    </div>
+  </ui-card>
 </div>
