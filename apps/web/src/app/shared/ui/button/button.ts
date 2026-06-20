@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { ArrowRight, LucideIconData } from 'lucide-angular';
+import { ArrowRight, LoaderCircle, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 
 export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
@@ -14,12 +14,18 @@ export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icon],
   template: `
-    <button type="button" [class]="classes()" [disabled]="disabled()">
-      @if (icon(); as glyph) {
+    <button
+      type="button"
+      [class]="classes()"
+      [disabled]="disabled() || loading()"
+    >
+      @if (loading()) {
+        <ui-icon [img]="spinnerIcon" class="ui-button__spinner" />
+      } @else if (icon(); as glyph) {
         <ui-icon [img]="glyph" />
       }
       <span class="ui-button__label"><ng-content /></span>
-      @if (showArrow()) {
+      @if (showArrow() && !loading()) {
         <ui-icon [img]="arrowIcon" />
       }
     </button>
@@ -75,17 +81,33 @@ export type ButtonVariant = 'primary' | 'primary-green' | 'secondary';
       color: var(--text-disabled);
       cursor: not-allowed;
     }
+    .ui-button--loading:disabled {
+      background: var(--brand-loading);
+      color: var(--card);
+      cursor: progress;
+    }
+    .ui-button__spinner {
+      animation: ui-button-spin 0.7s linear infinite;
+    }
+    @keyframes ui-button-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   `,
 })
 export class Button {
   readonly variant = input<ButtonVariant>('primary');
   readonly disabled = input(false);
+  readonly loading = input(false);
   readonly showArrow = input(false);
   readonly icon = input<LucideIconData | null>(null);
 
   protected readonly arrowIcon = ArrowRight;
+  protected readonly spinnerIcon = LoaderCircle;
 
-  protected readonly classes = computed(
-    () => `ui-button ui-button--${this.variant()}`,
-  );
+  protected readonly classes = computed(() => {
+    const loading = this.loading() ? ' ui-button--loading' : '';
+    return `ui-button ui-button--${this.variant()}${loading}`;
+  });
 }
