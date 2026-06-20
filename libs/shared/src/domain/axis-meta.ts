@@ -10,31 +10,31 @@ export interface AxisMeta {
 export const AXIS_META: Record<AxisType, AxisMeta> = {
   [AxisType.LOGIC]: {
     label: 'Logique',
-    colorToken: '--axis-logique',
+    colorToken: '--axis-logic',
     icon: 'brain-circuit',
     playable: true,
   },
   [AxisType.MEMORY]: {
     label: 'Mémoire',
-    colorToken: '--axis-memoire',
+    colorToken: '--axis-memory',
     icon: 'brain',
     playable: true,
   },
   [AxisType.VISUAL_DISCRIMINATION]: {
     label: 'Discrimination visuelle',
-    colorToken: '--axis-discrim',
+    colorToken: '--axis-discrimination',
     icon: 'scan-eye',
     playable: true,
   },
   [AxisType.REACTIVITY]: {
     label: 'Réactivité',
-    colorToken: '--axis-reactivite',
+    colorToken: '--axis-reactivity',
     icon: 'zap',
     playable: true,
   },
   [AxisType.MOTOR_SKILLS]: {
     label: 'Motricité',
-    colorToken: '--axis-motricite',
+    colorToken: '--axis-motor',
     icon: 'hand',
     playable: true,
   },
@@ -46,7 +46,7 @@ export const AXIS_META: Record<AxisType, AxisMeta> = {
   },
   [AxisType.NUMERICAL]: {
     label: 'Numérique',
-    colorToken: '--axis-numerique',
+    colorToken: '--axis-numerical',
     icon: 'calculator',
     playable: false,
   },
