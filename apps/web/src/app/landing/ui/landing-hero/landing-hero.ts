@@ -68,7 +68,7 @@ export class LandingHero {
     },
     {
       name: 'Sécurité',
-      image: '/sectors/securite',
+      image: '/sectors/security',
       alt: 'Secteur sécurité',
       description:
         'Concours et tests d’aptitude des métiers de la sûreté, exigeants sur la vigilance et la prise de décision.',
@@ -76,7 +76,7 @@ export class LandingHero {
     },
     {
       name: 'Conduite',
-      image: '/sectors/conduite',
+      image: '/sectors/driving',
       alt: 'Secteur conduite',
       description:
         'Sélections des métiers de la conduite et du transport, centrées sur la vigilance, la perception et la coordination.',
