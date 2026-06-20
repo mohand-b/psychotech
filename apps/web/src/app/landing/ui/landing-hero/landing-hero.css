@@ -63,6 +63,7 @@
   position: absolute;
   inset: 0;
   display: block;
+  pointer-events: none;
 }
 
 .hero__image {
@@ -327,6 +328,7 @@
 
 .hero__panel--band:hover .hero__band-expanded {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .hero__band-title {
