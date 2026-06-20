@@ -19,7 +19,6 @@ export interface AxisPresentation {
   pastelVar: string;
   pastelBorderVar: string;
   textVar: string;
-  playable: boolean;
 }
 
 const AXIS_ICONS: Record<AxisType, LucideIconData> = {
@@ -43,7 +42,6 @@ function buildPresentation(axis: AxisType): AxisPresentation {
     pastelVar: `var(${meta.colorToken}-pastel)`,
     pastelBorderVar: `var(${meta.colorToken}-pastel-bd)`,
     textVar: `var(${meta.colorToken}-text)`,
-    playable: meta.playable,
   };
 }
 

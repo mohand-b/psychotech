@@ -1,9 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Sector,
-  SectorReferentialDto,
-  SectorSummaryDto,
-} from '@psychotech/shared';
+import { SectorSummaryDto } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { CatalogApi } from './catalog.api';
 
@@ -13,9 +9,5 @@ export class CatalogFacade {
 
   getSectors(): Observable<SectorSummaryDto[]> {
     return this.api.sectors();
-  }
-
-  getSectorReferential(code: Sector): Observable<SectorReferentialDto> {
-    return this.api.sector(code);
   }
 }
