@@ -35,6 +35,10 @@
   text-decoration: none;
 }
 
+.header__logo-accent {
+  color: var(--brand);
+}
+
 .header__nav {
   display: flex;
   align-items: center;
