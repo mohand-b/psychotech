@@ -31,6 +31,7 @@ import { inputValue } from '../../util/input-value';
           [value]="value()"
           (input)="value.set(readValue($event))"
         />
+        <ng-content select="[field-suffix]" />
         @if (showValid()) {
           <span class="ui-form-field__check">
             <ui-icon [img]="checkIcon" [size]="17" />
