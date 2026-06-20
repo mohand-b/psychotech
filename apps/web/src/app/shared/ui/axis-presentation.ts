@@ -1,10 +1,14 @@
-import { AxisType } from '@psychotech/shared';
+import { AXIS_META, AxisType } from '@psychotech/shared';
 import {
+  BookOpen,
   Brain,
   BrainCircuit,
+  Calculator,
   Hand,
   LucideIconData,
+  Rotate3d,
   ScanEye,
+  Target,
   Zap,
 } from 'lucide-angular';
 
@@ -15,47 +19,38 @@ export interface AxisPresentation {
   pastelVar: string;
   pastelBorderVar: string;
   textVar: string;
+  playable: boolean;
 }
 
-export const AXIS_PRESENTATION: Record<AxisType, AxisPresentation> = {
-  [AxisType.LOGIC]: {
-    label: 'Logique',
-    icon: BrainCircuit,
-    plainVar: 'var(--axis-logique)',
-    pastelVar: 'var(--axis-logique-pastel)',
-    pastelBorderVar: 'var(--axis-logique-pastel-bd)',
-    textVar: 'var(--axis-logique-text)',
-  },
-  [AxisType.MEMORY]: {
-    label: 'Mémoire',
-    icon: Brain,
-    plainVar: 'var(--axis-memoire)',
-    pastelVar: 'var(--axis-memoire-pastel)',
-    pastelBorderVar: 'var(--axis-memoire-pastel-bd)',
-    textVar: 'var(--axis-memoire-text)',
-  },
-  [AxisType.VISUAL_DISCRIMINATION]: {
-    label: 'Discrimination visuelle',
-    icon: ScanEye,
-    plainVar: 'var(--axis-discrim)',
-    pastelVar: 'var(--axis-discrim-pastel)',
-    pastelBorderVar: 'var(--axis-discrim-pastel-bd)',
-    textVar: 'var(--axis-discrim-text)',
-  },
-  [AxisType.REACTIVITY]: {
-    label: 'Réactivité',
-    icon: Zap,
-    plainVar: 'var(--axis-reactivite)',
-    pastelVar: 'var(--axis-reactivite-pastel)',
-    pastelBorderVar: 'var(--axis-reactivite-pastel-bd)',
-    textVar: 'var(--axis-reactivite-text)',
-  },
-  [AxisType.MOTOR_SKILLS]: {
-    label: 'Motricité',
-    icon: Hand,
-    plainVar: 'var(--axis-motricite)',
-    pastelVar: 'var(--axis-motricite-pastel)',
-    pastelBorderVar: 'var(--axis-motricite-pastel-bd)',
-    textVar: 'var(--axis-motricite-text)',
-  },
+const AXIS_ICONS: Record<AxisType, LucideIconData> = {
+  [AxisType.LOGIC]: BrainCircuit,
+  [AxisType.MEMORY]: Brain,
+  [AxisType.VISUAL_DISCRIMINATION]: ScanEye,
+  [AxisType.REACTIVITY]: Zap,
+  [AxisType.MOTOR_SKILLS]: Hand,
+  [AxisType.ATTENTION]: Target,
+  [AxisType.NUMERICAL]: Calculator,
+  [AxisType.VERBAL]: BookOpen,
+  [AxisType.SPATIAL]: Rotate3d,
 };
+
+function buildPresentation(axis: AxisType): AxisPresentation {
+  const meta = AXIS_META[axis];
+  return {
+    label: meta.label,
+    icon: AXIS_ICONS[axis],
+    plainVar: `var(${meta.colorToken})`,
+    pastelVar: `var(${meta.colorToken}-pastel)`,
+    pastelBorderVar: `var(${meta.colorToken}-pastel-bd)`,
+    textVar: `var(${meta.colorToken}-text)`,
+    playable: meta.playable,
+  };
+}
+
+export const AXIS_PRESENTATION: Record<AxisType, AxisPresentation> =
+  Object.fromEntries(
+    (Object.keys(AXIS_META) as AxisType[]).map((axis) => [
+      axis,
+      buildPresentation(axis),
+    ]),
+  ) as Record<AxisType, AxisPresentation>;

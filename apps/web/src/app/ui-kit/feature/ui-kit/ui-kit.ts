@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AxisType } from '@psychotech/shared';
+import { AXIS_META, AxisType } from '@psychotech/shared';
 import { Check, Lock, Mail, Play, Zap } from 'lucide-angular';
 import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
 import { Badge } from '../../../shared/ui/badge/badge';
@@ -48,13 +48,9 @@ interface TypeSample {
   styleUrl: './ui-kit.css',
 })
 export class UiKit {
-  protected readonly axes: readonly AxisType[] = [
-    AxisType.LOGIC,
-    AxisType.MEMORY,
-    AxisType.VISUAL_DISCRIMINATION,
-    AxisType.REACTIVITY,
-    AxisType.MOTOR_SKILLS,
-  ];
+  protected readonly axes: readonly AxisType[] = Object.keys(
+    AXIS_META,
+  ) as AxisType[];
 
   protected readonly axisEntries: readonly AxisEntry[] = this.axes.map(
     (axis) => ({ axis, label: AXIS_PRESENTATION[axis].label }),
