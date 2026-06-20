@@ -6,26 +6,16 @@ import {
   ElementRef,
   inject,
   NgZone,
-  signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AxisType, Sector } from '@psychotech/shared';
+import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, LucideIconData } from 'lucide-angular';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const COMMON_AXIS_ORDER: readonly AxisType[] = [
-  AxisType.LOGIC,
-  AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
-  AxisType.MOTOR_SKILLS,
-];
 
 interface HeroAxis {
   label: string;
@@ -38,15 +28,18 @@ interface SectorBand {
   image: string;
   alt: string;
   description: string;
+  axes: HeroAxis[];
 }
 
-function toHeroAxis(axis: AxisType): HeroAxis {
-  const presentation = AXIS_PRESENTATION[axis];
-  return {
-    label: presentation.label,
-    icon: presentation.icon,
-    colorVar: presentation.plainVar,
-  };
+function axesFor(sector: Sector): HeroAxis[] {
+  return SECTOR_AXES[sector].map((axis: AxisType) => {
+    const presentation = AXIS_PRESENTATION[axis];
+    return {
+      label: presentation.label,
+      icon: presentation.icon,
+      colorVar: presentation.plainVar,
+    };
+  });
 }
 
 @Component({
@@ -60,12 +53,9 @@ export class LandingHero {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly catalogFacade = inject(CatalogFacade);
 
   protected readonly arrowIcon = ArrowRight;
-  protected readonly commonAxes: readonly HeroAxis[] =
-    COMMON_AXIS_ORDER.map(toHeroAxis);
-  protected readonly railwayAxes = signal<readonly HeroAxis[]>(this.commonAxes);
+  protected readonly railwayAxes: readonly HeroAxis[] = axesFor(Sector.RAILWAY);
 
   protected readonly bands: readonly SectorBand[] = [
     {
@@ -74,6 +64,7 @@ export class LandingHero {
       alt: 'Secteur aérien',
       description:
         'Sélections du personnel navigant et des métiers du contrôle aérien, où le palier psychotechnique est déterminant.',
+      axes: axesFor(Sector.AVIATION),
     },
     {
       name: 'Sécurité',
@@ -81,13 +72,15 @@ export class LandingHero {
       alt: 'Secteur sécurité',
       description:
         'Concours et tests d’aptitude des métiers de la sûreté, exigeants sur la vigilance et la prise de décision.',
+      axes: axesFor(Sector.SECURITY),
     },
     {
-      name: 'Industrie',
-      image: '/sectors/industrie',
-      alt: 'Secteur industrie',
+      name: 'Conduite',
+      image: '/sectors/conduite',
+      alt: 'Secteur conduite',
       description:
-        'Évaluations d’aptitude pour les postes techniques et la conduite d’installations sensibles.',
+        'Sélections des métiers de la conduite et du transport, centrées sur la vigilance, la perception et la coordination.',
+      axes: axesFor(Sector.DRIVING),
     },
     {
       name: 'Médical',
@@ -95,16 +88,11 @@ export class LandingHero {
       alt: 'Secteur médical',
       description:
         'Épreuves d’admission des filières de soin, sous forte charge cognitive et attentionnelle.',
+      axes: axesFor(Sector.HEALTHCARE),
     },
   ];
 
   constructor() {
-    this.catalogFacade.getSectorReferential(Sector.RAILWAY).subscribe({
-      next: (sector) =>
-        this.railwayAxes.set(sector.axes.map((axis) => toHeroAxis(axis.code))),
-      error: () => this.railwayAxes.set(this.commonAxes),
-    });
-
     afterNextRender(() => {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return;

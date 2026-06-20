@@ -227,8 +227,9 @@
 
 .hero__axes {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
-  gap: 20px;
+  gap: 14px 16px;
   list-style: none;
   padding: 0;
 }
