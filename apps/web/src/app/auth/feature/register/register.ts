@@ -1,18 +1,39 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Sector, SectorSummaryDto } from '@psychotech/shared';
-import { Lock, Mail, User } from 'lucide-angular';
-import { AuthFacade } from '../../data-access/auth.facade';
+import { Mail } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
-import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
 import { FormField } from '../../../shared/ui/form-field/form-field';
+import { PasswordField } from '../../../shared/ui/password-field/password-field';
+import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
+import { Select, SelectOption } from '../../../shared/ui/select/select';
+import { passwordsMatch } from '../../../shared/util/password-match';
+import { AuthFacade } from '../../data-access/auth.facade';
+
+const PASSWORD_MIN_LENGTH = 8;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Badge, Button, Card, FormField],
+  imports: [
+    RouterLink,
+    Button,
+    Card,
+    FormField,
+    PasswordField,
+    PasswordStrengthMeter,
+    Select,
+  ],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -22,56 +43,108 @@ export class Register {
   private readonly router = inject(Router);
 
   protected readonly mailIcon = Mail;
-  protected readonly userIcon = User;
-  protected readonly lockIcon = Lock;
+  protected readonly pending = this.authFacade.pending;
 
-  protected readonly email = signal('');
   protected readonly firstName = signal('');
   protected readonly lastName = signal('');
+  protected readonly email = signal('');
+  protected readonly sector = signal<string>(Sector.RAILWAY);
   protected readonly password = signal('');
-  protected readonly currentSector = signal<Sector | null>(null);
-  protected readonly sectors = signal<readonly SectorSummaryDto[]>([]);
-  protected readonly error = signal<string | null>(null);
-  protected readonly submitting = signal(false);
+  protected readonly confirmation = signal('');
+
+  protected readonly sectorOptions = signal<readonly SelectOption[]>([]);
+  protected readonly submitted = signal(false);
+  protected readonly serverError = signal<string | null>(null);
+
+  protected readonly confirmationValid = computed(() =>
+    passwordsMatch(this.password(), this.confirmation()),
+  );
+
+  protected readonly firstNameError = computed(() =>
+    this.submitted() && this.firstName().trim() === '' ? 'Prénom requis' : null,
+  );
+  protected readonly lastNameError = computed(() =>
+    this.submitted() && this.lastName().trim() === '' ? 'Nom requis' : null,
+  );
+  protected readonly emailError = computed(() => {
+    if (!this.submitted()) {
+      return null;
+    }
+    if (this.email().trim() === '') {
+      return 'Adresse email requise';
+    }
+    return EMAIL_PATTERN.test(this.email()) ? null : 'Adresse email invalide';
+  });
+  protected readonly passwordError = computed(() => {
+    if (!this.submitted()) {
+      return null;
+    }
+    if (this.password() === '') {
+      return 'Mot de passe requis';
+    }
+    return this.password().length < PASSWORD_MIN_LENGTH
+      ? 'Au moins 8 caractères'
+      : null;
+  });
+  protected readonly confirmationError = computed(() => {
+    if (!this.submitted()) {
+      return null;
+    }
+    if (this.confirmation() === '') {
+      return 'Confirmation requise';
+    }
+    return this.confirmationValid()
+      ? null
+      : 'Les mots de passe ne correspondent pas';
+  });
 
   constructor() {
     this.catalogFacade.getSectors().subscribe((sectors) => {
-      this.sectors.set(sectors);
+      this.sectorOptions.set(
+        sectors.map((sector: SectorSummaryDto) => ({
+          value: sector.code,
+          label: sector.label,
+          disabled: !sector.isActive,
+        })),
+      );
       const firstActive = sectors.find((sector) => sector.isActive);
       if (firstActive) {
-        this.currentSector.set(firstActive.code);
+        this.sector.set(firstActive.code);
       }
     });
   }
 
-  selectSector(sector: SectorSummaryDto): void {
-    if (sector.isActive) {
-      this.currentSector.set(sector.code);
-    }
-  }
-
-  submit(): void {
-    const currentSector = this.currentSector();
-    if (!currentSector) {
-      this.error.set('Sélectionnez un secteur');
+  protected submit(): void {
+    this.submitted.set(true);
+    this.serverError.set(null);
+    if (
+      this.firstNameError() ||
+      this.lastNameError() ||
+      this.emailError() ||
+      this.passwordError() ||
+      this.confirmationError()
+    ) {
       return;
     }
-    this.error.set(null);
-    this.submitting.set(true);
     this.authFacade
       .register({
         email: this.email(),
         password: this.password(),
         firstName: this.firstName(),
         lastName: this.lastName(),
-        currentSector,
+        currentSector: this.sector() as Sector,
       })
       .subscribe({
         next: () => this.router.navigate(['/dashboard']),
-        error: () => {
-          this.error.set('Inscription impossible');
-          this.submitting.set(false);
-        },
+        error: (error: unknown) =>
+          this.serverError.set(this.toServerError(error)),
       });
+  }
+
+  private toServerError(error: unknown): string {
+    if (error instanceof HttpErrorResponse && error.status === 409) {
+      return 'Un compte existe déjà avec cette adresse email.';
+    }
+    return 'Inscription impossible pour le moment. Réessayez.';
   }
 }

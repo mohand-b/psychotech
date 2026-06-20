@@ -10,10 +10,12 @@ import {
 
 interface AuthState {
   currentUser: UserProfileDto | null;
+  pending: boolean;
 }
 
 const initialState: AuthState = {
   currentUser: null,
+  pending: false,
 };
 
 export const AuthStore = signalStore(
@@ -25,6 +27,9 @@ export const AuthStore = signalStore(
   withMethods((store) => ({
     setCurrentUser(currentUser: UserProfileDto | null): void {
       patchState(store, { currentUser });
+    },
+    setPending(pending: boolean): void {
+      patchState(store, { pending });
     },
   })),
 );

@@ -91,7 +91,7 @@ export interface SelectOption {
 })
 export class Select {
   readonly label = input('');
-  readonly options = input<SelectOption[]>([]);
+  readonly options = input<readonly SelectOption[]>([]);
   readonly value = model('');
 
   protected readonly chevronIcon = ChevronDown;

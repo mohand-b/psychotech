@@ -26,17 +26,22 @@ export class AuthFacade {
 
   readonly currentUser: Signal<UserProfileDto | null> = this.store.currentUser;
   readonly isAuthenticated: Signal<boolean> = this.store.isAuthenticated;
+  readonly pending: Signal<boolean> = this.store.pending;
 
   login(credentials: LoginDto): Observable<UserProfileDto> {
-    return this.api
-      .login(credentials)
-      .pipe(tap((user) => this.store.setCurrentUser(user)));
+    this.store.setPending(true);
+    return this.api.login(credentials).pipe(
+      tap((user) => this.store.setCurrentUser(user)),
+      finalize(() => this.store.setPending(false)),
+    );
   }
 
   register(payload: RegisterDto): Observable<UserProfileDto> {
-    return this.api
-      .register(payload)
-      .pipe(tap((user) => this.store.setCurrentUser(user)));
+    this.store.setPending(true);
+    return this.api.register(payload).pipe(
+      tap((user) => this.store.setCurrentUser(user)),
+      finalize(() => this.store.setPending(false)),
+    );
   }
 
   logout(): Observable<void> {
