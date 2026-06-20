@@ -17,17 +17,17 @@ const SECTOR_LABELS: Record<Sector, string> = {
   RAILWAY: 'Ferroviaire',
   AVIATION: 'Aérien',
   SECURITY: 'Sécurité',
-  INDUSTRY: 'Industrie',
+  DRIVING: 'Conduite',
   HEALTHCARE: 'Santé',
 };
 
-const RAILWAY_AXES: Record<AxisType, { coefficient: number; order: number }> = {
-  LOGIC: { coefficient: 1.0, order: 0 },
-  MEMORY: { coefficient: 1.2, order: 1 },
-  VISUAL_DISCRIMINATION: { coefficient: 1.2, order: 2 },
-  REACTIVITY: { coefficient: 1.4, order: 3 },
-  MOTOR_SKILLS: { coefficient: 1.0, order: 4 },
-};
+const RAILWAY_AXES: { axis: AxisType; coefficient: number; order: number }[] = [
+  { axis: AxisType.LOGIC, coefficient: 1.0, order: 0 },
+  { axis: AxisType.MEMORY, coefficient: 1.2, order: 1 },
+  { axis: AxisType.VISUAL_DISCRIMINATION, coefficient: 1.2, order: 2 },
+  { axis: AxisType.REACTIVITY, coefficient: 1.4, order: 3 },
+  { axis: AxisType.MOTOR_SKILLS, coefficient: 1.0, order: 4 },
+];
 
 async function seedRailway(): Promise<void> {
   await prisma.sectorConfig.upsert({
@@ -49,10 +49,7 @@ async function seedRailway(): Promise<void> {
     },
   });
 
-  const axes = Object.keys(RAILWAY_AXES) as AxisType[];
-
-  for (const axis of axes) {
-    const { coefficient, order } = RAILWAY_AXES[axis];
+  for (const { axis, coefficient, order } of RAILWAY_AXES) {
     const isCritical = coefficient >= CRITICAL_COEFFICIENT_THRESHOLD;
 
     await prisma.sectorAxisWeight.upsert({

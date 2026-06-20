@@ -59,4 +59,8 @@ export const AXIS_LABELS: Record<AxisType, string> = {
   [AxisType.VISUAL_DISCRIMINATION]: 'Discrimination visuelle',
   [AxisType.REACTIVITY]: 'Réactivité',
   [AxisType.MOTOR_SKILLS]: 'Motricité',
+  [AxisType.ATTENTION]: 'Attention',
+  [AxisType.NUMERICAL]: 'Numérique',
+  [AxisType.VERBAL]: 'Verbal',
+  [AxisType.SPATIAL]: 'Spatial',
 };

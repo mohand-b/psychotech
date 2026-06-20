@@ -27,6 +27,22 @@ export const AXIS_CATALOG: Record<AxisType, AxisDescriptor> = {
     label: 'Motricité',
     description: 'Précision et coordination du geste sur des parcours guidés.',
   },
+  [AxisType.ATTENTION]: {
+    label: 'Attention',
+    description: 'Maintien et partage de l’attention sur des tâches prolongées.',
+  },
+  [AxisType.NUMERICAL]: {
+    label: 'Numérique',
+    description: 'Raisonnement et calcul sur des données chiffrées.',
+  },
+  [AxisType.VERBAL]: {
+    label: 'Verbal',
+    description: 'Compréhension et raisonnement sur le langage.',
+  },
+  [AxisType.SPATIAL]: {
+    label: 'Spatial',
+    description: 'Représentation et manipulation mentale des formes dans l’espace.',
+  },
 };
 
 export const CATALOG_AXIS_ORDER: AxisType[] = [
