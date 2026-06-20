@@ -13,7 +13,6 @@
 .hero__row {
   display: flex;
   height: 100%;
-  width: calc(100% + var(--hero-skew));
 }
 
 .hero__panel {
@@ -47,7 +46,13 @@
 
 .hero__panel--band {
   flex-grow: 1;
+  flex-basis: calc(var(--hero-skew) / 2);
+  min-width: 88px;
   transition: flex-grow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero__panel--band:last-child {
+  flex-basis: 0;
 }
 
 .hero__panel--band:hover {
