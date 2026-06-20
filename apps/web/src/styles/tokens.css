@@ -67,10 +67,20 @@
   --shadow-focus: 0 0 0 3px rgba(124, 92, 252, 0.12);
 }
 
+html,
+body {
+  margin: 0;
+}
+
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
+}
+
+body.landing-active,
+html:has(body.landing-active) {
+  background: #0c0a16;
 }
 
 .t-display {

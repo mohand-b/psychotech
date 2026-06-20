@@ -27,12 +27,16 @@ export class Landing {
 
   constructor() {
     afterNextRender(() => {
+      document.body.classList.add('landing-active');
       const observer = new IntersectionObserver(
         ([entry]) => this.scrolled.set(!entry.isIntersecting),
         { threshold: 0 },
       );
       observer.observe(this.sentinel().nativeElement);
-      this.destroyRef.onDestroy(() => observer.disconnect());
+      this.destroyRef.onDestroy(() => {
+        observer.disconnect();
+        document.body.classList.remove('landing-active');
+      });
     });
   }
 }
