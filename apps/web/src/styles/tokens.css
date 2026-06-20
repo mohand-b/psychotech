@@ -65,6 +65,10 @@
   --rating-weak: #f97316;
   --rating-bad: #ef4444;
 
+  --success: #10b981;
+  --warning: #eab308;
+  --danger: #ef4444;
+
   --surface-hover: #fafbfc;
 
   --font-display: 'Baloo 2', sans-serif;
