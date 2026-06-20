@@ -42,6 +42,22 @@
   --axis-motricite-pastel: #fdeded;
   --axis-motricite-pastel-bd: #f9c6c6;
   --axis-motricite-text: #d93636;
+  --axis-attention: #06b6d4;
+  --axis-attention-pastel: #e6f8fb;
+  --axis-attention-pastel-bd: #ade7f1;
+  --axis-attention-text: #0595ae;
+  --axis-numerique: #6366f1;
+  --axis-numerique-pastel: #eff0fe;
+  --axis-numerique-pastel-bd: #cccdfa;
+  --axis-numerique-text: #5154c6;
+  --axis-verbal: #ec4899;
+  --axis-verbal-pastel: #fdedf5;
+  --axis-verbal-pastel-bd: #f9c3dd;
+  --axis-verbal-text: #c23b7d;
+  --axis-spatial: #f97316;
+  --axis-spatial-pastel: #fef1e8;
+  --axis-spatial-pastel-bd: #fdd1b2;
+  --axis-spatial-text: #cc5e12;
 
   --rating-good: #10b981;
   --rating-ok: #eab308;
