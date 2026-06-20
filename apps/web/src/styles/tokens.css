@@ -22,34 +22,34 @@
   --secondary-pastel-bd: #d2edd0;
   --secondary-label: #2f7a29;
 
-  --axis-logique: #3b82f6;
-  --axis-logique-pastel: #ebf2fe;
-  --axis-logique-pastel-bd: #bfd7fb;
-  --axis-logique-text: #2d6fd9;
-  --axis-memoire: #8b5cf6;
-  --axis-memoire-pastel: #f3effe;
-  --axis-memoire-pastel-bd: #dcd0fb;
-  --axis-memoire-text: #7c4def;
-  --axis-discrim: #10b981;
-  --axis-discrim-pastel: #e9f9f2;
-  --axis-discrim-pastel-bd: #bfebd8;
-  --axis-discrim-text: #0e9669;
-  --axis-reactivite: #f5a623;
-  --axis-reactivite-pastel: #fef5e7;
-  --axis-reactivite-pastel-bd: #fbe0b3;
-  --axis-reactivite-text: #c97e0a;
-  --axis-motricite: #ef4444;
-  --axis-motricite-pastel: #fdeded;
-  --axis-motricite-pastel-bd: #f9c6c6;
-  --axis-motricite-text: #d93636;
+  --axis-logic: #3b82f6;
+  --axis-logic-pastel: #ebf2fe;
+  --axis-logic-pastel-bd: #bfd7fb;
+  --axis-logic-text: #2d6fd9;
+  --axis-memory: #8b5cf6;
+  --axis-memory-pastel: #f3effe;
+  --axis-memory-pastel-bd: #dcd0fb;
+  --axis-memory-text: #7c4def;
+  --axis-discrimination: #10b981;
+  --axis-discrimination-pastel: #e9f9f2;
+  --axis-discrimination-pastel-bd: #bfebd8;
+  --axis-discrimination-text: #0e9669;
+  --axis-reactivity: #f5a623;
+  --axis-reactivity-pastel: #fef5e7;
+  --axis-reactivity-pastel-bd: #fbe0b3;
+  --axis-reactivity-text: #c97e0a;
+  --axis-motor: #ef4444;
+  --axis-motor-pastel: #fdeded;
+  --axis-motor-pastel-bd: #f9c6c6;
+  --axis-motor-text: #d93636;
   --axis-attention: #06b6d4;
   --axis-attention-pastel: #e6f8fb;
   --axis-attention-pastel-bd: #ade7f1;
   --axis-attention-text: #0595ae;
-  --axis-numerique: #6366f1;
-  --axis-numerique-pastel: #eff0fe;
-  --axis-numerique-pastel-bd: #cccdfa;
-  --axis-numerique-text: #5154c6;
+  --axis-numerical: #6366f1;
+  --axis-numerical-pastel: #eff0fe;
+  --axis-numerical-pastel-bd: #cccdfa;
+  --axis-numerical-text: #5154c6;
   --axis-verbal: #ec4899;
   --axis-verbal-pastel: #fdedf5;
   --axis-verbal-pastel-bd: #f9c3dd;
@@ -135,16 +135,4 @@ html:has(body.landing-active) {
 .hairline {
   height: 1px;
   background: var(--border);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }

@@ -63,10 +63,10 @@ import { inputValue } from '../../util/input-value';
       border-radius: var(--radius-input);
     }
     .ui-form-field__control--valid {
-      border-color: var(--axis-discrim);
+      border-color: var(--axis-discrimination);
     }
     .ui-form-field__control--error {
-      border-color: var(--axis-motricite);
+      border-color: var(--axis-motor);
     }
     .ui-form-field__control:focus-within {
       border-color: var(--brand);
@@ -90,11 +90,11 @@ import { inputValue } from '../../util/input-value';
     }
     .ui-form-field__check {
       display: inline-flex;
-      color: var(--axis-discrim);
+      color: var(--axis-discrimination);
     }
     .ui-form-field__error {
       font: 400 13px/18px var(--font-ui);
-      color: var(--axis-motricite-text);
+      color: var(--axis-motor-text);
     }
   `,
 })
