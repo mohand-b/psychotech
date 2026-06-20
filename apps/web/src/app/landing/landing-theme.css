@@ -1,0 +1,15 @@
+:host {
+  --landing-bg: #0c0a16;
+  --landing-glow: rgba(124, 92, 252, 0.3);
+  --landing-accent: #7c5cfc;
+  --landing-accent-hover: #6a4bea;
+  --landing-text: #ffffff;
+  --landing-text-body: rgba(255, 255, 255, 0.62);
+  --landing-text-muted: rgba(255, 255, 255, 0.45);
+  --landing-border-soft: rgba(255, 255, 255, 0.06);
+  --landing-border: rgba(255, 255, 255, 0.12);
+  --landing-border-strong: rgba(255, 255, 255, 0.18);
+  --landing-glass: rgba(12, 10, 22, 0.72);
+  --landing-font-display: 'Space Grotesk', sans-serif;
+  --landing-font-ui: 'Inter', sans-serif;
+}
