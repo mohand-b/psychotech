@@ -1,0 +1,61 @@
+<section class="hero" aria-label="Secteurs couverts">
+  <div class="hero__row">
+    <article class="hero__panel hero__panel--dominant">
+      <picture class="hero__media hero__media--parallax">
+        <source srcset="/sectors/ferroviaire.webp" type="image/webp" />
+        <img
+          class="hero__image"
+          src="/sectors/ferroviaire.jpg"
+          alt="Secteur ferroviaire"
+          fetchpriority="high"
+        />
+      </picture>
+      <span class="hero__veil hero__veil--dominant" aria-hidden="true"></span>
+      <span class="hero__glow" aria-hidden="true"></span>
+
+      <div class="hero__content">
+        <span class="hero__badge hero__badge--available hero__animate">
+          Disponible
+        </span>
+        <h1 class="hero__title hero__animate">
+          Réussissez les tests psychotechniques du ferroviaire
+        </h1>
+        <p class="hero__subtitle hero__animate">
+          L'épreuve psychotechnique est souvent éliminatoire. Entraînez-vous dans
+          les conditions réelles de l'examen, sur les cinq aptitudes évaluées par
+          les recruteurs.
+        </p>
+        <a routerLink="/register" class="hero__cta hero__animate">
+          Créer un compte
+        </a>
+        <ul class="hero__axes hero__animate" aria-label="Aptitudes évaluées">
+          @for (axis of axes; track axis.label) {
+            <li class="hero__axis" [style.--axis-color]="axis.colorVar">
+              <ui-icon [img]="axis.icon" [size]="22" [strokeWidth]="1.5" />
+              <span class="sr-only">{{ axis.label }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </article>
+
+    @for (band of bands; track band.name) {
+      <article class="hero__panel hero__panel--band">
+        <picture class="hero__media">
+          <source [srcset]="band.image + '.webp'" type="image/webp" />
+          <img
+            class="hero__image"
+            [src]="band.image + '.jpg'"
+            [alt]="band.alt"
+            loading="lazy"
+          />
+        </picture>
+        <span class="hero__veil hero__veil--band" aria-hidden="true"></span>
+        <div class="hero__band-content">
+          <span class="hero__band-name">{{ band.name }}</span>
+          <span class="hero__badge hero__badge--soon">Bientôt</span>
+        </div>
+      </article>
+    }
+  </div>
+</section>
