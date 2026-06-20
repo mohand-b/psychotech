@@ -26,16 +26,20 @@
           les recruteurs.
         </p>
         <a routerLink="/register" class="hero__cta hero__animate">
-          Créer un compte
+          <span>Créer un compte</span>
+          <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
         </a>
-        <ul class="hero__axes hero__animate" aria-label="Aptitudes évaluées">
-          @for (axis of axes; track axis.label) {
-            <li class="hero__axis" [style.--axis-color]="axis.colorVar">
-              <ui-icon [img]="axis.icon" [size]="22" [strokeWidth]="1.5" />
-              <span class="sr-only">{{ axis.label }}</span>
-            </li>
-          }
-        </ul>
+        <div class="hero__axes-group hero__animate">
+          <span class="hero__axes-label">Axes évalués</span>
+          <ul class="hero__axes" aria-label="Aptitudes évaluées">
+            @for (axis of railwayAxes(); track axis.label) {
+              <li class="hero__axis" [style.--axis-color]="axis.colorVar">
+                <ui-icon [img]="axis.icon" [size]="22" [strokeWidth]="1.5" />
+                <span class="sr-only">{{ axis.label }}</span>
+              </li>
+            }
+          </ul>
+        </div>
       </div>
     </article>
 
@@ -51,9 +55,26 @@
           />
         </picture>
         <span class="hero__veil hero__veil--band" aria-hidden="true"></span>
-        <div class="hero__band-content">
+
+        <div class="hero__band-rest" aria-hidden="true">
           <span class="hero__band-name">{{ band.name }}</span>
+        </div>
+
+        <div class="hero__band-expanded">
           <span class="hero__badge hero__badge--soon">Bientôt</span>
+          <h2 class="hero__band-title">{{ band.name }}</h2>
+          <p class="hero__band-desc">{{ band.description }}</p>
+          <div class="hero__axes-group">
+            <span class="hero__axes-label">Axes pressentis</span>
+            <ul class="hero__axes" [attr.aria-label]="'Axes pressentis ' + band.name">
+              @for (axis of commonAxes; track axis.label) {
+                <li class="hero__axis" [style.--axis-color]="axis.colorVar">
+                  <ui-icon [img]="axis.icon" [size]="20" [strokeWidth]="1.5" />
+                  <span class="sr-only">{{ axis.label }}</span>
+                </li>
+              }
+            </ul>
+          </div>
         </div>
       </article>
     }
