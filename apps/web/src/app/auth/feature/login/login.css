@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.login {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.login__card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login__server-error {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--danger);
+}
+
+.login__link {
+  font: 600 13px/18px var(--font-ui);
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.login__link:hover {
+  text-decoration: underline;
+}

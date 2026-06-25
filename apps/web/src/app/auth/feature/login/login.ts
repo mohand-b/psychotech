@@ -1,34 +1,72 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Mail } from 'lucide-angular';
+import { Button } from '../../../shared/ui/button/button';
+import { Card } from '../../../shared/ui/card/card';
+import { FormField } from '../../../shared/ui/form-field/form-field';
+import { PasswordField } from '../../../shared/ui/password-field/password-field';
 import { AuthFacade } from '../../data-access/auth.facade';
-import { inputValue } from '../../../shared/util/input-value';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, Button, Card, FormField, PasswordField],
   templateUrl: './login.html',
+  styleUrl: './login.css',
 })
 export class Login {
   private readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
-  protected readonly inputValue = inputValue;
+
+  protected readonly mailIcon = Mail;
+  protected readonly pending = this.authFacade.pending;
+
   protected readonly email = signal('');
   protected readonly password = signal('');
-  protected readonly error = signal<string | null>(null);
-  protected readonly submitting = signal(false);
+  protected readonly submitted = signal(false);
+  protected readonly serverError = signal<string | null>(null);
 
-  submit(): void {
-    this.error.set(null);
-    this.submitting.set(true);
+  protected readonly emailError = computed(() => {
+    if (!this.submitted()) {
+      return null;
+    }
+    if (this.email().trim() === '') {
+      return 'Adresse email requise';
+    }
+    return EMAIL_PATTERN.test(this.email()) ? null : 'Adresse email invalide';
+  });
+  protected readonly passwordError = computed(() =>
+    this.submitted() && this.password() === '' ? 'Mot de passe requis' : null,
+  );
+
+  protected submit(): void {
+    this.submitted.set(true);
+    this.serverError.set(null);
+    if (this.emailError() || this.passwordError()) {
+      return;
+    }
     this.authFacade
       .login({ email: this.email(), password: this.password() })
       .subscribe({
         next: () => this.router.navigate(['/dashboard']),
-        error: () => {
-          this.error.set('Identifiants invalides');
-          this.submitting.set(false);
-        },
+        error: (error: unknown) =>
+          this.serverError.set(this.toServerError(error)),
       });
+  }
+
+  private toServerError(error: unknown): string {
+    if (error instanceof HttpErrorResponse && error.status === 401) {
+      return 'Identifiants invalides.';
+    }
+    return 'Connexion impossible pour le moment. Réessayez.';
   }
 }

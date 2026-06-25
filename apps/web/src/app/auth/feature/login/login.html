@@ -1,22 +1,33 @@
-<div class="flex flex-col gap-4">
-  <h1 class="text-2xl font-bold">Connexion</h1>
-  <input
-    type="email"
-    placeholder="Email"
-    [value]="email()"
-    (input)="email.set(inputValue($event))"
-  />
-  <input
-    type="password"
-    placeholder="Mot de passe"
-    [value]="password()"
-    (input)="password.set(inputValue($event))"
-  />
-  @if (error(); as message) {
-    <p>{{ message }}</p>
-  }
-  <button type="button" [disabled]="submitting()" (click)="submit()">
-    Se connecter
-  </button>
-  <a routerLink="/register">Créer un compte</a>
+<div class="login">
+  <ui-card class="login__card" [padding]="32">
+    <div class="login__form">
+      <h1 class="t-page-title">Connexion</h1>
+
+      <ui-form-field
+        label="Adresse email"
+        type="email"
+        placeholder="vous@exemple.fr"
+        [icon]="mailIcon"
+        [(value)]="email"
+        [error]="emailError()"
+      />
+
+      <ui-password-field
+        label="Mot de passe"
+        placeholder="••••••••"
+        [(value)]="password"
+        [error]="passwordError()"
+      />
+
+      @if (serverError(); as message) {
+        <p class="login__server-error" role="alert">{{ message }}</p>
+      }
+
+      <ui-button variant="primary" [loading]="pending()" (click)="submit()">
+        Se connecter
+      </ui-button>
+
+      <a routerLink="/register" class="login__link">Créer un compte</a>
+    </div>
+  </ui-card>
 </div>
