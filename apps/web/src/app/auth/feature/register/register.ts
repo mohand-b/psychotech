@@ -99,18 +99,24 @@ export class Register {
   });
 
   constructor() {
-    this.catalogFacade.getSectors().subscribe((sectors) => {
-      this.sectorOptions.set(
-        sectors.map((sector: SectorSummaryDto) => ({
-          value: sector.code,
-          label: sector.label,
-          disabled: !sector.isActive,
-        })),
-      );
-      const firstActive = sectors.find((sector) => sector.isActive);
-      if (firstActive) {
-        this.sector.set(firstActive.code);
-      }
+    this.catalogFacade.getSectors().subscribe({
+      next: (sectors) => {
+        this.sectorOptions.set(
+          sectors.map((sector: SectorSummaryDto) => ({
+            value: sector.code,
+            label: sector.label,
+            disabled: !sector.isActive,
+          })),
+        );
+        const firstActive = sectors.find((sector) => sector.isActive);
+        if (firstActive) {
+          this.sector.set(firstActive.code);
+        }
+      },
+      error: () =>
+        this.serverError.set(
+          'Impossible de charger les secteurs. Réessayez plus tard.',
+        ),
     });
   }
 
