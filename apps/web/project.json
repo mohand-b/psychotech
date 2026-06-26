@@ -9,6 +9,7 @@
     "build": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/web",
         "browser": "apps/web/src/main.ts",
@@ -43,12 +44,12 @@
           "extractLicenses": false,
           "sourceMap": true
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
       "options": {
         "proxyConfig": "apps/web/proxy.conf.json"
       },
@@ -59,8 +60,7 @@
         "development": {
           "buildTarget": "web:build:development"
         }
-      },
-      "defaultConfiguration": "development"
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"
@@ -78,6 +78,49 @@
         "buildTarget": "web:build",
         "staticFilePath": "dist/apps/web/browser",
         "spa": true
+      }
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "apps/web/.storybook",
+        "browserTarget": "web:build",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/web",
+        "configDir": "apps/web/.storybook",
+        "browserTarget": "web:build",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "buildTarget": "web:build-storybook",
+        "staticFilePath": "dist/storybook/web",
+        "spa": true
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "web:build-storybook:ci"
+        }
       }
     }
   }
