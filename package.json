@@ -2,7 +2,10 @@
   "name": "@psychotech/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "storybook": "nx storybook web",
+    "build-storybook": "nx build-storybook web"
+  },
   "private": true,
   "dependencies": {
     "@angular/common": "~21.2.0",
