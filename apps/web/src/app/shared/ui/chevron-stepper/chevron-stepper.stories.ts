@@ -1,40 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { AxisType } from '@psychotech/shared';
-import { ChevronStep, ChevronStepper } from './chevron-stepper';
+import { ChevronStepper } from './chevron-stepper';
 
-const railwaySteps: ChevronStep[] = [
-  { axis: AxisType.LOGIC, state: 'done' },
-  { axis: AxisType.MEMORY, state: 'done' },
-  { axis: AxisType.VISUAL_DISCRIMINATION, state: 'done' },
-  { axis: AxisType.REACTIVITY, state: 'current' },
-  { axis: AxisType.MOTOR_SKILLS, state: 'todo' },
+const railwayAxes: AxisType[] = [
+  AxisType.LOGIC,
+  AxisType.MEMORY,
+  AxisType.VISUAL_DISCRIMINATION,
+  AxisType.REACTIVITY,
+  AxisType.MOTOR_SKILLS,
 ];
 
-const freshStart: ChevronStep[] = [
-  { axis: AxisType.LOGIC, state: 'current' },
-  { axis: AxisType.MEMORY, state: 'todo' },
-  { axis: AxisType.VISUAL_DISCRIMINATION, state: 'todo' },
-  { axis: AxisType.REACTIVITY, state: 'todo' },
-  { axis: AxisType.MOTOR_SKILLS, state: 'todo' },
+const drivingAxes: AxisType[] = [
+  AxisType.VISUAL_DISCRIMINATION,
+  AxisType.REACTIVITY,
+  AxisType.MOTOR_SKILLS,
+  AxisType.ATTENTION,
 ];
-
-const allDone: ChevronStep[] = railwaySteps.map((step) => ({
-  axis: step.axis,
-  state: 'done',
-}));
 
 const meta: Meta<ChevronStepper> = {
   title: 'Design System/Chevron Stepper',
   component: ChevronStepper,
   tags: ['autodocs'],
-  parameters: { layout: 'fullscreen' },
+  parameters: { layout: 'centered' },
   argTypes: {
     variant: { control: { type: 'radio' }, options: ['full', 'mini'] },
-    steps: { control: 'object' },
+    axes: { control: { type: 'check' }, options: Object.values(AxisType) },
+    currentIndex: { control: { type: 'number', min: 0, max: 8, step: 1 } },
+    steps: { control: false },
   },
   args: {
     variant: 'full',
-    steps: railwaySteps,
+    axes: railwayAxes,
+    currentIndex: 3,
   },
 };
 export default meta;
@@ -43,8 +40,8 @@ type Story = StoryObj<ChevronStepper>;
 
 export const Full: Story = {};
 export const Mini: Story = { args: { variant: 'mini' } };
-export const FreshStart: Story = { args: { steps: freshStart } };
-export const AllDone: Story = { args: { steps: allDone } };
-export const MiniFreshStart: Story = {
-  args: { variant: 'mini', steps: freshStart },
+export const FreshStart: Story = { args: { currentIndex: 0 } };
+export const Completed: Story = { args: { currentIndex: railwayAxes.length } };
+export const DrivingSector: Story = {
+  args: { axes: drivingAxes, currentIndex: 1 },
 };

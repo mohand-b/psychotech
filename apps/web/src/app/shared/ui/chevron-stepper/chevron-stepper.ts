@@ -68,7 +68,11 @@ interface DecoratedStep {
   `,
   styles: `
     :host {
-      display: block;
+      display: inline-block;
+      padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
     }
     .stepper {
       display: flex;
@@ -153,6 +157,8 @@ interface DecoratedStep {
 })
 export class ChevronStepper {
   readonly variant = input<ChevronStepperVariant>('full');
+  readonly axes = input<readonly AxisType[]>([]);
+  readonly currentIndex = input(0);
   readonly steps = input<readonly ChevronStep[]>([]);
 
   protected readonly checkIcon = Check;
@@ -165,8 +171,21 @@ export class ChevronStepper {
     this.variant() === 'mini' ? 12 : 14,
   );
 
+  private readonly effectiveSteps = computed<ChevronStep[]>(() => {
+    const explicit = this.steps();
+    if (explicit.length > 0) {
+      return [...explicit];
+    }
+    const current = this.currentIndex();
+    return this.axes().map((axis, index) => {
+      const state: StepState =
+        index < current ? 'done' : index === current ? 'current' : 'todo';
+      return { axis, state };
+    });
+  });
+
   protected readonly decoratedSteps = computed<DecoratedStep[]>(() =>
-    this.steps().map((step) => {
+    this.effectiveSteps().map((step) => {
       const presentation = AXIS_PRESENTATION[step.axis];
       return {
         axis: step.axis,
