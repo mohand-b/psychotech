@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.content {
+  background: var(--bg);
+}
