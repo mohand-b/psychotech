@@ -1,6 +1,9 @@
 import { Route } from '@angular/router';
 import { authGuard } from '../auth/data-access/auth.guard';
 import { dashboardRoutes } from '../dashboard/feature/dashboard.routes';
+import { entrainementsRoutes } from '../entrainements/feature/entrainements.routes';
+import { progressionRoutes } from '../progression/feature/progression.routes';
+import { sessionsRoutes } from '../sessions/feature/sessions.routes';
 
 export const connectedRoutes: Route[] = [
   {
@@ -12,6 +15,9 @@ export const connectedRoutes: Route[] = [
       ),
     children: [
       ...dashboardRoutes,
+      ...entrainementsRoutes,
+      ...sessionsRoutes,
+      ...progressionRoutes,
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: '**', redirectTo: 'dashboard' },
     ],
