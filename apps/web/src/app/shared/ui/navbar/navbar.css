@@ -91,37 +91,6 @@
   box-shadow: var(--shadow-focus);
 }
 
-.flame {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: var(--radius-button);
-  color: var(--text-secondary);
-}
-
-.flame__icon {
-  color: var(--text-secondary);
-}
-
-.flame__count {
-  font: 600 13px/1 var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
-}
-
-.flame--active {
-  background: var(--axis-reactivity-pastel);
-}
-
-.flame--active .flame__icon {
-  color: var(--axis-reactivity);
-}
-
-.flame--active .flame__count {
-  color: var(--ink);
-}
-
 .sector-badge {
   display: inline-flex;
   align-items: center;

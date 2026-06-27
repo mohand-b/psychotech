@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
+import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { Navbar } from '../../shared/ui/navbar/navbar';
 
 @Component({
@@ -9,4 +11,13 @@ import { Navbar } from '../../shared/ui/navbar/navbar';
   templateUrl: './connected-layout.html',
   styleUrl: './connected-layout.css',
 })
-export class ConnectedLayout {}
+export class ConnectedLayout {
+  private readonly energyFacade = inject(EnergyFacade);
+
+  constructor() {
+    this.energyFacade
+      .load()
+      .pipe(takeUntilDestroyed())
+      .subscribe({ error: () => undefined });
+  }
+}

@@ -1,14 +1,11 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
-  input,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
-  Flame,
   House,
   List,
   LogOut,
@@ -17,6 +14,8 @@ import {
   TrendingUp,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { EnergyFacade } from '../../../energy/data-access/energy.facade';
+import { EnergyGauge } from '../energy-gauge/energy-gauge';
 import { Icon } from '../icon/icon';
 import { SECTOR_PRESENTATION } from '../sector-presentation';
 
@@ -29,19 +28,17 @@ interface NavItem {
 @Component({
   selector: 'ui-navbar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, Icon],
+  imports: [RouterLink, RouterLinkActive, Icon, EnergyGauge],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar {
   private readonly authFacade = inject(AuthFacade);
+  private readonly energyFacade = inject(EnergyFacade);
   private readonly router = inject(Router);
 
-  readonly streakCount = input(0);
-  readonly streakActive = input(false);
-
   protected readonly user = this.authFacade.currentUser;
-  protected readonly flameIcon = Flame;
+  protected readonly energy = this.energyFacade.state;
   protected readonly logOutIcon = LogOut;
 
   protected readonly navItems: readonly NavItem[] = [

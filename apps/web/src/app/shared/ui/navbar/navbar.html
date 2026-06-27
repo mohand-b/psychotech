@@ -1,10 +1,3 @@
-<ng-template #flameTpl>
-  <span class="flame" [class.flame--active]="streakActive()">
-    <ui-icon class="flame__icon" [img]="flameIcon" [size]="15" />
-    <span class="flame__count">{{ streakCount() }}</span>
-  </span>
-</ng-template>
-
 <header class="topbar navbar-surface hidden h-16 items-center gap-10 px-6 md:flex">
   <span class="logo">Psycho<span class="logo__accent">Tech</span></span>
 
@@ -22,7 +15,7 @@
   </nav>
 
   <div class="flex items-center gap-4">
-    <ng-container [ngTemplateOutlet]="flameTpl" />
+    <ui-energy-gauge [state]="energy()" />
     <span class="separator"></span>
     @if (user(); as current) {
       <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
@@ -45,7 +38,7 @@
         <span>{{ current.label }}</span>
       </span>
     }
-    <ng-container [ngTemplateOutlet]="flameTpl" />
+    <ui-energy-gauge [state]="energy()" [compact]="true" />
   </div>
 </header>
 

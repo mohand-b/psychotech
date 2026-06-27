@@ -1,0 +1,22 @@
+@if (unlimited()) {
+  <span class="chip">
+    <ui-icon class="chip__icon" [img]="zapIcon" [size]="14" />
+    <span class="chip__label">Illimité</span>
+  </span>
+} @else {
+  <span
+    class="gauge"
+    [class.gauge--compact]="compact()"
+    [class.gauge--depleted]="depleted()"
+  >
+    <ui-icon class="gauge__icon" [img]="zapIcon" [size]="15" />
+    @if (!compact()) {
+      <span class="gauge__segments">
+        @for (segment of segments(); track segment.index) {
+          <span class="segment" [class.segment--filled]="segment.filled"></span>
+        }
+      </span>
+    }
+    <span class="gauge__count">{{ balance() }}</span>
+  </span>
+}
