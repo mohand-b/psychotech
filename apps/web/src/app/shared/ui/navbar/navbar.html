@@ -1,0 +1,67 @@
+<ng-template #flameTpl>
+  <span class="flame" [class.flame--active]="streakActive()">
+    <ui-icon class="flame__icon" [img]="flameIcon" [size]="15" />
+    <span class="flame__count">{{ streakCount() }}</span>
+  </span>
+</ng-template>
+
+<header class="topbar navbar-surface hidden h-16 items-center gap-10 px-6 md:flex">
+  <span class="logo">Psycho<span class="logo__accent">Tech</span></span>
+
+  <nav class="flex flex-1 items-center gap-2" aria-label="Sections">
+    @for (item of navItems; track item.path) {
+      <a
+        class="link"
+        [routerLink]="item.path"
+        routerLinkActive="link--active"
+        ariaCurrentWhenActive="page"
+      >
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <div class="flex items-center gap-4">
+    <ng-container [ngTemplateOutlet]="flameTpl" />
+    <span class="separator"></span>
+    @if (user(); as current) {
+      <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
+    }
+    <button type="button" class="logout" (click)="logout()">
+      <ui-icon [img]="logOutIcon" [size]="15" />
+      <span>Déconnexion</span>
+    </button>
+  </div>
+</header>
+
+<header
+  class="mobile-header navbar-surface flex h-14 items-center justify-between px-4 md:hidden"
+>
+  <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
+  <div class="flex items-center gap-2">
+    @if (sector(); as current) {
+      <span class="sector-badge">
+        <ui-icon [img]="current.icon" [size]="12" />
+        <span>{{ current.label }}</span>
+      </span>
+    }
+    <ng-container [ngTemplateOutlet]="flameTpl" />
+  </div>
+</header>
+
+<nav
+  class="bottom-nav navbar-surface fixed inset-x-0 bottom-0 grid h-16 grid-cols-4 md:hidden"
+  aria-label="Sections"
+>
+  @for (item of navItems; track item.path) {
+    <a
+      class="tab"
+      [routerLink]="item.path"
+      routerLinkActive="tab--active"
+      ariaCurrentWhenActive="page"
+    >
+      <ui-icon [img]="item.icon" [size]="20" [strokeWidth]="2" />
+      <span class="tab__label">{{ item.label }}</span>
+    </a>
+  }
+</nav>
