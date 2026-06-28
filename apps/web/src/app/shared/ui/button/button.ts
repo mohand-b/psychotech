@@ -40,9 +40,19 @@ export type ButtonAppearance = 'solid' | 'ghost';
       }
     </button>
   `,
+  host: {
+    '[class.ui-button--full]': 'block()',
+  },
   styles: `
     :host {
       display: inline-flex;
+    }
+    :host(.ui-button--full) {
+      display: flex;
+      width: 100%;
+    }
+    :host(.ui-button--full) .ui-button {
+      width: 100%;
     }
     .ui-button {
       display: inline-flex;
@@ -188,6 +198,7 @@ export class Button {
   readonly color = input<ButtonColor>('brand');
   readonly appearance = input<ButtonAppearance>('solid');
   readonly relief = input(false);
+  readonly block = input(false);
   readonly disabled = input(false);
   readonly loading = input(false);
   readonly showArrow = input(false);
