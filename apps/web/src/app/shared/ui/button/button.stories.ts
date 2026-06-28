@@ -25,7 +25,7 @@ const meta: Meta<ButtonStoryArgs> = {
     },
     appearance: {
       control: { type: 'inline-radio' },
-      options: ['solid', 'ghost'],
+      options: ['solid', 'outlined'],
     },
     relief: { control: 'boolean' },
     disabled: { control: 'boolean' },
@@ -56,8 +56,8 @@ export const Brand: Story = {};
 export const Green: Story = {
   args: { color: 'green', label: 'Lancer la simulation' },
 };
-export const Ghost: Story = {
-  args: { color: 'neutral', appearance: 'ghost', label: 'Voir le détail' },
+export const Outlined: Story = {
+  args: { color: 'neutral', appearance: 'outlined', label: 'Voir le détail' },
 };
 export const Relief: Story = {
   args: { relief: true, label: 'Lancer la session' },
@@ -65,8 +65,8 @@ export const Relief: Story = {
 export const ReliefGreen: Story = {
   args: { color: 'green', relief: true, label: "Valider l'exercice" },
 };
-export const GhostColored: Story = {
-  args: { color: 'logic', appearance: 'ghost', label: 'Logique' },
+export const OutlinedColored: Story = {
+  args: { color: 'logic', appearance: 'outlined', label: 'Logique' },
 };
 export const WithArrow: Story = {
   args: { showArrow: true, label: 'Continuer' },

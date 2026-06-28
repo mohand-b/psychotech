@@ -17,7 +17,7 @@ export type ButtonColor =
   | 'reactivity'
   | 'motor';
 
-export type ButtonAppearance = 'solid' | 'ghost';
+export type ButtonAppearance = 'solid' | 'outlined';
 
 @Component({
   selector: 'ui-button',
@@ -41,17 +41,17 @@ export type ButtonAppearance = 'solid' | 'ghost';
     </button>
   `,
   host: {
-    '[class.ui-button--full]': 'block()',
+    '[class.ui-button--block]': 'block()',
   },
   styles: `
     :host {
       display: inline-flex;
     }
-    :host(.ui-button--full) {
+    :host(.ui-button--block) {
       display: flex;
       width: 100%;
     }
-    :host(.ui-button--full) .ui-button {
+    :host(.ui-button--block) .ui-button {
       width: 100%;
     }
     .ui-button {
@@ -67,118 +67,121 @@ export type ButtonAppearance = 'solid' | 'ghost';
       cursor: pointer;
     }
     .ui-button--brand {
-      --btn-bg: var(--brand);
-      --btn-bg-hover: var(--brand-hover);
+      --btn-fill: var(--brand);
+      --btn-fill-hover: var(--brand-hover);
+      --btn-fill-loading: var(--brand-loading);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--brand-relief);
-      --btn-on: var(--card);
-      --btn-loading: var(--brand-loading);
-      --btn-text: var(--brand);
-      --btn-line: var(--brand-pastel-bd);
-      --btn-tint: var(--brand-pastel);
+      --btn-outline-text: var(--brand);
+      --btn-outline-border: var(--brand-pastel-bd);
+      --btn-outline-hover: var(--brand-pastel);
     }
     .ui-button--green {
-      --btn-bg: var(--secondary-dark);
-      --btn-bg-hover: var(--secondary-hover);
+      --btn-fill: var(--secondary-dark);
+      --btn-fill-hover: var(--secondary-hover);
+      --btn-fill-loading: var(--secondary-hover);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--secondary-relief);
-      --btn-on: var(--card);
-      --btn-loading: var(--secondary-hover);
-      --btn-text: var(--secondary-label);
-      --btn-line: var(--secondary-pastel-bd);
-      --btn-tint: var(--secondary-pastel);
+      --btn-outline-text: var(--secondary-label);
+      --btn-outline-border: var(--secondary-pastel-bd);
+      --btn-outline-hover: var(--secondary-pastel);
     }
     .ui-button--neutral {
-      --btn-bg: var(--ink);
-      --btn-bg-hover: var(--text-secondary);
+      --btn-fill: var(--ink);
+      --btn-fill-hover: var(--text-secondary);
+      --btn-fill-loading: var(--text-secondary);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--text-secondary);
-      --btn-on: var(--card);
-      --btn-loading: var(--text-secondary);
-      --btn-text: var(--ink);
-      --btn-line: var(--border);
-      --btn-tint: var(--surface-hover);
+      --btn-outline-text: var(--ink);
+      --btn-outline-border: var(--border);
+      --btn-outline-hover: var(--surface-hover);
     }
     .ui-button--logic {
-      --btn-bg: var(--axis-logic);
-      --btn-bg-hover: var(--axis-logic-text);
+      --btn-fill: var(--axis-logic);
+      --btn-fill-hover: var(--axis-logic-text);
+      --btn-fill-loading: var(--axis-logic);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--axis-logic-text);
-      --btn-on: var(--card);
-      --btn-loading: var(--axis-logic);
-      --btn-text: var(--axis-logic-text);
-      --btn-line: var(--axis-logic-pastel-bd);
-      --btn-tint: var(--axis-logic-pastel);
+      --btn-outline-text: var(--axis-logic-text);
+      --btn-outline-border: var(--axis-logic-pastel-bd);
+      --btn-outline-hover: var(--axis-logic-pastel);
     }
     .ui-button--memory {
-      --btn-bg: var(--axis-memory);
-      --btn-bg-hover: var(--axis-memory-text);
+      --btn-fill: var(--axis-memory);
+      --btn-fill-hover: var(--axis-memory-text);
+      --btn-fill-loading: var(--axis-memory);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--axis-memory-text);
-      --btn-on: var(--card);
-      --btn-loading: var(--axis-memory);
-      --btn-text: var(--axis-memory-text);
-      --btn-line: var(--axis-memory-pastel-bd);
-      --btn-tint: var(--axis-memory-pastel);
+      --btn-outline-text: var(--axis-memory-text);
+      --btn-outline-border: var(--axis-memory-pastel-bd);
+      --btn-outline-hover: var(--axis-memory-pastel);
     }
     .ui-button--discrimination {
-      --btn-bg: var(--axis-discrimination);
-      --btn-bg-hover: var(--axis-discrimination-text);
+      --btn-fill: var(--axis-discrimination);
+      --btn-fill-hover: var(--axis-discrimination-text);
+      --btn-fill-loading: var(--axis-discrimination);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--axis-discrimination-text);
-      --btn-on: var(--card);
-      --btn-loading: var(--axis-discrimination);
-      --btn-text: var(--axis-discrimination-text);
-      --btn-line: var(--axis-discrimination-pastel-bd);
-      --btn-tint: var(--axis-discrimination-pastel);
+      --btn-outline-text: var(--axis-discrimination-text);
+      --btn-outline-border: var(--axis-discrimination-pastel-bd);
+      --btn-outline-hover: var(--axis-discrimination-pastel);
     }
     .ui-button--reactivity {
-      --btn-bg: var(--axis-reactivity);
-      --btn-bg-hover: var(--axis-reactivity-text);
+      --btn-fill: var(--axis-reactivity);
+      --btn-fill-hover: var(--axis-reactivity-text);
+      --btn-fill-loading: var(--axis-reactivity);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--axis-reactivity-text);
-      --btn-on: var(--card);
-      --btn-loading: var(--axis-reactivity);
-      --btn-text: var(--axis-reactivity-text);
-      --btn-line: var(--axis-reactivity-pastel-bd);
-      --btn-tint: var(--axis-reactivity-pastel);
+      --btn-outline-text: var(--axis-reactivity-text);
+      --btn-outline-border: var(--axis-reactivity-pastel-bd);
+      --btn-outline-hover: var(--axis-reactivity-pastel);
     }
     .ui-button--motor {
-      --btn-bg: var(--axis-motor);
-      --btn-bg-hover: var(--axis-motor-text);
+      --btn-fill: var(--axis-motor);
+      --btn-fill-hover: var(--axis-motor-text);
+      --btn-fill-loading: var(--axis-motor);
+      --btn-on-fill: var(--card);
       --btn-relief: var(--axis-motor-text);
-      --btn-on: var(--card);
-      --btn-loading: var(--axis-motor);
-      --btn-text: var(--axis-motor-text);
-      --btn-line: var(--axis-motor-pastel-bd);
-      --btn-tint: var(--axis-motor-pastel);
+      --btn-outline-text: var(--axis-motor-text);
+      --btn-outline-border: var(--axis-motor-pastel-bd);
+      --btn-outline-hover: var(--axis-motor-pastel);
     }
     .ui-button--solid {
       padding: 10px 16px;
       border: none;
-      background: var(--btn-bg);
-      color: var(--btn-on);
+      background: var(--btn-fill);
+      color: var(--btn-on-fill);
     }
     .ui-button--solid:hover:not(:disabled) {
-      background: var(--btn-bg-hover);
+      background: var(--btn-fill-hover);
     }
     .ui-button--solid.ui-button--relief {
       border-bottom: 3px solid var(--btn-relief);
       padding-bottom: 7px;
     }
-    .ui-button--ghost {
+    .ui-button--outlined {
       padding: 9px 16px;
-      border: 1px solid var(--btn-line);
+      border: 1px solid var(--btn-outline-border);
       background: var(--card);
-      color: var(--btn-text);
+      color: var(--btn-outline-text);
     }
-    .ui-button--ghost:hover:not(:disabled) {
-      background: var(--btn-tint);
+    .ui-button--outlined:hover:not(:disabled) {
+      background: var(--btn-outline-hover);
     }
     .ui-button:disabled {
       background: var(--surface-muted);
       color: var(--text-disabled);
       cursor: not-allowed;
     }
+    .ui-button--outlined:disabled {
+      border-color: var(--border);
+    }
     .ui-button--solid.ui-button--relief:disabled {
       border-bottom-color: var(--surface-muted);
     }
     .ui-button--loading:disabled {
-      background: var(--btn-loading);
-      color: var(--btn-on);
+      background: var(--btn-fill-loading);
+      color: var(--btn-on-fill);
       cursor: progress;
     }
     .ui-button--loading.ui-button--relief:disabled {
