@@ -19,6 +19,8 @@ export type ButtonColor =
 
 export type ButtonAppearance = 'solid' | 'outlined';
 
+export type ButtonSize = 'md' | 'lg';
+
 @Component({
   selector: 'ui-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,11 +62,20 @@ export type ButtonAppearance = 'solid' | 'outlined';
       justify-content: center;
       gap: 8px;
       font-family: var(--font-ui);
-      font-size: 14px;
       font-weight: 600;
       line-height: 20px;
       border-radius: var(--radius-button);
       cursor: pointer;
+    }
+    .ui-button--md {
+      --btn-pad-y: 10px;
+      --btn-pad-x: 16px;
+      font-size: 14px;
+    }
+    .ui-button--lg {
+      --btn-pad-y: 13px;
+      --btn-pad-x: 20px;
+      font-size: 15px;
     }
     .ui-button--brand {
       --btn-fill: var(--brand);
@@ -147,7 +158,7 @@ export type ButtonAppearance = 'solid' | 'outlined';
       --btn-outline-hover: var(--axis-motor-pastel);
     }
     .ui-button--solid {
-      padding: 10px 16px;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
       border: none;
       background: var(--btn-fill);
       color: var(--btn-on-fill);
@@ -157,10 +168,10 @@ export type ButtonAppearance = 'solid' | 'outlined';
     }
     .ui-button--solid.ui-button--relief {
       border-bottom: 3px solid var(--btn-relief);
-      padding-bottom: 7px;
+      padding-bottom: calc(var(--btn-pad-y) - 3px);
     }
     .ui-button--outlined {
-      padding: 9px 16px;
+      padding: calc(var(--btn-pad-y) - 1px) var(--btn-pad-x);
       border: 1px solid var(--btn-outline-border);
       background: var(--card);
       color: var(--btn-outline-text);
@@ -200,6 +211,7 @@ export type ButtonAppearance = 'solid' | 'outlined';
 export class Button {
   readonly color = input<ButtonColor>('brand');
   readonly appearance = input<ButtonAppearance>('solid');
+  readonly size = input<ButtonSize>('md');
   readonly relief = input(false);
   readonly block = input(false);
   readonly disabled = input(false);
@@ -214,6 +226,6 @@ export class Button {
     const relief =
       this.relief() && this.appearance() === 'solid' ? ' ui-button--relief' : '';
     const loading = this.loading() ? ' ui-button--loading' : '';
-    return `ui-button ui-button--${this.color()} ui-button--${this.appearance()}${relief}${loading}`;
+    return `ui-button ui-button--${this.color()} ui-button--${this.appearance()} ui-button--${this.size()}${relief}${loading}`;
   });
 }

@@ -27,6 +27,10 @@ const meta: Meta<ButtonStoryArgs> = {
       control: { type: 'inline-radio' },
       options: ['solid', 'outlined'],
     },
+    size: {
+      control: { type: 'inline-radio' },
+      options: ['md', 'lg'],
+    },
     relief: { control: 'boolean' },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
@@ -37,6 +41,7 @@ const meta: Meta<ButtonStoryArgs> = {
   args: {
     color: 'brand',
     appearance: 'solid',
+    size: 'md',
     relief: false,
     disabled: false,
     loading: false,
@@ -45,7 +50,7 @@ const meta: Meta<ButtonStoryArgs> = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-button [color]="color" [appearance]="appearance" [relief]="relief" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
+    template: `<ui-button [color]="color" [appearance]="appearance" [size]="size" [relief]="relief" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
   }),
 };
 export default meta;
@@ -67,6 +72,9 @@ export const ReliefGreen: Story = {
 };
 export const OutlinedColored: Story = {
   args: { color: 'logic', appearance: 'outlined', label: 'Logique' },
+};
+export const Large: Story = {
+  args: { size: 'lg', relief: true, showArrow: true, label: 'Lancer la simulation' },
 };
 export const WithArrow: Story = {
   args: { showArrow: true, label: 'Continuer' },
