@@ -79,12 +79,14 @@ export type TrainingModeColor = Extract<ButtonColor, 'brand' | 'green'>;
       --mode-color: var(--brand);
       --mode-deep: var(--brand-relief);
       --mode-pastel: var(--brand-pastel);
+      --mode-pastel-bd: var(--brand-pastel-bd);
       --mode-text: var(--brand-hover);
     }
     .ui-training-mode-card--green {
       --mode-color: var(--secondary-dark);
       --mode-deep: var(--secondary-relief);
       --mode-pastel: var(--secondary-pastel);
+      --mode-pastel-bd: var(--secondary-pastel-bd);
       --mode-text: var(--secondary-label);
     }
     .ui-training-mode-card__band {
@@ -141,12 +143,13 @@ export type TrainingModeColor = Extract<ButtonColor, 'brand' | 'green'>;
       padding: 6px 12px;
       border-radius: var(--radius-chip);
       background: var(--mode-pastel);
+      border: 1px solid var(--mode-pastel-bd);
       color: var(--mode-text);
       font: 600 14px/18px var(--font-mono);
     }
     .ui-training-mode-card__description {
       margin: 0;
-      font: 400 15px/22px var(--font-ui);
+      font: 400 14px/20px var(--font-ui);
       color: var(--text-secondary);
     }
     .ui-training-mode-card__features {
@@ -161,7 +164,7 @@ export type TrainingModeColor = Extract<ButtonColor, 'brand' | 'green'>;
       display: flex;
       align-items: center;
       gap: 12px;
-      font: 400 15px/22px var(--font-ui);
+      font: 400 14px/20px var(--font-ui);
       color: var(--ink);
     }
     .ui-training-mode-card__check {

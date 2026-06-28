@@ -22,7 +22,7 @@
 .entrainements__subtitle {
   margin: 0;
   max-width: 560px;
-  font: 400 15px/22px var(--font-ui);
+  font: 400 14px/20px var(--font-ui);
   color: var(--text-secondary);
 }
 
