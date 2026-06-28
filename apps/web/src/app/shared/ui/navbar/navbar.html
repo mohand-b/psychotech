@@ -1,29 +1,31 @@
-<header class="topbar navbar-surface hidden h-16 items-center gap-10 px-6 md:flex">
-  <span class="logo">Psycho<span class="logo__accent">Tech</span></span>
+<header class="topbar navbar-surface hidden h-16 md:block">
+  <div class="topbar__inner mx-auto flex h-full items-center gap-10 px-6">
+    <span class="logo">Psycho<span class="logo__accent">Tech</span></span>
 
-  <nav class="flex flex-1 items-center gap-2" aria-label="Sections">
-    @for (item of navItems; track item.path) {
-      <a
-        class="link"
-        [routerLink]="item.path"
-        routerLinkActive="link--active"
-        ariaCurrentWhenActive="page"
-      >
-        {{ item.label }}
-      </a>
-    }
-  </nav>
+    <nav class="flex flex-1 items-center gap-2" aria-label="Sections">
+      @for (item of navItems; track item.path) {
+        <a
+          class="link"
+          [routerLink]="item.path"
+          routerLinkActive="link--active"
+          ariaCurrentWhenActive="page"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
 
-  <div class="flex items-center gap-4">
-    <ui-energy-gauge [state]="energy()" />
-    <span class="separator"></span>
-    @if (user(); as current) {
-      <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
-    }
-    <button type="button" class="logout" (click)="logout()">
-      <ui-icon [img]="logOutIcon" [size]="15" />
-      <span>Déconnexion</span>
-    </button>
+    <div class="flex items-center gap-4">
+      <ui-energy-gauge [state]="energy()" />
+      <span class="separator"></span>
+      @if (user(); as current) {
+        <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
+      }
+      <button type="button" class="logout" (click)="logout()">
+        <ui-icon [img]="logOutIcon" [size]="15" />
+        <span>Déconnexion</span>
+      </button>
+    </div>
   </div>
 </header>
 
