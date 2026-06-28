@@ -51,6 +51,7 @@ export type TrainingModeColor = Extract<ButtonColor, 'brand' | 'green'>;
 
         <ui-button
           [color]="color()"
+          size="lg"
           [relief]="true"
           [showArrow]="true"
           [block]="true"
