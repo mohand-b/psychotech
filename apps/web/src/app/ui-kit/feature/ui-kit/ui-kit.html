@@ -76,14 +76,21 @@
     <h2 class="t-label">Boutons</h2>
     <ui-card>
       <div class="flex flex-wrap items-center gap-4">
-        <ui-button variant="primary" [icon]="playIcon">Reprendre</ui-button>
-        <ui-button variant="primary-green">Lancer la simulation</ui-button>
-        <ui-button variant="secondary">Voir le détail</ui-button>
-        <ui-button variant="primary" [disabled]="true">Commencer</ui-button>
+        <ui-button color="brand" [icon]="playIcon">Reprendre</ui-button>
+        <ui-button color="green">Lancer la simulation</ui-button>
+        <ui-button color="neutral" appearance="ghost">Voir le détail</ui-button>
+        <ui-button color="brand" [disabled]="true">Commencer</ui-button>
       </div>
       <div class="flex flex-wrap items-center gap-4">
-        <ui-button variant="primary" [showArrow]="true">Continuer</ui-button>
-        <ui-button variant="secondary" [icon]="checkIcon">Validé</ui-button>
+        <ui-button color="brand" [showArrow]="true">Continuer</ui-button>
+        <ui-button color="neutral" appearance="ghost" [icon]="checkIcon">
+          Validé
+        </ui-button>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <ui-button color="brand" [relief]="true">Lancer la session</ui-button>
+        <ui-button color="green" [relief]="true">Valider l'exercice</ui-button>
+        <ui-button color="logic" appearance="ghost">Logique</ui-button>
       </div>
     </ui-card>
   </section>

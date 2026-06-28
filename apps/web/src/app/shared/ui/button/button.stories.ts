@@ -10,10 +10,24 @@ const meta: Meta<ButtonStoryArgs> = {
   tags: ['autodocs'],
   decorators: [moduleMetadata({ imports: [Button] })],
   argTypes: {
-    variant: {
+    color: {
       control: { type: 'select' },
-      options: ['primary', 'primary-green', 'secondary'],
+      options: [
+        'brand',
+        'green',
+        'neutral',
+        'logic',
+        'memory',
+        'discrimination',
+        'reactivity',
+        'motor',
+      ],
     },
+    appearance: {
+      control: { type: 'inline-radio' },
+      options: ['solid', 'ghost'],
+    },
+    relief: { control: 'boolean' },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
     showArrow: { control: 'boolean' },
@@ -21,7 +35,9 @@ const meta: Meta<ButtonStoryArgs> = {
     label: { control: 'text' },
   },
   args: {
-    variant: 'primary',
+    color: 'brand',
+    appearance: 'solid',
+    relief: false,
     disabled: false,
     loading: false,
     showArrow: false,
@@ -29,19 +45,28 @@ const meta: Meta<ButtonStoryArgs> = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-button [variant]="variant" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
+    template: `<ui-button [color]="color" [appearance]="appearance" [relief]="relief" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
   }),
 };
 export default meta;
 
 type Story = StoryObj<ButtonStoryArgs>;
 
-export const Primary: Story = {};
-export const PrimaryGreen: Story = {
-  args: { variant: 'primary-green', label: 'Lancer la simulation' },
+export const Brand: Story = {};
+export const Green: Story = {
+  args: { color: 'green', label: 'Lancer la simulation' },
 };
-export const Secondary: Story = {
-  args: { variant: 'secondary', label: 'Voir le détail' },
+export const Ghost: Story = {
+  args: { color: 'neutral', appearance: 'ghost', label: 'Voir le détail' },
+};
+export const Relief: Story = {
+  args: { relief: true, label: 'Lancer la session' },
+};
+export const ReliefGreen: Story = {
+  args: { color: 'green', relief: true, label: "Valider l'exercice" },
+};
+export const GhostColored: Story = {
+  args: { color: 'logic', appearance: 'ghost', label: 'Logique' },
 };
 export const WithArrow: Story = {
   args: { showArrow: true, label: 'Continuer' },
