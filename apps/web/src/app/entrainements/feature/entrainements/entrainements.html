@@ -1,4 +1,33 @@
-<section class="flex flex-col gap-2 p-6">
-  <h1 class="t-page-title">Entraînements</h1>
-  <p class="t-support">Choisissez un axe à travailler. Cette section arrive prochainement.</p>
+<section class="entrainements">
+  <header class="entrainements__intro">
+    <h1 class="entrainements__title">Prêt à vous entraîner ?</h1>
+    <p class="entrainements__subtitle">
+      Deux façons de progresser. Choisissez le format qui correspond à votre
+      temps et à votre objectif du jour.
+    </p>
+  </header>
+
+  <div class="entrainements__modes">
+    <ui-training-mode-card
+      color="brand"
+      [icon]="simulationIcon"
+      badge="Recommandé"
+      [cost]="5"
+      title="Simulation complète"
+      description="Les 5 axes enchaînés dans les conditions réelles de la sélection. Le vrai test de votre niveau."
+      [features]="simulationFeatures"
+      ctaLabel="Lancer la simulation"
+    />
+
+    <ui-training-mode-card
+      color="green"
+      [icon]="targetedIcon"
+      badge="Flexible"
+      [cost]="1"
+      title="Entraînement ciblé"
+      description="Un axe au choix, en session courte. Parfait pour muscler un point faible entre deux simulations."
+      [features]="targetedFeatures"
+      ctaLabel="Choisir un axe"
+    />
+  </div>
 </section>
