@@ -6,15 +6,27 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+import { AXIS_BRIEFING, AxisType } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
+import { formatDuration } from '../../shared/ui/format-duration';
 import { Navbar } from '../../shared/ui/navbar/navbar';
 
-interface FocusedHeaderConfig {
+interface FocusedHeaderData {
   title: string;
   backLabel: string;
   backLink: string;
+  closeLink?: string;
+  durationAxisParam?: string;
+}
+
+interface FocusedHeaderView {
+  title: string;
+  backLabel: string;
+  backLink: string;
+  duration: string | null;
+  closeLink: string | null;
 }
 
 @Component({
@@ -29,7 +41,7 @@ export class ConnectedLayout {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly focusedHeader = signal<FocusedHeaderConfig | null>(
+  protected readonly focusedHeader = signal<FocusedHeaderView | null>(
     this.readFocusedHeader(),
   );
 
@@ -47,12 +59,32 @@ export class ConnectedLayout {
       .subscribe(() => this.focusedHeader.set(this.readFocusedHeader()));
   }
 
-  private readFocusedHeader(): FocusedHeaderConfig | null {
+  private readFocusedHeader(): FocusedHeaderView | null {
     let route: ActivatedRoute | null = this.route;
     while (route?.firstChild) {
       route = route.firstChild;
     }
-    const data = route?.snapshot?.data;
-    return (data?.['focusedHeader'] as FocusedHeaderConfig) ?? null;
+    const snapshot = route?.snapshot;
+    const data = snapshot?.data?.['focusedHeader'] as
+      | FocusedHeaderData
+      | undefined;
+    if (!data) {
+      return null;
+    }
+    let duration: string | null = null;
+    if (data.durationAxisParam) {
+      const axis = snapshot?.paramMap.get(data.durationAxisParam) as
+        | AxisType
+        | null;
+      const durationSec = axis ? (AXIS_BRIEFING[axis]?.durationSec ?? null) : null;
+      duration = durationSec === null ? null : formatDuration(durationSec);
+    }
+    return {
+      title: data.title,
+      backLabel: data.backLabel,
+      backLink: data.backLink,
+      duration,
+      closeLink: data.closeLink ?? null,
+    };
   }
 }

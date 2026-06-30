@@ -48,3 +48,40 @@
   font: 600 14px/1 var(--font-ui);
   color: var(--ink);
 }
+
+.focused-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.focused-header__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.focused-header__timer-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.focused-header__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-chip);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.focused-header__close:hover {
+  background: var(--bg);
+  color: var(--ink);
+}

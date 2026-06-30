@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ArrowLeft } from 'lucide-angular';
+import { ArrowLeft, Timer, X } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { EnergyGauge } from '../energy-gauge/energy-gauge';
 import { Icon } from '../icon/icon';
@@ -25,7 +25,26 @@ import { Icon } from '../icon/icon';
           <span class="focused-header__separator"></span>
           <span class="focused-header__title">{{ title() }}</span>
         </nav>
-        <ui-energy-gauge [state]="energy()" />
+
+        <div class="focused-header__actions">
+          <ui-energy-gauge [state]="energy()" />
+          @if (closeLink(); as closeLink) {
+            <span class="focused-header__separator"></span>
+            @if (duration(); as duration) {
+              <span class="focused-header__timer">
+                <ui-icon [img]="timerIcon" [size]="15" />
+                <span class="focused-header__timer-value">{{ duration }}</span>
+              </span>
+            }
+            <a
+              class="focused-header__close"
+              [routerLink]="closeLink"
+              aria-label="Fermer la session"
+            >
+              <ui-icon [img]="closeIcon" [size]="18" />
+            </a>
+          }
+        </div>
       </div>
     </header>
   `,
@@ -37,7 +56,11 @@ export class FocusedHeader {
   readonly title = input.required<string>();
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
+  readonly duration = input<string | null>(null);
+  readonly closeLink = input<string | null>(null);
 
   protected readonly backIcon = ArrowLeft;
+  protected readonly timerIcon = Timer;
+  protected readonly closeIcon = X;
   protected readonly energy = this.energyFacade.state;
 }
