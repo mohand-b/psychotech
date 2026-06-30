@@ -1,23 +1,21 @@
+import { httpResource } from '@angular/common/http';
 import { Injectable, Signal, inject } from '@angular/core';
 import { AxisBestDto } from '@psychotech/shared';
-import { Observable, tap } from 'rxjs';
-import { AxesApi } from './axes.api';
-import { AxesStore } from './axes.store';
+import { API_BASE_URL } from '../../core/http/api-base-url.token';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class AxesFacade {
-  private readonly api = inject(AxesApi);
-  private readonly store = inject(AxesStore);
+  private readonly baseUrl = inject(API_BASE_URL);
 
-  readonly bestScores: Signal<AxisBestDto[] | null> = this.store.bestScores;
+  private readonly bestScoresResource = httpResource<AxisBestDto[]>(
+    () => `${this.baseUrl}/me/axes/best`,
+    { defaultValue: [] },
+  );
 
-  loadBestScores(): Observable<AxisBestDto[]> {
-    return this.api
-      .bestScores()
-      .pipe(tap((scores) => this.store.setBestScores(scores)));
-  }
+  readonly bestScores: Signal<AxisBestDto[]> = this.bestScoresResource.value;
+  readonly loading: Signal<boolean> = this.bestScoresResource.isLoading;
 
-  clear(): void {
-    this.store.setBestScores(null);
+  reload(): void {
+    this.bestScoresResource.reload();
   }
 }

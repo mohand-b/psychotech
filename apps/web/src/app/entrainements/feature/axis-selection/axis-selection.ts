@@ -1,19 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import {
-  AxisType,
-  Sector,
-  SectorAxisDto,
-  SectorReferentialDto,
-} from '@psychotech/shared';
+import { AxisType, Sector, SectorAxisDto } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { AxesFacade } from '../../../axes/data-access/axes.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
@@ -34,6 +27,7 @@ interface AxisCardViewModel {
   selector: 'app-axis-selection',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AxisTrainingCard],
+  providers: [AxesFacade],
   templateUrl: './axis-selection.html',
   styleUrl: './axis-selection.css',
 })
@@ -42,12 +36,14 @@ export class AxisSelection {
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly axesFacade = inject(AxesFacade);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly cost = TARGETED_AXIS_COST;
 
-  private readonly referential = signal<SectorReferentialDto | null>(null);
-  private readonly bestScores = this.axesFacade.bestScores;
+  private readonly sector =
+    this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
+  private readonly referential = toSignal(
+    this.catalogFacade.getSector(this.sector),
+  );
 
   protected readonly axisCards = computed<AxisCardViewModel[]>(() => {
     const referential = this.referential();
@@ -55,7 +51,7 @@ export class AxisSelection {
       return [];
     }
     const scoreByAxis = new Map(
-      (this.bestScores() ?? []).map((best) => [best.axis, best.bestScore]),
+      this.axesFacade.bestScores().map((best) => [best.axis, best.bestScore]),
     );
     const weakest = this.findWeakestAxis(referential.axes, scoreByAxis);
     return referential.axes.map((axis) => {
@@ -73,19 +69,6 @@ export class AxisSelection {
       };
     });
   });
-
-  constructor() {
-    const sector =
-      this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-    this.catalogFacade
-      .getSector(sector)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((referential) => this.referential.set(referential));
-    this.axesFacade
-      .loadBestScores()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-  }
 
   protected startAxis(axis: AxisType): void {
     this.router.navigate(['/sessions'], { queryParams: { axis } });
