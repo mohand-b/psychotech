@@ -88,60 +88,60 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
     .axis-card {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 1.125rem;
       height: 100%;
       background: var(--card);
       border: 1px solid var(--border);
       border-top: 3px solid var(--axis-plain);
       border-radius: var(--radius-card);
       box-shadow: var(--shadow-card);
-      padding: 22px;
+      padding: 1.375rem;
     }
     .axis-card__header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: 0.75rem;
     }
     .axis-card__tile {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 48px;
-      height: 48px;
-      border-radius: 13px;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.8125rem;
       background: var(--axis-pastel);
       color: var(--axis-plain);
     }
     .axis-card__badge {
       display: inline-flex;
       align-items: center;
-      padding: 5px 10px;
+      padding: 0.3125rem 0.625rem;
       border-radius: var(--radius-badge);
       background: var(--axis-reactivity-pastel);
       border: 1px solid var(--axis-reactivity-pastel-bd);
       color: var(--axis-reactivity-text);
-      font: 600 11px/14px var(--font-ui);
+      font: 600 0.6875rem/0.875rem var(--font-ui);
     }
     .axis-card__heading {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 0.375rem;
     }
     .axis-card__name {
       margin: 0;
-      font: 600 18px/24px var(--font-ui);
+      font: 600 1.125rem/1.5rem var(--font-ui);
       color: var(--ink);
     }
     .axis-card__description {
       margin: 0;
-      font: 400 13px/18px var(--font-ui);
+      font: 400 0.8125rem/1.125rem var(--font-ui);
       color: var(--text-secondary);
     }
     .axis-card__score {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 0.625rem;
       margin-top: auto;
     }
     .axis-card__score-row {
@@ -150,7 +150,7 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
       justify-content: space-between;
     }
     .axis-card__score-label {
-      font: 600 11px/14px var(--font-ui);
+      font: 600 0.6875rem/0.875rem var(--font-ui);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--label);
@@ -158,17 +158,17 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
     .axis-card__score-value {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 0.5rem;
     }
     .axis-card__dot {
-      width: 9px;
-      height: 9px;
+      width: 0.5625rem;
+      height: 0.5625rem;
       border-radius: var(--radius-pill);
     }
     .axis-card__score-number {
       font-family: var(--font-mono);
       font-variant-numeric: tabular-nums;
-      font-size: 16px;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--ink);
     }
@@ -176,15 +176,15 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
       color: var(--label);
     }
     .axis-card__bar {
-      height: 5px;
-      border-radius: 3px;
+      height: 0.3125rem;
+      border-radius: 0.1875rem;
       background: var(--surface-muted);
       overflow: hidden;
     }
     .axis-card__bar-fill {
       display: block;
       height: 100%;
-      border-radius: 3px;
+      border-radius: 0.1875rem;
       background: var(--axis-plain);
     }
   `,
