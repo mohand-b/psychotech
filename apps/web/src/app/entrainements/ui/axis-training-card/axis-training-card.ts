@@ -56,7 +56,10 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
               <span class="axis-card__score-number">{{ bestScore() }}</span>
             </span>
           } @else {
-            <span class="axis-card__score-empty">Non évalué</span>
+            <span
+              class="axis-card__score-number axis-card__score-number--empty"
+              >—</span
+            >
           }
         </div>
         <div class="axis-card__bar">
@@ -69,7 +72,6 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
 
       <ui-button
         [color]="buttonColor()"
-        size="lg"
         [relief]="true"
         [block]="true"
         (click)="start.emit()"
@@ -170,8 +172,7 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
       font-weight: 600;
       color: var(--ink);
     }
-    .axis-card__score-empty {
-      font: 400 13px/18px var(--font-ui);
+    .axis-card__score-number--empty {
       color: var(--label);
     }
     .axis-card__bar {

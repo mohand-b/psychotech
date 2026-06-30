@@ -1,10 +1,10 @@
 .axis-selection {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  max-width: 1100px;
+  gap: 28px;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: 28px 24px 72px;
+  padding: 40px 24px 72px;
 }
 
 .axis-selection__back {
