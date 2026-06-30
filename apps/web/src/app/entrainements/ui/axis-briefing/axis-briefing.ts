@@ -4,7 +4,12 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { AXIS_BRIEFING, AxisType } from '@psychotech/shared';
+import {
+  AXIS_TRAINING,
+  AxisTimerModel,
+  AxisType,
+  RailwayPlayableAxis,
+} from '@psychotech/shared';
 import { ListChecks, Timer } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
@@ -30,14 +35,14 @@ import { Icon } from '../../../shared/ui/icon/icon';
       <article class="axis-briefing__card">
         <section class="axis-briefing__section">
           <span class="axis-briefing__label">Consigne</span>
-          <p class="axis-briefing__text">{{ briefing().consigne }}</p>
+          <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
         </section>
 
         <div class="hairline"></div>
 
         <section class="axis-briefing__section">
           <span class="axis-briefing__label">Objectif</span>
-          <p class="axis-briefing__text">{{ briefing().objectif }}</p>
+          <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
         </section>
 
         <div class="hairline"></div>
@@ -51,10 +56,10 @@ import { Icon } from '../../../shared/ui/icon/icon';
         <section class="axis-briefing__summary">
           <span class="axis-briefing__label">Résumé</span>
           <div class="axis-briefing__summary-row">
-            @if (briefing().itemCount; as itemCount) {
+            @if (training().exerciseCount; as exerciseCount) {
               <span class="axis-briefing__metric">
                 <ui-icon [img]="itemsIcon" [size]="15" />
-                <span class="axis-briefing__metric-value">{{ itemCount }}</span>
+                <span class="axis-briefing__metric-value">{{ exerciseCount }}</span>
                 items
               </span>
             }
@@ -87,9 +92,13 @@ export class AxisBriefing {
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
   );
-  protected readonly briefing = computed(() => AXIS_BRIEFING[this.axis()]);
+  protected readonly training = computed(
+    () => AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
+  );
   protected readonly duration = computed(() => {
-    const durationSec = this.briefing().durationSec;
-    return durationSec === null ? null : formatDuration(durationSec);
+    const timer = this.training().timer;
+    return timer.model === AxisTimerModel.GLOBAL
+      ? formatDuration(timer.durationSec)
+      : null;
   });
 }

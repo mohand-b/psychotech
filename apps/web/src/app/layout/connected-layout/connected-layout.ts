@@ -6,7 +6,13 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { AXIS_BRIEFING, AxisType } from '@psychotech/shared';
+import {
+  AXIS_TRAINING,
+  AxisTimerModel,
+  AxisType,
+  AxisTraining,
+  RailwayPlayableAxis,
+} from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
@@ -76,7 +82,13 @@ export class ConnectedLayout {
       const axis = snapshot?.paramMap.get(data.durationAxisParam) as
         | AxisType
         | null;
-      const durationSec = axis ? (AXIS_BRIEFING[axis]?.durationSec ?? null) : null;
+      const training: AxisTraining | undefined = axis
+        ? AXIS_TRAINING[axis as RailwayPlayableAxis]
+        : undefined;
+      const durationSec =
+        training && training.timer.model === AxisTimerModel.GLOBAL
+          ? training.timer.durationSec
+          : null;
       duration = durationSec === null ? null : formatDuration(durationSec);
     }
     return {
