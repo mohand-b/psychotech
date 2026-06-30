@@ -64,8 +64,12 @@ export type ButtonSize = 'md' | 'lg';
       font-family: var(--font-ui);
       font-weight: 600;
       line-height: 20px;
+      white-space: nowrap;
       border-radius: var(--radius-button);
       cursor: pointer;
+    }
+    .ui-button__label {
+      white-space: nowrap;
     }
     .ui-button--md {
       --btn-pad-y: 10px;
