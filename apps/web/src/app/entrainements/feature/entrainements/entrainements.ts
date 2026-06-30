@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Layers, Target } from 'lucide-angular';
 import { TrainingModeCard } from '../../ui/training-mode-card/training-mode-card';
 
@@ -10,6 +11,8 @@ import { TrainingModeCard } from '../../ui/training-mode-card/training-mode-card
   styleUrl: './entrainements.css',
 })
 export class Entrainements {
+  private readonly router = inject(Router);
+
   protected readonly simulationIcon = Layers;
   protected readonly targetedIcon = Target;
 
@@ -24,4 +27,12 @@ export class Entrainements {
     'Sessions courtes (3–5 min), retour immédiat',
     'Idéal pour cibler un point faible',
   ];
+
+  protected chooseAxis(): void {
+    this.router.navigate(['/entrainements/choisir-axe']);
+  }
+
+  protected startSimulation(): void {
+    this.router.navigate(['/sessions']);
+  }
 }
