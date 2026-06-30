@@ -71,7 +71,7 @@ export class AxisSelection {
   });
 
   protected startAxis(axis: AxisType): void {
-    this.router.navigate(['/sessions'], { queryParams: { axis } });
+    this.router.navigate(['/entrainements/cible', axis]);
   }
 
   private findWeakestAxis(

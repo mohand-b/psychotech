@@ -1,0 +1,16 @@
+<section class="axis-start">
+  <ui-axis-briefing
+    [axis]="axis"
+    [admissibilityThreshold]="admissibilityThreshold()"
+  />
+
+  <ui-button
+    [color]="buttonColor"
+    size="lg"
+    [relief]="true"
+    [showArrow]="true"
+    (click)="start()"
+  >
+    Commencer
+  </ui-button>
+</section>

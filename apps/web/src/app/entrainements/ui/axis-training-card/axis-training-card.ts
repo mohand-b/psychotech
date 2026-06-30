@@ -11,14 +11,7 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { resolveScoreRating } from '../../../shared/ui/score-rating';
-
-const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
-  [AxisType.LOGIC]: 'logic',
-  [AxisType.MEMORY]: 'memory',
-  [AxisType.VISUAL_DISCRIMINATION]: 'discrimination',
-  [AxisType.REACTIVITY]: 'reactivity',
-  [AxisType.MOTOR_SKILLS]: 'motor',
-};
+import { axisButtonColor } from '../axis-button-color';
 
 @Component({
   selector: 'ui-axis-training-card',
@@ -202,8 +195,8 @@ export class AxisTrainingCard {
 
   protected readonly presentation = computed(() => AXIS_PRESENTATION[this.axis()]);
 
-  protected readonly buttonColor = computed<ButtonColor>(
-    () => AXIS_BUTTON_COLOR[this.axis()] ?? 'brand',
+  protected readonly buttonColor = computed<ButtonColor>(() =>
+    axisButtonColor(this.axis()),
   );
 
   protected readonly ratingColor = computed(() => {
