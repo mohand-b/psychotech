@@ -7,18 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   AxisType,
   Sector,
   SectorAxisDto,
   SectorReferentialDto,
 } from '@psychotech/shared';
-import { ArrowLeft } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { AxesFacade } from '../../../axes/data-access/axes.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
-import { Icon } from '../../../shared/ui/icon/icon';
 import { AxisTrainingCard } from '../../ui/axis-training-card/axis-training-card';
 
 const TARGETED_AXIS_COST = 1;
@@ -35,7 +33,7 @@ interface AxisCardViewModel {
 @Component({
   selector: 'app-axis-selection',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, AxisTrainingCard],
+  imports: [AxisTrainingCard],
   templateUrl: './axis-selection.html',
   styleUrl: './axis-selection.css',
 })
@@ -46,7 +44,6 @@ export class AxisSelection {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly backIcon = ArrowLeft;
   protected readonly cost = TARGETED_AXIS_COST;
 
   private readonly referential = signal<SectorReferentialDto | null>(null);
