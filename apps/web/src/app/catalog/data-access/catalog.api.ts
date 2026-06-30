@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { SectorSummaryDto } from '@psychotech/shared';
+import {
+  Sector,
+  SectorReferentialDto,
+  SectorSummaryDto,
+} from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
 
@@ -11,5 +15,11 @@ export class CatalogApi {
 
   sectors(): Observable<SectorSummaryDto[]> {
     return this.http.get<SectorSummaryDto[]>(`${this.baseUrl}/catalog/sectors`);
+  }
+
+  sector(code: Sector): Observable<SectorReferentialDto> {
+    return this.http.get<SectorReferentialDto>(
+      `${this.baseUrl}/catalog/sectors/${code}`,
+    );
   }
 }
