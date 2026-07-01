@@ -7,6 +7,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import {
+  AXIS_META,
   AXIS_TRAINING,
   AxisTimerModel,
   AxisType,
@@ -20,11 +21,11 @@ import { formatDuration } from '../../shared/ui/format-duration';
 import { Navbar } from '../../shared/ui/navbar/navbar';
 
 interface FocusedHeaderData {
-  title: string;
+  title?: string;
   backLabel: string;
   backLink: string;
   closeLink?: string;
-  durationAxisParam?: string;
+  axisParam?: string;
 }
 
 interface FocusedHeaderView {
@@ -77,22 +78,23 @@ export class ConnectedLayout {
     if (!data) {
       return null;
     }
+    let title = data.title ?? '';
     let duration: string | null = null;
-    if (data.durationAxisParam) {
-      const axis = snapshot?.paramMap.get(data.durationAxisParam) as
-        | AxisType
-        | null;
-      const training: AxisTraining | undefined = axis
-        ? AXIS_TRAINING[axis as RailwayPlayableAxis]
-        : undefined;
-      const durationSec =
-        training && training.timer.model === AxisTimerModel.GLOBAL
-          ? training.timer.durationSec
-          : null;
-      duration = durationSec === null ? null : formatDuration(durationSec);
+    if (data.axisParam) {
+      const axis = snapshot?.paramMap.get(data.axisParam) as AxisType | null;
+      if (axis) {
+        title = AXIS_META[axis].label;
+        const training: AxisTraining | undefined =
+          AXIS_TRAINING[axis as RailwayPlayableAxis];
+        const durationSec =
+          training && training.timer.model === AxisTimerModel.GLOBAL
+            ? training.timer.durationSec
+            : null;
+        duration = durationSec === null ? null : formatDuration(durationSec);
+      }
     }
     return {
-      title: data.title,
+      title,
       backLabel: data.backLabel,
       backLink: data.backLink,
       duration,
