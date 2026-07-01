@@ -15,6 +15,11 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
 
+interface TimeSummary {
+  value: string;
+  suffix: string | null;
+}
+
 @Component({
   selector: 'ui-axis-briefing',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,10 +68,13 @@ import { Icon } from '../../../shared/ui/icon/icon';
                 items
               </span>
             }
-            @if (duration(); as duration) {
+            @if (timeSummary(); as time) {
               <span class="axis-briefing__metric">
                 <ui-icon [img]="durationIcon" [size]="15" />
-                <span class="axis-briefing__metric-value">{{ duration }}</span>
+                <span class="axis-briefing__metric-value">{{ time.value }}</span>
+                @if (time.suffix; as suffix) {
+                  <span>{{ suffix }}</span>
+                }
               </span>
             }
             @if (admissibilityThreshold(); as threshold) {
@@ -95,10 +103,23 @@ export class AxisBriefing {
   protected readonly training = computed(
     () => AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
   );
-  protected readonly duration = computed(() => {
-    const timer = this.training().timer;
-    return timer.model === AxisTimerModel.GLOBAL
-      ? formatDuration(timer.durationSec)
-      : null;
+  protected readonly timeSummary = computed<TimeSummary | null>(() => {
+    const training = this.training();
+    if (training.timer.model === AxisTimerModel.GLOBAL) {
+      return { value: formatDuration(training.timer.durationSec), suffix: null };
+    }
+    if (training.axis === AxisType.MEMORY) {
+      return {
+        value: formatDuration(training.restitutionSec),
+        suffix: 'par restitution',
+      };
+    }
+    if (training.axis === AxisType.MOTOR_SKILLS) {
+      return {
+        value: formatDuration(training.secondsPerCourse),
+        suffix: 'par parcours',
+      };
+    }
+    return null;
   });
 }
