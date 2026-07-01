@@ -24,6 +24,7 @@
   height: 4rem;
   border-radius: 1.125rem;
   background: var(--axis-pastel);
+  border: 1px solid var(--axis-pastel-bd);
   color: var(--axis-plain);
 }
 

@@ -29,6 +29,7 @@ interface TimeSummary {
       class="axis-briefing"
       [style.--axis-plain]="presentation().plainVar"
       [style.--axis-pastel]="presentation().pastelVar"
+      [style.--axis-pastel-bd]="presentation().pastelBorderVar"
     >
       <header class="axis-briefing__head">
         <span class="axis-briefing__tile">
