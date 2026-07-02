@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -42,10 +43,12 @@ export class LogicPlay {
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
   protected readonly submitting = signal(false);
+  protected readonly confirmingFinish = signal(false);
   private readonly visited = signal<ReadonlySet<number>>(new Set([0]));
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
+  private hasSubmitted = false;
 
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
@@ -64,6 +67,9 @@ export class LogicPlay {
           : 'pending',
     );
   });
+  protected readonly unansweredCount = computed(
+    () => this.items().length - Object.keys(this.answers()).length,
+  );
 
   protected readonly backIcon = ArrowLeft;
   protected readonly skipIcon = SkipForward;
@@ -79,6 +85,44 @@ export class LogicPlay {
         error: () => this.router.navigate(['/entrainements']),
       });
     }
+    effect(() => {
+      if (this.facade.isExpired() && this.loaded()) {
+        this.submit();
+      }
+    });
+  }
+
+  protected finish(): void {
+    if (this.locked()) {
+      return;
+    }
+    if (this.unansweredCount() > 0) {
+      this.confirmingFinish.set(true);
+      return;
+    }
+    this.submit();
+  }
+
+  protected submit(): void {
+    if (this.hasSubmitted || !this.loaded()) {
+      return;
+    }
+    this.hasSubmitted = true;
+    this.submitting.set(true);
+    this.confirmingFinish.set(false);
+    this.commitTime();
+    const payload = this.items().map((_, index) => ({
+      index,
+      answerIndex: this.answers()[index] ?? null,
+      timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
+    }));
+    this.facade.completeTargeted(payload).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: () => {
+        this.hasSubmitted = false;
+        this.submitting.set(false);
+      },
+    });
   }
 
   protected select(choiceIndex: number): void {
@@ -124,6 +168,13 @@ export class LogicPlay {
 
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.loaded() || this.submitting()) {
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.confirmingFinish.set(false);
+      return;
+    }
+    if (this.confirmingFinish()) {
       return;
     }
     if (event.key === 'ArrowLeft') {
