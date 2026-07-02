@@ -110,7 +110,7 @@ export class SessionsRepository {
 
   async createSession(
     params: CreateSessionParams,
-    spendWithinTx: (
+    spendWithinTx?: (
       client: Prisma.TransactionClient,
       sessionId: string,
     ) => Promise<void>,
@@ -132,7 +132,9 @@ export class SessionsRepository {
           },
         },
       });
-      await spendWithinTx(tx, created.id);
+      if (spendWithinTx) {
+        await spendWithinTx(tx, created.id);
+      }
       return tx.session.findUniqueOrThrow({
         where: { id: created.id },
         include: SESSION_INCLUDE,

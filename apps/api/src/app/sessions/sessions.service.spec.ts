@@ -6,14 +6,12 @@ import {
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
-  EnergyLedgerReason,
   ScoreBand,
   Sector,
   SessionMode,
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgesService } from '../badges/badges.service';
-import { EnergyService } from '../energy/energy.service';
 import { ScoringService } from '../scoring/scoring.service';
 import { SessionWithRelations } from './sessions.mappers';
 import { SessionsRepository } from './sessions.repository';
@@ -74,13 +72,11 @@ const repository = {
   listSessions: vi.fn(),
 };
 
-const energyService = { spendWithin: vi.fn() };
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
 const badgesService = { evaluateAndUnlockWithin: vi.fn() };
 
 const service = new SessionsService(
   repository as unknown as SessionsRepository,
-  energyService as unknown as EnergyService,
   scoringService as unknown as ScoringService,
   badgesService as unknown as BadgesService,
 );
@@ -98,54 +94,27 @@ beforeEach(() => {
 });
 
 describe('SessionsService.start', () => {
-  it('spends energy inside the session creation transaction', async () => {
+  it('creates the session without debiting energy while the debit is disabled', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
-    const transactionClient = {} as Prisma.TransactionClient;
-    repository.createSession.mockImplementation(
-      async (
-        _params: unknown,
-        spend: (client: Prisma.TransactionClient, sessionId: string) => Promise<void>,
-      ) => {
-        await spend(transactionClient, 'created-session');
-        return buildSession();
-      },
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', energyCost: 1 }),
     );
-    energyService.spendWithin.mockResolvedValue(undefined);
 
     await service.start('user-1', {
-      mode: SessionMode.FULL,
+      mode: SessionMode.TARGETED,
       sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
     });
 
-    expect(energyService.spendWithin).toHaveBeenCalledWith(
-      transactionClient,
-      'user-1',
-      5,
-      EnergyLedgerReason.SESSION_SPENT,
-      'created-session',
-    );
-  });
-
-  it('propagates a spend failure so the transaction rolls back', async () => {
-    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
-    repository.createSession.mockImplementation(
-      async (
-        _params: unknown,
-        spend: (client: Prisma.TransactionClient, sessionId: string) => Promise<void>,
-      ) => {
-        await spend({} as Prisma.TransactionClient, 'created-session');
-        return buildSession();
-      },
-    );
-    energyService.spendWithin.mockRejectedValue(new Error('insufficient'));
-
-    await expect(
-      service.start('user-1', {
+    expect(repository.createSession).toHaveBeenCalledTimes(1);
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user-1',
         mode: SessionMode.TARGETED,
-        sector: Sector.RAILWAY,
-        axis: AxisType.LOGIC,
+        energyCost: 1,
+        axes: [AxisType.LOGIC],
       }),
-    ).rejects.toThrow('insufficient');
+    );
   });
 
   it('rejects an inactive sector before creating anything', async () => {

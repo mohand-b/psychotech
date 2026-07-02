@@ -8,7 +8,6 @@ import {
 import {
   AXIS_TRAINING,
   AxisType,
-  EnergyLedgerReason,
   LogicRawResultDto,
   ScoreBand,
   Sector,
@@ -21,7 +20,6 @@ import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
 import { mapEnumValue } from '../common/enum.util';
 import { energyCost } from '../energy/energy.logic';
-import { EnergyService } from '../energy/energy.service';
 import { AxisScore } from '../scoring/scoring.logic';
 import { ScoringService } from '../scoring/scoring.service';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
@@ -40,7 +38,6 @@ import { AxisBestInput, SessionsRepository } from './sessions.repository';
 export class SessionsService {
   constructor(
     private readonly repository: SessionsRepository,
-    private readonly energyService: EnergyService,
     private readonly scoringService: ScoringService,
     private readonly badgesService: BadgesService,
   ) {}
@@ -52,23 +49,15 @@ export class SessionsService {
     if (!config || !config.isActive) {
       throw new BadRequestException('The requested sector is not available');
     }
-    const reason =
-      request.mode === SessionMode.FULL
-        ? EnergyLedgerReason.SESSION_SPENT
-        : EnergyLedgerReason.AXIS_SPENT;
-    const session = await this.repository.createSession(
-      {
-        userId,
-        mode: request.mode,
-        sector: request.sector,
-        seed: randomUUID(),
-        energyCost: cost,
-        sectorThreshold: config.admissibilityThreshold,
-        axes,
-      },
-      (client, sessionId) =>
-        this.energyService.spendWithin(client, userId, cost, reason, sessionId),
-    );
+    const session = await this.repository.createSession({
+      userId,
+      mode: request.mode,
+      sector: request.sector,
+      seed: randomUUID(),
+      energyCost: cost,
+      sectorThreshold: config.admissibilityThreshold,
+      axes,
+    });
     return toSessionDto(session);
   }
 
