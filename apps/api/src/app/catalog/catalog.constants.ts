@@ -8,7 +8,7 @@ export interface AxisDescriptor {
 export const AXIS_CATALOG: Record<AxisType, AxisDescriptor> = {
   [AxisType.LOGIC]: {
     label: 'Logique',
-    description: 'Raisonnement sur des suites de chiffres, de lettres et de symboles.',
+    description: 'Raisonnement sur des suites logiques de nombres.',
   },
   [AxisType.MEMORY]: {
     label: 'Mémoire',
