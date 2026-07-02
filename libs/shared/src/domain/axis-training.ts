@@ -71,7 +71,9 @@ export type AxisTraining =
 
 export type RailwayPlayableAxis = AxisTraining['axis'];
 
-export const AXIS_TRAINING: Record<RailwayPlayableAxis, AxisTraining> = {
+export const AXIS_TRAINING: {
+  [Axis in RailwayPlayableAxis]: Extract<AxisTraining, { axis: Axis }>;
+} = {
   [AxisType.LOGIC]: {
     axis: AxisType.LOGIC,
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 600 },
