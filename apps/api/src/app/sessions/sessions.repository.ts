@@ -268,8 +268,8 @@ export class SessionsRepository {
   async completeTargetedSession(
     params: CompleteTargetedSessionParams,
   ): Promise<SessionWithRelations> {
-    return this.prisma.$transaction(async (tx) => {
-      await tx.sessionAxis.update({
+    await this.prisma.$transaction([
+      this.prisma.sessionAxis.update({
         where: {
           sessionId_axis: {
             sessionId: params.sessionId,
@@ -282,19 +282,19 @@ export class SessionsRepository {
           startedAt: params.startedAt,
           completedAt: params.completedAt,
         },
-      });
-      await tx.session.update({
+      }),
+      this.prisma.session.update({
         where: { id: params.sessionId },
         data: {
           status: DbSessionStatus.COMPLETED,
           completedAt: params.completedAt,
           currentAxisIndex: 1,
         },
-      });
-      return tx.session.findUniqueOrThrow({
-        where: { id: params.sessionId },
-        include: SESSION_INCLUDE,
-      });
+      }),
+    ]);
+    return this.prisma.session.findUniqueOrThrow({
+      where: { id: params.sessionId },
+      include: SESSION_INCLUDE,
     });
   }
 
