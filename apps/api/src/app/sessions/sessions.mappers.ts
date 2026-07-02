@@ -1,6 +1,7 @@
 import { Prisma, Recommendation, SessionAxis } from '@prisma/client';
 import {
   AxisMetrics,
+  AxisRawResultDto,
   AxisType,
   BadgeDto,
   RecommendationDto,
@@ -30,6 +31,7 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     mode: mapEnumValue(SessionMode, session.mode),
     sector: mapEnumValue(Sector, session.sector),
     status: mapEnumValue(SessionStatus, session.status),
+    seed: session.seed,
     energyCost: session.energyCost,
     currentAxisIndex: session.currentAxisIndex,
     globalScore: session.globalScore,
@@ -77,7 +79,10 @@ function toAxisResultDto(axis: SessionAxis): SessionAxisResultDto {
     normalizedScore: axis.normalizedScore,
     band: axis.band ? mapEnumValue(ScoreBand, axis.band) : null,
     skipped: axis.skipped,
-    metrics: axis.metrics === null ? null : (axis.metrics as unknown as AxisMetrics),
+    metrics:
+      axis.metrics === null
+        ? null
+        : (axis.metrics as unknown as AxisMetrics | AxisRawResultDto),
     startedAt: axis.startedAt ? axis.startedAt.toISOString() : null,
     completedAt: axis.completedAt ? axis.completedAt.toISOString() : null,
   };
