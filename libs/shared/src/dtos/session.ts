@@ -21,6 +21,24 @@ export interface SubmitAxisResultDto {
   skipped?: boolean;
 }
 
+export interface LogicItemAnswerDto {
+  index: number;
+  answerIndex: number | null;
+  timeMs: number;
+}
+
+export interface LogicRawResultDto {
+  axis: AxisType.LOGIC;
+  items: LogicItemAnswerDto[];
+}
+
+export type AxisRawResultDto = LogicRawResultDto;
+
+export interface CompleteTargetedSessionDto {
+  axis: AxisType;
+  items: LogicItemAnswerDto[];
+}
+
 export interface RecommendationDto {
   axis: AxisType;
   priority: RecommendationPriority;
@@ -34,7 +52,7 @@ export interface SessionAxisResultDto {
   normalizedScore: number | null;
   band: ScoreBand | null;
   skipped: boolean;
-  metrics: AxisMetrics | null;
+  metrics: AxisMetrics | AxisRawResultDto | null;
   startedAt: string | null;
   completedAt: string | null;
 }
@@ -44,6 +62,7 @@ export interface SessionDto {
   mode: SessionMode;
   sector: Sector;
   status: SessionStatus;
+  seed: string;
   energyCost: number;
   currentAxisIndex: number;
   globalScore: number | null;
