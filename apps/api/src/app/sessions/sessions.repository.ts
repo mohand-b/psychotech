@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import {
   AxisMetrics,
+  AxisRawResultDto,
   AxisType,
   BadgeDto,
   RecommendationDto,
@@ -81,6 +82,14 @@ export interface CompleteSessionParams {
   recommendations: RecommendationDto[];
   axisBests: AxisBestInput[];
   streak: { current: number; longest: number; lastActivityDate: Date };
+}
+
+export interface CompleteTargetedSessionParams {
+  sessionId: string;
+  axis: AxisType;
+  rawResult: AxisRawResultDto;
+  startedAt: Date;
+  completedAt: Date;
 }
 
 export interface StreakContext {
@@ -251,6 +260,39 @@ export class SessionsRepository {
         include: SESSION_INCLUDE,
       });
       return { session, unlockedBadges };
+    });
+  }
+
+  async completeTargetedSession(
+    params: CompleteTargetedSessionParams,
+  ): Promise<SessionWithRelations> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.sessionAxis.update({
+        where: {
+          sessionId_axis: {
+            sessionId: params.sessionId,
+            axis: mapEnumValue(DbAxisType, params.axis),
+          },
+        },
+        data: {
+          metrics: params.rawResult as unknown as Prisma.InputJsonValue,
+          skipped: false,
+          startedAt: params.startedAt,
+          completedAt: params.completedAt,
+        },
+      });
+      await tx.session.update({
+        where: { id: params.sessionId },
+        data: {
+          status: DbSessionStatus.COMPLETED,
+          completedAt: params.completedAt,
+          currentAxisIndex: 1,
+        },
+      });
+      return tx.session.findUniqueOrThrow({
+        where: { id: params.sessionId },
+        include: SESSION_INCLUDE,
+      });
     });
   }
 

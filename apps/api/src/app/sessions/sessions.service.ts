@@ -6,8 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  AXIS_TRAINING,
   AxisType,
   EnergyLedgerReason,
+  LogicRawResultDto,
   ScoreBand,
   Sector,
   SessionDto,
@@ -22,6 +24,7 @@ import { energyCost } from '../energy/energy.logic';
 import { EnergyService } from '../energy/energy.service';
 import { AxisScore } from '../scoring/scoring.logic';
 import { ScoringService } from '../scoring/scoring.service';
+import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
 import { SubmitAxisResultRequest } from './dto/submit-axis-result.request';
@@ -113,6 +116,59 @@ export class SessionsService {
       });
     }
     return toSessionDto(await this.loadOwnedSession(sessionId, userId));
+  }
+
+  async completeTargeted(
+    userId: string,
+    sessionId: string,
+    axis: AxisType,
+    request: CompleteTargetedSessionRequest,
+  ): Promise<SessionDto> {
+    if (request.axis !== axis) {
+      throw new BadRequestException('The axis in the body does not match the route');
+    }
+    if (axis !== AxisType.LOGIC) {
+      throw new BadRequestException('Raw answers are only supported for the logic axis');
+    }
+    const session = await this.loadInProgressSession(sessionId, userId);
+    if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
+      throw new BadRequestException(
+        'Only a targeted session can be completed with raw answers',
+      );
+    }
+    const target = session.axisResults.find(
+      (result) => mapEnumValue(AxisType, result.axis) === axis,
+    );
+    if (!target) {
+      throw new BadRequestException('The axis is not part of this session');
+    }
+    const { exerciseCount } = AXIS_TRAINING[AxisType.LOGIC];
+    const distinctIndexes = new Set(request.items.map((item) => item.index));
+    if (
+      distinctIndexes.size !== request.items.length ||
+      request.items.length > exerciseCount ||
+      request.items.some((item) => item.index >= exerciseCount)
+    ) {
+      throw new BadRequestException(
+        'Item answers must target distinct items of the targeted axis',
+      );
+    }
+    const rawResult: LogicRawResultDto = {
+      axis: AxisType.LOGIC,
+      items: request.items.map(({ index, answerIndex, timeMs }) => ({
+        index,
+        answerIndex,
+        timeMs,
+      })),
+    };
+    const completed = await this.repository.completeTargetedSession({
+      sessionId,
+      axis,
+      rawResult,
+      startedAt: target.startedAt ?? session.startedAt,
+      completedAt: new Date(),
+    });
+    return toSessionDto(completed);
   }
 
   async complete(userId: string, sessionId: string): Promise<SessionResultDto> {

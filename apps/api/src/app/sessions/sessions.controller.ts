@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { AxisType, SessionDto, SessionResultDto } from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
+import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
 import { SubmitAxisResultRequest } from './dto/submit-axis-result.request';
@@ -35,6 +36,16 @@ export class SessionsController {
     @Body() request: SubmitAxisResultRequest,
   ): Promise<SessionDto> {
     return this.sessionsService.submitAxis(userId, sessionId, axis, request);
+  }
+
+  @Post(':id/axes/:axis/results')
+  completeTargeted(
+    @CurrentUser() userId: string,
+    @Param('id', ParseUUIDPipe) sessionId: string,
+    @Param('axis', new ParseEnumPipe(AxisType)) axis: AxisType,
+    @Body() request: CompleteTargetedSessionRequest,
+  ): Promise<SessionDto> {
+    return this.sessionsService.completeTargeted(userId, sessionId, axis, request);
   }
 
   @Post(':id/complete')

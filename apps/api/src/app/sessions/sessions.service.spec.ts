@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
@@ -64,6 +68,7 @@ const repository = {
   findStreakContext: vi.fn(),
   updateAxisResult: vi.fn(),
   completeSession: vi.fn(),
+  completeTargetedSession: vi.fn(),
   suspendSession: vi.fn(),
   abandonSession: vi.fn(),
   listSessions: vi.fn(),
@@ -202,6 +207,88 @@ describe('SessionsService.submitAxis', () => {
     await expect(
       service.submitAxis('user-1', sessionId, AxisType.LOGIC, { axis: AxisType.LOGIC, skipped: true }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});
+
+describe('SessionsService.completeTargeted', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const targetedSession = () =>
+    buildSession({ mode: 'TARGETED', energyCost: 1, axisResults: [buildAxis()] });
+  const answers = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      index,
+      answerIndex: index % 4 === 0 ? null : 0,
+      timeMs: 1200,
+    }));
+
+  it('stores raw answers as metrics and completes the session without scoring', async () => {
+    repository.findUserSession.mockResolvedValue(targetedSession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    const result = await service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      axis: AxisType.LOGIC,
+      items: answers(40),
+    });
+
+    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
+    expect(scoringService.evaluateSession).not.toHaveBeenCalled();
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId,
+        axis: AxisType.LOGIC,
+        rawResult: { axis: AxisType.LOGIC, items: answers(40) },
+      }),
+    );
+    expect(result.status).toBe('COMPLETED');
+  });
+
+  it('rejects a session that is already completed', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: answers(40),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects a session that is not targeted', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({ axisResults: [buildAxis()] }),
+    );
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: answers(40),
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects duplicate or out-of-range item indexes', async () => {
+    repository.findUserSession.mockResolvedValue(targetedSession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: [...answers(2), { index: 0, answerIndex: 1, timeMs: 500 }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: [{ index: 40, answerIndex: 1, timeMs: 500 }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
   });
 });
 
