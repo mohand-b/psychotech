@@ -16,6 +16,7 @@ import {
 } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
+import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { Navbar } from '../../shared/ui/navbar/navbar';
@@ -34,6 +35,7 @@ interface FocusedHeaderView {
   backLink: string;
   duration: string | null;
   closeLink: string | null;
+  live: boolean;
 }
 
 @Component({
@@ -45,12 +47,15 @@ interface FocusedHeaderView {
 })
 export class ConnectedLayout {
   private readonly energyFacade = inject(EnergyFacade);
+  private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly focusedHeader = signal<FocusedHeaderView | null>(
     this.readFocusedHeader(),
   );
+  protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
+  protected readonly liveCountdownAlert = this.trainingSessionFacade.isTimeCritical;
 
   constructor() {
     this.energyFacade
@@ -99,6 +104,7 @@ export class ConnectedLayout {
       backLink: data.backLink,
       duration,
       closeLink: data.closeLink ?? null,
+      live: snapshot?.paramMap.has('sessionId') ?? false,
     };
   }
 }

@@ -3,12 +3,14 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AxisType, Sector } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
+import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
@@ -23,8 +25,11 @@ import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 export class AxisStart {
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
+  private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
+  protected readonly starting = signal(false);
 
   protected readonly axis = this.route.snapshot.paramMap.get(
     'axis',
@@ -41,6 +46,19 @@ export class AxisStart {
   );
 
   protected start(): void {
-    this.router.navigate(['/sessions'], { queryParams: { axis: this.axis } });
+    if (this.starting()) {
+      return;
+    }
+    this.starting.set(true);
+    this.trainingSessionFacade.startTargeted(this.axis).subscribe({
+      next: (session) =>
+        this.router.navigate([
+          '/entrainements/cible',
+          this.axis,
+          'session',
+          session.id,
+        ]),
+      error: () => this.starting.set(false),
+    });
   }
 }

@@ -70,6 +70,10 @@
   color: var(--ink);
 }
 
+.focused-header__timer-value--alert {
+  color: var(--danger);
+}
+
 .focused-header__close {
   display: inline-flex;
   align-items: center;

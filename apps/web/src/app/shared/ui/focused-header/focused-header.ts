@@ -33,7 +33,11 @@ import { Icon } from '../icon/icon';
             @if (duration(); as duration) {
               <span class="focused-header__timer">
                 <ui-icon [img]="timerIcon" [size]="15" />
-                <span class="focused-header__timer-value">{{ duration }}</span>
+                <span
+                  class="focused-header__timer-value"
+                  [class.focused-header__timer-value--alert]="timerAlert()"
+                  >{{ duration }}</span
+                >
               </span>
             }
             <a
@@ -57,6 +61,7 @@ export class FocusedHeader {
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
   readonly duration = input<string | null>(null);
+  readonly timerAlert = input(false);
   readonly closeLink = input<string | null>(null);
 
   protected readonly backIcon = ArrowLeft;

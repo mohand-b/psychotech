@@ -31,4 +31,17 @@ export const entrainementsRoutes: Route[] = [
     loadComponent: () =>
       import('./axis-start/axis-start').then((m) => m.AxisStart),
   },
+  {
+    path: 'entrainements/cible/:axis/session/:sessionId',
+    data: {
+      focusedHeader: {
+        backLabel: 'Entraînement ciblé',
+        backLink: '/entrainements/choisir-axe',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+      },
+    },
+    loadComponent: () =>
+      import('./logic-play/logic-play').then((m) => m.LogicPlay),
+  },
 ];

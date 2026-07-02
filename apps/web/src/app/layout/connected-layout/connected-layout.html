@@ -4,7 +4,8 @@
       [title]="header.title"
       [backLabel]="header.backLabel"
       [backLink]="header.backLink"
-      [duration]="header.duration"
+      [duration]="header.live ? (liveCountdown() ?? header.duration) : header.duration"
+      [timerAlert]="header.live && liveCountdownAlert()"
       [closeLink]="header.closeLink"
     />
   } @else {

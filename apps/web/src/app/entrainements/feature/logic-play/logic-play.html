@@ -1,0 +1,91 @@
+<section class="play">
+  <ui-item-nav-band
+    [states]="itemStates()"
+    [currentIndex]="currentIndex()"
+    [axis]="axis"
+    (navigate)="goTo($event)"
+  />
+
+  @if (loaded() && currentItem(); as item) {
+    <div
+      class="play__content"
+      [style.--axis-plain]="presentation.plainVar"
+      [style.--axis-pastel]="presentation.pastelVar"
+      [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+      [style.--axis-text]="presentation.textVar"
+    >
+      <p class="play__counter">
+        Item
+        <span class="play__counter-value t-mono"
+          >{{ currentIndex() + 1 }}/{{ items().length }}</span
+        >
+      </p>
+
+      <article class="play__card">
+        <span class="t-label">Complétez la suite</span>
+
+        <div class="play__sequence">
+          @for (term of item.sequence; track $index) {
+            <span class="play__term t-mono">{{ term }}</span>
+            <ui-icon class="play__arrow" [img]="arrowIcon" [size]="16" />
+          }
+          <span class="play__unknown t-mono" aria-label="Terme à trouver">?</span>
+        </div>
+
+        <div class="play__choices">
+          @for (choice of item.choices; track $index) {
+            <button
+              type="button"
+              class="play__choice"
+              [class.play__choice--selected]="answers()[currentIndex()] === $index"
+              [attr.aria-pressed]="answers()[currentIndex()] === $index"
+              [disabled]="locked()"
+              (click)="select($index)"
+            >
+              <span class="play__choice-letter" aria-hidden="true">{{
+                choiceLetters[$index]
+              }}</span>
+              <span class="play__choice-value t-mono">{{ choice }}</span>
+            </button>
+          }
+        </div>
+      </article>
+
+      <div class="play__actions">
+        <ui-button
+          color="neutral"
+          appearance="outlined"
+          [icon]="backIcon"
+          [disabled]="currentIndex() === 0 || locked()"
+          (click)="previous()"
+        >
+          Précédent
+        </ui-button>
+        <div class="play__actions-end">
+          <ui-button
+            color="neutral"
+            appearance="outlined"
+            [icon]="skipIcon"
+            [disabled]="locked()"
+            (click)="next()"
+          >
+            Passer
+          </ui-button>
+          <ui-button
+            [color]="buttonColor"
+            [showArrow]="true"
+            [disabled]="locked()"
+            (click)="next()"
+          >
+            Suivant
+          </ui-button>
+        </div>
+      </div>
+
+      <p class="play__hint t-support">
+        Navigation libre tant que le chrono court — « Passer » laisse l'item sans
+        réponse, revenez-y via la barre d'items.
+      </p>
+    </div>
+  }
+</section>

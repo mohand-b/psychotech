@@ -1,0 +1,75 @@
+:host {
+  display: block;
+  background: var(--card);
+  border-bottom: 1px solid var(--divider-soft);
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  overflow-x: auto;
+}
+
+.band__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 6px 1px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.band__dot {
+  width: 20px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  border: 1px solid var(--surface-muted);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.band__item--answered .band__dot {
+  background: var(--band-accent);
+  border-color: var(--band-accent);
+}
+
+.band__item--skipped .band__dot {
+  background: var(--card);
+  border-color: var(--band-accent);
+}
+
+.band__item--current .band__dot {
+  width: 24px;
+  background: var(--card);
+  border: 2px solid var(--ink);
+}
+
+@media (max-width: 767px) {
+  .band {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 4px 16px;
+  }
+
+  .band__item {
+    min-width: 40px;
+    min-height: 44px;
+  }
+
+  .band__dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+  }
+
+  .band__item--current .band__dot {
+    width: 22px;
+  }
+}
