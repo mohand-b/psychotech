@@ -1,16 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { LogicItemType } from '../../enums';
 import { createSeededRng } from '../rng';
 import { generateLogicSession } from './generate-logic-session';
 import { LogicItem } from './logic-item';
-import {
-  digitSum,
-  LETTER_ALPHABET,
-  LOGIC_RULES,
-  LogicPuzzle,
-  MIXED_TERM_PATTERN,
-  SYMBOL_GLYPHS,
-} from './logic-rules';
+import { digitSum, LOGIC_RULES, LogicPuzzle } from './logic-rules';
 
 const SAMPLE_SEEDS = ['seed-1', 'seed-2', 'seed-3', 'seed-4', 'seed-5'];
 
@@ -20,14 +12,6 @@ function sampleItems(): LogicItem[] {
 
 function numericSeries(puzzle: LogicPuzzle): number[] {
   return [...puzzle.terms, puzzle.answer].map(Number);
-}
-
-function letterSeries(puzzle: LogicPuzzle): number[] {
-  return [...puzzle.terms, puzzle.answer].map((term) => LETTER_ALPHABET.indexOf(term));
-}
-
-function symbolSeries(puzzle: LogicPuzzle): string[] {
-  return [...puzzle.terms, puzzle.answer];
 }
 
 function differences(values: number[]): number[] {
@@ -55,15 +39,6 @@ function hasAlternatingDifferences(values: number[]): boolean {
 function hasConstantSecondDifference(values: number[]): boolean {
   const secondSteps = differences(differences(values));
   return secondSteps.length > 0 && secondSteps.every((step) => step === secondSteps[0]);
-}
-
-function isPeriodic(values: string[]): boolean {
-  for (let period = 3; period <= 4; period += 1) {
-    if (values.every((value, index) => value === values[index % period])) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function splitInterleaved(values: number[]): [number[], number[]] {
@@ -96,46 +71,42 @@ function validatesAlternatingMultiplyAdd(values: number[]): boolean {
     );
 }
 
-function validatesMixed(puzzle: LogicPuzzle): boolean {
-  const parts = [...puzzle.terms, puzzle.answer].map((term) => MIXED_TERM_PATTERN.exec(term));
-  if (parts.some((part) => part === null)) {
-    return false;
-  }
-  const letters = parts.map((part) => LETTER_ALPHABET.indexOf((part as RegExpExecArray)[1]));
-  const numbers = parts.map((part) => Number((part as RegExpExecArray)[2]));
-  return hasConstantDifference(letters) && (hasConstantDifference(numbers) || hasConstantRatio(numbers));
-}
-
 const RULE_VALIDATORS: Record<string, (puzzle: LogicPuzzle) => boolean> = {
   'arithmetic-constant-step': (puzzle) => hasConstantDifference(numericSeries(puzzle)),
   'geometric-double-or-triple': (puzzle) => hasConstantRatio(numericSeries(puzzle)),
-  'letter-constant-step': (puzzle) => hasConstantDifference(letterSeries(puzzle)),
-  'symbol-cycle': (puzzle) => isPeriodic(symbolSeries(puzzle)),
   'alternating-two-steps': (puzzle) => hasAlternatingDifferences(numericSeries(puzzle)),
+  'alternating-add-subtract': (puzzle) => {
+    const series = numericSeries(puzzle);
+    const steps = differences(series);
+    return (
+      hasAlternatingDifferences(series) &&
+      steps[0] > 0 &&
+      steps[1] < 0 &&
+      series.every((value) => value >= 0)
+    );
+  },
   'geometric-fast-or-halving': (puzzle) => hasConstantRatio(numericSeries(puzzle)),
-  'letter-alternating-step': (puzzle) => hasAlternatingDifferences(letterSeries(puzzle)),
-  'symbol-cycle-inverted': (puzzle) => isPeriodic(symbolSeries(puzzle)),
   'increasing-step': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
   'squares-plus-constant': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
   'alternating-multiply-add': (puzzle) => validatesAlternatingMultiplyAdd(numericSeries(puzzle)),
-  'mixed-letter-number': validatesMixed,
   'fibonacci-like': (puzzle) => isFibonacciLike(numericSeries(puzzle)),
   'interleaved-sequences': (puzzle) =>
     splitInterleaved(numericSeries(puzzle)).every(hasConstantDifference),
   'second-order-differences': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
   powers: (puzzle) =>
     hasConstantRatio(numericSeries(puzzle)) || isConsecutiveCubes(numericSeries(puzzle)),
-  'multiply-by-rank': (puzzle) =>
-    numericSeries(puzzle)
+  'multiply-by-rank': (puzzle) => {
+    const series = numericSeries(puzzle);
+    return series
       .slice(1)
-      .every((value, index) => value === numericSeries(puzzle)[index] * (index + 2)),
-  'add-digit-sum': (puzzle) =>
-    numericSeries(puzzle)
+      .every((value, index) => value === series[index] * (index + 2));
+  },
+  'add-digit-sum': (puzzle) => {
+    const series = numericSeries(puzzle);
+    return series
       .slice(1)
-      .every((value, index) => {
-        const previous = numericSeries(puzzle)[index];
-        return value === previous + digitSum(previous);
-      }),
+      .every((value, index) => value === series[index] + digitSum(series[index]));
+  },
   'interleaved-double-fibonacci': (puzzle) => {
     const [even, odd] = splitInterleaved(numericSeries(puzzle));
     return hasConstantRatio(even) && isFibonacciLike(odd);
@@ -200,21 +171,14 @@ describe('generateLogicSession', () => {
     }
   });
 
-  it('displays 5 or 6 terms and never a negative value on a 200-item sample', () => {
+  it('displays 5 or 6 number terms and never a negative value on a 200-item sample', () => {
     for (const item of sampleItems()) {
       expect(item.sequence.length).toBeGreaterThanOrEqual(5);
       expect(item.sequence.length).toBeLessThanOrEqual(6);
-      if (item.type === LogicItemType.NUMBER) {
-        for (const value of [...item.sequence, ...item.choices].map(Number)) {
-          expect(Number.isInteger(value)).toBe(true);
-          expect(value).toBeGreaterThanOrEqual(0);
-          expect(value).toBeLessThanOrEqual(99999);
-        }
-      }
-      if (item.type === LogicItemType.SYMBOL) {
-        for (const glyph of [...item.sequence, ...item.choices]) {
-          expect(SYMBOL_GLYPHS).toContain(glyph);
-        }
+      for (const value of [...item.sequence, ...item.choices].map(Number)) {
+        expect(Number.isInteger(value)).toBe(true);
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(99999);
       }
     }
   });

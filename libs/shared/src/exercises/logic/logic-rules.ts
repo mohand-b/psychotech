@@ -1,9 +1,7 @@
-import { LogicItemType } from '../../enums';
 import { SeededRng } from '../rng';
 import { LogicDifficulty } from './logic-item';
 
 export interface LogicPuzzle {
-  type: LogicItemType;
   terms: string[];
   answer: string;
   typicalErrors: string[];
@@ -13,14 +11,6 @@ export interface LogicRule {
   id: string;
   difficulty: LogicDifficulty;
   generate(rng: SeededRng): LogicPuzzle;
-}
-
-export const LETTER_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-export const SYMBOL_GLYPHS: readonly string[] = ['●', '▲', '■', '◆'];
-export const MIXED_TERM_PATTERN = /^([A-Z])(\d+)$/;
-
-export function letterAt(position: number): string {
-  return LETTER_ALPHABET[position];
 }
 
 export function digitSum(value: number): number {
@@ -38,32 +28,9 @@ function accumulate(start: number, steps: number[]): number[] {
 function numericPuzzle(values: number[], typicalErrors: number[]): LogicPuzzle {
   const answer = values[values.length - 1];
   return {
-    type: LogicItemType.NUMBER,
     terms: values.slice(0, -1).map(String),
     answer: String(answer),
     typicalErrors: typicalErrors.map((error) => String(Math.round(error))),
-  };
-}
-
-function letterPuzzle(positions: number[], typicalErrorPositions: number[]): LogicPuzzle {
-  const answerPosition = positions[positions.length - 1];
-  return {
-    type: LogicItemType.LETTER,
-    terms: positions.slice(0, -1).map(letterAt),
-    answer: letterAt(answerPosition),
-    typicalErrors: typicalErrorPositions
-      .filter((position) => position >= 0 && position <= 25)
-      .map(letterAt),
-  };
-}
-
-function symbolPuzzle(pattern: string[], termCount: number): LogicPuzzle {
-  const answer = pattern[termCount % pattern.length];
-  return {
-    type: LogicItemType.SYMBOL,
-    terms: Array.from({ length: termCount }, (_, index) => pattern[index % pattern.length]),
-    answer,
-    typicalErrors: SYMBOL_GLYPHS.filter((glyph) => glyph !== answer),
   };
 }
 
@@ -113,35 +80,6 @@ export const LOGIC_RULES: readonly LogicRule[] = [
     },
   },
   {
-    id: 'letter-constant-step',
-    difficulty: 1,
-    generate(rng) {
-      const step = rng.nextInt(1, 3);
-      const termCount = rng.nextInt(5, 6);
-      const start = rng.nextInt(0, 25 - step * termCount);
-      const positions = Array.from(
-        { length: termCount + 1 },
-        (_, index) => start + step * index,
-      );
-      const answerPosition = positions[positions.length - 1];
-      return letterPuzzle(positions, [
-        answerPosition - 1,
-        answerPosition + 1,
-        answerPosition + step,
-        answerPosition - step - 1,
-      ]);
-    },
-  },
-  {
-    id: 'symbol-cycle',
-    difficulty: 1,
-    generate(rng) {
-      const period = rng.nextInt(3, 4);
-      const cycle = rng.shuffle(SYMBOL_GLYPHS).slice(0, period);
-      return symbolPuzzle(cycle, rng.nextInt(5, 6));
-    },
-  },
-  {
     id: 'alternating-two-steps',
     difficulty: 2,
     generate(rng) {
@@ -163,6 +101,31 @@ export const LOGIC_RULES: readonly LogicRule[] = [
         answer + 1,
         answer - 1,
         answer + 2,
+      ]);
+    },
+  },
+  {
+    id: 'alternating-add-subtract',
+    difficulty: 2,
+    generate(rng) {
+      const addStep = rng.nextInt(4, 9);
+      const subtractStep = rng.nextInt(2, addStep - 1);
+      const termCount = rng.nextInt(5, 6);
+      const start = rng.nextInt(5, 20);
+      const steps = Array.from({ length: termCount }, (_, index) =>
+        index % 2 === 0 ? addStep : -subtractStep,
+      );
+      const values = accumulate(start, steps);
+      const last = values[values.length - 2];
+      const answer = values[values.length - 1];
+      const expectedStep = answer - last;
+      const wrongStep = expectedStep === addStep ? -subtractStep : addStep;
+      return numericPuzzle(values, [
+        last + wrongStep,
+        answer + 1,
+        answer - 1,
+        answer + 2,
+        answer - 2,
       ]);
     },
   },
@@ -197,39 +160,6 @@ export const LOGIC_RULES: readonly LogicRule[] = [
         answer + 2,
         halving ? answer * 1.5 : answer * 0.8,
       ]);
-    },
-  },
-  {
-    id: 'letter-alternating-step',
-    difficulty: 2,
-    generate(rng) {
-      const stepA = rng.nextInt(2, 3);
-      const stepB = rng.nextInt(1, stepA - 1);
-      const termCount = rng.nextInt(5, 6);
-      const steps = Array.from({ length: termCount }, (_, index) =>
-        index % 2 === 0 ? stepA : stepB,
-      );
-      const span = steps.reduce((total, step) => total + step, 0);
-      const start = rng.nextInt(0, 25 - span);
-      const positions = accumulate(start, steps);
-      const answerPosition = positions[positions.length - 1];
-      const lastPosition = positions[positions.length - 2];
-      const wrongStep = answerPosition - lastPosition === stepA ? stepB : stepA;
-      return letterPuzzle(positions, [
-        lastPosition + wrongStep,
-        answerPosition + 1,
-        answerPosition - 1,
-        answerPosition + 2,
-      ]);
-    },
-  },
-  {
-    id: 'symbol-cycle-inverted',
-    difficulty: 2,
-    generate(rng) {
-      const base = rng.shuffle(SYMBOL_GLYPHS).slice(0, 3);
-      const pattern = [base[0], base[1], base[2], base[1]];
-      return symbolPuzzle(pattern, rng.nextInt(5, 6));
     },
   },
   {
@@ -297,47 +227,6 @@ export const LOGIC_RULES: readonly LogicRule[] = [
         answer - 1,
         answer + addend,
       ]);
-    },
-  },
-  {
-    id: 'mixed-letter-number',
-    difficulty: 3,
-    generate(rng) {
-      const letterStep = rng.nextInt(1, 3);
-      const termCount = 5;
-      const letterStart = rng.nextInt(0, 25 - letterStep * termCount);
-      const doubling = rng.next() < 0.5;
-      const numberStart = doubling ? rng.nextInt(1, 3) : rng.nextInt(1, 9);
-      const numberStep = rng.nextInt(2, 5);
-      const letterPositions = Array.from(
-        { length: termCount + 1 },
-        (_, index) => letterStart + letterStep * index,
-      );
-      const numbers = Array.from({ length: termCount + 1 }, (_, index) =>
-        doubling ? numberStart * 2 ** index : numberStart + numberStep * index,
-      );
-      const terms = letterPositions.map((position, index) => `${letterAt(position)}${numbers[index]}`);
-      const answerLetterPosition = letterPositions[letterPositions.length - 1];
-      const answerLetter = letterAt(answerLetterPosition);
-      const answerNumber = numbers[numbers.length - 1];
-      const previousNumber = numbers[numbers.length - 2];
-      const numberErrors = doubling
-        ? [previousNumber + 2, previousNumber * 3, answerNumber + 1]
-        : [answerNumber + 1, answerNumber - 1, answerNumber + numberStep];
-      const letterErrors = [
-        answerLetterPosition + 1,
-        answerLetterPosition - 1,
-        answerLetterPosition + letterStep,
-      ].filter((position) => position >= 0 && position <= 25);
-      return {
-        type: LogicItemType.MIXED,
-        terms: terms.slice(0, -1),
-        answer: terms[terms.length - 1],
-        typicalErrors: [
-          ...numberErrors.map((value) => `${answerLetter}${value}`),
-          ...letterErrors.map((position) => `${letterAt(position)}${answerNumber}`),
-        ],
-      };
     },
   },
   {

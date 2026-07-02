@@ -21,7 +21,6 @@ export function generateLogicSession(
       const { choices, answerIndex } = buildLogicChoices(rng, puzzle);
       items.push({
         index: items.length,
-        type: puzzle.type,
         difficulty,
         sequence: puzzle.terms,
         choices,
