@@ -55,7 +55,7 @@ export type TrainingModeColor = Extract<ButtonColor, 'brand' | 'green'>;
           [relief]="true"
           [showArrow]="true"
           [block]="true"
-          (click)="start.emit()"
+          (click)="launch.emit()"
         >
           {{ ctaLabel() }}
         </ui-button>
@@ -183,7 +183,7 @@ export class TrainingModeCard {
   readonly features = input.required<readonly string[]>();
   readonly ctaLabel = input.required<string>();
 
-  readonly start = output<void>();
+  readonly launch = output<void>();
 
   protected readonly checkIcon = Check;
   protected readonly costIcon = Zap;

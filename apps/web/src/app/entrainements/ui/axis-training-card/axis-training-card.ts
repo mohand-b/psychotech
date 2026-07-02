@@ -67,7 +67,7 @@ import { axisButtonColor } from '../axis-button-color';
         [color]="buttonColor()"
         [relief]="true"
         [block]="true"
-        (click)="start.emit()"
+        (click)="launch.emit()"
       >
         S'entraîner {{ cost() }}
         <ui-icon [img]="costIcon" [size]="15" />
@@ -189,7 +189,7 @@ export class AxisTrainingCard {
   readonly bestScore = input<number | null>(null);
   readonly badge = input<string | null>(null);
 
-  readonly start = output<void>();
+  readonly launch = output<void>();
 
   protected readonly costIcon = Zap;
 
