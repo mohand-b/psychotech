@@ -101,18 +101,20 @@
   }
 }
 
-.focused-header__close {
+.focused-header__icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  border: none;
   border-radius: var(--radius-chip);
+  background: transparent;
   color: var(--text-secondary);
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.focused-header__close:hover {
+.focused-header__icon-button:hover {
   background: var(--bg);
   color: var(--ink);
 }

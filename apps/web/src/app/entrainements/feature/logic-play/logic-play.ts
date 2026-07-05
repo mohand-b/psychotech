@@ -49,6 +49,7 @@ export class LogicPlay {
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
   private hasSubmitted = false;
+  private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
@@ -90,10 +91,17 @@ export class LogicPlay {
         this.submit();
       }
     });
+    effect(() => {
+      const requests = this.facade.closeRequests();
+      if (requests !== this.handledCloseRequests) {
+        this.handledCloseRequests = requests;
+        this.finish();
+      }
+    });
   }
 
   protected finish(): void {
-    if (this.locked()) {
+    if (this.locked() || !this.loaded()) {
       return;
     }
     if (this.unansweredCount() > 0) {

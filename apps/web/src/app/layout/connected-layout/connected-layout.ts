@@ -27,6 +27,9 @@ interface FocusedHeaderData {
   backLink: string;
   closeLink?: string;
   axisParam?: string;
+  axisChip?: boolean;
+  showEnergy?: boolean;
+  showHelp?: boolean;
 }
 
 interface FocusedHeaderView {
@@ -35,6 +38,9 @@ interface FocusedHeaderView {
   backLink: string;
   duration: string | null;
   closeLink: string | null;
+  axisChip: AxisType | null;
+  showEnergy: boolean;
+  helpText: string | null;
   live: boolean;
 }
 
@@ -72,6 +78,16 @@ export class ConnectedLayout {
       .subscribe(() => this.focusedHeader.set(this.readFocusedHeader()));
   }
 
+  protected onCloseRequested(header: FocusedHeaderView): void {
+    if (header.live) {
+      this.trainingSessionFacade.requestClose();
+      return;
+    }
+    if (header.closeLink) {
+      this.router.navigateByUrl(header.closeLink);
+    }
+  }
+
   private readFocusedHeader(): FocusedHeaderView | null {
     let route: ActivatedRoute | null = this.route;
     while (route?.firstChild) {
@@ -86,10 +102,13 @@ export class ConnectedLayout {
     }
     let title = data.title ?? '';
     let duration: string | null = null;
+    let axisChip: AxisType | null = null;
+    let helpText: string | null = null;
     if (data.axisParam) {
       const axis = snapshot?.paramMap.get(data.axisParam) as AxisType | null;
       if (axis) {
-        title = AXIS_META[axis].label;
+        title = data.title ?? AXIS_META[axis].label;
+        axisChip = data.axisChip ? axis : null;
         const training: AxisTraining | undefined =
           AXIS_TRAINING[axis as RailwayPlayableAxis];
         const durationSec =
@@ -97,6 +116,7 @@ export class ConnectedLayout {
             ? training.timer.durationSec
             : null;
         duration = durationSec === null ? null : formatDuration(durationSec);
+        helpText = data.showHelp && training ? training.briefing.consigne : null;
       }
     }
     return {
@@ -105,6 +125,9 @@ export class ConnectedLayout {
       backLink: data.backLink,
       duration,
       closeLink: data.closeLink ?? null,
+      axisChip,
+      showEnergy: data.showEnergy ?? true,
+      helpText,
       live: snapshot?.paramMap.has('sessionId') ?? false,
     };
   }

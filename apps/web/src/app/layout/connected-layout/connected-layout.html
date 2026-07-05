@@ -4,9 +4,13 @@
       [title]="header.title"
       [backLabel]="header.backLabel"
       [backLink]="header.backLink"
+      [axisChip]="header.axisChip"
       [duration]="header.live ? (liveCountdown() ?? header.duration) : header.duration"
       [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
+      [showEnergy]="header.showEnergy"
+      [helpText]="header.helpText"
       [closeLink]="header.closeLink"
+      (closeRequested)="onCloseRequested(header)"
     />
   } @else {
     <ui-navbar />

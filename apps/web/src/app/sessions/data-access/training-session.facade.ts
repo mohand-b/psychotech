@@ -1,4 +1,4 @@
-import { Injectable, Signal, computed, inject } from '@angular/core';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import {
   AXIS_TRAINING,
   AxisTimerModel,
@@ -73,6 +73,13 @@ export class TrainingSessionFacade {
   });
 
   readonly isExpired: Signal<boolean> = computed(() => this.remainingSec() === 0);
+
+  private readonly closeRequestCounter = signal(0);
+  readonly closeRequests: Signal<number> = this.closeRequestCounter.asReadonly();
+
+  requestClose(): void {
+    this.closeRequestCounter.update((count) => count + 1);
+  }
 
   startTargeted(axis: AxisType): Observable<SessionDto> {
     const sector = this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;

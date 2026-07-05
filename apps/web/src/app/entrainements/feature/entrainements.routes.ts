@@ -35,10 +35,14 @@ export const entrainementsRoutes: Route[] = [
     path: 'entrainements/cible/:axis/session/:sessionId',
     data: {
       focusedHeader: {
-        backLabel: 'Entraînement ciblé',
-        backLink: '/entrainements/choisir-axe',
+        title: 'Entraînement ciblé',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
         closeLink: '/entrainements',
         axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showHelp: true,
       },
     },
     loadComponent: () =>

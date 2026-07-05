@@ -17,7 +17,7 @@ export type ButtonColor =
   | 'reactivity'
   | 'motor';
 
-export type ButtonAppearance = 'solid' | 'outlined';
+export type ButtonAppearance = 'solid' | 'outlined' | 'ghost';
 
 export type ButtonSize = 'md' | 'lg';
 
@@ -37,6 +37,9 @@ export type ButtonSize = 'md' | 'lg';
         <ui-icon [img]="glyph" />
       }
       <span class="ui-button__label"><ng-content /></span>
+      @if (!loading() && iconEnd(); as glyph) {
+        <ui-icon [img]="glyph" />
+      }
       @if (showArrow() && !loading()) {
         <ui-icon [img]="arrowIcon" />
       }
@@ -183,6 +186,20 @@ export type ButtonSize = 'md' | 'lg';
     .ui-button--outlined:hover:not(:disabled) {
       background: var(--btn-outline-hover);
     }
+    .ui-button--ghost {
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    .ui-button--ghost:hover:not(:disabled) {
+      background: var(--surface-muted);
+      color: var(--ink);
+    }
+    .ui-button--ghost:disabled {
+      background: transparent;
+      color: var(--text-disabled);
+    }
     .ui-button:disabled {
       background: var(--surface-muted);
       color: var(--text-disabled);
@@ -222,6 +239,7 @@ export class Button {
   readonly loading = input(false);
   readonly showArrow = input(false);
   readonly icon = input<LucideIconData | null>(null);
+  readonly iconEnd = input<LucideIconData | null>(null);
 
   protected readonly arrowIcon = ArrowRight;
   protected readonly spinnerIcon = LoaderCircle;

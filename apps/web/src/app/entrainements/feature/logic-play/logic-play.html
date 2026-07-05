@@ -65,8 +65,8 @@
         <div class="play__actions-end">
           <ui-button
             color="neutral"
-            appearance="outlined"
-            [icon]="skipIcon"
+            appearance="ghost"
+            [iconEnd]="skipIcon"
             [disabled]="locked()"
             (click)="next()"
           >
@@ -84,8 +84,7 @@
       </div>
 
       <p class="play__hint t-support">
-        Navigation libre tant que le chrono court — « Passer » laisse l'item sans
-        réponse, revenez-y via la barre d'items.
+        Navigation libre — « Passer » laisse l'item sans réponse.
       </p>
 
       @if (confirmingFinish()) {
@@ -118,18 +117,6 @@
               Terminer
             </ui-button>
           </div>
-        </div>
-      } @else {
-        <div class="play__finish">
-          <button
-            type="button"
-            class="play__finish-link"
-            [disabled]="locked()"
-            (click)="finish()"
-          >
-            Terminer l'entraînement
-            <ui-icon [img]="arrowIcon" [size]="15" />
-          </button>
         </div>
       }
     </div>

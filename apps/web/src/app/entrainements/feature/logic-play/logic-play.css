@@ -176,33 +176,6 @@
   color: var(--text-secondary);
 }
 
-.play__finish {
-  display: flex;
-  justify-content: center;
-}
-
-.play__finish-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-button);
-  padding: 8px 12px;
-  font: 600 13px/18px var(--font-ui);
-  color: var(--brand);
-  cursor: pointer;
-}
-
-.play__finish-link:hover:not(:disabled) {
-  background: var(--brand-pastel);
-}
-
-.play__finish-link:disabled {
-  color: var(--text-disabled);
-  cursor: not-allowed;
-}
-
 .play__confirm {
   display: flex;
   flex-direction: column;
