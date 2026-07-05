@@ -67,24 +67,25 @@
             color="neutral"
             appearance="ghost"
             [iconEnd]="skipIcon"
-            [disabled]="locked()"
-            (click)="next()"
+            [disabled]="locked() || nextUnansweredIndex() === -1"
+            (click)="skip()"
           >
             Passer
           </ui-button>
           <ui-button
             [color]="buttonColor"
-            [showArrow]="true"
-            [disabled]="locked()"
-            (click)="next()"
+            [showArrow]="!isLastItem()"
+            [disabled]="locked() || !currentAnswered()"
+            (click)="confirmNext()"
           >
-            Suivant
+            {{ isLastItem() ? 'Terminer' : 'Suivant' }}
           </ui-button>
         </div>
       </div>
 
       <p class="play__hint t-support">
-        Navigation libre — « Passer » laisse l'item sans réponse.
+        « Suivant » valide votre réponse — « Passer » laisse l'item sans réponse
+        pour y revenir.
       </p>
 
       @if (confirmingFinish()) {

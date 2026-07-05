@@ -72,6 +72,24 @@ export class LogicPlay {
   protected readonly unansweredCount = computed(
     () => this.items().length - Object.keys(this.answers()).length,
   );
+  protected readonly currentAnswered = computed(
+    () => this.answers()[this.currentIndex()] !== undefined,
+  );
+  protected readonly isLastItem = computed(
+    () => this.currentIndex() === this.items().length - 1,
+  );
+  protected readonly nextUnansweredIndex = computed(() => {
+    const answers = this.answers();
+    const total = this.items().length;
+    const current = this.currentIndex();
+    for (let offset = 1; offset < total; offset += 1) {
+      const index = (current + offset) % total;
+      if (answers[index] === undefined) {
+        return index;
+      }
+    }
+    return -1;
+  });
 
   protected readonly backIcon = ArrowLeft;
   protected readonly skipIcon = SkipForward;
@@ -161,18 +179,22 @@ export class LogicPlay {
     this.goTo(this.currentIndex() - 1);
   }
 
-  protected next(): void {
-    const index = this.currentIndex();
-    if (index < this.items().length - 1) {
-      this.goTo(index + 1);
+  protected skip(): void {
+    const target = this.nextUnansweredIndex();
+    if (target !== -1) {
+      this.goTo(target);
+    }
+  }
+
+  protected confirmNext(): void {
+    if (this.locked() || !this.currentAnswered()) {
       return;
     }
-    const firstUnanswered = this.items().findIndex(
-      (_, itemIndex) => this.answers()[itemIndex] === undefined,
-    );
-    if (firstUnanswered !== -1) {
-      this.goTo(firstUnanswered);
+    if (this.isLastItem()) {
+      this.finish();
+      return;
     }
+    this.goTo(this.currentIndex() + 1);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -191,9 +213,14 @@ export class LogicPlay {
       this.previous();
       return;
     }
-    if (event.key === 'ArrowRight' || event.key === 'Enter') {
+    if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.next();
+      this.goTo(this.currentIndex() + 1);
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.confirmNext();
       return;
     }
     const choiceCount = this.currentItem()?.choices.length ?? 0;
