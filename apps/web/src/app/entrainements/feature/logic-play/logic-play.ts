@@ -60,10 +60,11 @@ export class LogicPlay {
   protected readonly itemStates = computed<ItemNavState[]>(() => {
     const answers = this.answers();
     const visited = this.visited();
+    const current = this.currentIndex();
     return this.items().map((_, index) =>
       answers[index] !== undefined
         ? 'answered'
-        : visited.has(index)
+        : visited.has(index) && index !== current
           ? 'skipped'
           : 'pending',
     );

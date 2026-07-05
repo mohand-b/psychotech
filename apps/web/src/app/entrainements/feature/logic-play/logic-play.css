@@ -5,7 +5,7 @@
 .play {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - 64px);
+  min-height: calc(100dvh - 65px);
 }
 
 .play__content {
