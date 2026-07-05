@@ -158,10 +158,9 @@ describe('generateLogicSession', () => {
     }
   });
 
-  it('keeps the correct answer among unique, distinct choices on a 200-item sample', () => {
+  it('keeps the correct answer among exactly four unique choices on a 200-item sample', () => {
     for (const item of sampleItems()) {
-      expect(item.choices.length).toBeGreaterThanOrEqual(4);
-      expect(item.choices.length).toBeLessThanOrEqual(5);
+      expect(item.choices.length).toBe(4);
       expect(new Set(item.choices).size).toBe(item.choices.length);
       expect(item.answerIndex).toBeGreaterThanOrEqual(0);
       expect(item.answerIndex).toBeLessThan(item.choices.length);

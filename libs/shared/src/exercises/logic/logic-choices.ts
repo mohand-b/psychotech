@@ -38,8 +38,9 @@ function collectValid(
   return valid;
 }
 
+export const LOGIC_CHOICE_COUNT = 4;
+
 export function buildLogicChoices(rng: SeededRng, puzzle: LogicPuzzle): LogicChoices {
-  const choiceCount = rng.nextInt(4, 5);
   const seen = new Set<string>([puzzle.answer]);
   const typical = collectValid(puzzle.typicalErrors, puzzle.answer, seen);
   const fallbacks = collectValid(
@@ -49,7 +50,7 @@ export function buildLogicChoices(rng: SeededRng, puzzle: LogicPuzzle): LogicCho
   );
   const distractors = [...rng.shuffle(typical), ...rng.shuffle(fallbacks)].slice(
     0,
-    choiceCount - 1,
+    LOGIC_CHOICE_COUNT - 1,
   );
   const answerIndex = rng.nextInt(0, distractors.length);
   const choices = [...distractors];
