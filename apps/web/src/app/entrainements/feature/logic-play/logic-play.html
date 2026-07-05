@@ -3,6 +3,7 @@
     [states]="itemStates()"
     [currentIndex]="currentIndex()"
     [axis]="axis"
+    [remainingCount]="unansweredCount()"
     (navigate)="goTo($event)"
   />
 
@@ -47,6 +48,8 @@
             </button>
           }
         </div>
+
+        <span class="play__card-hint">A–D ou 1–4 pour répondre</span>
       </article>
 
       <div class="play__actions">

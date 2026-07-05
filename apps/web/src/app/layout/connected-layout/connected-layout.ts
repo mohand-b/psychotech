@@ -55,7 +55,8 @@ export class ConnectedLayout {
     this.readFocusedHeader(),
   );
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
-  protected readonly liveCountdownAlert = this.trainingSessionFacade.isTimeCritical;
+  protected readonly liveCountdownSeverity =
+    this.trainingSessionFacade.countdownSeverity;
 
   constructor() {
     this.energyFacade

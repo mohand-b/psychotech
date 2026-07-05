@@ -36,7 +36,7 @@ export class LogicPlay {
   ) as AxisType;
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
-  protected readonly choiceLetters = ['A', 'B', 'C', 'D', 'E'];
+  protected readonly choiceLetters = ['A', 'B', 'C', 'D'];
 
   protected readonly items = this.facade.logicItems;
   protected readonly loaded = signal(false);
@@ -187,11 +187,17 @@ export class LogicPlay {
       this.next();
       return;
     }
-    const digit = Number(event.key);
     const choiceCount = this.currentItem()?.choices.length ?? 0;
+    const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();
       this.select(digit - 1);
+      return;
+    }
+    const letterIndex = this.choiceLetters.indexOf(event.key.toUpperCase());
+    if (letterIndex !== -1 && letterIndex < choiceCount) {
+      event.preventDefault();
+      this.select(letterIndex);
     }
   }
 

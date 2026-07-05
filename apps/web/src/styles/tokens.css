@@ -68,7 +68,11 @@
 
   --success: #10b981;
   --warning: #eab308;
+  --warning-pastel: #fef5e7;
+  --warning-text: #c97e0a;
   --danger: #ef4444;
+  --danger-pastel: #fdeded;
+  --danger-text: #d93636;
 
   --surface-hover: #fafbfc;
 

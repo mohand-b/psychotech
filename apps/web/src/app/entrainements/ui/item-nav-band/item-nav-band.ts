@@ -17,26 +17,25 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
   selector: 'ui-item-nav-band',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav
-      class="band"
-      aria-label="Navigation des items"
-      [style.--band-accent]="presentation().plainVar"
-    >
-      @for (state of states(); track $index) {
-        <button
-          type="button"
-          class="band__item"
-          [class.band__item--answered]="state === 'answered'"
-          [class.band__item--skipped]="state === 'skipped'"
-          [class.band__item--current]="$index === currentIndex()"
-          [attr.aria-current]="$index === currentIndex() ? 'true' : null"
-          [attr.aria-label]="ariaLabel($index, state)"
-          (click)="navigate.emit($index)"
-        >
-          <span class="band__dot"></span>
-        </button>
-      }
-    </nav>
+    <div class="band" [style.--band-accent]="presentation().plainVar">
+      <nav class="band__items" aria-label="Navigation des items">
+        @for (state of states(); track $index) {
+          <button
+            type="button"
+            class="band__item"
+            [class.band__item--answered]="state === 'answered'"
+            [class.band__item--skipped]="state === 'skipped'"
+            [class.band__item--current]="$index === currentIndex()"
+            [attr.aria-current]="$index === currentIndex() ? 'true' : null"
+            [attr.aria-label]="ariaLabel($index, state)"
+            (click)="navigate.emit($index)"
+          >
+            <span class="band__dot"></span>
+          </button>
+        }
+      </nav>
+      <span class="band__remaining t-mono">{{ remainingCount() }} restants</span>
+    </div>
   `,
   styleUrl: './item-nav-band.css',
 })
@@ -46,6 +45,7 @@ export class ItemNavBand {
   readonly states = input.required<ItemNavState[]>();
   readonly currentIndex = input.required<number>();
   readonly axis = input.required<AxisType>();
+  readonly remainingCount = input.required<number>();
   readonly navigate = output<number>();
 
   protected readonly presentation = computed(() => AXIS_PRESENTATION[this.axis()]);

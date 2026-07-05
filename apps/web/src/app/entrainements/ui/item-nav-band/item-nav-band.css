@@ -8,15 +8,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 16px;
   max-width: 1152px;
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: 8px 24px;
+}
+
+.band__items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.band::-webkit-scrollbar {
+.band__items::-webkit-scrollbar {
   display: none;
 }
 
@@ -32,12 +38,17 @@
 }
 
 .band__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 18px;
   height: 11px;
   border-radius: 4px;
   background: var(--surface-muted);
   border: 1px solid var(--surface-muted);
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .band__item--answered .band__dot {
@@ -45,22 +56,40 @@
   border-color: var(--band-accent);
 }
 
-.band__item--skipped .band__dot {
-  background: var(--card);
-  border-color: var(--band-accent);
+.band__item--skipped .band__dot::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--warning);
 }
 
 .band__item--current .band__dot {
-  width: 22px;
+  width: 24px;
+  height: 15px;
+  border-radius: 5px;
   background: var(--card);
-  border: 2px solid var(--ink);
+  border: 2px solid var(--band-accent);
+  box-shadow: var(--shadow-card);
+}
+
+.band__remaining {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--label);
 }
 
 @media (max-width: 767px) {
   .band {
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 16px;
+  }
+
+  .band__items {
     justify-content: flex-start;
     gap: 0;
-    padding: 4px 16px;
   }
 
   .band__item {
@@ -75,6 +104,8 @@
   }
 
   .band__item--current .band__dot {
-    width: 22px;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
   }
 }

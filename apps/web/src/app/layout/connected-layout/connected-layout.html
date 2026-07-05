@@ -5,7 +5,7 @@
       [backLabel]="header.backLabel"
       [backLink]="header.backLink"
       [duration]="header.live ? (liveCountdown() ?? header.duration) : header.duration"
-      [timerAlert]="header.live && liveCountdownAlert()"
+      [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
       [closeLink]="header.closeLink"
     />
   } @else {

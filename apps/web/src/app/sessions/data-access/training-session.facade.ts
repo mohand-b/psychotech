@@ -61,9 +61,15 @@ export class TrainingSessionFacade {
     return remaining === null ? null : formatDuration(remaining);
   });
 
-  readonly isTimeCritical: Signal<boolean> = computed(() => {
+  readonly countdownSeverity: Signal<'normal' | 'warning' | 'danger'> = computed(() => {
     const remaining = this.remainingSec();
-    return remaining !== null && remaining <= 60;
+    if (remaining === null) {
+      return 'normal';
+    }
+    if (remaining <= 60) {
+      return 'danger';
+    }
+    return remaining <= 120 ? 'warning' : 'normal';
   });
 
   readonly isExpired: Signal<boolean> = computed(() => this.remainingSec() === 0);

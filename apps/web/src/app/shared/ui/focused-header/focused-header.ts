@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ArrowLeft, Timer, X } from 'lucide-angular';
+
+export type TimerSeverity = 'normal' | 'warning' | 'danger';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { EnergyGauge } from '../energy-gauge/energy-gauge';
 import { Icon } from '../icon/icon';
@@ -31,13 +33,13 @@ import { Icon } from '../icon/icon';
           @if (closeLink(); as closeLink) {
             <span class="focused-header__separator"></span>
             @if (duration(); as duration) {
-              <span class="focused-header__timer">
+              <span
+                class="focused-header__timer"
+                [class.focused-header__timer--warning]="timerSeverity() === 'warning'"
+                [class.focused-header__timer--danger]="timerSeverity() === 'danger'"
+              >
                 <ui-icon [img]="timerIcon" [size]="15" />
-                <span
-                  class="focused-header__timer-value"
-                  [class.focused-header__timer-value--alert]="timerAlert()"
-                  >{{ duration }}</span
-                >
+                <span class="focused-header__timer-value">{{ duration }}</span>
               </span>
             }
             <a
@@ -61,7 +63,7 @@ export class FocusedHeader {
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
   readonly duration = input<string | null>(null);
-  readonly timerAlert = input(false);
+  readonly timerSeverity = input<TimerSeverity>('normal');
   readonly closeLink = input<string | null>(null);
 
   protected readonly backIcon = ArrowLeft;
