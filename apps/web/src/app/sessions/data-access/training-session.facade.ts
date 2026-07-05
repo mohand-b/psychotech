@@ -41,6 +41,18 @@ export class TrainingSessionFacade {
       : [];
   });
 
+  readonly durationSec: Signal<number | null> = computed(() => {
+    const axis = this.axis();
+    if (!axis) {
+      return null;
+    }
+    const training: AxisTraining | undefined =
+      AXIS_TRAINING[axis as RailwayPlayableAxis];
+    return training && training.timer.model === AxisTimerModel.GLOBAL
+      ? training.timer.durationSec
+      : null;
+  });
+
   readonly remainingSec: Signal<number | null> = computed(() => {
     const session = this.store.session();
     const axis = this.axis();
@@ -54,6 +66,16 @@ export class TrainingSessionFacade {
     }
     const elapsedSec = (this.store.nowMs() - Date.parse(session.startedAt)) / 1000;
     return Math.max(0, Math.ceil(training.timer.durationSec - elapsedSec));
+  });
+
+  readonly remainingFraction: Signal<number | null> = computed(() => {
+    const session = this.store.session();
+    const duration = this.durationSec();
+    if (!session || duration === null || session.status !== SessionStatus.IN_PROGRESS) {
+      return null;
+    }
+    const elapsedSec = (this.store.nowMs() - Date.parse(session.startedAt)) / 1000;
+    return Math.min(1, Math.max(0, 1 - elapsedSec / duration));
   });
 
   readonly remainingLabel: Signal<string | null> = computed(() => {

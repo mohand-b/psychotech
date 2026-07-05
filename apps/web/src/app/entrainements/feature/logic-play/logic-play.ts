@@ -39,6 +39,11 @@ export class LogicPlay {
   protected readonly choiceLetters = ['A', 'B', 'C', 'D'];
 
   protected readonly items = this.facade.logicItems;
+  protected readonly remainingSec = this.facade.remainingSec;
+  protected readonly durationSec = this.facade.durationSec;
+  protected readonly remainingPercent = computed(
+    () => (this.facade.remainingFraction() ?? 0) * 100,
+  );
   protected readonly loaded = signal(false);
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});

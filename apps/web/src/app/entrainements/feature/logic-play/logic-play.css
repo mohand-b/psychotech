@@ -8,6 +8,18 @@
   min-height: calc(100dvh - 65px);
 }
 
+.play__progress {
+  height: 4px;
+  background: var(--surface-muted);
+}
+
+.play__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--progress-accent);
+  transition: width 0.5s linear;
+}
+
 .play__content {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,17 @@
 <section class="play">
+  @if (loaded() && durationSec(); as total) {
+    <div
+      class="play__progress"
+      role="progressbar"
+      aria-label="Temps restant"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="total"
+      [attr.aria-valuenow]="remainingSec()"
+      [style.--progress-accent]="presentation.plainVar"
+    >
+      <span class="play__progress-fill" [style.width.%]="remainingPercent()"></span>
+    </div>
+  }
   <ui-item-nav-band
     [states]="itemStates()"
     [currentIndex]="currentIndex()"
