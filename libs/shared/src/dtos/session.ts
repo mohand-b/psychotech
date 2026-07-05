@@ -9,10 +9,15 @@ import {
 import { AxisMetrics } from '../domain';
 import { BadgeDto } from './badge';
 
+export interface TargetedSessionOptionsDto {
+  helpEnabled: boolean;
+}
+
 export interface StartSessionDto {
   mode: SessionMode;
   sector: Sector;
   axis?: AxisType;
+  options?: TargetedSessionOptionsDto;
 }
 
 export interface SubmitAxisResultDto {
@@ -25,6 +30,7 @@ export interface LogicItemAnswerDto {
   index: number;
   answerIndex: number | null;
   timeMs: number;
+  helpUsed: boolean;
 }
 
 export interface LogicRawResultDto {
@@ -63,6 +69,7 @@ export interface SessionDto {
   sector: Sector;
   status: SessionStatus;
   seed: string;
+  options: TargetedSessionOptionsDto;
   energyCost: number;
   currentAxisIndex: number;
   globalScore: number | null;
