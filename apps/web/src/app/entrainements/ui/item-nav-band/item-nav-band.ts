@@ -31,6 +31,9 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
             (click)="navigate.emit($index)"
           >
             <span class="band__dot"></span>
+            <span class="band__tip t-mono" aria-hidden="true"
+              >{{ $index + 1 }}/{{ states().length }}</span
+            >
           </button>
         }
       </nav>

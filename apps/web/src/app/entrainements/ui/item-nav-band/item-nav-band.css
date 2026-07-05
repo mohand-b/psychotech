@@ -18,15 +18,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.band__items::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
 }
 
 .band__item {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,6 +31,34 @@
   background: transparent;
   border: none;
   cursor: pointer;
+}
+
+.band__tip {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  padding: 4px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--ink);
+  color: var(--card);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  .band__item:hover .band__tip,
+  .band__item:focus-visible .band__tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .band__dot {
@@ -90,6 +114,12 @@
   .band__items {
     justify-content: flex-start;
     gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .band__items::-webkit-scrollbar {
+    display: none;
   }
 
   .band__item {
