@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSeededRng } from '../rng';
-import {
-  generateLogicSession,
-  generateLogicSessionDetailed,
-} from './generate-logic-session';
+import { generateLogicSession } from './generate-logic-session';
 import { LogicItem } from './logic-item';
 import { digitSum, LOGIC_RULES, LogicPuzzle } from './logic-rules';
 
@@ -201,13 +198,13 @@ describe('generateLogicSession', () => {
 
   it('keeps every item verifiable against its own rule, with a unique solution, across 100 sessions', () => {
     for (let seedIndex = 0; seedIndex < 100; seedIndex += 1) {
-      for (const { item, ruleId } of generateLogicSessionDetailed(`integrity-${seedIndex}`)) {
-        const validator = RULE_VALIDATORS[ruleId];
-        expect(validator, `missing validator for rule ${ruleId}`).toBeDefined();
+      for (const item of generateLogicSession(`integrity-${seedIndex}`)) {
+        const validator = RULE_VALIDATORS[item.ruleId];
+        expect(validator, `missing validator for rule ${item.ruleId}`).toBeDefined();
         const answer = item.choices[item.answerIndex];
         expect(
           validator(continuedPuzzle(item.sequence, answer)),
-          `item ${item.index} (${ruleId}) of seed integrity-${seedIndex} breaks its rule: ${item.sequence.join(' → ')} → ${answer}`,
+          `item ${item.index} (${item.ruleId}) of seed integrity-${seedIndex} breaks its rule: ${item.sequence.join(' → ')} → ${answer}`,
         ).toBe(true);
         for (const [choiceIndex, choice] of item.choices.entries()) {
           if (choiceIndex === item.answerIndex) {
@@ -215,7 +212,7 @@ describe('generateLogicSession', () => {
           }
           expect(
             validator(continuedPuzzle(item.sequence, choice)),
-            `distractor ${choice} also satisfies rule ${ruleId} on ${item.sequence.join(' → ')}`,
+            `distractor ${choice} also satisfies rule ${item.ruleId} on ${item.sequence.join(' → ')}`,
           ).toBe(false);
         }
       }

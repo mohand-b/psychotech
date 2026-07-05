@@ -5,18 +5,13 @@ import { buildLogicChoices } from './logic-choices';
 import { LogicDifficulty, LogicItem } from './logic-item';
 import { LOGIC_RULES } from './logic-rules';
 
-export interface GeneratedLogicItem {
-  item: LogicItem;
-  ruleId: string;
-}
-
-export function generateLogicSessionDetailed(
+export function generateLogicSession(
   seed: string,
   training: LogicTraining = AXIS_TRAINING[AxisType.LOGIC],
-): GeneratedLogicItem[] {
+): LogicItem[] {
   const rng = createSeededRng(seed);
   const itemsPerLevel = training.exerciseCount / training.difficultyLevels;
-  const generated: GeneratedLogicItem[] = [];
+  const items: LogicItem[] = [];
   for (let level = 1; level <= training.difficultyLevels; level += 1) {
     const difficulty = level as LogicDifficulty;
     const pool = LOGIC_RULES.filter((rule) => rule.difficulty === difficulty);
@@ -24,25 +19,16 @@ export function generateLogicSessionDetailed(
       const rule = rng.pick(pool);
       const puzzle = rule.generate(rng);
       const { choices, answerIndex } = buildLogicChoices(rng, puzzle);
-      generated.push({
+      items.push({
+        index: items.length,
         ruleId: rule.id,
-        item: {
-          index: generated.length,
-          difficulty,
-          sequence: puzzle.terms,
-          choices,
-          answerIndex,
-          points: difficulty,
-        },
+        difficulty,
+        sequence: puzzle.terms,
+        choices,
+        answerIndex,
+        points: difficulty,
       });
     }
   }
-  return generated;
-}
-
-export function generateLogicSession(
-  seed: string,
-  training: LogicTraining = AXIS_TRAINING[AxisType.LOGIC],
-): LogicItem[] {
-  return generateLogicSessionDetailed(seed, training).map(({ item }) => item);
+  return items;
 }

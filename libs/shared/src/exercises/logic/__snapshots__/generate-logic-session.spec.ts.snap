@@ -13,6 +13,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 0,
     "points": 1,
+    "ruleId": "arithmetic-constant-step",
     "sequence": [
       "5",
       "7",
@@ -32,6 +33,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 1,
     "points": 1,
+    "ruleId": "arithmetic-constant-step",
     "sequence": [
       "46",
       "38",
@@ -51,6 +53,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 2,
     "points": 1,
+    "ruleId": "arithmetic-constant-step",
     "sequence": [
       "17",
       "19",
@@ -71,6 +74,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 3,
     "points": 1,
+    "ruleId": "arithmetic-constant-step",
     "sequence": [
       "28",
       "26",
@@ -91,6 +95,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 4,
     "points": 1,
+    "ruleId": "geometric-double-or-triple",
     "sequence": [
       "6",
       "12",
@@ -110,6 +115,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 5,
     "points": 1,
+    "ruleId": "geometric-double-or-triple",
     "sequence": [
       "6",
       "12",
@@ -129,6 +135,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 6,
     "points": 1,
+    "ruleId": "geometric-double-or-triple",
     "sequence": [
       "2",
       "6",
@@ -149,6 +156,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 1,
     "index": 7,
     "points": 1,
+    "ruleId": "geometric-double-or-triple",
     "sequence": [
       "2",
       "6",
@@ -168,6 +176,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 8,
     "points": 2,
+    "ruleId": "alternating-two-steps",
     "sequence": [
       "3",
       "8",
@@ -187,6 +196,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 9,
     "points": 2,
+    "ruleId": "alternating-add-subtract",
     "sequence": [
       "7",
       "11",
@@ -206,6 +216,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 10,
     "points": 2,
+    "ruleId": "alternating-add-subtract",
     "sequence": [
       "19",
       "24",
@@ -226,6 +237,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 11,
     "points": 2,
+    "ruleId": "geometric-fast-or-halving",
     "sequence": [
       "448",
       "224",
@@ -246,6 +258,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 12,
     "points": 2,
+    "ruleId": "geometric-fast-or-halving",
     "sequence": [
       "576",
       "288",
@@ -266,6 +279,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 13,
     "points": 2,
+    "ruleId": "alternating-add-subtract",
     "sequence": [
       "12",
       "18",
@@ -286,6 +300,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 14,
     "points": 2,
+    "ruleId": "alternating-two-steps",
     "sequence": [
       "8",
       "12",
@@ -305,6 +320,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 2,
     "index": 15,
     "points": 2,
+    "ruleId": "alternating-add-subtract",
     "sequence": [
       "13",
       "21",
@@ -324,6 +340,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 16,
     "points": 3,
+    "ruleId": "squares-plus-constant",
     "sequence": [
       "3",
       "6",
@@ -344,6 +361,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 17,
     "points": 3,
+    "ruleId": "alternating-multiply-add",
     "sequence": [
       "2",
       "6",
@@ -363,6 +381,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 18,
     "points": 3,
+    "ruleId": "alternating-multiply-add",
     "sequence": [
       "3",
       "9",
@@ -383,6 +402,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 19,
     "points": 3,
+    "ruleId": "alternating-multiply-add",
     "sequence": [
       "4",
       "8",
@@ -402,6 +422,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 20,
     "points": 3,
+    "ruleId": "alternating-multiply-add",
     "sequence": [
       "3",
       "6",
@@ -421,6 +442,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 21,
     "points": 3,
+    "ruleId": "squares-plus-constant",
     "sequence": [
       "6",
       "11",
@@ -440,6 +462,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 22,
     "points": 3,
+    "ruleId": "squares-plus-constant",
     "sequence": [
       "16",
       "25",
@@ -459,6 +482,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 3,
     "index": 23,
     "points": 3,
+    "ruleId": "increasing-step",
     "sequence": [
       "11",
       "14",
@@ -478,6 +502,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 24,
     "points": 4,
+    "ruleId": "second-order-differences",
     "sequence": [
       "10",
       "14",
@@ -498,6 +523,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 25,
     "points": 4,
+    "ruleId": "fibonacci-like",
     "sequence": [
       "6",
       "6",
@@ -518,6 +544,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 26,
     "points": 4,
+    "ruleId": "fibonacci-like",
     "sequence": [
       "8",
       "1",
@@ -538,6 +565,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 27,
     "points": 4,
+    "ruleId": "second-order-differences",
     "sequence": [
       "15",
       "18",
@@ -558,6 +586,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 28,
     "points": 4,
+    "ruleId": "interleaved-sequences",
     "sequence": [
       "7",
       "21",
@@ -578,6 +607,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 29,
     "points": 4,
+    "ruleId": "second-order-differences",
     "sequence": [
       "1",
       "4",
@@ -598,6 +628,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 30,
     "points": 4,
+    "ruleId": "interleaved-sequences",
     "sequence": [
       "1",
       "14",
@@ -618,6 +649,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 4,
     "index": 31,
     "points": 4,
+    "ruleId": "fibonacci-like",
     "sequence": [
       "2",
       "3",
@@ -637,6 +669,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 32,
     "points": 5,
+    "ruleId": "add-digit-sum",
     "sequence": [
       "25",
       "32",
@@ -656,6 +689,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 33,
     "points": 5,
+    "ruleId": "multiply-by-rank",
     "sequence": [
       "3",
       "6",
@@ -675,6 +709,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 34,
     "points": 5,
+    "ruleId": "add-digit-sum",
     "sequence": [
       "14",
       "19",
@@ -695,6 +730,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 35,
     "points": 5,
+    "ruleId": "add-digit-sum",
     "sequence": [
       "22",
       "26",
@@ -715,6 +751,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 36,
     "points": 5,
+    "ruleId": "interleaved-double-fibonacci",
     "sequence": [
       "3",
       "4",
@@ -735,6 +772,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 37,
     "points": 5,
+    "ruleId": "interleaved-double-fibonacci",
     "sequence": [
       "2",
       "2",
@@ -755,6 +793,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 38,
     "points": 5,
+    "ruleId": "powers",
     "sequence": [
       "3",
       "9",
@@ -775,6 +814,7 @@ exports[`generateLogicSession > matches the reference snapshot for a fixed seed 
     "difficulty": 5,
     "index": 39,
     "points": 5,
+    "ruleId": "interleaved-double-fibonacci",
     "sequence": [
       "1",
       "2",
