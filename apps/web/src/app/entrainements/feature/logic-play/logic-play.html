@@ -41,7 +41,50 @@
             <span class="play__term t-mono">{{ term }}</span>
             <ui-icon class="play__arrow" [img]="arrowIcon" [size]="16" />
           }
-          <span class="play__unknown t-mono" aria-label="Terme à trouver">?</span>
+          <span class="play__sequence-end">
+            <span class="play__unknown t-mono" aria-label="Terme à trouver">?</span>
+            @if (helpEnabled()) {
+              <span class="play__hint-anchor" #hintAnchor>
+                <button
+                  #hintBulb
+                  type="button"
+                  class="play__bulb"
+                  [class.play__bulb--used]="currentHelpUsed()"
+                  [attr.aria-expanded]="hintOpen()"
+                  aria-label="Voir la règle de la suite"
+                  (click)="toggleHint()"
+                >
+                  <ui-icon [img]="bulbIcon" [size]="18" />
+                </button>
+                @if (hintOpen()) {
+                  <span
+                    class="play__hint-veil"
+                    aria-hidden="true"
+                    (click)="closeHint()"
+                  ></span>
+                  <div
+                    class="play__hint-pop"
+                    role="dialog"
+                    aria-label="Règle de la suite"
+                  >
+                    <span class="play__hint-handle" aria-hidden="true"></span>
+                    <div class="play__hint-line">
+                      <ui-icon [img]="bulbIcon" [size]="16" />
+                      <span class="play__hint-text">{{ currentHint() }}</span>
+                      <button
+                        type="button"
+                        class="play__hint-close"
+                        aria-label="Fermer l'aide"
+                        (click)="closeHint(true)"
+                      >
+                        <ui-icon [img]="closeIcon" [size]="14" />
+                      </button>
+                    </div>
+                  </div>
+                }
+              </span>
+            }
+          </span>
         </div>
 
         <div class="play__choices">

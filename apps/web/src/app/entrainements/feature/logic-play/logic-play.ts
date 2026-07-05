@@ -1,14 +1,21 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
   effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AxisType, SessionDto, SessionStatus } from '@psychotech/shared';
-import { ArrowLeft, MoveRight, SkipForward } from 'lucide-angular';
+import {
+  AxisType,
+  SessionDto,
+  SessionStatus,
+  resolveLogicRuleHint,
+} from '@psychotech/shared';
+import { ArrowLeft, Lightbulb, MoveRight, SkipForward, X } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
@@ -22,7 +29,10 @@ import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band'
   imports: [Button, Icon, ItemNavBand],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: {
+    '(document:keydown)': 'onKeydown($event)',
+    '(document:click)': 'onDocumentClick($event)',
+  },
 })
 export class LogicPlay {
   private readonly facade = inject(TrainingSessionFacade);
@@ -49,7 +59,14 @@ export class LogicPlay {
   protected readonly answers = signal<Record<number, number>>({});
   protected readonly submitting = signal(false);
   protected readonly confirmingFinish = signal(false);
+  protected readonly hintOpen = signal(false);
+  protected readonly helpEnabled = this.facade.helpEnabled;
+  private readonly helpUsed = signal<ReadonlySet<number>>(new Set());
   private readonly visited = signal<ReadonlySet<number>>(new Set([0]));
+  private readonly hintAnchor =
+    viewChild<ElementRef<HTMLElement>>('hintAnchor');
+  private readonly hintBulb =
+    viewChild<ElementRef<HTMLButtonElement>>('hintBulb');
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
@@ -58,6 +75,13 @@ export class LogicPlay {
 
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
+  );
+  protected readonly currentHint = computed(() => {
+    const item = this.currentItem();
+    return item ? resolveLogicRuleHint(item) : '';
+  });
+  protected readonly currentHelpUsed = computed(() =>
+    this.helpUsed().has(this.currentIndex()),
   );
   protected readonly locked = computed(
     () => this.facade.isExpired() || this.submitting(),
@@ -99,6 +123,8 @@ export class LogicPlay {
   protected readonly backIcon = ArrowLeft;
   protected readonly skipIcon = SkipForward;
   protected readonly arrowIcon = MoveRight;
+  protected readonly bulbIcon = Lightbulb;
+  protected readonly closeIcon = X;
 
   constructor() {
     const active = this.facade.session();
@@ -147,6 +173,7 @@ export class LogicPlay {
       index,
       answerIndex: this.answers()[index] ?? null,
       timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
+      helpUsed: this.helpUsed().has(index),
     }));
     this.facade.completeTargeted(payload).subscribe({
       next: () => this.router.navigate(['/dashboard']),
@@ -176,8 +203,41 @@ export class LogicPlay {
       return;
     }
     this.commitTime();
+    this.hintOpen.set(false);
     this.visited.update((visited) => new Set(visited).add(index));
     this.currentIndex.set(index);
+  }
+
+  protected toggleHint(): void {
+    if (!this.helpEnabled() || !this.loaded()) {
+      return;
+    }
+    const opening = !this.hintOpen();
+    this.hintOpen.set(opening);
+    if (opening) {
+      const index = this.currentIndex();
+      this.helpUsed.update((used) => new Set(used).add(index));
+    }
+  }
+
+  protected closeHint(returnFocus = false): void {
+    if (!this.hintOpen()) {
+      return;
+    }
+    this.hintOpen.set(false);
+    if (returnFocus) {
+      this.hintBulb()?.nativeElement.focus();
+    }
+  }
+
+  protected onDocumentClick(event: MouseEvent): void {
+    if (!this.hintOpen()) {
+      return;
+    }
+    const anchor = this.hintAnchor()?.nativeElement;
+    if (anchor && !anchor.contains(event.target as Node)) {
+      this.closeHint();
+    }
   }
 
   protected previous(): void {
@@ -207,10 +267,19 @@ export class LogicPlay {
       return;
     }
     if (event.key === 'Escape') {
-      this.confirmingFinish.set(false);
+      if (this.hintOpen()) {
+        this.closeHint(true);
+      } else {
+        this.confirmingFinish.set(false);
+      }
       return;
     }
     if (this.confirmingFinish()) {
+      return;
+    }
+    if (event.key === 'h' || event.key === 'H') {
+      event.preventDefault();
+      this.toggleHint();
       return;
     }
     if (event.key === 'ArrowLeft') {

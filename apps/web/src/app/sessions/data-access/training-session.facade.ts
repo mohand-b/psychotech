@@ -35,6 +35,10 @@ export class TrainingSessionFacade {
     () => this.store.session()?.axisResults[0]?.axis ?? null,
   );
 
+  readonly helpEnabled: Signal<boolean> = computed(
+    () => this.store.session()?.options.helpEnabled ?? false,
+  );
+
   readonly logicItems: Signal<LogicItem[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.LOGIC
