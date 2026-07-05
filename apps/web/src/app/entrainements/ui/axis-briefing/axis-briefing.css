@@ -94,3 +94,26 @@
   font-weight: 600;
   color: var(--ink);
 }
+
+.axis-briefing__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.axis-briefing__option-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.axis-briefing__option-title {
+  font: 600 0.9375rem/1.25rem var(--font-ui);
+  color: var(--ink);
+}
+
+.axis-briefing__option-detail {
+  font: 400 0.8125rem/1.125rem var(--font-ui);
+  color: var(--text-secondary);
+}

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   input,
+  model,
 } from '@angular/core';
 import {
   AXIS_TRAINING,
@@ -14,6 +15,7 @@ import { ListChecks, Timer } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { Toggle } from '../../../shared/ui/toggle/toggle';
 
 interface TimeSummary {
   value: string;
@@ -23,7 +25,7 @@ interface TimeSummary {
 @Component({
   selector: 'ui-axis-briefing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon],
+  imports: [Icon, Toggle],
   template: `
     <div
       class="axis-briefing"
@@ -86,6 +88,29 @@ interface TimeSummary {
             }
           </div>
         </section>
+
+        @if (optionsEnabled()) {
+          <div class="hairline"></div>
+
+          <section class="axis-briefing__section">
+            <span class="axis-briefing__label">Options d'entraînement</span>
+            <div class="axis-briefing__option">
+              <div class="axis-briefing__option-copy">
+                <span class="axis-briefing__option-title"
+                  >Aide pendant la session</span
+                >
+                <span class="axis-briefing__option-detail"
+                  >Affichez la règle de la suite pendant un exercice — la règle,
+                  pas la réponse.</span
+                >
+              </div>
+              <ui-toggle
+                [(checked)]="helpEnabled"
+                label="Aide pendant la session"
+              />
+            </div>
+          </section>
+        }
       </article>
     </div>
   `,
@@ -94,6 +119,8 @@ interface TimeSummary {
 export class AxisBriefing {
   readonly axis = input.required<AxisType>();
   readonly admissibilityThreshold = input<number | null>(null);
+  readonly optionsEnabled = input(false);
+  readonly helpEnabled = model(false);
 
   protected readonly itemsIcon = ListChecks;
   protected readonly durationIcon = Timer;

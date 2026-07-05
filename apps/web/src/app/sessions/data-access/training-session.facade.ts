@@ -11,6 +11,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
+  TargetedSessionOptionsDto,
   generateLogicSession,
 } from '@psychotech/shared';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
@@ -103,9 +104,12 @@ export class TrainingSessionFacade {
     this.closeRequestCounter.update((count) => count + 1);
   }
 
-  startTargeted(axis: AxisType): Observable<SessionDto> {
+  startTargeted(
+    axis: AxisType,
+    options: TargetedSessionOptionsDto = { helpEnabled: false },
+  ): Observable<SessionDto> {
     const sector = this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-    return this.api.start({ mode: SessionMode.TARGETED, sector, axis }).pipe(
+    return this.api.start({ mode: SessionMode.TARGETED, sector, axis, options }).pipe(
       tap((session) => this.install(session)),
       switchMap((session) =>
         this.energyFacade.load().pipe(

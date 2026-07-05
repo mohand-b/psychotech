@@ -30,6 +30,7 @@ export class AxisStart {
   private readonly router = inject(Router);
 
   protected readonly starting = signal(false);
+  protected readonly helpEnabled = signal(false);
 
   protected readonly axis = this.route.snapshot.paramMap.get(
     'axis',
@@ -50,15 +51,17 @@ export class AxisStart {
       return;
     }
     this.starting.set(true);
-    this.trainingSessionFacade.startTargeted(this.axis).subscribe({
-      next: (session) =>
-        this.router.navigate([
-          '/entrainements/cible',
-          this.axis,
-          'session',
-          session.id,
-        ]),
-      error: () => this.starting.set(false),
-    });
+    this.trainingSessionFacade
+      .startTargeted(this.axis, { helpEnabled: this.helpEnabled() })
+      .subscribe({
+        next: (session) =>
+          this.router.navigate([
+            '/entrainements/cible',
+            this.axis,
+            'session',
+            session.id,
+          ]),
+        error: () => this.starting.set(false),
+      });
   }
 }
