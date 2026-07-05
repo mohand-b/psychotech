@@ -222,6 +222,7 @@ describe('SessionsService.completeTargeted', () => {
       index,
       answerIndex: index % 4 === 0 ? null : 0,
       timeMs: 1200,
+      helpUsed: index % 5 === 0,
     }));
 
   it('stores raw answers as metrics and completes the session without scoring', async () => {

@@ -7,6 +7,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   Min,
@@ -27,6 +28,9 @@ export class LogicItemAnswerRequest implements LogicItemAnswerDto {
   @IsInt()
   @Min(0)
   timeMs!: number;
+
+  @IsBoolean()
+  helpUsed!: boolean;
 }
 
 export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDto {

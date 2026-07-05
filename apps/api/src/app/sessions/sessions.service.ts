@@ -148,10 +148,11 @@ export class SessionsService {
     }
     const rawResult: LogicRawResultDto = {
       axis: AxisType.LOGIC,
-      items: request.items.map(({ index, answerIndex, timeMs }) => ({
+      items: request.items.map(({ index, answerIndex, timeMs, helpUsed }) => ({
         index,
         answerIndex,
         timeMs,
+        helpUsed,
       })),
     };
     const completed = await this.repository.completeTargetedSession({
