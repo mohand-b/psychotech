@@ -14,15 +14,13 @@
       [style.--axis-pastel-bd]="presentation.pastelBorderVar"
       [style.--axis-text]="presentation.textVar"
     >
-      <p class="play__counter">
-        Item
-        <span class="play__counter-value t-mono"
-          >{{ currentIndex() + 1 }}/{{ items().length }}</span
-        >
-      </p>
-
       <article class="play__card">
-        <span class="t-label">Complétez la suite</span>
+        <header class="play__card-head">
+          <span class="t-label">Complétez la suite</span>
+          <span class="play__card-count t-mono"
+            >{{ currentIndex() + 1 }}/{{ items().length }}</span
+          >
+        </header>
 
         <div class="play__sequence">
           @for (term of item.sequence; track $index) {

@@ -5,30 +5,19 @@
 .play {
   display: flex;
   flex-direction: column;
+  min-height: calc(100dvh - 64px);
 }
 
 .play__content {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  flex: 1;
   gap: 24px;
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
-  padding: 32px 24px 48px;
-}
-
-.play__counter {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font: 400 13px/18px var(--font-ui);
-  color: var(--text-secondary);
-}
-
-.play__counter-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
+  padding: 24px;
 }
 
 .play__card {
@@ -41,6 +30,19 @@
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
   padding: 32px;
+}
+
+.play__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.play__card-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--label);
 }
 
 .play__sequence {
@@ -205,6 +207,7 @@
 
 @media (max-width: 767px) {
   .play__content {
+    justify-content: flex-start;
     gap: 16px;
     padding: 16px 16px 32px;
   }
