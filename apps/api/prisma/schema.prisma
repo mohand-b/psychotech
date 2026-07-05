@@ -154,6 +154,7 @@ model Session {
   sector           Sector
   status           SessionStatus   @default(IN_PROGRESS)
   seed             String
+  helpEnabled      Boolean         @default(false)
   energyCost       Int
   currentAxisIndex Int             @default(0)
   globalScore      Float?

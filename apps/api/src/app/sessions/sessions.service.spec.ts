@@ -27,6 +27,7 @@ function buildSession(
     sector: 'RAILWAY',
     status: 'IN_PROGRESS',
     seed: 'seed',
+    helpEnabled: false,
     energyCost: 5,
     currentAxisIndex: 0,
     globalScore: null,
@@ -114,6 +115,39 @@ describe('SessionsService.start', () => {
         energyCost: 1,
         axes: [AxisType.LOGIC],
       }),
+    );
+  });
+
+  it('persists the help option for a targeted session', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', energyCost: 1, helpEnabled: true }),
+    );
+
+    await service.start('user-1', {
+      mode: SessionMode.TARGETED,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+      options: { helpEnabled: true },
+    });
+
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({ helpEnabled: true }),
+    );
+  });
+
+  it('ignores the help option outside targeted mode', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(buildSession());
+
+    await service.start('user-1', {
+      mode: SessionMode.FULL,
+      sector: Sector.RAILWAY,
+      options: { helpEnabled: true },
+    });
+
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({ helpEnabled: false }),
     );
   });
 

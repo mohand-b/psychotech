@@ -54,6 +54,10 @@ export class SessionsService {
       mode: request.mode,
       sector: request.sector,
       seed: randomUUID(),
+      helpEnabled:
+        request.mode === SessionMode.TARGETED
+          ? (request.options?.helpEnabled ?? false)
+          : false,
       energyCost: cost,
       sectorThreshold: config.admissibilityThreshold,
       axes,

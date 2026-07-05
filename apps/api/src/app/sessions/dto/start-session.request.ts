@@ -1,5 +1,17 @@
-import { AxisType, Sector, SessionMode, StartSessionDto } from '@psychotech/shared';
-import { IsEnum, IsOptional } from 'class-validator';
+import {
+  AxisType,
+  Sector,
+  SessionMode,
+  StartSessionDto,
+  TargetedSessionOptionsDto,
+} from '@psychotech/shared';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsEnum, IsOptional, ValidateNested } from 'class-validator';
+
+export class TargetedSessionOptionsRequest implements TargetedSessionOptionsDto {
+  @IsBoolean()
+  helpEnabled!: boolean;
+}
 
 export class StartSessionRequest implements StartSessionDto {
   @IsEnum(SessionMode)
@@ -11,4 +23,9 @@ export class StartSessionRequest implements StartSessionDto {
   @IsOptional()
   @IsEnum(AxisType)
   axis?: AxisType;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TargetedSessionOptionsRequest)
+  options?: TargetedSessionOptionsRequest;
 }

@@ -32,6 +32,7 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     sector: mapEnumValue(Sector, session.sector),
     status: mapEnumValue(SessionStatus, session.status),
     seed: session.seed,
+    options: { helpEnabled: session.helpEnabled },
     energyCost: session.energyCost,
     currentAxisIndex: session.currentAxisIndex,
     globalScore: session.globalScore,

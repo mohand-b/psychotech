@@ -35,6 +35,7 @@ export interface CreateSessionParams {
   mode: SessionMode;
   sector: Sector;
   seed: string;
+  helpEnabled: boolean;
   energyCost: number;
   sectorThreshold: number;
   axes: AxisType[];
@@ -122,6 +123,7 @@ export class SessionsRepository {
           mode: mapEnumValue(DbSessionMode, params.mode),
           sector: mapEnumValue(DbSector, params.sector),
           seed: params.seed,
+          helpEnabled: params.helpEnabled,
           energyCost: params.energyCost,
           sectorThreshold: params.sectorThreshold,
           axisResults: {
