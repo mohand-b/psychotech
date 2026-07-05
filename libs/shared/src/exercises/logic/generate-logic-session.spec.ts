@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { createSeededRng } from '../rng';
-import { generateLogicSession } from './generate-logic-session';
+import {
+  generateLogicSession,
+  generateLogicSessionDetailed,
+} from './generate-logic-session';
 import { LogicItem } from './logic-item';
 import { digitSum, LOGIC_RULES, LogicPuzzle } from './logic-rules';
 
@@ -12,6 +15,10 @@ function sampleItems(): LogicItem[] {
 
 function numericSeries(puzzle: LogicPuzzle): number[] {
   return [...puzzle.terms, puzzle.answer].map(Number);
+}
+
+function continuedPuzzle(sequence: string[], answer: string): LogicPuzzle {
+  return { terms: sequence, answer, typicalErrors: [] };
 }
 
 function differences(values: number[]): number[] {
@@ -178,6 +185,39 @@ describe('generateLogicSession', () => {
         expect(Number.isInteger(value)).toBe(true);
         expect(value).toBeGreaterThanOrEqual(0);
         expect(value).toBeLessThanOrEqual(99999);
+      }
+    }
+  });
+
+  it('recognizes the in-game reported sequence as a valid add-digit-sum progression', () => {
+    const validator = RULE_VALIDATORS['add-digit-sum'];
+    expect(
+      validator(continuedPuzzle(['31', '35', '43', '50', '55'], '65')),
+    ).toBe(true);
+    expect(
+      validator(continuedPuzzle(['31', '35', '43', '50', '55'], '60')),
+    ).toBe(false);
+  });
+
+  it('keeps every item verifiable against its own rule, with a unique solution, across 100 sessions', () => {
+    for (let seedIndex = 0; seedIndex < 100; seedIndex += 1) {
+      for (const { item, ruleId } of generateLogicSessionDetailed(`integrity-${seedIndex}`)) {
+        const validator = RULE_VALIDATORS[ruleId];
+        expect(validator, `missing validator for rule ${ruleId}`).toBeDefined();
+        const answer = item.choices[item.answerIndex];
+        expect(
+          validator(continuedPuzzle(item.sequence, answer)),
+          `item ${item.index} (${ruleId}) of seed integrity-${seedIndex} breaks its rule: ${item.sequence.join(' → ')} → ${answer}`,
+        ).toBe(true);
+        for (const [choiceIndex, choice] of item.choices.entries()) {
+          if (choiceIndex === item.answerIndex) {
+            continue;
+          }
+          expect(
+            validator(continuedPuzzle(item.sequence, choice)),
+            `distractor ${choice} also satisfies rule ${ruleId} on ${item.sequence.join(' → ')}`,
+          ).toBe(false);
+        }
       }
     }
   });
