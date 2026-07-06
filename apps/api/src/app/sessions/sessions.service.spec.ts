@@ -296,6 +296,68 @@ describe('SessionsService.completeTargeted', () => {
   });
 });
 
+describe('SessionsService.completeTargeted (memory)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const memorySession = () =>
+    buildSession({
+      mode: 'TARGETED',
+      energyCost: 1,
+      axisResults: [buildAxis({ axis: 'MEMORY' })],
+    });
+  const sequenceAnswers = [
+    { index: 0, input: [3, 7, 1, 9], timeMs: 8200, timedOut: false },
+    { index: 1, input: [5, 2, 8, 4, 6], timeMs: 12400, timedOut: false },
+    { index: 2, input: [], timeMs: 30000, timedOut: true },
+    { index: 3, input: [9, 1, 7, 3], timeMs: 9100, timedOut: false },
+    { index: 4, input: [6, 4, 8], timeMs: 30000, timedOut: true },
+  ];
+
+  it('stores raw sequence answers as metrics without scoring', async () => {
+    repository.findUserSession.mockResolvedValue(memorySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'MEMORY' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+      axis: AxisType.MEMORY,
+      sequences: sequenceAnswers,
+    });
+
+    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        axis: AxisType.MEMORY,
+        rawResult: { axis: AxisType.MEMORY, sequences: sequenceAnswers },
+      }),
+    );
+  });
+
+  it('rejects duplicate sequence indexes or inputs longer than the plan', async () => {
+    repository.findUserSession.mockResolvedValue(memorySession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+        axis: AxisType.MEMORY,
+        sequences: [sequenceAnswers[0], { ...sequenceAnswers[1], index: 0 }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+        axis: AxisType.MEMORY,
+        sequences: [
+          { index: 0, input: [1, 2, 3, 4, 5, 6, 7], timeMs: 500, timedOut: false },
+        ],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+});
+
 describe('SessionsService.complete', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const unlockedBadge = {

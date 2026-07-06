@@ -8,7 +8,10 @@ import {
 import {
   AXIS_TRAINING,
   AxisType,
+  LogicItemAnswerDto,
   LogicRawResultDto,
+  MemoryRawResultDto,
+  MemorySequenceAnswerDto,
   ScoreBand,
   Sector,
   SessionDto,
@@ -120,8 +123,10 @@ export class SessionsService {
     if (request.axis !== axis) {
       throw new BadRequestException('The axis in the body does not match the route');
     }
-    if (axis !== AxisType.LOGIC) {
-      throw new BadRequestException('Raw answers are only supported for the logic axis');
+    if (axis !== AxisType.LOGIC && axis !== AxisType.MEMORY) {
+      throw new BadRequestException(
+        'Raw answers are only supported for the logic and memory axes',
+      );
     }
     const session = await this.loadInProgressSession(sessionId, userId);
     if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
@@ -135,26 +140,10 @@ export class SessionsService {
     if (!target) {
       throw new BadRequestException('The axis is not part of this session');
     }
-    const { exerciseCount } = AXIS_TRAINING[AxisType.LOGIC];
-    const distinctIndexes = new Set(request.items.map((item) => item.index));
-    if (
-      distinctIndexes.size !== request.items.length ||
-      request.items.length > exerciseCount ||
-      request.items.some((item) => item.index >= exerciseCount)
-    ) {
-      throw new BadRequestException(
-        'Item answers must target distinct items of the targeted axis',
-      );
-    }
-    const rawResult: LogicRawResultDto = {
-      axis: AxisType.LOGIC,
-      items: request.items.map(({ index, answerIndex, timeMs, helpUsed }) => ({
-        index,
-        answerIndex,
-        timeMs,
-        helpUsed,
-      })),
-    };
+    const rawResult =
+      axis === AxisType.LOGIC
+        ? this.buildLogicRawResult(request.items ?? [])
+        : this.buildMemoryRawResult(request.sequences ?? []);
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       axis,
@@ -163,6 +152,59 @@ export class SessionsService {
       completedAt: new Date(),
     });
     return toSessionDto(completed);
+  }
+
+  private buildLogicRawResult(items: LogicItemAnswerDto[]): LogicRawResultDto {
+    const { exerciseCount } = AXIS_TRAINING[AxisType.LOGIC];
+    const distinctIndexes = new Set(items.map((item) => item.index));
+    if (
+      items.length === 0 ||
+      distinctIndexes.size !== items.length ||
+      items.length > exerciseCount ||
+      items.some((item) => item.index >= exerciseCount)
+    ) {
+      throw new BadRequestException(
+        'Item answers must target distinct items of the targeted axis',
+      );
+    }
+    return {
+      axis: AxisType.LOGIC,
+      items: items.map(({ index, answerIndex, timeMs, helpUsed }) => ({
+        index,
+        answerIndex,
+        timeMs,
+        helpUsed,
+      })),
+    };
+  }
+
+  private buildMemoryRawResult(
+    sequences: MemorySequenceAnswerDto[],
+  ): MemoryRawResultDto {
+    const { exerciseCount, sequences: plan } = AXIS_TRAINING[AxisType.MEMORY];
+    const distinctIndexes = new Set(sequences.map((sequence) => sequence.index));
+    if (
+      sequences.length === 0 ||
+      distinctIndexes.size !== sequences.length ||
+      sequences.length > exerciseCount ||
+      sequences.some((sequence) => sequence.index >= exerciseCount) ||
+      sequences.some(
+        (sequence) => sequence.input.length > plan[sequence.index].length,
+      )
+    ) {
+      throw new BadRequestException(
+        'Sequence answers must target distinct sequences of the targeted axis',
+      );
+    }
+    return {
+      axis: AxisType.MEMORY,
+      sequences: sequences.map(({ index, input, timeMs, timedOut }) => ({
+        index,
+        input,
+        timeMs,
+        timedOut,
+      })),
+    };
   }
 
   async complete(userId: string, sessionId: string): Promise<SessionResultDto> {
