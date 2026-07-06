@@ -1,0 +1,65 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateMemorySession > matches the reference snapshot for a fixed seed 1`] = `
+[
+  {
+    "elements": [
+      3,
+      0,
+      3,
+      4,
+    ],
+    "index": 0,
+    "length": 4,
+    "phase": "NORMAL",
+  },
+  {
+    "elements": [
+      1,
+      0,
+      5,
+      9,
+      2,
+    ],
+    "index": 1,
+    "length": 5,
+    "phase": "NORMAL",
+  },
+  {
+    "elements": [
+      8,
+      2,
+      4,
+      9,
+      6,
+      5,
+    ],
+    "index": 2,
+    "length": 6,
+    "phase": "NORMAL",
+  },
+  {
+    "elements": [
+      6,
+      4,
+      7,
+      5,
+    ],
+    "index": 3,
+    "length": 4,
+    "phase": "INVERSE",
+  },
+  {
+    "elements": [
+      3,
+      2,
+      1,
+      7,
+      9,
+    ],
+    "index": 4,
+    "length": 5,
+    "phase": "INVERSE",
+  },
+]
+`;
