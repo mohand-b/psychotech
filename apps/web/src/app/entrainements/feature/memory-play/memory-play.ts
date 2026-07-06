@@ -31,7 +31,7 @@ type MemoryStage =
   | 'RESTITUTION';
 
 const PHASE_TRANSITION_MS = 2000;
-const PREPARATION_MS = 1500;
+const PREPARATION_MS = 2400;
 const ELEMENT_ENTER_MS = 150;
 const ELEMENT_HOLD_MS = 630;
 const ELEMENT_EXIT_MS = 140;
@@ -70,6 +70,8 @@ export class MemoryPlay {
   protected readonly input = signal<number[]>([]);
   protected readonly submitting = signal(false);
   protected readonly confirmingFinish = signal(false);
+  protected readonly restitutionFraction = signal(1);
+  protected readonly restitutionSecTotal = this.restitutionSec;
   private readonly results = signal<MemorySequenceAnswerDto[]>([]);
 
   private pendingTimerId: number | null = null;
@@ -80,6 +82,9 @@ export class MemoryPlay {
 
   protected readonly currentSequence = computed<MemorySequence | null>(
     () => this.sequences()[this.currentIndex()] ?? null,
+  );
+  protected readonly restitutionRemainingSec = computed(() =>
+    Math.ceil(this.restitutionFraction() * this.restitutionSecTotal),
   );
   protected readonly completedCount = computed(() => this.results().length);
   protected readonly unansweredCount = computed(
@@ -270,7 +275,8 @@ export class MemoryPlay {
   private beginRestitution(): void {
     this.stage.set('RESTITUTION');
     this.restitutionStartedAtMs = Date.now();
-    const deadline = this.restitutionStartedAtMs + this.restitutionSec * 1000;
+    const totalMs = this.restitutionSec * 1000;
+    const deadline = this.restitutionStartedAtMs + totalMs;
     this.facade.setPerExerciseCountdown(this.restitutionSec);
     this.restitutionIntervalId = window.setInterval(() => {
       const remainingMs = deadline - Date.now();
@@ -279,6 +285,7 @@ export class MemoryPlay {
         return;
       }
       this.facade.setPerExerciseCountdown(Math.ceil(remainingMs / 1000));
+      this.restitutionFraction.set(remainingMs / totalMs);
     }, RESTITUTION_TICK_MS);
   }
 
@@ -288,6 +295,7 @@ export class MemoryPlay {
     }
     this.clearTimers();
     this.facade.setPerExerciseCountdown(null);
+    this.restitutionFraction.set(1);
     const elapsedMs = Date.now() - this.restitutionStartedAtMs;
     const answer: MemorySequenceAnswerDto = {
       index: this.currentIndex(),

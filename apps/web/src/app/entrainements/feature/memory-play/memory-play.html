@@ -8,14 +8,14 @@
   <div
     class="memo__progress"
     role="progressbar"
-    aria-label="Progression de l'axe"
+    aria-label="Temps de restitution restant"
     aria-valuemin="0"
-    [attr.aria-valuemax]="total"
-    [attr.aria-valuenow]="completedCount()"
+    [attr.aria-valuemax]="restitutionSecTotal"
+    [attr.aria-valuenow]="restitutionRemainingSec()"
   >
     <span
       class="memo__progress-fill"
-      [style.width.%]="(completedCount() / total) * 100"
+      [style.width.%]="restitutionFraction() * 100"
     ></span>
   </div>
 
@@ -87,10 +87,7 @@
             @for (element of sequence.elements; track $index) {
               <span
                 class="memo__element-dot"
-                [class.memo__element-dot--shown]="
-                  $index < memorizeStep() ||
-                  ($index === memorizeStep() && digitVisible())
-                "
+                [class.memo__element-dot--shown]="$index <= memorizeStep()"
               ></span>
             }
           </div>
