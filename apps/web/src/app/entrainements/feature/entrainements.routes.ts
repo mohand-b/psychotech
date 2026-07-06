@@ -1,4 +1,9 @@
-import { Route } from '@angular/router';
+import { CanMatchFn, Route, UrlSegment } from '@angular/router';
+import { AxisType } from '@psychotech/shared';
+
+function axisSessionMatcher(axis: AxisType): CanMatchFn {
+  return (_route: Route, segments: UrlSegment[]) => segments[2]?.path === axis;
+}
 
 export const entrainementsRoutes: Route[] = [
   {
@@ -33,6 +38,7 @@ export const entrainementsRoutes: Route[] = [
   },
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.LOGIC)],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',
@@ -47,5 +53,23 @@ export const entrainementsRoutes: Route[] = [
     },
     loadComponent: () =>
       import('./logic-play/logic-play').then((m) => m.LogicPlay),
+  },
+  {
+    path: 'entrainements/cible/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    data: {
+      focusedHeader: {
+        title: 'Entraînement ciblé',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showHelp: true,
+      },
+    },
+    loadComponent: () =>
+      import('./memory-play/memory-play').then((m) => m.MemoryPlay),
   },
 ];

@@ -36,6 +36,7 @@ export class AxisStart {
     'axis',
   ) as AxisType;
   protected readonly buttonColor = axisButtonColor(this.axis);
+  protected readonly helpOptionAvailable = this.axis === AxisType.LOGIC;
 
   private readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;

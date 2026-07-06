@@ -1,0 +1,153 @@
+<section
+  class="memo"
+  [style.--axis-plain]="presentation.plainVar"
+  [style.--axis-pastel]="presentation.pastelVar"
+  [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+  [style.--axis-text]="presentation.textVar"
+>
+  <div
+    class="memo__progress"
+    role="progressbar"
+    aria-label="Progression de l'axe"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="total"
+    [attr.aria-valuenow]="completedCount()"
+  >
+    <span
+      class="memo__progress-fill"
+      [style.width.%]="(completedCount() / total) * 100"
+    ></span>
+  </div>
+
+  <div class="memo__dots-row">
+    <div class="memo__dots">
+      @for (sequence of sequences(); track sequence.index) {
+        <span
+          class="memo__dot"
+          [class.memo__dot--done]="sequence.index < currentIndex()"
+          [class.memo__dot--current]="sequence.index === currentIndex()"
+        ></span>
+      }
+    </div>
+    <span class="memo__dots-count t-mono"
+      >{{ currentIndex() + 1 }}/{{ total }}</span
+    >
+  </div>
+
+  @if (loaded() && currentSequence(); as sequence) {
+    <div class="memo__stage">
+      <span class="memo__chip">
+        <ui-icon
+          [img]="reversePhase() ? reverseIcon : forwardIcon"
+          [size]="14"
+        />
+        {{ reversePhase() ? 'Phase 2 — Ordre inversé' : 'Phase 1 — Ordre normal' }}
+      </span>
+
+      @switch (stage()) {
+        @case ('PREPARATION') {
+          <p class="memo__consigne">
+            Mémorisez la séquence — elle ne s'affiche
+            <strong>qu'une seule fois</strong>.
+          </p>
+          <div class="memo__wait">
+            <span class="memo__wait-dot"></span>
+            <span class="memo__wait-dot"></span>
+            <span class="memo__wait-dot"></span>
+          </div>
+          <p class="memo__prepare">Préparez-vous…</p>
+        }
+        @case ('MEMORIZATION') {
+          <div class="memo__digit-zone">
+            <span
+              class="memo__digit t-mono"
+              [class.memo__digit--visible]="digitVisible()"
+              >{{ sequence.elements[memorizeStep()] }}</span
+            >
+          </div>
+          <div class="memo__element-dots">
+            @for (element of sequence.elements; track $index) {
+              <span
+                class="memo__element-dot"
+                [class.memo__element-dot--shown]="
+                  $index < memorizeStep() ||
+                  ($index === memorizeStep() && digitVisible())
+                "
+              ></span>
+            }
+          </div>
+        }
+        @case ('RESTITUTION') {
+          @if (reversePhase()) {
+            <p class="memo__consigne">
+              Restituez la séquence
+              <strong>en commençant par le dernier élément</strong>.
+            </p>
+          } @else {
+            <p class="memo__consigne">Restituez la séquence.</p>
+          }
+
+          <div class="memo__answer">
+            <div class="memo__answer-head">
+              <span class="t-label">Votre réponse</span>
+              <span class="memo__answer-count">
+                Séquence
+                <span class="t-mono">{{ currentIndex() + 1 }}/{{ total }}</span>
+              </span>
+            </div>
+            <div class="memo__slots">
+              @for (element of sequence.elements; track $index) {
+                <span
+                  class="memo__slot t-mono"
+                  [class.memo__slot--filled]="$index < input().length"
+                  [class.memo__slot--current]="$index === input().length"
+                >
+                  @if ($index < input().length) {
+                    {{ input()[$index] }}
+                  }
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="memo__pad">
+            @for (digit of padDigits; track digit) {
+              <button
+                type="button"
+                class="memo__key t-mono"
+                [class.memo__key--zero]="digit === 0"
+                (click)="press(digit)"
+              >
+                {{ digit }}
+              </button>
+            }
+          </div>
+
+          <div class="memo__actions">
+            <ui-button
+              color="neutral"
+              appearance="ghost"
+              [icon]="eraseIcon"
+              [disabled]="input().length === 0"
+              (click)="erase()"
+            >
+              Effacer
+            </ui-button>
+            <ui-button
+              [color]="buttonColor"
+              [iconEnd]="validateIcon"
+              [disabled]="input().length !== sequence.length || submitting()"
+              (click)="validate()"
+            >
+              Valider
+            </ui-button>
+          </div>
+
+          <p class="memo__mention">
+            0–9 au clavier · Retour efface · Entrée valide
+          </p>
+        }
+      }
+    </div>
+  }
+</section>
