@@ -38,11 +38,24 @@ export interface LogicRawResultDto {
   items: LogicItemAnswerDto[];
 }
 
-export type AxisRawResultDto = LogicRawResultDto;
+export interface MemorySequenceAnswerDto {
+  index: number;
+  input: number[];
+  timeMs: number;
+  timedOut: boolean;
+}
+
+export interface MemoryRawResultDto {
+  axis: AxisType.MEMORY;
+  sequences: MemorySequenceAnswerDto[];
+}
+
+export type AxisRawResultDto = LogicRawResultDto | MemoryRawResultDto;
 
 export interface CompleteTargetedSessionDto {
   axis: AxisType;
-  items: LogicItemAnswerDto[];
+  items?: LogicItemAnswerDto[];
+  sequences?: MemorySequenceAnswerDto[];
 }
 
 export interface RecommendationDto {
