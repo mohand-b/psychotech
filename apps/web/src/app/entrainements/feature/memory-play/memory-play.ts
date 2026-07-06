@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -23,8 +24,13 @@ import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
 
-type MemoryStage = 'PREPARATION' | 'MEMORIZATION' | 'RESTITUTION';
+type MemoryStage =
+  | 'PHASE_TRANSITION'
+  | 'PREPARATION'
+  | 'MEMORIZATION'
+  | 'RESTITUTION';
 
+const PHASE_TRANSITION_MS = 2000;
 const PREPARATION_MS = 1500;
 const ELEMENT_ENTER_MS = 150;
 const ELEMENT_HOLD_MS = 630;
@@ -63,17 +69,22 @@ export class MemoryPlay {
   protected readonly digitVisible = signal(false);
   protected readonly input = signal<number[]>([]);
   protected readonly submitting = signal(false);
+  protected readonly confirmingFinish = signal(false);
   private readonly results = signal<MemorySequenceAnswerDto[]>([]);
 
   private pendingTimerId: number | null = null;
   private restitutionIntervalId: number | null = null;
   private restitutionStartedAtMs = 0;
   private hasSubmitted = false;
+  private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentSequence = computed<MemorySequence | null>(
     () => this.sequences()[this.currentIndex()] ?? null,
   );
   protected readonly completedCount = computed(() => this.results().length);
+  protected readonly unansweredCount = computed(
+    () => this.total - this.completedCount(),
+  );
   protected readonly reversePhase = computed(
     () => this.currentSequence()?.phase === MemoryPhase.INVERSE,
   );
@@ -87,6 +98,15 @@ export class MemoryPlay {
     this.destroyRef.onDestroy(() => {
       this.clearTimers();
       this.facade.setPerExerciseCountdown(null);
+    });
+    effect(() => {
+      const requests = this.facade.closeRequests();
+      if (requests !== this.handledCloseRequests) {
+        this.handledCloseRequests = requests;
+        if (!this.hasSubmitted && this.loaded()) {
+          this.confirmingFinish.set(true);
+        }
+      }
     });
     const active = this.facade.session();
     if (active?.id === this.sessionId) {
@@ -130,8 +150,42 @@ export class MemoryPlay {
     this.finishSequence(false);
   }
 
+  protected confirmFinish(): void {
+    if (this.hasSubmitted) {
+      return;
+    }
+    this.clearTimers();
+    this.facade.setPerExerciseCountdown(null);
+    const recorded = this.results();
+    const answers = [...recorded];
+    for (let index = recorded.length; index < this.total; index += 1) {
+      const isCurrentRestitution =
+        index === this.currentIndex() && this.stage() === 'RESTITUTION';
+      answers.push({
+        index,
+        input: isCurrentRestitution ? this.input() : [],
+        timeMs: isCurrentRestitution
+          ? Math.min(
+              Date.now() - this.restitutionStartedAtMs,
+              this.restitutionSec * 1000,
+            )
+          : 0,
+        timedOut: false,
+      });
+    }
+    this.results.set(answers);
+    this.submitAll();
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.loaded() || this.submitting()) {
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.confirmingFinish.set(false);
+      return;
+    }
+    if (this.confirmingFinish()) {
       return;
     }
     if (this.stage() !== 'RESTITUTION') {
@@ -160,12 +214,29 @@ export class MemoryPlay {
       return;
     }
     this.loaded.set(true);
-    this.beginSequence(0);
+    const recorded = this.facade.memoryResultsFor(this.sessionId);
+    this.results.set(recorded);
+    if (recorded.length >= this.total) {
+      this.submitAll();
+      return;
+    }
+    this.beginSequence(recorded.length);
   }
 
   private beginSequence(index: number): void {
     this.currentIndex.set(index);
     this.input.set([]);
+    const sequence = this.sequences()[index];
+    const previous = this.sequences()[index - 1];
+    if (
+      sequence?.phase === MemoryPhase.INVERSE &&
+      previous?.phase === MemoryPhase.NORMAL
+    ) {
+      this.stage.set('PHASE_TRANSITION');
+      this.facade.setPerExerciseCountdown(null);
+      this.schedule(PHASE_TRANSITION_MS, () => this.beginPreparation());
+      return;
+    }
     this.beginPreparation();
   }
 
@@ -225,6 +296,7 @@ export class MemoryPlay {
       timedOut,
     };
     this.results.update((results) => [...results, answer]);
+    this.facade.recordMemoryResult(this.sessionId, answer);
     const nextIndex = this.currentIndex() + 1;
     if (nextIndex < this.total) {
       this.beginSequence(nextIndex);
@@ -239,8 +311,12 @@ export class MemoryPlay {
     }
     this.hasSubmitted = true;
     this.submitting.set(true);
+    this.confirmingFinish.set(false);
     this.facade.completeTargetedMemory(this.results()).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        this.facade.clearMemoryResults(this.sessionId);
+        this.router.navigate(['/dashboard']);
+      },
       error: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
