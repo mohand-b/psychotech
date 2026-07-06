@@ -6,6 +6,8 @@ import {
   AxisType,
   LogicItem,
   LogicItemAnswerDto,
+  MemorySequence,
+  MemorySequenceAnswerDto,
   RailwayPlayableAxis,
   Sector,
   SessionDto,
@@ -13,10 +15,12 @@ import {
   SessionStatus,
   TargetedSessionOptionsDto,
   generateLogicSession,
+  generateMemorySession,
 } from '@psychotech/shared';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
+import { TimerSeverity } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { SessionsApi } from './sessions.api';
 import { TrainingSessionStore } from './training-session.store';
@@ -43,6 +47,13 @@ export class TrainingSessionFacade {
     const session = this.store.session();
     return session && this.axis() === AxisType.LOGIC
       ? generateLogicSession(session.seed)
+      : [];
+  });
+
+  readonly memorySequences: Signal<MemorySequence[]> = computed(() => {
+    const session = this.store.session();
+    return session && this.axis() === AxisType.MEMORY
+      ? generateMemorySession(session.seed)
       : [];
   });
 
@@ -83,20 +94,54 @@ export class TrainingSessionFacade {
     return Math.min(1, Math.max(0, 1 - elapsedSec / duration));
   });
 
-  readonly remainingLabel: Signal<string | null> = computed(() => {
-    const remaining = this.remainingSec();
-    return remaining === null ? null : formatDuration(remaining);
+  private readonly perExerciseRemaining = signal<number | null>(null);
+
+  private readonly hasPerExerciseTimer: Signal<boolean> = computed(() => {
+    const session = this.store.session();
+    const axis = this.axis();
+    if (!session || !axis || session.status !== SessionStatus.IN_PROGRESS) {
+      return false;
+    }
+    const training: AxisTraining | undefined =
+      AXIS_TRAINING[axis as RailwayPlayableAxis];
+    return training?.timer.model === AxisTimerModel.PER_EXERCISE;
   });
 
-  readonly countdownSeverity: Signal<'normal' | 'warning' | 'danger'> = computed(() => {
+  setPerExerciseCountdown(remainingSec: number | null): void {
+    this.perExerciseRemaining.set(remainingSec);
+  }
+
+  readonly remainingLabel: Signal<string | null> = computed(() => {
     const remaining = this.remainingSec();
-    if (remaining === null) {
+    if (remaining !== null) {
+      return formatDuration(remaining);
+    }
+    if (!this.hasPerExerciseTimer()) {
+      return null;
+    }
+    const local = this.perExerciseRemaining();
+    return local === null ? '—' : formatDuration(local);
+  });
+
+  readonly countdownSeverity: Signal<TimerSeverity> = computed(() => {
+    const remaining = this.remainingSec();
+    if (remaining !== null) {
+      if (remaining <= 60) {
+        return 'danger';
+      }
+      return remaining <= 120 ? 'warning' : 'normal';
+    }
+    if (!this.hasPerExerciseTimer()) {
       return 'normal';
     }
-    if (remaining <= 60) {
+    const local = this.perExerciseRemaining();
+    if (local === null) {
+      return 'inactive';
+    }
+    if (local <= 5) {
       return 'danger';
     }
-    return remaining <= 120 ? 'warning' : 'normal';
+    return local <= 10 ? 'warning' : 'normal';
   });
 
   readonly isExpired: Signal<boolean> = computed(() => this.remainingSec() === 0);
@@ -137,6 +182,37 @@ export class TrainingSessionFacade {
     return this.api
       .completeTargeted(session.id, axis, { axis, items })
       .pipe(tap((completed) => this.install(completed)));
+  }
+
+  completeTargetedMemory(
+    sequences: MemorySequenceAnswerDto[],
+  ): Observable<SessionDto> {
+    const session = this.store.session();
+    const axis = this.axis();
+    if (!session || !axis) {
+      return throwError(() => new Error('No active training session'));
+    }
+    return this.api
+      .completeTargeted(session.id, axis, { axis, sequences })
+      .pipe(tap((completed) => this.install(completed)));
+  }
+
+  memoryResultsFor(sessionId: string): MemorySequenceAnswerDto[] {
+    const stored = localStorage.getItem(this.memoryProgressKey(sessionId));
+    return stored ? (JSON.parse(stored) as MemorySequenceAnswerDto[]) : [];
+  }
+
+  recordMemoryResult(sessionId: string, answer: MemorySequenceAnswerDto): void {
+    const results = [...this.memoryResultsFor(sessionId), answer];
+    localStorage.setItem(this.memoryProgressKey(sessionId), JSON.stringify(results));
+  }
+
+  clearMemoryResults(sessionId: string): void {
+    localStorage.removeItem(this.memoryProgressKey(sessionId));
+  }
+
+  private memoryProgressKey(sessionId: string): string {
+    return `psychotech.memory-progress.${sessionId}`;
   }
 
   clear(): void {

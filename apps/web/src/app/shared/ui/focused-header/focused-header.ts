@@ -13,7 +13,7 @@ import { AxisChip } from '../axis-chip/axis-chip';
 import { EnergyGauge } from '../energy-gauge/energy-gauge';
 import { Icon } from '../icon/icon';
 
-export type TimerSeverity = 'normal' | 'warning' | 'danger';
+export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 
 @Component({
   selector: 'ui-focused-header',
@@ -46,6 +46,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger';
               class="focused-header__timer"
               [class.focused-header__timer--warning]="timerSeverity() === 'warning'"
               [class.focused-header__timer--danger]="timerSeverity() === 'danger'"
+              [class.focused-header__timer--inactive]="timerSeverity() === 'inactive'"
             >
               <ui-icon [img]="timerIcon" [size]="15" />
               <span class="focused-header__timer-value">{{ duration }}</span>

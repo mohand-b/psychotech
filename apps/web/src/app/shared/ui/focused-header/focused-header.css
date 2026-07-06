@@ -76,6 +76,14 @@
   color: var(--ink);
 }
 
+.focused-header__timer--inactive {
+  color: var(--text-disabled);
+}
+
+.focused-header__timer--inactive .focused-header__timer-value {
+  color: var(--text-disabled);
+}
+
 .focused-header__timer--warning {
   background: var(--warning-pastel);
   color: var(--warning-text);
