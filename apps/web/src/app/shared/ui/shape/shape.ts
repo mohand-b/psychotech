@@ -7,8 +7,14 @@ import {
 import { ShapeId, ShapeRotation } from '@psychotech/shared';
 
 const WIDE_VIEWBOX_WIDTH = 36;
-const NARROW_VIEWBOX_WIDTH = 16;
 const SQUARE_VIEWBOX_WIDTH = 24;
+
+const WIDE_SHAPES: readonly ShapeId[] = [
+  ShapeId.RECTANGLE,
+  ShapeId.TRAPEZOID,
+  ShapeId.TRAPEZOID_RIGHT,
+  ShapeId.TRAPEZOID_LEFT,
+];
 
 @Component({
   selector: 'ui-shape',
@@ -48,19 +54,21 @@ const SQUARE_VIEWBOX_WIDTH = 24;
         @case (shapeIds.CIRCLE) {
           <circle cx="12" cy="12" r="10.5" />
         }
-        @case (shapeIds.DIAMOND) {
-          @if (sideways()) {
-            <polygon points="18,1.5 34.5,12 18,22.5 1.5,12" />
+        @case (shapeIds.RECTANGLE) {
+          <rect x="1.5" y="1.5" width="33" height="21" rx="1.5" />
+        }
+        @case (shapeIds.TRAPEZOID) {
+          @if (rotation() === 180) {
+            <polygon points="1.5,1.5 34.5,1.5 25,22.5 11,22.5" />
           } @else {
-            <polygon points="8,1.5 14.5,12 8,22.5 1.5,12" />
+            <polygon points="11,1.5 25,1.5 34.5,22.5 1.5,22.5" />
           }
         }
-        @case (shapeIds.RECTANGLE) {
-          @if (sideways()) {
-            <rect x="1.5" y="1.5" width="13" height="21" rx="1.5" />
-          } @else {
-            <rect x="1.5" y="1.5" width="33" height="21" rx="1.5" />
-          }
+        @case (shapeIds.TRAPEZOID_RIGHT) {
+          <polygon points="1.5,1.5 23,1.5 34.5,22.5 1.5,22.5" />
+        }
+        @case (shapeIds.TRAPEZOID_LEFT) {
+          <polygon points="13,1.5 34.5,1.5 34.5,22.5 1.5,22.5" />
         }
       }
     </svg>
@@ -82,18 +90,11 @@ export class Shape {
 
   protected readonly shapeIds = ShapeId;
 
-  protected readonly sideways = computed(() => this.rotation() % 180 === 90);
-
-  protected readonly viewBoxWidth = computed(() => {
-    const shape = this.shape();
-    if (shape === ShapeId.DIAMOND) {
-      return this.sideways() ? WIDE_VIEWBOX_WIDTH : NARROW_VIEWBOX_WIDTH;
-    }
-    if (shape === ShapeId.RECTANGLE) {
-      return this.sideways() ? NARROW_VIEWBOX_WIDTH : WIDE_VIEWBOX_WIDTH;
-    }
-    return SQUARE_VIEWBOX_WIDTH;
-  });
+  protected readonly viewBoxWidth = computed(() =>
+    WIDE_SHAPES.includes(this.shape())
+      ? WIDE_VIEWBOX_WIDTH
+      : SQUARE_VIEWBOX_WIDTH,
+  );
 
   protected readonly svgWidth = computed(() =>
     Math.round((this.size() * this.viewBoxWidth()) / 24),

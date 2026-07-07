@@ -22,9 +22,12 @@ export default meta;
 type Story = StoryObj<Shape>;
 
 export const Triangle: Story = {};
-export const Diamond: Story = { args: { shape: ShapeId.DIAMOND } };
-export const RectangleRotated: Story = {
-  args: { shape: ShapeId.RECTANGLE, rotation: 90 },
+export const Trapezoid: Story = { args: { shape: ShapeId.TRAPEZOID } };
+export const TrapezoidRight: Story = {
+  args: { shape: ShapeId.TRAPEZOID_RIGHT },
+};
+export const TrapezoidLeft: Story = {
+  args: { shape: ShapeId.TRAPEZOID_LEFT },
 };
 
 export const AllShapesAndRotations: Story = {

@@ -13,8 +13,10 @@ const MIXED_SEQUENCE: DiscriminationElement[] = [
 
 const SHAPES_SEQUENCE: DiscriminationElement[] = [
   { kind: 'SHAPE', shape: ShapeId.TRIANGLE, rotation: 0 },
-  { kind: 'SHAPE', shape: ShapeId.DIAMOND, rotation: 90 },
-  { kind: 'SHAPE', shape: ShapeId.RECTANGLE, rotation: 90 },
+  { kind: 'SHAPE', shape: ShapeId.TRAPEZOID, rotation: 0 },
+  { kind: 'SHAPE', shape: ShapeId.TRAPEZOID_RIGHT, rotation: 0 },
+  { kind: 'SHAPE', shape: ShapeId.TRAPEZOID_LEFT, rotation: 0 },
+  { kind: 'SHAPE', shape: ShapeId.RECTANGLE, rotation: 0 },
   { kind: 'SHAPE', shape: ShapeId.CIRCLE, rotation: 0 },
   { kind: 'SHAPE', shape: ShapeId.SQUARE, rotation: 0 },
 ];
