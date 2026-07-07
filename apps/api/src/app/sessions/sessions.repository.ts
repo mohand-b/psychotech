@@ -87,8 +87,10 @@ export interface CompleteSessionParams {
 
 export interface CompleteTargetedSessionParams {
   sessionId: string;
+  userId: string;
   axis: AxisType;
   rawResult: AxisRawResultDto;
+  score: { normalizedScore: number; band: ScoreBand } | null;
   startedAt: Date;
   completedAt: Date;
 }
@@ -281,6 +283,8 @@ export class SessionsRepository {
         data: {
           metrics: params.rawResult as unknown as Prisma.InputJsonValue,
           skipped: false,
+          normalizedScore: params.score?.normalizedScore ?? null,
+          band: params.score ? mapEnumValue(DbScoreBand, params.score.band) : null,
           startedAt: params.startedAt,
           completedAt: params.completedAt,
         },
@@ -294,10 +298,24 @@ export class SessionsRepository {
         },
       }),
     ]);
-    return this.prisma.session.findUniqueOrThrow({
+    const session = await this.prisma.session.findUniqueOrThrow({
       where: { id: params.sessionId },
       include: SESSION_INCLUDE,
     });
+    if (params.score) {
+      const axisRow = session.axisResults.find(
+        (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
+      );
+      if (axisRow) {
+        await this.upsertAxisBest(this.prisma, params.userId, params.completedAt, {
+          axis: params.axis,
+          score: params.score.normalizedScore,
+          band: params.score.band,
+          sessionAxisId: axisRow.id,
+        });
+      }
+    }
+    return session;
   }
 
   async suspendSession(sessionId: string): Promise<void> {

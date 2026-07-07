@@ -20,6 +20,9 @@ import {
   SessionMode,
   SessionResultDto,
   SessionStatus,
+  avisFromScore,
+  generateLogicSession,
+  scoreLogicSession,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
@@ -152,14 +155,28 @@ export class SessionsService {
         : axis === AxisType.MEMORY
           ? this.buildMemoryRawResult(request.sequences ?? [])
           : this.buildDiscriminationRawResult(request.trials ?? []);
+    const score =
+      rawResult.axis === AxisType.LOGIC
+        ? this.scoreLogicAnswers(session.seed, rawResult.items)
+        : null;
     const completed = await this.repository.completeTargetedSession({
       sessionId,
+      userId,
       axis,
       rawResult,
+      score,
       startedAt: target.startedAt ?? session.startedAt,
       completedAt: new Date(),
     });
     return toSessionDto(completed);
+  }
+
+  private scoreLogicAnswers(
+    seed: string,
+    items: LogicItemAnswerDto[],
+  ): { normalizedScore: number; band: ScoreBand } {
+    const scored = scoreLogicSession(generateLogicSession(seed), items);
+    return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
 
   private buildLogicRawResult(items: LogicItemAnswerDto[]): LogicRawResultDto {
@@ -177,11 +194,12 @@ export class SessionsService {
     }
     return {
       axis: AxisType.LOGIC,
-      items: items.map(({ index, answerIndex, timeMs, helpUsed }) => ({
+      items: items.map(({ index, answerIndex, timeMs, helpUsed, visited }) => ({
         index,
         answerIndex,
         timeMs,
         helpUsed,
+        visited,
       })),
     };
   }
