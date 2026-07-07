@@ -112,7 +112,7 @@ export const AXIS_TRAINING: {
     exerciseCount: 36,
     increasingDifficulty: true,
     minSequenceLength: 5,
-    maxSequenceLength: 12,
+    maxSequenceLength: 8,
     briefing: {
       consigne:
         "Comparez les deux suites et indiquez si elles sont identiques ou différentes. L'essai suivant s'enchaîne aussitôt.",
