@@ -1,6 +1,8 @@
 import {
   AxisType,
   CompleteTargetedSessionDto,
+  DiscriminationAnswer,
+  DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
   MemorySequenceAnswerDto,
 } from '@psychotech/shared';
@@ -10,6 +12,7 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   Max,
   Min,
@@ -54,6 +57,22 @@ export class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
   timedOut!: boolean;
 }
 
+export class DiscriminationTrialAnswerRequest
+  implements DiscriminationTrialAnswerDto
+{
+  @IsInt()
+  @Min(0)
+  index!: number;
+
+  @ValidateIf((trial: DiscriminationTrialAnswerRequest) => trial.answer !== null)
+  @IsIn(['IDENTICAL', 'DIFFERENT'])
+  answer!: DiscriminationAnswer | null;
+
+  @IsInt()
+  @Min(0)
+  timeMs!: number;
+}
+
 export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDto {
   @IsEnum(AxisType)
   axis!: AxisType;
@@ -71,4 +90,14 @@ export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDt
   @ValidateNested({ each: true })
   @Type(() => MemorySequenceAnswerRequest)
   sequences?: MemorySequenceAnswerRequest[];
+
+  @ValidateIf(
+    (request: CompleteTargetedSessionRequest) =>
+      request.axis === AxisType.VISUAL_DISCRIMINATION,
+  )
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => DiscriminationTrialAnswerRequest)
+  trials?: DiscriminationTrialAnswerRequest[];
 }

@@ -8,6 +8,8 @@ import {
 import {
   AXIS_TRAINING,
   AxisType,
+  DiscriminationRawResultDto,
+  DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
   LogicRawResultDto,
   MemoryRawResultDto,
@@ -123,9 +125,13 @@ export class SessionsService {
     if (request.axis !== axis) {
       throw new BadRequestException('The axis in the body does not match the route');
     }
-    if (axis !== AxisType.LOGIC && axis !== AxisType.MEMORY) {
+    if (
+      axis !== AxisType.LOGIC &&
+      axis !== AxisType.MEMORY &&
+      axis !== AxisType.VISUAL_DISCRIMINATION
+    ) {
       throw new BadRequestException(
-        'Raw answers are only supported for the logic and memory axes',
+        'Raw answers are not supported for this axis',
       );
     }
     const session = await this.loadInProgressSession(sessionId, userId);
@@ -143,7 +149,9 @@ export class SessionsService {
     const rawResult =
       axis === AxisType.LOGIC
         ? this.buildLogicRawResult(request.items ?? [])
-        : this.buildMemoryRawResult(request.sequences ?? []);
+        : axis === AxisType.MEMORY
+          ? this.buildMemoryRawResult(request.sequences ?? [])
+          : this.buildDiscriminationRawResult(request.trials ?? []);
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       axis,
@@ -203,6 +211,31 @@ export class SessionsService {
         input,
         timeMs,
         timedOut,
+      })),
+    };
+  }
+
+  private buildDiscriminationRawResult(
+    trials: DiscriminationTrialAnswerDto[],
+  ): DiscriminationRawResultDto {
+    const { exerciseCount } = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
+    const distinctIndexes = new Set(trials.map((trial) => trial.index));
+    if (
+      trials.length === 0 ||
+      distinctIndexes.size !== trials.length ||
+      trials.length > exerciseCount ||
+      trials.some((trial) => trial.index >= exerciseCount)
+    ) {
+      throw new BadRequestException(
+        'Trial answers must target distinct trials of the targeted axis',
+      );
+    }
+    return {
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      trials: trials.map(({ index, answer, timeMs }) => ({
+        index,
+        answer,
+        timeMs,
       })),
     };
   }

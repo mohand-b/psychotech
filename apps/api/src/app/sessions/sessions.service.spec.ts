@@ -358,6 +358,70 @@ describe('SessionsService.completeTargeted (memory)', () => {
   });
 });
 
+describe('SessionsService.completeTargeted (discrimination)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const discriminationSession = () =>
+    buildSession({
+      mode: 'TARGETED',
+      energyCost: 1,
+      axisResults: [buildAxis({ axis: 'VISUAL_DISCRIMINATION' })],
+    });
+  const trialAnswers = Array.from({ length: 36 }, (_, index) => ({
+    index,
+    answer:
+      index < 20 ? (index % 2 === 0 ? ('IDENTICAL' as const) : ('DIFFERENT' as const)) : null,
+    timeMs: index < 20 ? 2400 : 0,
+  }));
+
+  it('stores raw trial answers as metrics without scoring', async () => {
+    repository.findUserSession.mockResolvedValue(discriminationSession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'VISUAL_DISCRIMINATION' })],
+      }),
+    );
+
+    await service.completeTargeted(
+      'user-1',
+      sessionId,
+      AxisType.VISUAL_DISCRIMINATION,
+      { axis: AxisType.VISUAL_DISCRIMINATION, trials: trialAnswers },
+    );
+
+    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        rawResult: {
+          axis: AxisType.VISUAL_DISCRIMINATION,
+          trials: trialAnswers,
+        },
+      }),
+    );
+  });
+
+  it('rejects duplicate or out-of-range trial indexes', async () => {
+    repository.findUserSession.mockResolvedValue(discriminationSession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        trials: [trialAnswers[0], { ...trialAnswers[1], index: 0 }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        trials: [{ index: 36, answer: null, timeMs: 0 }],
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+});
+
 describe('SessionsService.complete', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const unlockedBadge = {
