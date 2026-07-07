@@ -58,12 +58,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 0,
     "offsetA": {
-      "x": 2,
-      "y": 10,
+      "fx": 0.069,
+      "fy": 0.406,
     },
     "offsetB": {
-      "x": 17,
-      "y": -14,
+      "fx": 0.518,
+      "fy": -0.588,
     },
   },
   {
@@ -120,12 +120,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 1,
     "offsetA": {
-      "x": -7,
-      "y": -21,
+      "fx": -0.224,
+      "fy": -0.84,
     },
     "offsetB": {
-      "x": -2,
-      "y": 5,
+      "fx": -0.069,
+      "fy": 0.214,
     },
   },
   {
@@ -186,12 +186,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 2,
     "offsetA": {
-      "x": -20,
-      "y": 20,
+      "fx": -0.612,
+      "fy": 0.807,
     },
     "offsetB": {
-      "x": -8,
-      "y": 20,
+      "fx": -0.237,
+      "fy": 0.835,
     },
   },
   {
@@ -250,12 +250,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 3,
     "offsetA": {
-      "x": -6,
-      "y": 3,
+      "fx": -0.193,
+      "fy": 0.128,
     },
     "offsetB": {
-      "x": -26,
-      "y": -10,
+      "fx": -0.79,
+      "fy": -0.422,
     },
   },
   {
@@ -308,12 +308,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 4,
     "offsetA": {
-      "x": -2,
-      "y": -4,
+      "fx": -0.067,
+      "fy": -0.144,
     },
     "offsetB": {
-      "x": 19,
-      "y": -5,
+      "fx": 0.57,
+      "fy": -0.202,
     },
   },
   {
@@ -368,12 +368,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 5,
     "offsetA": {
-      "x": -11,
-      "y": -17,
+      "fx": -0.345,
+      "fy": -0.695,
     },
     "offsetB": {
-      "x": 18,
-      "y": -24,
+      "fx": 0.557,
+      "fy": -0.965,
     },
   },
   {
@@ -432,12 +432,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 6,
     "offsetA": {
-      "x": 17,
-      "y": -1,
+      "fx": 0.513,
+      "fy": -0.038,
     },
     "offsetB": {
-      "x": 3,
-      "y": -6,
+      "fx": 0.079,
+      "fy": -0.244,
     },
   },
   {
@@ -504,12 +504,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 7,
     "offsetA": {
-      "x": -16,
-      "y": 21,
+      "fx": -0.477,
+      "fy": 0.866,
     },
     "offsetB": {
-      "x": -10,
-      "y": -16,
+      "fx": -0.319,
+      "fy": -0.65,
     },
   },
   {
@@ -572,12 +572,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 8,
     "offsetA": {
-      "x": -8,
-      "y": -4,
+      "fx": -0.251,
+      "fy": -0.167,
     },
     "offsetB": {
-      "x": 29,
-      "y": 12,
+      "fx": 0.899,
+      "fy": 0.472,
     },
   },
   {
@@ -646,12 +646,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 9,
     "offsetA": {
-      "x": 21,
-      "y": 7,
+      "fx": 0.656,
+      "fy": 0.28,
     },
     "offsetB": {
-      "x": -1,
-      "y": 12,
+      "fx": -0.017,
+      "fy": 0.474,
     },
   },
   {
@@ -714,12 +714,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 10,
     "offsetA": {
-      "x": -7,
-      "y": -1,
+      "fx": -0.206,
+      "fy": -0.026,
     },
     "offsetB": {
-      "x": 2,
-      "y": -18,
+      "fx": 0.051,
+      "fy": -0.726,
     },
   },
   {
@@ -784,12 +784,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 11,
     "offsetA": {
-      "x": 12,
-      "y": -7,
+      "fx": 0.355,
+      "fy": -0.304,
     },
     "offsetB": {
-      "x": 31,
-      "y": 2,
+      "fx": 0.946,
+      "fy": 0.063,
     },
   },
   {
@@ -850,12 +850,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 12,
     "offsetA": {
-      "x": 21,
-      "y": -19,
+      "fx": 0.65,
+      "fy": -0.759,
     },
     "offsetB": {
-      "x": 12,
-      "y": -8,
+      "fx": 0.378,
+      "fy": -0.307,
     },
   },
   {
@@ -918,12 +918,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 13,
     "offsetA": {
-      "x": -30,
-      "y": -18,
+      "fx": -0.934,
+      "fy": -0.72,
     },
     "offsetB": {
-      "x": -3,
-      "y": -8,
+      "fx": -0.098,
+      "fy": -0.327,
     },
   },
   {
@@ -988,12 +988,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 14,
     "offsetA": {
-      "x": -21,
-      "y": 8,
+      "fx": -0.66,
+      "fy": 0.347,
     },
     "offsetB": {
-      "x": -25,
-      "y": 23,
+      "fx": -0.766,
+      "fy": 0.927,
     },
   },
   {
@@ -1056,12 +1056,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 15,
     "offsetA": {
-      "x": -2,
-      "y": 8,
+      "fx": -0.056,
+      "fy": 0.333,
     },
     "offsetB": {
-      "x": -19,
-      "y": -10,
+      "fx": -0.591,
+      "fy": -0.412,
     },
   },
   {
@@ -1126,12 +1126,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 16,
     "offsetA": {
-      "x": -5,
-      "y": -8,
+      "fx": -0.149,
+      "fy": -0.309,
     },
     "offsetB": {
-      "x": -20,
-      "y": 19,
+      "fx": -0.612,
+      "fy": 0.757,
     },
   },
   {
@@ -1190,12 +1190,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 17,
     "offsetA": {
-      "x": -11,
-      "y": -13,
+      "fx": -0.347,
+      "fy": -0.546,
     },
     "offsetB": {
-      "x": 27,
-      "y": 0,
+      "fx": 0.836,
+      "fy": 0.016,
     },
   },
   {
@@ -1268,12 +1268,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 18,
     "offsetA": {
-      "x": 0,
-      "y": -21,
+      "fx": 0.014,
+      "fy": -0.844,
     },
     "offsetB": {
-      "x": 14,
-      "y": 3,
+      "fx": 0.416,
+      "fy": 0.103,
     },
   },
   {
@@ -1348,12 +1348,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 19,
     "offsetA": {
-      "x": 6,
-      "y": 5,
+      "fx": 0.198,
+      "fy": 0.199,
     },
     "offsetB": {
-      "x": 17,
-      "y": 24,
+      "fx": 0.516,
+      "fy": 0.982,
     },
   },
   {
@@ -1424,12 +1424,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 20,
     "offsetA": {
-      "x": -5,
-      "y": -23,
+      "fx": -0.164,
+      "fy": -0.926,
     },
     "offsetB": {
-      "x": -31,
-      "y": 15,
+      "fx": -0.94,
+      "fy": 0.621,
     },
   },
   {
@@ -1506,12 +1506,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 21,
     "offsetA": {
-      "x": 4,
-      "y": 11,
+      "fx": 0.12,
+      "fy": 0.445,
     },
     "offsetB": {
-      "x": 12,
-      "y": 3,
+      "fx": 0.367,
+      "fy": 0.112,
     },
   },
   {
@@ -1592,12 +1592,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 22,
     "offsetA": {
-      "x": 18,
-      "y": -1,
+      "fx": 0.55,
+      "fy": -0.023,
     },
     "offsetB": {
-      "x": -28,
-      "y": 3,
+      "fx": -0.857,
+      "fy": 0.125,
     },
   },
   {
@@ -1668,12 +1668,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 23,
     "offsetA": {
-      "x": -27,
-      "y": 3,
+      "fx": -0.837,
+      "fy": 0.136,
     },
     "offsetB": {
-      "x": -26,
-      "y": 7,
+      "fx": -0.809,
+      "fy": 0.276,
     },
   },
   {
@@ -1746,12 +1746,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 24,
     "offsetA": {
-      "x": 0,
-      "y": 1,
+      "fx": 0.008,
+      "fy": 0.058,
     },
     "offsetB": {
-      "x": 24,
-      "y": 9,
+      "fx": 0.734,
+      "fy": 0.369,
     },
   },
   {
@@ -1824,12 +1824,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 25,
     "offsetA": {
-      "x": -15,
-      "y": 17,
+      "fx": -0.452,
+      "fy": 0.695,
     },
     "offsetB": {
-      "x": 28,
-      "y": 0,
+      "fx": 0.865,
+      "fy": 0.011,
     },
   },
   {
@@ -1904,12 +1904,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 26,
     "offsetA": {
-      "x": -14,
-      "y": -13,
+      "fx": -0.445,
+      "fy": -0.542,
     },
     "offsetB": {
-      "x": -8,
-      "y": -10,
+      "fx": -0.235,
+      "fy": -0.412,
     },
   },
   {
@@ -1984,12 +1984,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 27,
     "offsetA": {
-      "x": 17,
-      "y": -11,
+      "fx": 0.523,
+      "fy": -0.446,
     },
     "offsetB": {
-      "x": 12,
-      "y": 16,
+      "fx": 0.37,
+      "fy": 0.666,
     },
   },
   {
@@ -2064,12 +2064,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 28,
     "offsetA": {
-      "x": -16,
-      "y": 8,
+      "fx": -0.503,
+      "fy": 0.316,
     },
     "offsetB": {
-      "x": 30,
-      "y": 21,
+      "fx": 0.932,
+      "fy": 0.869,
     },
   },
   {
@@ -2142,12 +2142,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 29,
     "offsetA": {
-      "x": -22,
-      "y": -16,
+      "fx": -0.682,
+      "fy": -0.648,
     },
     "offsetB": {
-      "x": -29,
-      "y": 8,
+      "fx": -0.905,
+      "fy": 0.308,
     },
   },
   {
@@ -2226,12 +2226,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 30,
     "offsetA": {
-      "x": -2,
-      "y": -8,
+      "fx": -0.052,
+      "fy": -0.341,
     },
     "offsetB": {
-      "x": -17,
-      "y": -13,
+      "fx": -0.524,
+      "fy": -0.542,
     },
   },
   {
@@ -2318,12 +2318,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 31,
     "offsetA": {
-      "x": 11,
-      "y": 2,
+      "fx": 0.346,
+      "fy": 0.082,
     },
     "offsetB": {
-      "x": 7,
-      "y": 12,
+      "fx": 0.205,
+      "fy": 0.506,
     },
   },
   {
@@ -2400,12 +2400,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 32,
     "offsetA": {
-      "x": 24,
-      "y": -17,
+      "fx": 0.751,
+      "fy": -0.698,
     },
     "offsetB": {
-      "x": -19,
-      "y": 7,
+      "fx": -0.598,
+      "fy": 0.289,
     },
   },
   {
@@ -2488,12 +2488,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 33,
     "offsetA": {
-      "x": 5,
-      "y": 5,
+      "fx": 0.153,
+      "fy": 0.219,
     },
     "offsetB": {
-      "x": -2,
-      "y": 3,
+      "fx": -0.051,
+      "fy": 0.131,
     },
   },
   {
@@ -2576,12 +2576,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 34,
     "offsetA": {
-      "x": 11,
-      "y": -21,
+      "fx": 0.323,
+      "fy": -0.865,
     },
     "offsetB": {
-      "x": -7,
-      "y": 11,
+      "fx": -0.219,
+      "fy": 0.444,
     },
   },
   {
@@ -2664,12 +2664,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": true,
     "index": 35,
     "offsetA": {
-      "x": -25,
-      "y": -21,
+      "fx": -0.756,
+      "fy": -0.871,
     },
     "offsetB": {
-      "x": 0,
-      "y": 5,
+      "fx": -0.015,
+      "fy": 0.216,
     },
   },
 ]

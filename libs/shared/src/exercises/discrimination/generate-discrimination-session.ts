@@ -15,8 +15,6 @@ import {
   SequenceOffset,
 } from './discrimination-trial';
 
-export const DISCRIMINATION_OFFSET_X_MAX = 32;
-export const DISCRIMINATION_OFFSET_Y_MAX = 24;
 export const DISCRIMINATION_IDENTICAL_MIN = 16;
 export const DISCRIMINATION_IDENTICAL_MAX = 20;
 
@@ -31,10 +29,14 @@ function drawElement(rng: SeededRng): DiscriminationElement {
   return { kind: 'SHAPE', shape, rotation: rng.pick(DISTINCT_ROTATIONS[shape]) };
 }
 
+function drawOffsetFactor(rng: SeededRng): number {
+  return Math.round((rng.next() * 2 - 1) * 1000) / 1000;
+}
+
 function drawOffset(rng: SeededRng): SequenceOffset {
   return {
-    x: rng.nextInt(-DISCRIMINATION_OFFSET_X_MAX, DISCRIMINATION_OFFSET_X_MAX),
-    y: rng.nextInt(-DISCRIMINATION_OFFSET_Y_MAX, DISCRIMINATION_OFFSET_Y_MAX),
+    fx: drawOffsetFactor(rng),
+    fy: drawOffsetFactor(rng),
   };
 }
 

@@ -16,8 +16,8 @@ export interface ShapeElement {
 export type DiscriminationElement = CharElement | ShapeElement;
 
 export interface SequenceOffset {
-  x: number;
-  y: number;
+  fx: number;
+  fy: number;
 }
 
 export interface DiscriminationTrial {

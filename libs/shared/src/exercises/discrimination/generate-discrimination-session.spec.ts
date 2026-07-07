@@ -9,8 +9,6 @@ import {
 import {
   DISCRIMINATION_IDENTICAL_MAX,
   DISCRIMINATION_IDENTICAL_MIN,
-  DISCRIMINATION_OFFSET_X_MAX,
-  DISCRIMINATION_OFFSET_Y_MAX,
   generateDiscriminationSession,
 } from './generate-discrimination-session';
 import { DiscriminationTrial } from './discrimination-trial';
@@ -109,18 +107,12 @@ describe('generateDiscriminationSession', () => {
     }
   });
 
-  it('draws card offsets within the jitter bounds', () => {
+  it('draws normalized jitter factors within [-1, 1]', () => {
     for (const seed of SAMPLE_SEEDS) {
       for (const trial of generateDiscriminationSession(seed)) {
         for (const offset of [trial.offsetA, trial.offsetB]) {
-          expect(Math.abs(offset.x)).toBeLessThanOrEqual(
-            DISCRIMINATION_OFFSET_X_MAX,
-          );
-          expect(Math.abs(offset.y)).toBeLessThanOrEqual(
-            DISCRIMINATION_OFFSET_Y_MAX,
-          );
-          expect(Number.isInteger(offset.x)).toBe(true);
-          expect(Number.isInteger(offset.y)).toBe(true);
+          expect(Math.abs(offset.fx)).toBeLessThanOrEqual(1);
+          expect(Math.abs(offset.fy)).toBeLessThanOrEqual(1);
         }
       }
     }
