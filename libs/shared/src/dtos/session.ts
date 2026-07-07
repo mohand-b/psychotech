@@ -31,6 +31,7 @@ export interface LogicItemAnswerDto {
   answerIndex: number | null;
   timeMs: number;
   helpUsed: boolean;
+  visited: boolean;
 }
 
 export interface LogicRawResultDto {
