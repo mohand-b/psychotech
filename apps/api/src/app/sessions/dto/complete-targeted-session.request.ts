@@ -36,6 +36,9 @@ export class LogicItemAnswerRequest implements LogicItemAnswerDto {
 
   @IsBoolean()
   helpUsed!: boolean;
+
+  @IsBoolean()
+  visited!: boolean;
 }
 
 export class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
