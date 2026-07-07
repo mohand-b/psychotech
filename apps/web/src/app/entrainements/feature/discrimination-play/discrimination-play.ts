@@ -24,9 +24,7 @@ import { ElementSequence } from '../../../shared/ui/element-sequence/element-seq
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
 
-const LONG_TRIAL_THRESHOLD = 8;
 const SEQUENCE_SIZE = 28;
-const SEQUENCE_SIZE_COMPACT = 22;
 
 @Component({
   selector: 'app-discrimination-play',
@@ -75,12 +73,7 @@ export class DiscriminationPlay {
   protected readonly remainingPercent = computed(
     () => (this.facade.remainingFraction() ?? 0) * 100,
   );
-  protected readonly sequenceSize = computed(() => {
-    const trial = this.currentTrial();
-    return trial && trial.a.length > LONG_TRIAL_THRESHOLD
-      ? SEQUENCE_SIZE_COMPACT
-      : SEQUENCE_SIZE;
-  });
+  protected readonly sequenceSize = SEQUENCE_SIZE;
 
   protected readonly identicalIcon = ArrowLeft;
   protected readonly differentIcon = ArrowRight;
