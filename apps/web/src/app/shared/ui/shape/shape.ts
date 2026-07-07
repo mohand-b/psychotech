@@ -13,7 +13,11 @@ import { ShapeId, ShapeRotation } from '@psychotech/shared';
       [attr.width]="size()"
       [attr.height]="size()"
       viewBox="0 0 24 24"
-      fill="currentColor"
+      fill="none"
+      stroke="currentColor"
+      [attr.stroke-width]="strokeWidth()"
+      stroke-linejoin="round"
+      stroke-linecap="round"
       aria-hidden="true"
       [style.transform]="'rotate(' + rotation() + 'deg)'"
     >
@@ -49,6 +53,7 @@ export class Shape {
   readonly shape = input.required<ShapeId>();
   readonly rotation = input<ShapeRotation>(0);
   readonly size = input(24);
+  readonly strokeWidth = input(2.5);
 
   protected readonly shapeIds = ShapeId;
 }
