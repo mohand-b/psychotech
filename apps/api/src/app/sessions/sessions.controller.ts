@@ -8,7 +8,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { AxisType, SessionDto, SessionResultDto } from '@psychotech/shared';
+import {
+  AxisType,
+  SessionDto,
+  SessionResultDto,
+  TargetedLogicResultDto,
+} from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
@@ -94,5 +99,14 @@ export class SessionsController {
     @Param('id', ParseUUIDPipe) sessionId: string,
   ): Promise<SessionResultDto> {
     return this.sessionsService.results(userId, sessionId);
+  }
+
+  @Get(':id/axes/:axis/results')
+  targetedResult(
+    @CurrentUser() userId: string,
+    @Param('id', ParseUUIDPipe) sessionId: string,
+    @Param('axis', new ParseEnumPipe(AxisType)) axis: AxisType,
+  ): Promise<TargetedLogicResultDto> {
+    return this.sessionsService.targetedResult(userId, sessionId, axis);
   }
 }

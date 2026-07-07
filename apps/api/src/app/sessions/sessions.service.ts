@@ -20,6 +20,7 @@ import {
   SessionMode,
   SessionResultDto,
   SessionStatus,
+  TargetedLogicResultDto,
   avisFromScore,
   generateLogicSession,
   scoreLogicSession,
@@ -378,6 +379,104 @@ export class SessionsService {
 
   async results(userId: string, sessionId: string): Promise<SessionResultDto> {
     return toSessionResultDto(await this.loadOwnedSession(sessionId, userId));
+  }
+
+  async targetedResult(
+    userId: string,
+    sessionId: string,
+    axis: AxisType,
+  ): Promise<TargetedLogicResultDto> {
+    if (axis !== AxisType.LOGIC) {
+      throw new BadRequestException(
+        'Axis results are only available for the logic axis',
+      );
+    }
+    const session = await this.loadOwnedSession(sessionId, userId);
+    if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
+      throw new BadRequestException(
+        'Only a targeted session exposes an axis result',
+      );
+    }
+    if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.COMPLETED) {
+      throw new ConflictException('Session is not completed');
+    }
+    const axisRow = session.axisResults.find(
+      (result) => mapEnumValue(AxisType, result.axis) === AxisType.LOGIC,
+    );
+    if (!axisRow) {
+      throw new BadRequestException('The axis is not part of this session');
+    }
+    const history = await this.repository.findTargetedLogicHistory(userId);
+    const scoredHistory: {
+      sessionId: string;
+      score: number;
+      completedAt: number;
+    }[] = [];
+    for (const row of history) {
+      let normalizedScore = row.normalizedScore;
+      if (normalizedScore === null) {
+        const computed = this.scoreLogicAnswers(
+          row.session.seed,
+          this.logicItemsFromMetrics(row.metrics),
+        );
+        await this.repository.persistAxisScore(
+          row.id,
+          computed.normalizedScore,
+          computed.band,
+        );
+        normalizedScore = computed.normalizedScore;
+      }
+      scoredHistory.push({
+        sessionId: row.sessionId,
+        score: Math.round(normalizedScore),
+        completedAt: (
+          row.completedAt ??
+          row.session.completedAt ??
+          row.session.startedAt
+        ).getTime(),
+      });
+    }
+    const entry = scoredHistory.find(
+      (candidate) => candidate.sessionId === sessionId,
+    );
+    if (!entry) {
+      throw new BadRequestException('The session has no logic result');
+    }
+    const prior = scoredHistory.filter(
+      (candidate) => candidate.completedAt < entry.completedAt,
+    );
+    const previousScore =
+      prior.length > 0 ? prior[prior.length - 1].score : null;
+    const priorBest =
+      prior.length > 0 ? Math.max(...prior.map(({ score }) => score)) : null;
+    return {
+      sessionId,
+      axis: AxisType.LOGIC,
+      sector: mapEnumValue(Sector, session.sector),
+      seed: session.seed,
+      helpEnabled: session.helpEnabled,
+      score: entry.score,
+      band: avisFromScore(entry.score),
+      startedAt: (axisRow.startedAt ?? session.startedAt).toISOString(),
+      completedAt: (
+        axisRow.completedAt ??
+        session.completedAt ??
+        session.startedAt
+      ).toISOString(),
+      items: this.logicItemsFromMetrics(axisRow.metrics),
+      bestScore:
+        priorBest === null ? entry.score : Math.max(priorBest, entry.score),
+      isNewBest: priorBest !== null && entry.score > priorBest,
+      isEqualBest: priorBest !== null && entry.score === priorBest,
+      previousScore,
+    };
+  }
+
+  private logicItemsFromMetrics(metrics: unknown): LogicItemAnswerDto[] {
+    const raw = metrics as LogicRawResultDto | null;
+    return raw && raw.axis === AxisType.LOGIC && Array.isArray(raw.items)
+      ? raw.items
+      : [];
   }
 
   private async loadInProgressSession(

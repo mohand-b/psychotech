@@ -95,6 +95,10 @@ export interface CompleteTargetedSessionParams {
   completedAt: Date;
 }
 
+export type TargetedLogicAxisRow = Prisma.SessionAxisGetPayload<{
+  include: { session: true };
+}>;
+
 export interface StreakContext {
   timezone: string;
   streak: { current: number; longest: number; lastActivityDate: Date | null } | null;
@@ -316,6 +320,32 @@ export class SessionsRepository {
       }
     }
     return session;
+  }
+
+  findTargetedLogicHistory(userId: string): Promise<TargetedLogicAxisRow[]> {
+    return this.prisma.sessionAxis.findMany({
+      where: {
+        axis: DbAxisType.LOGIC,
+        session: {
+          userId,
+          mode: DbSessionMode.TARGETED,
+          status: DbSessionStatus.COMPLETED,
+        },
+      },
+      include: { session: true },
+      orderBy: { session: { completedAt: 'asc' } },
+    });
+  }
+
+  async persistAxisScore(
+    sessionAxisId: string,
+    normalizedScore: number,
+    band: ScoreBand,
+  ): Promise<void> {
+    await this.prisma.sessionAxis.update({
+      where: { id: sessionAxisId },
+      data: { normalizedScore, band: mapEnumValue(DbScoreBand, band) },
+    });
   }
 
   async suspendSession(sessionId: string): Promise<void> {
