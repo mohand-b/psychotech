@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  input,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -33,6 +34,8 @@ interface NavItem {
   styleUrl: './navbar.css',
 })
 export class Navbar {
+  readonly hideMobile = input(false);
+
   private readonly authFacade = inject(AuthFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly router = inject(Router);

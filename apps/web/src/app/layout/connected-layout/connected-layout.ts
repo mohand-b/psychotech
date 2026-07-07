@@ -17,8 +17,10 @@ import {
 import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
+import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
+import { Icon } from '../../shared/ui/icon/icon';
 import { Navbar } from '../../shared/ui/navbar/navbar';
 
 interface FocusedHeaderData {
@@ -30,6 +32,16 @@ interface FocusedHeaderData {
   axisChip?: boolean;
   showEnergy?: boolean;
   showHelp?: boolean;
+}
+
+interface MobileFlowData {
+  axisParam: string;
+  suffix: string;
+}
+
+interface MobileFlowView {
+  axis: AxisType;
+  suffix: string;
 }
 
 interface FocusedHeaderView {
@@ -47,7 +59,7 @@ interface FocusedHeaderView {
 @Component({
   selector: 'app-connected-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, Navbar, FocusedHeader],
+  imports: [RouterOutlet, Navbar, FocusedHeader, Icon],
   templateUrl: './connected-layout.html',
   styleUrl: './connected-layout.css',
 })
@@ -59,6 +71,9 @@ export class ConnectedLayout {
 
   protected readonly focusedHeader = signal<FocusedHeaderView | null>(
     this.readFocusedHeader(),
+  );
+  protected readonly mobileFlow = signal<MobileFlowView | null>(
+    this.readMobileFlow(),
   );
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
   protected readonly liveCountdownSeverity =
@@ -75,7 +90,14 @@ export class ConnectedLayout {
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.focusedHeader.set(this.readFocusedHeader()));
+      .subscribe(() => {
+        this.focusedHeader.set(this.readFocusedHeader());
+        this.mobileFlow.set(this.readMobileFlow());
+      });
+  }
+
+  protected mobileFlowPresentation(flow: MobileFlowView) {
+    return AXIS_PRESENTATION[flow.axis];
   }
 
   protected onCloseRequested(header: FocusedHeaderView): void {
@@ -88,12 +110,26 @@ export class ConnectedLayout {
     }
   }
 
-  private readFocusedHeader(): FocusedHeaderView | null {
+  private deepestSnapshot() {
     let route: ActivatedRoute | null = this.route;
     while (route?.firstChild) {
       route = route.firstChild;
     }
-    const snapshot = route?.snapshot;
+    return route?.snapshot;
+  }
+
+  private readMobileFlow(): MobileFlowView | null {
+    const snapshot = this.deepestSnapshot();
+    const data = snapshot?.data?.['mobileFlow'] as MobileFlowData | undefined;
+    if (!data) {
+      return null;
+    }
+    const axis = snapshot?.paramMap.get(data.axisParam) as AxisType | null;
+    return axis ? { axis, suffix: data.suffix } : null;
+  }
+
+  private readFocusedHeader(): FocusedHeaderView | null {
+    const snapshot = this.deepestSnapshot();
     const data = snapshot?.data?.['focusedHeader'] as
       | FocusedHeaderData
       | undefined;

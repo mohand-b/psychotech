@@ -13,9 +13,30 @@
       (closeRequested)="onCloseRequested(header)"
     />
   } @else {
-    <ui-navbar />
+    <ui-navbar [hideMobile]="mobileFlow() !== null" />
+    @if (mobileFlow(); as flow) {
+      <header
+        class="flow-header navbar-surface flex h-14 items-center justify-between px-4 md:hidden"
+      >
+        <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
+        @if (mobileFlowPresentation(flow); as presentation) {
+          <span
+            class="flow-header__chip"
+            [style.background]="presentation.pastelVar"
+            [style.border-color]="presentation.pastelBorderVar"
+            [style.color]="presentation.textVar"
+          >
+            <ui-icon [img]="presentation.icon" [size]="13" />
+            <span>{{ presentation.label }} · {{ flow.suffix }}</span>
+          </span>
+        }
+      </header>
+    }
   }
-  <main class="content flex-1 pb-16 md:pb-0">
+  <main
+    class="content flex-1 md:pb-0"
+    [class.pb-16]="mobileFlow() === null"
+  >
     <router-outlet />
   </main>
 </div>

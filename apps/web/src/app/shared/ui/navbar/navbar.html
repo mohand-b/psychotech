@@ -29,34 +29,36 @@
   </div>
 </header>
 
-<header
-  class="mobile-header navbar-surface flex h-14 items-center justify-between px-4 md:hidden"
->
-  <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
-  <div class="flex items-center gap-2">
-    @if (sector(); as current) {
-      <span class="sector-badge">
-        <ui-icon [img]="current.icon" [size]="12" />
-        <span>{{ current.label }}</span>
-      </span>
-    }
-    <ui-energy-gauge [state]="energy()" [compact]="true" />
-  </div>
-</header>
+@if (!hideMobile()) {
+  <header
+    class="mobile-header navbar-surface flex h-14 items-center justify-between px-4 md:hidden"
+  >
+    <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
+    <div class="flex items-center gap-2">
+      @if (sector(); as current) {
+        <span class="sector-badge">
+          <ui-icon [img]="current.icon" [size]="12" />
+          <span>{{ current.label }}</span>
+        </span>
+      }
+      <ui-energy-gauge [state]="energy()" [compact]="true" />
+    </div>
+  </header>
 
-<nav
-  class="bottom-nav navbar-surface fixed inset-x-0 bottom-0 grid h-16 grid-cols-4 md:hidden"
-  aria-label="Sections"
->
-  @for (item of navItems; track item.path) {
-    <a
-      class="tab"
-      [routerLink]="item.path"
-      routerLinkActive="tab--active"
-      ariaCurrentWhenActive="page"
-    >
-      <ui-icon [img]="item.icon" [size]="20" [strokeWidth]="2" />
-      <span class="tab__label">{{ item.label }}</span>
-    </a>
-  }
-</nav>
+  <nav
+    class="bottom-nav navbar-surface fixed inset-x-0 bottom-0 grid h-16 grid-cols-4 md:hidden"
+    aria-label="Sections"
+  >
+    @for (item of navItems; track item.path) {
+      <a
+        class="tab"
+        [routerLink]="item.path"
+        routerLinkActive="tab--active"
+        ariaCurrentWhenActive="page"
+      >
+        <ui-icon [img]="item.icon" [size]="20" [strokeWidth]="2" />
+        <span class="tab__label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+}

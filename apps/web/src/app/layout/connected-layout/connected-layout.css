@@ -5,3 +5,27 @@
 .content {
   background: var(--bg);
 }
+
+.flow-header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.flow-header .logo {
+  font: 700 19px/1 var(--font-display);
+  color: var(--ink);
+}
+
+.flow-header .logo__accent {
+  color: var(--brand);
+}
+
+.flow-header__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid;
+  border-radius: var(--radius-chip);
+  font: 600 12px/16px var(--font-ui);
+}

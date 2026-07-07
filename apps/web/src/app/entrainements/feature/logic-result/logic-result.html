@@ -1,0 +1,156 @@
+<section class="result">
+  @if (result(); as r) {
+    <article class="result__summary">
+      <span class="t-label result__label">Résultat d'axe</span>
+      <p class="result__subtitle">{{ subtitle() }}</p>
+      <span
+        class="result__chip"
+        [style.background]="presentation.pastelVar"
+        [style.border-color]="presentation.pastelBorderVar"
+        [style.color]="presentation.textVar"
+      >
+        <ui-icon [img]="presentation.icon" [size]="14" />
+        <span>{{ presentation.label }}</span>
+      </span>
+      <div class="result__score">
+        <span class="result__score-value t-mono">{{ r.score }}</span>
+        <span class="result__score-max t-mono">/100</span>
+        @if (delta(); as d) {
+          @if (d !== 0) {
+            <span
+              class="result__delta t-mono"
+              [class.result__delta--up]="d > 0"
+              [class.result__delta--down]="d < 0"
+              >{{ d > 0 ? '+' + d : d }}</span
+            >
+          }
+        }
+      </div>
+      <span class="result__verdict">
+        <span
+          class="result__verdict-dot"
+          [style.background]="verdictColor()"
+        ></span>
+        {{ verdictLabel() }}
+      </span>
+      <p class="result__best">
+        Meilleur score sur cet axe :
+        <strong class="t-mono">{{ r.bestScore }}</strong>{{ bestSuffix() }}
+      </p>
+    </article>
+
+    @if (scored(); as s) {
+      <div class="result__panel">
+        <section class="result__metrics">
+          <span class="t-label">Métriques</span>
+          <ul class="result__metric-list">
+            <li class="result__metric">
+              <span
+                class="result__dot"
+                [style.background]="presentation.plainVar"
+              ></span>
+              <span class="result__metric-label">Réponses justes</span>
+              <span class="result__metric-value t-mono"
+                >{{ s.correctCount }}/{{ training.exerciseCount }}</span
+              >
+            </li>
+            <li class="result__metric">
+              <span class="result__dot result__dot--danger"></span>
+              <span class="result__metric-label">Erreurs</span>
+              <span class="result__metric-value t-mono">{{ s.wrongCount }}</span>
+            </li>
+            <li class="result__metric">
+              <span class="result__dot result__dot--warning"></span>
+              <span class="result__metric-label">Passés sans réponse</span>
+              <span class="result__metric-value t-mono">{{ s.skippedCount }}</span>
+            </li>
+            <li class="result__metric">
+              <span class="result__dot result__dot--muted"></span>
+              <span class="result__metric-label">Non atteints (chrono)</span>
+              <span class="result__metric-value t-mono">{{
+                s.unreachedCount
+              }}</span>
+            </li>
+            <li class="result__metric">
+              <span class="result__metric-label">Temps moyen par réponse</span>
+              <span class="result__metric-value t-mono">{{
+                avgAnswerTime()
+              }}</span>
+            </li>
+            <li class="result__metric">
+              <span class="result__metric-label">Temps restant à la fin</span>
+              <span class="result__metric-value t-mono">{{
+                remainingAtEnd()
+              }}</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="result__timing">
+          <span class="t-label">Gestion du temps</span>
+          <ui-logic-time-chart [entries]="chartEntries()" />
+          <p class="result__chart-note t-support">
+            Hauteur = temps passé sur l'item, dans l'ordre de la session.
+          </p>
+          <ui-button
+            color="neutral"
+            appearance="outlined"
+            [icon]="reviewIcon"
+            (click)="review()"
+          >
+            Revoir mes réponses
+          </ui-button>
+        </section>
+      </div>
+    }
+
+    @if (recommendation(); as reco) {
+      <aside class="result__reco">
+        <span class="t-label result__reco-heading">Recommandation</span>
+        <p class="result__reco-text">{{ reco.label }}</p>
+        @if (priorityBadge(); as badge) {
+          <span
+            class="result__reco-badge"
+            [style.background]="badge.pastelVar"
+            [style.color]="badge.textVar"
+            >{{ badge.label }}</span
+          >
+          <span class="result__reco-priority">{{ badge.mobileLabel }}</span>
+        }
+        <ui-icon
+          class="result__reco-arrow"
+          [img]="arrowIcon"
+          [size]="16"
+        />
+      </aside>
+    }
+
+    <div class="result__actions">
+      <div class="result__action">
+        <ui-button
+          color="brand"
+          [block]="true"
+          [icon]="playIcon"
+          (click)="newTraining()"
+        >
+          Nouvel entraînement
+        </ui-button>
+      </div>
+      <div class="result__action">
+        <ui-button
+          color="neutral"
+          appearance="outlined"
+          [block]="true"
+          (click)="backToAxes()"
+        >
+          Retour aux axes
+        </ui-button>
+      </div>
+    </div>
+
+    <p class="result__footnote t-support">
+      Chaque entraînement génère une nouvelle série d'items — les suites ne se
+      répètent jamais.
+    </p>
+  }
+</section>

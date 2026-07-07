@@ -55,6 +55,15 @@ export const entrainementsRoutes: Route[] = [
       import('./logic-play/logic-play').then((m) => m.LogicPlay),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/resultat',
+    canMatch: [axisSessionMatcher(AxisType.LOGIC)],
+    data: {
+      mobileFlow: { axisParam: 'axis', suffix: 'Ciblé' },
+    },
+    loadComponent: () =>
+      import('./logic-result/logic-result').then((m) => m.LogicResult),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {

@@ -174,9 +174,18 @@ export class LogicPlay {
       answerIndex: this.answers()[index] ?? null,
       timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
       helpUsed: this.helpUsed().has(index),
+      visited:
+        this.visited().has(index) || this.answers()[index] !== undefined,
     }));
     this.facade.completeTargeted(payload).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () =>
+        this.router.navigate([
+          '/entrainements/cible',
+          this.axis,
+          'session',
+          this.sessionId,
+          'resultat',
+        ]),
       error: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
