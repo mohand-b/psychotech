@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AXIS_TRAINING } from '../../domain';
-import { AxisType } from '../../enums';
+import { AxisType, ShapeId } from '../../enums';
 import {
   DISCRIMINATION_CHAR_POOL,
   DISTINCT_ROTATIONS,
@@ -76,6 +76,22 @@ describe('generateDiscriminationSession', () => {
         expect(differenceCount(trial)).toBe(trial.identical ? 0 : 1);
       }
     }
+  });
+
+  it('never treats rotations of rotation-invariant shapes as a difference', () => {
+    const square = (rotation: 0 | 90 | 180 | 270) =>
+      ({ kind: 'SHAPE', shape: ShapeId.SQUARE, rotation }) as const;
+    const circle = (rotation: 0 | 90 | 180 | 270) =>
+      ({ kind: 'SHAPE', shape: ShapeId.CIRCLE, rotation }) as const;
+    const rectangle = (rotation: 0 | 90 | 180 | 270) =>
+      ({ kind: 'SHAPE', shape: ShapeId.RECTANGLE, rotation }) as const;
+    const trapezoid = (rotation: 0 | 90 | 180 | 270) =>
+      ({ kind: 'SHAPE', shape: ShapeId.TRAPEZOID, rotation }) as const;
+    expect(sameElement(square(0), square(90))).toBe(true);
+    expect(sameElement(square(0), square(180))).toBe(true);
+    expect(sameElement(circle(0), circle(270))).toBe(true);
+    expect(sameElement(rectangle(0), rectangle(90))).toBe(true);
+    expect(sameElement(trapezoid(0), trapezoid(180))).toBe(false);
   });
 
   it('only draws pool characters and canonical, visible rotations', () => {
