@@ -65,7 +65,6 @@ import { axisButtonColor } from '../axis-button-color';
 
       <ui-button
         [color]="buttonColor()"
-        [relief]="true"
         [block]="true"
         (click)="launch.emit()"
       >
