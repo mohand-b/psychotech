@@ -27,13 +27,13 @@ function statusFor(
   item: LogicItem,
   response: LogicItemAnswerDto | undefined,
 ): LogicItemStatus {
-  if (!response || !response.visited) {
+  if (!response) {
     return 'UNREACHED';
   }
-  if (response.answerIndex === null) {
-    return 'SKIPPED';
+  if (response.answerIndex !== null) {
+    return response.answerIndex === item.answerIndex ? 'CORRECT' : 'WRONG';
   }
-  return response.answerIndex === item.answerIndex ? 'CORRECT' : 'WRONG';
+  return response.visited ? 'SKIPPED' : 'UNREACHED';
 }
 
 export function scoreLogicSession(
@@ -73,7 +73,7 @@ export function scoreLogicSession(
     ),
   );
   const answerTimes = responses
-    .filter((response) => response.visited && response.answerIndex !== null)
+    .filter((response) => response.answerIndex !== null)
     .map((response) => response.timeMs);
   const avgAnswerTimeMs =
     answerTimes.length === 0

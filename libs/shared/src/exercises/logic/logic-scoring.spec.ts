@@ -50,6 +50,15 @@ describe('scoreLogicSession', () => {
     expect(scored.statuses).toEqual(['CORRECT', 'UNREACHED', 'UNREACHED', 'UNREACHED']);
   });
 
+  it('counts a given answer as reached even without the visited flag', () => {
+    const scored = scoreLogicSession(items, [
+      answer(0, 0, 2000, false),
+      answer(1, 1, 1000, false),
+    ]);
+    expect(scored.statuses).toEqual(['CORRECT', 'WRONG', 'UNREACHED', 'UNREACHED']);
+    expect(scored.avgAnswerTimeMs).toBe(1500);
+  });
+
   it('weights precision by item points and coverage by reached items', () => {
     const scored = scoreLogicSession(items, [
       answer(0, 0, 2000),

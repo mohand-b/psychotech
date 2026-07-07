@@ -20,9 +20,7 @@ function averageAnswerTime(
   const times = responses
     .filter(
       (response) =>
-        indexes.has(response.index) &&
-        response.visited &&
-        response.answerIndex !== null,
+        indexes.has(response.index) && response.answerIndex !== null,
     )
     .map((response) => response.timeMs);
   return times.length === 0
