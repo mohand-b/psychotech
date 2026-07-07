@@ -4,6 +4,8 @@ import {
   AxisTimerModel,
   AxisTraining,
   AxisType,
+  DiscriminationTrial,
+  DiscriminationTrialAnswerDto,
   LogicItem,
   LogicItemAnswerDto,
   MemorySequence,
@@ -14,6 +16,7 @@ import {
   SessionMode,
   SessionStatus,
   TargetedSessionOptionsDto,
+  generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
 } from '@psychotech/shared';
@@ -24,6 +27,21 @@ import { TimerSeverity } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { SessionsApi } from './sessions.api';
 import { TrainingSessionStore } from './training-session.store';
+
+interface GlobalTimerThresholds {
+  warningSec: number;
+  dangerSec: number;
+}
+
+const DEFAULT_GLOBAL_THRESHOLDS: GlobalTimerThresholds = {
+  warningSec: 120,
+  dangerSec: 60,
+};
+
+const GLOBAL_TIMER_THRESHOLDS: Partial<Record<AxisType, GlobalTimerThresholds>> = {
+  [AxisType.LOGIC]: DEFAULT_GLOBAL_THRESHOLDS,
+  [AxisType.VISUAL_DISCRIMINATION]: { warningSec: 60, dangerSec: 30 },
+};
 
 @Injectable({ providedIn: 'root' })
 export class TrainingSessionFacade {
@@ -54,6 +72,13 @@ export class TrainingSessionFacade {
     const session = this.store.session();
     return session && this.axis() === AxisType.MEMORY
       ? generateMemorySession(session.seed)
+      : [];
+  });
+
+  readonly discriminationTrials: Signal<DiscriminationTrial[]> = computed(() => {
+    const session = this.store.session();
+    return session && this.axis() === AxisType.VISUAL_DISCRIMINATION
+      ? generateDiscriminationSession(session.seed)
       : [];
   });
 
@@ -126,10 +151,13 @@ export class TrainingSessionFacade {
   readonly countdownSeverity: Signal<TimerSeverity> = computed(() => {
     const remaining = this.remainingSec();
     if (remaining !== null) {
-      if (remaining <= 60) {
+      const axis = this.axis();
+      const thresholds =
+        (axis && GLOBAL_TIMER_THRESHOLDS[axis]) ?? DEFAULT_GLOBAL_THRESHOLDS;
+      if (remaining <= thresholds.dangerSec) {
         return 'danger';
       }
-      return remaining <= 120 ? 'warning' : 'normal';
+      return remaining <= thresholds.warningSec ? 'warning' : 'normal';
     }
     if (!this.hasPerExerciseTimer()) {
       return 'normal';
@@ -197,22 +225,68 @@ export class TrainingSessionFacade {
       .pipe(tap((completed) => this.install(completed)));
   }
 
+  completeTargetedDiscrimination(
+    trials: DiscriminationTrialAnswerDto[],
+  ): Observable<SessionDto> {
+    const session = this.store.session();
+    const axis = this.axis();
+    if (!session || !axis) {
+      return throwError(() => new Error('No active training session'));
+    }
+    return this.api
+      .completeTargeted(session.id, axis, { axis, trials })
+      .pipe(tap((completed) => this.install(completed)));
+  }
+
   memoryResultsFor(sessionId: string): MemorySequenceAnswerDto[] {
-    const stored = localStorage.getItem(this.memoryProgressKey(sessionId));
-    return stored ? (JSON.parse(stored) as MemorySequenceAnswerDto[]) : [];
+    return this.progressFor<MemorySequenceAnswerDto>('memory', sessionId);
   }
 
   recordMemoryResult(sessionId: string, answer: MemorySequenceAnswerDto): void {
-    const results = [...this.memoryResultsFor(sessionId), answer];
-    localStorage.setItem(this.memoryProgressKey(sessionId), JSON.stringify(results));
+    this.recordProgress('memory', sessionId, answer);
   }
 
   clearMemoryResults(sessionId: string): void {
-    localStorage.removeItem(this.memoryProgressKey(sessionId));
+    this.clearProgress('memory', sessionId);
   }
 
-  private memoryProgressKey(sessionId: string): string {
-    return `psychotech.memory-progress.${sessionId}`;
+  discriminationResultsFor(sessionId: string): DiscriminationTrialAnswerDto[] {
+    return this.progressFor<DiscriminationTrialAnswerDto>(
+      'discrimination',
+      sessionId,
+    );
+  }
+
+  recordDiscriminationResult(
+    sessionId: string,
+    answer: DiscriminationTrialAnswerDto,
+  ): void {
+    this.recordProgress('discrimination', sessionId, answer);
+  }
+
+  clearDiscriminationResults(sessionId: string): void {
+    this.clearProgress('discrimination', sessionId);
+  }
+
+  private progressFor<T>(kind: string, sessionId: string): T[] {
+    const stored = localStorage.getItem(this.progressKey(kind, sessionId));
+    return stored ? (JSON.parse(stored) as T[]) : [];
+  }
+
+  private recordProgress<T>(kind: string, sessionId: string, entry: T): void {
+    const results = [...this.progressFor<T>(kind, sessionId), entry];
+    localStorage.setItem(
+      this.progressKey(kind, sessionId),
+      JSON.stringify(results),
+    );
+  }
+
+  private clearProgress(kind: string, sessionId: string): void {
+    localStorage.removeItem(this.progressKey(kind, sessionId));
+  }
+
+  private progressKey(kind: string, sessionId: string): string {
+    return `psychotech.${kind}-progress.${sessionId}`;
   }
 
   clear(): void {
