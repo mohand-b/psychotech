@@ -76,6 +76,23 @@ export interface CompleteTargetedSessionDto {
   trials?: DiscriminationTrialAnswerDto[];
 }
 
+export interface TargetedLogicResultDto {
+  sessionId: string;
+  axis: AxisType.LOGIC;
+  sector: Sector;
+  seed: string;
+  helpEnabled: boolean;
+  score: number;
+  band: ScoreBand;
+  startedAt: string;
+  completedAt: string;
+  items: LogicItemAnswerDto[];
+  bestScore: number;
+  isNewBest: boolean;
+  isEqualBest: boolean;
+  previousScore: number | null;
+}
+
 export interface RecommendationDto {
   axis: AxisType;
   priority: RecommendationPriority;
