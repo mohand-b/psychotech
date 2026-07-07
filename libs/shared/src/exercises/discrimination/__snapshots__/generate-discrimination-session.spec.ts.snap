@@ -1,0 +1,3302 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateDiscriminationSession > matches the reference snapshot for a fixed seed 1`] = `
+[
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
+      },
+    ],
+    "identical": true,
+    "index": 0,
+    "offsetA": {
+      "x": 2,
+      "y": 10,
+    },
+    "offsetB": {
+      "x": 17,
+      "y": -14,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+    ],
+    "identical": false,
+    "index": 1,
+    "offsetA": {
+      "x": -7,
+      "y": -21,
+    },
+    "offsetB": {
+      "x": -2,
+      "y": 5,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 2,
+    "offsetA": {
+      "x": -20,
+      "y": 20,
+    },
+    "offsetB": {
+      "x": -8,
+      "y": 20,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+    ],
+    "identical": true,
+    "index": 3,
+    "offsetA": {
+      "x": -26,
+      "y": -10,
+    },
+    "offsetB": {
+      "x": -30,
+      "y": 12,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "identical": true,
+    "index": 4,
+    "offsetA": {
+      "x": -1,
+      "y": 13,
+    },
+    "offsetB": {
+      "x": -7,
+      "y": -2,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "W",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "W",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 5,
+    "offsetA": {
+      "x": 27,
+      "y": -11,
+    },
+    "offsetB": {
+      "x": -27,
+      "y": -12,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "J",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "J",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+    ],
+    "identical": false,
+    "index": 6,
+    "offsetA": {
+      "x": 31,
+      "y": 17,
+    },
+    "offsetB": {
+      "x": 32,
+      "y": -5,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "identical": true,
+    "index": 7,
+    "offsetA": {
+      "x": -6,
+      "y": -10,
+    },
+    "offsetB": {
+      "x": 19,
+      "y": 9,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": true,
+    "index": 8,
+    "offsetA": {
+      "x": 21,
+      "y": 22,
+    },
+    "offsetB": {
+      "x": -24,
+      "y": -22,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "identical": false,
+    "index": 9,
+    "offsetA": {
+      "x": 27,
+      "y": 4,
+    },
+    "offsetB": {
+      "x": -15,
+      "y": -10,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "identical": true,
+    "index": 10,
+    "offsetA": {
+      "x": 1,
+      "y": -5,
+    },
+    "offsetB": {
+      "x": -21,
+      "y": -5,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+    ],
+    "identical": false,
+    "index": 11,
+    "offsetA": {
+      "x": 21,
+      "y": -19,
+    },
+    "offsetB": {
+      "x": 12,
+      "y": -8,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+    ],
+    "identical": false,
+    "index": 12,
+    "offsetA": {
+      "x": -19,
+      "y": 18,
+    },
+    "offsetB": {
+      "x": 32,
+      "y": -13,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+    ],
+    "identical": true,
+    "index": 13,
+    "offsetA": {
+      "x": -29,
+      "y": 5,
+    },
+    "offsetB": {
+      "x": -31,
+      "y": -3,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 14,
+    "offsetA": {
+      "x": -22,
+      "y": -19,
+    },
+    "offsetB": {
+      "x": -26,
+      "y": 7,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "identical": false,
+    "index": 15,
+    "offsetA": {
+      "x": -32,
+      "y": -6,
+    },
+    "offsetB": {
+      "x": -30,
+      "y": 14,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+    ],
+    "identical": true,
+    "index": 16,
+    "offsetA": {
+      "x": 10,
+      "y": 16,
+    },
+    "offsetB": {
+      "x": 6,
+      "y": 0,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 17,
+    "offsetA": {
+      "x": 6,
+      "y": 5,
+    },
+    "offsetB": {
+      "x": 17,
+      "y": 24,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "identical": true,
+    "index": 18,
+    "offsetA": {
+      "x": -31,
+      "y": 15,
+    },
+    "offsetB": {
+      "x": 13,
+      "y": 19,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+    ],
+    "identical": true,
+    "index": 19,
+    "offsetA": {
+      "x": 12,
+      "y": 3,
+    },
+    "offsetB": {
+      "x": 14,
+      "y": 15,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+    ],
+    "identical": false,
+    "index": 20,
+    "offsetA": {
+      "x": 23,
+      "y": 2,
+    },
+    "offsetB": {
+      "x": -24,
+      "y": 3,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+    ],
+    "identical": false,
+    "index": 21,
+    "offsetA": {
+      "x": -15,
+      "y": 21,
+    },
+    "offsetB": {
+      "x": 20,
+      "y": 23,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+    ],
+    "identical": true,
+    "index": 22,
+    "offsetA": {
+      "x": 20,
+      "y": -18,
+    },
+    "offsetB": {
+      "x": -19,
+      "y": 12,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+    ],
+    "identical": false,
+    "index": 23,
+    "offsetA": {
+      "x": -14,
+      "y": -13,
+    },
+    "offsetB": {
+      "x": -8,
+      "y": -10,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+    ],
+    "identical": false,
+    "index": 24,
+    "offsetA": {
+      "x": 16,
+      "y": -22,
+    },
+    "offsetB": {
+      "x": 17,
+      "y": 22,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": true,
+    "index": 25,
+    "offsetA": {
+      "x": -24,
+      "y": -7,
+    },
+    "offsetB": {
+      "x": -31,
+      "y": -2,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+    ],
+    "identical": false,
+    "index": 26,
+    "offsetA": {
+      "x": -2,
+      "y": -8,
+    },
+    "offsetB": {
+      "x": -17,
+      "y": -13,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "identical": true,
+    "index": 27,
+    "offsetA": {
+      "x": -29,
+      "y": -21,
+    },
+    "offsetB": {
+      "x": -6,
+      "y": -10,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+    ],
+    "identical": false,
+    "index": 28,
+    "offsetA": {
+      "x": -32,
+      "y": 22,
+    },
+    "offsetB": {
+      "x": -18,
+      "y": -1,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "DIAMOND",
+      },
+    ],
+    "identical": false,
+    "index": 29,
+    "offsetA": {
+      "x": 24,
+      "y": 21,
+    },
+    "offsetB": {
+      "x": 11,
+      "y": -21,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "T",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "T",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+    ],
+    "identical": true,
+    "index": 30,
+    "offsetA": {
+      "x": 17,
+      "y": 22,
+    },
+    "offsetB": {
+      "x": 28,
+      "y": 20,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": true,
+    "index": 31,
+    "offsetA": {
+      "x": 26,
+      "y": -24,
+    },
+    "offsetB": {
+      "x": 0,
+      "y": -4,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+    ],
+    "identical": true,
+    "index": 32,
+    "offsetA": {
+      "x": 24,
+      "y": 8,
+    },
+    "offsetB": {
+      "x": 30,
+      "y": 2,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 33,
+    "offsetA": {
+      "x": -21,
+      "y": 10,
+    },
+    "offsetB": {
+      "x": 19,
+      "y": 19,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 34,
+    "offsetA": {
+      "x": 19,
+      "y": -14,
+    },
+    "offsetB": {
+      "x": -8,
+      "y": 22,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "DIAMOND",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+    ],
+    "identical": true,
+    "index": 35,
+    "offsetA": {
+      "x": 14,
+      "y": -6,
+    },
+    "offsetB": {
+      "x": 25,
+      "y": 18,
+    },
+  },
+]
+`;

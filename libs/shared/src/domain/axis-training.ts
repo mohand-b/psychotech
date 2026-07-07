@@ -45,6 +45,8 @@ export interface VisualDiscriminationTraining extends BaseAxisTraining {
   axis: AxisType.VISUAL_DISCRIMINATION;
   timer: GlobalAxisTimer;
   increasingDifficulty: boolean;
+  minSequenceLength: number;
+  maxSequenceLength: number;
 }
 
 export interface ReactivityTraining extends BaseAxisTraining {
@@ -109,6 +111,8 @@ export const AXIS_TRAINING: {
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 180 },
     exerciseCount: 36,
     increasingDifficulty: true,
+    minSequenceLength: 5,
+    maxSequenceLength: 12,
     briefing: {
       consigne:
         "Comparez les deux suites et indiquez si elles sont identiques ou différentes. L'essai suivant s'enchaîne aussitôt.",

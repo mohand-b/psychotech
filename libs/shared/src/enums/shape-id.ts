@@ -1,0 +1,7 @@
+export enum ShapeId {
+  TRIANGLE = 'TRIANGLE',
+  SQUARE = 'SQUARE',
+  CIRCLE = 'CIRCLE',
+  DIAMOND = 'DIAMOND',
+  RECTANGLE = 'RECTANGLE',
+}
