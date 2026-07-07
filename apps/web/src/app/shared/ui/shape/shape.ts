@@ -23,19 +23,19 @@ import { ShapeId, ShapeRotation } from '@psychotech/shared';
     >
       @switch (shape()) {
         @case (shapeIds.TRIANGLE) {
-          <polygon points="12,3 21.5,20 2.5,20" />
+          <polygon points="12,2 22.5,22 1.5,22" />
         }
         @case (shapeIds.SQUARE) {
-          <rect x="4.5" y="4.5" width="15" height="15" rx="1.5" />
+          <rect x="1.5" y="1.5" width="21" height="21" rx="1.5" />
         }
         @case (shapeIds.CIRCLE) {
-          <circle cx="12" cy="12" r="8.5" />
+          <circle cx="12" cy="12" r="10.5" />
         }
         @case (shapeIds.DIAMOND) {
-          <polygon points="12,2 19,12 12,22 5,12" />
+          <polygon points="12,1.5 20.5,12 12,22.5 3.5,12" />
         }
         @case (shapeIds.RECTANGLE) {
-          <rect x="2.5" y="7" width="19" height="10" rx="1.5" />
+          <rect x="1.5" y="6" width="21" height="12" rx="1.5" />
         }
       }
     </svg>
@@ -53,7 +53,7 @@ export class Shape {
   readonly shape = input.required<ShapeId>();
   readonly rotation = input<ShapeRotation>(0);
   readonly size = input(24);
-  readonly strokeWidth = input(2.5);
+  readonly strokeWidth = input(2.75);
 
   protected readonly shapeIds = ShapeId;
 }

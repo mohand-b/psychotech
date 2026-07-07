@@ -50,7 +50,7 @@ export class ElementSequence {
   readonly elements = input.required<DiscriminationElement[]>();
   readonly size = input(28);
   readonly gap = input(10);
-  readonly shapeStrokeWidth = input(2.5);
+  readonly shapeStrokeWidth = input(2.75);
 
-  protected readonly shapeSize = computed(() => Math.round(this.size() * 0.75));
+  protected readonly shapeSize = computed(() => Math.round(this.size() * 0.72));
 }
