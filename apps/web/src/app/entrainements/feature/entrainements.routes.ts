@@ -72,4 +72,24 @@ export const entrainementsRoutes: Route[] = [
     loadComponent: () =>
       import('./memory-play/memory-play').then((m) => m.MemoryPlay),
   },
+  {
+    path: 'entrainements/cible/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    data: {
+      focusedHeader: {
+        title: 'Entraînement ciblé',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showHelp: true,
+      },
+    },
+    loadComponent: () =>
+      import('./discrimination-play/discrimination-play').then(
+        (m) => m.DiscriminationPlay,
+      ),
+  },
 ];
