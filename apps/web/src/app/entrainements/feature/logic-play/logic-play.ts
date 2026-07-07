@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   computed,
   effect,
   inject,
@@ -15,23 +14,23 @@ import {
   SessionStatus,
   resolveLogicRuleHint,
 } from '@psychotech/shared';
-import { ArrowLeft, Lightbulb, MoveRight, SkipForward, X } from 'lucide-angular';
+import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
-import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
+import { LogicChoices } from '../../ui/logic-choices/logic-choices';
+import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 
 @Component({
   selector: 'app-logic-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, ItemNavBand],
+  imports: [Button, ItemNavBand, LogicChoices, LogicSequence],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
   host: {
     '(document:keydown)': 'onKeydown($event)',
-    '(document:click)': 'onDocumentClick($event)',
   },
 })
 export class LogicPlay {
@@ -59,14 +58,10 @@ export class LogicPlay {
   protected readonly answers = signal<Record<number, number>>({});
   protected readonly submitting = signal(false);
   protected readonly confirmingFinish = signal(false);
-  protected readonly hintOpen = signal(false);
   protected readonly helpEnabled = this.facade.helpEnabled;
   private readonly helpUsed = signal<ReadonlySet<number>>(new Set());
   private readonly visited = signal<ReadonlySet<number>>(new Set([0]));
-  private readonly hintAnchor =
-    viewChild<ElementRef<HTMLElement>>('hintAnchor');
-  private readonly hintBulb =
-    viewChild<ElementRef<HTMLButtonElement>>('hintBulb');
+  private readonly sequence = viewChild<LogicSequence>('sequence');
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
@@ -122,9 +117,6 @@ export class LogicPlay {
 
   protected readonly backIcon = ArrowLeft;
   protected readonly skipIcon = SkipForward;
-  protected readonly arrowIcon = MoveRight;
-  protected readonly bulbIcon = Lightbulb;
-  protected readonly closeIcon = X;
 
   constructor() {
     const active = this.facade.session();
@@ -212,41 +204,14 @@ export class LogicPlay {
       return;
     }
     this.commitTime();
-    this.hintOpen.set(false);
+    this.sequence()?.close();
     this.visited.update((visited) => new Set(visited).add(index));
     this.currentIndex.set(index);
   }
 
-  protected toggleHint(): void {
-    if (!this.helpEnabled() || !this.loaded()) {
-      return;
-    }
-    const opening = !this.hintOpen();
-    this.hintOpen.set(opening);
-    if (opening) {
-      const index = this.currentIndex();
-      this.helpUsed.update((used) => new Set(used).add(index));
-    }
-  }
-
-  protected closeHint(returnFocus = false): void {
-    if (!this.hintOpen()) {
-      return;
-    }
-    this.hintOpen.set(false);
-    if (returnFocus) {
-      this.hintBulb()?.nativeElement.focus();
-    }
-  }
-
-  protected onDocumentClick(event: MouseEvent): void {
-    if (!this.hintOpen()) {
-      return;
-    }
-    const anchor = this.hintAnchor()?.nativeElement;
-    if (anchor && !anchor.contains(event.target as Node)) {
-      this.closeHint();
-    }
+  protected markHelpUsed(): void {
+    const index = this.currentIndex();
+    this.helpUsed.update((used) => new Set(used).add(index));
   }
 
   protected previous(): void {
@@ -276,8 +241,8 @@ export class LogicPlay {
       return;
     }
     if (event.key === 'Escape') {
-      if (this.hintOpen()) {
-        this.closeHint(true);
+      if (this.sequence()?.hintOpen()) {
+        this.sequence()?.close(true);
       } else {
         this.confirmingFinish.set(false);
       }
@@ -288,7 +253,9 @@ export class LogicPlay {
     }
     if (event.key === 'h' || event.key === 'H') {
       event.preventDefault();
-      this.toggleHint();
+      if (this.helpEnabled()) {
+        this.sequence()?.toggle();
+      }
       return;
     }
     if (event.key === 'ArrowLeft') {

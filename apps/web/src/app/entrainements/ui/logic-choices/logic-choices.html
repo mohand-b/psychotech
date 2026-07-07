@@ -1,0 +1,27 @@
+<div class="choices">
+  @for (choice of choices(); track $index) {
+    <button
+      type="button"
+      class="choices__item"
+      [class.choices__item--selected]="!review() && selectedIndex() === $index"
+      [class.choices__item--correct]="isCorrect($index)"
+      [class.choices__item--wrong]="isUserWrong($index)"
+      [class.choices__item--readonly]="review()"
+      [attr.aria-pressed]="review() ? null : selectedIndex() === $index"
+      [disabled]="disabled() || review()"
+      (click)="onChoose($index)"
+    >
+      <span class="choices__letter" aria-hidden="true">{{
+        letters[$index]
+      }}</span>
+      <span class="choices__value t-mono">{{ choice }}</span>
+      @if (isUserWrong($index)) {
+        <span class="choices__mention">Votre réponse</span>
+        <ui-icon class="choices__mark choices__mark--bad" [img]="crossIcon" [size]="16" />
+      }
+      @if (isCorrect($index)) {
+        <ui-icon class="choices__mark choices__mark--good" [img]="checkIcon" [size]="16" />
+      }
+    </button>
+  }
+</div>

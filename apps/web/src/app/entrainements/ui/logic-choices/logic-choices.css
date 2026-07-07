@@ -1,0 +1,133 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.choices__item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.choices__item:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.choices__item:focus-visible {
+  outline: none;
+  border-color: var(--axis-plain);
+  box-shadow: var(--shadow-focus);
+}
+
+.choices__item--selected {
+  background: var(--axis-pastel);
+  border-color: var(--axis-plain);
+}
+
+.choices__item:disabled {
+  cursor: not-allowed;
+}
+
+.choices__item--readonly:disabled {
+  cursor: default;
+}
+
+.choices__letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: var(--radius-badge);
+  background: var(--surface-muted);
+  color: var(--label);
+  font: 600 12px/1 var(--font-ui);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.choices__item--selected .choices__letter {
+  background: var(--axis-plain);
+  color: var(--card);
+}
+
+.choices__value {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.choices__item--selected .choices__value {
+  color: var(--axis-text);
+}
+
+.choices__item--correct {
+  background: var(--secondary-pastel);
+  border-color: var(--success);
+}
+
+.choices__item--correct .choices__letter {
+  background: var(--success);
+  color: var(--card);
+}
+
+.choices__item--wrong {
+  background: var(--danger-pastel);
+  border-color: var(--danger);
+}
+
+.choices__item--wrong .choices__letter {
+  background: var(--danger);
+  color: var(--card);
+}
+
+.choices__mention {
+  margin-left: auto;
+  font: 600 10px/14px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--danger-text);
+}
+
+.choices__mark {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.choices__mark--good {
+  margin-left: auto;
+  color: var(--success);
+}
+
+.choices__mark--bad {
+  color: var(--danger);
+}
+
+@media (max-width: 767px) {
+  .choices {
+    grid-template-columns: 1fr;
+  }
+
+  .choices__value {
+    font-size: 17px;
+  }
+}

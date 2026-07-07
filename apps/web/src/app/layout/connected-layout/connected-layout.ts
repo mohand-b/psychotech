@@ -32,6 +32,8 @@ interface FocusedHeaderData {
   axisChip?: boolean;
   showEnergy?: boolean;
   showHelp?: boolean;
+  showTimer?: boolean;
+  live?: boolean;
 }
 
 interface MobileFlowData {
@@ -136,6 +138,11 @@ export class ConnectedLayout {
     if (!data) {
       return null;
     }
+    const resolveLink = (link: string) =>
+      link.replace(
+        /:([A-Za-z]+)/g,
+        (segment, name) => snapshot?.paramMap.get(name) ?? segment,
+      );
     let title = data.title ?? '';
     let duration: string | null = null;
     let axisChip: AxisType | null = null;
@@ -148,7 +155,9 @@ export class ConnectedLayout {
         const training: AxisTraining | undefined =
           AXIS_TRAINING[axis as RailwayPlayableAxis];
         const durationSec =
-          training && training.timer.model === AxisTimerModel.GLOBAL
+          training &&
+          data.showTimer !== false &&
+          training.timer.model === AxisTimerModel.GLOBAL
             ? training.timer.durationSec
             : null;
         duration = durationSec === null ? null : formatDuration(durationSec);
@@ -158,13 +167,13 @@ export class ConnectedLayout {
     return {
       title,
       backLabel: data.backLabel,
-      backLink: data.backLink,
+      backLink: resolveLink(data.backLink),
       duration,
-      closeLink: data.closeLink ?? null,
+      closeLink: data.closeLink ? resolveLink(data.closeLink) : null,
       axisChip,
       showEnergy: data.showEnergy ?? true,
       helpText,
-      live: snapshot?.paramMap.has('sessionId') ?? false,
+      live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),
     };
   }
 }

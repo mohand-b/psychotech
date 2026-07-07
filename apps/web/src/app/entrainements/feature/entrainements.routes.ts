@@ -64,6 +64,27 @@ export const entrainementsRoutes: Route[] = [
       import('./logic-result/logic-result').then((m) => m.LogicResult),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/correction',
+    canMatch: [axisSessionMatcher(AxisType.LOGIC)],
+    data: {
+      focusedHeader: {
+        title: 'Correction',
+        backLabel: 'Résultat',
+        backLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+        closeLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+        axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showTimer: false,
+        live: false,
+      },
+    },
+    loadComponent: () =>
+      import('./logic-correction/logic-correction').then(
+        (m) => m.LogicCorrection,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {

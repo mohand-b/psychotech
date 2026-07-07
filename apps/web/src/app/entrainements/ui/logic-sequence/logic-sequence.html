@@ -1,0 +1,42 @@
+<div class="seq">
+  @for (term of terms(); track $index) {
+    <span class="seq__term t-mono">{{ term }}</span>
+    <ui-icon class="seq__arrow" [img]="arrowIcon" [size]="16" />
+  }
+  <span class="seq__end">
+    <span class="seq__unknown t-mono" aria-label="Terme à trouver">?</span>
+    @if (hint() !== null) {
+      <span class="seq__hint-anchor" #anchor>
+        <button
+          #bulb
+          type="button"
+          class="seq__bulb"
+          [class.seq__bulb--used]="hintUsed()"
+          [attr.aria-expanded]="hintOpen()"
+          aria-label="Voir la règle de la suite"
+          (click)="toggle()"
+        >
+          <ui-icon [img]="bulbIcon" [size]="18" />
+        </button>
+        @if (hintOpen()) {
+          <span class="seq__hint-veil" aria-hidden="true" (click)="close()"></span>
+          <div class="seq__hint-pop" role="dialog" aria-label="Règle de la suite">
+            <span class="seq__hint-handle" aria-hidden="true"></span>
+            <div class="seq__hint-line">
+              <ui-icon [img]="bulbIcon" [size]="16" />
+              <span class="seq__hint-text">{{ hint() }}</span>
+              <button
+                type="button"
+                class="seq__hint-close"
+                aria-label="Fermer l'aide"
+                (click)="close(true)"
+              >
+                <ui-icon [img]="closeIcon" [size]="14" />
+              </button>
+            </div>
+          </div>
+        }
+      </span>
+    }
+  </span>
+</div>

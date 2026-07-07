@@ -6,25 +6,12 @@ import {
 } from '@angular/core';
 import { LogicItemStatus } from '@psychotech/shared';
 import { formatSecondsTenths } from '../../../shared/ui/format-duration';
+import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../logic-status';
 
 export interface LogicTimeChartEntry {
   status: LogicItemStatus;
   timeMs: number | null;
 }
-
-const STATUS_COLORS: Record<LogicItemStatus, string> = {
-  CORRECT: 'var(--axis-logic)',
-  WRONG: 'var(--danger)',
-  SKIPPED: 'var(--warning)',
-  UNREACHED: 'var(--text-disabled)',
-};
-
-const STATUS_LABELS: Record<LogicItemStatus, string> = {
-  CORRECT: 'Juste',
-  WRONG: 'Erreur',
-  SKIPPED: 'Passé',
-  UNREACHED: 'Non atteint',
-};
 
 @Component({
   selector: 'ui-logic-time-chart',
@@ -134,11 +121,11 @@ export class LogicTimeChart {
   }
 
   protected barColor(entry: LogicTimeChartEntry): string {
-    return STATUS_COLORS[entry.status];
+    return LOGIC_STATUS_COLORS[entry.status];
   }
 
   protected tooltip(entry: LogicTimeChartEntry, index: number): string {
-    const base = `Item ${index + 1} · ${STATUS_LABELS[entry.status]}`;
+    const base = `Item ${index + 1} · ${LOGIC_STATUS_LABELS[entry.status]}`;
     return entry.status === 'UNREACHED' || entry.timeMs === null
       ? base
       : `${base} · ${formatSecondsTenths(entry.timeMs)}`;
