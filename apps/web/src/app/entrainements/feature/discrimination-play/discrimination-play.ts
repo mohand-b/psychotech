@@ -1,10 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  Signal,
+  WritableSignal,
+  afterRenderEffect,
   computed,
   effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -23,6 +28,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
 
@@ -78,7 +84,29 @@ export class DiscriminationPlay {
   protected readonly identicalIcon = ArrowLeft;
   protected readonly differentIcon = ArrowRight;
 
+  private readonly zoneA = viewChild<ElementRef<HTMLElement>>('zoneA');
+  private readonly contentA = viewChild<ElementRef<HTMLElement>>('contentA');
+  private readonly zoneB = viewChild<ElementRef<HTMLElement>>('zoneB');
+  private readonly contentB = viewChild<ElementRef<HTMLElement>>('contentB');
+  private readonly metricsA = signal<JitterZoneMetrics | null>(null);
+  private readonly metricsB = signal<JitterZoneMetrics | null>(null);
+
+  protected readonly transformA = computed(() => {
+    const trial = this.currentTrial();
+    return trial
+      ? jitterTransform(trial.offsetA, this.metricsA())
+      : 'translate(0px, 0px)';
+  });
+  protected readonly transformB = computed(() => {
+    const trial = this.currentTrial();
+    return trial
+      ? jitterTransform(trial.offsetB, this.metricsB())
+      : 'translate(0px, 0px)';
+  });
+
   constructor() {
+    this.observeJitterZone(this.zoneA, this.contentA, this.metricsA);
+    this.observeJitterZone(this.zoneB, this.contentB, this.metricsB);
     effect(() => {
       if (this.facade.isExpired() && this.loaded()) {
         this.submitAll();
@@ -164,6 +192,41 @@ export class DiscriminationPlay {
     }
     this.currentIndex.set(recorded.length);
     this.trialStartedAtMs = Date.now();
+  }
+
+  private observeJitterZone(
+    zone: Signal<ElementRef<HTMLElement> | undefined>,
+    content: Signal<ElementRef<HTMLElement> | undefined>,
+    metrics: WritableSignal<JitterZoneMetrics | null>,
+  ): void {
+    const measure = () => {
+      const zoneElement = zone()?.nativeElement;
+      const contentElement = content()?.nativeElement;
+      if (!zoneElement || !contentElement) {
+        return;
+      }
+      metrics.set({
+        zoneWidth: zoneElement.clientWidth,
+        zoneHeight: zoneElement.clientHeight,
+        contentWidth: contentElement.offsetWidth,
+        contentHeight: contentElement.offsetHeight,
+      });
+    };
+    afterRenderEffect(() => {
+      this.currentIndex();
+      measure();
+    });
+    effect((onCleanup) => {
+      const zoneElement = zone()?.nativeElement;
+      const contentElement = content()?.nativeElement;
+      if (!zoneElement || !contentElement) {
+        return;
+      }
+      const observer = new ResizeObserver(measure);
+      observer.observe(zoneElement);
+      observer.observe(contentElement);
+      onCleanup(() => observer.disconnect());
+    });
   }
 
   private submitAll(): void {

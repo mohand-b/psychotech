@@ -33,12 +33,11 @@
       <div class="discri__cards">
         <article class="discri__card">
           <span class="t-label">Suite A</span>
-          <div class="discri__card-zone">
+          <div class="discri__card-zone" #zoneA>
             <div
               class="discri__jitter"
-              [style.transform]="
-                'translate(' + trial.offsetA.x + 'px, ' + trial.offsetA.y + 'px)'
-              "
+              #contentA
+              [style.transform]="transformA()"
             >
               <ui-element-sequence [elements]="trial.a" [size]="sequenceSize" />
             </div>
@@ -46,12 +45,11 @@
         </article>
         <article class="discri__card">
           <span class="t-label">Suite B</span>
-          <div class="discri__card-zone">
+          <div class="discri__card-zone" #zoneB>
             <div
               class="discri__jitter"
-              [style.transform]="
-                'translate(' + trial.offsetB.x + 'px, ' + trial.offsetB.y + 'px)'
-              "
+              #contentB
+              [style.transform]="transformB()"
             >
               <ui-element-sequence [elements]="trial.b" [size]="sequenceSize" />
             </div>
