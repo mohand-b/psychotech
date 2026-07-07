@@ -86,7 +86,7 @@ export class Shape {
   readonly shape = input.required<ShapeId>();
   readonly rotation = input<ShapeRotation>(0);
   readonly size = input(24);
-  readonly strokeWidth = input(2.75);
+  readonly strokeWidth = input(3.4);
 
   protected readonly shapeIds = ShapeId;
 
