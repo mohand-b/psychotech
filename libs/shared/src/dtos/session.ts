@@ -50,12 +50,29 @@ export interface MemoryRawResultDto {
   sequences: MemorySequenceAnswerDto[];
 }
 
-export type AxisRawResultDto = LogicRawResultDto | MemoryRawResultDto;
+export type DiscriminationAnswer = 'IDENTICAL' | 'DIFFERENT';
+
+export interface DiscriminationTrialAnswerDto {
+  index: number;
+  answer: DiscriminationAnswer | null;
+  timeMs: number;
+}
+
+export interface DiscriminationRawResultDto {
+  axis: AxisType.VISUAL_DISCRIMINATION;
+  trials: DiscriminationTrialAnswerDto[];
+}
+
+export type AxisRawResultDto =
+  | LogicRawResultDto
+  | MemoryRawResultDto
+  | DiscriminationRawResultDto;
 
 export interface CompleteTargetedSessionDto {
   axis: AxisType;
   items?: LogicItemAnswerDto[];
   sequences?: MemorySequenceAnswerDto[];
+  trials?: DiscriminationTrialAnswerDto[];
 }
 
 export interface RecommendationDto {
