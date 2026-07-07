@@ -29,17 +29,23 @@ export const CONFUSABLE_CHAR_PAIRS: readonly (readonly [string, string])[] = [
 
 export const CONFUSABLE_SHAPE_PAIRS: readonly (readonly [ShapeId, ShapeId])[] = [
   [ShapeId.SQUARE, ShapeId.RECTANGLE],
-  [ShapeId.SQUARE, ShapeId.DIAMOND],
-  [ShapeId.TRIANGLE, ShapeId.DIAMOND],
   [ShapeId.CIRCLE, ShapeId.SQUARE],
+  [ShapeId.TRIANGLE, ShapeId.TRAPEZOID],
+  [ShapeId.TRAPEZOID_RIGHT, ShapeId.TRAPEZOID_LEFT],
+  [ShapeId.TRAPEZOID, ShapeId.TRAPEZOID_RIGHT],
+  [ShapeId.TRAPEZOID, ShapeId.TRAPEZOID_LEFT],
+  [ShapeId.RECTANGLE, ShapeId.TRAPEZOID_RIGHT],
+  [ShapeId.RECTANGLE, ShapeId.TRAPEZOID_LEFT],
 ];
 
 export const DISTINCT_ROTATIONS: Record<ShapeId, readonly ShapeRotation[]> = {
   [ShapeId.TRIANGLE]: [0, 90, 180, 270],
   [ShapeId.SQUARE]: [0],
   [ShapeId.CIRCLE]: [0],
-  [ShapeId.DIAMOND]: [0, 90],
-  [ShapeId.RECTANGLE]: [0, 90],
+  [ShapeId.RECTANGLE]: [0],
+  [ShapeId.TRAPEZOID]: [0, 180],
+  [ShapeId.TRAPEZOID_RIGHT]: [0],
+  [ShapeId.TRAPEZOID_LEFT]: [0],
 };
 
 export function canonicalRotation(
@@ -47,13 +53,11 @@ export function canonicalRotation(
   rotation: ShapeRotation,
 ): ShapeRotation {
   const distinct = DISTINCT_ROTATIONS[shape];
-  if (distinct.length === 1) {
-    return 0;
+  if (distinct.includes(rotation)) {
+    return rotation;
   }
-  if (distinct.length === 2) {
-    return (rotation % 180) as ShapeRotation;
-  }
-  return rotation;
+  const folded = ((rotation + 180) % 360) as ShapeRotation;
+  return distinct.includes(folded) ? folded : distinct[0];
 }
 
 export function sameElement(

@@ -11,18 +11,18 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -37,18 +37,18 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -74,8 +74,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -84,7 +84,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
@@ -99,8 +99,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -109,7 +109,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
@@ -137,13 +137,13 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
@@ -170,7 +170,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
@@ -199,17 +199,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -218,7 +218,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -229,17 +229,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -248,7 +248,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -292,7 +292,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
     ],
     "b": [
@@ -320,7 +320,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
     ],
     "identical": true,
@@ -347,7 +347,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -375,7 +375,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -471,17 +471,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -500,17 +500,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -545,12 +545,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -559,17 +559,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "b": [
@@ -580,12 +580,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -594,17 +594,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "identical": true,
@@ -623,12 +623,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -637,12 +637,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -651,19 +651,19 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -672,12 +672,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -686,7 +686,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "identical": false,
@@ -705,7 +705,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -722,7 +722,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
@@ -732,14 +732,14 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -756,7 +756,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
@@ -766,7 +766,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "identical": true,
@@ -785,7 +785,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -798,7 +798,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -806,8 +806,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -818,7 +818,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -831,7 +831,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -839,8 +839,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -862,13 +862,13 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "a": [
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -894,13 +894,13 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "b": [
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -938,8 +938,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "a": [
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -973,8 +973,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "b": [
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1033,8 +1033,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1070,8 +1070,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1195,17 +1195,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
         "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1233,17 +1233,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
         "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1286,8 +1286,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1304,8 +1304,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "b": [
@@ -1323,8 +1323,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -1341,8 +1341,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "identical": false,
@@ -1361,7 +1361,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1378,7 +1378,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1401,7 +1401,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1418,7 +1418,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1465,17 +1465,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -1506,17 +1506,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -1551,12 +1551,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
@@ -1565,8 +1565,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -1580,7 +1580,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1595,12 +1595,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
@@ -1609,8 +1609,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -1624,7 +1624,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1655,7 +1655,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1664,7 +1664,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -1696,7 +1696,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1705,7 +1705,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -1741,7 +1741,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1749,8 +1749,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -1758,8 +1758,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -1782,7 +1782,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1790,8 +1790,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -1799,8 +1799,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -1835,7 +1835,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1844,7 +1844,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1853,7 +1853,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -1866,12 +1866,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1882,7 +1882,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1891,7 +1891,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1900,7 +1900,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -1913,12 +1913,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -1945,22 +1945,22 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -1993,22 +1993,22 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -2063,12 +2063,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
@@ -2086,12 +2086,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "b": [
@@ -2112,12 +2112,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "SHAPE",
@@ -2135,12 +2135,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "identical": true,
@@ -2191,8 +2191,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2235,8 +2235,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2259,7 +2259,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
@@ -2273,13 +2278,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -2291,25 +2291,30 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
@@ -2323,13 +2328,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -2341,18 +2341,18 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
     ],
     "identical": true,
@@ -2375,7 +2375,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2392,12 +2392,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2406,7 +2406,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -2425,7 +2425,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2442,12 +2442,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2456,7 +2456,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -2483,7 +2483,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2504,7 +2504,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -2522,19 +2522,19 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2555,7 +2555,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -2573,12 +2573,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
     ],
     "identical": false,
@@ -2601,7 +2601,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2610,7 +2610,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "SHAPE",
@@ -2628,7 +2628,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -2651,7 +2651,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2660,7 +2660,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "SHAPE",
@@ -2678,7 +2678,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -2709,7 +2709,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2721,8 +2721,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -2735,7 +2735,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
@@ -2745,24 +2755,14 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
         "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 270,
-        "shape": "TRIANGLE",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
@@ -2774,8 +2774,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -2788,7 +2788,17 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
@@ -2798,17 +2808,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
         "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 270,
-        "shape": "TRIANGLE",
       },
     ],
     "identical": true,
@@ -2827,12 +2827,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2876,12 +2876,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -2958,12 +2958,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -3013,12 +3013,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -3058,68 +3058,13 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "a": [
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "M",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "F",
-      },
-      {
-        "kind": "CHAR",
-        "value": "7",
-      },
-      {
-        "kind": "CHAR",
-        "value": "V",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
         "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
@@ -3148,7 +3093,62 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
         "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -3185,7 +3185,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -3193,8 +3193,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -3210,8 +3210,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -3220,12 +3220,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
@@ -3240,7 +3240,7 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
@@ -3248,8 +3248,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "CHAR",
@@ -3265,8 +3265,8 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "RECTANGLE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
@@ -3275,12 +3275,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "DIAMOND",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
       {
         "kind": "CHAR",
