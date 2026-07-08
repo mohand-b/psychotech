@@ -1,0 +1,164 @@
+<section
+  class="react"
+  [style.--axis-plain]="presentation.plainVar"
+  [style.--axis-pastel]="presentation.pastelVar"
+  [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+  [style.--axis-text]="presentation.textVar"
+>
+  <div
+    class="react__progress"
+    role="progressbar"
+    aria-label="Temps restant"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="100"
+    [attr.aria-valuenow]="remainingFraction() * 100"
+  >
+    <span
+      class="react__progress-fill"
+      [style.width.%]="remainingFraction() * 100"
+    ></span>
+  </div>
+
+  @if (loaded()) {
+    <div class="react__zone" #zone>
+      @if (state() !== 'TRANSITION') {
+        <span class="react__fixation" aria-hidden="true">+</span>
+      }
+
+      @if (activeStimulus(); as active) {
+        <span
+          class="react__stimulus"
+          [class.react__stimulus--square]="active.stimulus.type === 'RED'"
+          [style.left.px]="active.x"
+          [style.top.px]="active.y"
+          [style.--stimulus-color]="stimulusColorVar(active.stimulus.type)"
+        ></span>
+      }
+
+      @if (feedback(); as fugitive) {
+        <span
+          class="react__feedback"
+          [class.react__feedback--tr]="fugitive.kind === 'tr'"
+          [class.react__feedback--wrong]="fugitive.kind === 'wrong'"
+          [class.react__feedback--early]="fugitive.kind === 'early'"
+          [class.react__feedback--centered]="fugitive.kind === 'early'"
+          [style.left.px]="fugitive.kind === 'early' ? null : fugitive.x"
+          [style.top.px]="fugitive.kind === 'early' ? null : fugitive.y"
+          >{{ fugitive.text }}</span
+        >
+      }
+
+      @if (confirmingExit()) {
+        <div
+          class="react__confirm"
+          role="alertdialog"
+          aria-label="Confirmation de sortie"
+        >
+          <p class="react__confirm-text">
+            Quitter l'épreuve ? Elle ne pourra pas reprendre en cours de route.
+          </p>
+          <div class="react__confirm-actions">
+            <ui-button
+              color="neutral"
+              appearance="outlined"
+              (click)="confirmingExit.set(false)"
+            >
+              Continuer
+            </ui-button>
+            <ui-button
+              color="reactivity"
+              [loading]="leaving()"
+              (click)="confirmExit()"
+            >
+              Quitter
+            </ui-button>
+          </div>
+        </div>
+      }
+
+      @if (transitionCard(); as card) {
+        <div class="react__transition" role="alert">
+          <span class="react__transition-badge t-label">Nouveau signal</span>
+          <span
+            class="react__transition-stimulus"
+            [class.react__transition-stimulus--square]="card.type === 'RED'"
+            [style.--stimulus-color]="stimulusColorVar(card.type)"
+          ></span>
+          <span class="react__transition-key">
+            <kbd class="react__keycap">{{ card.keycap }}</kbd>
+            <span class="react__transition-key-label">{{ card.keyLabel }}</span>
+          </span>
+          <span class="react__transition-active">
+            Déjà actif :
+            @for (type of card.alreadyActive; track type) {
+              <span
+                class="react__mini-stimulus"
+                [style.--stimulus-color]="stimulusColorVar(type)"
+              ></span>
+            }
+          </span>
+          <span class="react__transition-resume t-support">
+            Reprise automatique dans {{ transitionCountdown() }} s — le
+            chronomètre est suspendu
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="react__mappings">
+      <span class="react__mapping">
+        <span
+          class="react__mapping-dot"
+          [style.--stimulus-color]="stimulusColorVar('YELLOW')"
+        ></span>
+        <kbd class="react__keycap">←</kbd>
+      </span>
+      <span class="react__mapping" [class.react__mapping--inactive]="!blueActive()">
+        <span
+          class="react__mapping-dot"
+          [style.--stimulus-color]="stimulusColorVar('BLUE')"
+        ></span>
+        <kbd class="react__keycap">→</kbd>
+      </span>
+      <span class="react__mapping" [class.react__mapping--inactive]="!redActive()">
+        <span
+          class="react__mapping-dot react__mapping-dot--square"
+          [style.--stimulus-color]="stimulusColorVar('RED')"
+        ></span>
+        <kbd class="react__keycap">Espace</kbd>
+      </span>
+    </div>
+
+    <div class="react__touch">
+      <button
+        type="button"
+        class="react__touch-button"
+        [style.--stimulus-color]="stimulusColorVar('YELLOW')"
+        aria-label="Rond jaune"
+        (pointerdown)="press('LEFT')"
+      >
+        <span class="react__touch-dot"></span>
+      </button>
+      <button
+        type="button"
+        class="react__touch-button"
+        [style.--stimulus-color]="stimulusColorVar('BLUE')"
+        [disabled]="!blueActive()"
+        aria-label="Rond bleu"
+        (pointerdown)="press('RIGHT')"
+      >
+        <span class="react__touch-dot"></span>
+      </button>
+      <button
+        type="button"
+        class="react__touch-button react__touch-button--wide"
+        [style.--stimulus-color]="stimulusColorVar('RED')"
+        [disabled]="!redActive()"
+        aria-label="Carré rouge"
+        (pointerdown)="press('SPACE')"
+      >
+        <span class="react__touch-dot react__touch-dot--square"></span>
+      </button>
+    </div>
+  }
+</section>

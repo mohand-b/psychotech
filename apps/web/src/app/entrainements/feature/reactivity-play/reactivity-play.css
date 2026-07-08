@@ -1,0 +1,306 @@
+:host {
+  display: block;
+}
+
+.react {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 65px);
+}
+
+.react__progress {
+  height: 4px;
+  background: var(--surface-muted);
+}
+
+.react__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--axis-plain);
+  transition: width 0.1s linear;
+}
+
+.react__zone {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.react__fixation {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font: 300 22px/1 var(--font-ui);
+  color: var(--border-hover);
+  pointer-events: none;
+}
+
+.react__stimulus {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-pill);
+  background: var(--stimulus-color);
+  pointer-events: none;
+}
+
+.react__stimulus::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: inherit;
+  background: var(--stimulus-color);
+  opacity: 0.16;
+}
+
+.react__stimulus--square {
+  border-radius: 14px;
+}
+
+.react__feedback {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font: 600 14px/18px var(--font-ui);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.react__feedback--tr {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.react__feedback--wrong {
+  color: var(--danger-text);
+}
+
+.react__feedback--early {
+  color: var(--warning-text);
+}
+
+.react__feedback--centered {
+  left: 50%;
+  top: calc(50% + 40px);
+}
+
+.react__confirm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(400px, calc(100% - 48px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  padding: 24px;
+  z-index: 20;
+}
+
+.react__confirm-text {
+  margin: 0;
+  font: 400 14px/20px var(--font-ui);
+  color: var(--ink);
+  text-align: center;
+}
+
+.react__confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.react__transition {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(360px, calc(100% - 48px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-raised);
+  padding: 28px 24px;
+}
+
+.react__transition-badge {
+  color: var(--axis-text);
+}
+
+.react__transition-stimulus {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+  background: var(--stimulus-color);
+}
+
+.react__transition-stimulus::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: inherit;
+  background: var(--stimulus-color);
+  opacity: 0.16;
+}
+
+.react__transition-stimulus--square {
+  border-radius: 18px;
+}
+
+.react__transition-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.react__transition-key-label {
+  font: 600 15px/20px var(--font-ui);
+  color: var(--ink);
+}
+
+.react__transition-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.react__mini-stimulus {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  background: var(--stimulus-color);
+}
+
+.react__transition-resume {
+  margin: 0;
+  text-align: center;
+  color: var(--label);
+}
+
+.react__keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-badge);
+  background: var(--surface-muted);
+  font: 600 12px/1 var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.react__mappings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  align-self: center;
+  margin-bottom: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 12px 24px;
+}
+
+.react__mapping {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.react__mapping--inactive {
+  opacity: 0.35;
+}
+
+.react__mapping-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--stimulus-color);
+}
+
+.react__mapping-dot--square {
+  border-radius: 4px;
+}
+
+.react__touch {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .react__mappings {
+    display: none;
+  }
+
+  .react__zone {
+    margin-bottom: 152px;
+  }
+
+  .react__touch {
+    position: fixed;
+    inset: auto 0 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px 16px;
+    z-index: 30;
+  }
+
+  .react__touch-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--card);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .react__touch-button--wide {
+    grid-column: 1 / -1;
+  }
+
+  .react__touch-button:active:not(:disabled) {
+    background: var(--surface-muted);
+    border-color: var(--border-hover);
+  }
+
+  .react__touch-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .react__touch-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-pill);
+    background: var(--stimulus-color);
+  }
+
+  .react__touch-dot--square {
+    border-radius: 6px;
+  }
+}
