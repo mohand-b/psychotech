@@ -1,0 +1,196 @@
+:host {
+  display: block;
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chart__phase-labels {
+  display: flex;
+  padding-left: 34px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--label);
+}
+
+.chart__phase-labels span {
+  flex: 1;
+  text-align: center;
+}
+
+.chart__frame {
+  display: flex;
+  gap: 6px;
+}
+
+.chart__y-axis {
+  position: relative;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.chart__y-label {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  font-size: 10px;
+  color: var(--label);
+}
+
+.chart__plot {
+  position: relative;
+  flex: 1;
+  height: 190px;
+  border-bottom: 1px solid var(--border);
+  overflow: visible;
+}
+
+.chart__band--middle {
+  position: absolute;
+  left: calc(100% / 3);
+  width: calc(100% / 3);
+  top: 0;
+  bottom: 0;
+  background: var(--axis-reactivity);
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.chart__gridline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--divider-soft);
+  pointer-events: none;
+}
+
+.chart__mean {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--border-hover);
+  pointer-events: none;
+}
+
+.chart__mean-label {
+  position: absolute;
+  left: 4px;
+  bottom: 3px;
+  font: 500 10px/12px var(--font-ui);
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.chart__trend {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.chart__trend path {
+  fill: none;
+  stroke: var(--axis-reactivity);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart__dot-slot {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.chart__dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+}
+
+.chart__dot--valid {
+  background: var(--axis-reactivity);
+}
+
+.chart__dot--wrong {
+  background: var(--danger);
+}
+
+.chart__dot--anticipation {
+  width: 8px;
+  height: 8px;
+  background: var(--card);
+  border: 1.5px solid var(--warning);
+}
+
+.chart__dot--omission {
+  width: 12px;
+  height: 12px;
+  background: transparent;
+  border-radius: 0;
+  font: 600 13px/1 var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.chart__dot-slot:hover .chart__tip {
+  display: block;
+}
+
+.chart__tip {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  transform: translateX(-50%);
+  display: none;
+  padding: 5px 8px;
+  border-radius: var(--radius-badge);
+  background: var(--ink);
+  color: var(--card);
+  font: 500 11px/14px var(--font-ui);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@media (hover: none) {
+  .chart__dot-slot:hover .chart__tip {
+    display: none;
+  }
+}
+
+.chart__x-axis {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 34px;
+  font-size: 10px;
+  color: var(--label);
+}
+
+@media (max-width: 767px) {
+  .chart__plot {
+    height: 170px;
+  }
+
+  .chart__dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .chart__dot--anticipation {
+    width: 6px;
+    height: 6px;
+  }
+}

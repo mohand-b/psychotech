@@ -126,6 +126,17 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/resultat',
+    canMatch: [axisSessionMatcher(AxisType.REACTIVITY)],
+    data: {
+      mobileFlow: { axisParam: 'axis', suffix: 'Ciblé' },
+    },
+    loadComponent: () =>
+      import('./reactivity-result/reactivity-result').then(
+        (m) => m.ReactivityResult,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {

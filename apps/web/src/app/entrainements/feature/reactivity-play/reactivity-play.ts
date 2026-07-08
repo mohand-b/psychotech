@@ -422,7 +422,13 @@ export class ReactivityPlay {
       .subscribe({
         next: () => {
           this.facade.setEffectiveCountdown(null);
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([
+            '/entrainements/cible',
+            AxisType.REACTIVITY,
+            'session',
+            this.sessionId,
+            'resultat',
+          ]);
         },
         error: () => {
           this.hasSubmitted = false;

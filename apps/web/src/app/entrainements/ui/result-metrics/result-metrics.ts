@@ -6,6 +6,7 @@ import {
 
 export interface ResultMetricRow {
   label: string;
+  sublabel?: string;
   value: string;
   suffix?: string;
   dotVar?: string;
@@ -22,7 +23,12 @@ export interface ResultMetricRow {
           @if (row.dotVar) {
             <span class="metrics__dot" [style.background]="row.dotVar"></span>
           }
-          <span class="metrics__label">{{ row.label }}</span>
+          <span class="metrics__label">
+            {{ row.label }}
+            @if (row.sublabel) {
+              <span class="metrics__sublabel">{{ row.sublabel }}</span>
+            }
+          </span>
           <span class="metrics__value">
             <span class="metrics__number t-mono">{{ row.value }}</span>
             @if (row.suffix) {
@@ -64,9 +70,15 @@ export interface ResultMetricRow {
       flex-shrink: 0;
     }
     .metrics__label {
+      display: flex;
+      flex-direction: column;
       flex: 1;
       font: 400 14px/20px var(--font-ui);
       color: var(--ink);
+    }
+    .metrics__sublabel {
+      font: 400 11px/14px var(--font-ui);
+      color: var(--label);
     }
     .metrics__value {
       display: inline-flex;

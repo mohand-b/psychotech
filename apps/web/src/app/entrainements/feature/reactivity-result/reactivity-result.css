@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 40px;
+}
+
+@media (max-width: 767px) {
+  .result {
+    padding: 16px 16px 32px;
+    gap: 16px;
+  }
+}

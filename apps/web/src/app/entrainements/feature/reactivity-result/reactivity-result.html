@@ -1,0 +1,43 @@
+<section class="result">
+  @if (result(); as r) {
+    <ui-result-summary
+      [axis]="r.axis"
+      [score]="r.score"
+      [band]="r.band"
+      [previousScore]="r.previousScore"
+      [bestScore]="r.bestScore"
+      [isNewBest]="r.isNewBest"
+      [isEqualBest]="r.isEqualBest"
+      [sector]="r.sector"
+      [completedAt]="r.completedAt"
+    />
+
+    @if (scored(); as s) {
+      <ui-result-panel>
+        <ui-result-metrics panelStart [rows]="metricRows()" />
+        <ui-result-timing
+          panelEnd
+          heading="Temps de réaction"
+          note="Chaque point est un stimulus — la courbe montre votre tendance au fil de l'épreuve."
+          [showReview]="false"
+        >
+          <ui-reactivity-tr-chart
+            [points]="s.points"
+            [trend]="s.trend"
+            [meanMs]="s.trMoyMs"
+          />
+        </ui-result-timing>
+      </ui-result-panel>
+    }
+
+    @if (recommendation(); as reco) {
+      <ui-result-recommendation [recommendation]="reco" />
+    }
+
+    <ui-result-actions
+      footnote="Chaque entraînement génère une nouvelle séquence de signaux."
+      (newTraining)="newTraining()"
+      (backToAxes)="backToAxes()"
+    />
+  }
+</section>

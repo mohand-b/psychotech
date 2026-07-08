@@ -1,0 +1,64 @@
+<div class="chart">
+  <div class="chart__phase-labels t-mono">
+    <span>1 signal</span>
+    <span>2 signaux</span>
+    <span>3 signaux</span>
+  </div>
+  <div class="chart__frame">
+    <div class="chart__y-axis t-mono">
+      @for (grid of yGrid; track grid) {
+        <span class="chart__y-label" [style.bottom.%]="yPct(grid)">{{
+          grid
+        }}</span>
+      }
+    </div>
+    <div class="chart__plot">
+      <span class="chart__band chart__band--middle"></span>
+      @for (grid of yGrid; track grid) {
+        <span class="chart__gridline" [style.bottom.%]="yPct(grid)"></span>
+      }
+      @if (meanBottomPct(); as meanBottom) {
+        <span class="chart__mean" [style.bottom.%]="meanBottom">
+          <span class="chart__mean-label">moyenne</span>
+        </span>
+      }
+      @if (trendPath()) {
+        <svg
+          class="chart__trend"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path [attr.d]="trendPath()" />
+        </svg>
+      }
+      @for (dot of dots(); track $index) {
+        <span
+          class="chart__dot-slot"
+          [style.left.%]="dot.xPct"
+          [style.bottom.%]="dot.bottomPct"
+        >
+          <span
+            class="chart__dot"
+            [class.chart__dot--valid]="dot.classification === 'VALID'"
+            [class.chart__dot--wrong]="dot.classification === 'WRONG_COMMAND'"
+            [class.chart__dot--anticipation]="
+              dot.classification === 'ANTICIPATION'
+            "
+            [class.chart__dot--omission]="dot.classification === 'OMISSION'"
+          >
+            @if (dot.classification === 'OMISSION') {
+              ×
+            }
+          </span>
+          <span class="chart__tip">{{ dot.tooltip }}</span>
+        </span>
+      }
+    </div>
+  </div>
+  <div class="chart__x-axis t-mono">
+    @for (label of xLabels; track label) {
+      <span>{{ label }}</span>
+    }
+  </div>
+</div>
