@@ -5,7 +5,16 @@ import {
   ReactivityStimulus,
   ReactivityStimulusType,
 } from './reactivity-stimulus';
-import { scoreReactivitySession } from './reactivity-scoring';
+import {
+  REACTIVITY_ACCURACY_WEIGHT,
+  REACTIVITY_SPEED_BEST_MS,
+  REACTIVITY_SPEED_WEIGHT,
+  REACTIVITY_SPEED_WORST_MS,
+  REACTIVITY_STABILITY_BEST_MS,
+  REACTIVITY_STABILITY_WEIGHT,
+  REACTIVITY_STABILITY_WORST_MS,
+  scoreReactivitySession,
+} from './reactivity-scoring';
 
 function stimulus(
   index: number,
@@ -88,6 +97,61 @@ describe('scoreReactivitySession', () => {
       [],
     );
     expect(scored.sdMs).toBeLessThan(10);
+  });
+
+  it('feeds the stability term with the returned intra-phase deviation, never a global one', () => {
+    const times = [400, 420, 410, 700, 720, 710, 1000, 1020, 1010];
+    const appearAts = [
+      3000, 20000, 40000, 70000, 90000, 110000, 130000, 150000, 170000,
+    ];
+    const types: ReactivityStimulusType[] = [
+      'YELLOW',
+      'YELLOW',
+      'YELLOW',
+      'BLUE',
+      'YELLOW',
+      'BLUE',
+      'RED',
+      'BLUE',
+      'YELLOW',
+    ];
+    const commands: Record<ReactivityStimulusType, ReactivityCommand> = {
+      YELLOW: 'LEFT',
+      BLUE: 'RIGHT',
+      RED: 'SPACE',
+    };
+    const bigSequence = appearAts.map((appearAtMs, position) =>
+      stimulus(position, types[position], appearAtMs),
+    );
+    const scored = scoreReactivitySession(
+      bigSequence,
+      times.map((trMs, position) =>
+        answer(position, commands[types[position]], trMs),
+      ),
+      [],
+    );
+    const norm = (value: number, best: number, worst: number) =>
+      100 * Math.min(1, Math.max(0, (worst - value) / (worst - best)));
+    const mean = times.reduce((sum, value) => sum + value, 0) / times.length;
+    const globalSd = Math.sqrt(
+      times.reduce((sum, value) => sum + (value - mean) ** 2, 0) / times.length,
+    );
+    const scoreFrom = (sd: number) =>
+      Math.round(
+        REACTIVITY_SPEED_WEIGHT *
+          norm(mean, REACTIVITY_SPEED_BEST_MS, REACTIVITY_SPEED_WORST_MS) +
+          REACTIVITY_STABILITY_WEIGHT *
+            norm(
+              sd,
+              REACTIVITY_STABILITY_BEST_MS,
+              REACTIVITY_STABILITY_WORST_MS,
+            ) +
+          REACTIVITY_ACCURACY_WEIGHT * 100,
+      );
+    expect(scored.sdMs).toBeLessThan(15);
+    expect(globalSd).toBeGreaterThan(REACTIVITY_STABILITY_WORST_MS);
+    expect(scored.score).toBe(scoreFrom(scored.sdMs as number));
+    expect(scored.score).not.toBe(scoreFrom(globalSd));
   });
 
   it('weights per-phase deviations by their valid counts and skips sparse phases', () => {
