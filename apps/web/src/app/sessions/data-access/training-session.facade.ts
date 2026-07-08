@@ -11,6 +11,9 @@ import {
   MemorySequence,
   MemorySequenceAnswerDto,
   RailwayPlayableAxis,
+  ReactivityStimulus,
+  ReactivityStimulusAnswerDto,
+  ReactivityWaitPressDto,
   Sector,
   SessionDto,
   SessionMode,
@@ -20,6 +23,7 @@ import {
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
+  generateReactivitySession,
 } from '@psychotech/shared';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
@@ -42,6 +46,7 @@ const DEFAULT_GLOBAL_THRESHOLDS: GlobalTimerThresholds = {
 const GLOBAL_TIMER_THRESHOLDS: Partial<Record<AxisType, GlobalTimerThresholds>> = {
   [AxisType.LOGIC]: DEFAULT_GLOBAL_THRESHOLDS,
   [AxisType.VISUAL_DISCRIMINATION]: { warningSec: 60, dangerSec: 30 },
+  [AxisType.REACTIVITY]: { warningSec: 60, dangerSec: 30 },
 };
 
 @Injectable({ providedIn: 'root' })
@@ -83,6 +88,13 @@ export class TrainingSessionFacade {
       : [];
   });
 
+  readonly reactivityStimuli: Signal<ReactivityStimulus[]> = computed(() => {
+    const session = this.store.session();
+    return session && this.axis() === AxisType.REACTIVITY
+      ? generateReactivitySession(session.seed)
+      : [];
+  });
+
   readonly durationSec: Signal<number | null> = computed(() => {
     const axis = this.axis();
     if (!axis) {
@@ -95,7 +107,22 @@ export class TrainingSessionFacade {
       : null;
   });
 
+  private readonly effectiveCountdown = signal<{
+    remainingSec: number;
+    fraction: number;
+  } | null>(null);
+
+  setEffectiveCountdown(
+    value: { remainingSec: number; fraction: number } | null,
+  ): void {
+    this.effectiveCountdown.set(value);
+  }
+
   readonly remainingSec: Signal<number | null> = computed(() => {
+    const override = this.effectiveCountdown();
+    if (override) {
+      return override.remainingSec;
+    }
     const session = this.store.session();
     const axis = this.axis();
     if (!session || !axis || session.status !== SessionStatus.IN_PROGRESS) {
@@ -111,6 +138,10 @@ export class TrainingSessionFacade {
   });
 
   readonly remainingFraction: Signal<number | null> = computed(() => {
+    const override = this.effectiveCountdown();
+    if (override) {
+      return override.fraction;
+    }
     const session = this.store.session();
     const duration = this.durationSec();
     if (!session || duration === null || session.status !== SessionStatus.IN_PROGRESS) {
@@ -256,6 +287,26 @@ export class TrainingSessionFacade {
       .pipe(tap((completed) => this.install(completed)));
   }
 
+  completeTargetedReactivity(
+    stimuli: ReactivityStimulusAnswerDto[],
+    waitPresses: ReactivityWaitPressDto[],
+  ): Observable<SessionDto> {
+    const session = this.store.session();
+    const axis = this.axis();
+    if (!session || !axis) {
+      return throwError(() => new Error('No active training session'));
+    }
+    return this.api
+      .completeTargeted(session.id, axis, { axis, stimuli, waitPresses })
+      .pipe(tap((completed) => this.install(completed)));
+  }
+
+  abandonSession(sessionId: string): Observable<SessionDto> {
+    return this.api
+      .abandon(sessionId)
+      .pipe(tap((session) => this.install(session)));
+  }
+
   memoryResultsFor(sessionId: string): MemorySequenceAnswerDto[] {
     return this.progressFor<MemorySequenceAnswerDto>('memory', sessionId);
   }
@@ -313,6 +364,7 @@ export class TrainingSessionFacade {
   }
 
   private install(session: SessionDto): void {
+    this.effectiveCountdown.set(null);
     this.store.setSession(session);
     if (session.status === SessionStatus.IN_PROGRESS) {
       this.startTicker();

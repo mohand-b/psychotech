@@ -42,4 +42,11 @@ export class SessionsApi {
       `${this.baseUrl}/sessions/${sessionId}/axes/${axis}/results`,
     );
   }
+
+  abandon(sessionId: string): Observable<SessionDto> {
+    return this.http.post<SessionDto>(
+      `${this.baseUrl}/sessions/${sessionId}/abandon`,
+      {},
+    );
+  }
 }
