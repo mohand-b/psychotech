@@ -127,10 +127,18 @@ export interface TargetedDiscriminationResultDto
   trials: DiscriminationTrialAnswerDto[];
 }
 
+export interface TargetedReactivityResultDto
+  extends TargetedAxisResultBaseDto {
+  axis: AxisType.REACTIVITY;
+  stimuli: ReactivityStimulusAnswerDto[];
+  waitPresses: ReactivityWaitPressDto[];
+}
+
 export type TargetedAxisResultDto =
   | TargetedLogicResultDto
   | TargetedMemoryResultDto
-  | TargetedDiscriminationResultDto;
+  | TargetedDiscriminationResultDto
+  | TargetedReactivityResultDto;
 
 export interface RecommendationDto {
   axis: AxisType;
