@@ -23,7 +23,9 @@ import {
   TargetedLogicResultDto,
   avisFromScore,
   generateLogicSession,
+  generateMemorySession,
   scoreLogicSession,
+  scoreMemorySession,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
@@ -159,7 +161,9 @@ export class SessionsService {
     const score =
       rawResult.axis === AxisType.LOGIC
         ? this.scoreLogicAnswers(session.seed, rawResult.items)
-        : null;
+        : rawResult.axis === AxisType.MEMORY
+          ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
+          : null;
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -177,6 +181,14 @@ export class SessionsService {
     items: LogicItemAnswerDto[],
   ): { normalizedScore: number; band: ScoreBand } {
     const scored = scoreLogicSession(generateLogicSession(seed), items);
+    return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
+  }
+
+  private scoreMemoryAnswers(
+    seed: string,
+    sequences: MemorySequenceAnswerDto[],
+  ): { normalizedScore: number; band: ScoreBand } {
+    const scored = scoreMemorySession(generateMemorySession(seed), sequences);
     return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
 
