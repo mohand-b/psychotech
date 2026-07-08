@@ -94,6 +94,7 @@ export interface ResultMetricRow {
       font-size: 11px;
       font-weight: 500;
       color: var(--label);
+      white-space: pre;
     }
     @media (max-width: 767px) {
       :host {
