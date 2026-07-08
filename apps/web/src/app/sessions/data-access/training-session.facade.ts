@@ -177,7 +177,7 @@ export class TrainingSessionFacade {
       return null;
     }
     const local = this.perExerciseRemaining();
-    return local === null ? '—' : formatDuration(local);
+    return local === null ? '-' : formatDuration(local);
   });
 
   readonly countdownSeverity: Signal<TimerSeverity> = computed(() => {

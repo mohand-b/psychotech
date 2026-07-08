@@ -119,7 +119,7 @@ export class LogicResult {
         label: 'Temps moyen par réponse',
         value:
           avg === null
-            ? '—'
+            ? '-'
             : (avg / 1000).toLocaleString('fr-FR', {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,
@@ -136,7 +136,7 @@ export class LogicResult {
   private readonly remainingAtEnd = computed(() => {
     const result = this.result();
     if (!result) {
-      return '—';
+      return '-';
     }
     const elapsedSec = Math.round(
       (Date.parse(result.completedAt) - Date.parse(result.startedAt)) / 1000,

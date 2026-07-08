@@ -181,7 +181,7 @@ export class MemoryCorrection {
     const timeMs = result?.sequences.find(
       ({ index }) => index === sequence?.index,
     )?.timeMs;
-    return timeMs === undefined ? '—' : `${Math.round(timeMs / 1000)}`;
+    return timeMs === undefined ? '-' : `${Math.round(timeMs / 1000)}`;
   });
 
   protected readonly isFirst = computed(() => this.currentIndex() === 0);

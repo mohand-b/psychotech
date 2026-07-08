@@ -126,7 +126,7 @@ export class DiscriminationResult {
         label: 'Temps moyen par réponse',
         value:
           avg === null
-            ? '—'
+            ? '-'
             : (avg / 1000).toLocaleString('fr-FR', {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,

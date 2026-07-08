@@ -100,7 +100,7 @@ interface TimeSummary {
                   >Aide pendant la session</span
                 >
                 <span class="axis-briefing__option-detail"
-                  >Affichez la règle de la suite pendant un exercice — la règle,
+                  >Affichez la règle de la suite pendant un exercice - la règle,
                   pas la réponse.</span
                 >
               </div>

@@ -51,7 +51,7 @@ import { axisButtonColor } from '../axis-button-color';
           } @else {
             <span
               class="axis-card__score-number axis-card__score-number--empty"
-              >—</span
+              >-</span
             >
           }
         </div>

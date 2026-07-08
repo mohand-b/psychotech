@@ -92,13 +92,13 @@ export class ReactivityResult {
     return [
       {
         label: 'Temps de réaction moyen',
-        value: scored.trMoyMs === null ? '—' : `${scored.trMoyMs}`,
+        value: scored.trMoyMs === null ? '-' : `${scored.trMoyMs}`,
         suffix: scored.trMoyMs === null ? undefined : ' ms',
       },
       {
         label: 'Régularité',
         sublabel: 'écart entre vos réactions',
-        value: scored.sdMs === null ? '—' : `± ${scored.sdMs}`,
+        value: scored.sdMs === null ? '-' : `± ${scored.sdMs}`,
         suffix: scored.sdMs === null ? undefined : ' ms',
       },
       {

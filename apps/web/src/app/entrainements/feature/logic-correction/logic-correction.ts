@@ -146,10 +146,10 @@ export class LogicCorrection {
 
   protected readonly timeLabel = computed(() => {
     if (this.currentStatus() === 'UNREACHED') {
-      return '—';
+      return '-';
     }
     const timeMs = this.responseByIndex().get(this.currentIndex())?.timeMs;
-    return timeMs === undefined ? '—' : `${Math.round(timeMs / 1000)} s`;
+    return timeMs === undefined ? '-' : `${Math.round(timeMs / 1000)} s`;
   });
 
   protected readonly isFirst = computed(() => this.currentIndex() === 0);

@@ -65,6 +65,6 @@ export class ItemNavBand {
   }
 
   protected ariaLabel(index: number, state: ItemNavState): string {
-    return `Item ${index + 1} — ${state === 'answered' ? 'répondu' : 'non répondu'}`;
+    return `Item ${index + 1} - ${state === 'answered' ? 'répondu' : 'non répondu'}`;
   }
 }
