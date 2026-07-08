@@ -5,6 +5,9 @@ import {
   DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
   MemorySequenceAnswerDto,
+  ReactivityCommand,
+  ReactivityStimulusAnswerDto,
+  ReactivityWaitPressDto,
 } from '@psychotech/shared';
 import { Type } from 'class-transformer';
 import {
@@ -76,6 +79,34 @@ export class DiscriminationTrialAnswerRequest
   timeMs!: number;
 }
 
+export class ReactivityStimulusAnswerRequest
+  implements ReactivityStimulusAnswerDto
+{
+  @IsInt()
+  @Min(0)
+  index!: number;
+
+  @ValidateIf(
+    (stimulus: ReactivityStimulusAnswerRequest) =>
+      stimulus.commandPressed !== null,
+  )
+  @IsIn(['LEFT', 'RIGHT', 'SPACE'])
+  commandPressed!: ReactivityCommand | null;
+
+  @ValidateIf(
+    (stimulus: ReactivityStimulusAnswerRequest) => stimulus.trMs !== null,
+  )
+  @IsInt()
+  @Min(0)
+  trMs!: number | null;
+}
+
+export class ReactivityWaitPressRequest implements ReactivityWaitPressDto {
+  @IsInt()
+  @Min(0)
+  atMs!: number;
+}
+
 export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDto {
   @IsEnum(AxisType)
   axis!: AxisType;
@@ -103,4 +134,23 @@ export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDt
   @ValidateNested({ each: true })
   @Type(() => DiscriminationTrialAnswerRequest)
   trials?: DiscriminationTrialAnswerRequest[];
+
+  @ValidateIf(
+    (request: CompleteTargetedSessionRequest) =>
+      request.axis === AxisType.REACTIVITY,
+  )
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => ReactivityStimulusAnswerRequest)
+  stimuli?: ReactivityStimulusAnswerRequest[];
+
+  @ValidateIf(
+    (request: CompleteTargetedSessionRequest) =>
+      request.axis === AxisType.REACTIVITY,
+  )
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ReactivityWaitPressRequest)
+  waitPresses?: ReactivityWaitPressRequest[];
 }

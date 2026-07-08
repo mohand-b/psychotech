@@ -14,6 +14,9 @@ import {
   LogicRawResultDto,
   MemoryRawResultDto,
   MemorySequenceAnswerDto,
+  ReactivityRawResultDto,
+  ReactivityStimulusAnswerDto,
+  ReactivityWaitPressDto,
   ScoreBand,
   Sector,
   SessionDto,
@@ -25,6 +28,7 @@ import {
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
+  generateReactivitySession,
   scoreDiscriminationSession,
   scoreLogicSession,
   scoreMemorySession,
@@ -136,7 +140,8 @@ export class SessionsService {
     if (
       axis !== AxisType.LOGIC &&
       axis !== AxisType.MEMORY &&
-      axis !== AxisType.VISUAL_DISCRIMINATION
+      axis !== AxisType.VISUAL_DISCRIMINATION &&
+      axis !== AxisType.REACTIVITY
     ) {
       throw new BadRequestException(
         'Raw answers are not supported for this axis',
@@ -159,13 +164,21 @@ export class SessionsService {
         ? this.buildLogicRawResult(request.items ?? [])
         : axis === AxisType.MEMORY
           ? this.buildMemoryRawResult(request.sequences ?? [])
-          : this.buildDiscriminationRawResult(request.trials ?? []);
+          : axis === AxisType.VISUAL_DISCRIMINATION
+            ? this.buildDiscriminationRawResult(request.trials ?? [])
+            : this.buildReactivityRawResult(
+                session.seed,
+                request.stimuli ?? [],
+                request.waitPresses ?? [],
+              );
     const score =
       rawResult.axis === AxisType.LOGIC
         ? this.scoreLogicAnswers(session.seed, rawResult.items)
         : rawResult.axis === AxisType.MEMORY
           ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
-          : this.scoreDiscriminationAnswers(session.seed, rawResult.trials);
+          : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
+            ? this.scoreDiscriminationAnswers(session.seed, rawResult.trials)
+            : null;
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -256,6 +269,33 @@ export class SessionsService {
         timeMs,
         timedOut,
       })),
+    };
+  }
+
+  private buildReactivityRawResult(
+    seed: string,
+    stimuli: ReactivityStimulusAnswerDto[],
+    waitPresses: ReactivityWaitPressDto[],
+  ): ReactivityRawResultDto {
+    const stimulusCount = generateReactivitySession(seed).length;
+    const distinctIndexes = new Set(stimuli.map((stimulus) => stimulus.index));
+    if (
+      distinctIndexes.size !== stimuli.length ||
+      stimuli.length > stimulusCount ||
+      stimuli.some((stimulus) => stimulus.index >= stimulusCount)
+    ) {
+      throw new BadRequestException(
+        'Stimulus answers must target distinct stimuli of the targeted axis',
+      );
+    }
+    return {
+      axis: AxisType.REACTIVITY,
+      stimuli: stimuli.map(({ index, commandPressed, trMs }) => ({
+        index,
+        commandPressed,
+        trMs,
+      })),
+      waitPresses: waitPresses.map(({ atMs }) => ({ atMs })),
     };
   }
 
