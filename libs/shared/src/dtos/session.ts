@@ -1,4 +1,5 @@
 import {
+  AxisProgressStatus,
   AxisType,
   RecommendationPriority,
   ScoreBand,
@@ -177,6 +178,37 @@ export interface SessionDto {
   abandonedAt: string | null;
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
+}
+
+export interface SessionHistoryItemDto {
+  id: string;
+  mode: SessionMode;
+  axis: AxisType | null;
+  sector: Sector;
+  status: SessionStatus;
+  finishedAt: string;
+  durationSec: number;
+  score: number | null;
+  band: ScoreBand | null;
+  axisReached: number | null;
+  axisTotal: number;
+}
+
+export interface SessionHistoryPageDto {
+  items: SessionHistoryItemDto[];
+  nextCursor: string | null;
+}
+
+export interface CurrentSessionAxisDto {
+  axis: AxisType;
+  status: AxisProgressStatus;
+}
+
+export interface CurrentSessionDto {
+  id: string;
+  mode: SessionMode;
+  sector: Sector;
+  axes: CurrentSessionAxisDto[];
 }
 
 export interface SessionResultDto {
