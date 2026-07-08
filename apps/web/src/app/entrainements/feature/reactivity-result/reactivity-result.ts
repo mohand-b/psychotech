@@ -97,7 +97,7 @@ export class ReactivityResult {
       },
       {
         label: 'Régularité',
-        sublabel: 'écart entre vos réactions',
+        sublabel: "écart entre vos réactions, à structure d'épreuve égale",
         value: scored.sdMs === null ? '-' : `± ${scored.sdMs}`,
         suffix: scored.sdMs === null ? undefined : ' ms',
       },
