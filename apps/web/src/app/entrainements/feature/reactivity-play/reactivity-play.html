@@ -21,7 +21,7 @@
 
   @if (loaded()) {
     <div class="react__zone" #zone>
-      @if (state() !== 'TRANSITION') {
+      @if (state() === 'WAITING') {
         <span class="react__fixation" aria-hidden="true">+</span>
       }
 
