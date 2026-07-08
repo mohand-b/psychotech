@@ -56,6 +56,78 @@ describe('scoreReactivitySession', () => {
     expect(scored.anticipationCount).toBe(1);
   });
 
+  it('ignores the phase structure when the candidate is steady within each phase', () => {
+    const times = [300, 300, 310, 450, 450, 460, 600, 600, 610];
+    const appearAts = [
+      3000, 20000, 40000, 70000, 90000, 110000, 130000, 150000, 170000,
+    ];
+    const types: ReactivityStimulusType[] = [
+      'YELLOW',
+      'YELLOW',
+      'YELLOW',
+      'BLUE',
+      'YELLOW',
+      'BLUE',
+      'RED',
+      'BLUE',
+      'YELLOW',
+    ];
+    const commands: Record<ReactivityStimulusType, ReactivityCommand> = {
+      YELLOW: 'LEFT',
+      BLUE: 'RIGHT',
+      RED: 'SPACE',
+    };
+    const bigSequence = appearAts.map((appearAtMs, position) =>
+      stimulus(position, types[position], appearAtMs),
+    );
+    const scored = scoreReactivitySession(
+      bigSequence,
+      times.map((trMs, position) =>
+        answer(position, commands[types[position]], trMs),
+      ),
+      [],
+    );
+    expect(scored.sdMs).toBeLessThan(10);
+  });
+
+  it('weights per-phase deviations by their valid counts and skips sparse phases', () => {
+    const sequence = [
+      stimulus(0, 'YELLOW', 3000),
+      stimulus(1, 'YELLOW', 20000),
+      stimulus(2, 'BLUE', 70000),
+    ];
+    const scored = scoreReactivitySession(
+      sequence,
+      [
+        answer(0, 'LEFT', 400),
+        answer(1, 'LEFT', 500),
+        answer(2, 'RIGHT', 1200),
+      ],
+      [],
+    );
+    expect(scored.sdMs).toBe(50);
+  });
+
+  it('returns a null deviation when no phase has enough valid responses', () => {
+    const sequence = [
+      stimulus(0, 'YELLOW', 3000),
+      stimulus(1, 'BLUE', 70000),
+      stimulus(2, 'RED', 130000),
+    ];
+    const scored = scoreReactivitySession(
+      sequence,
+      [
+        answer(0, 'LEFT', 300),
+        answer(1, 'RIGHT', 300),
+        answer(2, 'SPACE', 300),
+      ],
+      [],
+    );
+    expect(scored.sdMs).toBeNull();
+    expect(scored.trMoyMs).toBe(300);
+    expect(scored.score).toBe(Math.round(0.5 * 100 + 0.2 * 100));
+  });
+
   it('computes mean and standard deviation on valid responses only', () => {
     const scored = scoreReactivitySession(
       sequence,

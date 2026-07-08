@@ -1,3 +1,5 @@
+import { AXIS_TRAINING } from '../../domain';
+import { AxisType } from '../../enums';
 import {
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
@@ -14,9 +16,10 @@ export const REACTIVITY_STABILITY_WEIGHT = 0.3;
 export const REACTIVITY_ACCURACY_WEIGHT = 0.2;
 export const REACTIVITY_SPEED_BEST_MS = 300;
 export const REACTIVITY_SPEED_WORST_MS = 850;
-export const REACTIVITY_STABILITY_BEST_MS = 30;
-export const REACTIVITY_STABILITY_WORST_MS = 200;
+export const REACTIVITY_STABILITY_BEST_MS = 25;
+export const REACTIVITY_STABILITY_WORST_MS = 150;
 export const REACTIVITY_TREND_WINDOW = 5;
+export const REACTIVITY_PHASE_SD_MIN_VALID = 2;
 
 export interface ReactivityStimulusPoint {
   appearAtMs: number;
@@ -87,15 +90,40 @@ export function scoreReactivitySession(
     validTimes.length === 0
       ? null
       : validTimes.reduce((sum, value) => sum + value, 0) / validTimes.length;
+
+  const phaseMs = AXIS_TRAINING[AxisType.REACTIVITY].phaseDurationSec * 1000;
+  const validTimesByPhase = new Map<number, number[]>();
+  for (const point of points) {
+    if (point.classification !== 'VALID' || point.trMs === null) {
+      continue;
+    }
+    const phase = Math.floor(point.appearAtMs / phaseMs);
+    validTimesByPhase.set(phase, [
+      ...(validTimesByPhase.get(phase) ?? []),
+      point.trMs,
+    ]);
+  }
+  const deviation = (values: number[]) => {
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    return Math.sqrt(
+      values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+        values.length,
+    );
+  };
+  const computablePhases = [...validTimesByPhase.values()].filter(
+    (times) => times.length >= REACTIVITY_PHASE_SD_MIN_VALID,
+  );
+  const computableCount = computablePhases.reduce(
+    (sum, times) => sum + times.length,
+    0,
+  );
   const sdMs =
-    trMoyMs === null
+    computablePhases.length === 0
       ? null
-      : Math.sqrt(
-          validTimes.reduce(
-            (sum, value) => sum + (value - trMoyMs) ** 2,
-            0,
-          ) / validTimes.length,
-        );
+      : computablePhases.reduce(
+          (sum, times) => sum + deviation(times) * times.length,
+          0,
+        ) / computableCount;
 
   const wrongCommandCount = classifications.filter(
     (classification) => classification === 'WRONG_COMMAND',
