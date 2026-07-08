@@ -1,12 +1,9 @@
 import { LogicItemAnswerDto } from '../../dtos/session';
 import { RecommendationPriority } from '../../enums';
+import { TrainingRecommendation } from '../recommendation';
 import { LogicSessionScore } from './logic-scoring';
 
-export interface LogicRecommendation {
-  id: string;
-  label: string;
-  priority: RecommendationPriority;
-}
+export type LogicRecommendation = TrainingRecommendation;
 
 const LATE_THIRD_START_RATIO = 2 / 3;
 const LATE_ERROR_CONCENTRATION_RATIO = 0.5;
