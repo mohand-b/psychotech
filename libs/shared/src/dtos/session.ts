@@ -101,9 +101,16 @@ export interface TargetedMemoryResultDto extends TargetedAxisResultBaseDto {
   sequences: MemorySequenceAnswerDto[];
 }
 
+export interface TargetedDiscriminationResultDto
+  extends TargetedAxisResultBaseDto {
+  axis: AxisType.VISUAL_DISCRIMINATION;
+  trials: DiscriminationTrialAnswerDto[];
+}
+
 export type TargetedAxisResultDto =
   | TargetedLogicResultDto
-  | TargetedMemoryResultDto;
+  | TargetedMemoryResultDto
+  | TargetedDiscriminationResultDto;
 
 export interface RecommendationDto {
   axis: AxisType;
