@@ -32,6 +32,7 @@ import {
   scoreDiscriminationSession,
   scoreLogicSession,
   scoreMemorySession,
+  scoreReactivitySession,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
@@ -178,7 +179,11 @@ export class SessionsService {
           ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
           : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
             ? this.scoreDiscriminationAnswers(session.seed, rawResult.trials)
-            : null;
+            : this.scoreReactivityAnswers(
+                session.seed,
+                rawResult.stimuli,
+                rawResult.waitPresses,
+              );
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -214,6 +219,19 @@ export class SessionsService {
     const scored = scoreDiscriminationSession(
       generateDiscriminationSession(seed),
       trials,
+    );
+    return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
+  }
+
+  private scoreReactivityAnswers(
+    seed: string,
+    stimuli: ReactivityStimulusAnswerDto[],
+    waitPresses: ReactivityWaitPressDto[],
+  ): { normalizedScore: number; band: ScoreBand } {
+    const scored = scoreReactivitySession(
+      generateReactivitySession(seed),
+      stimuli,
+      waitPresses,
     );
     return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
@@ -454,7 +472,8 @@ export class SessionsService {
     if (
       axis !== AxisType.LOGIC &&
       axis !== AxisType.MEMORY &&
-      axis !== AxisType.VISUAL_DISCRIMINATION
+      axis !== AxisType.VISUAL_DISCRIMINATION &&
+      axis !== AxisType.REACTIVITY
     ) {
       throw new BadRequestException(
         'Axis results are only available for scored axes',
@@ -552,15 +571,28 @@ export class SessionsService {
         sequences: this.memorySequencesFromMetrics(axisRow.metrics),
       };
     }
+    if (axis === AxisType.VISUAL_DISCRIMINATION) {
+      return {
+        ...base,
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        trials: this.discriminationTrialsFromMetrics(axisRow.metrics),
+      };
+    }
+    const reactivity = this.reactivityFromMetrics(axisRow.metrics);
     return {
       ...base,
-      axis: AxisType.VISUAL_DISCRIMINATION,
-      trials: this.discriminationTrialsFromMetrics(axisRow.metrics),
+      axis: AxisType.REACTIVITY,
+      stimuli: reactivity.stimuli,
+      waitPresses: reactivity.waitPresses,
     };
   }
 
   private scoreAxisFromMetrics(
-    axis: AxisType.LOGIC | AxisType.MEMORY | AxisType.VISUAL_DISCRIMINATION,
+    axis:
+      | AxisType.LOGIC
+      | AxisType.MEMORY
+      | AxisType.VISUAL_DISCRIMINATION
+      | AxisType.REACTIVITY,
     seed: string,
     metrics: unknown,
   ): { normalizedScore: number; band: ScoreBand } {
@@ -573,9 +605,17 @@ export class SessionsService {
         this.memorySequencesFromMetrics(metrics),
       );
     }
-    return this.scoreDiscriminationAnswers(
+    if (axis === AxisType.VISUAL_DISCRIMINATION) {
+      return this.scoreDiscriminationAnswers(
+        seed,
+        this.discriminationTrialsFromMetrics(metrics),
+      );
+    }
+    const reactivity = this.reactivityFromMetrics(metrics);
+    return this.scoreReactivityAnswers(
       seed,
-      this.discriminationTrialsFromMetrics(metrics),
+      reactivity.stimuli,
+      reactivity.waitPresses,
     );
   }
 
@@ -604,6 +644,20 @@ export class SessionsService {
       Array.isArray(raw.trials)
       ? raw.trials
       : [];
+  }
+
+  private reactivityFromMetrics(metrics: unknown): {
+    stimuli: ReactivityStimulusAnswerDto[];
+    waitPresses: ReactivityWaitPressDto[];
+  } {
+    const raw = metrics as ReactivityRawResultDto | null;
+    if (!raw || raw.axis !== AxisType.REACTIVITY) {
+      return { stimuli: [], waitPresses: [] };
+    }
+    return {
+      stimuli: Array.isArray(raw.stimuli) ? raw.stimuli : [],
+      waitPresses: Array.isArray(raw.waitPresses) ? raw.waitPresses : [],
+    };
   }
 
   private async loadInProgressSession(
