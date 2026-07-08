@@ -7,6 +7,7 @@ import {
   SessionStatus,
 } from '../enums';
 import { AxisMetrics } from '../domain';
+import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
 import { BadgeDto } from './badge';
 
 export interface TargetedSessionOptionsDto {
@@ -53,6 +54,22 @@ export interface MemoryRawResultDto {
 
 export type DiscriminationAnswer = 'IDENTICAL' | 'DIFFERENT';
 
+export interface ReactivityStimulusAnswerDto {
+  index: number;
+  commandPressed: ReactivityCommand | null;
+  trMs: number | null;
+}
+
+export interface ReactivityWaitPressDto {
+  atMs: number;
+}
+
+export interface ReactivityRawResultDto {
+  axis: AxisType.REACTIVITY;
+  stimuli: ReactivityStimulusAnswerDto[];
+  waitPresses: ReactivityWaitPressDto[];
+}
+
 export interface DiscriminationTrialAnswerDto {
   index: number;
   answer: DiscriminationAnswer | null;
@@ -67,13 +84,16 @@ export interface DiscriminationRawResultDto {
 export type AxisRawResultDto =
   | LogicRawResultDto
   | MemoryRawResultDto
-  | DiscriminationRawResultDto;
+  | DiscriminationRawResultDto
+  | ReactivityRawResultDto;
 
 export interface CompleteTargetedSessionDto {
   axis: AxisType;
   items?: LogicItemAnswerDto[];
   sequences?: MemorySequenceAnswerDto[];
   trials?: DiscriminationTrialAnswerDto[];
+  stimuli?: ReactivityStimulusAnswerDto[];
+  waitPresses?: ReactivityWaitPressDto[];
 }
 
 interface TargetedAxisResultBaseDto {

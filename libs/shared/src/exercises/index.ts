@@ -3,3 +3,4 @@ export * from './recommendation';
 export * from './logic';
 export * from './memory';
 export * from './discrimination';
+export * from './reactivity';

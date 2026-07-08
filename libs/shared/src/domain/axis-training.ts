@@ -53,7 +53,11 @@ export interface ReactivityTraining extends BaseAxisTraining {
   axis: AxisType.REACTIVITY;
   timer: GlobalAxisTimer;
   approximateStimulusCount: number;
-  goNoGoSecondHalf: boolean;
+  phaseDurationSec: number;
+  minIntervalMs: number;
+  maxIntervalMs: number;
+  responseWindowMs: number;
+  anticipationThresholdMs: number;
 }
 
 export interface MotorSkillsTraining extends BaseAxisTraining {
@@ -124,11 +128,15 @@ export const AXIS_TRAINING: {
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 180 },
     exerciseCount: 1,
     approximateStimulusCount: 45,
-    goNoGoSecondHalf: true,
+    phaseDurationSec: 60,
+    minIntervalMs: 1500,
+    maxIntervalMs: 4000,
+    responseWindowMs: 1500,
+    anticipationThresholdMs: 150,
     briefing: {
       consigne:
-        'Réagissez le plus vite possible à chaque apparition. En seconde partie, ne réagissez pas aux signaux à ignorer.',
-      objectif: 'Vitesse de réaction, régularité et inhibition.',
+        "Trois signaux, trois commandes. L'épreuve commence avec un seul signal — les autres s'ajoutent en cours de route et seront annoncés. Réagissez le plus vite possible avec la bonne commande.",
+      objectif: 'Vitesse de réaction, régularité et précision des commandes.',
     },
   },
   [AxisType.MOTOR_SKILLS]: {

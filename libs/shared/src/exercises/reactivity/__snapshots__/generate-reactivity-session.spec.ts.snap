@@ -1,0 +1,384 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateReactivitySession > matches the reference snapshot for a fixed seed 1`] = `
+[
+  {
+    "appearAtMs": 2463,
+    "index": 0,
+    "position": {
+      "fx": -0.368,
+      "fy": -0.086,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 5865,
+    "index": 1,
+    "position": {
+      "fx": 0.141,
+      "fy": 0.942,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 9449,
+    "index": 2,
+    "position": {
+      "fx": -0.523,
+      "fy": -0.096,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 14835,
+    "index": 3,
+    "position": {
+      "fx": 0.088,
+      "fy": 0.383,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 18933,
+    "index": 4,
+    "position": {
+      "fx": 0.001,
+      "fy": -0.33,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 22622,
+    "index": 5,
+    "position": {
+      "fx": -0.69,
+      "fy": 0.52,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 27898,
+    "index": 6,
+    "position": {
+      "fx": -0.866,
+      "fy": -0.432,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 31675,
+    "index": 7,
+    "position": {
+      "fx": 0.593,
+      "fy": -0.419,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 35066,
+    "index": 8,
+    "position": {
+      "fx": -0.047,
+      "fy": 0.178,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 40144,
+    "index": 9,
+    "position": {
+      "fx": -0.679,
+      "fy": 0.293,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 44636,
+    "index": 10,
+    "position": {
+      "fx": 0.647,
+      "fy": -0.128,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 49037,
+    "index": 11,
+    "position": {
+      "fx": -0.348,
+      "fy": -0.961,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 53082,
+    "index": 12,
+    "position": {
+      "fx": 0.069,
+      "fy": 0.406,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 57980,
+    "index": 13,
+    "position": {
+      "fx": -0.985,
+      "fy": 0.128,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 63158,
+    "index": 14,
+    "position": {
+      "fx": 0.803,
+      "fy": 0.194,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 67163,
+    "index": 15,
+    "position": {
+      "fx": 0.111,
+      "fy": 0.523,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 72543,
+    "index": 16,
+    "position": {
+      "fx": 0.943,
+      "fy": -0.224,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 75743,
+    "index": 17,
+    "position": {
+      "fx": 0.214,
+      "fy": 0.779,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 79265,
+    "index": 18,
+    "position": {
+      "fx": 0.233,
+      "fy": -0.05,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 84674,
+    "index": 19,
+    "position": {
+      "fx": -0.26,
+      "fy": 0.91,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 87891,
+    "index": 20,
+    "position": {
+      "fx": 0.882,
+      "fy": -0.069,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 92908,
+    "index": 21,
+    "position": {
+      "fx": -0.09,
+      "fy": 0.857,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 97437,
+    "index": 22,
+    "position": {
+      "fx": 0.422,
+      "fy": -0.044,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 102577,
+    "index": 23,
+    "position": {
+      "fx": -0.275,
+      "fy": -0.872,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 106585,
+    "index": 24,
+    "position": {
+      "fx": -0.79,
+      "fy": -0.422,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 109684,
+    "index": 25,
+    "position": {
+      "fx": -0.954,
+      "fy": 0.716,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 114007,
+    "index": 26,
+    "position": {
+      "fx": -0.326,
+      "fy": 0.223,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 118630,
+    "index": 27,
+    "position": {
+      "fx": 0.273,
+      "fy": -0.222,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 121686,
+    "index": 28,
+    "position": {
+      "fx": -0.695,
+      "fy": 0.557,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 124729,
+    "index": 29,
+    "position": {
+      "fx": 0.088,
+      "fy": -0.064,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 130026,
+    "index": 30,
+    "position": {
+      "fx": -0.838,
+      "fy": -0.47,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 133936,
+    "index": 31,
+    "position": {
+      "fx": 0.033,
+      "fy": -0.705,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 137091,
+    "index": 32,
+    "position": {
+      "fx": -0.656,
+      "fy": 0.513,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 141294,
+    "index": 33,
+    "position": {
+      "fx": 0.151,
+      "fy": 0.071,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 146742,
+    "index": 34,
+    "position": {
+      "fx": 0.978,
+      "fy": -0.212,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 151816,
+    "index": 35,
+    "position": {
+      "fx": -0.446,
+      "fy": 0.618,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 156694,
+    "index": 36,
+    "position": {
+      "fx": 0.852,
+      "fy": 0.375,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 159789,
+    "index": 37,
+    "position": {
+      "fx": 0.866,
+      "fy": -0.319,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 163227,
+    "index": 38,
+    "position": {
+      "fx": -0.883,
+      "fy": -0.196,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 166944,
+    "index": 39,
+    "position": {
+      "fx": 0.373,
+      "fy": -0.437,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 172251,
+    "index": 40,
+    "position": {
+      "fx": 0.974,
+      "fy": -0.228,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 176962,
+    "index": 41,
+    "position": {
+      "fx": -0.731,
+      "fy": -0.251,
+    },
+    "type": "BLUE",
+  },
+]
+`;
