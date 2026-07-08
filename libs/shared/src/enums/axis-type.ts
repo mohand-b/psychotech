@@ -8,5 +8,5 @@ export enum AxisType {
   NUMERICAL = 'NUMERICAL',
   VERBAL = 'VERBAL',
   SPATIAL = 'SPATIAL',
-  // MULTITASKING = 'MULTITASKING' — reserved (aviation), not implemented
+  // MULTITASKING = 'MULTITASKING' - reserved (aviation), not implemented
 }

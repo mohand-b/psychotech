@@ -19,8 +19,8 @@ export function getDiscriminationRecommendation(
       id: 'DISCRIMINATION_PACE',
       label:
         count > 1
-          ? `${count} essais non atteints — gardez un rythme de décision constant jusqu'au bout`
-          : `1 essai non atteint — gardez un rythme de décision constant jusqu'au bout`,
+          ? `${count} essais non atteints - gardez un rythme de décision constant jusqu'au bout`
+          : `1 essai non atteint - gardez un rythme de décision constant jusqu'au bout`,
       priority: RecommendationPriority.HIGH,
     };
   }
@@ -28,7 +28,7 @@ export function getDiscriminationRecommendation(
     const count = scored.wrongIdenticalCount;
     return {
       id: 'DISCRIMINATION_MISSED_DIFFERENCES',
-      label: `Vous répondez "identiques" trop vite — ${count} ${
+      label: `Vous répondez "identiques" trop vite - ${count} ${
         count > 1 ? 'paires différentes vous ont échappé' : 'paire différente vous a échappé'
       } : balayez chaque paire jusqu'au bout`,
       priority: RecommendationPriority.MEDIUM,
@@ -38,7 +38,7 @@ export function getDiscriminationRecommendation(
     return {
       id: 'DISCRIMINATION_FALSE_ALARMS',
       label:
-        'Vous répondez "différentes" par excès — confirmez la différence avant de répondre',
+        'Vous répondez "différentes" par excès - confirmez la différence avant de répondre',
       priority: RecommendationPriority.MEDIUM,
     };
   }
@@ -52,14 +52,14 @@ export function getDiscriminationRecommendation(
     return {
       id: 'DISCRIMINATION_RUSH',
       label:
-        'Vos erreurs arrivent quand vous accélérez — stabilisez votre cadence',
+        'Vos erreurs arrivent quand vous accélérez - stabilisez votre cadence',
       priority: RecommendationPriority.MEDIUM,
     };
   }
   return {
     id: 'DISCRIMINATION_KEEP_GOING',
     label:
-      'Discrimination fiable — continuez sur ce rythme pour ancrer vos automatismes',
+      'Discrimination fiable - continuez sur ce rythme pour ancrer vos automatismes',
     priority: RecommendationPriority.LOW,
   };
 }

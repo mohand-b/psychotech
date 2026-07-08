@@ -54,7 +54,7 @@ describe('getReactivityRecommendation', () => {
     );
     expect(recommendation.id).toBe('REACTIVITY_RED_COMMAND');
     expect(recommendation.label).toBe(
-      "Les mauvaises commandes se concentrent après l'arrivée du signal rouge — consolidez la commande Espace",
+      "Les mauvaises commandes se concentrent après l'arrivée du signal rouge - consolidez la commande Espace",
     );
     expect(recommendation.priority).toBe(RecommendationPriority.HIGH);
   });
@@ -79,7 +79,7 @@ describe('getReactivityRecommendation', () => {
     );
     expect(recommendation.id).toBe('REACTIVITY_ANTICIPATION');
     expect(recommendation.label).toBe(
-      "2 appuis trop tôt — attendez l'apparition du signal avant de réagir",
+      "2 appuis trop tôt - attendez l'apparition du signal avant de réagir",
     );
   });
 

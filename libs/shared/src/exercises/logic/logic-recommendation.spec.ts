@@ -40,7 +40,7 @@ describe('getLogicRecommendation', () => {
     const recommendation = recommendationFor(items, responses);
     expect(recommendation.id).toBe('LOGIC_PACE_UNREACHED');
     expect(recommendation.label).toBe(
-      '3 items non atteints — surveillez votre rythme',
+      '3 items non atteints - surveillez votre rythme',
     );
     expect(recommendation.priority).toBe(RecommendationPriority.HIGH);
   });
@@ -50,7 +50,7 @@ describe('getLogicRecommendation', () => {
       .slice(0, 29)
       .map((item) => answer(item.index, 0, 1000));
     expect(recommendationFor(items, responses).label).toBe(
-      '1 item non atteint — surveillez votre rythme',
+      '1 item non atteint - surveillez votre rythme',
     );
   });
 

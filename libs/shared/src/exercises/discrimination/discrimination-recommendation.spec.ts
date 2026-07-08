@@ -30,7 +30,7 @@ describe('getDiscriminationRecommendation', () => {
     );
     expect(recommendation.id).toBe('DISCRIMINATION_PACE');
     expect(recommendation.label).toBe(
-      "5 essais non atteints — gardez un rythme de décision constant jusqu'au bout",
+      "5 essais non atteints - gardez un rythme de décision constant jusqu'au bout",
     );
     expect(recommendation.priority).toBe(RecommendationPriority.HIGH);
   });
@@ -41,7 +41,7 @@ describe('getDiscriminationRecommendation', () => {
     );
     expect(recommendation.id).toBe('DISCRIMINATION_MISSED_DIFFERENCES');
     expect(recommendation.label).toBe(
-      'Vous répondez "identiques" trop vite — 4 paires différentes vous ont échappé : balayez chaque paire jusqu\'au bout',
+      'Vous répondez "identiques" trop vite - 4 paires différentes vous ont échappé : balayez chaque paire jusqu\'au bout',
     );
     expect(recommendation.priority).toBe(RecommendationPriority.MEDIUM);
   });

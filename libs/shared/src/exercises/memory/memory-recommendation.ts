@@ -23,7 +23,7 @@ export function getMemoryRecommendation(
     return {
       id: 'MEMORY_INVERSE_GAP',
       label:
-        "L'ordre inversé vous coûte — travaillez la restitution à l'envers",
+        "L'ordre inversé vous coûte - travaillez la restitution à l'envers",
       priority: RecommendationPriority.HIGH,
     };
   }
@@ -37,7 +37,7 @@ export function getMemoryRecommendation(
           : `les positions ${positions.join(' et ')} vous échappent`;
     return {
       id: 'MEMORY_ORDER_FRAGILE',
-      label: `Éléments retenus mais ordre fragile — ${detail}`,
+      label: `Éléments retenus mais ordre fragile - ${detail}`,
       priority: RecommendationPriority.MEDIUM,
     };
   }
@@ -47,14 +47,14 @@ export function getMemoryRecommendation(
       id: 'MEMORY_PACE',
       label:
         count > 1
-          ? `${count} restitutions hors délai — entraînez un rythme de saisie plus régulier`
-          : '1 restitution hors délai — entraînez un rythme de saisie plus régulier',
+          ? `${count} restitutions hors délai - entraînez un rythme de saisie plus régulier`
+          : '1 restitution hors délai - entraînez un rythme de saisie plus régulier',
       priority: RecommendationPriority.MEDIUM,
     };
   }
   return {
     id: 'MEMORY_KEEP_GOING',
-    label: 'Mémoire solide — continuez sur ce rythme pour ancrer vos automatismes',
+    label: 'Mémoire solide - continuez sur ce rythme pour ancrer vos automatismes',
     priority: RecommendationPriority.LOW,
   };
 }

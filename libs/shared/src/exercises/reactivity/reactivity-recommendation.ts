@@ -41,7 +41,7 @@ export function getReactivityRecommendation(
     return {
       id: 'REACTIVITY_RED_COMMAND',
       label:
-        "Les mauvaises commandes se concentrent après l'arrivée du signal rouge — consolidez la commande Espace",
+        "Les mauvaises commandes se concentrent après l'arrivée du signal rouge - consolidez la commande Espace",
       priority: RecommendationPriority.HIGH,
     };
   }
@@ -49,7 +49,7 @@ export function getReactivityRecommendation(
     return {
       id: 'REACTIVITY_ENDURANCE',
       label:
-        "Votre temps de réaction s'allonge au fil de l'épreuve — travaillez la tenue dans la durée",
+        "Votre temps de réaction s'allonge au fil de l'épreuve - travaillez la tenue dans la durée",
       priority: RecommendationPriority.MEDIUM,
     };
   }
@@ -59,8 +59,8 @@ export function getReactivityRecommendation(
       id: 'REACTIVITY_ANTICIPATION',
       label:
         count > 1
-          ? `${count} appuis trop tôt — attendez l'apparition du signal avant de réagir`
-          : `1 appui trop tôt — attendez l'apparition du signal avant de réagir`,
+          ? `${count} appuis trop tôt - attendez l'apparition du signal avant de réagir`
+          : `1 appui trop tôt - attendez l'apparition du signal avant de réagir`,
       priority: RecommendationPriority.MEDIUM,
     };
   }
@@ -72,14 +72,14 @@ export function getReactivityRecommendation(
     return {
       id: 'REACTIVITY_STABILITY',
       label:
-        'Vos réactions manquent de régularité — cherchez une cadence stable du premier au dernier signal',
+        'Vos réactions manquent de régularité - cherchez une cadence stable du premier au dernier signal',
       priority: RecommendationPriority.MEDIUM,
     };
   }
   return {
     id: 'REACTIVITY_KEEP_GOING',
     label:
-      'Réactivité solide — continuez sur ce rythme pour ancrer vos automatismes',
+      'Réactivité solide - continuez sur ce rythme pour ancrer vos automatismes',
     priority: RecommendationPriority.LOW,
   };
 }

@@ -65,8 +65,8 @@ export function getLogicRecommendation(
       id: 'LOGIC_PACE_UNREACHED',
       label:
         count > 1
-          ? `${count} items non atteints — surveillez votre rythme`
-          : '1 item non atteint — surveillez votre rythme',
+          ? `${count} items non atteints - surveillez votre rythme`
+          : '1 item non atteint - surveillez votre rythme',
       priority: RecommendationPriority.HIGH,
     };
   }
@@ -74,7 +74,7 @@ export function getLogicRecommendation(
     return {
       id: 'LOGIC_LATE_SLOWDOWN',
       label:
-        "Le temps par item s'allonge en fin de session — gardez un rythme régulier du premier au dernier item",
+        "Le temps par item s'allonge en fin de session - gardez un rythme régulier du premier au dernier item",
       priority: RecommendationPriority.MEDIUM,
     };
   }
@@ -82,13 +82,13 @@ export function getLogicRecommendation(
     return {
       id: 'LOGIC_ACCURACY',
       label:
-        'Plusieurs erreurs sur la session — vérifiez la règle de la suite avant de valider votre réponse',
+        'Plusieurs erreurs sur la session - vérifiez la règle de la suite avant de valider votre réponse',
       priority: RecommendationPriority.MEDIUM,
     };
   }
   return {
     id: 'LOGIC_KEEP_GOING',
-    label: 'Session solide — continuez sur ce rythme pour ancrer vos automatismes',
+    label: 'Session solide - continuez sur ce rythme pour ancrer vos automatismes',
     priority: RecommendationPriority.LOW,
   };
 }

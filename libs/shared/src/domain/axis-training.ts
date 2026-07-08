@@ -135,7 +135,7 @@ export const AXIS_TRAINING: {
     anticipationThresholdMs: 150,
     briefing: {
       consigne:
-        "Trois signaux, trois commandes. L'épreuve commence avec un seul signal — les autres s'ajoutent en cours de route et seront annoncés. Réagissez le plus vite possible avec la bonne commande.",
+        "Trois signaux, trois commandes. L'épreuve commence avec un seul signal - les autres s'ajoutent en cours de route et seront annoncés. Réagissez le plus vite possible avec la bonne commande.",
       objectif: 'Vitesse de réaction, régularité et précision des commandes.',
     },
   },

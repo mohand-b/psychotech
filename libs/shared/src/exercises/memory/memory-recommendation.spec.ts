@@ -41,7 +41,7 @@ describe('getMemoryRecommendation', () => {
     );
     expect(recommendation.id).toBe('MEMORY_ORDER_FRAGILE');
     expect(recommendation.label).toBe(
-      'Éléments retenus mais ordre fragile — les positions 3 et 4 vous échappent',
+      'Éléments retenus mais ordre fragile - les positions 3 et 4 vous échappent',
     );
     expect(recommendation.priority).toBe(RecommendationPriority.MEDIUM);
   });
@@ -51,7 +51,7 @@ describe('getMemoryRecommendation', () => {
       scored({ misplacedCount: 4, absentCount: 1 }),
     );
     expect(recommendation.label).toBe(
-      'Éléments retenus mais ordre fragile — le milieu des séquences vous échappe',
+      'Éléments retenus mais ordre fragile - le milieu des séquences vous échappe',
     );
   });
 
@@ -61,7 +61,7 @@ describe('getMemoryRecommendation', () => {
     );
     expect(recommendation.id).toBe('MEMORY_PACE');
     expect(recommendation.label).toBe(
-      '2 restitutions hors délai — entraînez un rythme de saisie plus régulier',
+      '2 restitutions hors délai - entraînez un rythme de saisie plus régulier',
     );
   });
 
