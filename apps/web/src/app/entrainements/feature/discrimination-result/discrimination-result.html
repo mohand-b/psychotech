@@ -18,10 +18,10 @@
         <ui-result-timing
           panelEnd
           heading="Gestion du temps"
-          note="Hauteur = temps passé sur l'item, dans l'ordre de la session."
-          (review)="review()"
+          note="Hauteur = temps de décision par essai, dans l'ordre de la session."
+          [showReview]="false"
         >
-          <ui-time-chart [entries]="chartEntries()" />
+          <ui-time-chart [entries]="chartEntries()" itemLabel="Essai" />
         </ui-result-timing>
       </ui-result-panel>
     }
@@ -31,7 +31,7 @@
     }
 
     <ui-result-actions
-      footnote="Chaque entraînement génère une nouvelle série d'items — les suites ne se répètent jamais."
+      footnote="Chaque entraînement génère de nouvelles paires."
       (newTraining)="newTraining()"
       (backToAxes)="backToAxes()"
     />

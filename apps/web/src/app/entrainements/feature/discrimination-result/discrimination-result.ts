@@ -9,17 +9,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AXIS_TRAINING,
   AxisType,
-  LogicSessionScore,
-  TargetedLogicResultDto,
+  DiscriminationOutcome,
+  DiscriminationSessionScore,
+  TargetedDiscriminationResultDto,
   TrainingRecommendation,
-  generateLogicSession,
-  getLogicRecommendation,
-  scoreLogicSession,
+  generateDiscriminationSession,
+  getDiscriminationRecommendation,
+  scoreDiscriminationSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { formatDuration } from '../../../shared/ui/format-duration';
-import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../../ui/logic-status';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -31,8 +30,15 @@ import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
 
+const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
+  TRUE_POSITIVE: 'Juste',
+  TRUE_NEGATIVE: 'Juste',
+  FALSE_POSITIVE: 'Répondu "différentes" à tort',
+  FALSE_NEGATIVE: 'Répondu "identiques" à tort',
+};
+
 @Component({
-  selector: 'app-logic-result',
+  selector: 'app-discrimination-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ResultActions,
@@ -43,46 +49,51 @@ import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
     ResultTiming,
     TimeChart,
   ],
-  templateUrl: './logic-result.html',
-  styleUrl: './logic-result.css',
+  templateUrl: './discrimination-result.html',
+  styleUrl: './discrimination-result.css',
 })
-export class LogicResult {
+export class DiscriminationResult {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  protected readonly presentation = AXIS_PRESENTATION[AxisType.LOGIC];
-  protected readonly training = AXIS_TRAINING[AxisType.LOGIC];
+  private readonly presentation =
+    AXIS_PRESENTATION[AxisType.VISUAL_DISCRIMINATION];
+  private readonly training = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
 
-  protected readonly result = signal<TargetedLogicResultDto | null>(null);
+  protected readonly result = signal<TargetedDiscriminationResultDto | null>(
+    null,
+  );
 
   constructor() {
-    this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
-      next: (result) => {
-        if (result.axis === AxisType.LOGIC) {
-          this.result.set(result);
-        }
-      },
-      error: () => this.router.navigate(['/entrainements']),
-    });
+    this.facade
+      .loadTargetedResult(this.sessionId, AxisType.VISUAL_DISCRIMINATION)
+      .subscribe({
+        next: (result) => {
+          if (result.axis === AxisType.VISUAL_DISCRIMINATION) {
+            this.result.set(result);
+          }
+        },
+        error: () => this.router.navigate(['/entrainements']),
+      });
   }
 
-  protected readonly scored = computed<LogicSessionScore | null>(() => {
+  protected readonly scored = computed<DiscriminationSessionScore | null>(() => {
     const result = this.result();
     return result
-      ? scoreLogicSession(generateLogicSession(result.seed), result.items)
+      ? scoreDiscriminationSession(
+          generateDiscriminationSession(result.seed),
+          result.trials,
+        )
       : null;
   });
 
   protected readonly recommendation = computed<TrainingRecommendation | null>(
     () => {
-      const result = this.result();
       const scored = this.scored();
-      return result && scored
-        ? getLogicRecommendation(scored, result.items)
-        : null;
+      return scored ? getDiscriminationRecommendation(scored) : null;
     },
   );
 
@@ -97,22 +108,18 @@ export class LogicResult {
         label: 'Réponses justes',
         value: `${scored.correctCount}`,
         suffix: `/${this.training.exerciseCount}`,
-        dotVar: this.presentation.plainVar,
       },
       {
-        label: 'Erreurs',
-        value: `${scored.wrongCount}`,
-        dotVar: 'var(--danger)',
+        label: 'Répondu "identiques" à tort',
+        value: `${scored.wrongIdenticalCount}`,
       },
       {
-        label: 'Passés sans réponse',
-        value: `${scored.skippedCount}`,
-        dotVar: 'var(--warning)',
+        label: 'Répondu "différentes" à tort',
+        value: `${scored.wrongDifferentCount}`,
       },
       {
-        label: 'Non atteints (chrono)',
-        value: `${scored.unreachedCount}`,
-        dotVar: 'var(--text-disabled)',
+        label: 'Essais non atteints',
+        value: `${scored.unansweredCount}`,
       },
       {
         label: 'Temps moyen par réponse',
@@ -125,24 +132,7 @@ export class LogicResult {
               }),
         suffix: avg === null ? undefined : ' s',
       },
-      {
-        label: 'Temps restant à la fin',
-        value: this.remainingAtEnd(),
-      },
     ];
-  });
-
-  private readonly remainingAtEnd = computed(() => {
-    const result = this.result();
-    if (!result) {
-      return '—';
-    }
-    const elapsedSec = Math.round(
-      (Date.parse(result.completedAt) - Date.parse(result.startedAt)) / 1000,
-    );
-    return formatDuration(
-      Math.max(0, this.training.timer.durationSec - elapsedSec),
-    );
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
@@ -151,28 +141,34 @@ export class LogicResult {
     if (!result || !scored) {
       return [];
     }
-    const timeByIndex = new Map(
-      result.items.map((item) => [item.index, item.timeMs]),
+    const responseByIndex = new Map(
+      result.trials.map((trialAnswer) => [trialAnswer.index, trialAnswer]),
     );
-    return scored.statuses.map((status, index) => ({
-      colorVar: LOGIC_STATUS_COLORS[status],
-      label: LOGIC_STATUS_LABELS[status],
-      timeMs: status === 'UNREACHED' ? null : (timeByIndex.get(index) ?? null),
-    }));
+    return scored.outcomes.map((outcome, index) => {
+      const response = responseByIndex.get(index);
+      const answered = (response?.answer ?? null) !== null;
+      if (!answered) {
+        return {
+          colorVar: 'var(--text-disabled)',
+          label: 'Non atteint',
+          timeMs: null,
+        };
+      }
+      const correct =
+        outcome === 'TRUE_POSITIVE' || outcome === 'TRUE_NEGATIVE';
+      return {
+        colorVar: correct ? this.presentation.plainVar : 'var(--danger)',
+        label: OUTCOME_LABELS[outcome],
+        timeMs: response?.timeMs ?? null,
+      };
+    });
   });
 
-  protected review(): void {
+  protected newTraining(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.LOGIC,
-      'session',
-      this.sessionId,
-      'correction',
+      AxisType.VISUAL_DISCRIMINATION,
     ]);
-  }
-
-  protected newTraining(): void {
-    this.router.navigate(['/entrainements/cible', AxisType.LOGIC]);
   }
 
   protected backToAxes(): void {

@@ -4,17 +4,16 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { LogicItemStatus } from '@psychotech/shared';
 import { formatSecondsTenths } from '../../../shared/ui/format-duration';
-import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../logic-status';
 
-export interface LogicTimeChartEntry {
-  status: LogicItemStatus;
+export interface TimeChartEntry {
+  colorVar: string;
+  label: string;
   timeMs: number | null;
 }
 
 @Component({
-  selector: 'ui-logic-time-chart',
+  selector: 'ui-time-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="chart">
@@ -23,9 +22,9 @@ export interface LogicTimeChartEntry {
           <div class="chart__slot">
             <span
               class="chart__bar"
-              [class.chart__bar--unreached]="entry.status === 'UNREACHED'"
+              [class.chart__bar--unreached]="entry.timeMs === null"
               [style.height.%]="barHeight(entry)"
-              [style.background]="barColor(entry)"
+              [style.background]="entry.colorVar"
             ></span>
             <span class="chart__tip">{{ tooltip(entry, $index) }}</span>
           </div>
@@ -101,8 +100,9 @@ export interface LogicTimeChartEntry {
     }
   `,
 })
-export class LogicTimeChart {
-  readonly entries = input.required<LogicTimeChartEntry[]>();
+export class TimeChart {
+  readonly entries = input.required<TimeChartEntry[]>();
+  readonly itemLabel = input('Item');
 
   private readonly maxTimeMs = computed(() =>
     Math.max(
@@ -113,20 +113,16 @@ export class LogicTimeChart {
     ),
   );
 
-  protected barHeight(entry: LogicTimeChartEntry): number {
-    if (entry.status === 'UNREACHED' || entry.timeMs === null) {
+  protected barHeight(entry: TimeChartEntry): number {
+    if (entry.timeMs === null) {
       return 0;
     }
     return Math.max(6, (entry.timeMs / this.maxTimeMs()) * 100);
   }
 
-  protected barColor(entry: LogicTimeChartEntry): string {
-    return LOGIC_STATUS_COLORS[entry.status];
-  }
-
-  protected tooltip(entry: LogicTimeChartEntry, index: number): string {
-    const base = `Item ${index + 1} · ${LOGIC_STATUS_LABELS[entry.status]}`;
-    return entry.status === 'UNREACHED' || entry.timeMs === null
+  protected tooltip(entry: TimeChartEntry, index: number): string {
+    const base = `${this.itemLabel()} ${index + 1} · ${entry.label}`;
+    return entry.timeMs === null
       ? base
       : `${base} · ${formatSecondsTenths(entry.timeMs)}`;
   }

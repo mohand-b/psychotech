@@ -244,7 +244,13 @@ export class DiscriminationPlay {
     this.facade.completeTargetedDiscrimination(answers).subscribe({
       next: () => {
         this.facade.clearDiscriminationResults(this.sessionId);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([
+          '/entrainements/cible',
+          AxisType.VISUAL_DISCRIMINATION,
+          'session',
+          this.sessionId,
+          'resultat',
+        ]);
       },
       error: () => {
         this.hasSubmitted = false;

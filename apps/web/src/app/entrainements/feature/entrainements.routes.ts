@@ -115,6 +115,17 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/resultat',
+    canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    data: {
+      mobileFlow: { axisParam: 'axis', suffix: 'Ciblé' },
+    },
+    loadComponent: () =>
+      import('./discrimination-result/discrimination-result').then(
+        (m) => m.DiscriminationResult,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {

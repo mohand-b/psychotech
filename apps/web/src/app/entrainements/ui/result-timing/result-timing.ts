@@ -15,14 +15,16 @@ import { Button } from '../../../shared/ui/button/button';
     <span class="t-label">{{ heading() }}</span>
     <ng-content />
     <p class="timing__note t-support">{{ note() }}</p>
-    <ui-button
-      color="neutral"
-      appearance="outlined"
-      [icon]="reviewIcon"
-      (click)="review.emit()"
-    >
-      Revoir mes réponses
-    </ui-button>
+    @if (showReview()) {
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        [icon]="reviewIcon"
+        (click)="review.emit()"
+      >
+        Revoir mes réponses
+      </ui-button>
+    }
   `,
   styles: `
     :host {
@@ -49,6 +51,7 @@ import { Button } from '../../../shared/ui/button/button';
 export class ResultTiming {
   readonly heading = input.required<string>();
   readonly note = input.required<string>();
+  readonly showReview = input(true);
   readonly review = output<void>();
 
   protected readonly reviewIcon = ListChecks;
