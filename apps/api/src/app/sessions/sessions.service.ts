@@ -22,8 +22,10 @@ import {
   SessionStatus,
   TargetedAxisResultDto,
   avisFromScore,
+  generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
+  scoreDiscriminationSession,
   scoreLogicSession,
   scoreMemorySession,
 } from '@psychotech/shared';
@@ -163,7 +165,7 @@ export class SessionsService {
         ? this.scoreLogicAnswers(session.seed, rawResult.items)
         : rawResult.axis === AxisType.MEMORY
           ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
-          : null;
+          : this.scoreDiscriminationAnswers(session.seed, rawResult.trials);
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -189,6 +191,17 @@ export class SessionsService {
     sequences: MemorySequenceAnswerDto[],
   ): { normalizedScore: number; band: ScoreBand } {
     const scored = scoreMemorySession(generateMemorySession(seed), sequences);
+    return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
+  }
+
+  private scoreDiscriminationAnswers(
+    seed: string,
+    trials: DiscriminationTrialAnswerDto[],
+  ): { normalizedScore: number; band: ScoreBand } {
+    const scored = scoreDiscriminationSession(
+      generateDiscriminationSession(seed),
+      trials,
+    );
     return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
 
@@ -398,7 +411,11 @@ export class SessionsService {
     sessionId: string,
     axis: AxisType,
   ): Promise<TargetedAxisResultDto> {
-    if (axis !== AxisType.LOGIC && axis !== AxisType.MEMORY) {
+    if (
+      axis !== AxisType.LOGIC &&
+      axis !== AxisType.MEMORY &&
+      axis !== AxisType.VISUAL_DISCRIMINATION
+    ) {
       throw new BadRequestException(
         'Axis results are only available for scored axes',
       );
@@ -481,27 +498,45 @@ export class SessionsService {
       isEqualBest: priorBest !== null && entry.score === priorBest,
       previousScore,
     };
-    return axis === AxisType.LOGIC
-      ? {
-          ...base,
-          axis: AxisType.LOGIC,
-          items: this.logicItemsFromMetrics(axisRow.metrics),
-        }
-      : {
-          ...base,
-          axis: AxisType.MEMORY,
-          sequences: this.memorySequencesFromMetrics(axisRow.metrics),
-        };
+    if (axis === AxisType.LOGIC) {
+      return {
+        ...base,
+        axis: AxisType.LOGIC,
+        items: this.logicItemsFromMetrics(axisRow.metrics),
+      };
+    }
+    if (axis === AxisType.MEMORY) {
+      return {
+        ...base,
+        axis: AxisType.MEMORY,
+        sequences: this.memorySequencesFromMetrics(axisRow.metrics),
+      };
+    }
+    return {
+      ...base,
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      trials: this.discriminationTrialsFromMetrics(axisRow.metrics),
+    };
   }
 
   private scoreAxisFromMetrics(
-    axis: AxisType.LOGIC | AxisType.MEMORY,
+    axis: AxisType.LOGIC | AxisType.MEMORY | AxisType.VISUAL_DISCRIMINATION,
     seed: string,
     metrics: unknown,
   ): { normalizedScore: number; band: ScoreBand } {
-    return axis === AxisType.LOGIC
-      ? this.scoreLogicAnswers(seed, this.logicItemsFromMetrics(metrics))
-      : this.scoreMemoryAnswers(seed, this.memorySequencesFromMetrics(metrics));
+    if (axis === AxisType.LOGIC) {
+      return this.scoreLogicAnswers(seed, this.logicItemsFromMetrics(metrics));
+    }
+    if (axis === AxisType.MEMORY) {
+      return this.scoreMemoryAnswers(
+        seed,
+        this.memorySequencesFromMetrics(metrics),
+      );
+    }
+    return this.scoreDiscriminationAnswers(
+      seed,
+      this.discriminationTrialsFromMetrics(metrics),
+    );
   }
 
   private logicItemsFromMetrics(metrics: unknown): LogicItemAnswerDto[] {
@@ -517,6 +552,17 @@ export class SessionsService {
     const raw = metrics as MemoryRawResultDto | null;
     return raw && raw.axis === AxisType.MEMORY && Array.isArray(raw.sequences)
       ? raw.sequences
+      : [];
+  }
+
+  private discriminationTrialsFromMetrics(
+    metrics: unknown,
+  ): DiscriminationTrialAnswerDto[] {
+    const raw = metrics as DiscriminationRawResultDto | null;
+    return raw &&
+      raw.axis === AxisType.VISUAL_DISCRIMINATION &&
+      Array.isArray(raw.trials)
+      ? raw.trials
       : [];
   }
 
