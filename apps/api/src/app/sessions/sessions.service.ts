@@ -20,7 +20,7 @@ import {
   SessionMode,
   SessionResultDto,
   SessionStatus,
-  TargetedLogicResultDto,
+  TargetedAxisResultDto,
   avisFromScore,
   generateLogicSession,
   generateMemorySession,
@@ -397,10 +397,10 @@ export class SessionsService {
     userId: string,
     sessionId: string,
     axis: AxisType,
-  ): Promise<TargetedLogicResultDto> {
-    if (axis !== AxisType.LOGIC) {
+  ): Promise<TargetedAxisResultDto> {
+    if (axis !== AxisType.LOGIC && axis !== AxisType.MEMORY) {
       throw new BadRequestException(
-        'Axis results are only available for the logic axis',
+        'Axis results are only available for scored axes',
       );
     }
     const session = await this.loadOwnedSession(sessionId, userId);
@@ -413,12 +413,12 @@ export class SessionsService {
       throw new ConflictException('Session is not completed');
     }
     const axisRow = session.axisResults.find(
-      (result) => mapEnumValue(AxisType, result.axis) === AxisType.LOGIC,
+      (result) => mapEnumValue(AxisType, result.axis) === axis,
     );
     if (!axisRow) {
       throw new BadRequestException('The axis is not part of this session');
     }
-    const history = await this.repository.findTargetedLogicHistory(userId);
+    const history = await this.repository.findTargetedAxisHistory(userId, axis);
     const scoredHistory: {
       sessionId: string;
       score: number;
@@ -427,9 +427,10 @@ export class SessionsService {
     for (const row of history) {
       let normalizedScore = row.normalizedScore;
       if (normalizedScore === null) {
-        const computed = this.scoreLogicAnswers(
+        const computed = this.scoreAxisFromMetrics(
+          axis,
           row.session.seed,
-          this.logicItemsFromMetrics(row.metrics),
+          row.metrics,
         );
         await this.repository.persistAxisScore(
           row.id,
@@ -452,7 +453,7 @@ export class SessionsService {
       (candidate) => candidate.sessionId === sessionId,
     );
     if (!entry) {
-      throw new BadRequestException('The session has no logic result');
+      throw new BadRequestException('The session has no result for this axis');
     }
     const prior = scoredHistory.filter(
       (candidate) => candidate.completedAt < entry.completedAt,
@@ -461,9 +462,8 @@ export class SessionsService {
       prior.length > 0 ? prior[prior.length - 1].score : null;
     const priorBest =
       prior.length > 0 ? Math.max(...prior.map(({ score }) => score)) : null;
-    return {
+    const base = {
       sessionId,
-      axis: AxisType.LOGIC,
       sector: mapEnumValue(Sector, session.sector),
       seed: session.seed,
       helpEnabled: session.helpEnabled,
@@ -475,19 +475,48 @@ export class SessionsService {
         session.completedAt ??
         session.startedAt
       ).toISOString(),
-      items: this.logicItemsFromMetrics(axisRow.metrics),
       bestScore:
         priorBest === null ? entry.score : Math.max(priorBest, entry.score),
       isNewBest: priorBest !== null && entry.score > priorBest,
       isEqualBest: priorBest !== null && entry.score === priorBest,
       previousScore,
     };
+    return axis === AxisType.LOGIC
+      ? {
+          ...base,
+          axis: AxisType.LOGIC,
+          items: this.logicItemsFromMetrics(axisRow.metrics),
+        }
+      : {
+          ...base,
+          axis: AxisType.MEMORY,
+          sequences: this.memorySequencesFromMetrics(axisRow.metrics),
+        };
+  }
+
+  private scoreAxisFromMetrics(
+    axis: AxisType.LOGIC | AxisType.MEMORY,
+    seed: string,
+    metrics: unknown,
+  ): { normalizedScore: number; band: ScoreBand } {
+    return axis === AxisType.LOGIC
+      ? this.scoreLogicAnswers(seed, this.logicItemsFromMetrics(metrics))
+      : this.scoreMemoryAnswers(seed, this.memorySequencesFromMetrics(metrics));
   }
 
   private logicItemsFromMetrics(metrics: unknown): LogicItemAnswerDto[] {
     const raw = metrics as LogicRawResultDto | null;
     return raw && raw.axis === AxisType.LOGIC && Array.isArray(raw.items)
       ? raw.items
+      : [];
+  }
+
+  private memorySequencesFromMetrics(
+    metrics: unknown,
+  ): MemorySequenceAnswerDto[] {
+    const raw = metrics as MemoryRawResultDto | null;
+    return raw && raw.axis === AxisType.MEMORY && Array.isArray(raw.sequences)
+      ? raw.sequences
       : [];
   }
 

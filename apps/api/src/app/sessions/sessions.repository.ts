@@ -95,7 +95,7 @@ export interface CompleteTargetedSessionParams {
   completedAt: Date;
 }
 
-export type TargetedLogicAxisRow = Prisma.SessionAxisGetPayload<{
+export type TargetedAxisRow = Prisma.SessionAxisGetPayload<{
   include: { session: true };
 }>;
 
@@ -322,10 +322,13 @@ export class SessionsRepository {
     return session;
   }
 
-  findTargetedLogicHistory(userId: string): Promise<TargetedLogicAxisRow[]> {
+  findTargetedAxisHistory(
+    userId: string,
+    axis: AxisType,
+  ): Promise<TargetedAxisRow[]> {
     return this.prisma.sessionAxis.findMany({
       where: {
-        axis: DbAxisType.LOGIC,
+        axis: mapEnumValue(DbAxisType, axis),
         session: {
           userId,
           mode: DbSessionMode.TARGETED,

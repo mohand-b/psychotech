@@ -12,7 +12,7 @@ import {
   AxisType,
   SessionDto,
   SessionResultDto,
-  TargetedLogicResultDto,
+  TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
@@ -106,7 +106,7 @@ export class SessionsController {
     @CurrentUser() userId: string,
     @Param('id', ParseUUIDPipe) sessionId: string,
     @Param('axis', new ParseEnumPipe(AxisType)) axis: AxisType,
-  ): Promise<TargetedLogicResultDto> {
+  ): Promise<TargetedAxisResultDto> {
     return this.sessionsService.targetedResult(userId, sessionId, axis);
   }
 }
