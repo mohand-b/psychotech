@@ -9,67 +9,42 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AXIS_TRAINING,
   AxisType,
-  LogicRecommendation,
   LogicSessionScore,
-  RecommendationPriority,
-  ScoreBand,
   TargetedLogicResultDto,
+  TrainingRecommendation,
   generateLogicSession,
   getLogicRecommendation,
   scoreLogicSession,
 } from '@psychotech/shared';
-import { ArrowRight, ListChecks, Play } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { Button } from '../../../shared/ui/button/button';
-import {
-  formatDayTime,
-  formatDuration,
-  formatSecondsTenths,
-} from '../../../shared/ui/format-duration';
-import { Icon } from '../../../shared/ui/icon/icon';
-import { resolveScoreRating } from '../../../shared/ui/score-rating';
-import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { formatDuration } from '../../../shared/ui/format-duration';
 import {
   LogicTimeChart,
   LogicTimeChartEntry,
 } from '../../ui/logic-time-chart/logic-time-chart';
-
-const VERDICT_LABELS: Record<ScoreBand, string> = {
-  [ScoreBand.EXCELLENT]: 'Favorable',
-  [ScoreBand.ACCEPTABLE]: 'Acceptable',
-  [ScoreBand.FRAGILE]: 'Limite',
-  [ScoreBand.INSUFFICIENT]: 'Défavorable',
-};
-
-const PRIORITY_BADGES: Record<
-  RecommendationPriority,
-  { label: string; mobileLabel: string; pastelVar: string; textVar: string }
-> = {
-  [RecommendationPriority.HIGH]: {
-    label: 'Haute',
-    mobileLabel: 'Priorité haute',
-    pastelVar: 'var(--danger-pastel)',
-    textVar: 'var(--danger-text)',
-  },
-  [RecommendationPriority.MEDIUM]: {
-    label: 'Moyenne',
-    mobileLabel: 'Priorité moyenne',
-    pastelVar: 'var(--warning-pastel)',
-    textVar: 'var(--warning-text)',
-  },
-  [RecommendationPriority.LOW]: {
-    label: 'Conseil',
-    mobileLabel: 'Conseil',
-    pastelVar: 'var(--brand-pastel)',
-    textVar: 'var(--brand)',
-  },
-};
+import { ResultActions } from '../../ui/result-actions/result-actions';
+import {
+  ResultMetricRow,
+  ResultMetrics,
+} from '../../ui/result-metrics/result-metrics';
+import { ResultPanel } from '../../ui/result-panel/result-panel';
+import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
+import { ResultSummary } from '../../ui/result-summary/result-summary';
+import { ResultTiming } from '../../ui/result-timing/result-timing';
 
 @Component({
   selector: 'app-logic-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, LogicTimeChart],
+  imports: [
+    LogicTimeChart,
+    ResultActions,
+    ResultMetrics,
+    ResultPanel,
+    ResultRecommendation,
+    ResultSummary,
+    ResultTiming,
+  ],
   templateUrl: './logic-result.html',
   styleUrl: './logic-result.css',
 })
@@ -85,13 +60,13 @@ export class LogicResult {
 
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
 
-  protected readonly playIcon = Play;
-  protected readonly reviewIcon = ListChecks;
-  protected readonly arrowIcon = ArrowRight;
-
   constructor() {
-    this.facade.loadLogicResult(this.sessionId).subscribe({
-      next: (result) => this.result.set(result),
+    this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
+      next: (result) => {
+        if (result.axis === AxisType.LOGIC) {
+          this.result.set(result);
+        }
+      },
       error: () => this.router.navigate(['/entrainements']),
     });
   }
@@ -103,7 +78,7 @@ export class LogicResult {
       : null;
   });
 
-  protected readonly recommendation = computed<LogicRecommendation | null>(
+  protected readonly recommendation = computed<TrainingRecommendation | null>(
     () => {
       const result = this.result();
       const scored = this.scored();
@@ -113,54 +88,53 @@ export class LogicResult {
     },
   );
 
-  protected readonly priorityBadge = computed(() => {
-    const recommendation = this.recommendation();
-    return recommendation ? PRIORITY_BADGES[recommendation.priority] : null;
-  });
-
-  protected readonly subtitle = computed(() => {
-    const result = this.result();
-    if (!result) {
-      return '';
+  protected readonly metricRows = computed<ResultMetricRow[]>(() => {
+    const scored = this.scored();
+    if (!scored) {
+      return [];
     }
-    const sector = SECTOR_PRESENTATION[result.sector].label;
-    return `Entraînement ciblé · ${sector} · ${formatDayTime(result.completedAt)}`;
+    const avg = scored.avgAnswerTimeMs;
+    return [
+      {
+        label: 'Réponses justes',
+        value: `${scored.correctCount}`,
+        suffix: `/${this.training.exerciseCount}`,
+        dotVar: this.presentation.plainVar,
+      },
+      {
+        label: 'Erreurs',
+        value: `${scored.wrongCount}`,
+        dotVar: 'var(--danger)',
+      },
+      {
+        label: 'Passés sans réponse',
+        value: `${scored.skippedCount}`,
+        dotVar: 'var(--warning)',
+      },
+      {
+        label: 'Non atteints (chrono)',
+        value: `${scored.unreachedCount}`,
+        dotVar: 'var(--text-disabled)',
+      },
+      {
+        label: 'Temps moyen par réponse',
+        value:
+          avg === null
+            ? '—'
+            : (avg / 1000).toLocaleString('fr-FR', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              }),
+        suffix: avg === null ? undefined : ' s',
+      },
+      {
+        label: 'Temps restant à la fin',
+        value: this.remainingAtEnd(),
+      },
+    ];
   });
 
-  protected readonly verdictLabel = computed(() => {
-    const result = this.result();
-    return result ? VERDICT_LABELS[result.band] : '';
-  });
-
-  protected readonly verdictColor = computed(() => {
-    const result = this.result();
-    return result ? resolveScoreRating(result.score).colorVar : '';
-  });
-
-  protected readonly delta = computed(() => {
-    const result = this.result();
-    return result && result.previousScore !== null
-      ? result.score - result.previousScore
-      : null;
-  });
-
-  protected readonly bestSuffix = computed(() => {
-    const result = this.result();
-    if (!result) {
-      return '';
-    }
-    if (result.isNewBest) {
-      return " — record battu aujourd'hui";
-    }
-    return result.isEqualBest ? " — record égalé aujourd'hui" : '';
-  });
-
-  protected readonly avgAnswerTime = computed(() => {
-    const avg = this.scored()?.avgAnswerTimeMs ?? null;
-    return avg === null ? '—' : formatSecondsTenths(avg);
-  });
-
-  protected readonly remainingAtEnd = computed(() => {
+  private readonly remainingAtEnd = computed(() => {
     const result = this.result();
     if (!result) {
       return '—';

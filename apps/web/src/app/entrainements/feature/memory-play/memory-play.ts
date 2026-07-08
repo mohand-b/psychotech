@@ -323,7 +323,13 @@ export class MemoryPlay {
     this.facade.completeTargetedMemory(this.results()).subscribe({
       next: () => {
         this.facade.clearMemoryResults(this.sessionId);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([
+          '/entrainements/cible',
+          AxisType.MEMORY,
+          'session',
+          this.sessionId,
+          'resultat',
+        ]);
       },
       error: () => {
         this.hasSubmitted = false;

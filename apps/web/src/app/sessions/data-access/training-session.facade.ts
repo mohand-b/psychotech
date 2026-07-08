@@ -15,7 +15,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
-  TargetedLogicResultDto,
+  TargetedAxisResultDto,
   TargetedSessionOptionsDto,
   generateDiscriminationSession,
   generateLogicSession,
@@ -202,16 +202,21 @@ export class TrainingSessionFacade {
     return this.api.get(sessionId).pipe(tap((session) => this.install(session)));
   }
 
-  private readonly logicResultCache = signal<TargetedLogicResultDto | null>(null);
+  private readonly targetedResultCache = signal<TargetedAxisResultDto | null>(
+    null,
+  );
 
-  loadLogicResult(sessionId: string): Observable<TargetedLogicResultDto> {
-    const cached = this.logicResultCache();
-    if (cached?.sessionId === sessionId) {
+  loadTargetedResult(
+    sessionId: string,
+    axis: AxisType,
+  ): Observable<TargetedAxisResultDto> {
+    const cached = this.targetedResultCache();
+    if (cached?.sessionId === sessionId && cached.axis === axis) {
       return of(cached);
     }
     return this.api
-      .targetedResult(sessionId, AxisType.LOGIC)
-      .pipe(tap((result) => this.logicResultCache.set(result)));
+      .targetedResult(sessionId, axis)
+      .pipe(tap((result) => this.targetedResultCache.set(result)));
   }
 
   completeTargeted(items: LogicItemAnswerDto[]): Observable<SessionDto> {

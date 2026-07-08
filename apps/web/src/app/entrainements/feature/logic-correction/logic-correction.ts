@@ -78,8 +78,12 @@ export class LogicCorrection {
   private readonly sequence = viewChild<LogicSequence>('sequence');
 
   constructor() {
-    this.facade.loadLogicResult(this.sessionId).subscribe({
-      next: (result) => this.result.set(result),
+    this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
+      next: (result) => {
+        if (result.axis === AxisType.LOGIC) {
+          this.result.set(result);
+        }
+      },
       error: () => this.router.navigate(['/entrainements']),
     });
   }

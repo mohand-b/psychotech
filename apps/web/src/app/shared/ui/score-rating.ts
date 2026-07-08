@@ -1,5 +1,12 @@
 import { ScoreBand } from '@psychotech/shared';
 
+export const VERDICT_LABELS: Record<ScoreBand, string> = {
+  [ScoreBand.EXCELLENT]: 'Favorable',
+  [ScoreBand.ACCEPTABLE]: 'Acceptable',
+  [ScoreBand.FRAGILE]: 'Limite',
+  [ScoreBand.INSUFFICIENT]: 'Défavorable',
+};
+
 export interface ScoreRating {
   band: ScoreBand;
   colorVar: string;

@@ -5,7 +5,7 @@ import {
   CompleteTargetedSessionDto,
   SessionDto,
   StartSessionDto,
-  TargetedLogicResultDto,
+  TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -37,8 +37,8 @@ export class SessionsApi {
   targetedResult(
     sessionId: string,
     axis: AxisType,
-  ): Observable<TargetedLogicResultDto> {
-    return this.http.get<TargetedLogicResultDto>(
+  ): Observable<TargetedAxisResultDto> {
+    return this.http.get<TargetedAxisResultDto>(
       `${this.baseUrl}/sessions/${sessionId}/axes/${axis}/results`,
     );
   }

@@ -85,6 +85,15 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/resultat',
+    canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    data: {
+      mobileFlow: { axisParam: 'axis', suffix: 'Ciblé' },
+    },
+    loadComponent: () =>
+      import('./memory-result/memory-result').then((m) => m.MemoryResult),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {
