@@ -16,14 +16,14 @@ import {
   resolveLogicRuleHint,
   scoreLogicSession,
 } from '@psychotech/shared';
-import { ArrowLeft, ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
-import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { Button } from '../../../shared/ui/button/button';
-import { Icon } from '../../../shared/ui/icon/icon';
-import { CorrectionStatusBand } from '../../ui/correction-status-band/correction-status-band';
+import {
+  CorrectionShell,
+} from '../../ui/correction-shell/correction-shell';
+import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
+import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../../ui/logic-status';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,
@@ -51,10 +51,17 @@ const STATUS_BADGES: Record<
   },
 };
 
+const LEGEND_STATUSES: LogicItemStatus[] = [
+  'CORRECT',
+  'WRONG',
+  'SKIPPED',
+  'UNREACHED',
+];
+
 @Component({
   selector: 'app-logic-correction',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, CorrectionStatusBand, LogicChoices, LogicSequence],
+  imports: [CorrectionShell, LogicChoices, LogicSequence],
   templateUrl: './logic-correction.html',
   styleUrl: './logic-correction.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -66,14 +73,11 @@ export class LogicCorrection {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  protected readonly presentation = AXIS_PRESENTATION[AxisType.LOGIC];
+  protected readonly axis = AxisType.LOGIC;
   protected readonly total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
 
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
   protected readonly currentIndex = signal(0);
-
-  protected readonly backIcon = ArrowLeft;
-  protected readonly forwardIcon = ArrowRight;
 
   private readonly sequence = viewChild<LogicSequence>('sequence');
 
@@ -99,6 +103,20 @@ export class LogicCorrection {
       ? scoreLogicSession(this.items(), result.items).statuses
       : [];
   });
+
+  protected readonly dots = computed<StatusBandEntry[]>(() =>
+    this.statuses().map((status) => ({
+      colorVar: LOGIC_STATUS_COLORS[status],
+      label: LOGIC_STATUS_LABELS[status],
+    })),
+  );
+
+  protected readonly legend: StatusBandEntry[] = LEGEND_STATUSES.map(
+    (status) => ({
+      colorVar: LOGIC_STATUS_COLORS[status],
+      label: LOGIC_STATUS_LABELS[status].toLowerCase(),
+    }),
+  );
 
   private readonly responseByIndex = computed(() => {
     const result = this.result();

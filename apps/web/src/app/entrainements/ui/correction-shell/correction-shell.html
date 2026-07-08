@@ -1,0 +1,77 @@
+<section
+  class="shell"
+  [style.--axis-plain]="presentation().plainVar"
+  [style.--axis-pastel]="presentation().pastelVar"
+  [style.--axis-pastel-bd]="presentation().pastelBorderVar"
+  [style.--axis-text]="presentation().textVar"
+>
+  <ui-correction-status-band
+    [dots]="dots()"
+    [legend]="legend()"
+    [currentIndex]="currentIndex()"
+    (navigate)="navigate.emit($event)"
+  />
+
+  <div class="shell__content">
+    <article class="shell__card">
+      <ng-content />
+    </article>
+
+    <div class="shell__nav">
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        [icon]="backIcon"
+        [disabled]="isFirst()"
+        (click)="previous.emit()"
+      >
+        Précédent
+      </ui-button>
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        [iconEnd]="forwardIcon"
+        [disabled]="isLast()"
+        (click)="next.emit()"
+      >
+        Suivant
+      </ui-button>
+    </div>
+
+    <div class="shell__primary">
+      <ui-button color="brand" (click)="backToResult.emit()">
+        Retour au résultat
+      </ui-button>
+    </div>
+
+    <p class="shell__kbd t-support">
+      ← → au clavier pour naviguer entre les items
+    </p>
+  </div>
+
+  <div class="shell__mobile-bar">
+    <button
+      type="button"
+      class="shell__arrow"
+      [disabled]="isFirst()"
+      aria-label="Exercice précédent"
+      (click)="previous.emit()"
+    >
+      <ui-icon [img]="backIcon" [size]="18" />
+    </button>
+    <div class="shell__mobile-primary">
+      <ui-button color="brand" [block]="true" (click)="backToResult.emit()">
+        Retour au résultat
+      </ui-button>
+    </div>
+    <button
+      type="button"
+      class="shell__arrow"
+      [disabled]="isLast()"
+      aria-label="Exercice suivant"
+      (click)="next.emit()"
+    >
+      <ui-icon [img]="forwardIcon" [size]="18" />
+    </button>
+  </div>
+</section>

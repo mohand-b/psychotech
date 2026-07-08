@@ -1,0 +1,225 @@
+:host {
+  display: block;
+}
+
+.memo__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.memo__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-badge);
+  font: 600 12px/16px var(--font-ui);
+}
+
+.memo__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.memo__phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__count {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__count-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.memo__count-total {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label);
+}
+
+.memo__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.memo__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.memo__row-label {
+  width: 220px;
+  flex-shrink: 0;
+  text-align: right;
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__cells {
+  display: flex;
+  gap: 8px;
+}
+
+.memo__cell {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  background: var(--card);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.memo__cell--answer {
+  height: 52px;
+}
+
+.memo__cell-digit {
+  line-height: 1;
+}
+
+.memo__cell-mark {
+  display: inline-flex;
+  margin-top: 2px;
+}
+
+.memo__cell--placed {
+  background: var(--secondary-pastel);
+  border-color: var(--success);
+  color: var(--secondary-label);
+}
+
+.memo__cell--misplaced {
+  background: var(--warning-pastel);
+  border-color: var(--warning);
+  color: var(--warning-text);
+}
+
+.memo__cell--absent {
+  background: var(--danger-pastel);
+  border-color: var(--danger);
+  color: var(--danger-text);
+}
+
+.memo__cell--empty {
+  border-style: dashed;
+  border-color: var(--border-hover);
+  background: var(--card);
+}
+
+.memo__legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.memo__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 11px/14px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+}
+
+.memo__legend-dot--placed {
+  background: var(--success);
+}
+
+.memo__legend-dot--misplaced {
+  background: var(--warning);
+}
+
+.memo__legend-dot--absent {
+  background: var(--danger);
+}
+
+.memo__time {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__time-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.memo__time-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label);
+}
+
+.memo__timeout {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--radius-badge);
+  background: var(--warning-pastel);
+  font: 600 13px/18px var(--font-ui);
+  color: var(--warning-text);
+}
+
+@media (max-width: 767px) {
+  .memo__card-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .memo__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .memo__row-label {
+    width: auto;
+    text-align: left;
+  }
+
+  .memo__cells {
+    gap: 6px;
+  }
+
+  .memo__cell {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .memo__cell--answer {
+    height: 48px;
+  }
+}

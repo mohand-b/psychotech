@@ -94,6 +94,27 @@ export const entrainementsRoutes: Route[] = [
       import('./memory-result/memory-result').then((m) => m.MemoryResult),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/correction',
+    canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    data: {
+      focusedHeader: {
+        title: 'Correction',
+        backLabel: 'Résultat',
+        backLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+        closeLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+        axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showTimer: false,
+        live: false,
+      },
+    },
+    loadComponent: () =>
+      import('./memory-correction/memory-correction').then(
+        (m) => m.MemoryCorrection,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {

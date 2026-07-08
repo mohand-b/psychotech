@@ -1,102 +1,40 @@
-<section
-  class="corr"
-  [style.--axis-plain]="presentation.plainVar"
-  [style.--axis-pastel]="presentation.pastelVar"
-  [style.--axis-pastel-bd]="presentation.pastelBorderVar"
-  [style.--axis-text]="presentation.textVar"
->
-  @if (result() && currentItem(); as item) {
-    <ui-correction-status-band
-      [statuses]="statuses()"
-      [currentIndex]="currentIndex()"
-      (navigate)="goTo($event)"
+@if (result() && currentItem(); as item) {
+  <ui-correction-shell
+    [axis]="axis"
+    [dots]="dots()"
+    [legend]="legend"
+    [currentIndex]="currentIndex()"
+    [isFirst]="isFirst()"
+    [isLast]="isLast()"
+    (navigate)="goTo($event)"
+    (previous)="previous()"
+    (next)="next()"
+    (backToResult)="backToResult()"
+  >
+    <header class="corr__card-head">
+      <span
+        class="corr__badge"
+        [style.background]="badge().backgroundVar"
+        [style.color]="badge().colorVar"
+        >{{ badge().label }}</span
+      >
+      <span class="corr__count t-mono"
+        >{{ currentIndex() + 1 }}/{{ total }}</span
+      >
+    </header>
+
+    <ui-logic-sequence #sequence [terms]="item.sequence" [hint]="hint()" />
+
+    <ui-logic-choices
+      [review]="true"
+      [choices]="item.choices"
+      [correctIndex]="item.answerIndex"
+      [userAnswerIndex]="userAnswerIndex()"
     />
 
-    <div class="corr__content">
-      <article class="corr__card">
-        <header class="corr__card-head">
-          <span
-            class="corr__badge"
-            [style.background]="badge().backgroundVar"
-            [style.color]="badge().colorVar"
-            >{{ badge().label }}</span
-          >
-          <span class="corr__count t-mono"
-            >{{ currentIndex() + 1 }}/{{ total }}</span
-          >
-        </header>
-
-        <ui-logic-sequence #sequence [terms]="item.sequence" [hint]="hint()" />
-
-        <ui-logic-choices
-          [review]="true"
-          [choices]="item.choices"
-          [correctIndex]="item.answerIndex"
-          [userAnswerIndex]="userAnswerIndex()"
-        />
-
-        <span class="corr__time"
-          >Votre temps :
-          <strong class="corr__time-value t-mono">{{ timeLabel() }}</strong></span
-        >
-      </article>
-
-      <div class="corr__nav">
-        <ui-button
-          color="neutral"
-          appearance="outlined"
-          [icon]="backIcon"
-          [disabled]="isFirst()"
-          (click)="previous()"
-        >
-          Précédent
-        </ui-button>
-        <ui-button
-          color="neutral"
-          appearance="outlined"
-          [iconEnd]="forwardIcon"
-          [disabled]="isLast()"
-          (click)="next()"
-        >
-          Suivant
-        </ui-button>
-      </div>
-
-      <div class="corr__primary">
-        <ui-button color="brand" (click)="backToResult()">
-          Retour au résultat
-        </ui-button>
-      </div>
-
-      <p class="corr__kbd t-support">
-        ← → au clavier pour naviguer entre les items
-      </p>
-    </div>
-
-    <div class="corr__mobile-bar">
-      <button
-        type="button"
-        class="corr__arrow"
-        [disabled]="isFirst()"
-        aria-label="Item précédent"
-        (click)="previous()"
-      >
-        <ui-icon [img]="backIcon" [size]="18" />
-      </button>
-      <div class="corr__mobile-primary">
-        <ui-button color="brand" [block]="true" (click)="backToResult()">
-          Retour au résultat
-        </ui-button>
-      </div>
-      <button
-        type="button"
-        class="corr__arrow"
-        [disabled]="isLast()"
-        aria-label="Item suivant"
-        (click)="next()"
-      >
-        <ui-icon [img]="forwardIcon" [size]="18" />
-      </button>
-    </div>
-  }
-</section>
+    <span class="corr__time"
+      >Votre temps :
+      <strong class="corr__time-value t-mono">{{ timeLabel() }}</strong></span
+    >
+  </ui-correction-shell>
+}

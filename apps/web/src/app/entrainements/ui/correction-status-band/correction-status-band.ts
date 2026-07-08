@@ -4,42 +4,38 @@ import {
   input,
   output,
 } from '@angular/core';
-import { LogicItemStatus } from '@psychotech/shared';
-import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../logic-status';
 
-const LEGEND_STATUSES: LogicItemStatus[] = [
-  'CORRECT',
-  'WRONG',
-  'SKIPPED',
-  'UNREACHED',
-];
+export interface StatusBandEntry {
+  colorVar: string;
+  label: string;
+}
 
 @Component({
   selector: 'ui-correction-status-band',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="band">
-      <div class="band__dots" role="tablist" aria-label="Items de la session">
-        @for (status of statuses(); track $index) {
+      <div class="band__dots" role="tablist" aria-label="Exercices de la session">
+        @for (dot of dots(); track $index) {
           <button
             type="button"
             class="band__dot"
             [class.band__dot--current]="$index === currentIndex()"
-            [style.background]="colorFor(status)"
-            [attr.aria-label]="'Item ' + ($index + 1) + ' · ' + labelFor(status)"
+            [style.background]="dot.colorVar"
+            [attr.aria-label]="'Exercice ' + ($index + 1) + ' · ' + dot.label"
             [attr.aria-current]="$index === currentIndex() ? 'true' : null"
             (click)="navigate.emit($index)"
           ></button>
         }
       </div>
       <div class="band__legend">
-        @for (status of legendStatuses; track status) {
+        @for (entry of legend(); track entry.label) {
           <span class="band__legend-item">
             <span
               class="band__legend-dot"
-              [style.background]="colorFor(status)"
+              [style.background]="entry.colorVar"
             ></span>
-            {{ labelFor(status).toLowerCase() }}
+            {{ entry.label }}
           </span>
         }
       </div>
@@ -120,17 +116,8 @@ const LEGEND_STATUSES: LogicItemStatus[] = [
   `,
 })
 export class CorrectionStatusBand {
-  readonly statuses = input.required<LogicItemStatus[]>();
+  readonly dots = input.required<StatusBandEntry[]>();
+  readonly legend = input.required<StatusBandEntry[]>();
   readonly currentIndex = input.required<number>();
   readonly navigate = output<number>();
-
-  protected readonly legendStatuses = LEGEND_STATUSES;
-
-  protected colorFor(status: LogicItemStatus): string {
-    return LOGIC_STATUS_COLORS[status];
-  }
-
-  protected labelFor(status: LogicItemStatus): string {
-    return LOGIC_STATUS_LABELS[status];
-  }
 }
