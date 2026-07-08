@@ -20,6 +20,7 @@ import {
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
+import { finishedAxisCount } from './sessions.logic';
 import {
   SESSION_INCLUDE,
   SessionWithRelations,
@@ -111,6 +112,13 @@ export interface ListSessionsFilter {
   to?: string;
 }
 
+export interface ListHistoryFilter {
+  mode?: SessionMode;
+  axis?: AxisType;
+  cursor?: string;
+  take: number;
+}
+
 @Injectable()
 export class SessionsRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -123,6 +131,7 @@ export class SessionsRepository {
     ) => Promise<void>,
   ): Promise<SessionWithRelations> {
     return this.prisma.$transaction(async (tx) => {
+      await this.abandonUnfinishedSessions(tx, params.userId, new Date());
       const created = await tx.session.create({
         data: {
           userId: params.userId,
@@ -359,9 +368,16 @@ export class SessionsRepository {
   }
 
   async abandonSession(sessionId: string, abandonedAt: Date): Promise<void> {
+    const axisResults = await this.prisma.sessionAxis.findMany({
+      where: { sessionId },
+    });
     await this.prisma.session.update({
       where: { id: sessionId },
-      data: { status: DbSessionStatus.ABANDONED, abandonedAt },
+      data: {
+        status: DbSessionStatus.ABANDONED,
+        abandonedAt,
+        currentAxisIndex: finishedAxisCount(axisResults),
+      },
     });
   }
 
@@ -387,6 +403,73 @@ export class SessionsRepository {
       include: SESSION_INCLUDE,
       orderBy: { startedAt: 'desc' },
     });
+  }
+
+  listHistory(
+    userId: string,
+    filter: ListHistoryFilter,
+  ): Promise<SessionWithRelations[]> {
+    const where: Prisma.SessionWhereInput = {
+      userId,
+      status: {
+        in: [DbSessionStatus.COMPLETED, DbSessionStatus.ABANDONED],
+      },
+    };
+    if (filter.mode) {
+      where.mode = mapEnumValue(DbSessionMode, filter.mode);
+    }
+    if (filter.axis) {
+      where.mode = DbSessionMode.TARGETED;
+      where.axisResults = {
+        some: { axis: mapEnumValue(DbAxisType, filter.axis) },
+      };
+    }
+    return this.prisma.session.findMany({
+      where,
+      include: SESSION_INCLUDE,
+      orderBy: [{ startedAt: 'desc' }, { id: 'desc' }],
+      take: filter.take,
+      ...(filter.cursor ? { cursor: { id: filter.cursor }, skip: 1 } : {}),
+    });
+  }
+
+  findCurrentSession(userId: string): Promise<SessionWithRelations | null> {
+    return this.prisma.session.findFirst({
+      where: {
+        userId,
+        status: {
+          in: [DbSessionStatus.IN_PROGRESS, DbSessionStatus.SUSPENDED],
+        },
+      },
+      include: SESSION_INCLUDE,
+      orderBy: { startedAt: 'desc' },
+    });
+  }
+
+  private async abandonUnfinishedSessions(
+    client: Prisma.TransactionClient,
+    userId: string,
+    abandonedAt: Date,
+  ): Promise<void> {
+    const unfinished = await client.session.findMany({
+      where: {
+        userId,
+        status: {
+          in: [DbSessionStatus.IN_PROGRESS, DbSessionStatus.SUSPENDED],
+        },
+      },
+      include: { axisResults: true },
+    });
+    for (const session of unfinished) {
+      await client.session.update({
+        where: { id: session.id },
+        data: {
+          status: DbSessionStatus.ABANDONED,
+          abandonedAt,
+          currentAxisIndex: finishedAxisCount(session.axisResults),
+        },
+      });
+    }
   }
 
   private async upsertAxisBest(

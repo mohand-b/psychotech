@@ -2,6 +2,16 @@ import { BadRequestException } from '@nestjs/common';
 import { AxisType, SessionMode } from '@psychotech/shared';
 import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util';
 
+export const SESSION_HISTORY_PAGE_SIZE = 10;
+
+export function finishedAxisCount(
+  axisResults: { completedAt: Date | null; skipped: boolean }[],
+): number {
+  return axisResults.filter(
+    (axis) => axis.completedAt !== null || axis.skipped,
+  ).length;
+}
+
 export const FULL_SESSION_AXIS_ORDER: AxisType[] = [
   AxisType.LOGIC,
   AxisType.MEMORY,
