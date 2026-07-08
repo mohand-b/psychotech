@@ -24,6 +24,7 @@ import {
   ResultMetricRow,
   ResultMetrics,
 } from '../../ui/result-metrics/result-metrics';
+import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
@@ -36,13 +37,13 @@ import { ResultTiming } from '../../ui/result-timing/result-timing';
     MemoryReliabilityChart,
     ResultActions,
     ResultMetrics,
+    ResultPage,
     ResultPanel,
     ResultRecommendation,
     ResultSummary,
     ResultTiming,
   ],
   templateUrl: './memory-result.html',
-  styleUrl: './memory-result.css',
 })
 export class MemoryResult {
   private readonly facade = inject(TrainingSessionFacade);

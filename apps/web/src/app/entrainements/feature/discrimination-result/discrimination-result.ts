@@ -24,6 +24,7 @@ import {
   ResultMetricRow,
   ResultMetrics,
 } from '../../ui/result-metrics/result-metrics';
+import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
@@ -43,6 +44,7 @@ const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
   imports: [
     ResultActions,
     ResultMetrics,
+    ResultPage,
     ResultPanel,
     ResultRecommendation,
     ResultSummary,
@@ -50,7 +52,6 @@ const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
     TimeChart,
   ],
   templateUrl: './discrimination-result.html',
-  styleUrl: './discrimination-result.css',
 })
 export class DiscriminationResult {
   private readonly facade = inject(TrainingSessionFacade);

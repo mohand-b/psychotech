@@ -65,7 +65,7 @@ const PRIORITY_BADGES: Record<
       border: 1px solid var(--border);
       border-radius: var(--radius-panel);
       box-shadow: var(--shadow-card);
-      padding: 18px 24px;
+      padding: 20px 32px;
     }
     .reco__text {
       flex: 1;

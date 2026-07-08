@@ -10,13 +10,13 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styles: `
     :host {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      grid-template-columns: 22rem 1fr;
+      gap: 40px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-panel);
       box-shadow: var(--shadow-card);
-      padding: 24px;
+      padding: 32px;
     }
     @media (max-width: 767px) {
       :host {

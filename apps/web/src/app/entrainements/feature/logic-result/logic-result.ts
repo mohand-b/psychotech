@@ -25,6 +25,7 @@ import {
   ResultMetricRow,
   ResultMetrics,
 } from '../../ui/result-metrics/result-metrics';
+import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
@@ -37,6 +38,7 @@ import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
   imports: [
     ResultActions,
     ResultMetrics,
+    ResultPage,
     ResultPanel,
     ResultRecommendation,
     ResultSummary,
@@ -44,7 +46,6 @@ import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
     TimeChart,
   ],
   templateUrl: './logic-result.html',
-  styleUrl: './logic-result.css',
 })
 export class LogicResult {
   private readonly facade = inject(TrainingSessionFacade);

@@ -16,7 +16,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 24px;
+  padding: 32px;
 }
 
 .summary__label {

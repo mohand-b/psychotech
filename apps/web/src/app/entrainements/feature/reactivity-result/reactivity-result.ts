@@ -21,6 +21,7 @@ import {
   ResultMetricRow,
   ResultMetrics,
 } from '../../ui/result-metrics/result-metrics';
+import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
@@ -34,13 +35,13 @@ import { ReactivityTrChart } from '../../ui/reactivity-tr-chart/reactivity-tr-ch
     ReactivityTrChart,
     ResultActions,
     ResultMetrics,
+    ResultPage,
     ResultPanel,
     ResultRecommendation,
     ResultSummary,
     ResultTiming,
   ],
   templateUrl: './reactivity-result.html',
-  styleUrl: './reactivity-result.css',
 })
 export class ReactivityResult {
   private readonly facade = inject(TrainingSessionFacade);
