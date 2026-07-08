@@ -1,15 +1,18 @@
 import { Prisma, Recommendation, SessionAxis } from '@prisma/client';
 import {
   AxisMetrics,
+  AxisProgressStatus,
   AxisRawResultDto,
   AxisType,
   BadgeDto,
+  CurrentSessionDto,
   RecommendationDto,
   RecommendationPriority,
   ScoreBand,
   Sector,
   SessionAxisResultDto,
   SessionDto,
+  SessionHistoryItemDto,
   SessionMode,
   SessionResultDto,
   SessionStatus,
@@ -66,6 +69,74 @@ export function toSessionResultDto(
     recommendations: session.recommendations.map(toRecommendationDto),
     unlockedBadges,
     completedAt: session.completedAt ? session.completedAt.toISOString() : null,
+  };
+}
+
+export function toSessionHistoryItemDto(
+  session: SessionWithRelations,
+): SessionHistoryItemDto {
+  const mode = mapEnumValue(SessionMode, session.mode);
+  const status = mapEnumValue(SessionStatus, session.status);
+  const axisResults = sortedAxisResults(session.axisResults);
+  const finishedAt =
+    session.completedAt ?? session.abandonedAt ?? session.startedAt;
+  const isAbandoned = status === SessionStatus.ABANDONED;
+  const targetedAxis = axisResults[0];
+  const score = isAbandoned
+    ? null
+    : mode === SessionMode.FULL
+      ? session.globalScore
+      : (targetedAxis?.normalizedScore ?? null);
+  const band = isAbandoned
+    ? null
+    : mode === SessionMode.FULL
+      ? session.globalBand
+      : (targetedAxis?.band ?? null);
+  return {
+    id: session.id,
+    mode,
+    axis:
+      mode === SessionMode.FULL || !targetedAxis
+        ? null
+        : mapEnumValue(AxisType, targetedAxis.axis),
+    sector: mapEnumValue(Sector, session.sector),
+    status,
+    finishedAt: finishedAt.toISOString(),
+    durationSec: Math.max(
+      0,
+      Math.round((finishedAt.getTime() - session.startedAt.getTime()) / 1000),
+    ),
+    score,
+    band: band ? mapEnumValue(ScoreBand, band) : null,
+    axisReached:
+      mode === SessionMode.FULL && isAbandoned
+        ? Math.min(session.currentAxisIndex + 1, axisResults.length)
+        : null,
+    axisTotal: axisResults.length,
+  };
+}
+
+export function toCurrentSessionDto(
+  session: SessionWithRelations,
+): CurrentSessionDto {
+  let currentAssigned = false;
+  return {
+    id: session.id,
+    mode: mapEnumValue(SessionMode, session.mode),
+    sector: mapEnumValue(Sector, session.sector),
+    axes: sortedAxisResults(session.axisResults).map((axis) => {
+      if (axis.completedAt !== null || axis.skipped) {
+        return {
+          axis: mapEnumValue(AxisType, axis.axis),
+          status: AxisProgressStatus.DONE,
+        };
+      }
+      const status = currentAssigned
+        ? AxisProgressStatus.PENDING
+        : AxisProgressStatus.CURRENT;
+      currentAssigned = true;
+      return { axis: mapEnumValue(AxisType, axis.axis), status };
+    }),
   };
 }
 

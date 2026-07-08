@@ -8,6 +8,7 @@ import {
 import {
   AXIS_TRAINING,
   AxisType,
+  CurrentSessionDto,
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
@@ -20,6 +21,7 @@ import {
   ScoreBand,
   Sector,
   SessionDto,
+  SessionHistoryPageDto,
   SessionMode,
   SessionResultDto,
   SessionStatus,
@@ -44,9 +46,15 @@ import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
 import { SubmitAxisResultRequest } from './dto/submit-axis-result.request';
-import { computeStreakUpdate, resolveSessionAxes } from './sessions.logic';
 import {
+  SESSION_HISTORY_PAGE_SIZE,
+  computeStreakUpdate,
+  resolveSessionAxes,
+} from './sessions.logic';
+import {
+  toCurrentSessionDto,
   toSessionDto,
+  toSessionHistoryItemDto,
   toSessionResultDto,
   SessionWithRelations,
 } from './sessions.mappers';
@@ -446,14 +454,34 @@ export class SessionsService {
     return toSessionDto(await this.loadOwnedSession(sessionId, userId));
   }
 
-  async list(userId: string, query: ListSessionsQuery): Promise<SessionDto[]> {
-    const sessions = await this.repository.listSessions(userId, {
+  async list(
+    userId: string,
+    query: ListSessionsQuery,
+  ): Promise<SessionHistoryPageDto> {
+    if (query.mode && query.axis) {
+      throw new BadRequestException(
+        'The mode and axis filters are mutually exclusive',
+      );
+    }
+    const rows = await this.repository.listHistory(userId, {
       mode: query.mode,
       axis: query.axis,
-      from: query.from,
-      to: query.to,
+      cursor: query.cursor,
+      take: SESSION_HISTORY_PAGE_SIZE + 1,
     });
-    return sessions.map(toSessionDto);
+    const hasMore = rows.length > SESSION_HISTORY_PAGE_SIZE;
+    const items = rows
+      .slice(0, SESSION_HISTORY_PAGE_SIZE)
+      .map(toSessionHistoryItemDto);
+    return {
+      items,
+      nextCursor: hasMore ? items[items.length - 1].id : null,
+    };
+  }
+
+  async current(userId: string): Promise<CurrentSessionDto | null> {
+    const session = await this.repository.findCurrentSession(userId);
+    return session ? toCurrentSessionDto(session) : null;
   }
 
   async get(userId: string, sessionId: string): Promise<SessionDto> {

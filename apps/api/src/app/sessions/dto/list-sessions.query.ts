@@ -1,5 +1,5 @@
 import { AxisType, SessionMode } from '@psychotech/shared';
-import { IsEnum, IsISO8601, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 
 export class ListSessionsQuery {
   @IsOptional()
@@ -11,10 +11,6 @@ export class ListSessionsQuery {
   axis?: AxisType;
 
   @IsOptional()
-  @IsISO8601()
-  from?: string;
-
-  @IsOptional()
-  @IsISO8601()
-  to?: string;
+  @IsUUID()
+  cursor?: string;
 }

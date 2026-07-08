@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import {
   AxisType,
+  CurrentSessionDto,
   SessionDto,
+  SessionHistoryPageDto,
   SessionResultDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
@@ -81,8 +83,13 @@ export class SessionsController {
   list(
     @CurrentUser() userId: string,
     @Query() query: ListSessionsQuery,
-  ): Promise<SessionDto[]> {
+  ): Promise<SessionHistoryPageDto> {
     return this.sessionsService.list(userId, query);
+  }
+
+  @Get('current')
+  current(@CurrentUser() userId: string): Promise<CurrentSessionDto | null> {
+    return this.sessionsService.current(userId);
   }
 
   @Get(':id')

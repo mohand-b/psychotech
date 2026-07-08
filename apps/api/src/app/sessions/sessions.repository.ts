@@ -105,13 +105,6 @@ export interface StreakContext {
   streak: { current: number; longest: number; lastActivityDate: Date | null } | null;
 }
 
-export interface ListSessionsFilter {
-  mode?: SessionMode;
-  axis?: AxisType;
-  from?: string;
-  to?: string;
-}
-
 export interface ListHistoryFilter {
   mode?: SessionMode;
   axis?: AxisType;
@@ -378,30 +371,6 @@ export class SessionsRepository {
         abandonedAt,
         currentAxisIndex: finishedAxisCount(axisResults),
       },
-    });
-  }
-
-  listSessions(
-    userId: string,
-    filter: ListSessionsFilter,
-  ): Promise<SessionWithRelations[]> {
-    return this.prisma.session.findMany({
-      where: {
-        userId,
-        mode: filter.mode ? mapEnumValue(DbSessionMode, filter.mode) : undefined,
-        axisResults: filter.axis
-          ? { some: { axis: mapEnumValue(DbAxisType, filter.axis) } }
-          : undefined,
-        startedAt:
-          filter.from || filter.to
-            ? {
-                gte: filter.from ? new Date(filter.from) : undefined,
-                lte: filter.to ? new Date(filter.to) : undefined,
-              }
-            : undefined,
-      },
-      include: SESSION_INCLUDE,
-      orderBy: { startedAt: 'desc' },
     });
   }
 

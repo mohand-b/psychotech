@@ -70,7 +70,8 @@ const repository = {
   completeTargetedSession: vi.fn(),
   suspendSession: vi.fn(),
   abandonSession: vi.fn(),
-  listSessions: vi.fn(),
+  listHistory: vi.fn(),
+  findCurrentSession: vi.fn(),
 };
 
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
@@ -419,6 +420,141 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('SessionsService.list', () => {
+  it('rejects combined mode and axis filters', async () => {
+    await expect(
+      service.list('user-1', {
+        mode: SessionMode.TARGETED,
+        axis: AxisType.LOGIC,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.listHistory).not.toHaveBeenCalled();
+  });
+
+  it('returns a next cursor only when an extra row exists beyond the page', async () => {
+    const rows = Array.from({ length: 11 }, (_, index) =>
+      buildSession({
+        id: `00000000-0000-0000-0000-0000000000${String(index).padStart(2, '0')}`,
+        status: 'COMPLETED',
+        completedAt: new Date('2026-07-01T10:00:00Z'),
+        globalScore: 74.8,
+        globalBand: 'ACCEPTABLE',
+      }),
+    );
+    repository.listHistory.mockResolvedValue(rows);
+
+    const page = await service.list('user-1', {});
+
+    expect(repository.listHistory).toHaveBeenCalledWith('user-1', {
+      mode: undefined,
+      axis: undefined,
+      cursor: undefined,
+      take: 11,
+    });
+    expect(page.items).toHaveLength(10);
+    expect(page.nextCursor).toBe(page.items[9].id);
+
+    repository.listHistory.mockResolvedValue(rows.slice(0, 4));
+    const lastPage = await service.list('user-1', {});
+    expect(lastPage.items).toHaveLength(4);
+    expect(lastPage.nextCursor).toBeNull();
+  });
+
+  it('maps an abandoned full session with the reached axis and no result', async () => {
+    repository.listHistory.mockResolvedValue([
+      buildSession({
+        status: 'ABANDONED',
+        currentAxisIndex: 1,
+        globalScore: null,
+        globalBand: null,
+        startedAt: new Date('2026-07-01T10:00:00Z'),
+        abandonedAt: new Date('2026-07-01T10:09:00Z'),
+        axisResults: [
+          buildAxis({ order: 0, completedAt: new Date(), normalizedScore: 80, band: 'EXCELLENT' }),
+          buildAxis({ id: 'axis-2', axis: 'MEMORY', order: 1 }),
+          buildAxis({ id: 'axis-3', axis: 'VISUAL_DISCRIMINATION', order: 2 }),
+          buildAxis({ id: 'axis-4', axis: 'REACTIVITY', order: 3 }),
+          buildAxis({ id: 'axis-5', axis: 'MOTOR_SKILLS', order: 4 }),
+        ],
+      }),
+    ]);
+
+    const page = await service.list('user-1', {});
+    const item = page.items[0];
+
+    expect(item.status).toBe('ABANDONED');
+    expect(item.axis).toBeNull();
+    expect(item.score).toBeNull();
+    expect(item.band).toBeNull();
+    expect(item.axisReached).toBe(2);
+    expect(item.axisTotal).toBe(5);
+    expect(item.finishedAt).toBe('2026-07-01T10:09:00.000Z');
+    expect(item.durationSec).toBe(540);
+  });
+
+  it('maps a completed targeted session with its axis persisted score and band', async () => {
+    repository.listHistory.mockResolvedValue([
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        startedAt: new Date('2026-07-01T10:00:00Z'),
+        completedAt: new Date('2026-07-01T10:04:00Z'),
+        axisResults: [
+          buildAxis({
+            axis: 'REACTIVITY',
+            normalizedScore: 76,
+            band: 'ACCEPTABLE',
+            completedAt: new Date('2026-07-01T10:04:00Z'),
+          }),
+        ],
+      }),
+    ]);
+
+    const page = await service.list('user-1', {});
+    const item = page.items[0];
+
+    expect(item.mode).toBe('TARGETED');
+    expect(item.axis).toBe(AxisType.REACTIVITY);
+    expect(item.score).toBe(76);
+    expect(item.band).toBe(ScoreBand.ACCEPTABLE);
+    expect(item.axisReached).toBeNull();
+    expect(item.axisTotal).toBe(1);
+    expect(item.durationSec).toBe(240);
+  });
+});
+
+describe('SessionsService.current', () => {
+  it('returns null without a session in progress', async () => {
+    repository.findCurrentSession.mockResolvedValue(null);
+    expect(await service.current('user-1')).toBeNull();
+  });
+
+  it('maps the per-axis progression with one current axis', async () => {
+    repository.findCurrentSession.mockResolvedValue(
+      buildSession({
+        axisResults: [
+          buildAxis({ order: 0, completedAt: new Date() }),
+          buildAxis({ id: 'axis-2', axis: 'MEMORY', order: 1, completedAt: new Date() }),
+          buildAxis({ id: 'axis-3', axis: 'VISUAL_DISCRIMINATION', order: 2, skipped: true, completedAt: new Date() }),
+          buildAxis({ id: 'axis-4', axis: 'REACTIVITY', order: 3 }),
+          buildAxis({ id: 'axis-5', axis: 'MOTOR_SKILLS', order: 4 }),
+        ],
+      }),
+    );
+
+    const current = await service.current('user-1');
+
+    expect(current?.mode).toBe('FULL');
+    expect(current?.axes.map(({ status }) => status)).toEqual([
+      'DONE',
+      'DONE',
+      'DONE',
+      'CURRENT',
+      'PENDING',
+    ]);
   });
 });
 
