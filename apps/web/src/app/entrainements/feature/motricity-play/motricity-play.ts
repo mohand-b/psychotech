@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AXIS_TRAINING,
   AxisType,
+  ControlModality,
   MOTRICITY_CANVAS_HEIGHT,
   MOTRICITY_CANVAS_WIDTH,
   MOTRICITY_CURSOR_RADIUS,
@@ -26,7 +27,10 @@ import {
   motricityArcLength,
   motricityCursorZone,
 } from '@psychotech/shared';
+import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
+import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import {
@@ -48,7 +52,7 @@ const BADGE_HEIGHT = 24;
 @Component({
   selector: 'app-motricity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ExitConfirm],
+  imports: [Button, ExitConfirm, GamepadPairing],
   templateUrl: './motricity-play.html',
   styleUrl: './motricity-play.css',
   host: {
@@ -58,6 +62,7 @@ const BADGE_HEIGHT = 24;
 })
 export class MotricityPlay {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -90,8 +95,22 @@ export class MotricityPlay {
   protected readonly joystickRightY = signal(0);
   protected readonly timerFraction = signal(1);
   protected readonly traveledPoints = signal('');
+  protected readonly suspended = signal(false);
   protected readonly sessionMode = computed(
     () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
+
+  protected readonly gamepadPairing = this.gamepad.pairing;
+  protected readonly gamepadConnected = this.gamepad.connected;
+  protected readonly gamepadExclusive = this.gamepad.everConnected;
+  protected readonly gamepadLatency = this.gamepad.latency;
+  protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
+  protected readonly showPairing = computed(
+    () =>
+      this.loaded() &&
+      this.phase() === 'PLAYING' &&
+      this.cursorState() === 'depart' &&
+      !this.suspended(),
   );
 
   protected readonly courses = this.facade.motricityCourses;
@@ -146,6 +165,8 @@ export class MotricityPlay {
   private rightPointerId: number | null = null;
   private leftPointerOrigin = 0;
   private rightPointerOrigin = 0;
+  private usedTouchJoysticks = false;
+  private previousCursorState: CursorState = 'depart';
   private handledCloseRequests = this.facade.closeRequests();
 
   constructor() {
@@ -153,6 +174,7 @@ export class MotricityPlay {
       this.stopLoop();
       this.clearTransitionTimer();
       this.facade.setPerExerciseCountdown(null);
+      this.gamepad.disconnect();
     });
     effect(() => {
       const requests = this.facade.closeRequests();
@@ -191,8 +213,14 @@ export class MotricityPlay {
     }
     if (event.key.startsWith('Arrow')) {
       event.preventDefault();
-      this.pressedKeys.add(event.key);
+      if (!this.gamepadExclusive()) {
+        this.pressedKeys.add(event.key);
+      }
     }
+  }
+
+  protected regeneratePairing(): void {
+    this.gamepad.pair(this.sessionId);
   }
 
   protected onKeyup(event: KeyboardEvent): void {
@@ -203,6 +231,7 @@ export class MotricityPlay {
     side: 'left' | 'right',
     event: PointerEvent,
   ): void {
+    this.usedTouchJoysticks = true;
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
     if (side === 'left') {
       this.leftPointerId = event.pointerId;
@@ -245,6 +274,7 @@ export class MotricityPlay {
       return;
     }
     this.loaded.set(true);
+    this.gamepad.pair(this.sessionId);
     this.beginCourse(0);
     this.startLoop();
   }
@@ -263,8 +293,10 @@ export class MotricityPlay {
     this.cursorX.set(this.position.x);
     this.cursorY.set(this.position.y);
     this.cursorState.set('depart');
+    this.previousCursorState = 'depart';
     this.minorErrors.set(0);
     this.majorErrors.set(0);
+    this.gamepad.beginCourseLatencyWindow();
     this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
   }
 
@@ -293,18 +325,34 @@ export class MotricityPlay {
     if (!course || this.phase() !== 'PLAYING' || this.hasSubmitted) {
       return;
     }
+    if (
+      this.gamepadExclusive() &&
+      this.gamepad.gamepadInputLost(performance.now())
+    ) {
+      this.suspended.set(true);
+      return;
+    }
+    this.suspended.set(false);
 
     this.move(course, deltaMs);
     const zone = motricityCursorZone(course, this.position);
-    this.cursorState.set(
+    const nextCursorState: CursorState =
       zone === 'GARAGE' && !this.live.started
         ? 'depart'
         : zone === 'OUTSIDE'
           ? 'outside'
           : zone === 'TOUCHING'
             ? 'contact'
-            : 'normal',
-    );
+            : 'normal';
+    this.cursorState.set(nextCursorState);
+    if (this.gamepadConnected() && nextCursorState !== this.previousCursorState) {
+      if (nextCursorState === 'contact') {
+        this.gamepad.sendHaptic('CONTACT');
+      } else if (nextCursorState === 'outside') {
+        this.gamepad.sendHaptic('EXIT');
+      }
+    }
+    this.previousCursorState = nextCursorState;
     this.live = advanceMotricityLive(this.live, zone, deltaMs);
     if (!this.live.started) {
       this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
@@ -367,20 +415,35 @@ export class MotricityPlay {
     if (this.confirmingExit()) {
       return;
     }
-    const keyX =
-      (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
-      (this.pressedKeys.has('ArrowLeft') ? 1 : 0);
-    const keyY =
-      (this.pressedKeys.has('ArrowDown') ? 1 : 0) -
-      (this.pressedKeys.has('ArrowUp') ? 1 : 0);
-    const inputX = Math.max(-1, Math.min(1, keyX + this.joystickLeftX()));
-    const inputY = Math.max(-1, Math.min(1, keyY + this.joystickRightY()));
-    const magnitude = Math.hypot(inputX, inputY);
-    if (magnitude < 0.15) {
-      return;
+    let inputX: number;
+    let inputY: number;
+    let speedFactor: number;
+    if (this.gamepadExclusive()) {
+      const stick = this.gamepad.stick();
+      inputX = stick.x;
+      inputY = stick.y;
+      const deflection = Math.hypot(inputX, inputY);
+      if (deflection === 0) {
+        return;
+      }
+      speedFactor = Math.min(1, deflection);
+    } else {
+      const keyX =
+        (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
+        (this.pressedKeys.has('ArrowLeft') ? 1 : 0);
+      const keyY =
+        (this.pressedKeys.has('ArrowDown') ? 1 : 0) -
+        (this.pressedKeys.has('ArrowUp') ? 1 : 0);
+      inputX = Math.max(-1, Math.min(1, keyX + this.joystickLeftX()));
+      inputY = Math.max(-1, Math.min(1, keyY + this.joystickRightY()));
+      if (Math.hypot(inputX, inputY) < 0.15) {
+        return;
+      }
+      speedFactor = 1;
     }
+    const magnitude = Math.hypot(inputX, inputY);
     const distance =
-      MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC * (deltaMs / 1000);
+      MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC * (deltaMs / 1000) * speedFactor;
     let x = this.position.x + (inputX / magnitude) * distance;
     let y = this.position.y + (inputY / magnitude) * distance;
     x = Math.min(
@@ -440,9 +503,16 @@ export class MotricityPlay {
       x: this.position.x,
       y: this.position.y,
     });
+    const latency = this.gamepad.courseLatency();
     this.trajectories.push({
       index: this.courseIndex(),
       samples: this.samples,
+      ...(latency
+        ? {
+            avgLatencyMs: Math.round(latency.avgMs),
+            jitterMs: Math.round(latency.jitterMs),
+          }
+        : {}),
     });
     if (this.courseIndex() < this.courseCount - 1) {
       this.phase.set('TRANSITION');
@@ -475,11 +545,19 @@ export class MotricityPlay {
     this.hasSubmitted = true;
     this.stopLoop();
     this.facade.setPerExerciseCountdown(null);
-    this.facade.completeTargetedMotricity(this.trajectories).subscribe({
-      next: () => this.router.navigate(['/sessions']),
-      error: () => {
-        this.hasSubmitted = false;
-      },
-    });
+    const controlModality = this.gamepadExclusive()
+      ? ControlModality.PHONE_GAMEPAD
+      : this.usedTouchJoysticks
+        ? ControlModality.TOUCH_JOYSTICKS
+        : ControlModality.KEYBOARD;
+    this.gamepad.sendPhase('FINISHED');
+    this.facade
+      .completeTargetedMotricity(this.trajectories, controlModality)
+      .subscribe({
+        next: () => this.router.navigate(['/sessions']),
+        error: () => {
+          this.hasSubmitted = false;
+        },
+      });
   }
 }

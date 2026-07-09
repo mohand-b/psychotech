@@ -4,6 +4,7 @@ import {
   AxisTimerModel,
   AxisTraining,
   AxisType,
+  ControlModality,
   DiscriminationTrial,
   DiscriminationTrialAnswerDto,
   LogicItem,
@@ -303,6 +304,7 @@ export class TrainingSessionFacade {
 
   completeTargetedMotricity(
     courses: MotricityCourseTrajectoryDto[],
+    controlModality: ControlModality,
   ): Observable<SessionDto> {
     const session = this.store.session();
     const axis = this.axis();
@@ -310,7 +312,7 @@ export class TrainingSessionFacade {
       return throwError(() => new Error('No active training session'));
     }
     return this.api
-      .completeTargeted(session.id, axis, { axis, courses })
+      .completeTargeted(session.id, axis, { axis, courses, controlModality })
       .pipe(tap((completed) => this.install(completed)));
   }
 

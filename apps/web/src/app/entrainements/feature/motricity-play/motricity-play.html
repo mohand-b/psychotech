@@ -37,6 +37,16 @@
 
     <div class="motri__content">
       <div class="motri__board">
+        @if (showPairing()) {
+          <div class="motri__pairing">
+            <ui-gamepad-pairing
+              [pairing]="gamepadPairing()"
+              [connected]="gamepadConnected()"
+              [latency]="gamepadLatency()"
+              [latencyGood]="gamepadLatencyGood()"
+            />
+          </div>
+        }
         <div class="motri__counters">
           <span class="motri__counter">
             <span
@@ -171,6 +181,25 @@
           </div>
         }
 
+        @if (suspended()) {
+          <div class="motri__suspend" role="alert">
+            <span class="motri__suspend-title">Manette déconnectée</span>
+            <p class="motri__suspend-text">
+              Le point et le chrono sont figés. Reconnexion automatique en
+              cours...
+            </p>
+            <ui-gamepad-pairing
+              [pairing]="gamepadPairing()"
+              [connected]="gamepadConnected()"
+              [latency]="gamepadLatency()"
+              [latencyGood]="gamepadLatencyGood()"
+            />
+            <ui-button color="motor" size="md" (click)="regeneratePairing()">
+              Régénérer un QR
+            </ui-button>
+          </div>
+        }
+
         @if (confirmingExit()) {
           <app-exit-confirm
             class="motri__exit"
@@ -183,15 +212,21 @@
       </div>
 
       <div class="motri__hint">
-        <div class="motri__keys" aria-hidden="true">
-          <span class="motri__keycap motri__keycap--up">↑</span>
-          <span class="motri__keys-row">
-            <span class="motri__keycap">←</span>
-            <span class="motri__keycap">↓</span>
-            <span class="motri__keycap">→</span>
-          </span>
-        </div>
-        <span class="motri__hint-label">déplacer le point</span>
+        @if (gamepadExclusive()) {
+          <span class="motri__hint-label"
+            >pilotez le point avec les joysticks du téléphone</span
+          >
+        } @else {
+          <div class="motri__keys" aria-hidden="true">
+            <span class="motri__keycap motri__keycap--up">↑</span>
+            <span class="motri__keys-row">
+              <span class="motri__keycap">←</span>
+              <span class="motri__keycap">↓</span>
+              <span class="motri__keycap">→</span>
+            </span>
+          </div>
+          <span class="motri__hint-label">déplacer le point</span>
+        }
       </div>
     </div>
 

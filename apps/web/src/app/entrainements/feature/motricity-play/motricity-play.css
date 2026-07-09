@@ -79,6 +79,50 @@
   z-index: 5;
 }
 
+.motri__pairing {
+  position: absolute;
+  top: 40px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  z-index: 10;
+}
+
+.motri__suspend {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(340px, calc(100% - 48px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  padding: 24px;
+  z-index: 15;
+}
+
+.motri__suspend-title {
+  font: 700 15px/20px var(--font-ui);
+  color: var(--danger);
+}
+
+.motri__suspend-text {
+  margin: 0;
+  font: 400 13px/19px var(--font-ui);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
 .motri__counter {
   display: inline-flex;
   align-items: center;

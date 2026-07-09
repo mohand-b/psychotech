@@ -51,3 +51,4 @@ Thumbs.db
 __screenshots__/
 
 .nx/migrate-runs
+.idea

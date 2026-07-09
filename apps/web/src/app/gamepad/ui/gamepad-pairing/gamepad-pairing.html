@@ -1,0 +1,36 @@
+<div class="pairing">
+  @if (connected()) {
+    <div class="pairing__status">
+      <span class="pairing__dot pairing__dot--connected"></span>
+      <span class="pairing__status-label">Manette connectée</span>
+      @if (latency(); as stats) {
+        <span
+          class="pairing__latency t-mono"
+          [class.pairing__latency--good]="latencyGood()"
+          [class.pairing__latency--warn]="!latencyGood()"
+          >{{ latencyLabel(stats) }}</span
+        >
+      }
+    </div>
+    @if (latency() && !latencyGood()) {
+      <p class="pairing__warning">
+        Connexion instable - connectez le téléphone au même Wi-Fi que
+        l'ordinateur.
+      </p>
+    }
+  } @else {
+    <div class="pairing__title">Manette téléphone</div>
+    <canvas #qrCanvas class="pairing__qr"></canvas>
+    @if (pairing(); as pairingValue) {
+      <p class="pairing__hint">
+        Scannez avec votre téléphone ou saisissez le code
+        <strong class="t-mono">{{ formattedCode(pairingValue.code) }}</strong>
+        sur la page /manette.
+      </p>
+      <div class="pairing__status">
+        <span class="pairing__dot pairing__dot--waiting"></span>
+        <span class="pairing__status-label">En attente de connexion</span>
+      </div>
+    }
+  }
+</div>
