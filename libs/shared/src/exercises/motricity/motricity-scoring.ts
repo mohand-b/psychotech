@@ -52,6 +52,39 @@ function scoreNorm(value: number, best: number, worst: number): number {
   return 100 * Math.min(1, Math.max(0, (worst - value) / (worst - best)));
 }
 
+export interface MotricityCourseRecapInput {
+  minorErrors: number;
+  majorErrors: number;
+  progressionPct: number;
+  tReelMs: number;
+}
+
+export function scoreMotricityRecap(recap: MotricityCourseRecapInput): number {
+  const errorsScore = Math.max(
+    0,
+    100 -
+      MOTRICITY_MINOR_PENALTY * recap.minorErrors -
+      MOTRICITY_MAJOR_PENALTY * recap.majorErrors,
+  );
+  const speedScore =
+    recap.progressionPct >= 100
+      ? scoreNorm(
+          recap.tReelMs / 1000,
+          MOTRICITY_SPEED_BEST_SEC,
+          MOTRICITY_SPEED_WORST_SEC,
+        )
+      : 0;
+  return Math.min(
+    100,
+    Math.max(
+      0,
+      MOTRICITY_PROGRESS_WEIGHT * recap.progressionPct +
+        MOTRICITY_ERRORS_WEIGHT * errorsScore +
+        MOTRICITY_SPEED_WEIGHT * speedScore,
+    ),
+  );
+}
+
 export function scoreMotricityCourse(
   course: MotricityCourse,
   samples: MotricitySampleDto[],
@@ -111,28 +144,12 @@ export function scoreMotricityCourse(
     ? 100
     : Math.min(100, (maxArc / course.totalLength) * 100);
   const tReelMs = reachedAtMs ?? lastSample?.t ?? 0;
-  const errorsScore = Math.max(
-    0,
-    100 -
-      MOTRICITY_MINOR_PENALTY * minorErrors -
-      MOTRICITY_MAJOR_PENALTY * majorErrors,
-  );
-  const speedScore = completed
-    ? scoreNorm(
-        tReelMs / 1000,
-        MOTRICITY_SPEED_BEST_SEC,
-        MOTRICITY_SPEED_WORST_SEC,
-      )
-    : 0;
-  const score = Math.min(
-    100,
-    Math.max(
-      0,
-      MOTRICITY_PROGRESS_WEIGHT * progression +
-        MOTRICITY_ERRORS_WEIGHT * errorsScore +
-        MOTRICITY_SPEED_WEIGHT * speedScore,
-    ),
-  );
+  const score = scoreMotricityRecap({
+    minorErrors,
+    majorErrors,
+    progressionPct: progression,
+    tReelMs,
+  });
 
   return {
     index: course.index,

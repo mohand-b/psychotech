@@ -8,7 +8,7 @@ import {
   SessionMode,
   SessionStatus,
 } from '../enums';
-import { AxisMetrics } from '../domain';
+import { AxisMetrics, MotorSkillsCourseRecap } from '../domain';
 import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
 import { BadgeDto } from './badge';
 
@@ -91,15 +91,7 @@ export interface MotricityCourseTrajectoryDto {
   jitterMs?: number;
 }
 
-export interface MotricityCourseResultDto {
-  index: number;
-  minorErrors: number;
-  majorErrors: number;
-  progressionPct: number;
-  tReelMs: number;
-  avgLatencyMs: number | null;
-  jitterMs: number | null;
-}
+export type MotricityCourseResultDto = MotorSkillsCourseRecap;
 
 export interface MotricityRawResultDto {
   axis: AxisType.MOTOR_SKILLS;

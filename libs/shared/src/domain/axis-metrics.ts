@@ -1,4 +1,4 @@
-import { AxisType } from '../enums';
+import { AxisType, ControlModality } from '../enums';
 
 export interface LogicMetrics {
   axis: AxisType.LOGIC;
@@ -31,17 +31,49 @@ export interface ReactivityMetrics {
   totalTrials: number;
 }
 
-export interface MotorCourseMetrics {
-  progression: number;
-  avgDistanceToCenter: number;
-  realTimeSeconds: number;
-  exits: number;
-  handCorrelation: number;
+export type MotricitySegmentKind = 'H' | 'V' | 'DIAG';
+
+export interface MotricityTimelinePoint {
+  tMs: number;
+  deviationPct: number;
+}
+
+export interface MotricityCourseTimeline {
+  courseIndex: number;
+  points: MotricityTimelinePoint[];
+}
+
+export type MotricityErrorEventType = 'CONTACT' | 'EXIT';
+
+export interface MotricityErrorEvent {
+  courseIndex: number;
+  tMs: number;
+  type: MotricityErrorEventType;
+  segment: MotricitySegmentKind;
+  durationMs?: number;
+}
+
+export interface MotorSkillsCourseRecap {
+  index: number;
+  minorErrors: number;
+  majorErrors: number;
+  progressionPct: number;
+  tReelMs: number;
+  avgLatencyMs: number | null;
+  jitterMs: number | null;
 }
 
 export interface MotorSkillsMetrics {
   axis: AxisType.MOTOR_SKILLS;
-  courses: [MotorCourseMetrics, MotorCourseMetrics, MotorCourseMetrics];
+  minorErrors: number;
+  majorErrors: number;
+  totalTimeMs: number;
+  coursesCompleted: number;
+  controlModality: ControlModality | null;
+  handIndependence?: number;
+  courses: MotorSkillsCourseRecap[];
+  timeline: MotricityCourseTimeline[];
+  events: MotricityErrorEvent[];
 }
 
 export type AxisMetrics =
