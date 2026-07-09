@@ -1,6 +1,6 @@
 .row {
   display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr) 10rem 5rem 5.5rem 8.5rem;
+  grid-template-columns: 13rem minmax(0, 1fr) 10rem 7.5rem 5.5rem 7rem;
   align-items: center;
   gap: 1.75rem;
   padding: 14px 24px;
@@ -43,11 +43,19 @@
   white-space: nowrap;
 }
 
+.row__duration {
+  text-align: center;
+}
+
 .row__dot {
   width: 9px;
   height: 9px;
   border-radius: var(--radius-pill);
   flex-shrink: 0;
+}
+
+.row__score {
+  justify-content: flex-end;
 }
 
 .row__score-value {
