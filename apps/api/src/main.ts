@@ -2,12 +2,16 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
+import { json } from 'express';
 import { AppModule } from './app/app.module';
+
+const JSON_BODY_LIMIT = '3mb';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  app.use(json({ limit: JSON_BODY_LIMIT }));
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({

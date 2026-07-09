@@ -5,6 +5,8 @@ import {
   DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
   MemorySequenceAnswerDto,
+  MotricityCourseTrajectoryDto,
+  MotricitySampleDto,
   ReactivityCommand,
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
@@ -17,6 +19,7 @@ import {
   IsEnum,
   IsIn,
   IsInt,
+  IsNumber,
   Max,
   Min,
   ValidateIf,
@@ -107,6 +110,31 @@ export class ReactivityWaitPressRequest implements ReactivityWaitPressDto {
   atMs!: number;
 }
 
+export class MotricitySampleRequest implements MotricitySampleDto {
+  @IsInt()
+  @Min(0)
+  t!: number;
+
+  @IsNumber()
+  x!: number;
+
+  @IsNumber()
+  y!: number;
+}
+
+export class MotricityCourseTrajectoryRequest
+  implements MotricityCourseTrajectoryDto
+{
+  @IsInt()
+  @Min(0)
+  index!: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MotricitySampleRequest)
+  samples!: MotricitySampleRequest[];
+}
+
 export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDto {
   @IsEnum(AxisType)
   axis!: AxisType;
@@ -161,4 +189,14 @@ export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDt
   @IsInt()
   @Min(0)
   playedMs?: number;
+
+  @ValidateIf(
+    (request: CompleteTargetedSessionRequest) =>
+      request.axis === AxisType.MOTOR_SKILLS,
+  )
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => MotricityCourseTrajectoryRequest)
+  courses?: MotricityCourseTrajectoryRequest[];
 }

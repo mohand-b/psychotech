@@ -51,10 +51,13 @@ export function targetedContentFullyPlayed(
         rawResult.trials.every((trial) => trial.answer !== null))
     );
   }
-  return (
-    (playedMs ?? 0) >=
-    AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000
-  );
+  if (rawResult.axis === AxisType.REACTIVITY) {
+    return (
+      (playedMs ?? 0) >=
+      AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000
+    );
+  }
+  return false;
 }
 
 export function activePlayDurationSec(
@@ -86,6 +89,9 @@ function axisPlayTimeMs(metrics: unknown): number {
   }
   if (raw.axis === AxisType.REACTIVITY && Array.isArray(raw.stimuli)) {
     return AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000;
+  }
+  if (raw.axis === AxisType.MOTOR_SKILLS && Array.isArray(raw.courses)) {
+    return raw.courses.reduce((sum, course) => sum + course.tReelMs, 0);
   }
   return 0;
 }

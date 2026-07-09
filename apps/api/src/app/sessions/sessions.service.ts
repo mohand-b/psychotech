@@ -7,14 +7,18 @@ import {
 } from '@nestjs/common';
 import {
   AXIS_TRAINING,
+  AxisRawResultDto,
   AxisType,
   CurrentSessionDto,
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
   LogicRawResultDto,
+  MOTRICITY_COURSE_COUNT,
   MemoryRawResultDto,
   MemorySequenceAnswerDto,
+  MotricityCourseTrajectoryDto,
+  MotricityRawResultDto,
   ReactivityRawResultDto,
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
@@ -30,10 +34,13 @@ import {
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
+  generateMotricityCourses,
   generateReactivitySession,
+  motricityCourseFinished,
   scoreDiscriminationSession,
   scoreLogicSession,
   scoreMemorySession,
+  scoreMotricitySession,
   scoreReactivitySession,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
@@ -147,16 +154,6 @@ export class SessionsService {
     if (request.axis !== axis) {
       throw new BadRequestException('The axis in the body does not match the route');
     }
-    if (
-      axis !== AxisType.LOGIC &&
-      axis !== AxisType.MEMORY &&
-      axis !== AxisType.VISUAL_DISCRIMINATION &&
-      axis !== AxisType.REACTIVITY
-    ) {
-      throw new BadRequestException(
-        'Raw answers are not supported for this axis',
-      );
-    }
     const session = await this.loadInProgressSession(sessionId, userId);
     if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
       throw new BadRequestException(
@@ -169,35 +166,55 @@ export class SessionsService {
     if (!target) {
       throw new BadRequestException('The axis is not part of this session');
     }
-    const rawResult =
-      axis === AxisType.LOGIC
-        ? this.buildLogicRawResult(request.items ?? [])
-        : axis === AxisType.MEMORY
-          ? this.buildMemoryRawResult(request.sequences ?? [])
-          : axis === AxisType.VISUAL_DISCRIMINATION
-            ? this.buildDiscriminationRawResult(request.trials ?? [])
-            : this.buildReactivityRawResult(
-                session.seed,
-                request.stimuli ?? [],
-                request.waitPresses ?? [],
-              );
-    if (!targetedContentFullyPlayed(rawResult, request.playedMs)) {
-      throw new ConflictException(
-        'The session content is not fully played',
+    let rawResult: AxisRawResultDto;
+    let score: { normalizedScore: number; band: ScoreBand };
+    if (axis === AxisType.MOTOR_SKILLS) {
+      const motricity = this.scoreMotricityTrajectories(
+        session.seed,
+        request.courses ?? [],
+      );
+      rawResult = motricity.rawResult;
+      score = motricity.score;
+    } else if (
+      axis === AxisType.LOGIC ||
+      axis === AxisType.MEMORY ||
+      axis === AxisType.VISUAL_DISCRIMINATION ||
+      axis === AxisType.REACTIVITY
+    ) {
+      rawResult =
+        axis === AxisType.LOGIC
+          ? this.buildLogicRawResult(request.items ?? [])
+          : axis === AxisType.MEMORY
+            ? this.buildMemoryRawResult(request.sequences ?? [])
+            : axis === AxisType.VISUAL_DISCRIMINATION
+              ? this.buildDiscriminationRawResult(request.trials ?? [])
+              : this.buildReactivityRawResult(
+                  session.seed,
+                  request.stimuli ?? [],
+                  request.waitPresses ?? [],
+                );
+      if (!targetedContentFullyPlayed(rawResult, request.playedMs)) {
+        throw new ConflictException(
+          'The session content is not fully played',
+        );
+      }
+      score =
+        rawResult.axis === AxisType.LOGIC
+          ? this.scoreLogicAnswers(session.seed, rawResult.items)
+          : rawResult.axis === AxisType.MEMORY
+            ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
+            : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
+              ? this.scoreDiscriminationAnswers(session.seed, rawResult.trials)
+              : this.scoreReactivityAnswers(
+                  session.seed,
+                  (rawResult as ReactivityRawResultDto).stimuli,
+                  (rawResult as ReactivityRawResultDto).waitPresses,
+                );
+    } else {
+      throw new BadRequestException(
+        'Raw answers are not supported for this axis',
       );
     }
-    const score =
-      rawResult.axis === AxisType.LOGIC
-        ? this.scoreLogicAnswers(session.seed, rawResult.items)
-        : rawResult.axis === AxisType.MEMORY
-          ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
-          : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
-            ? this.scoreDiscriminationAnswers(session.seed, rawResult.trials)
-            : this.scoreReactivityAnswers(
-                session.seed,
-                rawResult.stimuli,
-                rawResult.waitPresses,
-              );
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -328,6 +345,57 @@ export class SessionsService {
         trMs,
       })),
       waitPresses: waitPresses.map(({ atMs }) => ({ atMs })),
+    };
+  }
+
+  private scoreMotricityTrajectories(
+    seed: string,
+    trajectories: MotricityCourseTrajectoryDto[],
+  ): {
+    rawResult: MotricityRawResultDto;
+    score: { normalizedScore: number; band: ScoreBand };
+  } {
+    const distinctIndexes = new Set(
+      trajectories.map((trajectory) => trajectory.index),
+    );
+    if (
+      distinctIndexes.size !== trajectories.length ||
+      trajectories.some(
+        (trajectory) => trajectory.index >= MOTRICITY_COURSE_COUNT,
+      )
+    ) {
+      throw new BadRequestException(
+        'Trajectories must target distinct courses of the targeted axis',
+      );
+    }
+    const courses = generateMotricityCourses(seed);
+    const samplesByIndex = new Map(
+      trajectories.map((trajectory) => [trajectory.index, trajectory.samples]),
+    );
+    const allFinished = courses.every((course) =>
+      motricityCourseFinished(course, samplesByIndex.get(course.index) ?? []),
+    );
+    if (!allFinished) {
+      throw new ConflictException('The session content is not fully played');
+    }
+    const scored = scoreMotricitySession(trajectories, seed);
+    return {
+      rawResult: {
+        axis: AxisType.MOTOR_SKILLS,
+        courses: scored.courses.map(
+          ({ index, minorErrors, majorErrors, progressionPct, tReelMs }) => ({
+            index,
+            minorErrors,
+            majorErrors,
+            progressionPct,
+            tReelMs,
+          }),
+        ),
+      },
+      score: {
+        normalizedScore: scored.score,
+        band: avisFromScore(scored.score),
+      },
     };
   }
 

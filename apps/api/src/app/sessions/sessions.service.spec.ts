@@ -9,6 +9,8 @@ import {
   ScoreBand,
   Sector,
   SessionMode,
+  generateMotricityCourses,
+  scoreMotricitySession,
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgesService } from '../badges/badges.service';
@@ -642,6 +644,138 @@ describe('SessionsService.list', () => {
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
     expect(item.durationSec).toBe(180);
+  });
+});
+
+describe('SessionsService.completeTargeted (motricity)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const motricitySession = () =>
+    buildSession({
+      mode: 'TARGETED',
+      energyCost: 1,
+      seed: 'motricity-seed',
+      axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
+    });
+
+  const walk = (
+    course: ReturnType<typeof generateMotricityCourses>[number],
+    durationMs: number,
+    untilPct = 100,
+  ) => {
+    const targetLength = (untilPct / 100) * course.totalLength;
+    const sampleCount = Math.round(durationMs / (1000 / 60));
+    return Array.from({ length: sampleCount + 1 }, (_, index) => {
+      let remaining = (index / sampleCount) * targetLength;
+      let position = course.centerline[0];
+      for (const segment of course.segments) {
+        if (remaining <= segment.length) {
+          const ratio = remaining / segment.length;
+          position = {
+            x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+            y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
+          };
+          break;
+        }
+        remaining -= segment.length;
+        position = segment.end;
+      }
+      return {
+        t: Math.round(index * (1000 / 60)),
+        x: position.x,
+        y: position.y,
+      };
+    });
+  };
+
+  const courses = generateMotricityCourses('motricity-seed');
+  const fullTrajectories = courses.map((course) => ({
+    index: course.index,
+    samples: walk(course, 45000),
+  }));
+
+  it('rejects a completion with only two courses played', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+        axis: AxisType.MOTOR_SKILLS,
+        courses: fullTrajectories.slice(0, 2),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects a completion when a course is neither crossed nor played to the timer', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+        axis: AxisType.MOTOR_SKILLS,
+        courses: [
+          fullTrajectories[0],
+          fullTrajectories[1],
+          { index: 2, samples: walk(courses[2], 30000, 50) },
+        ],
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('accepts a fully crossed session and persists the shared recomputed score', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      axis: AxisType.MOTOR_SKILLS,
+      courses: fullTrajectories,
+    });
+
+    const expected = scoreMotricitySession(fullTrajectories, 'motricity-seed');
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        axis: AxisType.MOTOR_SKILLS,
+        score: expect.objectContaining({ normalizedScore: expected.score }),
+        rawResult: expect.objectContaining({
+          axis: AxisType.MOTOR_SKILLS,
+          courses: expected.courses.map(
+            ({ index, minorErrors, majorErrors, progressionPct, tReelMs }) => ({
+              index,
+              minorErrors,
+              majorErrors,
+              progressionPct,
+              tReelMs,
+            }),
+          ),
+        }),
+      }),
+    );
+  });
+
+  it('accepts a course stopped by the timer', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      axis: AxisType.MOTOR_SKILLS,
+      courses: [
+        fullTrajectories[0],
+        fullTrajectories[1],
+        { index: 2, samples: walk(courses[2], 90000, 70) },
+      ],
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
   });
 });
 
