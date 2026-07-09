@@ -560,14 +560,11 @@ export class SessionsService {
     if (!entry) {
       throw new BadRequestException('The session has no result for this axis');
     }
-    const prior = scoredHistory.filter(
-      (candidate) => candidate.completedAt < entry.completedAt,
-    );
-    const previousScore =
-      prior.length > 0 ? prior[prior.length - 1].score : null;
     const others = scoredHistory.filter(
       (candidate) => candidate.sessionId !== sessionId,
     );
+    const previousScore =
+      others.length > 0 ? others[others.length - 1].score : null;
     const othersBest =
       others.length > 0 ? Math.max(...others.map(({ score }) => score)) : null;
     const base = {

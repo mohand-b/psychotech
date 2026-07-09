@@ -697,6 +697,7 @@ describe('SessionsService.targetedResult', () => {
     expect(result.bestScore).toBe(80);
     expect(result.isNewBest).toBe(false);
     expect(result.isEqualBest).toBe(false);
+    expect(result.previousScore).toBe(80);
   });
 
   it('still reports the record when no other session has reached this score', async () => {
@@ -715,6 +716,7 @@ describe('SessionsService.targetedResult', () => {
     expect(result.bestScore).toBe(76);
     expect(result.isNewBest).toBe(true);
     expect(result.isEqualBest).toBe(false);
+    expect(result.previousScore).toBe(60);
   });
 });
 
