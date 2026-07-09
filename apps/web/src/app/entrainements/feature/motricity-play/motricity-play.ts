@@ -95,7 +95,9 @@ export class MotricityPlay {
   protected readonly confirmingExit = signal(false);
   protected readonly joystickLeftX = signal(0);
   protected readonly joystickRightY = signal(0);
-  protected readonly timerFraction = signal(1);
+  protected readonly timerFraction = computed(
+    () => this.facade.perExerciseBarFraction() ?? 1,
+  );
   protected readonly traveledPoints = signal('');
   protected readonly suspended = signal(false);
   protected readonly sessionMode = computed(
@@ -287,7 +289,6 @@ export class MotricityPlay {
     this.phase.set('PLAYING');
     this.live = createMotricityLiveState();
     this.maxArc = 0;
-    this.timerFraction.set(1);
     this.traveledPoints.set('');
     this.samples = [];
     this.lastSampleT = -Infinity;
@@ -299,7 +300,7 @@ export class MotricityPlay {
     this.minorErrors.set(0);
     this.majorErrors.set(0);
     this.gamepad.beginCourseLatencyWindow();
-    this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+    this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
   }
 
   private startLoop(): void {
@@ -357,8 +358,7 @@ export class MotricityPlay {
     this.previousCursorState = nextCursorState;
     this.live = advanceMotricityLive(this.live, zone, deltaMs);
     if (!this.live.started) {
-      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
-      this.timerFraction.set(1);
+      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
       return;
     }
 
@@ -376,8 +376,8 @@ export class MotricityPlay {
     this.majorErrors.set(liveMajorErrors(this.live));
     this.facade.setPerExerciseCountdown(
       Math.max(0, Math.ceil((limitMs - activeMs) / 1000)),
+      Math.max(0, 1 - activeMs / limitMs),
     );
-    this.timerFraction.set(Math.max(0, 1 - activeMs / limitMs));
 
     const arc = motricityAdvanceArc(
       course,
@@ -524,8 +524,7 @@ export class MotricityPlay {
     });
     if (this.courseIndex() < this.courseCount - 1) {
       this.phase.set('TRANSITION');
-      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
-      this.timerFraction.set(1);
+      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
       this.transitionCountdown.set(this.training.pauseBetweenCoursesSec);
       this.transitionTimerId = window.setInterval(() => {
         const next = this.transitionCountdown() - 1;

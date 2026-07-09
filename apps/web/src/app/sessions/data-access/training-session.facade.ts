@@ -167,6 +167,10 @@ export class TrainingSessionFacade {
   });
 
   private readonly perExerciseRemaining = signal<number | null>(null);
+  private readonly perExerciseFraction = signal<number | null>(null);
+
+  readonly perExerciseBarFraction: Signal<number | null> =
+    this.perExerciseFraction.asReadonly();
 
   private readonly hasPerExerciseTimer: Signal<boolean> = computed(() => {
     const session = this.store.session();
@@ -179,8 +183,12 @@ export class TrainingSessionFacade {
     return training?.timer.model === AxisTimerModel.PER_EXERCISE;
   });
 
-  setPerExerciseCountdown(remainingSec: number | null): void {
+  setPerExerciseCountdown(
+    remainingSec: number | null,
+    fraction: number | null = null,
+  ): void {
     this.perExerciseRemaining.set(remainingSec);
+    this.perExerciseFraction.set(fraction);
   }
 
   readonly remainingLabel: Signal<string | null> = computed(() => {
