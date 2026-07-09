@@ -17,6 +17,7 @@ import {
   scoreLogicSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import {
   CorrectionShell,
 } from '../../ui/correction-shell/correction-shell';
@@ -176,7 +177,7 @@ export class LogicCorrection {
   protected backToResult(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.LOGIC,
+      axisSlug(AxisType.LOGIC),
       'session',
       this.sessionId,
       'resultat',

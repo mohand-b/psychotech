@@ -18,6 +18,7 @@ import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
+import { axisFromSlug } from '../../shared/util/axis-slug';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { Icon } from '../../shared/ui/icon/icon';
@@ -126,7 +127,7 @@ export class ConnectedLayout {
     if (!data) {
       return null;
     }
-    const axis = snapshot?.paramMap.get(data.axisParam) as AxisType | null;
+    const axis = axisFromSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
     return axis ? { axis, suffix: data.suffix } : null;
   }
 
@@ -148,7 +149,7 @@ export class ConnectedLayout {
     let axisChip: AxisType | null = null;
     let helpText: string | null = null;
     if (data.axisParam) {
-      const axis = snapshot?.paramMap.get(data.axisParam) as AxisType | null;
+      const axis = axisFromSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
       if (axis) {
         title = data.title ?? AXIS_META[axis].label;
         axisChip = data.axisChip ? axis : null;

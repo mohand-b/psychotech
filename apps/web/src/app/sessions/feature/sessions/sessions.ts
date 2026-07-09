@@ -17,6 +17,7 @@ import { SessionHistoryFilter } from '../../data-access/session-history.filter';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { CurrentSessionBanner } from '../../ui/current-session-banner/current-session-banner';
 import { SessionHistoryRow } from '../../ui/session-history-row/session-history-row';
 import {
@@ -125,7 +126,7 @@ export class Sessions {
     if (session.mode === SessionMode.TARGETED && session.axes.length > 0) {
       this.router.navigate([
         '/entrainements/cible',
-        session.axes[0].axis,
+        axisSlug(session.axes[0].axis),
         'session',
         session.id,
       ]);

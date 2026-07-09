@@ -18,6 +18,7 @@ import {
   scoreMemorySession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { MemoryReliabilityChart } from '../../ui/memory-reliability-chart/memory-reliability-chart';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
@@ -52,6 +53,11 @@ export class MemoryResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly cameFromPlay =
+    this.facade.session()?.id === this.sessionId;
+  protected readonly backLabel = this.cameFromPlay
+    ? 'Retour aux axes'
+    : 'Retour aux sessions';
   private readonly training = AXIS_TRAINING[AxisType.MEMORY];
 
   protected readonly result = signal<TargetedMemoryResultDto | null>(null);
@@ -126,7 +132,7 @@ export class MemoryResult {
   protected review(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.MEMORY,
+      axisSlug(AxisType.MEMORY),
       'session',
       this.sessionId,
       'correction',
@@ -134,10 +140,12 @@ export class MemoryResult {
   }
 
   protected newTraining(): void {
-    this.router.navigate(['/entrainements/cible', AxisType.MEMORY]);
+    this.router.navigate(['/entrainements/cible', axisSlug(AxisType.MEMORY)]);
   }
 
-  protected backToAxes(): void {
-    this.router.navigate(['/entrainements/choisir-axe']);
+  protected back(): void {
+    this.router.navigate([
+      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
+    ]);
   }
 }

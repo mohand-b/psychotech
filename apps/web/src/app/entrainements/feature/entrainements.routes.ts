@@ -1,8 +1,10 @@
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
+import { AXIS_SLUGS } from '../../shared/util/axis-slug';
 
 function axisSessionMatcher(axis: AxisType): CanMatchFn {
-  return (_route: Route, segments: UrlSegment[]) => segments[2]?.path === axis;
+  return (_route: Route, segments: UrlSegment[]) =>
+    segments[2]?.path === AXIS_SLUGS[axis];
 }
 
 export const entrainementsRoutes: Route[] = [

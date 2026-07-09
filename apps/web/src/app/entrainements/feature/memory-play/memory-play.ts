@@ -23,6 +23,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
@@ -297,7 +298,7 @@ export class MemoryPlay {
       next: () => {
         this.router.navigate([
           '/entrainements/cible',
-          AxisType.MEMORY,
+          axisSlug(AxisType.MEMORY),
           'session',
           this.sessionId,
           'resultat',

@@ -28,6 +28,7 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
@@ -241,7 +242,7 @@ export class DiscriminationPlay {
       next: () => {
         this.router.navigate([
           '/entrainements/cible',
-          AxisType.VISUAL_DISCRIMINATION,
+          axisSlug(AxisType.VISUAL_DISCRIMINATION),
           'session',
           this.sessionId,
           'resultat',

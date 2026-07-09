@@ -25,6 +25,7 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
@@ -412,7 +413,7 @@ export class ReactivityPlay {
           this.facade.setEffectiveCountdown(null);
           this.router.navigate([
             '/entrainements/cible',
-            AxisType.REACTIVITY,
+            axisSlug(AxisType.REACTIVITY),
             'session',
             this.sessionId,
             'resultat',

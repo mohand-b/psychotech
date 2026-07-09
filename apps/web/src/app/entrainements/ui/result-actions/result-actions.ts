@@ -28,9 +28,9 @@ import { Button } from '../../../shared/ui/button/button';
           color="neutral"
           appearance="outlined"
           [block]="true"
-          (click)="backToAxes.emit()"
+          (click)="back.emit()"
         >
-          Retour aux axes
+          {{ backLabel() }}
         </ui-button>
       </div>
     </div>
@@ -68,8 +68,9 @@ import { Button } from '../../../shared/ui/button/button';
 })
 export class ResultActions {
   readonly footnote = input.required<string>();
+  readonly backLabel = input.required<string>();
   readonly newTraining = output<void>();
-  readonly backToAxes = output<void>();
+  readonly back = output<void>();
 
   protected readonly playIcon = Play;
 }

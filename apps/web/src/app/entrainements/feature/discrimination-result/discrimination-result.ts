@@ -18,6 +18,7 @@ import {
   scoreDiscriminationSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
@@ -60,6 +61,11 @@ export class DiscriminationResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly cameFromPlay =
+    this.facade.session()?.id === this.sessionId;
+  protected readonly backLabel = this.cameFromPlay
+    ? 'Retour aux axes'
+    : 'Retour aux sessions';
   private readonly presentation =
     AXIS_PRESENTATION[AxisType.VISUAL_DISCRIMINATION];
   private readonly training = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
@@ -168,11 +174,13 @@ export class DiscriminationResult {
   protected newTraining(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.VISUAL_DISCRIMINATION,
+      axisSlug(AxisType.VISUAL_DISCRIMINATION),
     ]);
   }
 
-  protected backToAxes(): void {
-    this.router.navigate(['/entrainements/choisir-axe']);
+  protected back(): void {
+    this.router.navigate([
+      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
+    ]);
   }
 }

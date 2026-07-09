@@ -28,6 +28,7 @@ import {
 } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
 
@@ -206,7 +207,7 @@ export class MemoryCorrection {
   protected backToResult(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.MEMORY,
+      axisSlug(AxisType.MEMORY),
       'session',
       this.sessionId,
       'resultat',

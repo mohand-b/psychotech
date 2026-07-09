@@ -19,6 +19,7 @@ import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
@@ -42,9 +43,7 @@ export class LogicPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  protected readonly axis = this.route.snapshot.paramMap.get(
-    'axis',
-  ) as AxisType;
+  protected readonly axis = AxisType.LOGIC;
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly choiceLetters = ['A', 'B', 'C', 'D'];
@@ -184,7 +183,7 @@ export class LogicPlay {
       next: () =>
         this.router.navigate([
           '/entrainements/cible',
-          this.axis,
+          axisSlug(this.axis),
           'session',
           this.sessionId,
           'resultat',

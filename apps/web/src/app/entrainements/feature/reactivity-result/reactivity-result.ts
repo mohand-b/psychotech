@@ -16,6 +16,7 @@ import {
   scoreReactivitySession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -50,6 +51,11 @@ export class ReactivityResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly cameFromPlay =
+    this.facade.session()?.id === this.sessionId;
+  protected readonly backLabel = this.cameFromPlay
+    ? 'Retour aux axes'
+    : 'Retour aux sessions';
 
   protected readonly result = signal<TargetedReactivityResultDto | null>(null);
 
@@ -117,10 +123,15 @@ export class ReactivityResult {
   });
 
   protected newTraining(): void {
-    this.router.navigate(['/entrainements/cible', AxisType.REACTIVITY]);
+    this.router.navigate([
+      '/entrainements/cible',
+      axisSlug(AxisType.REACTIVITY),
+    ]);
   }
 
-  protected backToAxes(): void {
-    this.router.navigate(['/entrainements/choisir-axe']);
+  protected back(): void {
+    this.router.navigate([
+      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
+    ]);
   }
 }

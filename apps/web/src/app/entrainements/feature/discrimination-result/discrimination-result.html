@@ -33,7 +33,8 @@
     <ui-result-actions
       footnote="Chaque entraînement génère de nouvelles paires."
       (newTraining)="newTraining()"
-      (backToAxes)="backToAxes()"
+      [backLabel]="backLabel"
+      (back)="back()"
     />
   }
 </ui-result-page>

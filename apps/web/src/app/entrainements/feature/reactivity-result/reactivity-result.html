@@ -37,7 +37,8 @@
     <ui-result-actions
       footnote="Chaque entraînement génère une nouvelle séquence de signaux."
       (newTraining)="newTraining()"
-      (backToAxes)="backToAxes()"
+      [backLabel]="backLabel"
+      (back)="back()"
     />
   }
 </ui-result-page>

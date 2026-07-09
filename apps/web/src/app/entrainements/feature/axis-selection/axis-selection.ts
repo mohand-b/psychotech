@@ -10,6 +10,7 @@ import { AxisType, Sector, SectorAxisDto } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { AxesFacade } from '../../../axes/data-access/axes.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisTrainingCard } from '../../ui/axis-training-card/axis-training-card';
 
 const TARGETED_AXIS_COST = 1;
@@ -71,7 +72,7 @@ export class AxisSelection {
   });
 
   protected startAxis(axis: AxisType): void {
-    this.router.navigate(['/entrainements/cible', axis]);
+    this.router.navigate(['/entrainements/cible', axisSlug(axis)]);
   }
 
   private findWeakestAxis(

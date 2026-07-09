@@ -7,6 +7,7 @@ import {
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { axisSlug } from '../../../shared/util/axis-slug';
 
 export interface SessionHistoryGroup {
   label: string;
@@ -138,7 +139,13 @@ export function buildSessionRowView(
     : isFull
       ? ['/sessions', item.id, 'resultat']
       : item.axis
-        ? ['/entrainements/cible', item.axis, 'session', item.id, 'resultat']
+        ? [
+            '/entrainements/cible',
+            axisSlug(item.axis),
+            'session',
+            item.id,
+            'resultat',
+          ]
         : null;
   return {
     id: item.id,

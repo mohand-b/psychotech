@@ -12,6 +12,7 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
+import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 
@@ -32,14 +33,19 @@ export class AxisStart {
   protected readonly starting = signal(false);
   protected readonly helpEnabled = signal(false);
 
-  protected readonly axis = this.route.snapshot.paramMap.get(
-    'axis',
-  ) as AxisType;
+  protected readonly axis =
+    axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly helpOptionAvailable = this.axis === AxisType.LOGIC;
 
   private readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
+
+  constructor() {
+    if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
+      this.router.navigate(['/entrainements/choisir-axe']);
+    }
+  }
   private readonly referential = toSignal(
     this.catalogFacade.getSector(this.sector),
   );
@@ -58,7 +64,7 @@ export class AxisStart {
         next: (session) =>
           this.router.navigate([
             '/entrainements/cible',
-            this.axis,
+            axisSlug(this.axis),
             'session',
             session.id,
           ]),

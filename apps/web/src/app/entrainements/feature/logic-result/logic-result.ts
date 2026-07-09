@@ -17,6 +17,7 @@ import {
   scoreLogicSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../../ui/logic-status';
@@ -54,6 +55,11 @@ export class LogicResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly cameFromPlay =
+    this.facade.session()?.id === this.sessionId;
+  protected readonly backLabel = this.cameFromPlay
+    ? 'Retour aux axes'
+    : 'Retour aux sessions';
   protected readonly presentation = AXIS_PRESENTATION[AxisType.LOGIC];
   protected readonly training = AXIS_TRAINING[AxisType.LOGIC];
 
@@ -165,7 +171,7 @@ export class LogicResult {
   protected review(): void {
     this.router.navigate([
       '/entrainements/cible',
-      AxisType.LOGIC,
+      axisSlug(AxisType.LOGIC),
       'session',
       this.sessionId,
       'correction',
@@ -173,10 +179,12 @@ export class LogicResult {
   }
 
   protected newTraining(): void {
-    this.router.navigate(['/entrainements/cible', AxisType.LOGIC]);
+    this.router.navigate(['/entrainements/cible', axisSlug(AxisType.LOGIC)]);
   }
 
-  protected backToAxes(): void {
-    this.router.navigate(['/entrainements/choisir-axe']);
+  protected back(): void {
+    this.router.navigate([
+      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
+    ]);
   }
 }
