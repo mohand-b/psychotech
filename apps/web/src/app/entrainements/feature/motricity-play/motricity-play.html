@@ -38,7 +38,10 @@
     <div class="motri__content">
       <div class="motri__board">
         @if (showPairing()) {
-          <div class="motri__pairing">
+          <div
+            class="motri__pairing"
+            [class.motri__pairing--connected]="gamepadConnected()"
+          >
             <ui-gamepad-pairing
               [pairing]="gamepadPairing()"
               [connected]="gamepadConnected()"

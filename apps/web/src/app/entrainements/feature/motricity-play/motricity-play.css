@@ -94,6 +94,14 @@
   z-index: 10;
 }
 
+.motri__pairing--connected {
+  left: 16px;
+  top: 14px;
+  transform: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-chip);
+}
+
 .motri__suspend {
   position: absolute;
   left: 50%;
