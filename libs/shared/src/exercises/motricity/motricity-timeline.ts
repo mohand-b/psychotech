@@ -79,15 +79,16 @@ function deriveCourse(
   let arc = 0;
   let previousT = 0;
   let windowIndex = -1;
-  let windowMax = 0;
+  let windowSum = 0;
+  let windowCount = 0;
   let inErrorEpisode = false;
   let exitStart: { tMs: number; segment: MotricitySegmentKind } | null = null;
 
   const flushWindow = () => {
-    if (windowIndex >= 0) {
+    if (windowIndex >= 0 && windowCount > 0) {
       points.push({
         tMs: windowIndex * MOTRICITY_TIMELINE_WINDOW_MS,
-        deviationPct: Math.round(windowMax),
+        deviationPct: Math.round(windowSum / windowCount),
       });
     }
   };
@@ -106,9 +107,11 @@ function deriveCourse(
     if (sampleWindow !== windowIndex) {
       flushWindow();
       windowIndex = sampleWindow;
-      windowMax = deviation;
+      windowSum = deviation;
+      windowCount = 1;
     } else {
-      windowMax = Math.max(windowMax, deviation);
+      windowSum += deviation;
+      windowCount += 1;
     }
 
     const zone = motricityCursorZone(course, sample);

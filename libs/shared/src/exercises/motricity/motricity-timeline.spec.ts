@@ -74,7 +74,7 @@ describe('deriveMotricityTimeline', () => {
     expect(late).toBeGreaterThan(early);
   });
 
-  it('keeps a brief 100 ms contact visible through the max-window decimation', () => {
+  it('averages each 200 ms window so a brief spike is softened while its event remains', () => {
     const course = courses[0];
     const contactStartMs = 10_000;
     const contactEndMs = 10_100;
@@ -87,13 +87,21 @@ describe('deriveMotricityTimeline', () => {
           : sample,
       ),
     };
-    const { timeline } = deriveMotricityTimeline([trajectory], seed);
+    const { timeline, events } = deriveMotricityTimeline([trajectory], seed);
     const windowIndex = Math.floor(contactStartMs / MOTRICITY_TIMELINE_WINDOW_MS);
     const windowPoint = timeline[0].points.find(
       (point) => point.tMs === windowIndex * MOTRICITY_TIMELINE_WINDOW_MS,
     );
     expect(windowPoint).toBeDefined();
-    expect(windowPoint?.deviationPct).toBeGreaterThan(80);
+    expect(windowPoint?.deviationPct).toBeGreaterThan(30);
+    expect(windowPoint?.deviationPct).toBeLessThan(80);
+    expect(
+      events.some(
+        (event) =>
+          event.type === 'CONTACT' &&
+          Math.abs(event.tMs - contactStartMs) < 50,
+      ),
+    ).toBe(true);
   });
 
   it('attributes each error event to the nearest centerline segment kind', () => {

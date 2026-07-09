@@ -17,6 +17,7 @@ import {
   majorErrorsForExitDuration,
   motricityCourseFinished,
   scoreMotricityCourse,
+  scoreMotricityRecap,
   scoreMotricitySession,
 } from './motricity-scoring';
 
@@ -232,7 +233,7 @@ describe('scoreMotricityCourse', () => {
     expect(scored.majorErrors).toBe(0);
     expect(scored.tReelMs).toBeLessThanOrEqual(50_010);
     const expectedSpeed = ((90 - scored.tReelMs / 1000) / 70) * 100;
-    expect(scored.score).toBeCloseTo(40 + 35 + 0.25 * expectedSpeed, 0);
+    expect(scored.score).toBeCloseTo(70 + 0.3 * expectedSpeed, 0);
   });
 
   it('gives no speed points when the course is not fully crossed', () => {
@@ -240,10 +241,42 @@ describe('scoreMotricityCourse', () => {
     const scored = scoreMotricityCourse(course, samples);
     expect(scored.progressionPct).toBeGreaterThanOrEqual(69);
     expect(scored.progressionPct).toBeLessThanOrEqual(71);
-    expect(scored.score).toBeCloseTo(
-      0.4 * scored.progressionPct + 35,
-      0,
-    );
+    expect(scored.score).toBeCloseTo(0.7 * scored.progressionPct, 0);
+  });
+});
+
+describe('scoreMotricityRecap calibration', () => {
+  function recap(
+    overrides: Partial<Parameters<typeof scoreMotricityRecap>[0]>,
+  ): Parameters<typeof scoreMotricityRecap>[0] {
+    return {
+      minorErrors: 0,
+      majorErrors: 0,
+      progressionPct: 100,
+      tReelMs: 20_000,
+      ...overrides,
+    };
+  }
+
+  it('scores a clean fast course around ninety', () => {
+    expect(scoreMotricityRecap(recap({ tReelMs: 43_500 }))).toBeCloseTo(90, 0);
+  });
+
+  it('scores a clean course finished at eighty-five seconds around seventy-two', () => {
+    expect(scoreMotricityRecap(recap({ tReelMs: 85_000 }))).toBeCloseTo(72, 0);
+  });
+
+  it('scores one major error at a good pace at seventy-five', () => {
+    expect(
+      scoreMotricityRecap(recap({ majorErrors: 1, tReelMs: 50_333 })),
+    ).toBeCloseTo(75, 0);
+  });
+
+  it('floors a course with twenty-two major errors at zero', () => {
+    expect(scoreMotricityRecap(recap({ majorErrors: 22 }))).toBe(0);
+    expect(
+      scoreMotricityRecap(recap({ minorErrors: 30, majorErrors: 30 })),
+    ).toBe(0);
   });
 });
 
