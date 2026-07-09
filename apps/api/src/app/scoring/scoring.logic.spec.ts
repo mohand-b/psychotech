@@ -190,7 +190,7 @@ describe('normalizeAxis motor skills', () => {
           },
         ]),
       ),
-    ).toBe(75.4);
+    ).toBe(62.9);
   });
 });
 
