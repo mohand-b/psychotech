@@ -108,11 +108,15 @@ export class MotricityResult {
         label: 'Erreurs mineures',
         sublabel: 'contacts avec les bords',
         value: `${metrics.minorErrors}`,
+        dotVar: 'var(--warning)',
+        marker: 'dot' as const,
       },
       {
         label: 'Erreurs majeures',
         sublabel: 'sorties de couloir',
         value: `${metrics.majorErrors}`,
+        dotVar: 'var(--danger)',
+        marker: 'line' as const,
       },
       {
         label: 'Temps total',

@@ -4,7 +4,12 @@ import {
   input,
 } from '@angular/core';
 
-export type ResultMetricMarker = 'square' | 'dot' | 'outlined-dot' | 'cross';
+export type ResultMetricMarker =
+  | 'square'
+  | 'dot'
+  | 'outlined-dot'
+  | 'cross'
+  | 'line';
 
 export interface ResultMetricRow {
   label: string;
@@ -27,6 +32,8 @@ export interface ResultMetricRow {
           @if (row.dotVar; as dotVar) {
             @if (row.marker === 'cross') {
               <span class="metrics__cross" [style.color]="dotVar">×</span>
+            } @else if (row.marker === 'line') {
+              <span class="metrics__stroke" [style.background]="dotVar"></span>
             } @else if (row.marker === 'outlined-dot') {
               <span
                 class="metrics__dot metrics__dot--round metrics__dot--outlined"
@@ -103,6 +110,12 @@ export interface ResultMetricRow {
       width: 10px;
       text-align: center;
       font: 600 13px/1 var(--font-ui);
+    }
+    .metrics__stroke {
+      flex-shrink: 0;
+      width: 12px;
+      height: 2.5px;
+      border-radius: var(--radius-pill);
     }
     .metrics__label {
       display: flex;

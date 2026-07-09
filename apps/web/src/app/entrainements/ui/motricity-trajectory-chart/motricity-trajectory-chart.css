@@ -102,6 +102,19 @@
   stroke: var(--ink);
 }
 
+.chart__curve-exit {
+  stroke: var(--danger);
+}
+
+.chart__connector {
+  position: absolute;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--warning);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 .chart__dot-slot {
   position: absolute;
   width: 0;

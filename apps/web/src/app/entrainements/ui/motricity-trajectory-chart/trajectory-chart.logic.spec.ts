@@ -2,8 +2,11 @@ import { MotorSkillsCourseRecap, MotricityErrorEvent } from '@psychotech/shared'
 import {
   TRAJECTORY_DISPLAY_CLAMP_PCT,
   clampDeviation,
+  curveExitRuns,
+  interpolateDeviationAt,
   smoothTimelinePoints,
   trajectoryExitBands,
+  trajectoryExitWindows,
 } from './trajectory-chart.logic';
 
 describe('smoothTimelinePoints', () => {
@@ -66,5 +69,55 @@ describe('trajectoryExitBands', () => {
     ];
     const bands = trajectoryExitBands(events, courses, 120_000);
     expect(bands[0].widthPct).toBeGreaterThanOrEqual(0.4);
+  });
+
+  it('exposes absolute exit windows on the concatenated time axis', () => {
+    const events: MotricityErrorEvent[] = [
+      { courseIndex: 2, tMs: 5_000, type: 'EXIT', segment: 'H', durationMs: 1_500 },
+    ];
+    expect(trajectoryExitWindows(events, courses)).toEqual([
+      { startMs: 85_000, endMs: 86_500 },
+    ]);
+  });
+});
+
+describe('curveExitRuns', () => {
+  const times = [0, 200, 400, 600, 800, 1000, 1200];
+
+  it('marks the consecutive curve pairs overlapping an exit window as a single run', () => {
+    const runs = curveExitRuns(times, [{ startMs: 350, endMs: 850 }]);
+    expect(runs).toEqual([{ from: 1, to: 5 }]);
+  });
+
+  it('returns one run per disjoint window and none without windows', () => {
+    expect(
+      curveExitRuns(times, [
+        { startMs: 0, endMs: 150 },
+        { startMs: 1_050, endMs: 1_200 },
+      ]),
+    ).toEqual([
+      { from: 0, to: 1 },
+      { from: 5, to: 6 },
+    ]);
+    expect(curveExitRuns(times, [])).toEqual([]);
+  });
+});
+
+describe('interpolateDeviationAt', () => {
+  const points = [
+    { tMs: 0, deviationPct: 10 },
+    { tMs: 200, deviationPct: 30 },
+    { tMs: 400, deviationPct: 20 },
+  ];
+
+  it('interpolates linearly between the surrounding points', () => {
+    expect(interpolateDeviationAt(points, 100)).toBeCloseTo(20, 5);
+    expect(interpolateDeviationAt(points, 300)).toBeCloseTo(25, 5);
+  });
+
+  it('clamps outside the series to the nearest end', () => {
+    expect(interpolateDeviationAt(points, -50)).toBe(10);
+    expect(interpolateDeviationAt(points, 900)).toBe(20);
+    expect(interpolateDeviationAt([], 100)).toBe(0);
   });
 });

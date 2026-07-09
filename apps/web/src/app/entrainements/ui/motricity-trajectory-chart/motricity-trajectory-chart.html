@@ -38,7 +38,18 @@
           aria-hidden="true"
         >
           <path class="chart__curve-base" [attr.d]="curvePath()" />
+          @for (exit of exitCurvePaths(); track $index) {
+            <path class="chart__curve-exit" [attr.d]="exit" />
+          }
         </svg>
+      }
+      @for (connector of contactConnectors(); track $index) {
+        <span
+          class="chart__connector"
+          [style.left.%]="connector.xPct"
+          [style.bottom.%]="connector.bottomPct"
+          [style.height.%]="connector.heightPct"
+        ></span>
       }
       @for (contact of contacts(); track $index) {
         <span
