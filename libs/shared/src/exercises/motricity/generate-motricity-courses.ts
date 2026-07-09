@@ -158,8 +158,8 @@ function recenterVertically(
   const centered =
     (MOTRICITY_CANVAS_HEIGHT - (contentMax - contentMin)) / 2 - contentMin;
   const offset = Math.max(
-    Math.min(centered, -contentMin),
-    MOTRICITY_CANVAS_HEIGHT - contentMax,
+    Math.min(centered, MOTRICITY_CANVAS_HEIGHT - contentMax),
+    -contentMin,
   );
   return points.map((point) => ({ x: point.x, y: point.y + offset }));
 }
