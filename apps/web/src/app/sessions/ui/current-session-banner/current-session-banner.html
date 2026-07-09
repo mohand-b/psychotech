@@ -36,13 +36,16 @@
         </span>
       </span>
     </div>
-    <ui-button
-      class="banner__action"
-      color="brand"
-      [icon]="playIcon"
-      (click)="resumeRequested.emit()"
-    >
-      Reprendre
-    </ui-button>
+    <div class="banner__cta flex flex-col items-end gap-1">
+      <ui-button
+        class="banner__action"
+        color="brand"
+        [icon]="playIcon"
+        (click)="resumeRequested.emit()"
+      >
+        Reprendre
+      </ui-button>
+      <span class="banner__mention">{{ resumeMention() }}</span>
+    </div>
   </div>
 </div>

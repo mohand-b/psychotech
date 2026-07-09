@@ -8,6 +8,13 @@
   flex-wrap: wrap;
 }
 
+.sessions__filters-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
 .sessions__filter {
   display: inline-flex;
   align-items: center;

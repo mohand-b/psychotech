@@ -47,7 +47,10 @@
   <span class="rowm__text flex flex-col">
     <span class="rowm__title">{{ view().mobileTitle }}</span>
     <span class="rowm__meta t-mono">
-      {{ view().dateLabel }} · {{ view().durationLabel }}
+      {{ view().dateLabel }} · {{ view().durationLabel
+      }}@if (view().mobileMention; as mention) {
+        · {{ mention }}
+      }
     </span>
   </span>
   <span class="rowm__end flex items-center gap-2">

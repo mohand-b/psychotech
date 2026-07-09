@@ -54,6 +54,12 @@ export class CurrentSessionBanner {
     this.session().mode === SessionMode.FULL ? 'Simulation' : 'Ciblé',
   );
 
+  protected readonly resumeMention = computed(() =>
+    this.session().mode === SessionMode.FULL
+      ? "Reprend au début de l'axe en cours"
+      : "L'épreuve redémarre du début",
+  );
+
   protected readonly sectorLabel = computed(
     () => SECTOR_PRESENTATION[this.session().sector].label,
   );

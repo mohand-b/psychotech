@@ -7,7 +7,10 @@
 <section class="sessions flex flex-col gap-6">
   <h1 class="t-page-title">Mes sessions</h1>
   <div class="sessions__filters flex items-center gap-2">
-    @for (chip of filterChips; track chip.value) {
+    @for (chip of filterChips; track chip.value; let index = $index) {
+      @if (index === 3) {
+        <span class="sessions__filters-divider"></span>
+      }
       <button
         type="button"
         class="sessions__filter"

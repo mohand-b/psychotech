@@ -70,12 +70,12 @@
   align-items: center;
   gap: 5px;
   font: 600 13px/18px var(--font-ui);
-  color: var(--text-secondary);
+  color: var(--brand);
   text-decoration: none;
 }
 
 .row__link:hover {
-  color: var(--brand);
+  color: var(--brand-hover);
 }
 
 .row__no-result {

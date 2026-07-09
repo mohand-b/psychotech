@@ -19,6 +19,7 @@ export interface SessionRowView {
   title: string;
   subtitle: string;
   mobileTitle: string;
+  mobileMention: string | null;
   dateLabel: string;
   durationLabel: string;
   scoreLabel: string | null;
@@ -146,10 +147,12 @@ export function buildSessionRowView(
     subtitle:
       isFull && abandoned && item.axisReached !== null
         ? `Abandonnée à l'axe ${item.axisReached}/${item.axisTotal}`
-        : isFull
-          ? sectorLabel
-          : `Entraînement ciblé · ${sectorLabel}`,
+        : sectorLabel,
     mobileTitle: isFull ? 'Simulation complète' : `Ciblé · ${axisLabel}`,
+    mobileMention:
+      isFull && abandoned && item.axisReached !== null
+        ? `Abandonnée à l'axe ${item.axisReached}/${item.axisTotal}`
+        : null,
     dateLabel: formatSessionDate(item.finishedAt, now),
     durationLabel: formatSessionDuration(item.durationSec),
     scoreLabel: formatSessionScore(item),

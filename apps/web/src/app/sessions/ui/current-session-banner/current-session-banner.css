@@ -74,6 +74,11 @@
   border: 1px solid var(--border);
 }
 
+.banner__mention {
+  font: 400 11px/14px var(--font-ui);
+  color: var(--label);
+}
+
 @media (max-width: 767px) {
   .banner__inner {
     padding: 12px 1rem;
@@ -85,5 +90,9 @@
 
   .banner__compact {
     display: flex;
+  }
+
+  .banner__mention {
+    display: none;
   }
 }
