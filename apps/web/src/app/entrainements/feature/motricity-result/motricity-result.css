@@ -1,0 +1,13 @@
+.result__chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface-hover);
+  font: 400 13px/18px var(--font-ui);
+  color: var(--label);
+  text-align: center;
+  padding: 0 24px;
+}

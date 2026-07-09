@@ -34,6 +34,7 @@ import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pair
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { axisSlug } from '../../../shared/util/axis-slug';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import {
   MotricityLiveState,
@@ -562,7 +563,14 @@ export class MotricityPlay {
     this.facade
       .completeTargetedMotricity(this.trajectories, controlModality)
       .subscribe({
-        next: () => this.router.navigate(['/sessions']),
+        next: () =>
+          this.router.navigate([
+            '/entrainements/cible',
+            axisSlug(AxisType.MOTOR_SKILLS),
+            'session',
+            this.sessionId,
+            'resultat',
+          ]),
         error: () => {
           this.hasSubmitted = false;
         },

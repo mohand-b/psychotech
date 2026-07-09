@@ -1,0 +1,51 @@
+<div class="chart">
+  <div class="chart__zone-labels t-mono">
+    @for (zone of zones(); track zone.label) {
+      <span [style.width.%]="zone.widthPct">{{ zone.label }}</span>
+    }
+  </div>
+  <div class="chart__frame">
+    <div class="chart__plot">
+      @for (zone of zones(); track zone.label) {
+        @if (zone.tinted) {
+          <span
+            class="chart__band"
+            [style.left.%]="zone.leftPct"
+            [style.width.%]="zone.widthPct"
+          ></span>
+        }
+      }
+      <span class="chart__border-line" [style.bottom.%]="borderBottomPct()">
+        <span class="chart__border-label">bord</span>
+      </span>
+      @if (curvePath()) {
+        <svg
+          class="chart__curve"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path class="chart__curve-base" [attr.d]="curvePath()" />
+          @for (exit of exitPaths(); track $index) {
+            <path class="chart__curve-exit" [attr.d]="exit" />
+          }
+        </svg>
+      }
+      @for (contact of contacts(); track $index) {
+        <span
+          class="chart__dot-slot"
+          [style.left.%]="contact.xPct"
+          [style.bottom.%]="borderBottomPct()"
+        >
+          <span class="chart__contact"></span>
+          <span class="chart__tip">{{ contact.tooltip }}</span>
+        </span>
+      }
+    </div>
+  </div>
+  <div class="chart__x-axis t-mono">
+    @for (label of xLabels(); track $index) {
+      <span>{{ label }}</span>
+    }
+  </div>
+</div>

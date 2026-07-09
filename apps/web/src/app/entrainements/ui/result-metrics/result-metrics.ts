@@ -13,6 +13,7 @@ export interface ResultMetricRow {
   suffix?: string;
   dotVar?: string;
   marker?: ResultMetricMarker;
+  chip?: boolean;
 }
 
 @Component({
@@ -46,12 +47,16 @@ export interface ResultMetricRow {
               <span class="metrics__sublabel">{{ row.sublabel }}</span>
             }
           </span>
-          <span class="metrics__value">
-            <span class="metrics__number t-mono">{{ row.value }}</span>
-            @if (row.suffix) {
-              <span class="metrics__suffix t-mono">{{ row.suffix }}</span>
-            }
-          </span>
+          @if (row.chip) {
+            <span class="metrics__chip">{{ row.value }}</span>
+          } @else {
+            <span class="metrics__value">
+              <span class="metrics__number t-mono">{{ row.value }}</span>
+              @if (row.suffix) {
+                <span class="metrics__suffix t-mono">{{ row.suffix }}</span>
+              }
+            </span>
+          }
         </li>
       }
     </ul>
@@ -125,6 +130,15 @@ export interface ResultMetricRow {
       font-weight: 500;
       color: var(--label);
       white-space: pre;
+    }
+    .metrics__chip {
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-chip);
+      background: var(--surface-muted);
+      font: 500 12px/16px var(--font-ui);
+      color: var(--text-secondary);
+      white-space: nowrap;
     }
     @media (max-width: 767px) {
       :host {

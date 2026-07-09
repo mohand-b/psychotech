@@ -132,6 +132,17 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
+    path: 'entrainements/cible/:axis/session/:sessionId/resultat',
+    canMatch: [axisSessionMatcher(AxisType.MOTOR_SKILLS)],
+    data: {
+      mobileFlow: { axisParam: 'axis', suffix: 'Ciblé' },
+    },
+    loadComponent: () =>
+      import('./motricity-result/motricity-result').then(
+        (m) => m.MotricityResult,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
     data: {
