@@ -1,6 +1,7 @@
 import {
   AxisProgressStatus,
   AxisType,
+  ControlModality,
   RecommendationPriority,
   ScoreBand,
   Sector,
@@ -86,6 +87,8 @@ export interface MotricitySampleDto {
 export interface MotricityCourseTrajectoryDto {
   index: number;
   samples: MotricitySampleDto[];
+  avgLatencyMs?: number;
+  jitterMs?: number;
 }
 
 export interface MotricityCourseResultDto {
@@ -94,6 +97,8 @@ export interface MotricityCourseResultDto {
   majorErrors: number;
   progressionPct: number;
   tReelMs: number;
+  avgLatencyMs: number | null;
+  jitterMs: number | null;
 }
 
 export interface MotricityRawResultDto {
@@ -122,6 +127,7 @@ export interface CompleteTargetedSessionDto {
   waitPresses?: ReactivityWaitPressDto[];
   playedMs?: number;
   courses?: MotricityCourseTrajectoryDto[];
+  controlModality?: ControlModality;
 }
 
 interface TargetedAxisResultBaseDto {
@@ -203,6 +209,7 @@ export interface SessionDto {
   startedAt: string;
   completedAt: string | null;
   abandonedAt: string | null;
+  controlModality: ControlModality | null;
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
 }

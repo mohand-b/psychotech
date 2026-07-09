@@ -1,0 +1,5 @@
+export enum ControlModality {
+  KEYBOARD = 'KEYBOARD',
+  PHONE_GAMEPAD = 'PHONE_GAMEPAD',
+  TOUCH_JOYSTICKS = 'TOUCH_JOYSTICKS',
+}

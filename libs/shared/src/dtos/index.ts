@@ -6,3 +6,4 @@ export * from './session';
 export * from './progression';
 export * from './badge';
 export * from './catalog';
+export * from './gamepad';

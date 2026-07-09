@@ -14,3 +14,4 @@ export * from './memory-phase';
 export * from './axis-featured-metric';
 export * from './axis-timer-model';
 export * from './shape-id';
+export * from './control-modality';
