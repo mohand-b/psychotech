@@ -1,0 +1,58 @@
+<div class="crank" [class.crank--disabled]="disabled()">
+  <span class="crank__label">{{ label() }}</span>
+  <svg
+    #surface
+    class="crank__surface"
+    [attr.viewBox]="'0 0 ' + viewboxSize + ' ' + viewboxSize"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerEnd($event)"
+    (pointercancel)="onPointerEnd($event)"
+  >
+    <circle
+      class="crank__disc"
+      [attr.cx]="center"
+      [attr.cy]="center"
+      [attr.r]="discRadius"
+    />
+    @for (tick of ticks; track $index) {
+      <line
+        class="crank__tick"
+        [attr.x1]="tick.x1"
+        [attr.y1]="tick.y1"
+        [attr.x2]="tick.x2"
+        [attr.y2]="tick.y2"
+      />
+    }
+    @if (trailPath()) {
+      <path
+        class="crank__trail"
+        [attr.d]="trailPath()"
+        [attr.stroke-opacity]="trailOpacity()"
+      />
+    }
+    <line
+      class="crank__stem"
+      [attr.x1]="center"
+      [attr.y1]="center"
+      [attr.x2]="handleX()"
+      [attr.y2]="handleY()"
+    />
+    <circle
+      class="crank__pivot"
+      [attr.cx]="center"
+      [attr.cy]="center"
+      [attr.r]="pivotRadius"
+    />
+    <circle
+      class="crank__handle"
+      [attr.cx]="handleX()"
+      [attr.cy]="handleY()"
+      [attr.r]="handleRadius"
+    />
+  </svg>
+  <span class="crank__hints">
+    <span class="crank__hint">&#8635; {{ hintClockwise() }}</span>
+    <span class="crank__hint">&#8634; {{ hintCounterClockwise() }}</span>
+  </span>
+</div>

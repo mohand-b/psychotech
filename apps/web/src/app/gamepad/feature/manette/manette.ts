@@ -16,8 +16,12 @@ import {
   GamepadHapticEffect,
   GamepadSignalErrorCode,
 } from '@psychotech/shared';
-import { gamepadSignalingUrl } from '../../data-access/gamepad-logic';
+import {
+  crankValueFromVelocity,
+  gamepadSignalingUrl,
+} from '../../data-access/gamepad-logic';
 import { GamepadTransport } from '../../data-access/gamepad-transport';
+import { Crank } from '../../ui/crank/crank';
 
 type ManetteView =
   | 'ENTER_CODE'
@@ -28,8 +32,8 @@ type ManetteView =
   | 'FINISHED';
 
 const RECONNECT_DELAY_MS = 1500;
-const JOYSTICK_RANGE_PX = 52;
-const KNOB_TRAVEL_PX = 40;
+const SPEED_SMOOTHING = 0.35;
+const SPEED_REST_EPSILON = 0.02;
 
 const HAPTIC_PATTERNS: Record<GamepadHapticEffect, number | number[]> = {
   CONTACT: 40,
@@ -39,14 +43,20 @@ const HAPTIC_PATTERNS: Record<GamepadHapticEffect, number | number[]> = {
 const ERROR_MESSAGES: Record<GamepadSignalErrorCode, string> = {
   INVALID_TOKEN: 'Ce lien de connexion est invalide.',
   TOKEN_EXPIRED:
-    "Ce lien de connexion a expiré. Régénérez un QR code sur l'ordinateur.",
+    "Ce lien de connexion a expiré. Scannez à nouveau le QR code affiché sur l'ordinateur.",
   TOKEN_CONSUMED: 'Ce lien de connexion a déjà été utilisé.',
   ROOM_FULL: 'Un autre appareil est déjà connecté à cette session.',
 };
 
+interface StateChip {
+  label: string;
+  tone: 'success' | 'warning' | 'danger';
+}
+
 @Component({
   selector: 'app-manette',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Crank],
   templateUrl: './manette.html',
   styleUrl: './manette.css',
 })
@@ -57,15 +67,34 @@ export class Manette {
   protected readonly view = signal<ManetteView>('ENTER_CODE');
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly code = signal('');
-  protected readonly joystickLeftX = signal(0);
-  protected readonly joystickRightY = signal(0);
+  protected readonly leftSpeed = signal(0);
+  protected readonly rightSpeed = signal(0);
 
-  protected readonly knobTravel = KNOB_TRAVEL_PX;
   protected readonly codeLength = GAMEPAD_PAIRING_CODE_LENGTH;
 
   protected readonly codeReady = computed(
     () => this.code().length === GAMEPAD_PAIRING_CODE_LENGTH,
   );
+
+  protected readonly cranksVisible = computed(() => {
+    const view = this.view();
+    return view === 'CONNECTED' || view === 'SUSPENDED';
+  });
+
+  protected readonly stateChip = computed<StateChip | null>(() => {
+    switch (this.view()) {
+      case 'CONNECTED':
+        return { label: 'Connecté', tone: 'success' };
+      case 'WAITING':
+        return { label: 'En attente', tone: 'warning' };
+      case 'SUSPENDED':
+        return { label: 'Suspendu', tone: 'warning' };
+      case 'INVALID':
+        return { label: 'Lien expiré', tone: 'danger' };
+      default:
+        return null;
+    }
+  });
 
   private transport: GamepadTransport | null = null;
   private inputTimerId: number | null = null;
@@ -73,13 +102,12 @@ export class Manette {
   private reconnectTimerId: number | null = null;
   private seq = 0;
   private lastPingAtMs: number | null = null;
+  private lastTickAtMs: number | null = null;
+  private leftPendingDeltaRad = 0;
+  private rightPendingDeltaRad = 0;
   private activeToken: string | null = null;
   private finished = false;
   private wakeLock: { release: () => Promise<void> } | null = null;
-  private leftPointerId: number | null = null;
-  private rightPointerId: number | null = null;
-  private leftPointerOrigin = 0;
-  private rightPointerOrigin = 0;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.teardown());
@@ -107,41 +135,12 @@ export class Manette {
     }
   }
 
-  protected joystickStart(side: 'left' | 'right', event: PointerEvent): void {
-    (event.target as HTMLElement).setPointerCapture(event.pointerId);
-    if (side === 'left') {
-      this.leftPointerId = event.pointerId;
-      this.leftPointerOrigin = event.clientX;
-    } else {
-      this.rightPointerId = event.pointerId;
-      this.rightPointerOrigin = event.clientY;
-    }
+  protected onLeftRotate(deltaRad: number): void {
+    this.leftPendingDeltaRad += deltaRad;
   }
 
-  protected joystickMove(side: 'left' | 'right', event: PointerEvent): void {
-    if (side === 'left' && event.pointerId === this.leftPointerId) {
-      const delta = event.clientX - this.leftPointerOrigin;
-      this.joystickLeftX.set(
-        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
-      );
-    }
-    if (side === 'right' && event.pointerId === this.rightPointerId) {
-      const delta = event.clientY - this.rightPointerOrigin;
-      this.joystickRightY.set(
-        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
-      );
-    }
-  }
-
-  protected joystickEnd(side: 'left' | 'right', event: PointerEvent): void {
-    if (side === 'left' && event.pointerId === this.leftPointerId) {
-      this.leftPointerId = null;
-      this.joystickLeftX.set(0);
-    }
-    if (side === 'right' && event.pointerId === this.rightPointerId) {
-      this.rightPointerId = null;
-      this.joystickRightY.set(0);
-    }
+  protected onRightRotate(deltaRad: number): void {
+    this.rightPendingDeltaRad += deltaRad;
   }
 
   private connect(token: string): void {
@@ -219,14 +218,35 @@ export class Manette {
     if (this.inputTimerId !== null) {
       return;
     }
+    this.lastTickAtMs = null;
     this.inputTimerId = window.setInterval(() => {
+      const now = performance.now();
+      const dtSec =
+        this.lastTickAtMs === null
+          ? 1 / GAMEPAD_INPUT_RATE_HZ
+          : Math.max(1 / 1000, (now - this.lastTickAtMs) / 1000);
+      this.lastTickAtMs = now;
+      this.leftSpeed.set(
+        this.smoothedSpeed(
+          this.leftSpeed(),
+          this.leftPendingDeltaRad / dtSec,
+        ),
+      );
+      this.rightSpeed.set(
+        this.smoothedSpeed(
+          this.rightSpeed(),
+          this.rightPendingDeltaRad / dtSec,
+        ),
+      );
+      this.leftPendingDeltaRad = 0;
+      this.rightPendingDeltaRad = 0;
       this.seq += 1;
       this.transport?.send({
         kind: 'input',
         seq: this.seq,
-        t: Math.round(performance.now()),
-        x: this.joystickLeftX(),
-        y: this.joystickRightY(),
+        t: Math.round(now),
+        x: this.leftSpeed(),
+        y: this.rightSpeed(),
       });
     }, 1000 / GAMEPAD_INPUT_RATE_HZ);
     this.watchdogTimerId = window.setInterval(() => {
@@ -240,6 +260,14 @@ export class Manette {
     }, GAMEPAD_HEARTBEAT_TIMEOUT_MS / 2);
   }
 
+  private smoothedSpeed(previous: number, radPerSec: number): number {
+    const target = crankValueFromVelocity(radPerSec);
+    const smoothed = previous + (target - previous) * SPEED_SMOOTHING;
+    return Math.abs(smoothed) < SPEED_REST_EPSILON && target === 0
+      ? 0
+      : smoothed;
+  }
+
   private stopInputLoop(): void {
     if (this.inputTimerId !== null) {
       window.clearInterval(this.inputTimerId);
@@ -249,6 +277,10 @@ export class Manette {
       window.clearInterval(this.watchdogTimerId);
       this.watchdogTimerId = null;
     }
+    this.leftSpeed.set(0);
+    this.rightSpeed.set(0);
+    this.leftPendingDeltaRad = 0;
+    this.rightPendingDeltaRad = 0;
   }
 
   private scheduleReconnect(): void {
@@ -267,7 +299,9 @@ export class Manette {
     try {
       const wakeLockApi = (
         navigator as Navigator & {
-          wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> };
+          wakeLock?: {
+            request(type: 'screen'): Promise<{ release(): Promise<void> }>;
+          };
         }
       ).wakeLock;
       if (wakeLockApi) {

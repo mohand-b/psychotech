@@ -76,3 +76,35 @@ export function gamepadSignalingUrl(location: {
 export function gamepadControllerUrl(origin: string, token: string): string {
   return `${origin}/manette?t=${encodeURIComponent(token)}`;
 }
+
+export const GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC = 2 * Math.PI;
+
+export function crankPointerAngle(
+  centerX: number,
+  centerY: number,
+  pointX: number,
+  pointY: number,
+): number {
+  return Math.atan2(pointY - centerY, pointX - centerX);
+}
+
+export function crankAngleDelta(
+  previousRad: number,
+  nextRad: number,
+): number {
+  let delta = nextRad - previousRad;
+  while (delta > Math.PI) {
+    delta -= 2 * Math.PI;
+  }
+  while (delta < -Math.PI) {
+    delta += 2 * Math.PI;
+  }
+  return delta;
+}
+
+export function crankValueFromVelocity(radPerSec: number): number {
+  return Math.max(
+    -1,
+    Math.min(1, radPerSec / GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC),
+  );
+}

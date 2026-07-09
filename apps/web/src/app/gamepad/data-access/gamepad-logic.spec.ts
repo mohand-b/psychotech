@@ -1,7 +1,11 @@
 import { GamepadInputFrame } from '@psychotech/shared';
 import {
+  GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC,
   acceptGamepadFrame,
   applyGamepadDeadzone,
+  crankAngleDelta,
+  crankPointerAngle,
+  crankValueFromVelocity,
   gamepadConnectionLost,
   gamepadLatencyStats,
   gamepadSignalingUrl,
@@ -66,6 +70,39 @@ describe('gamepadLatencyStats', () => {
     const stats = gamepadLatencyStats([20, 30, 40]);
     expect(stats?.avgMs).toBe(30);
     expect(stats?.jitterMs).toBeCloseTo(20 / 3, 5);
+  });
+});
+
+describe('crankPointerAngle', () => {
+  it('measures the pointer angle around the crank center in screen space', () => {
+    expect(crankPointerAngle(80, 80, 160, 80)).toBeCloseTo(0, 5);
+    expect(crankPointerAngle(80, 80, 80, 160)).toBeCloseTo(Math.PI / 2, 5);
+    expect(crankPointerAngle(80, 80, 80, 0)).toBeCloseTo(-Math.PI / 2, 5);
+  });
+});
+
+describe('crankAngleDelta', () => {
+  it('returns the signed rotation with clockwise positive', () => {
+    expect(crankAngleDelta(0, 0.3)).toBeCloseTo(0.3, 5);
+    expect(crankAngleDelta(0.3, 0)).toBeCloseTo(-0.3, 5);
+  });
+
+  it('wraps across the atan2 discontinuity so a continuous turn never jumps', () => {
+    expect(crankAngleDelta(Math.PI - 0.1, -Math.PI + 0.1)).toBeCloseTo(0.2, 5);
+    expect(crankAngleDelta(-Math.PI + 0.1, Math.PI - 0.1)).toBeCloseTo(-0.2, 5);
+  });
+});
+
+describe('crankValueFromVelocity', () => {
+  it('maps one full turn per second to full speed and clamps beyond', () => {
+    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC)).toBe(1);
+    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 3)).toBe(1);
+    expect(crankValueFromVelocity(-GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 2)).toBe(-1);
+  });
+
+  it('is proportional below full speed and zero at rest', () => {
+    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC / 2)).toBeCloseTo(0.5, 5);
+    expect(crankValueFromVelocity(0)).toBe(0);
   });
 });
 

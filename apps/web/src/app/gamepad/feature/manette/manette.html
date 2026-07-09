@@ -1,99 +1,105 @@
 <main class="manette">
-  @switch (view()) {
-    @case ('ENTER_CODE') {
-      <div class="manette__panel">
-        <h1 class="manette__title">Manette téléphone</h1>
-        <p class="manette__text">
-          Saisissez le code affiché sur l'écran de l'ordinateur.
-        </p>
-        <input
-          class="manette__code t-mono"
-          type="text"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          [attr.maxlength]="codeLength"
-          placeholder="000000"
-          (input)="onCodeInput($event)"
-        />
-        <button
-          type="button"
-          class="manette__connect"
-          [disabled]="!codeReady()"
-          (click)="submitCode()"
-        >
-          Se connecter
-        </button>
-      </div>
+  <header class="manette__header">
+    <span class="manette__brand">
+      <strong>Psycho<em>Tech</em></strong>
+      <span class="manette__brand-page">&middot;&ngsp;Manette</span>
+    </span>
+    @if (stateChip(); as chip) {
+      <span class="manette__chip" [class]="'manette__chip--' + chip.tone">
+        <span class="manette__chip-dot"></span>
+        {{ chip.label }}
+      </span>
     }
-    @case ('INVALID') {
-      <div class="manette__panel">
-        <h1 class="manette__title">Connexion impossible</h1>
-        <p class="manette__text">{{ errorMessage() }}</p>
-      </div>
-    }
-    @case ('WAITING') {
-      <div class="manette__panel">
-        <span class="manette__pulse"></span>
-        <h1 class="manette__title">En attente de l'ordinateur</h1>
-        <p class="manette__text">
-          Gardez cette page ouverte, la connexion se fera automatiquement.
-        </p>
-      </div>
-    }
-    @case ('SUSPENDED') {
-      <div class="manette__panel">
-        <span class="manette__pulse manette__pulse--warn"></span>
-        <h1 class="manette__title">Connexion interrompue</h1>
-        <p class="manette__text">Reconnexion automatique en cours...</p>
-      </div>
-    }
-    @case ('FINISHED') {
-      <div class="manette__panel">
-        <h1 class="manette__title">Épreuve terminée</h1>
-        <p class="manette__text">Vous pouvez fermer cette page.</p>
-      </div>
-    }
-    @case ('CONNECTED') {
-      <div class="manette__status">
-        <span class="manette__dot"></span>
-        Manette connectée
-      </div>
-      <div class="manette__sticks">
-        <div
-          class="manette__joy"
-          (pointerdown)="joystickStart('left', $event)"
-          (pointermove)="joystickMove('left', $event)"
-          (pointerup)="joystickEnd('left', $event)"
-          (pointercancel)="joystickEnd('left', $event)"
-        >
-          <span class="manette__track manette__track--horizontal">
-            <span
-              class="manette__knob"
-              [style.transform]="
-                'translate(' + joystickLeftX() * knobTravel + 'px, 0)'
-              "
-            ></span>
-          </span>
-          <span class="manette__joy-label">Gauche / Droite</span>
+  </header>
+
+  <div class="manette__body">
+    @switch (view()) {
+      @case ('ENTER_CODE') {
+        <div class="manette__panel">
+          <h1 class="manette__title">Manette téléphone</h1>
+          <p class="manette__text">
+            Saisissez le code affiché sur l'écran de l'ordinateur.
+          </p>
+          <input
+            class="manette__code t-mono"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            [attr.maxlength]="codeLength"
+            placeholder="000000"
+            (input)="onCodeInput($event)"
+          />
+          <button
+            type="button"
+            class="manette__connect"
+            [disabled]="!codeReady()"
+            (click)="submitCode()"
+          >
+            Se connecter
+          </button>
         </div>
-        <div
-          class="manette__joy"
-          (pointerdown)="joystickStart('right', $event)"
-          (pointermove)="joystickMove('right', $event)"
-          (pointerup)="joystickEnd('right', $event)"
-          (pointercancel)="joystickEnd('right', $event)"
-        >
-          <span class="manette__track manette__track--vertical">
-            <span
-              class="manette__knob"
-              [style.transform]="
-                'translate(0, ' + joystickRightY() * knobTravel + 'px)'
-              "
-            ></span>
-          </span>
-          <span class="manette__joy-label">Haut / Bas</span>
+      }
+      @case ('INVALID') {
+        <div class="manette__panel">
+          <h1 class="manette__title">Connexion impossible</h1>
+          <p class="manette__text">{{ errorMessage() }}</p>
         </div>
-      </div>
+      }
+      @case ('WAITING') {
+        <div class="manette__center">
+          <span class="manette__pulse-row" aria-hidden="true">
+            <span class="manette__pulse"></span>
+            <span class="manette__pulse"></span>
+            <span class="manette__pulse"></span>
+          </span>
+          <h1 class="manette__title">En attente de l'ordinateur</h1>
+          <p class="manette__text">
+            Gardez cette page ouverte - l'épreuve démarre depuis votre
+            ordinateur.
+          </p>
+        </div>
+      }
+      @case ('FINISHED') {
+        <div class="manette__center">
+          <h1 class="manette__title">Épreuve terminée</h1>
+          <p class="manette__text">Vous pouvez fermer cette page.</p>
+        </div>
+      }
+      @default {
+        @if (view() === 'SUSPENDED') {
+          <div class="manette__banner" role="alert">
+            Connexion interrompue - reconnexion en cours...
+          </div>
+        }
+        <p class="manette__instruction">
+          Tournez les manivelles pour déplacer le point sur l'écran de
+          l'ordinateur.
+        </p>
+      }
     }
+  </div>
+
+  @if (cranksVisible()) {
+    <div class="manette__cranks">
+      <ui-crank
+        class="manette__crank manette__crank--left"
+        label="Gauche &middot; horizontal"
+        hintClockwise="droite"
+        hintCounterClockwise="gauche"
+        [speed]="leftSpeed()"
+        [disabled]="view() === 'SUSPENDED'"
+        (rotated)="onLeftRotate($event)"
+      />
+      <ui-crank
+        class="manette__crank manette__crank--right"
+        label="Droite &middot; vertical"
+        hintClockwise="bas"
+        hintCounterClockwise="haut"
+        [speed]="rightSpeed()"
+        [disabled]="view() === 'SUSPENDED'"
+        (rotated)="onRightRotate($event)"
+      />
+    </div>
+    <p class="manette__wakelock">L'écran reste allumé pendant la session.</p>
   }
 </main>

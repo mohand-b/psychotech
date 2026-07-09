@@ -1,0 +1,78 @@
+.crank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.crank__label {
+  font: 600 11px/14px var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.crank__surface {
+  width: 176px;
+  height: 176px;
+  touch-action: none;
+  user-select: none;
+}
+
+.crank__disc {
+  fill: var(--card);
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.crank__tick {
+  stroke: var(--divider-soft);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.crank__trail {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+
+.crank__stem {
+  stroke: var(--border-hover);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.crank__pivot {
+  fill: var(--surface-muted);
+  stroke: var(--border-hover);
+  stroke-width: 2;
+}
+
+.crank__handle {
+  fill: var(--brand);
+}
+
+.crank__hints {
+  display: flex;
+  gap: 12px;
+}
+
+.crank__hint {
+  font: 400 11px/15px var(--font-ui);
+  color: var(--label);
+}
+
+.crank--disabled .crank__handle {
+  fill: var(--text-disabled);
+}
+
+.crank--disabled .crank__stem {
+  stroke: var(--border);
+}
+
+.crank--disabled .crank__label,
+.crank--disabled .crank__hint {
+  color: var(--text-disabled);
+}

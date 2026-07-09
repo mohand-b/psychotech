@@ -1,15 +1,94 @@
 .manette {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
   min-height: 100dvh;
-  padding: 24px;
   background: var(--bg);
   touch-action: none;
   overscroll-behavior: none;
   user-select: none;
+}
+
+.manette__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+}
+
+.manette__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font: 700 17px/22px var(--font-display);
+  color: var(--ink);
+}
+
+.manette__brand em {
+  font-style: normal;
+  color: var(--brand);
+}
+
+.manette__brand-page {
+  font: 400 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.manette__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--border);
+  font: 600 13px/18px var(--font-ui);
+}
+
+.manette__chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+}
+
+.manette__chip--success {
+  background: var(--secondary-pastel);
+  border-color: var(--secondary-pastel-bd);
+  color: var(--secondary-label);
+}
+
+.manette__chip--success .manette__chip-dot {
+  background: var(--success);
+}
+
+.manette__chip--warning {
+  background: var(--warning-pastel);
+  border-color: var(--warning-pastel);
+  color: var(--warning-text);
+}
+
+.manette__chip--warning .manette__chip-dot {
+  background: var(--warning);
+}
+
+.manette__chip--danger {
+  background: var(--danger-pastel);
+  border-color: var(--danger-pastel);
+  color: var(--danger-text);
+}
+
+.manette__chip--danger .manette__chip-dot {
+  background: var(--danger);
+}
+
+.manette__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+  padding: 24px;
 }
 
 .manette__panel {
@@ -26,9 +105,18 @@
   text-align: center;
 }
 
+.manette__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 320px;
+  text-align: center;
+}
+
 .manette__title {
   margin: 0;
-  font: 700 18px/24px var(--font-display);
+  font: 700 20px/26px var(--font-display);
   color: var(--ink);
 }
 
@@ -36,6 +124,23 @@
   margin: 0;
   font: 400 14px/20px var(--font-ui);
   color: var(--text-secondary);
+}
+
+.manette__instruction {
+  margin: 0;
+  max-width: 300px;
+  font: 400 14px/22px var(--font-ui);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.manette__banner {
+  padding: 10px 16px;
+  border-radius: var(--radius-badge);
+  background: var(--warning-pastel);
+  font: 600 13px/18px var(--font-ui);
+  color: var(--warning-text);
+  text-align: center;
 }
 
 .manette__code {
@@ -72,86 +177,62 @@
   cursor: default;
 }
 
+.manette__pulse-row {
+  display: flex;
+  gap: 10px;
+}
+
 .manette__pulse {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: var(--radius-pill);
   background: var(--label);
   animation: manette-pulse 1.4s ease-in-out infinite;
 }
 
-.manette__pulse--warn {
-  background: var(--warning);
+.manette__pulse:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-.manette__status {
+.manette__pulse:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.manette__cranks {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font: 600 14px/20px var(--font-ui);
-  color: var(--text-secondary);
-}
-
-.manette__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-pill);
-  background: var(--success);
-}
-
-.manette__sticks {
-  display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 48px;
-  flex-wrap: wrap;
+  gap: 24px;
+  padding: 0 24px;
 }
 
-.manette__joy {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  touch-action: none;
-}
-
-.manette__track {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-
-.manette__track--horizontal {
-  width: 176px;
-  height: 76px;
-}
-
-.manette__track--vertical {
-  width: 76px;
-  height: 176px;
-}
-
-.manette__knob {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-pill);
-  background: var(--card);
-  border: 1px solid var(--border-hover);
-  box-shadow: var(--shadow-card);
-}
-
-.manette__joy-label {
-  font: 500 12px/16px var(--font-ui);
+.manette__wakelock {
+  margin: 0;
+  padding: 12px 24px 18px;
+  font: 400 12px/16px var(--font-ui);
   color: var(--label);
+  text-align: center;
+}
+
+@media (orientation: landscape) {
+  .manette__cranks {
+    justify-content: space-between;
+    padding: 0 40px;
+  }
+
+  .manette__body {
+    padding: 12px 24px;
+  }
+
+  .manette__wakelock {
+    padding-bottom: 10px;
+  }
 }
 
 @keyframes manette-pulse {
   0%,
   100% {
-    opacity: 0.4;
+    opacity: 0.35;
   }
   50% {
     opacity: 1;
