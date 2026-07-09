@@ -1,6 +1,8 @@
 .motri {
   display: flex;
   flex-direction: column;
+  min-height: calc(100dvh - 65px);
+  padding-bottom: 24px;
 }
 
 .motri__progress {
@@ -18,26 +20,21 @@
 .motri__content {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 14px;
+  flex: 1;
   width: 100%;
   max-width: 66rem;
   margin: 0 auto;
-  padding: 0.75rem 1.5rem 3rem;
-}
-
-.motri__top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
+  padding: 0 1.5rem;
 }
 
 .motri__dots-row {
-  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 8px 0;
+  padding: 12px 24px;
 }
 
 .motri__dots {
@@ -74,33 +71,31 @@
 }
 
 .motri__counters {
-  grid-column: 3;
+  position: absolute;
+  top: 14px;
+  right: 16px;
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  gap: 14px;
+  z-index: 5;
 }
 
 .motri__counter {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-chip);
-  background: var(--card);
-  font: 500 13px/18px var(--font-ui);
-  color: var(--text-secondary);
+  gap: 6px;
+  font: 400 12px/16px var(--font-ui);
+  color: var(--label);
 }
 
 .motri__counter strong {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .motri__counter-dot {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: var(--radius-pill);
 }
 
@@ -341,21 +336,12 @@
 }
 
 @media (max-width: 767px) {
+  .motri {
+    padding-bottom: 11rem;
+  }
+
   .motri__content {
-    padding: 0.75rem 1rem 12rem;
-  }
-
-  .motri__top {
-    grid-template-columns: auto 1fr;
-  }
-
-  .motri__dots-row {
-    grid-column: 1;
-    justify-content: flex-start;
-  }
-
-  .motri__counters {
-    grid-column: 2;
+    padding: 0 1rem;
   }
 
   .motri__hint {

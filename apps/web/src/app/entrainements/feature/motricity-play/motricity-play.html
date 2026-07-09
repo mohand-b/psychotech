@@ -20,22 +20,23 @@
   </div>
 
   @if (loaded() && course(); as activeCourse) {
+    <div class="motri__dots-row">
+      <div class="motri__dots">
+        @for (dot of courses(); track dot.index) {
+          <span
+            class="motri__dot"
+            [class.motri__dot--done]="dot.index < courseIndex()"
+            [class.motri__dot--current]="dot.index === courseIndex()"
+          ></span>
+        }
+      </div>
+      <span class="motri__dots-count t-mono"
+        >{{ courseIndex() + 1 }}/{{ courseCount }}</span
+      >
+    </div>
+
     <div class="motri__content">
-      <div class="motri__top">
-        <div class="motri__dots-row">
-          <div class="motri__dots">
-            @for (dot of courses(); track dot.index) {
-              <span
-                class="motri__dot"
-                [class.motri__dot--done]="dot.index < courseIndex()"
-                [class.motri__dot--current]="dot.index === courseIndex()"
-              ></span>
-            }
-          </div>
-          <span class="motri__dots-count t-mono"
-            >{{ courseIndex() + 1 }}/{{ courseCount }}</span
-          >
-        </div>
+      <div class="motri__board">
         <div class="motri__counters">
           <span class="motri__counter">
             <span
@@ -54,9 +55,6 @@
             <strong class="t-mono">{{ majorErrors() }}</strong>
           </span>
         </div>
-      </div>
-
-      <div class="motri__board">
         <svg
           class="motri__svg"
           [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
