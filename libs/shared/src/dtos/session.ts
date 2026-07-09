@@ -95,6 +95,7 @@ export interface CompleteTargetedSessionDto {
   trials?: DiscriminationTrialAnswerDto[];
   stimuli?: ReactivityStimulusAnswerDto[];
   waitPresses?: ReactivityWaitPressDto[];
+  playedMs?: number;
 }
 
 interface TargetedAxisResultBaseDto {
