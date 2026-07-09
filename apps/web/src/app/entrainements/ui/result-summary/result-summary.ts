@@ -54,8 +54,8 @@ export class ResultSummary {
 
   protected readonly bestSuffix = computed(() => {
     if (this.isNewBest()) {
-      return " - record battu aujourd'hui";
+      return ' - record battu avec cet entraînement';
     }
-    return this.isEqualBest() ? " - record égalé aujourd'hui" : '';
+    return this.isEqualBest() ? ' - record égalé avec cet entraînement' : '';
   });
 }
