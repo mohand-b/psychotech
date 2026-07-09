@@ -1,6 +1,7 @@
 import {
   GAMEPAD_HEARTBEAT_TIMEOUT_MS,
   GAMEPAD_INPUT_DEADZONE,
+  GAMEPAD_MAX_OVERDRIVE,
   GAMEPAD_SIGNALING_PATH,
   GamepadInputFrame,
 } from '@psychotech/shared';
@@ -22,7 +23,7 @@ export function applyGamepadDeadzone(value: number): number {
   }
   const rescaled =
     (magnitude - GAMEPAD_INPUT_DEADZONE) / (1 - GAMEPAD_INPUT_DEADZONE);
-  return Math.sign(value) * Math.min(1, rescaled);
+  return Math.sign(value) * Math.min(GAMEPAD_MAX_OVERDRIVE, rescaled);
 }
 
 export function acceptGamepadFrame(
@@ -36,8 +37,12 @@ export function gamepadStickFromFrame(
   frame: GamepadInputFrame,
 ): GamepadStickVector {
   return {
-    x: applyGamepadDeadzone(Math.max(-1, Math.min(1, frame.x))),
-    y: applyGamepadDeadzone(Math.max(-1, Math.min(1, frame.y))),
+    x: applyGamepadDeadzone(
+      Math.max(-GAMEPAD_MAX_OVERDRIVE, Math.min(GAMEPAD_MAX_OVERDRIVE, frame.x)),
+    ),
+    y: applyGamepadDeadzone(
+      Math.max(-GAMEPAD_MAX_OVERDRIVE, Math.min(GAMEPAD_MAX_OVERDRIVE, frame.y)),
+    ),
   };
 }
 
@@ -104,7 +109,10 @@ export function crankAngleDelta(
 
 export function crankValueFromVelocity(radPerSec: number): number {
   return Math.max(
-    -1,
-    Math.min(1, radPerSec / GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC),
+    -GAMEPAD_MAX_OVERDRIVE,
+    Math.min(
+      GAMEPAD_MAX_OVERDRIVE,
+      radPerSec / GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC,
+    ),
   );
 }

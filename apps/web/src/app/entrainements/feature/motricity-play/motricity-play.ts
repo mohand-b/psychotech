@@ -21,10 +21,12 @@ import {
   MotricityCourseTrajectoryDto,
   MotricityPoint,
   MotricitySampleDto,
+  GAMEPAD_MAX_OVERDRIVE,
   SessionDto,
   SessionMode,
   SessionStatus,
-  motricityArcLength,
+  motricityAdvanceArc,
+  motricityArcAdvanceBudget,
   motricityCursorZone,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
@@ -356,6 +358,7 @@ export class MotricityPlay {
     this.live = advanceMotricityLive(this.live, zone, deltaMs);
     if (!this.live.started) {
       this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+      this.timerFraction.set(1);
       return;
     }
 
@@ -376,12 +379,17 @@ export class MotricityPlay {
     );
     this.timerFraction.set(Math.max(0, 1 - activeMs / limitMs));
 
-    const arc = motricityArcLength(course, this.position);
+    const arc = motricityAdvanceArc(
+      course,
+      this.position,
+      this.maxArc,
+      motricityArcAdvanceBudget(deltaMs),
+    );
     if (arc > this.maxArc) {
       this.maxArc = arc;
       this.traveledPoints.set(this.traveledPath(course, arc));
     }
-    const crossed = arc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
+    const crossed = this.maxArc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
     if (crossed || this.live.activeMs >= limitMs) {
       this.finishCourse(crossed ? Math.round(activeMs) : limitMs);
     }
@@ -426,7 +434,7 @@ export class MotricityPlay {
       if (deflection === 0) {
         return;
       }
-      speedFactor = Math.min(1, deflection);
+      speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, deflection);
     } else {
       const keyX =
         (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
@@ -517,6 +525,7 @@ export class MotricityPlay {
     if (this.courseIndex() < this.courseCount - 1) {
       this.phase.set('TRANSITION');
       this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+      this.timerFraction.set(1);
       this.transitionCountdown.set(this.training.pauseBetweenCoursesSec);
       this.transitionTimerId = window.setInterval(() => {
         const next = this.transitionCountdown() - 1;

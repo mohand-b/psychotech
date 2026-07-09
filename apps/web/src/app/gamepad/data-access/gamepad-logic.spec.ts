@@ -1,4 +1,4 @@
-import { GamepadInputFrame } from '@psychotech/shared';
+import { GAMEPAD_MAX_OVERDRIVE, GamepadInputFrame } from '@psychotech/shared';
 import {
   GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC,
   acceptGamepadFrame,
@@ -22,11 +22,13 @@ describe('applyGamepadDeadzone', () => {
     expect(applyGamepadDeadzone(-0.09)).toBe(0);
   });
 
-  it('rescales deflections beyond the deadzone up to full scale', () => {
+  it('rescales deflections beyond the deadzone up to the overdrive cap', () => {
     expect(applyGamepadDeadzone(1)).toBe(1);
     expect(applyGamepadDeadzone(-1)).toBe(-1);
     expect(applyGamepadDeadzone(0.55)).toBeCloseTo(0.5, 5);
     expect(applyGamepadDeadzone(-0.55)).toBeCloseTo(-0.5, 5);
+    expect(applyGamepadDeadzone(3)).toBe(GAMEPAD_MAX_OVERDRIVE);
+    expect(applyGamepadDeadzone(-3)).toBe(-GAMEPAD_MAX_OVERDRIVE);
   });
 });
 
@@ -43,10 +45,11 @@ describe('acceptGamepadFrame', () => {
 });
 
 describe('gamepadStickFromFrame', () => {
-  it('clamps raw values then applies the deadzone', () => {
+  it('clamps raw values to the overdrive cap then applies the deadzone', () => {
     const stick = gamepadStickFromFrame(frame(1, 2, -0.05));
-    expect(stick.x).toBe(1);
+    expect(stick.x).toBe(GAMEPAD_MAX_OVERDRIVE);
     expect(stick.y).toBe(0);
+    expect(gamepadStickFromFrame(frame(2, 0.55, 0)).x).toBeCloseTo(0.5, 5);
   });
 });
 
@@ -94,10 +97,17 @@ describe('crankAngleDelta', () => {
 });
 
 describe('crankValueFromVelocity', () => {
-  it('maps one full turn per second to full speed and clamps beyond', () => {
+  it('maps one full turn per second to full speed and allows overdrive up to the cap', () => {
     expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC)).toBe(1);
-    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 3)).toBe(1);
-    expect(crankValueFromVelocity(-GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 2)).toBe(-1);
+    expect(
+      crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 1.25),
+    ).toBeCloseTo(1.25, 5);
+    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 3)).toBe(
+      GAMEPAD_MAX_OVERDRIVE,
+    );
+    expect(crankValueFromVelocity(-GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 2)).toBe(
+      -GAMEPAD_MAX_OVERDRIVE,
+    );
   });
 
   it('is proportional below full speed and zero at rest', () => {
