@@ -1,163 +1,200 @@
-<section class="motri">
-  @if (loaded() && course(); as activeCourse) {
-    <div class="motri__top">
-      <span class="motri__course">
-        Parcours
-        <strong>{{ courseIndex() + 1 }}/{{ courseCount }}</strong>
-      </span>
-      <div class="motri__counters">
-        <span class="motri__counter">
-          <span
-            class="motri__counter-dot"
-            [style.background]="'var(--warning)'"
-          ></span>
-          Mineures
-          <strong class="t-mono">{{ minorErrors() }}</strong>
-        </span>
-        <span class="motri__counter">
-          <span
-            class="motri__counter-dot"
-            [style.background]="'var(--danger)'"
-          ></span>
-          Majeures
-          <strong class="t-mono">{{ majorErrors() }}</strong>
-        </span>
-      </div>
-    </div>
+<section
+  class="motri"
+  [style.--axis-plain]="presentation.plainVar"
+  [style.--axis-pastel]="presentation.pastelVar"
+  [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+  [style.--axis-text]="presentation.textVar"
+>
+  <div
+    class="motri__progress"
+    role="progressbar"
+    aria-label="Temps restant"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="100"
+    [attr.aria-valuenow]="timerFraction() * 100"
+  >
+    <span
+      class="motri__progress-fill"
+      [style.width.%]="timerFraction() * 100"
+    ></span>
+  </div>
 
-    <div class="motri__board">
-      <svg
-        class="motri__svg"
-        [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <rect
-          class="motri__zone"
-          [attr.x]="activeCourse.garage.x"
-          [attr.y]="activeCourse.garage.y"
-          [attr.width]="activeCourse.garage.width"
-          [attr.height]="activeCourse.garage.height"
-        />
-        <rect
-          class="motri__zone"
-          [attr.x]="activeCourse.endZone.x"
-          [attr.y]="activeCourse.endZone.y"
-          [attr.width]="activeCourse.endZone.width"
-          [attr.height]="activeCourse.endZone.height"
-        />
-        <polygon class="motri__corridor" [attr.points]="polygonPoints()" />
-        <polyline
-          class="motri__centerline"
-          [attr.points]="centerlinePoints()"
-        />
-        @for (wall of activeCourse.garageWalls; track $index) {
-          <line
-            class="motri__wall"
-            [attr.x1]="wall.start.x"
-            [attr.y1]="wall.start.y"
-            [attr.x2]="wall.end.x"
-            [attr.y2]="wall.end.y"
-          />
-        }
-        <g
-          [attr.transform]="
-            'translate(' +
-            activeCourse.garage.x +
-            ',' +
-            (activeCourse.garage.y + activeCourse.garage.height + 12) +
-            ')'
-          "
+  @if (loaded() && course(); as activeCourse) {
+    <div class="motri__content">
+      <div class="motri__top">
+        <div class="motri__dots-row">
+          <div class="motri__dots">
+            @for (dot of courses(); track dot.index) {
+              <span
+                class="motri__dot"
+                [class.motri__dot--done]="dot.index < courseIndex()"
+                [class.motri__dot--current]="dot.index === courseIndex()"
+              ></span>
+            }
+          </div>
+          <span class="motri__dots-count t-mono"
+            >{{ courseIndex() + 1 }}/{{ courseCount }}</span
+          >
+        </div>
+        <div class="motri__counters">
+          <span class="motri__counter">
+            <span
+              class="motri__counter-dot"
+              [style.background]="'var(--warning)'"
+            ></span>
+            Mineures
+            <strong class="t-mono">{{ minorErrors() }}</strong>
+          </span>
+          <span class="motri__counter">
+            <span
+              class="motri__counter-dot"
+              [style.background]="'var(--danger)'"
+            ></span>
+            Majeures
+            <strong class="t-mono">{{ majorErrors() }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="motri__board">
+        <svg
+          class="motri__svg"
+          [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
+          preserveAspectRatio="xMidYMid meet"
         >
           <rect
-            class="motri__badge motri__badge--start"
-            [attr.width]="badgeWidth"
-            [attr.height]="badgeHeight"
-            rx="7"
+            class="motri__zone"
+            [attr.x]="activeCourse.garage.x"
+            [attr.y]="activeCourse.garage.y"
+            [attr.width]="activeCourse.garage.width"
+            [attr.height]="activeCourse.garage.height"
           />
-          <text
-            class="motri__badge-text motri__badge-text--start"
-            [attr.x]="badgeWidth / 2"
-            [attr.y]="badgeHeight / 2 + 4"
-          >
-            START
-          </text>
-        </g>
-        <g
-          [attr.transform]="
-            'translate(' +
-            (activeCourse.endZone.x + activeCourse.endZone.width - badgeWidth) +
-            ',' +
-            (activeCourse.endZone.y - badgeHeight - 12) +
-            ')'
-          "
-        >
-          <rect
-            class="motri__badge motri__badge--end"
-            [attr.width]="badgeWidth"
-            [attr.height]="badgeHeight"
-            rx="7"
+          <polygon class="motri__corridor" [attr.points]="polygonPoints()" />
+          <polyline class="motri__border" [attr.points]="leftSidePoints()" />
+          <polyline class="motri__border" [attr.points]="rightSidePoints()" />
+          <polyline
+            class="motri__centerline"
+            [attr.points]="centerlinePoints()"
           />
-          <text
-            class="motri__badge-text motri__badge-text--end"
-            [attr.x]="badgeWidth / 2"
-            [attr.y]="badgeHeight / 2 + 4"
+          @if (traveledPoints()) {
+            <polyline
+              class="motri__centerline motri__centerline--done"
+              [attr.points]="traveledPoints()"
+            />
+          }
+          @for (wall of activeCourse.garageWalls; track $index) {
+            <line
+              class="motri__wall"
+              [attr.x1]="wall.start.x"
+              [attr.y1]="wall.start.y"
+              [attr.x2]="wall.end.x"
+              [attr.y2]="wall.end.y"
+            />
+          }
+          <g
+            [attr.transform]="
+              'translate(' +
+              activeCourse.garage.x +
+              ',' +
+              (activeCourse.garage.y + activeCourse.garage.height + 12) +
+              ')'
+            "
           >
-            END
-          </text>
-        </g>
-        @if (cursorState() === 'outside') {
+            <rect
+              class="motri__badge motri__badge--start"
+              [attr.width]="badgeWidth"
+              [attr.height]="badgeHeight"
+              rx="7"
+            />
+            <text
+              class="motri__badge-text motri__badge-text--start"
+              [attr.x]="badgeWidth / 2"
+              [attr.y]="badgeHeight / 2 + 4"
+            >
+              START
+            </text>
+          </g>
+          <g
+            [attr.transform]="
+              'translate(' +
+              (activeCourse.endZone.x +
+                activeCourse.endZone.width -
+                badgeWidth) +
+              ',' +
+              (activeCourse.endZone.y - badgeHeight - 12) +
+              ')'
+            "
+          >
+            <rect
+              class="motri__badge motri__badge--end"
+              [attr.width]="badgeWidth"
+              [attr.height]="badgeHeight"
+              rx="7"
+            />
+            <text
+              class="motri__badge-text motri__badge-text--end"
+              [attr.x]="badgeWidth / 2"
+              [attr.y]="badgeHeight / 2 + 4"
+            >
+              END
+            </text>
+          </g>
+          @if (cursorState() === 'outside') {
+            <circle
+              class="motri__halo"
+              [attr.cx]="cursorX()"
+              [attr.cy]="cursorY()"
+              [attr.r]="cursorRadius + 7"
+            />
+          }
           <circle
-            class="motri__halo"
+            class="motri__cursor"
+            [class.motri__cursor--depart]="cursorState() === 'depart'"
+            [class.motri__cursor--contact]="cursorState() === 'contact'"
+            [class.motri__cursor--outside]="cursorState() === 'outside'"
             [attr.cx]="cursorX()"
             [attr.cy]="cursorY()"
-            [attr.r]="cursorRadius + 7"
+            [attr.r]="cursorRadius"
+          />
+        </svg>
+
+        @if (phase() === 'TRANSITION') {
+          <div class="motri__transition" role="alert">
+            <span class="motri__transition-badge t-label"
+              >Parcours terminé</span
+            >
+            <p class="motri__transition-text">
+              Parcours {{ courseIndex() + 2 }}/{{ courseCount }} dans
+              <strong class="t-mono">{{ transitionCountdown() }}</strong> s
+            </p>
+            <p class="motri__transition-hint">
+              Le chrono repart à la sortie du garage.
+            </p>
+          </div>
+        }
+
+        @if (confirmingExit()) {
+          <app-exit-confirm
+            class="motri__exit"
+            [mode]="sessionMode()"
+            color="motor"
+            (continueRequested)="confirmingExit.set(false)"
+            (quitRequested)="quit()"
           />
         }
-        <circle
-          class="motri__cursor"
-          [class.motri__cursor--depart]="cursorState() === 'depart'"
-          [class.motri__cursor--contact]="cursorState() === 'contact'"
-          [class.motri__cursor--outside]="cursorState() === 'outside'"
-          [attr.cx]="cursorX()"
-          [attr.cy]="cursorY()"
-          [attr.r]="cursorRadius"
-        />
-      </svg>
-
-      @if (phase() === 'TRANSITION') {
-        <div class="motri__transition" role="alert">
-          <span class="motri__transition-badge t-label">Parcours terminé</span>
-          <p class="motri__transition-text">
-            Parcours {{ courseIndex() + 2 }}/{{ courseCount }} dans
-            <strong class="t-mono">{{ transitionCountdown() }}</strong> s
-          </p>
-          <p class="motri__transition-hint">
-            Le chrono repart à la sortie du garage.
-          </p>
-        </div>
-      }
-
-      @if (confirmingExit()) {
-        <app-exit-confirm
-          class="motri__exit"
-          [mode]="sessionMode()"
-          color="motor"
-          (continueRequested)="confirmingExit.set(false)"
-          (quitRequested)="quit()"
-        />
-      }
-    </div>
-
-    <div class="motri__hint">
-      <div class="motri__keys" aria-hidden="true">
-        <span class="motri__keycap motri__keycap--up">↑</span>
-        <span class="motri__keys-row">
-          <span class="motri__keycap">←</span>
-          <span class="motri__keycap">↓</span>
-          <span class="motri__keycap">→</span>
-        </span>
       </div>
-      <span class="motri__hint-label">déplacer le point</span>
+
+      <div class="motri__hint">
+        <div class="motri__keys" aria-hidden="true">
+          <span class="motri__keycap motri__keycap--up">↑</span>
+          <span class="motri__keys-row">
+            <span class="motri__keycap">←</span>
+            <span class="motri__keycap">↓</span>
+            <span class="motri__keycap">→</span>
+          </span>
+        </div>
+        <span class="motri__hint-label">déplacer le point</span>
+      </div>
     </div>
 
     <div
@@ -170,9 +207,7 @@
       <span class="motri__joy-track motri__joy-track--horizontal">
         <span
           class="motri__joy-knob"
-          [style.transform]="
-            'translate(' + joystickLeftX() * 32 + 'px, 0)'
-          "
+          [style.transform]="'translate(' + joystickLeftX() * 32 + 'px, 0)'"
         ></span>
       </span>
     </div>
@@ -186,9 +221,7 @@
       <span class="motri__joy-track motri__joy-track--vertical">
         <span
           class="motri__joy-knob"
-          [style.transform]="
-            'translate(0, ' + joystickRightY() * 32 + 'px)'
-          "
+          [style.transform]="'translate(0, ' + joystickRightY() * 32 + 'px)'"
         ></span>
       </span>
     </div>

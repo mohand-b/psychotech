@@ -88,6 +88,8 @@ export class MotricityPlay {
   protected readonly confirmingExit = signal(false);
   protected readonly joystickLeftX = signal(0);
   protected readonly joystickRightY = signal(0);
+  protected readonly timerFraction = signal(1);
+  protected readonly traveledPoints = signal('');
   protected readonly sessionMode = computed(
     () => this.facade.session()?.mode ?? SessionMode.TARGETED,
   );
@@ -104,6 +106,22 @@ export class MotricityPlay {
           .join(' ')
       : '';
   });
+  protected readonly leftSidePoints = computed(() => {
+    const course = this.course();
+    return course
+      ? course.leftSide
+          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+          .join(' ')
+      : '';
+  });
+  protected readonly rightSidePoints = computed(() => {
+    const course = this.course();
+    return course
+      ? course.rightSide
+          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+          .join(' ')
+      : '';
+  });
   protected readonly centerlinePoints = computed(() => {
     const course = this.course();
     return course
@@ -114,6 +132,7 @@ export class MotricityPlay {
   });
 
   private live: MotricityLiveState = createMotricityLiveState();
+  private maxArc = 0;
   private position: MotricityPoint = { x: 0, y: 0 };
   private samples: MotricitySampleDto[] = [];
   private trajectories: MotricityCourseTrajectoryDto[] = [];
@@ -235,6 +254,9 @@ export class MotricityPlay {
     this.courseIndex.set(index);
     this.phase.set('PLAYING');
     this.live = createMotricityLiveState();
+    this.maxArc = 0;
+    this.timerFraction.set(1);
+    this.traveledPoints.set('');
     this.samples = [];
     this.lastSampleT = -Infinity;
     this.position = { ...course.startPosition };
@@ -304,12 +326,41 @@ export class MotricityPlay {
     this.facade.setPerExerciseCountdown(
       Math.max(0, Math.ceil((limitMs - activeMs) / 1000)),
     );
+    this.timerFraction.set(Math.max(0, 1 - activeMs / limitMs));
 
     const arc = motricityArcLength(course, this.position);
+    if (arc > this.maxArc) {
+      this.maxArc = arc;
+      this.traveledPoints.set(this.traveledPath(course, arc));
+    }
     const crossed = arc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
     if (crossed || this.live.activeMs >= limitMs) {
       this.finishCourse(crossed ? Math.round(activeMs) : limitMs);
     }
+  }
+
+  private traveledPath(course: MotricityCourse, arc: number): string {
+    if (arc <= 0) {
+      return '';
+    }
+    let remaining = arc;
+    const points: MotricityPoint[] = [course.centerline[0]];
+    for (const segment of course.segments) {
+      if (remaining >= segment.length) {
+        points.push(segment.end);
+        remaining -= segment.length;
+      } else {
+        const ratio = remaining / segment.length;
+        points.push({
+          x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+          y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
+        });
+        break;
+      }
+    }
+    return points
+      .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+      .join(' ');
   }
 
   private move(course: MotricityCourse, deltaMs: number): void {
