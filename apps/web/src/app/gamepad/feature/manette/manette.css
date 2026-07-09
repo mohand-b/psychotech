@@ -1,0 +1,159 @@
+.manette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  min-height: 100dvh;
+  padding: 24px;
+  background: var(--bg);
+  touch-action: none;
+  overscroll-behavior: none;
+  user-select: none;
+}
+
+.manette__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 320px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.manette__title {
+  margin: 0;
+  font: 700 18px/24px var(--font-display);
+  color: var(--ink);
+}
+
+.manette__text {
+  margin: 0;
+  font: 400 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.manette__code {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--card);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-align: center;
+  color: var(--ink);
+}
+
+.manette__code:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.manette__connect {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius-button);
+  background: var(--brand);
+  font: 600 15px/20px var(--font-ui);
+  color: var(--card);
+  cursor: pointer;
+}
+
+.manette__connect:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.manette__pulse {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  background: var(--label);
+  animation: manette-pulse 1.4s ease-in-out infinite;
+}
+
+.manette__pulse--warn {
+  background: var(--warning);
+}
+
+.manette__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.manette__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+}
+
+.manette__sticks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.manette__joy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  touch-action: none;
+}
+
+.manette__track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.manette__track--horizontal {
+  width: 176px;
+  height: 76px;
+}
+
+.manette__track--vertical {
+  width: 76px;
+  height: 176px;
+}
+
+.manette__knob {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  border: 1px solid var(--border-hover);
+  box-shadow: var(--shadow-card);
+}
+
+.manette__joy-label {
+  font: 500 12px/16px var(--font-ui);
+  color: var(--label);
+}
+
+@keyframes manette-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
