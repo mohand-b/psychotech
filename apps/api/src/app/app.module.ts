@@ -8,6 +8,7 @@ import { AxesModule } from './axes/axes.module';
 import { BadgesModule } from './badges/badges.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { EnergyModule } from './energy/energy.module';
+import { GamepadModule } from './gamepad/gamepad.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { SessionsModule } from './sessions/sessions.module';
@@ -29,6 +30,7 @@ import { validateEnvironment } from './config/environment.validation';
     CatalogModule,
     AxesModule,
     EnergyModule,
+    GamepadModule,
     ScoringModule,
     SessionsModule,
     ProgressionModule,

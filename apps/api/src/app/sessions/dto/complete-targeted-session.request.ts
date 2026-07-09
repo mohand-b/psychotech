@@ -1,6 +1,7 @@
 import {
   AxisType,
   CompleteTargetedSessionDto,
+  ControlModality,
   DiscriminationAnswer,
   DiscriminationTrialAnswerDto,
   LogicItemAnswerDto,
@@ -20,6 +21,7 @@ import {
   IsIn,
   IsInt,
   IsNumber,
+  IsOptional,
   Max,
   Min,
   ValidateIf,
@@ -133,6 +135,16 @@ export class MotricityCourseTrajectoryRequest
   @ValidateNested({ each: true })
   @Type(() => MotricitySampleRequest)
   samples!: MotricitySampleRequest[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  avgLatencyMs?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  jitterMs?: number;
 }
 
 export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDto {
@@ -199,4 +211,8 @@ export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDt
   @ValidateNested({ each: true })
   @Type(() => MotricityCourseTrajectoryRequest)
   courses?: MotricityCourseTrajectoryRequest[];
+
+  @IsOptional()
+  @IsEnum(ControlModality)
+  controlModality?: ControlModality;
 }

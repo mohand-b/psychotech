@@ -5,6 +5,7 @@ import {
   AxisRawResultDto,
   AxisType,
   BadgeDto,
+  ControlModality,
   CurrentSessionDto,
   RecommendationDto,
   RecommendationPriority,
@@ -47,6 +48,9 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     startedAt: session.startedAt.toISOString(),
     completedAt: session.completedAt ? session.completedAt.toISOString() : null,
     abandonedAt: session.abandonedAt ? session.abandonedAt.toISOString() : null,
+    controlModality: session.controlModality
+      ? mapEnumValue(ControlModality, session.controlModality)
+      : null,
     axisResults: sortedAxisResults(session.axisResults).map(toAxisResultDto),
     recommendations: session.recommendations.map(toRecommendationDto),
   };

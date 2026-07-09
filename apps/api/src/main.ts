@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { WsAdapter } from '@nestjs/platform-ws';
 import cookieParser from 'cookie-parser';
 import { json } from 'express';
 import { AppModule } from './app/app.module';
@@ -11,6 +12,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  app.useWebSocketAdapter(new WsAdapter(app));
   app.use(json({ limit: JSON_BODY_LIMIT }));
   app.use(cookieParser());
   app.useGlobalPipes(

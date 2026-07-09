@@ -221,6 +221,7 @@ export class SessionsService {
       axis,
       rawResult,
       score,
+      controlModality: request.controlModality ?? null,
       startedAt: target.startedAt ?? session.startedAt,
       completedAt: new Date(),
     });
@@ -379,6 +380,9 @@ export class SessionsService {
       throw new ConflictException('The session content is not fully played');
     }
     const scored = scoreMotricitySession(trajectories, seed);
+    const trajectoryByIndex = new Map(
+      trajectories.map((trajectory) => [trajectory.index, trajectory]),
+    );
     return {
       rawResult: {
         axis: AxisType.MOTOR_SKILLS,
@@ -389,6 +393,8 @@ export class SessionsService {
             majorErrors,
             progressionPct,
             tReelMs,
+            avgLatencyMs: trajectoryByIndex.get(index)?.avgLatencyMs ?? null,
+            jitterMs: trajectoryByIndex.get(index)?.jitterMs ?? null,
           }),
         ),
       },

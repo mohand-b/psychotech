@@ -87,6 +87,12 @@ enum BadgeCategory {
   MASTERY
 }
 
+enum ControlModality {
+  KEYBOARD
+  PHONE_GAMEPAD
+  TOUCH_JOYSTICKS
+}
+
 model User {
   id               String   @id @default(uuid())
   email            String   @unique
@@ -165,6 +171,7 @@ model Session {
   startedAt        DateTime        @default(now())
   completedAt      DateTime?
   abandonedAt      DateTime?
+  controlModality  ControlModality?
   user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   axisResults      SessionAxis[]
   recommendations  Recommendation[]

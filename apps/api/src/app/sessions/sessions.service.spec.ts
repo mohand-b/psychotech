@@ -6,6 +6,7 @@ import {
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
+  ControlModality,
   ScoreBand,
   Sector,
   SessionMode,
@@ -740,6 +741,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       expect.objectContaining({
         axis: AxisType.MOTOR_SKILLS,
         score: expect.objectContaining({ normalizedScore: expected.score }),
+        controlModality: null,
         rawResult: expect.objectContaining({
           axis: AxisType.MOTOR_SKILLS,
           courses: expected.courses.map(
@@ -749,8 +751,43 @@ describe('SessionsService.completeTargeted (motricity)', () => {
               majorErrors,
               progressionPct,
               tReelMs,
+              avgLatencyMs: null,
+              jitterMs: null,
             }),
           ),
+        }),
+      }),
+    );
+  });
+
+  it('persists the control modality and the per-course latency observables', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      axis: AxisType.MOTOR_SKILLS,
+      controlModality: ControlModality.PHONE_GAMEPAD,
+      courses: fullTrajectories.map((trajectory, index) => ({
+        ...trajectory,
+        avgLatencyMs: 20 + index,
+        jitterMs: 3 + index,
+      })),
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        controlModality: ControlModality.PHONE_GAMEPAD,
+        rawResult: expect.objectContaining({
+          courses: expect.arrayContaining([
+            expect.objectContaining({ index: 0, avgLatencyMs: 20, jitterMs: 3 }),
+            expect.objectContaining({ index: 2, avgLatencyMs: 22, jitterMs: 5 }),
+          ]),
         }),
       }),
     );

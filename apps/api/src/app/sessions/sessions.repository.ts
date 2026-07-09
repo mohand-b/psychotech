@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   AxisType as DbAxisType,
+  ControlModality as DbControlModality,
   Prisma,
   RecommendationPriority as DbRecommendationPriority,
   ScoreBand as DbScoreBand,
@@ -13,6 +14,7 @@ import {
   AxisRawResultDto,
   AxisType,
   BadgeDto,
+  ControlModality,
   RecommendationDto,
   ScoreBand,
   Sector,
@@ -92,6 +94,7 @@ export interface CompleteTargetedSessionParams {
   axis: AxisType;
   rawResult: AxisRawResultDto;
   score: { normalizedScore: number; band: ScoreBand } | null;
+  controlModality: ControlModality | null;
   startedAt: Date;
   completedAt: Date;
 }
@@ -301,6 +304,9 @@ export class SessionsRepository {
           status: DbSessionStatus.COMPLETED,
           completedAt: params.completedAt,
           currentAxisIndex: 1,
+          controlModality: params.controlModality
+            ? mapEnumValue(DbControlModality, params.controlModality)
+            : null,
         },
       }),
     ]);
