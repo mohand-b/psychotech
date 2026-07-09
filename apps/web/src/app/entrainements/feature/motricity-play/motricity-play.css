@@ -81,8 +81,9 @@
 
 .motri__pairing {
   position: absolute;
-  top: 40px;
-  left: 24px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   background: var(--card);
