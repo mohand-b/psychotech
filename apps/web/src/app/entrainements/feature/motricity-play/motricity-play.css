@@ -1,0 +1,296 @@
+.motri {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 66rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+}
+
+.motri__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.motri__course {
+  font: 400 15px/20px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.motri__course strong {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.motri__counters {
+  display: flex;
+  gap: 10px;
+}
+
+.motri__counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  background: var(--card);
+  font: 500 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.motri__counter strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.motri__counter-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-pill);
+}
+
+.motri__board {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 12px;
+}
+
+.motri__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.motri__zone {
+  fill: var(--surface-muted);
+}
+
+.motri__corridor {
+  fill: var(--surface-muted);
+  stroke: var(--border-hover);
+  stroke-width: 1.5;
+}
+
+.motri__centerline {
+  fill: none;
+  stroke: var(--axis-motor-pastel-bd);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+}
+
+.motri__wall {
+  stroke: var(--text-secondary);
+  stroke-width: 3;
+  stroke-linecap: square;
+}
+
+.motri__badge--start {
+  fill: var(--secondary-pastel);
+  stroke: var(--secondary-pastel-bd);
+}
+
+.motri__badge--end {
+  fill: var(--axis-motor-pastel);
+  stroke: var(--axis-motor-pastel-bd);
+}
+
+.motri__badge-text {
+  font: 700 12px/1 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-anchor: middle;
+}
+
+.motri__badge-text--start {
+  fill: var(--secondary-label);
+}
+
+.motri__badge-text--end {
+  fill: var(--axis-motor-text);
+}
+
+.motri__cursor {
+  fill: var(--axis-motor);
+}
+
+.motri__cursor--depart {
+  stroke: var(--axis-motor-pastel-bd);
+  stroke-width: 5;
+}
+
+.motri__cursor--contact {
+  stroke: var(--warning);
+  stroke-width: 3;
+}
+
+.motri__cursor--outside {
+  stroke: var(--danger);
+  stroke-width: 3;
+}
+
+.motri__halo {
+  fill: var(--danger);
+  opacity: 0.25;
+  animation: motri-halo 0.9s ease-in-out infinite;
+}
+
+@keyframes motri-halo {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+
+.motri__transition {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(380px, calc(100% - 48px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+  padding: 24px;
+  z-index: 15;
+}
+
+.motri__transition-badge {
+  color: var(--axis-motor-text);
+}
+
+.motri__transition-text {
+  margin: 0;
+  font: 400 15px/22px var(--font-ui);
+  color: var(--ink);
+}
+
+.motri__transition-text strong {
+  font-weight: 700;
+}
+
+.motri__transition-hint {
+  margin: 0;
+  font: 400 12px/16px var(--font-ui);
+  color: var(--label);
+}
+
+.motri__exit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100% - 48px));
+  box-shadow: var(--shadow-raised);
+  z-index: 20;
+}
+
+.motri__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.motri__keys {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.motri__keys-row {
+  display: flex;
+  gap: 4px;
+}
+
+.motri__keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-badge);
+  background: var(--card);
+  font: 600 13px/1 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.motri__hint-label {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.motri__joy {
+  display: none;
+  position: fixed;
+  bottom: 26px;
+  z-index: 25;
+  touch-action: none;
+}
+
+.motri__joy--left {
+  left: 22px;
+}
+
+.motri__joy--right {
+  right: 22px;
+}
+
+.motri__joy-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+.motri__joy-track--horizontal {
+  width: 128px;
+  height: 56px;
+}
+
+.motri__joy-track--vertical {
+  width: 56px;
+  height: 128px;
+}
+
+.motri__joy-knob {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  border: 1px solid var(--border-hover);
+  box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 767px) {
+  .motri {
+    padding: 1rem 1rem 12rem;
+  }
+
+  .motri__hint {
+    display: none;
+  }
+
+  .motri__joy {
+    display: block;
+  }
+}

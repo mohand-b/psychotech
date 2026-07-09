@@ -10,6 +10,8 @@ import {
   LogicItemAnswerDto,
   MemorySequence,
   MemorySequenceAnswerDto,
+  MotricityCourse,
+  MotricityCourseTrajectoryDto,
   RailwayPlayableAxis,
   ReactivityStimulus,
   ReactivityStimulusAnswerDto,
@@ -23,6 +25,7 @@ import {
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
+  generateMotricityCourses,
   generateReactivitySession,
 } from '@psychotech/shared';
 import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
@@ -93,6 +96,13 @@ export class TrainingSessionFacade {
     const session = this.store.session();
     return session && this.axis() === AxisType.REACTIVITY
       ? generateReactivitySession(session.seed)
+      : [];
+  });
+
+  readonly motricityCourses: Signal<MotricityCourse[]> = computed(() => {
+    const session = this.store.session();
+    return session && this.axis() === AxisType.MOTOR_SKILLS
+      ? generateMotricityCourses(session.seed)
       : [];
   });
 
@@ -288,6 +298,19 @@ export class TrainingSessionFacade {
     }
     return this.api
       .completeTargeted(session.id, axis, { axis, trials })
+      .pipe(tap((completed) => this.install(completed)));
+  }
+
+  completeTargetedMotricity(
+    courses: MotricityCourseTrajectoryDto[],
+  ): Observable<SessionDto> {
+    const session = this.store.session();
+    const axis = this.axis();
+    if (!session || !axis) {
+      return throwError(() => new Error('No active training session'));
+    }
+    return this.api
+      .completeTargeted(session.id, axis, { axis, courses })
       .pipe(tap((completed) => this.install(completed)));
   }
 

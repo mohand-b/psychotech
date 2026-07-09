@@ -171,6 +171,24 @@ export const entrainementsRoutes: Route[] = [
   },
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.MOTOR_SKILLS)],
+    data: {
+      focusedHeader: {
+        title: 'Entraînement ciblé',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+        axisChip: true,
+        showEnergy: false,
+        showHelp: true,
+      },
+    },
+    loadComponent: () =>
+      import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
+  },
+  {
+    path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
     data: {
       focusedHeader: {

@@ -1,0 +1,434 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AXIS_TRAINING,
+  AxisType,
+  MOTRICITY_CANVAS_HEIGHT,
+  MOTRICITY_CANVAS_WIDTH,
+  MOTRICITY_CURSOR_RADIUS,
+  MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC,
+  MOTRICITY_SAMPLE_INTERVAL_MS,
+  MotricityCourse,
+  MotricityCourseTrajectoryDto,
+  MotricityPoint,
+  MotricitySampleDto,
+  SessionDto,
+  SessionMode,
+  SessionStatus,
+  motricityArcLength,
+  motricityCursorZone,
+} from '@psychotech/shared';
+import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
+import {
+  MotricityLiveState,
+  advanceMotricityLive,
+  createMotricityLiveState,
+  liveMajorErrors,
+} from './motricity-live';
+
+type MotricityPhase = 'PLAYING' | 'TRANSITION';
+type CursorState = 'depart' | 'normal' | 'contact' | 'outside';
+
+const MAX_FRAME_MS = 50;
+const ARC_COMPLETION_TOLERANCE = 0.5;
+const JOYSTICK_RANGE_PX = 44;
+const BADGE_WIDTH = 58;
+const BADGE_HEIGHT = 24;
+
+@Component({
+  selector: 'app-motricity-play',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ExitConfirm],
+  templateUrl: './motricity-play.html',
+  styleUrl: './motricity-play.css',
+  host: {
+    '(document:keydown)': 'onKeydown($event)',
+    '(document:keyup)': 'onKeyup($event)',
+  },
+})
+export class MotricityPlay {
+  private readonly facade = inject(TrainingSessionFacade);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly sessionId =
+    this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly presentation = AXIS_PRESENTATION[AxisType.MOTOR_SKILLS];
+  private readonly training = AXIS_TRAINING[AxisType.MOTOR_SKILLS];
+
+  protected readonly canvasWidth = MOTRICITY_CANVAS_WIDTH;
+  protected readonly canvasHeight = MOTRICITY_CANVAS_HEIGHT;
+  protected readonly cursorRadius = MOTRICITY_CURSOR_RADIUS;
+  protected readonly badgeWidth = BADGE_WIDTH;
+  protected readonly badgeHeight = BADGE_HEIGHT;
+  protected readonly courseCount = this.training.exerciseCount;
+
+  protected readonly loaded = signal(false);
+  protected readonly courseIndex = signal(0);
+  protected readonly phase = signal<MotricityPhase>('PLAYING');
+  protected readonly cursorX = signal(0);
+  protected readonly cursorY = signal(0);
+  protected readonly cursorState = signal<CursorState>('depart');
+  protected readonly minorErrors = signal(0);
+  protected readonly majorErrors = signal(0);
+  protected readonly transitionCountdown = signal(
+    this.training.pauseBetweenCoursesSec,
+  );
+  protected readonly confirmingExit = signal(false);
+  protected readonly joystickLeftX = signal(0);
+  protected readonly joystickRightY = signal(0);
+  protected readonly sessionMode = computed(
+    () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
+
+  protected readonly courses = this.facade.motricityCourses;
+  protected readonly course = computed<MotricityCourse | null>(
+    () => this.courses()[this.courseIndex()] ?? null,
+  );
+  protected readonly polygonPoints = computed(() => {
+    const course = this.course();
+    return course
+      ? course.polygon
+          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+          .join(' ')
+      : '';
+  });
+  protected readonly centerlinePoints = computed(() => {
+    const course = this.course();
+    return course
+      ? course.centerline
+          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+          .join(' ')
+      : '';
+  });
+
+  private live: MotricityLiveState = createMotricityLiveState();
+  private position: MotricityPoint = { x: 0, y: 0 };
+  private samples: MotricitySampleDto[] = [];
+  private trajectories: MotricityCourseTrajectoryDto[] = [];
+  private lastSampleT = -Infinity;
+  private readonly pressedKeys = new Set<string>();
+  private rafId: number | null = null;
+  private lastFrameTs: number | null = null;
+  private transitionTimerId: number | null = null;
+  private hasSubmitted = false;
+  private leftPointerId: number | null = null;
+  private rightPointerId: number | null = null;
+  private leftPointerOrigin = 0;
+  private rightPointerOrigin = 0;
+  private handledCloseRequests = this.facade.closeRequests();
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.stopLoop();
+      this.clearTransitionTimer();
+      this.facade.setPerExerciseCountdown(null);
+    });
+    effect(() => {
+      const requests = this.facade.closeRequests();
+      if (requests !== this.handledCloseRequests) {
+        this.handledCloseRequests = requests;
+        if (!this.hasSubmitted && this.loaded()) {
+          this.confirmingExit.set(true);
+        }
+      }
+    });
+    const active = this.facade.session();
+    if (active?.id === this.sessionId) {
+      this.handleLoaded(active);
+    } else {
+      this.facade.load(this.sessionId).subscribe({
+        next: (session) => this.handleLoaded(session),
+        error: () => this.router.navigate(['/entrainements']),
+      });
+    }
+  }
+
+  protected quit(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (!this.loaded()) {
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.confirmingExit.set(false);
+      return;
+    }
+    if (this.confirmingExit()) {
+      return;
+    }
+    if (event.key.startsWith('Arrow')) {
+      event.preventDefault();
+      this.pressedKeys.add(event.key);
+    }
+  }
+
+  protected onKeyup(event: KeyboardEvent): void {
+    this.pressedKeys.delete(event.key);
+  }
+
+  protected joystickStart(
+    side: 'left' | 'right',
+    event: PointerEvent,
+  ): void {
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    if (side === 'left') {
+      this.leftPointerId = event.pointerId;
+      this.leftPointerOrigin = event.clientX;
+    } else {
+      this.rightPointerId = event.pointerId;
+      this.rightPointerOrigin = event.clientY;
+    }
+  }
+
+  protected joystickMove(side: 'left' | 'right', event: PointerEvent): void {
+    if (side === 'left' && event.pointerId === this.leftPointerId) {
+      const delta = event.clientX - this.leftPointerOrigin;
+      this.joystickLeftX.set(
+        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
+      );
+    }
+    if (side === 'right' && event.pointerId === this.rightPointerId) {
+      const delta = event.clientY - this.rightPointerOrigin;
+      this.joystickRightY.set(
+        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
+      );
+    }
+  }
+
+  protected joystickEnd(side: 'left' | 'right', event: PointerEvent): void {
+    if (side === 'left' && event.pointerId === this.leftPointerId) {
+      this.leftPointerId = null;
+      this.joystickLeftX.set(0);
+    }
+    if (side === 'right' && event.pointerId === this.rightPointerId) {
+      this.rightPointerId = null;
+      this.joystickRightY.set(0);
+    }
+  }
+
+  private handleLoaded(session: SessionDto): void {
+    if (session.status !== SessionStatus.IN_PROGRESS) {
+      this.router.navigate(['/entrainements']);
+      return;
+    }
+    this.loaded.set(true);
+    this.beginCourse(0);
+    this.startLoop();
+  }
+
+  private beginCourse(index: number): void {
+    const course = this.courses()[index];
+    this.courseIndex.set(index);
+    this.phase.set('PLAYING');
+    this.live = createMotricityLiveState();
+    this.samples = [];
+    this.lastSampleT = -Infinity;
+    this.position = { ...course.startPosition };
+    this.cursorX.set(this.position.x);
+    this.cursorY.set(this.position.y);
+    this.cursorState.set('depart');
+    this.minorErrors.set(0);
+    this.majorErrors.set(0);
+    this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+  }
+
+  private startLoop(): void {
+    const tick = (timestamp: number) => {
+      this.step(timestamp);
+      this.rafId = requestAnimationFrame(tick);
+    };
+    this.rafId = requestAnimationFrame(tick);
+  }
+
+  private stopLoop(): void {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  private step(timestamp: number): void {
+    const deltaMs =
+      this.lastFrameTs === null
+        ? 0
+        : Math.min(MAX_FRAME_MS, timestamp - this.lastFrameTs);
+    this.lastFrameTs = timestamp;
+    const course = this.course();
+    if (!course || this.phase() !== 'PLAYING' || this.hasSubmitted) {
+      return;
+    }
+
+    this.move(course, deltaMs);
+    const zone = motricityCursorZone(course, this.position);
+    this.cursorState.set(
+      zone === 'GARAGE' && !this.live.started
+        ? 'depart'
+        : zone === 'OUTSIDE'
+          ? 'outside'
+          : zone === 'TOUCHING'
+            ? 'contact'
+            : 'normal',
+    );
+    this.live = advanceMotricityLive(this.live, zone, deltaMs);
+    if (!this.live.started) {
+      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+      return;
+    }
+
+    const limitMs = this.training.secondsPerCourse * 1000;
+    const activeMs = Math.min(this.live.activeMs, limitMs);
+    if (activeMs - this.lastSampleT >= MOTRICITY_SAMPLE_INTERVAL_MS - 0.5) {
+      this.samples.push({
+        t: Math.round(activeMs),
+        x: this.position.x,
+        y: this.position.y,
+      });
+      this.lastSampleT = activeMs;
+    }
+    this.minorErrors.set(this.live.minorErrors);
+    this.majorErrors.set(liveMajorErrors(this.live));
+    this.facade.setPerExerciseCountdown(
+      Math.max(0, Math.ceil((limitMs - activeMs) / 1000)),
+    );
+
+    const arc = motricityArcLength(course, this.position);
+    const crossed = arc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
+    if (crossed || this.live.activeMs >= limitMs) {
+      this.finishCourse(crossed ? Math.round(activeMs) : limitMs);
+    }
+  }
+
+  private move(course: MotricityCourse, deltaMs: number): void {
+    if (this.confirmingExit()) {
+      return;
+    }
+    const keyX =
+      (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
+      (this.pressedKeys.has('ArrowLeft') ? 1 : 0);
+    const keyY =
+      (this.pressedKeys.has('ArrowDown') ? 1 : 0) -
+      (this.pressedKeys.has('ArrowUp') ? 1 : 0);
+    const inputX = Math.max(-1, Math.min(1, keyX + this.joystickLeftX()));
+    const inputY = Math.max(-1, Math.min(1, keyY + this.joystickRightY()));
+    const magnitude = Math.hypot(inputX, inputY);
+    if (magnitude < 0.15) {
+      return;
+    }
+    const distance =
+      MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC * (deltaMs / 1000);
+    let x = this.position.x + (inputX / magnitude) * distance;
+    let y = this.position.y + (inputY / magnitude) * distance;
+    x = Math.min(
+      MOTRICITY_CANVAS_WIDTH - MOTRICITY_CURSOR_RADIUS,
+      Math.max(MOTRICITY_CURSOR_RADIUS, x),
+    );
+    y = Math.min(
+      MOTRICITY_CANVAS_HEIGHT - MOTRICITY_CURSOR_RADIUS,
+      Math.max(MOTRICITY_CURSOR_RADIUS, y),
+    );
+    ({ x, y } = this.resolveGarageWalls(course, x, y));
+    this.position = { x, y };
+    this.cursorX.set(x);
+    this.cursorY.set(y);
+  }
+
+  private resolveGarageWalls(
+    course: MotricityCourse,
+    x: number,
+    y: number,
+  ): MotricityPoint {
+    let resolvedX = x;
+    let resolvedY = y;
+    for (let pass = 0; pass < 2; pass += 1) {
+      for (const wall of course.garageWalls) {
+        const dx = wall.end.x - wall.start.x;
+        const dy = wall.end.y - wall.start.y;
+        const lengthSq = dx * dx + dy * dy;
+        const t =
+          lengthSq === 0
+            ? 0
+            : Math.min(
+                1,
+                Math.max(
+                  0,
+                  ((resolvedX - wall.start.x) * dx +
+                    (resolvedY - wall.start.y) * dy) /
+                    lengthSq,
+                ),
+              );
+        const closestX = wall.start.x + t * dx;
+        const closestY = wall.start.y + t * dy;
+        const distance = Math.hypot(resolvedX - closestX, resolvedY - closestY);
+        if (distance > 0 && distance < MOTRICITY_CURSOR_RADIUS) {
+          const push = (MOTRICITY_CURSOR_RADIUS - distance) / distance;
+          resolvedX += (resolvedX - closestX) * push;
+          resolvedY += (resolvedY - closestY) * push;
+        }
+      }
+    }
+    return { x: resolvedX, y: resolvedY };
+  }
+
+  private finishCourse(finalT: number): void {
+    this.samples.push({
+      t: finalT,
+      x: this.position.x,
+      y: this.position.y,
+    });
+    this.trajectories.push({
+      index: this.courseIndex(),
+      samples: this.samples,
+    });
+    if (this.courseIndex() < this.courseCount - 1) {
+      this.phase.set('TRANSITION');
+      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse);
+      this.transitionCountdown.set(this.training.pauseBetweenCoursesSec);
+      this.transitionTimerId = window.setInterval(() => {
+        const next = this.transitionCountdown() - 1;
+        this.transitionCountdown.set(next);
+        if (next <= 0) {
+          this.clearTransitionTimer();
+          this.beginCourse(this.courseIndex() + 1);
+        }
+      }, 1000);
+      return;
+    }
+    this.submit();
+  }
+
+  private clearTransitionTimer(): void {
+    if (this.transitionTimerId !== null) {
+      window.clearInterval(this.transitionTimerId);
+      this.transitionTimerId = null;
+    }
+  }
+
+  private submit(): void {
+    if (this.hasSubmitted) {
+      return;
+    }
+    this.hasSubmitted = true;
+    this.stopLoop();
+    this.facade.setPerExerciseCountdown(null);
+    this.facade.completeTargetedMotricity(this.trajectories).subscribe({
+      next: () => this.router.navigate(['/sessions']),
+      error: () => {
+        this.hasSubmitted = false;
+      },
+    });
+  }
+}
