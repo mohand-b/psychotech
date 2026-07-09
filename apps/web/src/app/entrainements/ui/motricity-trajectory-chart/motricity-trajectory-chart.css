@@ -55,6 +55,15 @@
   pointer-events: none;
 }
 
+.chart__exit-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--danger);
+  opacity: 0.14;
+  pointer-events: none;
+}
+
 .chart__border-line {
   position: absolute;
   left: 0;
@@ -91,11 +100,6 @@
 
 .chart__curve-base {
   stroke: var(--ink);
-}
-
-.chart__curve-exit {
-  stroke: var(--danger);
-  stroke-width: 2.5px;
 }
 
 .chart__dot-slot {

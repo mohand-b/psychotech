@@ -6,16 +6,19 @@ import {
 } from '@angular/core';
 import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
+import {
+  TrajectoryExitBand,
+  clampDeviation,
+  smoothTimelinePoints,
+  trajectoryExitBands,
+} from './trajectory-chart.logic';
 
-const Y_MIN_DOMAIN_PCT = 125;
-const Y_HEADROOM_PCT = 10;
-const Y_MAX_DOMAIN_PCT = 170;
+const Y_DOMAIN_PCT = 120;
 const BORDER_PCT = 100;
 
 interface ChartCoord {
   x: number;
   y: number;
-  deviationPct: number;
 }
 
 interface CourseZone {
@@ -67,22 +70,7 @@ export class MotricityTrajectoryChart {
     Math.max(1, this.metrics().totalTimeMs),
   );
 
-  private readonly yMax = computed(() => {
-    const maxDeviation = Math.max(
-      0,
-      ...this.metrics().timeline.flatMap((series) =>
-        series.points.map((point) => point.deviationPct),
-      ),
-    );
-    return Math.min(
-      Y_MAX_DOMAIN_PCT,
-      Math.max(Y_MIN_DOMAIN_PCT, maxDeviation + Y_HEADROOM_PCT),
-    );
-  });
-
-  protected readonly borderBottomPct = computed(
-    () => (BORDER_PCT / this.yMax()) * 100,
-  );
+  protected readonly borderBottomPct = (BORDER_PCT / Y_DOMAIN_PCT) * 100;
 
   protected readonly zones = computed<CourseZone[]>(() => {
     const totalMs = this.totalMs();
@@ -103,16 +91,14 @@ export class MotricityTrajectoryChart {
   private readonly coords = computed<ChartCoord[]>(() => {
     const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
-    const yMax = this.yMax();
     const coords: ChartCoord[] = [];
     for (const series of this.metrics().timeline) {
       const offset = offsets.get(series.courseIndex) ?? 0;
-      for (const point of series.points) {
-        const clamped = Math.min(yMax, point.deviationPct);
+      for (const point of smoothTimelinePoints(series.points)) {
+        const clamped = clampDeviation(point.deviationPct);
         coords.push({
           x: ((offset + point.tMs) / totalMs) * 100,
-          y: 100 - (clamped / yMax) * 100,
-          deviationPct: point.deviationPct,
+          y: 100 - (clamped / Y_DOMAIN_PCT) * 100,
         });
       }
     }
@@ -121,32 +107,13 @@ export class MotricityTrajectoryChart {
 
   protected readonly curvePath = computed(() => bezierPath(this.coords()));
 
-  protected readonly exitPaths = computed<string[]>(() => {
-    const coords = this.coords();
-    const paths: string[] = [];
-    let run: ChartCoord[] = [];
-    for (let position = 1; position < coords.length; position += 1) {
-      const previous = coords[position - 1];
-      const current = coords[position];
-      const isExitPair =
-        previous.deviationPct > BORDER_PCT || current.deviationPct > BORDER_PCT;
-      if (isExitPair) {
-        if (run.length === 0) {
-          run = [previous];
-        }
-        run.push(current);
-      } else if (run.length > 1) {
-        paths.push(bezierPath(run));
-        run = [];
-      } else {
-        run = [];
-      }
-    }
-    if (run.length > 1) {
-      paths.push(bezierPath(run));
-    }
-    return paths;
-  });
+  protected readonly exitBands = computed<TrajectoryExitBand[]>(() =>
+    trajectoryExitBands(
+      this.metrics().events,
+      this.metrics().courses,
+      this.totalMs(),
+    ),
+  );
 
   protected readonly contacts = computed<ContactDot[]>(() => {
     const offsets = this.courseOffsets();
@@ -168,6 +135,6 @@ export class MotricityTrajectoryChart {
   });
 
   protected yTickBottom(valuePct: number): number {
-    return (valuePct / this.yMax()) * 100;
+    return (valuePct / Y_DOMAIN_PCT) * 100;
   }
 }

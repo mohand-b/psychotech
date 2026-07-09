@@ -20,7 +20,14 @@
           ></span>
         }
       }
-      <span class="chart__border-line" [style.bottom.%]="borderBottomPct()">
+      @for (band of exitBands(); track $index) {
+        <span
+          class="chart__exit-band"
+          [style.left.%]="band.leftPct"
+          [style.width.%]="band.widthPct"
+        ></span>
+      }
+      <span class="chart__border-line" [style.bottom.%]="borderBottomPct">
         <span class="chart__border-label">bord</span>
       </span>
       @if (curvePath()) {
@@ -31,16 +38,13 @@
           aria-hidden="true"
         >
           <path class="chart__curve-base" [attr.d]="curvePath()" />
-          @for (exit of exitPaths(); track $index) {
-            <path class="chart__curve-exit" [attr.d]="exit" />
-          }
         </svg>
       }
       @for (contact of contacts(); track $index) {
         <span
           class="chart__dot-slot"
           [style.left.%]="contact.xPct"
-          [style.bottom.%]="borderBottomPct()"
+          [style.bottom.%]="borderBottomPct"
         >
           <span class="chart__contact"></span>
           <span class="chart__tip">{{ contact.tooltip }}</span>
