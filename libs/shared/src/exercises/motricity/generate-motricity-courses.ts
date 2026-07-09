@@ -34,19 +34,25 @@ const SIMPLE_JOG_SPAN = 50;
 const SIMPLE_EDGE_CLEARANCE = 60;
 
 const SERPENTINE_LANE_BOTTOM_MIN = 495;
-const SERPENTINE_LANE_MID_MIN = 300;
-const SERPENTINE_LANE_TOP_MIN = 110;
-const SERPENTINE_LANE_JITTER = 20;
-const SERPENTINE_RISE_MIN = 65;
+const SERPENTINE_LANE_MID_MIN = 310;
+const SERPENTINE_LANE_TOP_MIN = 120;
+const SERPENTINE_LANE_JITTER = 15;
+const SERPENTINE_RISE_MIN = 60;
 const SERPENTINE_RISE_SPAN = 15;
 const SERPENTINE_RIGHT_MIN = 830;
 const SERPENTINE_RIGHT_SPAN = 40;
-const SERPENTINE_LEFT_MIN = 400;
-const SERPENTINE_LEFT_SPAN = 60;
-const SERPENTINE_FIRST_RUN_MIN = 320;
-const SERPENTINE_FIRST_RUN_SPAN = 120;
+const SERPENTINE_LEFT_MIN = 430;
+const SERPENTINE_LEFT_SPAN = 40;
+const SERPENTINE_RUN_A1_MIN = 120;
+const SERPENTINE_RUN_A1_SPAN = 60;
+const SERPENTINE_RUN_A2_MIN = 150;
+const SERPENTINE_RUN_A2_SPAN = 60;
 const SERPENTINE_RETURN_TAIL_MIN = 90;
 const SERPENTINE_RETURN_TAIL_SPAN = 40;
+const SERPENTINE_FINAL_JOG_X_MIN = 800;
+const SERPENTINE_FINAL_JOG_X_SPAN = 40;
+const SERPENTINE_FINAL_JOG_RISE_MIN = 50;
+const SERPENTINE_FINAL_JOG_RISE_SPAN = 15;
 
 type Direction = 'E' | 'NE' | 'SE' | 'N' | 'S';
 
@@ -223,23 +229,32 @@ function buildCenterlineSerpentine(
   const rise = SERPENTINE_RISE_MIN + rng.next() * SERPENTINE_RISE_SPAN;
   const xRight = SERPENTINE_RIGHT_MIN + rng.next() * SERPENTINE_RIGHT_SPAN;
   const xLeft = SERPENTINE_LEFT_MIN + rng.next() * SERPENTINE_LEFT_SPAN;
-  const firstRun = SERPENTINE_FIRST_RUN_MIN + rng.next() * SERPENTINE_FIRST_RUN_SPAN;
+  const runA1 = SERPENTINE_RUN_A1_MIN + rng.next() * SERPENTINE_RUN_A1_SPAN;
+  const runA2 = SERPENTINE_RUN_A2_MIN + rng.next() * SERPENTINE_RUN_A2_SPAN;
   const returnTail = SERPENTINE_RETURN_TAIL_MIN + rng.next() * SERPENTINE_RETURN_TAIL_SPAN;
+  const finalJogX = SERPENTINE_FINAL_JOG_X_MIN + rng.next() * SERPENTINE_FINAL_JOG_X_SPAN;
+  const finalJogRise =
+    SERPENTINE_FINAL_JOG_RISE_MIN + rng.next() * SERPENTINE_FINAL_JOG_RISE_SPAN;
 
   const upperOutbound = laneBottom - rise;
   const upperReturn = laneMid - rise;
 
   const p0 = { x: startX, y: laneBottom };
-  const p1 = { x: startX + firstRun, y: laneBottom };
+  const p1 = { x: p0.x + runA1, y: laneBottom };
   const p2 = { x: p1.x + rise, y: upperOutbound };
-  const p3 = { x: xRight, y: upperOutbound };
-  const p4 = { x: xRight, y: laneMid };
-  const p5 = { x: xLeft + returnTail + rise, y: laneMid };
-  const p6 = { x: xLeft + returnTail, y: upperReturn };
-  const p7 = { x: xLeft, y: upperReturn };
-  const p8 = { x: xLeft, y: laneTop };
-  const p9 = { x: endX, y: laneTop };
-  return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9];
+  const p3 = { x: p2.x + runA2, y: upperOutbound };
+  const p4 = { x: p3.x + rise, y: laneBottom };
+  const p5 = { x: xRight - rise, y: laneBottom };
+  const p6 = { x: xRight, y: upperOutbound };
+  const p7 = { x: xRight, y: laneMid };
+  const p8 = { x: xLeft + returnTail + rise, y: laneMid };
+  const p9 = { x: xLeft + returnTail, y: upperReturn };
+  const p10 = { x: xLeft, y: upperReturn };
+  const p11 = { x: xLeft, y: laneTop };
+  const p12 = { x: finalJogX, y: laneTop };
+  const p13 = { x: finalJogX + finalJogRise, y: laneTop + finalJogRise };
+  const p14 = { x: endX, y: laneTop + finalJogRise };
+  return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
 }
 
 function recenterVertically(

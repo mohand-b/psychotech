@@ -78,7 +78,7 @@ describe('generateMotricityCourses', () => {
       expect(courses[0].segments.length).toBe(5);
       expect(courses[1].segments.length).toBeGreaterThanOrEqual(10);
       expect(courses[1].segments.length).toBeLessThanOrEqual(11);
-      expect(courses[2].segments.length).toBe(9);
+      expect(courses[2].segments.length).toBe(14);
       for (const course of courses) {
         for (const segment of course.segments) {
           const dx = Math.abs(segment.end.x - segment.start.x);
@@ -134,6 +134,12 @@ describe('generateMotricityCourses', () => {
       expect(goesBackward(courses[0])).toBe(false);
       expect(goesBackward(courses[1])).toBe(false);
       expect(goesBackward(courses[2])).toBe(true);
+      const diagonalCount = courses[2].segments.filter((segment) => {
+        const dx = Math.abs(segment.end.x - segment.start.x);
+        const dy = Math.abs(segment.end.y - segment.start.y);
+        return dx > 1e-6 && Math.abs(dx - dy) < 1e-6;
+      }).length;
+      expect(diagonalCount).toBeGreaterThanOrEqual(5);
     }
   });
 
