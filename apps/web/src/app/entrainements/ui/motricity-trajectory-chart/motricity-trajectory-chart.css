@@ -10,6 +10,7 @@
 
 .chart__zone-labels {
   display: flex;
+  margin-left: 26px;
   font-size: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -22,6 +23,19 @@
 
 .chart__frame {
   display: flex;
+}
+
+.chart__y-axis {
+  position: relative;
+  width: 26px;
+  font-size: 10px;
+  color: var(--label);
+}
+
+.chart__y-axis span {
+  position: absolute;
+  right: 8px;
+  transform: translateY(50%);
 }
 
 .chart__plot {
@@ -76,7 +90,7 @@
 }
 
 .chart__curve-base {
-  stroke: var(--text-secondary);
+  stroke: var(--ink);
 }
 
 .chart__curve-exit {
@@ -130,6 +144,7 @@
 .chart__x-axis {
   display: flex;
   justify-content: space-between;
+  margin-left: 26px;
   font-size: 10px;
   color: var(--label);
 }

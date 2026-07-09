@@ -166,4 +166,8 @@ export class MotricityTrajectoryChart {
     const totalSec = Math.round(this.totalMs() / 1000);
     return [0, Math.round(totalSec / 2), totalSec].map(formatDuration);
   });
+
+  protected yTickBottom(valuePct: number): number {
+    return (valuePct / this.yMax()) * 100;
+  }
 }
