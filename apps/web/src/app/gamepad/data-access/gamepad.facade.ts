@@ -139,6 +139,8 @@ export class GamepadFacade {
         this.stateSignal.set(state);
         if (state === GamepadConnectionState.CONNECTED) {
           this.everConnectedSignal.set(true);
+          this.lastSeq = null;
+          this.lastFrameAtSignal.set(performance.now());
           this.clearExpiryTimer();
           this.startPingLoop();
         } else {
