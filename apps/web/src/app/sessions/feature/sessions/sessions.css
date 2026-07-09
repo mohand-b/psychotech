@@ -26,10 +26,51 @@
   color: var(--ink);
 }
 
+.sessions__filter:active {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
 .sessions__filter--active {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--card);
+}
+
+.sessions__filter--active:hover {
+  background: var(--ink);
+  color: var(--card);
+}
+
+.sessions__filter--active:active {
+  background: var(--ink);
+  color: var(--card);
+  filter: brightness(1.35);
+}
+
+.sessions__filter-icon {
+  color: var(--chip-text);
+}
+
+.sessions__filter--axis:hover {
+  border-color: var(--chip-pastel-bd);
+  color: var(--ink);
+}
+
+.sessions__filter--axis:active {
+  background: var(--chip-pastel);
+  color: var(--ink);
+}
+
+.sessions__filter--axis.sessions__filter--active {
+  background: var(--chip-pastel);
+  border-color: var(--chip-pastel-bd);
+  color: var(--chip-text);
+  filter: none;
+}
+
+.sessions__filter--axis.sessions__filter--active:active {
+  filter: brightness(0.96);
 }
 
 .sessions__filter-short {

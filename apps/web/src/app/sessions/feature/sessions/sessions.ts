@@ -30,7 +30,9 @@ interface FilterChipView {
   label: string;
   shortLabel: string;
   icon: LucideIconData | null;
-  iconVar: string | null;
+  pastelVar: string | null;
+  pastelBorderVar: string | null;
+  textVar: string | null;
 }
 
 interface RowGroupView {
@@ -64,28 +66,36 @@ export class Sessions {
       label: 'Toutes',
       shortLabel: 'Toutes',
       icon: null,
-      iconVar: null,
+      pastelVar: null,
+      pastelBorderVar: null,
+      textVar: null,
     },
     {
       value: SessionMode.FULL,
       label: 'Simulations complètes',
       shortLabel: 'Simulations',
       icon: null,
-      iconVar: null,
+      pastelVar: null,
+      pastelBorderVar: null,
+      textVar: null,
     },
     {
       value: SessionMode.TARGETED,
       label: 'Entraînements ciblés',
       shortLabel: 'Ciblés',
       icon: null,
-      iconVar: null,
+      pastelVar: null,
+      pastelBorderVar: null,
+      textVar: null,
     },
     ...(Object.keys(AXIS_TRAINING) as RailwayPlayableAxis[]).map((axis) => ({
       value: axis as SessionHistoryFilter,
       label: AXIS_PRESENTATION[axis].label,
       shortLabel: AXIS_PRESENTATION[axis].label,
       icon: AXIS_PRESENTATION[axis].icon,
-      iconVar: AXIS_PRESENTATION[axis].textVar,
+      pastelVar: AXIS_PRESENTATION[axis].pastelVar,
+      pastelBorderVar: AXIS_PRESENTATION[axis].pastelBorderVar,
+      textVar: AXIS_PRESENTATION[axis].textVar,
     })),
   ];
 

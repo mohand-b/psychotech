@@ -11,11 +11,19 @@
       <button
         type="button"
         class="sessions__filter"
+        [class.sessions__filter--axis]="chip.icon !== null"
         [class.sessions__filter--active]="filter() === chip.value"
+        [style.--chip-pastel]="chip.pastelVar"
+        [style.--chip-pastel-bd]="chip.pastelBorderVar"
+        [style.--chip-text]="chip.textVar"
         (click)="selectFilter(chip.value)"
       >
         @if (chip.icon; as icon) {
-          <ui-icon [img]="icon" [size]="13" [style.color]="chip.iconVar" />
+          <ui-icon
+            class="sessions__filter-icon"
+            [img]="icon"
+            [size]="13"
+          />
         }
         <span class="sessions__filter-label">{{ chip.label }}</span>
         <span class="sessions__filter-short">{{ chip.shortLabel }}</span>
