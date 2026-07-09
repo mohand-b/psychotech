@@ -565,8 +565,11 @@ export class SessionsService {
     );
     const previousScore =
       prior.length > 0 ? prior[prior.length - 1].score : null;
-    const priorBest =
-      prior.length > 0 ? Math.max(...prior.map(({ score }) => score)) : null;
+    const others = scoredHistory.filter(
+      (candidate) => candidate.sessionId !== sessionId,
+    );
+    const othersBest =
+      others.length > 0 ? Math.max(...others.map(({ score }) => score)) : null;
     const base = {
       sessionId,
       sector: mapEnumValue(Sector, session.sector),
@@ -581,9 +584,9 @@ export class SessionsService {
         session.startedAt
       ).toISOString(),
       bestScore:
-        priorBest === null ? entry.score : Math.max(priorBest, entry.score),
-      isNewBest: priorBest !== null && entry.score > priorBest,
-      isEqualBest: priorBest !== null && entry.score === priorBest,
+        othersBest === null ? entry.score : Math.max(othersBest, entry.score),
+      isNewBest: othersBest !== null && entry.score > othersBest,
+      isEqualBest: othersBest !== null && entry.score === othersBest,
       previousScore,
     };
     if (axis === AxisType.LOGIC) {

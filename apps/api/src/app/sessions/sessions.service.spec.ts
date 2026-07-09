@@ -71,6 +71,8 @@ const repository = {
   suspendSession: vi.fn(),
   listHistory: vi.fn(),
   findCurrentSession: vi.fn(),
+  findTargetedAxisHistory: vi.fn(),
+  persistAxisScore: vi.fn(),
 };
 
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
@@ -640,6 +642,79 @@ describe('SessionsService.list', () => {
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
     expect(item.durationSec).toBe(180);
+  });
+});
+
+describe('SessionsService.targetedResult', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const laterSessionId = '22222222-2222-2222-2222-222222222222';
+
+  const resultSession = () =>
+    buildSession({
+      mode: 'TARGETED',
+      status: 'COMPLETED',
+      completedAt: new Date('2026-07-04T10:05:00Z'),
+      axisResults: [
+        buildAxis({
+          axis: 'LOGIC',
+          normalizedScore: 76,
+          band: 'ACCEPTABLE',
+          startedAt: new Date('2026-07-04T10:00:00Z'),
+          completedAt: new Date('2026-07-04T10:05:00Z'),
+          metrics: { axis: 'LOGIC', items: [] } as unknown as Prisma.JsonValue,
+        }),
+      ],
+    });
+
+  const historyRow = (
+    rowSessionId: string,
+    score: number,
+    completedAt: Date,
+  ) => ({
+    ...buildAxis({
+      id: `axis-${rowSessionId}`,
+      sessionId: rowSessionId,
+      axis: 'LOGIC',
+      normalizedScore: score,
+      completedAt,
+    }),
+    session: buildSession({ id: rowSessionId, completedAt }),
+  });
+
+  it('evaluates the axis record against the whole history at consultation time', async () => {
+    repository.findUserSession.mockResolvedValue(resultSession());
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
+      historyRow(laterSessionId, 80, new Date('2026-07-08T18:00:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.bestScore).toBe(80);
+    expect(result.isNewBest).toBe(false);
+    expect(result.isEqualBest).toBe(false);
+  });
+
+  it('still reports the record when no other session has reached this score', async () => {
+    repository.findUserSession.mockResolvedValue(resultSession());
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
+      historyRow(laterSessionId, 60, new Date('2026-07-08T18:00:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.bestScore).toBe(76);
+    expect(result.isNewBest).toBe(true);
+    expect(result.isEqualBest).toBe(false);
   });
 });
 
