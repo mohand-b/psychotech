@@ -75,9 +75,11 @@ describe('generateMotricityCourses', () => {
     for (const seed of SAMPLE_SEEDS) {
       const courses = generateMotricityCourses(seed);
       expect(courses).toHaveLength(MOTRICITY_COURSE_COUNT);
+      expect(courses[0].segments.length).toBe(5);
+      expect(courses[1].segments.length).toBeGreaterThanOrEqual(10);
+      expect(courses[1].segments.length).toBeLessThanOrEqual(11);
+      expect(courses[2].segments.length).toBe(9);
       for (const course of courses) {
-        expect(course.segments.length).toBeGreaterThanOrEqual(8);
-        expect(course.segments.length).toBeLessThanOrEqual(12);
         for (const segment of course.segments) {
           const dx = Math.abs(segment.end.x - segment.start.x);
           const dy = Math.abs(segment.end.y - segment.start.y);
@@ -116,6 +118,22 @@ describe('generateMotricityCourses', () => {
           expect(point.y).toBeLessThanOrEqual(MOTRICITY_CANVAS_HEIGHT);
         }
       }
+    }
+  });
+
+  it('raises the difficulty across courses and makes the third one backtrack', () => {
+    for (const seed of SAMPLE_SEEDS) {
+      const courses = generateMotricityCourses(seed);
+      expect(courses[0].totalLength).toBeLessThan(courses[1].totalLength);
+      expect(courses[1].totalLength).toBeLessThan(courses[2].totalLength);
+      expect(courses[2].totalLength).toBeGreaterThan(
+        courses[0].totalLength * 1.5,
+      );
+      const goesBackward = (course: MotricityCourse): boolean =>
+        course.segments.some((segment) => segment.end.x < segment.start.x - 1);
+      expect(goesBackward(courses[0])).toBe(false);
+      expect(goesBackward(courses[1])).toBe(false);
+      expect(goesBackward(courses[2])).toBe(true);
     }
   });
 
@@ -239,6 +257,17 @@ describe('motricityCourseFinished', () => {
       motricityCourseFinished(course, walkCenterline(course, 30_000, 60)),
     ).toBe(false);
     expect(motricityCourseFinished(course, [])).toBe(false);
+  });
+
+  it('rejects a trajectory that jumps to the arrival without traversing the path', () => {
+    const start = course.centerline[0];
+    const end = course.centerline[course.centerline.length - 1];
+    const teleport: MotricitySampleDto[] = [
+      { t: 0, x: start.x, y: start.y },
+      { t: 17, x: end.x, y: end.y },
+      { t: 34, x: end.x, y: end.y },
+    ];
+    expect(motricityCourseFinished(course, teleport)).toBe(false);
   });
 });
 

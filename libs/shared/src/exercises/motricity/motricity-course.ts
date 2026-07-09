@@ -181,3 +181,54 @@ export function motricityProgressionPct(
     Math.max(0, (motricityArcLength(course, point) / course.totalLength) * 100),
   );
 }
+
+export const MOTRICITY_ARC_ADVANCE_FACTOR = 2;
+export const MOTRICITY_ARC_STEP_CAP_MS = 100;
+
+export function motricityArcAdvanceBudget(deltaMs: number): number {
+  const boundedMs = Math.min(Math.max(deltaMs, 0), MOTRICITY_ARC_STEP_CAP_MS);
+  return (
+    MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC *
+    (boundedMs / 1000) *
+    MOTRICITY_ARC_ADVANCE_FACTOR
+  );
+}
+
+export function motricityAdvanceArc(
+  course: MotricityCourse,
+  point: MotricityPoint,
+  previousArc: number,
+  maxAdvance: number,
+): number {
+  const windowEnd = previousArc + maxAdvance;
+  let accumulated = 0;
+  let bestDistance = Infinity;
+  let bestArc = previousArc;
+  for (const segment of course.segments) {
+    const segmentStart = accumulated;
+    accumulated += segment.length;
+    if (segmentStart > windowEnd) {
+      break;
+    }
+    const dx = segment.end.x - segment.start.x;
+    const dy = segment.end.y - segment.start.y;
+    const lengthSq = dx * dx + dy * dy;
+    let t =
+      lengthSq === 0
+        ? 0
+        : ((point.x - segment.start.x) * dx +
+            (point.y - segment.start.y) * dy) /
+          lengthSq;
+    t = Math.min(1, Math.max(0, t));
+    const tWindow = (windowEnd - segmentStart) / segment.length;
+    t = Math.min(t, Math.max(0, tWindow));
+    const px = segment.start.x + t * dx;
+    const py = segment.start.y + t * dy;
+    const distance = Math.hypot(point.x - px, point.y - py);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestArc = segmentStart + t * segment.length;
+    }
+  }
+  return Math.max(previousArc, bestArc);
+}

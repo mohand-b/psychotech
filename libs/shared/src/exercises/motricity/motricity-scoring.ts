@@ -6,7 +6,8 @@ import { generateMotricityCourses } from './generate-motricity-courses';
 import {
   MotricityCourse,
   MotricityCursorZone,
-  motricityArcLength,
+  motricityAdvanceArc,
+  motricityArcAdvanceBudget,
   motricityCursorZone,
 } from './motricity-course';
 
@@ -58,6 +59,7 @@ export function scoreMotricityCourse(
   let minorErrors = 0;
   let majorErrors = 0;
   let maxArc = 0;
+  let previousT = 0;
   let reachedAtMs: number | null = null;
   let inErrorEpisode = false;
   let outsideSinceMs: number | null = null;
@@ -86,11 +88,15 @@ export function scoreMotricityCourse(
         outsideSinceMs = null;
       }
     }
-    if (reachedAtMs === null) {
-      maxArc = Math.max(maxArc, motricityArcLength(course, sample));
-      if (maxArc >= completionArc) {
-        reachedAtMs = sample.t;
-      }
+    maxArc = motricityAdvanceArc(
+      course,
+      sample,
+      maxArc,
+      motricityArcAdvanceBudget(sample.t - previousT),
+    );
+    previousT = sample.t;
+    if (reachedAtMs === null && maxArc >= completionArc) {
+      reachedAtMs = sample.t;
     }
   }
   const lastSample = samples[samples.length - 1] as
@@ -153,9 +159,21 @@ export function motricityCourseFinished(
   }
   const completionArc =
     course.totalLength - MOTRICITY_ARC_COMPLETION_TOLERANCE;
-  return samples.some(
-    (sample) => motricityArcLength(course, sample) >= completionArc,
-  );
+  let arc = 0;
+  let previousT = 0;
+  for (const sample of samples) {
+    arc = motricityAdvanceArc(
+      course,
+      sample,
+      arc,
+      motricityArcAdvanceBudget(sample.t - previousT),
+    );
+    previousT = sample.t;
+    if (arc >= completionArc) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function scoreMotricitySession(

@@ -12,12 +12,7 @@ import {
 export const MOTRICITY_COURSE_COUNT = 3;
 export const MOTRICITY_WIDTH_SHRINK = 0.2;
 
-const COURSE_SEGMENT_RANGES: [number, number][] = [
-  [8, 9],
-  [10, 11],
-  [11, 12],
-];
-const COURSE_START_WIDTHS = [64, 58, 52];
+const COURSE_START_WIDTHS = [68, 58, 50];
 
 const MARGIN_X = 30;
 const MARGIN_TOP = 70;
@@ -26,11 +21,32 @@ const GARAGE_WIDTH_FACTOR = 1.35;
 const GARAGE_DEPTH_FACTOR = 1.4;
 const END_ZONE_WIDTH_FACTOR = 1.35;
 const END_ZONE_DEPTH_FACTOR = 1.2;
+
+const ZIGZAG_SEGMENT_RANGE: [number, number] = [10, 11];
 const VERTICAL_MIN_LENGTH = 60;
 const VERTICAL_MAX_LENGTH = 130;
 const DENSE_TAIL_RATIO = 2 / 3;
 const DENSE_DX_FACTOR = 0.6;
 const MAX_SEGMENT_DX = 240;
+
+const SIMPLE_JOG_MIN = 90;
+const SIMPLE_JOG_SPAN = 50;
+const SIMPLE_EDGE_CLEARANCE = 60;
+
+const SERPENTINE_LANE_BOTTOM_MIN = 495;
+const SERPENTINE_LANE_MID_MIN = 300;
+const SERPENTINE_LANE_TOP_MIN = 110;
+const SERPENTINE_LANE_JITTER = 20;
+const SERPENTINE_RISE_MIN = 65;
+const SERPENTINE_RISE_SPAN = 15;
+const SERPENTINE_RIGHT_MIN = 830;
+const SERPENTINE_RIGHT_SPAN = 40;
+const SERPENTINE_LEFT_MIN = 400;
+const SERPENTINE_LEFT_SPAN = 60;
+const SERPENTINE_FIRST_RUN_MIN = 320;
+const SERPENTINE_FIRST_RUN_SPAN = 120;
+const SERPENTINE_RETURN_TAIL_MIN = 90;
+const SERPENTINE_RETURN_TAIL_SPAN = 40;
 
 type Direction = 'E' | 'NE' | 'SE' | 'N' | 'S';
 
@@ -61,13 +77,58 @@ function segmentLength(
   return direction === 'E' ? dx : dx * Math.SQRT2;
 }
 
-function buildCenterline(
+function courseStartX(startWidth: number): number {
+  return MARGIN_X + startWidth * GARAGE_DEPTH_FACTOR;
+}
+
+function courseEndX(): number {
+  return MOTRICITY_CANVAS_WIDTH - MARGIN_X;
+}
+
+function buildCenterlineSimple(
+  rng: SeededRng,
+  startWidth: number,
+): MotricityPoint[] {
+  const startX = courseStartX(startWidth);
+  const endX = courseEndX();
+  const yMin = MARGIN_TOP + SIMPLE_EDGE_CLEARANCE;
+  const yMax = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - SIMPLE_EDGE_CLEARANCE;
+  const startY = 280 + rng.next() * 140;
+  const firstUp = rng.next() < 0.5;
+
+  const requestedDy1 = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
+  const y1 = firstUp
+    ? Math.max(yMin, startY - requestedDy1)
+    : Math.min(yMax, startY + requestedDy1);
+  const dy1 = Math.abs(startY - y1);
+
+  const requestedDy2 = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
+  const y2 = firstUp
+    ? Math.min(yMax, y1 + requestedDy2)
+    : Math.max(yMin, y1 - requestedDy2);
+  const dy2 = Math.abs(y1 - y2);
+
+  const straightBudget = endX - startX - dy1 - dy2;
+  const firstShare = 0.28 + rng.next() * 0.14;
+  const secondShare = 0.28 + rng.next() * 0.14;
+  const run1 = straightBudget * firstShare;
+  const run2 = straightBudget * secondShare;
+
+  const p0 = { x: startX, y: startY };
+  const p1 = { x: p0.x + run1, y: startY };
+  const p2 = { x: p1.x + dy1, y: y1 };
+  const p3 = { x: p2.x + run2, y: y1 };
+  const p4 = { x: p3.x + dy2, y: y2 };
+  const p5 = { x: endX, y: y2 };
+  return [p0, p1, p2, p3, p4, p5];
+}
+
+function buildCenterlineZigzag(
   rng: SeededRng,
   segmentCount: number,
   startWidth: number,
 ): MotricityPoint[] {
-  const garageDepth = startWidth * GARAGE_DEPTH_FACTOR;
-  const startX = MARGIN_X + garageDepth;
+  const startX = courseStartX(startWidth);
   const startY = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - startWidth;
   const goalY = MARGIN_TOP + startWidth;
   const yMin = MARGIN_TOP;
@@ -113,6 +174,9 @@ function buildCenterline(
       const weighted: Direction[] = [];
       for (const candidate of pool) {
         weighted.push(candidate);
+        if (candidate === 'NE' || candidate === 'SE') {
+          weighted.push(candidate);
+        }
         const dy = DIRECTION_VECTORS[candidate].y;
         const towardGoal =
           (current.y > goalY && dy < 0) || (current.y < goalY && dy > 0);
@@ -144,7 +208,38 @@ function buildCenterline(
       spanLeft = Math.max(0, spanLeft - vector.x * actualLength);
     }
   }
-  return recenterVertically(points, startWidth);
+  return points;
+}
+
+function buildCenterlineSerpentine(
+  rng: SeededRng,
+  startWidth: number,
+): MotricityPoint[] {
+  const startX = courseStartX(startWidth);
+  const endX = courseEndX();
+  const laneBottom = SERPENTINE_LANE_BOTTOM_MIN + rng.next() * SERPENTINE_LANE_JITTER;
+  const laneMid = SERPENTINE_LANE_MID_MIN + rng.next() * SERPENTINE_LANE_JITTER;
+  const laneTop = SERPENTINE_LANE_TOP_MIN + rng.next() * SERPENTINE_LANE_JITTER;
+  const rise = SERPENTINE_RISE_MIN + rng.next() * SERPENTINE_RISE_SPAN;
+  const xRight = SERPENTINE_RIGHT_MIN + rng.next() * SERPENTINE_RIGHT_SPAN;
+  const xLeft = SERPENTINE_LEFT_MIN + rng.next() * SERPENTINE_LEFT_SPAN;
+  const firstRun = SERPENTINE_FIRST_RUN_MIN + rng.next() * SERPENTINE_FIRST_RUN_SPAN;
+  const returnTail = SERPENTINE_RETURN_TAIL_MIN + rng.next() * SERPENTINE_RETURN_TAIL_SPAN;
+
+  const upperOutbound = laneBottom - rise;
+  const upperReturn = laneMid - rise;
+
+  const p0 = { x: startX, y: laneBottom };
+  const p1 = { x: startX + firstRun, y: laneBottom };
+  const p2 = { x: p1.x + rise, y: upperOutbound };
+  const p3 = { x: xRight, y: upperOutbound };
+  const p4 = { x: xRight, y: laneMid };
+  const p5 = { x: xLeft + returnTail + rise, y: laneMid };
+  const p6 = { x: xLeft + returnTail, y: upperReturn };
+  const p7 = { x: xLeft, y: upperReturn };
+  const p8 = { x: xLeft, y: laneTop };
+  const p9 = { x: endX, y: laneTop };
+  return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9];
 }
 
 function recenterVertically(
@@ -211,13 +306,33 @@ function offsetPolyline(
   return result;
 }
 
+function buildCenterline(
+  rng: SeededRng,
+  index: number,
+  startWidth: number,
+): MotricityPoint[] {
+  if (index === 0) {
+    return buildCenterlineSimple(rng, startWidth);
+  }
+  if (index === 1) {
+    const segmentCount = rng.nextInt(
+      ZIGZAG_SEGMENT_RANGE[0],
+      ZIGZAG_SEGMENT_RANGE[1],
+    );
+    return buildCenterlineZigzag(rng, segmentCount, startWidth);
+  }
+  return buildCenterlineSerpentine(rng, startWidth);
+}
+
 function buildCourse(seed: string, index: number): MotricityCourse {
   const rng = createSeededRng(`${seed}:motricity:${index}`);
-  const [minSegments, maxSegments] = COURSE_SEGMENT_RANGES[index];
-  const segmentCount = rng.nextInt(minSegments, maxSegments);
   const startWidth = COURSE_START_WIDTHS[index];
 
-  const points = buildCenterline(rng, segmentCount, startWidth);
+  const points = recenterVertically(
+    buildCenterline(rng, index, startWidth),
+    startWidth,
+  );
+  const segmentCount = points.length - 1;
 
   const widths = points.slice(0, -1).map(
     (_, segmentIndex) =>
