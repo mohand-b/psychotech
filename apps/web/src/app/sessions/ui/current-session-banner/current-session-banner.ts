@@ -10,8 +10,9 @@ import {
   CurrentSessionDto,
   SessionMode,
 } from '@psychotech/shared';
-import { Play } from 'lucide-angular';
+import { Play, RotateCcw } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
 import { Button } from '../../../shared/ui/button/button';
 import {
   ChevronStep,
@@ -34,7 +35,7 @@ interface BannerDot {
 @Component({
   selector: 'app-current-session-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ChevronStepper],
+  imports: [AxisChip, Button, ChevronStepper],
   templateUrl: './current-session-banner.html',
   styleUrl: './current-session-banner.css',
 })
@@ -42,26 +43,44 @@ export class CurrentSessionBanner {
   readonly session = input.required<CurrentSessionDto>();
   readonly resumeRequested = output<void>();
 
-  protected readonly playIcon = Play;
+  protected readonly isFull = computed(
+    () => this.session().mode === SessionMode.FULL,
+  );
 
   protected readonly modeLabel = computed(() =>
-    this.session().mode === SessionMode.FULL
-      ? 'Simulation complète'
-      : 'Entraînement ciblé',
-  );
-
-  protected readonly modeShortLabel = computed(() =>
-    this.session().mode === SessionMode.FULL ? 'Simulation' : 'Ciblé',
-  );
-
-  protected readonly resumeMention = computed(() =>
-    this.session().mode === SessionMode.FULL
-      ? "Reprend au début de l'axe en cours"
-      : "L'épreuve redémarre du début",
+    this.isFull() ? 'Simulation complète' : 'Entraînement ciblé',
   );
 
   protected readonly sectorLabel = computed(
     () => SECTOR_PRESENTATION[this.session().sector].label,
+  );
+
+  protected readonly targetedAxis = computed(
+    () => this.session().axes[0]?.axis ?? null,
+  );
+
+  protected readonly targetedAxisLabel = computed(() => {
+    const axis = this.targetedAxis();
+    return axis ? AXIS_PRESENTATION[axis].label : '';
+  });
+
+  protected readonly targetedAxisColorVar = computed(() => {
+    const axis = this.targetedAxis();
+    return axis ? AXIS_PRESENTATION[axis].plainVar : null;
+  });
+
+  protected readonly ctaLabel = computed(() =>
+    this.isFull() ? 'Reprendre' : 'Recommencer',
+  );
+
+  protected readonly ctaIcon = computed(() =>
+    this.isFull() ? Play : RotateCcw,
+  );
+
+  protected readonly resumeMention = computed(() =>
+    this.isFull()
+      ? "Reprend au début de l'axe en cours"
+      : 'Reprend depuis le début, mêmes exercices',
   );
 
   protected readonly doneCount = computed(

@@ -6,44 +6,60 @@
         <span class="banner__mode">{{ modeLabel() }}</span>
         <span class="banner__sep">·</span>
         <span class="banner__muted">{{ sectorLabel() }}</span>
-        <span class="banner__sep">·</span>
-        <span class="banner__count">{{ doneCount() }}/{{ axisTotal() }}</span
-        >&ngsp;<span class="banner__muted">axes</span>
+        @if (isFull()) {
+          <span class="banner__sep">·</span>
+          <span class="banner__count">{{ doneCount() }}/{{ axisTotal() }}</span
+          >&ngsp;<span class="banner__muted">axes</span>
+        }
       </span>
-      <ui-chevron-stepper
-        class="banner__stepper"
-        variant="mini"
-        [steps]="steps()"
-      />
+      @if (isFull()) {
+        <ui-chevron-stepper
+          class="banner__stepper"
+          variant="mini"
+          [steps]="steps()"
+        />
+      } @else if (targetedAxis(); as axis) {
+        <ui-axis-chip [axis]="axis" />
+      }
     </div>
     <div class="banner__compact flex flex-col gap-1.5">
       <span class="banner__compact-title">Session en cours</span>
       <span class="banner__compact-meta flex items-center gap-2">
-        <span class="banner__dots flex items-center gap-1">
-          @for (dot of dots(); track $index) {
-            <span
-              class="banner__dot"
-              [class.banner__dot--current]="dot.state === 'current'"
-              [class.banner__dot--todo]="dot.state === 'todo'"
-              [style.background]="dot.colorVar"
-            ></span>
-          }
-        </span>
-        <span class="banner__muted">
-          {{ modeShortLabel() }} ·
-          <span class="banner__count">{{ doneCount() }}/{{ axisTotal() }}</span>
-          axes
-        </span>
+        @if (isFull()) {
+          <span class="banner__dots flex items-center gap-1">
+            @for (dot of dots(); track $index) {
+              <span
+                class="banner__dot"
+                [class.banner__dot--current]="dot.state === 'current'"
+                [class.banner__dot--todo]="dot.state === 'todo'"
+                [style.background]="dot.colorVar"
+              ></span>
+            }
+          </span>
+          <span class="banner__muted">
+            Simulation ·
+            <span class="banner__count"
+              >{{ doneCount() }}/{{ axisTotal() }}</span
+            >
+            axes
+          </span>
+        } @else {
+          <span
+            class="banner__dot"
+            [style.background]="targetedAxisColorVar()"
+          ></span>
+          <span class="banner__muted">Ciblé · {{ targetedAxisLabel() }}</span>
+        }
       </span>
     </div>
     <div class="banner__cta flex flex-col items-end gap-1">
       <ui-button
         class="banner__action"
         color="brand"
-        [icon]="playIcon"
+        [icon]="ctaIcon()"
         (click)="resumeRequested.emit()"
       >
-        Reprendre
+        {{ ctaLabel() }}
       </ui-button>
       <span class="banner__mention">{{ resumeMention() }}</span>
     </div>
