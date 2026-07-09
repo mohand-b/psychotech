@@ -10,6 +10,7 @@ import {
   ReactivityClassification,
   ReactivityStimulusPoint,
   ReactivityTrendPoint,
+  ReactivityWaitPressDto,
 } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 
@@ -41,6 +42,7 @@ export class ReactivityTrChart {
   readonly points = input.required<ReactivityStimulusPoint[]>();
   readonly trend = input.required<ReactivityTrendPoint[]>();
   readonly meanMs = input.required<number | null>();
+  readonly waitPresses = input<ReactivityWaitPressDto[]>([]);
 
   private readonly totalMs =
     AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000;
@@ -67,8 +69,8 @@ export class ReactivityTrChart {
     return mean === null ? null : this.yPct(mean);
   });
 
-  protected readonly dots = computed<ChartDot[]>(() =>
-    this.points().map((point) => {
+  protected readonly dots = computed<ChartDot[]>(() => {
+    const stimulusDots = this.points().map((point) => {
       const xPct = (point.appearAtMs / this.totalMs) * 100;
       const time = formatDuration(Math.round(point.appearAtMs / 1000));
       const label = CLASSIFICATION_LABELS[point.classification];
@@ -83,8 +85,18 @@ export class ReactivityTrChart {
           ? `${time} · ${label}`
           : `${time} · ${label} · ${point.trMs} ms`;
       return { classification: point.classification, xPct, bottomPct, tooltip };
-    }),
-  );
+    });
+    const waitPressDots = this.waitPresses().map((press) => {
+      const time = formatDuration(Math.round(press.atMs / 1000));
+      return {
+        classification: 'ANTICIPATION' as ReactivityClassification,
+        xPct: (press.atMs / this.totalMs) * 100,
+        bottomPct: ANTICIPATION_FLOOR_PCT,
+        tooltip: `${time} · Trop tôt, appui sans signal`,
+      };
+    });
+    return [...stimulusDots, ...waitPressDots];
+  });
 
   protected readonly trendPath = computed(() => {
     const trend = this.trend();
