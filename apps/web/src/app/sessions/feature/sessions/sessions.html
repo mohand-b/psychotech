@@ -1,3 +1,9 @@
+@if (current(); as session) {
+  <app-current-session-banner
+    [session]="session"
+    (resumeRequested)="resume(session)"
+  />
+}
 <section class="sessions flex flex-col gap-6">
   <h1 class="t-page-title">Mes sessions</h1>
   <div class="sessions__filters flex items-center gap-2">

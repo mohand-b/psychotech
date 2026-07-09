@@ -7,6 +7,7 @@ import {
 import { Router } from '@angular/router';
 import {
   AXIS_TRAINING,
+  CurrentSessionDto,
   RailwayPlayableAxis,
   SessionMode,
 } from '@psychotech/shared';
@@ -16,6 +17,7 @@ import { SessionHistoryFilter } from '../../data-access/session-history.filter';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { CurrentSessionBanner } from '../../ui/current-session-banner/current-session-banner';
 import { SessionHistoryRow } from '../../ui/session-history-row/session-history-row';
 import {
   SessionRowView,
@@ -39,7 +41,7 @@ interface RowGroupView {
 @Component({
   selector: 'app-sessions',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, SessionHistoryRow],
+  imports: [Button, CurrentSessionBanner, Icon, SessionHistoryRow],
   templateUrl: './sessions.html',
   styleUrl: './sessions.css',
 })
@@ -54,6 +56,7 @@ export class Sessions {
   protected readonly loading = this.facade.loading;
   protected readonly loadingMore = this.facade.loadingMore;
   protected readonly nextCursor = this.facade.nextCursor;
+  protected readonly current = this.facade.current;
 
   protected readonly filterChips: FilterChipView[] = [
     {
@@ -95,6 +98,7 @@ export class Sessions {
 
   constructor() {
     this.facade.load('ALL');
+    this.facade.refreshCurrent();
   }
 
   protected selectFilter(filter: SessionHistoryFilter): void {
@@ -105,5 +109,18 @@ export class Sessions {
 
   protected loadMore(): void {
     this.facade.loadMore();
+  }
+
+  protected resume(session: CurrentSessionDto): void {
+    if (session.mode === SessionMode.TARGETED && session.axes.length > 0) {
+      this.router.navigate([
+        '/entrainements/cible',
+        session.axes[0].axis,
+        'session',
+        session.id,
+      ]);
+      return;
+    }
+    this.router.navigate(['/entrainements']);
   }
 }
