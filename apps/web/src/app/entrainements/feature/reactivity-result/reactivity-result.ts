@@ -110,14 +110,20 @@ export class ReactivityResult {
       {
         label: 'Mauvaises commandes',
         value: `${scored.wrongCommandCount}`,
+        dotVar: 'var(--danger)',
+        marker: 'dot' as const,
       },
       {
         label: 'Appuis trop tôt',
         value: `${scored.anticipationCount}`,
+        dotVar: 'var(--warning)',
+        marker: 'outlined-dot' as const,
       },
       {
         label: 'Signaux manqués',
         value: `${scored.omissionCount}`,
+        dotVar: 'var(--text-disabled)',
+        marker: 'cross' as const,
       },
     ];
   });

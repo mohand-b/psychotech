@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 
 const WEAK_POSITION_THRESHOLD = 60;
-const BAR_MAX_HEIGHT_PX = 120;
+const BAR_MAX_HEIGHT_PX = 156;
 const BAR_MIN_HEIGHT_PX = 5;
 
 @Component({
@@ -50,7 +50,7 @@ const BAR_MIN_HEIGHT_PX = 5;
       display: flex;
       align-items: flex-end;
       gap: 12px;
-      height: 142px;
+      height: 180px;
     }
     .chart__slot {
       display: flex;

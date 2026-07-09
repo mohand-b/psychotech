@@ -49,7 +49,7 @@ export interface TimeChartEntry {
       display: flex;
       align-items: flex-end;
       gap: 3px;
-      height: 88px;
+      height: 180px;
     }
     .chart__slot {
       position: relative;

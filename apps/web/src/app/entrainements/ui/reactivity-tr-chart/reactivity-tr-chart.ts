@@ -13,7 +13,6 @@ import {
 } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 
-const Y_GRID_MS = [200, 400, 600];
 const Y_MIN_DOMAIN_MS = 650;
 const Y_HEADROOM_MS = 60;
 const ANTICIPATION_FLOOR_PCT = 5;
@@ -43,7 +42,6 @@ export class ReactivityTrChart {
   readonly trend = input.required<ReactivityTrendPoint[]>();
   readonly meanMs = input.required<number | null>();
 
-  protected readonly yGrid = Y_GRID_MS;
   private readonly totalMs =
     AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000;
   protected readonly xLabels = [0, 60, 120, 180].map((seconds) =>

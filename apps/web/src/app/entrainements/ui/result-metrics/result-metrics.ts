@@ -4,12 +4,15 @@ import {
   input,
 } from '@angular/core';
 
+export type ResultMetricMarker = 'square' | 'dot' | 'outlined-dot' | 'cross';
+
 export interface ResultMetricRow {
   label: string;
   sublabel?: string;
   value: string;
   suffix?: string;
   dotVar?: string;
+  marker?: ResultMetricMarker;
 }
 
 @Component({
@@ -20,8 +23,22 @@ export interface ResultMetricRow {
     <ul class="metrics">
       @for (row of rows(); track row.label) {
         <li class="metrics__row">
-          @if (row.dotVar) {
-            <span class="metrics__dot" [style.background]="row.dotVar"></span>
+          @if (row.dotVar; as dotVar) {
+            @if (row.marker === 'cross') {
+              <span class="metrics__cross" [style.color]="dotVar">×</span>
+            } @else if (row.marker === 'outlined-dot') {
+              <span
+                class="metrics__dot metrics__dot--round metrics__dot--outlined"
+                [style.border-color]="dotVar"
+              ></span>
+            } @else if (row.marker === 'dot') {
+              <span
+                class="metrics__dot metrics__dot--round"
+                [style.background]="dotVar"
+              ></span>
+            } @else {
+              <span class="metrics__dot" [style.background]="dotVar"></span>
+            }
           }
           <span class="metrics__label">
             {{ row.label }}
@@ -64,10 +81,23 @@ export interface ResultMetricRow {
       border-bottom: none;
     }
     .metrics__dot {
-      width: 9px;
-      height: 9px;
-      border-radius: var(--radius-pill);
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
       flex-shrink: 0;
+    }
+    .metrics__dot--round {
+      border-radius: var(--radius-pill);
+    }
+    .metrics__dot--outlined {
+      background: var(--card);
+      border: 1.5px solid;
+    }
+    .metrics__cross {
+      flex-shrink: 0;
+      width: 10px;
+      text-align: center;
+      font: 600 13px/1 var(--font-ui);
     }
     .metrics__label {
       display: flex;

@@ -115,18 +115,22 @@ export class DiscriminationResult {
         label: 'Réponses justes',
         value: `${scored.correctCount}`,
         suffix: `/${this.training.exerciseCount}`,
+        dotVar: this.presentation.plainVar,
       },
       {
         label: 'Répondu "identiques" à tort',
         value: `${scored.wrongIdenticalCount}`,
+        dotVar: 'var(--danger)',
       },
       {
         label: 'Répondu "différentes" à tort',
         value: `${scored.wrongDifferentCount}`,
+        dotVar: 'var(--danger)',
       },
       {
         label: 'Essais non atteints',
         value: `${scored.unansweredCount}`,
+        dotVar: 'var(--text-disabled)',
       },
       {
         label: 'Temps moyen par réponse',

@@ -5,18 +5,8 @@
     <span>3 signaux</span>
   </div>
   <div class="chart__frame">
-    <div class="chart__y-axis t-mono">
-      @for (grid of yGrid; track grid) {
-        <span class="chart__y-label" [style.bottom.%]="yPct(grid)">{{
-          grid
-        }}</span>
-      }
-    </div>
     <div class="chart__plot">
       <span class="chart__band chart__band--middle"></span>
-      @for (grid of yGrid; track grid) {
-        <span class="chart__gridline" [style.bottom.%]="yPct(grid)"></span>
-      }
       @if (meanBottomPct(); as meanBottom) {
         <span class="chart__mean" [style.bottom.%]="meanBottom">
           <span class="chart__mean-label">moyenne</span>

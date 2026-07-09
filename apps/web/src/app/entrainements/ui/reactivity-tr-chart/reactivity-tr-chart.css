@@ -10,7 +10,6 @@
 
 .chart__phase-labels {
   display: flex;
-  padding-left: 34px;
   font-size: 10px;
   letter-spacing: 0.04em;
   color: var(--label);
@@ -23,27 +22,12 @@
 
 .chart__frame {
   display: flex;
-  gap: 6px;
-}
-
-.chart__y-axis {
-  position: relative;
-  width: 28px;
-  flex-shrink: 0;
-}
-
-.chart__y-label {
-  position: absolute;
-  right: 0;
-  transform: translateY(50%);
-  font-size: 10px;
-  color: var(--label);
 }
 
 .chart__plot {
   position: relative;
   flex: 1;
-  height: 190px;
+  height: 180px;
   border-bottom: 1px solid var(--border);
   overflow: visible;
 }
@@ -56,15 +40,6 @@
   bottom: 0;
   background: var(--axis-reactivity);
   opacity: 0.05;
-  pointer-events: none;
-}
-
-.chart__gridline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--divider-soft);
   pointer-events: none;
 }
 
@@ -174,16 +149,11 @@
 .chart__x-axis {
   display: flex;
   justify-content: space-between;
-  padding-left: 34px;
   font-size: 10px;
   color: var(--label);
 }
 
 @media (max-width: 767px) {
-  .chart__plot {
-    height: 170px;
-  }
-
   .chart__dot {
     width: 6px;
     height: 6px;
