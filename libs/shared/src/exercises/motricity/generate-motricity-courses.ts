@@ -67,7 +67,6 @@ function buildCenterline(
   startWidth: number,
 ): MotricityPoint[] {
   const garageDepth = startWidth * GARAGE_DEPTH_FACTOR;
-  const endDepth = startWidth * END_ZONE_DEPTH_FACTOR;
   const startX = MARGIN_X + garageDepth;
   const startY = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - startWidth;
   const goalY = MARGIN_TOP + startWidth;
@@ -79,16 +78,19 @@ function buildCenterline(
   const points: MotricityPoint[] = [{ x: startX, y: startY }];
   const directions: Direction[] = [];
   let current = points[0];
-  let spanLeft = MOTRICITY_CANVAS_WIDTH - MARGIN_X - endDepth - startX;
+  let spanLeft = MOTRICITY_CANVAS_WIDTH - MARGIN_X - startX;
 
   for (let index = 0; index < segmentCount; index += 1) {
     const remaining = segmentCount - index;
     const denseFactor = index >= denseFrom ? DENSE_DX_FACTOR : 1;
     const jitter = 0.75 + rng.next() * 0.6;
-    const dx = Math.min(
-      MAX_SEGMENT_DX,
-      Math.max(baseDx, (spanLeft / remaining) * jitter * denseFactor),
-    );
+    const dx =
+      index === segmentCount - 1
+        ? Math.max(baseDx, spanLeft)
+        : Math.min(
+            MAX_SEGMENT_DX,
+            Math.max(baseDx, (spanLeft / remaining) * jitter * denseFactor),
+          );
     const verticalLength =
       VERTICAL_MIN_LENGTH +
       rng.next() * (VERTICAL_MAX_LENGTH - VERTICAL_MIN_LENGTH);
@@ -142,7 +144,24 @@ function buildCenterline(
       spanLeft = Math.max(0, spanLeft - vector.x * actualLength);
     }
   }
-  return points;
+  return recenterVertically(points, startWidth);
+}
+
+function recenterVertically(
+  points: MotricityPoint[],
+  startWidth: number,
+): MotricityPoint[] {
+  const allowance = startWidth * GARAGE_WIDTH_FACTOR;
+  const ys = points.map((point) => point.y);
+  const contentMin = Math.min(...ys) - allowance;
+  const contentMax = Math.max(...ys) + allowance;
+  const centered =
+    (MOTRICITY_CANVAS_HEIGHT - (contentMax - contentMin)) / 2 - contentMin;
+  const offset = Math.max(
+    Math.min(centered, -contentMin),
+    MOTRICITY_CANVAS_HEIGHT - contentMax,
+  );
+  return points.map((point) => ({ x: point.x, y: point.y + offset }));
 }
 
 function offsetPolyline(
@@ -264,7 +283,10 @@ function buildCourse(seed: string, index: number): MotricityCourse {
   const endZone: MotricityRect = {
     x: endPoint.x,
     y: endPoint.y - endZoneWidth / 2,
-    width: endWidthValue * END_ZONE_DEPTH_FACTOR,
+    width: Math.min(
+      endWidthValue * END_ZONE_DEPTH_FACTOR,
+      MOTRICITY_CANVAS_WIDTH - endPoint.x,
+    ),
     height: endZoneWidth,
   };
 
