@@ -1,10 +1,12 @@
 import {
   AxisMetrics,
   AxisType,
-  MotorCourseMetrics,
+  MOTRICITY_FINAL_COURSE_WEIGHT,
+  MotorSkillsMetrics,
   RecommendationDto,
   RecommendationPriority,
   ScoreBand,
+  scoreMotricityRecap,
 } from '@psychotech/shared';
 import {
   AXIS_LABELS,
@@ -18,21 +20,6 @@ import {
   MEMORY_NORMAL_MAX,
   MEMORY_NORMAL_MIN,
   MEMORY_NORMAL_WEIGHT,
-  MOTOR_COURSE_AGGREGATE_DIVISOR,
-  MOTOR_EXITS_WEIGHT,
-  MOTOR_EXIT_PENALTY_PER_EXIT,
-  MOTOR_FULL_PROGRESSION,
-  MOTOR_INDEPENDENCE_BAD_THRESHOLD,
-  MOTOR_INDEPENDENCE_BONUS,
-  MOTOR_INDEPENDENCE_GOOD_THRESHOLD,
-  MOTOR_PRECISION_EXCELLENT_PX,
-  MOTOR_PRECISION_POOR_PX,
-  MOTOR_PRECISION_WEIGHT,
-  MOTOR_PROGRESSION_WEIGHT,
-  MOTOR_SPEED_EXCELLENT_S,
-  MOTOR_SPEED_POOR_S,
-  MOTOR_SPEED_WEIGHT,
-  MOTOR_THIRD_COURSE_WEIGHT,
   REACTIVITY_ACCURACY_WEIGHT,
   REACTIVITY_SPEED_EXCELLENT_MS,
   REACTIVITY_SPEED_POOR_MS,
@@ -90,7 +77,7 @@ export function normalizeAxis(metrics: AxisMetrics): number {
     case AxisType.REACTIVITY:
       return normalizeReactivity(metrics);
     case AxisType.MOTOR_SKILLS:
-      return normalizeMotorSkills(metrics.courses);
+      return normalizeMotorSkills(metrics);
     default:
       return assertNever(metrics);
   }
@@ -244,51 +231,19 @@ function normalizeReactivity(metrics: {
   );
 }
 
-function normalizeMotorSkills(
-  courses: [MotorCourseMetrics, MotorCourseMetrics, MotorCourseMetrics],
-): number {
-  const first = scoreCourse(courses[0]);
-  const second = scoreCourse(courses[1]);
-  const third = scoreCourse(courses[2]);
-  return finalize(
-    (first + second + MOTOR_THIRD_COURSE_WEIGHT * third) /
-      MOTOR_COURSE_AGGREGATE_DIVISOR,
-  );
-}
-
-function scoreCourse(course: MotorCourseMetrics): number {
-  const precision = scoreNorm(
-    course.avgDistanceToCenter,
-    MOTOR_PRECISION_EXCELLENT_PX,
-    MOTOR_PRECISION_POOR_PX,
-  );
-  const speed =
-    course.progression === MOTOR_FULL_PROGRESSION
-      ? scoreNorm(course.realTimeSeconds, MOTOR_SPEED_EXCELLENT_S, MOTOR_SPEED_POOR_S)
-      : 0;
-  const exitScore = Math.max(
+function normalizeMotorSkills(metrics: MotorSkillsMetrics): number {
+  const scores = metrics.courses.map((course) => scoreMotricityRecap(course));
+  if (scores.length === 0) {
+    return SCORE_MIN;
+  }
+  const lastIndex = scores.length - 1;
+  const weightedSum = scores.reduce(
+    (sum, score, index) =>
+      sum + score * (index === lastIndex ? MOTRICITY_FINAL_COURSE_WEIGHT : 1),
     0,
-    SCORE_MAX - MOTOR_EXIT_PENALTY_PER_EXIT * course.exits,
   );
-  const independenceBonus = motorIndependenceBonus(course.handCorrelation);
-  return clampScore(
-    MOTOR_PROGRESSION_WEIGHT * course.progression +
-      MOTOR_PRECISION_WEIGHT * precision +
-      MOTOR_SPEED_WEIGHT * speed +
-      MOTOR_EXITS_WEIGHT * exitScore +
-      independenceBonus,
-  );
-}
-
-function motorIndependenceBonus(handCorrelation: number): number {
-  const magnitude = Math.abs(handCorrelation);
-  if (magnitude < MOTOR_INDEPENDENCE_GOOD_THRESHOLD) {
-    return MOTOR_INDEPENDENCE_BONUS;
-  }
-  if (magnitude > MOTOR_INDEPENDENCE_BAD_THRESHOLD) {
-    return -MOTOR_INDEPENDENCE_BONUS;
-  }
-  return 0;
+  const totalWeight = scores.length - 1 + MOTRICITY_FINAL_COURSE_WEIGHT;
+  return finalize(weightedSum / totalWeight);
 }
 
 function recommendationFor(

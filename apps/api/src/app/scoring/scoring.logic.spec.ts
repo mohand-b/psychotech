@@ -1,6 +1,7 @@
 import {
   AxisType,
-  MotorCourseMetrics,
+  MotorSkillsCourseRecap,
+  MotorSkillsMetrics,
   RecommendationPriority,
   ScoreBand,
 } from '@psychotech/shared';
@@ -133,46 +134,63 @@ describe('normalizeAxis reactivity', () => {
 });
 
 describe('normalizeAxis motor skills', () => {
-  const perfectCourse: MotorCourseMetrics = {
-    progression: 100,
-    avgDistanceToCenter: 2,
-    realTimeSeconds: 20,
-    exits: 0,
-    handCorrelation: 0.1,
+  const perfectCourse: MotorSkillsCourseRecap = {
+    index: 0,
+    minorErrors: 0,
+    majorErrors: 0,
+    progressionPct: 100,
+    tReelMs: 20_000,
+    avgLatencyMs: null,
+    jitterMs: null,
   };
+
+  function motorMetrics(
+    courses: MotorSkillsCourseRecap[],
+  ): MotorSkillsMetrics {
+    return {
+      axis: AxisType.MOTOR_SKILLS,
+      minorErrors: courses.reduce((sum, course) => sum + course.minorErrors, 0),
+      majorErrors: courses.reduce((sum, course) => sum + course.majorErrors, 0),
+      totalTimeMs: courses.reduce((sum, course) => sum + course.tReelMs, 0),
+      coursesCompleted: courses.filter(
+        (course) => course.progressionPct >= 100,
+      ).length,
+      controlModality: null,
+      courses,
+      timeline: [],
+      events: [],
+    };
+  }
 
   it('reaches the maximum for three perfect courses', () => {
     expect(
-      normalizeAxis({
-        axis: AxisType.MOTOR_SKILLS,
-        courses: [perfectCourse, perfectCourse, perfectCourse],
-      }),
+      normalizeAxis(
+        motorMetrics([perfectCourse, perfectCourse, perfectCourse]),
+      ),
     ).toBe(100);
   });
 
   it('weights the third course more heavily in the aggregate', () => {
     expect(
-      normalizeAxis({
-        axis: AxisType.MOTOR_SKILLS,
-        courses: [
+      normalizeAxis(
+        motorMetrics([
           perfectCourse,
           {
-            progression: 100,
-            avgDistanceToCenter: 16,
-            realTimeSeconds: 55,
-            exits: 2,
-            handCorrelation: 0.5,
+            ...perfectCourse,
+            index: 1,
+            minorErrors: 4,
+            majorErrors: 1,
+            tReelMs: 55_000,
           },
           {
-            progression: 50,
-            avgDistanceToCenter: 16,
-            realTimeSeconds: 40,
-            exits: 0,
-            handCorrelation: 0.8,
+            ...perfectCourse,
+            index: 2,
+            progressionPct: 60,
+            tReelMs: 90_000,
           },
-        ],
-      }),
-    ).toBe(68.1);
+        ]),
+      ),
+    ).toBe(75.4);
   });
 });
 

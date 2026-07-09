@@ -9,6 +9,7 @@ import {
   AXIS_TRAINING,
   AxisRawResultDto,
   AxisType,
+  ControlModality,
   CurrentSessionDto,
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
@@ -17,8 +18,8 @@ import {
   MOTRICITY_COURSE_COUNT,
   MemoryRawResultDto,
   MemorySequenceAnswerDto,
+  MotorSkillsMetrics,
   MotricityCourseTrajectoryDto,
-  MotricityRawResultDto,
   ReactivityRawResultDto,
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
@@ -31,6 +32,7 @@ import {
   SessionStatus,
   TargetedAxisResultDto,
   avisFromScore,
+  deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
@@ -172,6 +174,7 @@ export class SessionsService {
       const motricity = this.scoreMotricityTrajectories(
         session.seed,
         request.courses ?? [],
+        request.controlModality ?? null,
       );
       rawResult = motricity.rawResult;
       score = motricity.score;
@@ -352,8 +355,9 @@ export class SessionsService {
   private scoreMotricityTrajectories(
     seed: string,
     trajectories: MotricityCourseTrajectoryDto[],
+    controlModality: ControlModality | null,
   ): {
-    rawResult: MotricityRawResultDto;
+    rawResult: MotorSkillsMetrics;
     score: { normalizedScore: number; band: ScoreBand };
   } {
     const distinctIndexes = new Set(
@@ -380,24 +384,8 @@ export class SessionsService {
       throw new ConflictException('The session content is not fully played');
     }
     const scored = scoreMotricitySession(trajectories, seed);
-    const trajectoryByIndex = new Map(
-      trajectories.map((trajectory) => [trajectory.index, trajectory]),
-    );
     return {
-      rawResult: {
-        axis: AxisType.MOTOR_SKILLS,
-        courses: scored.courses.map(
-          ({ index, minorErrors, majorErrors, progressionPct, tReelMs }) => ({
-            index,
-            minorErrors,
-            majorErrors,
-            progressionPct,
-            tReelMs,
-            avgLatencyMs: trajectoryByIndex.get(index)?.avgLatencyMs ?? null,
-            jitterMs: trajectoryByIndex.get(index)?.jitterMs ?? null,
-          }),
-        ),
-      },
+      rawResult: deriveMotorSkillsMetrics(trajectories, seed, controlModality),
       score: {
         normalizedScore: scored.score,
         band: avisFromScore(scored.score),
@@ -576,7 +564,8 @@ export class SessionsService {
       axis !== AxisType.LOGIC &&
       axis !== AxisType.MEMORY &&
       axis !== AxisType.VISUAL_DISCRIMINATION &&
-      axis !== AxisType.REACTIVITY
+      axis !== AxisType.REACTIVITY &&
+      axis !== AxisType.MOTOR_SKILLS
     ) {
       throw new BadRequestException(
         'Axis results are only available for scored axes',
@@ -606,6 +595,9 @@ export class SessionsService {
     for (const row of history) {
       let normalizedScore = row.normalizedScore;
       if (normalizedScore === null) {
+        if (axis === AxisType.MOTOR_SKILLS) {
+          continue;
+        }
         const computed = this.scoreAxisFromMetrics(
           axis,
           row.session.seed,
@@ -681,12 +673,50 @@ export class SessionsService {
         trials: this.discriminationTrialsFromMetrics(axisRow.metrics),
       };
     }
+    if (axis === AxisType.MOTOR_SKILLS) {
+      return {
+        ...base,
+        axis: AxisType.MOTOR_SKILLS,
+        metrics: this.motorMetricsFromRow(
+          axisRow.metrics,
+          session.controlModality
+            ? mapEnumValue(ControlModality, session.controlModality)
+            : null,
+        ),
+      };
+    }
     const reactivity = this.reactivityFromMetrics(axisRow.metrics);
     return {
       ...base,
       axis: AxisType.REACTIVITY,
       stimuli: reactivity.stimuli,
       waitPresses: reactivity.waitPresses,
+    };
+  }
+
+  private motorMetricsFromRow(
+    metrics: unknown,
+    sessionModality: ControlModality | null,
+  ): MotorSkillsMetrics {
+    const raw = (metrics ?? {}) as Partial<MotorSkillsMetrics>;
+    const courses = Array.isArray(raw.courses) ? raw.courses : [];
+    const sum = (select: (course: (typeof courses)[number]) => number) =>
+      courses.reduce((total, course) => total + select(course), 0);
+    return {
+      axis: AxisType.MOTOR_SKILLS,
+      minorErrors: raw.minorErrors ?? sum((course) => course.minorErrors),
+      majorErrors: raw.majorErrors ?? sum((course) => course.majorErrors),
+      totalTimeMs: raw.totalTimeMs ?? sum((course) => course.tReelMs),
+      coursesCompleted:
+        raw.coursesCompleted ??
+        courses.filter((course) => course.progressionPct >= 100).length,
+      controlModality: raw.controlModality ?? sessionModality,
+      ...(raw.handIndependence !== undefined
+        ? { handIndependence: raw.handIndependence }
+        : {}),
+      courses,
+      timeline: Array.isArray(raw.timeline) ? raw.timeline : [],
+      events: Array.isArray(raw.events) ? raw.events : [],
     };
   }
 

@@ -7,6 +7,7 @@ import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
   ControlModality,
+  MotorSkillsMetrics,
   ScoreBand,
   Sector,
   SessionMode,
@@ -41,6 +42,7 @@ function buildSession(
     startedAt: new Date('2026-06-13T10:00:00Z'),
     completedAt: null,
     abandonedAt: null,
+    controlModality: null,
     axisResults: [],
     recommendations: [],
     ...overrides,
@@ -813,6 +815,201 @@ describe('SessionsService.completeTargeted (motricity)', () => {
     });
 
     expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('persists the derived timeline, events and modality inside the metrics', async () => {
+    repository.findUserSession.mockResolvedValue(motricitySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      axis: AxisType.MOTOR_SKILLS,
+      controlModality: ControlModality.KEYBOARD,
+      courses: fullTrajectories,
+    });
+
+    const persisted = repository.completeTargetedSession.mock.calls[0][0]
+      .rawResult as MotorSkillsMetrics;
+    expect(persisted.axis).toBe(AxisType.MOTOR_SKILLS);
+    expect(persisted.coursesCompleted).toBe(3);
+    expect(persisted.controlModality).toBe(ControlModality.KEYBOARD);
+    expect(persisted.timeline).toHaveLength(3);
+    expect(persisted.timeline[0].points.length).toBeGreaterThan(0);
+    expect(Array.isArray(persisted.events)).toBe(true);
+    expect(persisted.handIndependence).toBeUndefined();
+    expect(persisted.totalTimeMs).toBe(
+      persisted.courses.reduce((sum, course) => sum + course.tReelMs, 0),
+    );
+  });
+});
+
+describe('SessionsService.targetedResult (motricity)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const laterSessionId = '22222222-2222-2222-2222-222222222222';
+
+  const motorMetrics = {
+    axis: 'MOTOR_SKILLS',
+    minorErrors: 5,
+    majorErrors: 1,
+    totalTimeMs: 124_000,
+    coursesCompleted: 3,
+    controlModality: 'PHONE_GAMEPAD',
+    courses: [
+      {
+        index: 0,
+        minorErrors: 5,
+        majorErrors: 1,
+        progressionPct: 100,
+        tReelMs: 124_000,
+        avgLatencyMs: 18,
+        jitterMs: 3,
+      },
+    ],
+    timeline: [
+      { courseIndex: 0, points: [{ tMs: 0, deviationPct: 12 }] },
+    ],
+    events: [
+      { courseIndex: 0, tMs: 4200, type: 'CONTACT', segment: 'DIAG' },
+    ],
+  };
+
+  const motorSession = (metrics: unknown) =>
+    buildSession({
+      mode: 'TARGETED',
+      status: 'COMPLETED',
+      controlModality: 'PHONE_GAMEPAD',
+      completedAt: new Date('2026-07-09T10:05:00Z'),
+      axisResults: [
+        buildAxis({
+          axis: 'MOTOR_SKILLS',
+          normalizedScore: 88,
+          band: 'EXCELLENT',
+          startedAt: new Date('2026-07-09T10:00:00Z'),
+          completedAt: new Date('2026-07-09T10:05:00Z'),
+          metrics: metrics as Prisma.JsonValue,
+        }),
+      ],
+    });
+
+  const motorHistoryRow = (
+    rowSessionId: string,
+    score: number,
+    completedAt: Date,
+  ) => ({
+    ...buildAxis({
+      id: `axis-${rowSessionId}`,
+      sessionId: rowSessionId,
+      axis: 'MOTOR_SKILLS',
+      normalizedScore: score,
+      completedAt,
+    }),
+    session: buildSession({ id: rowSessionId, completedAt }),
+  });
+
+  it('returns the persisted metrics with the record flag when the score beats the history', async () => {
+    repository.findUserSession.mockResolvedValue(motorSession(motorMetrics));
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      motorHistoryRow(laterSessionId, 80, new Date('2026-07-08T18:00:00Z')),
+      motorHistoryRow(sessionId, 88, new Date('2026-07-09T10:05:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.MOTOR_SKILLS,
+    );
+
+    expect(result.axis).toBe(AxisType.MOTOR_SKILLS);
+    if (result.axis !== AxisType.MOTOR_SKILLS) {
+      return;
+    }
+    expect(result.score).toBe(88);
+    expect(result.bestScore).toBe(88);
+    expect(result.isNewBest).toBe(true);
+    expect(result.isEqualBest).toBe(false);
+    expect(result.metrics.controlModality).toBe(ControlModality.PHONE_GAMEPAD);
+    expect(result.metrics.timeline).toHaveLength(1);
+    expect(result.metrics.events).toHaveLength(1);
+  });
+
+  it('reports an equaled record and no record accordingly', async () => {
+    repository.findUserSession.mockResolvedValue(motorSession(motorMetrics));
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      motorHistoryRow(laterSessionId, 88, new Date('2026-07-08T18:00:00Z')),
+      motorHistoryRow(sessionId, 88, new Date('2026-07-09T10:05:00Z')),
+    ]);
+    const equaled = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.MOTOR_SKILLS,
+    );
+    expect(equaled.isNewBest).toBe(false);
+    expect(equaled.isEqualBest).toBe(true);
+
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      motorHistoryRow(laterSessionId, 95, new Date('2026-07-08T18:00:00Z')),
+      motorHistoryRow(sessionId, 88, new Date('2026-07-09T10:05:00Z')),
+    ]);
+    const beaten = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.MOTOR_SKILLS,
+    );
+    expect(beaten.isNewBest).toBe(false);
+    expect(beaten.isEqualBest).toBe(false);
+    expect(beaten.bestScore).toBe(95);
+  });
+
+  it('maps a legacy row without timeline to metrics with an empty timeline', async () => {
+    const legacyMetrics = {
+      axis: 'MOTOR_SKILLS',
+      courses: [
+        {
+          index: 0,
+          minorErrors: 2,
+          majorErrors: 0,
+          progressionPct: 100,
+          tReelMs: 60_000,
+          avgLatencyMs: null,
+          jitterMs: null,
+        },
+        {
+          index: 1,
+          minorErrors: 1,
+          majorErrors: 1,
+          progressionPct: 80,
+          tReelMs: 90_000,
+          avgLatencyMs: null,
+          jitterMs: null,
+        },
+      ],
+    };
+    repository.findUserSession.mockResolvedValue(motorSession(legacyMetrics));
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      motorHistoryRow(sessionId, 88, new Date('2026-07-09T10:05:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.MOTOR_SKILLS,
+    );
+
+    if (result.axis !== AxisType.MOTOR_SKILLS) {
+      return;
+    }
+    expect(result.metrics.timeline).toEqual([]);
+    expect(result.metrics.events).toEqual([]);
+    expect(result.metrics.minorErrors).toBe(3);
+    expect(result.metrics.majorErrors).toBe(1);
+    expect(result.metrics.totalTimeMs).toBe(150_000);
+    expect(result.metrics.coursesCompleted).toBe(1);
+    expect(result.metrics.controlModality).toBe(ControlModality.PHONE_GAMEPAD);
   });
 });
 
