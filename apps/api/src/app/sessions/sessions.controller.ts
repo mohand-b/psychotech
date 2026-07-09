@@ -71,14 +71,6 @@ export class SessionsController {
     return this.sessionsService.suspend(userId, sessionId);
   }
 
-  @Post(':id/abandon')
-  abandon(
-    @CurrentUser() userId: string,
-    @Param('id', ParseUUIDPipe) sessionId: string,
-  ): Promise<SessionDto> {
-    return this.sessionsService.abandon(userId, sessionId);
-  }
-
   @Get()
   list(
     @CurrentUser() userId: string,

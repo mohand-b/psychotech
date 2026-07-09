@@ -18,6 +18,7 @@ import {
   SessionStatus,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
+import { activePlayDurationSec } from './sessions.logic';
 
 export const SESSION_INCLUDE = {
   axisResults: true,
@@ -102,10 +103,7 @@ export function toSessionHistoryItemDto(
     sector: mapEnumValue(Sector, session.sector),
     status,
     finishedAt: finishedAt.toISOString(),
-    durationSec: Math.max(
-      0,
-      Math.round((finishedAt.getTime() - session.startedAt.getTime()) / 1000),
-    ),
+    durationSec: activePlayDurationSec(axisResults),
     score,
     band: band ? mapEnumValue(ScoreBand, band) : null,
     axisReached:

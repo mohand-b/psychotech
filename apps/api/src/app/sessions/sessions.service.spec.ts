@@ -69,7 +69,6 @@ const repository = {
   completeSession: vi.fn(),
   completeTargetedSession: vi.fn(),
   suspendSession: vi.fn(),
-  abandonSession: vi.fn(),
   listHistory: vi.fn(),
   findCurrentSession: vi.fn(),
 };
@@ -463,7 +462,7 @@ describe('SessionsService.list', () => {
     expect(lastPage.nextCursor).toBeNull();
   });
 
-  it('maps an abandoned full session with the reached axis and no result', async () => {
+  it('maps an abandoned full session with the reached axis, no result and only the played time', async () => {
     repository.listHistory.mockResolvedValue([
       buildSession({
         status: 'ABANDONED',
@@ -471,9 +470,21 @@ describe('SessionsService.list', () => {
         globalScore: null,
         globalBand: null,
         startedAt: new Date('2026-07-01T10:00:00Z'),
-        abandonedAt: new Date('2026-07-01T10:09:00Z'),
+        abandonedAt: new Date('2026-07-02T10:09:00Z'),
         axisResults: [
-          buildAxis({ order: 0, completedAt: new Date(), normalizedScore: 80, band: 'EXCELLENT' }),
+          buildAxis({
+            order: 0,
+            completedAt: new Date(),
+            normalizedScore: 80,
+            band: 'EXCELLENT',
+            metrics: {
+              axis: 'LOGIC',
+              items: [
+                { index: 0, answerIndex: 1, timeMs: 80000, helpUsed: false, visited: true },
+                { index: 1, answerIndex: 0, timeMs: 40000, helpUsed: false, visited: true },
+              ],
+            } as unknown as Prisma.JsonValue,
+          }),
           buildAxis({ id: 'axis-2', axis: 'MEMORY', order: 1 }),
           buildAxis({ id: 'axis-3', axis: 'VISUAL_DISCRIMINATION', order: 2 }),
           buildAxis({ id: 'axis-4', axis: 'REACTIVITY', order: 3 }),
@@ -491,23 +502,28 @@ describe('SessionsService.list', () => {
     expect(item.band).toBeNull();
     expect(item.axisReached).toBe(2);
     expect(item.axisTotal).toBe(5);
-    expect(item.finishedAt).toBe('2026-07-01T10:09:00.000Z');
-    expect(item.durationSec).toBe(540);
+    expect(item.finishedAt).toBe('2026-07-02T10:09:00.000Z');
+    expect(item.durationSec).toBe(120);
   });
 
-  it('maps a completed targeted session with its axis persisted score and band', async () => {
+  it('maps a completed targeted session with its persisted score and active play duration', async () => {
     repository.listHistory.mockResolvedValue([
       buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         startedAt: new Date('2026-07-01T10:00:00Z'),
-        completedAt: new Date('2026-07-01T10:04:00Z'),
+        completedAt: new Date('2026-07-01T12:04:00Z'),
         axisResults: [
           buildAxis({
             axis: 'REACTIVITY',
             normalizedScore: 76,
             band: 'ACCEPTABLE',
-            completedAt: new Date('2026-07-01T10:04:00Z'),
+            completedAt: new Date('2026-07-01T12:04:00Z'),
+            metrics: {
+              axis: 'REACTIVITY',
+              stimuli: [{ index: 0, commandPressed: 'LEFT', trMs: 400 }],
+              waitPresses: [],
+            } as unknown as Prisma.JsonValue,
           }),
         ],
       }),
@@ -522,7 +538,7 @@ describe('SessionsService.list', () => {
     expect(item.band).toBe(ScoreBand.ACCEPTABLE);
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
-    expect(item.durationSec).toBe(240);
+    expect(item.durationSec).toBe(180);
   });
 });
 

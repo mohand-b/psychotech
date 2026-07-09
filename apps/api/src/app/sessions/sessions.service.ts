@@ -444,16 +444,6 @@ export class SessionsService {
     return toSessionDto(await this.loadOwnedSession(sessionId, userId));
   }
 
-  async abandon(userId: string, sessionId: string): Promise<SessionDto> {
-    const session = await this.loadOwnedSession(sessionId, userId);
-    const status = mapEnumValue(SessionStatus, session.status);
-    if (status === SessionStatus.COMPLETED || status === SessionStatus.ABANDONED) {
-      throw new ConflictException('Session is already finished');
-    }
-    await this.repository.abandonSession(sessionId, new Date());
-    return toSessionDto(await this.loadOwnedSession(sessionId, userId));
-  }
-
   async list(
     userId: string,
     query: ListSessionsQuery,

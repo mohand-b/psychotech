@@ -360,20 +360,6 @@ export class SessionsRepository {
     });
   }
 
-  async abandonSession(sessionId: string, abandonedAt: Date): Promise<void> {
-    const axisResults = await this.prisma.sessionAxis.findMany({
-      where: { sessionId },
-    });
-    await this.prisma.session.update({
-      where: { id: sessionId },
-      data: {
-        status: DbSessionStatus.ABANDONED,
-        abandonedAt,
-        currentAxisIndex: finishedAxisCount(axisResults),
-      },
-    });
-  }
-
   listHistory(
     userId: string,
     filter: ListHistoryFilter,

@@ -1,5 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { AxisType, SessionMode } from '@psychotech/shared';
+import {
+  AXIS_TRAINING,
+  AxisRawResultDto,
+  AxisType,
+  SessionMode,
+} from '@psychotech/shared';
 import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util';
 
 export const SESSION_HISTORY_PAGE_SIZE = 10;
@@ -10,6 +15,39 @@ export function finishedAxisCount(
   return axisResults.filter(
     (axis) => axis.completedAt !== null || axis.skipped,
   ).length;
+}
+
+export function activePlayDurationSec(
+  axisResults: { metrics: unknown }[],
+): number {
+  const totalMs = axisResults.reduce(
+    (sum, axis) => sum + axisPlayTimeMs(axis.metrics),
+    0,
+  );
+  return Math.round(totalMs / 1000);
+}
+
+function axisPlayTimeMs(metrics: unknown): number {
+  const raw = metrics as AxisRawResultDto | null;
+  if (!raw) {
+    return 0;
+  }
+  if (raw.axis === AxisType.LOGIC && Array.isArray(raw.items)) {
+    return raw.items.reduce((sum, item) => sum + item.timeMs, 0);
+  }
+  if (raw.axis === AxisType.MEMORY && Array.isArray(raw.sequences)) {
+    return raw.sequences.reduce((sum, sequence) => sum + sequence.timeMs, 0);
+  }
+  if (
+    raw.axis === AxisType.VISUAL_DISCRIMINATION &&
+    Array.isArray(raw.trials)
+  ) {
+    return raw.trials.reduce((sum, trial) => sum + trial.timeMs, 0);
+  }
+  if (raw.axis === AxisType.REACTIVITY && Array.isArray(raw.stimuli)) {
+    return AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000;
+  }
+  return 0;
 }
 
 export const FULL_SESSION_AXIS_ORDER: AxisType[] = [

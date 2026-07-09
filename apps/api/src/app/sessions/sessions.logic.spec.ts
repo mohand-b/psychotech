@@ -1,8 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { AxisType, SessionMode } from '@psychotech/shared';
+import { AXIS_TRAINING, AxisType, SessionMode } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
   FULL_SESSION_AXIS_ORDER,
+  activePlayDurationSec,
   computeStreakUpdate,
   resolveSessionAxes,
 } from './sessions.logic';
@@ -31,6 +32,49 @@ describe('resolveSessionAxes', () => {
   it('rejects targeted or tutorial sessions without a target axis', () => {
     expect(() => resolveSessionAxes(SessionMode.TARGETED)).toThrow(BadRequestException);
     expect(() => resolveSessionAxes(SessionMode.TUTORIAL)).toThrow(BadRequestException);
+  });
+});
+
+describe('activePlayDurationSec', () => {
+  it('sums the played exercise times across axes without any wall-clock timestamp', () => {
+    const durationSec = activePlayDurationSec([
+      {
+        metrics: {
+          axis: AxisType.LOGIC,
+          items: [
+            { index: 0, answerIndex: 1, timeMs: 80000, helpUsed: false, visited: true },
+            { index: 1, answerIndex: null, timeMs: 41000, helpUsed: false, visited: true },
+          ],
+        },
+      },
+      {
+        metrics: {
+          axis: AxisType.MEMORY,
+          sequences: [{ index: 0, input: [1, 2], timeMs: 9000, timedOut: false }],
+        },
+      },
+      { metrics: null },
+    ]);
+    expect(durationSec).toBe(130);
+  });
+
+  it('counts the full trial duration for a played reactivity axis', () => {
+    const durationSec = activePlayDurationSec([
+      {
+        metrics: {
+          axis: AxisType.REACTIVITY,
+          stimuli: [{ index: 0, commandPressed: 'LEFT', trMs: 400 }],
+          waitPresses: [],
+        },
+      },
+    ]);
+    expect(durationSec).toBe(
+      AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec,
+    );
+  });
+
+  it('returns zero when nothing was played', () => {
+    expect(activePlayDurationSec([{ metrics: null }, { metrics: null }])).toBe(0);
   });
 });
 
