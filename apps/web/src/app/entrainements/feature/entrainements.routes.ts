@@ -13,13 +13,6 @@ export const entrainementsRoutes: Route[] = [
   },
   {
     path: 'entrainements/choisir-axe',
-    data: {
-      focusedHeader: {
-        title: 'Entraînement ciblé',
-        backLabel: 'Entraînements',
-        backLink: '/entrainements',
-      },
-    },
     loadComponent: () =>
       import('./axis-selection/axis-selection').then((m) => m.AxisSelection),
   },
