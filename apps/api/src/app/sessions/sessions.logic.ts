@@ -17,6 +17,46 @@ export function finishedAxisCount(
   ).length;
 }
 
+export function targetedContentFullyPlayed(
+  rawResult: AxisRawResultDto,
+  playedMs: number | undefined,
+): boolean {
+  if (rawResult.axis === AxisType.LOGIC) {
+    const training = AXIS_TRAINING[AxisType.LOGIC];
+    const activeMs = rawResult.items.reduce(
+      (sum, item) => sum + item.timeMs,
+      0,
+    );
+    return (
+      activeMs >= training.timer.durationSec * 1000 ||
+      (rawResult.items.length === training.exerciseCount &&
+        rawResult.items.every((item) => item.answerIndex !== null))
+    );
+  }
+  if (rawResult.axis === AxisType.MEMORY) {
+    return (
+      rawResult.sequences.length ===
+      AXIS_TRAINING[AxisType.MEMORY].exerciseCount
+    );
+  }
+  if (rawResult.axis === AxisType.VISUAL_DISCRIMINATION) {
+    const training = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
+    const activeMs = rawResult.trials.reduce(
+      (sum, trial) => sum + trial.timeMs,
+      0,
+    );
+    return (
+      activeMs >= training.timer.durationSec * 1000 ||
+      (rawResult.trials.length === training.exerciseCount &&
+        rawResult.trials.every((trial) => trial.answer !== null))
+    );
+  }
+  return (
+    (playedMs ?? 0) >=
+    AXIS_TRAINING[AxisType.REACTIVITY].timer.durationSec * 1000
+  );
+}
+
 export function activePlayDurationSec(
   axisResults: { metrics: unknown }[],
 ): number {

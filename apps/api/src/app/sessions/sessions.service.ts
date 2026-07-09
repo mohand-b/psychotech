@@ -50,6 +50,7 @@ import {
   SESSION_HISTORY_PAGE_SIZE,
   computeStreakUpdate,
   resolveSessionAxes,
+  targetedContentFullyPlayed,
 } from './sessions.logic';
 import {
   toCurrentSessionDto,
@@ -180,6 +181,11 @@ export class SessionsService {
                 request.stimuli ?? [],
                 request.waitPresses ?? [],
               );
+    if (!targetedContentFullyPlayed(rawResult, request.playedMs)) {
+      throw new ConflictException(
+        'The session content is not fully played',
+      );
+    }
     const score =
       rawResult.axis === AxisType.LOGIC
         ? this.scoreLogicAnswers(session.seed, rawResult.items)
@@ -352,6 +358,11 @@ export class SessionsService {
 
   async complete(userId: string, sessionId: string): Promise<SessionResultDto> {
     const session = await this.loadInProgressSession(sessionId, userId);
+    if (session.axisResults.some((result) => result.completedAt === null)) {
+      throw new ConflictException(
+        'Every axis must be fully played before completing the session',
+      );
+    }
     const config = await this.repository.findSectorConfig(
       mapEnumValue(Sector, session.sector),
     );

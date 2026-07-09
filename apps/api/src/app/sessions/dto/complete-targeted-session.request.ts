@@ -153,4 +153,12 @@ export class CompleteTargetedSessionRequest implements CompleteTargetedSessionDt
   @ValidateNested({ each: true })
   @Type(() => ReactivityWaitPressRequest)
   waitPresses?: ReactivityWaitPressRequest[];
+
+  @ValidateIf(
+    (request: CompleteTargetedSessionRequest) =>
+      request.axis === AxisType.REACTIVITY,
+  )
+  @IsInt()
+  @Min(0)
+  playedMs?: number;
 }

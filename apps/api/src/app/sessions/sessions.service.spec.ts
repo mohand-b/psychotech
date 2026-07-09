@@ -220,7 +220,7 @@ describe('SessionsService.completeTargeted', () => {
   const answers = (count: number) =>
     Array.from({ length: count }, (_, index) => ({
       index,
-      answerIndex: index % 4 === 0 ? null : 0,
+      answerIndex: 0,
       timeMs: 1200,
       helpUsed: index % 5 === 0,
     }));
@@ -294,6 +294,38 @@ describe('SessionsService.completeTargeted', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.completeTargetedSession).not.toHaveBeenCalled();
   });
+
+  it('rejects a completion while the axis is still being played', async () => {
+    repository.findUserSession.mockResolvedValue(targetedSession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: answers(10),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('accepts a completion once the active play time reaches the timer, even with unanswered items', async () => {
+    repository.findUserSession.mockResolvedValue(targetedSession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      axis: AxisType.LOGIC,
+      items: Array.from({ length: 30 }, (_, index) => ({
+        index,
+        answerIndex: index % 3 === 0 ? null : 0,
+        timeMs: 20000,
+        helpUsed: false,
+        visited: true,
+      })),
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('SessionsService.completeTargeted (memory)', () => {
@@ -336,6 +368,18 @@ describe('SessionsService.completeTargeted (memory)', () => {
     );
   });
 
+  it('rejects a completion before the five sequences are played', async () => {
+    repository.findUserSession.mockResolvedValue(memorySession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+        axis: AxisType.MEMORY,
+        sequences: sequenceAnswers.slice(0, 4),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
   it('rejects duplicate sequence indexes or inputs longer than the plan', async () => {
     repository.findUserSession.mockResolvedValue(memorySession());
 
@@ -369,8 +413,8 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
   const trialAnswers = Array.from({ length: 36 }, (_, index) => ({
     index,
     answer:
-      index < 20 ? (index % 2 === 0 ? ('IDENTICAL' as const) : ('DIFFERENT' as const)) : null,
-    timeMs: index < 20 ? 2400 : 0,
+      index % 2 === 0 ? ('IDENTICAL' as const) : ('DIFFERENT' as const),
+    timeMs: 2400,
   }));
 
   it('stores raw trial answers as metrics without scoring', async () => {
@@ -419,6 +463,63 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects a completion while trials remain unanswered and the timer is not over', async () => {
+    repository.findUserSession.mockResolvedValue(discriminationSession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        trials: trialAnswers.slice(0, 12),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('SessionsService.completeTargeted (reactivity)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const reactivitySession = () =>
+    buildSession({
+      mode: 'TARGETED',
+      energyCost: 1,
+      axisResults: [buildAxis({ axis: 'REACTIVITY' })],
+    });
+  const stimuli = [{ index: 0, commandPressed: 'LEFT' as const, trMs: 400 }];
+
+  it('rejects a completion whose transmitted active play time is short of the timer', async () => {
+    repository.findUserSession.mockResolvedValue(reactivitySession());
+
+    await expect(
+      service.completeTargeted('user-1', sessionId, AxisType.REACTIVITY, {
+        axis: AxisType.REACTIVITY,
+        stimuli,
+        waitPresses: [],
+        playedMs: 60000,
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('accepts a completion once the transmitted active play time reaches the trial duration', async () => {
+    repository.findUserSession.mockResolvedValue(reactivitySession());
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'REACTIVITY' })],
+      }),
+    );
+
+    await service.completeTargeted('user-1', sessionId, AxisType.REACTIVITY, {
+      axis: AxisType.REACTIVITY,
+      stimuli,
+      waitPresses: [],
+      playedMs: 180000,
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -584,8 +685,29 @@ describe('SessionsService.complete', () => {
     icon: 'rocket',
   };
 
+  it('rejects the completion of a simulation while an axis is missing', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        status: 'IN_PROGRESS',
+        axisResults: [
+          buildAxis({ normalizedScore: 75, band: 'ACCEPTABLE', completedAt: new Date() }),
+          buildAxis({ id: 'axis-2', axis: 'MEMORY', order: 1 }),
+        ],
+      }),
+    );
+
+    await expect(service.complete('user-1', sessionId)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(repository.completeSession).not.toHaveBeenCalled();
+  });
+
   it('evaluates badges within the completion transaction and returns the freshly unlocked ones', async () => {
-    const scoredAxis = buildAxis({ normalizedScore: 75, band: 'ACCEPTABLE' });
+    const scoredAxis = buildAxis({
+      normalizedScore: 75,
+      band: 'ACCEPTABLE',
+      completedAt: new Date('2026-06-13T10:10:00Z'),
+    });
     repository.findUserSession.mockResolvedValue(
       buildSession({ status: 'IN_PROGRESS', axisResults: [scoredAxis] }),
     );
