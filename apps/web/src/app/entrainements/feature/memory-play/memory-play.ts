@@ -15,6 +15,7 @@ import {
   MemorySequence,
   MemorySequenceAnswerDto,
   SessionDto,
+  SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
 import { Check, Delete, MoveRight, Undo2 } from 'lucide-angular';
@@ -23,6 +24,7 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
 type MemoryStage =
   | 'PHASE_TRANSITION'
@@ -41,7 +43,7 @@ const RESTITUTION_TICK_MS = 200;
 @Component({
   selector: 'app-memory-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon],
+  imports: [Button, ExitConfirm, Icon],
   templateUrl: './memory-play.html',
   styleUrl: './memory-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -69,7 +71,10 @@ export class MemoryPlay {
   protected readonly digitVisible = signal(false);
   protected readonly input = signal<number[]>([]);
   protected readonly submitting = signal(false);
-  protected readonly confirmingFinish = signal(false);
+  protected readonly confirmingExit = signal(false);
+  protected readonly sessionMode = computed(
+    () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
   protected readonly restitutionFraction = signal(1);
   protected readonly restitutionSecTotal = this.restitutionSec;
   private readonly results = signal<MemorySequenceAnswerDto[]>([]);
@@ -87,9 +92,6 @@ export class MemoryPlay {
     Math.ceil(this.restitutionFraction() * this.restitutionSecTotal),
   );
   protected readonly completedCount = computed(() => this.results().length);
-  protected readonly unansweredCount = computed(
-    () => this.total - this.completedCount(),
-  );
   protected readonly reversePhase = computed(
     () => this.currentSequence()?.phase === MemoryPhase.INVERSE,
   );
@@ -109,7 +111,7 @@ export class MemoryPlay {
       if (requests !== this.handledCloseRequests) {
         this.handledCloseRequests = requests;
         if (!this.hasSubmitted && this.loaded()) {
-          this.confirmingFinish.set(true);
+          this.confirmingExit.set(true);
         }
       }
     });
@@ -155,31 +157,8 @@ export class MemoryPlay {
     this.finishSequence(false);
   }
 
-  protected confirmFinish(): void {
-    if (this.hasSubmitted) {
-      return;
-    }
-    this.clearTimers();
-    this.facade.setPerExerciseCountdown(null);
-    const recorded = this.results();
-    const answers = [...recorded];
-    for (let index = recorded.length; index < this.total; index += 1) {
-      const isCurrentRestitution =
-        index === this.currentIndex() && this.stage() === 'RESTITUTION';
-      answers.push({
-        index,
-        input: isCurrentRestitution ? this.input() : [],
-        timeMs: isCurrentRestitution
-          ? Math.min(
-              Date.now() - this.restitutionStartedAtMs,
-              this.restitutionSec * 1000,
-            )
-          : 0,
-        timedOut: false,
-      });
-    }
-    this.results.set(answers);
-    this.submitAll();
+  protected quit(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -187,10 +166,10 @@ export class MemoryPlay {
       return;
     }
     if (event.key === 'Escape') {
-      this.confirmingFinish.set(false);
+      this.confirmingExit.set(false);
       return;
     }
-    if (this.confirmingFinish()) {
+    if (this.confirmingExit()) {
       return;
     }
     if (this.stage() !== 'RESTITUTION') {
@@ -313,7 +292,7 @@ export class MemoryPlay {
     }
     this.hasSubmitted = true;
     this.submitting.set(true);
-    this.confirmingFinish.set(false);
+    this.confirmingExit.set(false);
     this.facade.completeTargetedMemory(this.results()).subscribe({
       next: () => {
         this.router.navigate([

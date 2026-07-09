@@ -294,6 +294,7 @@ export class TrainingSessionFacade {
   completeTargetedReactivity(
     stimuli: ReactivityStimulusAnswerDto[],
     waitPresses: ReactivityWaitPressDto[],
+    playedMs: number,
   ): Observable<SessionDto> {
     const session = this.store.session();
     const axis = this.axis();
@@ -301,7 +302,12 @@ export class TrainingSessionFacade {
       return throwError(() => new Error('No active training session'));
     }
     return this.api
-      .completeTargeted(session.id, axis, { axis, stimuli, waitPresses })
+      .completeTargeted(session.id, axis, {
+        axis,
+        stimuli,
+        waitPresses,
+        playedMs,
+      })
       .pipe(tap((completed) => this.install(completed)));
   }
 

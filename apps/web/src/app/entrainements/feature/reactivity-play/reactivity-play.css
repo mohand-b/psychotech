@@ -86,36 +86,14 @@
   top: calc(50% + 40px);
 }
 
-.react__confirm {
+.react__exit {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
   width: min(400px, calc(100% - 48px));
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
   box-shadow: var(--shadow-raised);
-  padding: 24px;
   z-index: 20;
-}
-
-.react__confirm-text {
-  margin: 0;
-  font: 400 14px/20px var(--font-ui);
-  color: var(--ink);
-  text-align: center;
-}
-
-.react__confirm-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
 }
 
 .react__transition {

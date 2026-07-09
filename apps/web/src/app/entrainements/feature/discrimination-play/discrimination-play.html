@@ -88,37 +88,14 @@
       </p>
     </div>
 
-    @if (confirmingFinish()) {
-      <div
-        class="discri__confirm"
-        role="alertdialog"
-        aria-label="Confirmation de fin d'entraînement"
-      >
-        <p class="discri__confirm-text">
-          @if (unansweredCount() > 1) {
-            {{ unansweredCount() }} essais sont sans réponse.
-          } @else {
-            1 essai est sans réponse.
-          }
-          Terminer l'entraînement maintenant ?
-        </p>
-        <div class="discri__confirm-actions">
-          <ui-button
-            color="neutral"
-            appearance="outlined"
-            (click)="confirmingFinish.set(false)"
-          >
-            Continuer
-          </ui-button>
-          <ui-button
-            [color]="buttonColor"
-            [loading]="submitting()"
-            (click)="confirmFinish()"
-          >
-            Terminer
-          </ui-button>
-        </div>
-      </div>
+    @if (confirmingExit()) {
+      <app-exit-confirm
+        class="discri__exit"
+        [mode]="sessionMode()"
+        [color]="buttonColor"
+        (continueRequested)="confirmingExit.set(false)"
+        (quitRequested)="quit()"
+      />
     }
   }
 </section>

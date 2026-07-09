@@ -20,11 +20,12 @@ import {
   ReactivityStimulusType,
   ReactivityWaitPressDto,
   SessionDto,
+  SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { Button } from '../../../shared/ui/button/button';
+import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
 
@@ -74,7 +75,7 @@ const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
 @Component({
   selector: 'app-reactivity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [ExitConfirm],
   templateUrl: './reactivity-play.html',
   styleUrl: './reactivity-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -103,6 +104,9 @@ export class ReactivityPlay {
   protected readonly transitionCountdown = signal(3);
   protected readonly confirmingExit = signal(false);
   protected readonly leaving = signal(false);
+  protected readonly sessionMode = computed(
+    () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
   protected readonly remainingFraction = computed(
     () => this.facade.remainingFraction() ?? 1,
   );
@@ -188,7 +192,7 @@ export class ReactivityPlay {
     }
     this.leaving.set(true);
     this.stopTicker();
-    this.router.navigate(['/entrainements']);
+    this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -397,11 +401,12 @@ export class ReactivityPlay {
     }
     this.hasSubmitted = true;
     this.stopTicker();
+    const playedMs = Math.max(0, Math.round(this.effectiveNow()));
     for (const stimulus of this.stimuli.slice(this.nextStimulusIndex)) {
       this.recordAnswer(stimulus.index, null, null);
     }
     this.facade
-      .completeTargetedReactivity(this.answers, this.waitPresses)
+      .completeTargetedReactivity(this.answers, this.waitPresses, playedMs)
       .subscribe({
         next: () => {
           this.facade.setEffectiveCountdown(null);

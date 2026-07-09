@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
   SessionDto,
+  SessionMode,
   SessionStatus,
   resolveLogicRuleHint,
 } from '@psychotech/shared';
@@ -19,6 +20,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
@@ -26,7 +28,7 @@ import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 @Component({
   selector: 'app-logic-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ItemNavBand, LogicChoices, LogicSequence],
+  imports: [Button, ExitConfirm, ItemNavBand, LogicChoices, LogicSequence],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
   host: {
@@ -57,7 +59,10 @@ export class LogicPlay {
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
   protected readonly submitting = signal(false);
-  protected readonly confirmingFinish = signal(false);
+  protected readonly confirmingExit = signal(false);
+  protected readonly sessionMode = computed(
+    () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
   protected readonly helpEnabled = this.facade.helpEnabled;
   private readonly helpUsed = signal<ReadonlySet<number>>(new Set());
   private readonly visited = signal<ReadonlySet<number>>(new Set([0]));
@@ -137,7 +142,9 @@ export class LogicPlay {
       const requests = this.facade.closeRequests();
       if (requests !== this.handledCloseRequests) {
         this.handledCloseRequests = requests;
-        this.finish();
+        if (!this.hasSubmitted && this.loaded()) {
+          this.confirmingExit.set(true);
+        }
       }
     });
   }
@@ -147,10 +154,14 @@ export class LogicPlay {
       return;
     }
     if (this.unansweredCount() > 0) {
-      this.confirmingFinish.set(true);
+      this.goTo(this.nextUnansweredIndex());
       return;
     }
     this.submit();
+  }
+
+  protected quit(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   protected submit(): void {
@@ -159,7 +170,7 @@ export class LogicPlay {
     }
     this.hasSubmitted = true;
     this.submitting.set(true);
-    this.confirmingFinish.set(false);
+    this.confirmingExit.set(false);
     this.commitTime();
     const payload = this.items().map((_, index) => ({
       index,
@@ -244,11 +255,11 @@ export class LogicPlay {
       if (this.sequence()?.hintOpen()) {
         this.sequence()?.close(true);
       } else {
-        this.confirmingFinish.set(false);
+        this.confirmingExit.set(false);
       }
       return;
     }
-    if (this.confirmingFinish()) {
+    if (this.confirmingExit()) {
       return;
     }
     if (event.key === 'h' || event.key === 'H') {

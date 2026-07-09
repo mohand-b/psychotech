@@ -19,6 +19,7 @@ import {
   DiscriminationTrial,
   DiscriminationTrialAnswerDto,
   SessionDto,
+  SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
 import { ArrowLeft, ArrowRight } from 'lucide-angular';
@@ -28,6 +29,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
@@ -35,7 +37,7 @@ const SEQUENCE_SIZE = 28;
 @Component({
   selector: 'app-discrimination-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ElementSequence, Icon],
+  imports: [Button, ElementSequence, ExitConfirm, Icon],
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -59,7 +61,10 @@ export class DiscriminationPlay {
   protected readonly loaded = signal(false);
   protected readonly currentIndex = signal(0);
   protected readonly submitting = signal(false);
-  protected readonly confirmingFinish = signal(false);
+  protected readonly confirmingExit = signal(false);
+  protected readonly sessionMode = computed(
+    () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
   private readonly results = signal<DiscriminationTrialAnswerDto[]>([]);
 
   private trialStartedAtMs = Date.now();
@@ -73,9 +78,6 @@ export class DiscriminationPlay {
     () => this.facade.isExpired() || this.submitting(),
   );
   protected readonly answeredCount = computed(() => this.results().length);
-  protected readonly unansweredCount = computed(
-    () => this.total - this.answeredCount(),
-  );
   protected readonly remainingPercent = computed(
     () => (this.facade.remainingFraction() ?? 0) * 100,
   );
@@ -117,7 +119,7 @@ export class DiscriminationPlay {
       if (requests !== this.handledCloseRequests) {
         this.handledCloseRequests = requests;
         if (!this.hasSubmitted && this.loaded()) {
-          this.confirmingFinish.set(true);
+          this.confirmingExit.set(true);
         }
       }
     });
@@ -133,7 +135,7 @@ export class DiscriminationPlay {
   }
 
   protected answer(value: DiscriminationAnswer): void {
-    if (!this.loaded() || this.locked() || this.confirmingFinish()) {
+    if (!this.loaded() || this.locked() || this.confirmingExit()) {
       return;
     }
     const entry: DiscriminationTrialAnswerDto = {
@@ -151,8 +153,8 @@ export class DiscriminationPlay {
     }
   }
 
-  protected confirmFinish(): void {
-    this.submitAll();
+  protected quit(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -160,10 +162,10 @@ export class DiscriminationPlay {
       return;
     }
     if (event.key === 'Escape') {
-      this.confirmingFinish.set(false);
+      this.confirmingExit.set(false);
       return;
     }
-    if (this.confirmingFinish()) {
+    if (this.confirmingExit()) {
       return;
     }
     if (event.key === 'ArrowLeft') {
@@ -229,7 +231,7 @@ export class DiscriminationPlay {
     }
     this.hasSubmitted = true;
     this.submitting.set(true);
-    this.confirmingFinish.set(false);
+    this.confirmingExit.set(false);
     const recorded = this.results();
     const answers = [...recorded];
     for (let index = recorded.length; index < this.total; index += 1) {

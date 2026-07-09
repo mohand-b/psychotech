@@ -49,32 +49,14 @@
       }
 
       @if (confirmingExit()) {
-        <div
-          class="react__confirm"
-          role="alertdialog"
-          aria-label="Confirmation de sortie"
-        >
-          <p class="react__confirm-text">
-            Quitter l'épreuve ? Votre session est conservée : à la reprise,
-            l'épreuve redémarre du début.
-          </p>
-          <div class="react__confirm-actions">
-            <ui-button
-              color="neutral"
-              appearance="outlined"
-              (click)="confirmingExit.set(false)"
-            >
-              Continuer
-            </ui-button>
-            <ui-button
-              color="reactivity"
-              [loading]="leaving()"
-              (click)="confirmExit()"
-            >
-              Quitter
-            </ui-button>
-          </div>
-        </div>
+        <app-exit-confirm
+          class="react__exit"
+          [mode]="sessionMode()"
+          color="reactivity"
+          [leaving]="leaving()"
+          (continueRequested)="confirmingExit.set(false)"
+          (quitRequested)="confirmExit()"
+        />
       }
 
       @if (transitionCard(); as card) {

@@ -345,33 +345,10 @@
   color: var(--label);
 }
 
-.memo__confirm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+.memo__exit {
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 24px;
-}
-
-.memo__confirm-text {
-  margin: 0;
-  font: 400 14px/20px var(--font-ui);
-  color: var(--ink);
-  text-align: center;
-}
-
-.memo__confirm-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
 }
 
 @media (max-width: 767px) {
