@@ -29,8 +29,8 @@ const DENSE_TAIL_RATIO = 2 / 3;
 const DENSE_DX_FACTOR = 0.6;
 const MAX_SEGMENT_DX = 240;
 
-const SIMPLE_JOG_MIN = 90;
-const SIMPLE_JOG_SPAN = 50;
+const SIMPLE_JOG_MIN = 80;
+const SIMPLE_JOG_SPAN = 70;
 const SIMPLE_EDGE_CLEARANCE = 60;
 
 const SERPENTINE_LANE_BOTTOM_MIN = 495;
@@ -91,6 +91,21 @@ function courseEndX(): number {
   return MOTRICITY_CANVAS_WIDTH - MARGIN_X;
 }
 
+function simpleJogTarget(
+  rng: SeededRng,
+  fromY: number,
+  yMin: number,
+  yMax: number,
+): number {
+  const magnitude = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
+  const up = rng.next() < 0.5;
+  const preferred = up ? fromY - magnitude : fromY + magnitude;
+  if (preferred >= yMin && preferred <= yMax) {
+    return preferred;
+  }
+  return up ? fromY + magnitude : fromY - magnitude;
+}
+
 function buildCenterlineSimple(
   rng: SeededRng,
   startWidth: number,
@@ -99,24 +114,16 @@ function buildCenterlineSimple(
   const endX = courseEndX();
   const yMin = MARGIN_TOP + SIMPLE_EDGE_CLEARANCE;
   const yMax = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - SIMPLE_EDGE_CLEARANCE;
-  const startY = 280 + rng.next() * 140;
-  const firstUp = rng.next() < 0.5;
+  const startY = 240 + rng.next() * 220;
 
-  const requestedDy1 = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
-  const y1 = firstUp
-    ? Math.max(yMin, startY - requestedDy1)
-    : Math.min(yMax, startY + requestedDy1);
+  const y1 = simpleJogTarget(rng, startY, yMin, yMax);
   const dy1 = Math.abs(startY - y1);
-
-  const requestedDy2 = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
-  const y2 = firstUp
-    ? Math.min(yMax, y1 + requestedDy2)
-    : Math.max(yMin, y1 - requestedDy2);
+  const y2 = simpleJogTarget(rng, y1, yMin, yMax);
   const dy2 = Math.abs(y1 - y2);
 
   const straightBudget = endX - startX - dy1 - dy2;
-  const firstShare = 0.28 + rng.next() * 0.14;
-  const secondShare = 0.28 + rng.next() * 0.14;
+  const firstShare = 0.22 + rng.next() * 0.23;
+  const secondShare = 0.22 + rng.next() * 0.23;
   const run1 = straightBudget * firstShare;
   const run2 = straightBudget * secondShare;
 
@@ -257,6 +264,13 @@ function buildCenterlineSerpentine(
   return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
 }
 
+function mirrorVertically(points: MotricityPoint[]): MotricityPoint[] {
+  return points.map((point) => ({
+    x: point.x,
+    y: MOTRICITY_CANVAS_HEIGHT - point.y,
+  }));
+}
+
 function recenterVertically(
   points: MotricityPoint[],
   startWidth: number,
@@ -329,14 +343,15 @@ function buildCenterline(
   if (index === 0) {
     return buildCenterlineSimple(rng, startWidth);
   }
-  if (index === 1) {
-    const segmentCount = rng.nextInt(
-      ZIGZAG_SEGMENT_RANGE[0],
-      ZIGZAG_SEGMENT_RANGE[1],
-    );
-    return buildCenterlineZigzag(rng, segmentCount, startWidth);
-  }
-  return buildCenterlineSerpentine(rng, startWidth);
+  const points =
+    index === 1
+      ? buildCenterlineZigzag(
+          rng,
+          rng.nextInt(ZIGZAG_SEGMENT_RANGE[0], ZIGZAG_SEGMENT_RANGE[1]),
+          startWidth,
+        )
+      : buildCenterlineSerpentine(rng, startWidth);
+  return rng.next() < 0.5 ? mirrorVertically(points) : points;
 }
 
 function buildCourse(seed: string, index: number): MotricityCourse {
