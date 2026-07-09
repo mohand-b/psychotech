@@ -8,7 +8,11 @@ import {
   SessionMode,
   SessionStatus,
 } from '../enums';
-import { AxisMetrics, MotorSkillsCourseRecap } from '../domain';
+import {
+  AxisMetrics,
+  MotorSkillsCourseRecap,
+  MotorSkillsMetrics,
+} from '../domain';
 import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
 import { BadgeDto } from './badge';
 
@@ -93,10 +97,7 @@ export interface MotricityCourseTrajectoryDto {
 
 export type MotricityCourseResultDto = MotorSkillsCourseRecap;
 
-export interface MotricityRawResultDto {
-  axis: AxisType.MOTOR_SKILLS;
-  courses: MotricityCourseResultDto[];
-}
+export type MotricityRawResultDto = MotorSkillsMetrics;
 
 export interface DiscriminationRawResultDto {
   axis: AxisType.VISUAL_DISCRIMINATION;
@@ -160,11 +161,17 @@ export interface TargetedReactivityResultDto
   waitPresses: ReactivityWaitPressDto[];
 }
 
+export interface TargetedMotricityResultDto extends TargetedAxisResultBaseDto {
+  axis: AxisType.MOTOR_SKILLS;
+  metrics: MotorSkillsMetrics;
+}
+
 export type TargetedAxisResultDto =
   | TargetedLogicResultDto
   | TargetedMemoryResultDto
   | TargetedDiscriminationResultDto
-  | TargetedReactivityResultDto;
+  | TargetedReactivityResultDto
+  | TargetedMotricityResultDto;
 
 export interface RecommendationDto {
   axis: AxisType;
