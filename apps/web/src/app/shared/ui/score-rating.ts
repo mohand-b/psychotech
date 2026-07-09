@@ -7,6 +7,13 @@ export const VERDICT_LABELS: Record<ScoreBand, string> = {
   [ScoreBand.INSUFFICIENT]: 'Défavorable',
 };
 
+export const BAND_COLOR_VARS: Record<ScoreBand, string> = {
+  [ScoreBand.EXCELLENT]: 'var(--rating-good)',
+  [ScoreBand.ACCEPTABLE]: 'var(--rating-ok)',
+  [ScoreBand.FRAGILE]: 'var(--rating-weak)',
+  [ScoreBand.INSUFFICIENT]: 'var(--rating-bad)',
+};
+
 export interface ScoreRating {
   band: ScoreBand;
   colorVar: string;

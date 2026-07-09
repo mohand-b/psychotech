@@ -1,0 +1,89 @@
+.sessions {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4.5rem;
+}
+
+.sessions__filters {
+  flex-wrap: wrap;
+}
+
+.sessions__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-button);
+  background: var(--card);
+  color: var(--text-secondary);
+  font: 600 13px/18px var(--font-ui);
+  cursor: pointer;
+}
+
+.sessions__filter:hover {
+  border-color: var(--border-hover);
+  color: var(--ink);
+}
+
+.sessions__filter--active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--card);
+}
+
+.sessions__filter-short {
+  display: none;
+}
+
+.sessions__card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.sessions__card > * + * {
+  border-top: 1px solid var(--divider-soft);
+  display: block;
+}
+
+.sessions__card app-session-history-row {
+  display: block;
+}
+
+.sessions__empty {
+  padding: 18px 24px;
+}
+
+@media (max-width: 767px) {
+  .sessions {
+    padding: 1.25rem 1rem 4.5rem;
+    gap: 1rem;
+  }
+
+  .sessions__filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    scrollbar-width: none;
+  }
+
+  .sessions__filter {
+    flex-shrink: 0;
+  }
+
+  .sessions__filter-label {
+    display: none;
+  }
+
+  .sessions__filter-short {
+    display: inline;
+  }
+
+  .sessions__empty {
+    padding: 16px;
+  }
+}

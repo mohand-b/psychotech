@@ -1,14 +1,17 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   AxisType,
   CompleteTargetedSessionDto,
+  CurrentSessionDto,
   SessionDto,
+  SessionHistoryPageDto,
   StartSessionDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
+import { SessionHistoryQuery } from './session-history.filter';
 
 @Injectable({ providedIn: 'root' })
 export class SessionsApi {
@@ -40,6 +43,28 @@ export class SessionsApi {
   ): Observable<TargetedAxisResultDto> {
     return this.http.get<TargetedAxisResultDto>(
       `${this.baseUrl}/sessions/${sessionId}/axes/${axis}/results`,
+    );
+  }
+
+  history(query: SessionHistoryQuery): Observable<SessionHistoryPageDto> {
+    let params = new HttpParams();
+    if (query.mode) {
+      params = params.set('mode', query.mode);
+    }
+    if (query.axis) {
+      params = params.set('axis', query.axis);
+    }
+    if (query.cursor) {
+      params = params.set('cursor', query.cursor);
+    }
+    return this.http.get<SessionHistoryPageDto>(`${this.baseUrl}/sessions`, {
+      params,
+    });
+  }
+
+  current(): Observable<CurrentSessionDto | null> {
+    return this.http.get<CurrentSessionDto | null>(
+      `${this.baseUrl}/sessions/current`,
     );
   }
 

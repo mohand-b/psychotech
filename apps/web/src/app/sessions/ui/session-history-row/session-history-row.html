@@ -1,0 +1,66 @@
+<div class="row" [class.row--abandoned]="view().abandoned">
+  <span class="row__chip">
+    @if (view().axis; as axis) {
+      <ui-axis-chip [axis]="axis" />
+    } @else {
+      <span class="row__simulation-chip">
+        <ui-icon [img]="simulationIcon" />
+        <span>Simulation</span>
+      </span>
+    }
+  </span>
+  <span class="row__heading flex flex-col">
+    <span class="row__title">{{ view().title }}</span>
+    <span class="row__subtitle">{{ view().subtitle }}</span>
+  </span>
+  <span class="row__date t-mono">{{ view().dateLabel }}</span>
+  <span class="row__duration t-mono">{{ view().durationLabel }}</span>
+  <span class="row__score flex items-center gap-2">
+    @if (view().scoreLabel; as score) {
+      <span class="row__dot" [style.background]="view().dotVar"></span>
+      <span class="row__score-value t-mono">{{ score }}</span>
+    } @else {
+      <span class="row__placeholder t-mono">-</span>
+    }
+  </span>
+  <span class="row__detail">
+    @if (view().detailLink; as link) {
+      <a class="row__link" [routerLink]="link">
+        Voir le détail
+        <ui-icon [img]="arrowIcon" [size]="13" />
+      </a>
+    } @else {
+      <span class="row__no-result">Sans résultat</span>
+    }
+  </span>
+</div>
+<div class="rowm" [class.row--abandoned]="view().abandoned">
+  @if (axisPresentation(); as presentation) {
+    <span class="rowm__icon" [style.color]="presentation.plainVar">
+      <ui-icon [img]="presentation.icon" [size]="18" />
+    </span>
+  } @else {
+    <span class="rowm__icon rowm__icon--simulation">
+      <ui-icon [img]="simulationIcon" [size]="18" />
+    </span>
+  }
+  <span class="rowm__text flex flex-col">
+    <span class="rowm__title">{{ view().mobileTitle }}</span>
+    <span class="rowm__meta t-mono">
+      {{ view().dateLabel }} · {{ view().durationLabel }}
+    </span>
+  </span>
+  <span class="rowm__end flex items-center gap-2">
+    @if (view().scoreLabel; as score) {
+      <span class="row__dot" [style.background]="view().dotVar"></span>
+      <span class="rowm__score t-mono">{{ score }}</span>
+    } @else {
+      <span class="row__no-result">Sans résultat</span>
+    }
+    @if (view().detailLink; as link) {
+      <a class="rowm__chevron" [routerLink]="link">
+        <ui-icon [img]="chevronIcon" [size]="16" />
+      </a>
+    }
+  </span>
+</div>

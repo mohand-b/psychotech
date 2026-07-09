@@ -1,4 +1,50 @@
-<section class="flex flex-col gap-2 p-6">
+<section class="sessions flex flex-col gap-6">
   <h1 class="t-page-title">Mes sessions</h1>
-  <p class="t-support">Retrouvez l'historique de vos sessions. Cette section arrive prochainement.</p>
+  <div class="sessions__filters flex items-center gap-2">
+    @for (chip of filterChips; track chip.value) {
+      <button
+        type="button"
+        class="sessions__filter"
+        [class.sessions__filter--active]="filter() === chip.value"
+        (click)="selectFilter(chip.value)"
+      >
+        @if (chip.icon; as icon) {
+          <ui-icon [img]="icon" [size]="13" [style.color]="chip.iconVar" />
+        }
+        <span class="sessions__filter-label">{{ chip.label }}</span>
+        <span class="sessions__filter-short">{{ chip.shortLabel }}</span>
+      </button>
+    }
+  </div>
+  <div class="sessions__groups flex flex-col gap-6">
+    @for (group of groups(); track group.label) {
+      <div class="flex flex-col gap-2.5">
+        <span class="t-label">{{ group.label }}</span>
+        <div class="sessions__card">
+          @for (row of group.rows; track row.id) {
+            <app-session-history-row [view]="row" />
+          }
+        </div>
+      </div>
+    } @empty {
+      @if (!loading()) {
+        <div class="sessions__card sessions__empty t-support">
+          Aucune session pour ce filtre.
+        </div>
+      }
+    }
+  </div>
+  @if (nextCursor()) {
+    <div class="flex justify-center">
+      <ui-button
+        appearance="outlined"
+        color="neutral"
+        [iconEnd]="chevronDownIcon"
+        [loading]="loadingMore()"
+        (click)="loadMore()"
+      >
+        Charger plus
+      </ui-button>
+    </div>
+  }
 </section>
