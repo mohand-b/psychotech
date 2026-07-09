@@ -77,6 +77,30 @@ export interface DiscriminationTrialAnswerDto {
   timeMs: number;
 }
 
+export interface MotricitySampleDto {
+  t: number;
+  x: number;
+  y: number;
+}
+
+export interface MotricityCourseTrajectoryDto {
+  index: number;
+  samples: MotricitySampleDto[];
+}
+
+export interface MotricityCourseResultDto {
+  index: number;
+  minorErrors: number;
+  majorErrors: number;
+  progressionPct: number;
+  tReelMs: number;
+}
+
+export interface MotricityRawResultDto {
+  axis: AxisType.MOTOR_SKILLS;
+  courses: MotricityCourseResultDto[];
+}
+
 export interface DiscriminationRawResultDto {
   axis: AxisType.VISUAL_DISCRIMINATION;
   trials: DiscriminationTrialAnswerDto[];
@@ -86,7 +110,8 @@ export type AxisRawResultDto =
   | LogicRawResultDto
   | MemoryRawResultDto
   | DiscriminationRawResultDto
-  | ReactivityRawResultDto;
+  | ReactivityRawResultDto
+  | MotricityRawResultDto;
 
 export interface CompleteTargetedSessionDto {
   axis: AxisType;
@@ -96,6 +121,7 @@ export interface CompleteTargetedSessionDto {
   stimuli?: ReactivityStimulusAnswerDto[];
   waitPresses?: ReactivityWaitPressDto[];
   playedMs?: number;
+  courses?: MotricityCourseTrajectoryDto[];
 }
 
 interface TargetedAxisResultBaseDto {
