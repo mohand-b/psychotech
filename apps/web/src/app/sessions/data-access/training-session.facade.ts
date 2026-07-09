@@ -30,6 +30,7 @@ import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TimerSeverity } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
+import { countdownFrom } from './session-countdown';
 import { SessionsApi } from './sessions.api';
 import { TrainingSessionStore } from './training-session.store';
 
@@ -133,8 +134,11 @@ export class TrainingSessionFacade {
     if (!training || training.timer.model !== AxisTimerModel.GLOBAL) {
       return null;
     }
-    const elapsedSec = (this.store.nowMs() - Date.parse(session.startedAt)) / 1000;
-    return Math.max(0, Math.ceil(training.timer.durationSec - elapsedSec));
+    return countdownFrom(
+      this.store.anchorMs(),
+      this.store.nowMs(),
+      training.timer.durationSec,
+    ).remainingSec;
   });
 
   readonly remainingFraction: Signal<number | null> = computed(() => {
@@ -147,8 +151,8 @@ export class TrainingSessionFacade {
     if (!session || duration === null || session.status !== SessionStatus.IN_PROGRESS) {
       return null;
     }
-    const elapsedSec = (this.store.nowMs() - Date.parse(session.startedAt)) / 1000;
-    return Math.min(1, Math.max(0, 1 - elapsedSec / duration));
+    return countdownFrom(this.store.anchorMs(), this.store.nowMs(), duration)
+      .fraction;
   });
 
   private readonly perExerciseRemaining = signal<number | null>(null);
@@ -299,63 +303,6 @@ export class TrainingSessionFacade {
     return this.api
       .completeTargeted(session.id, axis, { axis, stimuli, waitPresses })
       .pipe(tap((completed) => this.install(completed)));
-  }
-
-  abandonSession(sessionId: string): Observable<SessionDto> {
-    return this.api
-      .abandon(sessionId)
-      .pipe(tap((session) => this.install(session)));
-  }
-
-  memoryResultsFor(sessionId: string): MemorySequenceAnswerDto[] {
-    return this.progressFor<MemorySequenceAnswerDto>('memory', sessionId);
-  }
-
-  recordMemoryResult(sessionId: string, answer: MemorySequenceAnswerDto): void {
-    this.recordProgress('memory', sessionId, answer);
-  }
-
-  clearMemoryResults(sessionId: string): void {
-    this.clearProgress('memory', sessionId);
-  }
-
-  discriminationResultsFor(sessionId: string): DiscriminationTrialAnswerDto[] {
-    return this.progressFor<DiscriminationTrialAnswerDto>(
-      'discrimination',
-      sessionId,
-    );
-  }
-
-  recordDiscriminationResult(
-    sessionId: string,
-    answer: DiscriminationTrialAnswerDto,
-  ): void {
-    this.recordProgress('discrimination', sessionId, answer);
-  }
-
-  clearDiscriminationResults(sessionId: string): void {
-    this.clearProgress('discrimination', sessionId);
-  }
-
-  private progressFor<T>(kind: string, sessionId: string): T[] {
-    const stored = localStorage.getItem(this.progressKey(kind, sessionId));
-    return stored ? (JSON.parse(stored) as T[]) : [];
-  }
-
-  private recordProgress<T>(kind: string, sessionId: string, entry: T): void {
-    const results = [...this.progressFor<T>(kind, sessionId), entry];
-    localStorage.setItem(
-      this.progressKey(kind, sessionId),
-      JSON.stringify(results),
-    );
-  }
-
-  private clearProgress(kind: string, sessionId: string): void {
-    localStorage.removeItem(this.progressKey(kind, sessionId));
-  }
-
-  private progressKey(kind: string, sessionId: string): string {
-    return `psychotech.${kind}-progress.${sessionId}`;
   }
 
   clear(): void {

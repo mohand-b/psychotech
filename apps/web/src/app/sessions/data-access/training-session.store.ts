@@ -9,11 +9,13 @@ import {
 interface TrainingSessionState {
   session: SessionDto | null;
   nowMs: number;
+  anchorMs: number;
 }
 
 const initialState: TrainingSessionState = {
   session: null,
   nowMs: 0,
+  anchorMs: 0,
 };
 
 export const TrainingSessionStore = signalStore(
@@ -21,7 +23,8 @@ export const TrainingSessionStore = signalStore(
   withState(initialState),
   withMethods((store) => ({
     setSession(session: SessionDto | null): void {
-      patchState(store, { session, nowMs: Date.now() });
+      const nowMs = Date.now();
+      patchState(store, { session, nowMs, anchorMs: nowMs });
     },
     tick(nowMs: number): void {
       patchState(store, { nowMs });

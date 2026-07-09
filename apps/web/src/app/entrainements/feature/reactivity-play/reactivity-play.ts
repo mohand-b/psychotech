@@ -54,7 +54,6 @@ const TRANSITION_MS = 3000;
 const STIMULUS_SIZE_PX = 72;
 const ZONE_MARGIN_X_PX = 24;
 const ZONE_MARGIN_Y_PX = 16;
-const RESUME_THRESHOLD_MS = 5000;
 const FEEDBACK_OFFSET_PX = 56;
 
 const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
@@ -189,10 +188,7 @@ export class ReactivityPlay {
     }
     this.leaving.set(true);
     this.stopTicker();
-    this.facade.abandonSession(this.sessionId).subscribe({
-      next: () => this.router.navigate(['/entrainements']),
-      error: () => this.router.navigate(['/entrainements']),
-    });
+    this.router.navigate(['/entrainements']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -223,24 +219,11 @@ export class ReactivityPlay {
       this.router.navigate(['/entrainements']);
       return;
     }
-    if (Date.now() - Date.parse(session.startedAt) > RESUME_THRESHOLD_MS) {
-      this.facade.abandonSession(this.sessionId).subscribe({
-        next: () => this.redirectInterrupted(),
-        error: () => this.redirectInterrupted(),
-      });
-      return;
-    }
     this.stimuli = this.facade.reactivityStimuli();
     this.nextTransitionBoundary = this.phaseMs;
     this.epochMs = performance.now();
     this.loaded.set(true);
     this.startTicker();
-  }
-
-  private redirectInterrupted(): void {
-    this.router.navigate(['/entrainements/cible', AxisType.REACTIVITY], {
-      queryParams: { interrompu: 1 },
-    });
   }
 
   private effectiveNow(): number {

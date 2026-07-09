@@ -142,7 +142,6 @@ export class DiscriminationPlay {
       timeMs: Date.now() - this.trialStartedAtMs,
     };
     this.results.update((results) => [...results, entry]);
-    this.facade.recordDiscriminationResult(this.sessionId, entry);
     const nextIndex = this.currentIndex() + 1;
     if (nextIndex < this.total) {
       this.currentIndex.set(nextIndex);
@@ -184,13 +183,8 @@ export class DiscriminationPlay {
       return;
     }
     this.loaded.set(true);
-    const recorded = this.facade.discriminationResultsFor(this.sessionId);
-    this.results.set(recorded);
-    if (recorded.length >= this.total) {
-      this.submitAll();
-      return;
-    }
-    this.currentIndex.set(recorded.length);
+    this.results.set([]);
+    this.currentIndex.set(0);
     this.trialStartedAtMs = Date.now();
   }
 
@@ -243,7 +237,6 @@ export class DiscriminationPlay {
     }
     this.facade.completeTargetedDiscrimination(answers).subscribe({
       next: () => {
-        this.facade.clearDiscriminationResults(this.sessionId);
         this.router.navigate([
           '/entrainements/cible',
           AxisType.VISUAL_DISCRIMINATION,

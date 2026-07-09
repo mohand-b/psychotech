@@ -219,13 +219,8 @@ export class MemoryPlay {
       return;
     }
     this.loaded.set(true);
-    const recorded = this.facade.memoryResultsFor(this.sessionId);
-    this.results.set(recorded);
-    if (recorded.length >= this.total) {
-      this.submitAll();
-      return;
-    }
-    this.beginSequence(recorded.length);
+    this.results.set([]);
+    this.beginSequence(0);
   }
 
   private beginSequence(index: number): void {
@@ -304,7 +299,6 @@ export class MemoryPlay {
       timedOut,
     };
     this.results.update((results) => [...results, answer]);
-    this.facade.recordMemoryResult(this.sessionId, answer);
     const nextIndex = this.currentIndex() + 1;
     if (nextIndex < this.total) {
       this.beginSequence(nextIndex);
@@ -322,7 +316,6 @@ export class MemoryPlay {
     this.confirmingFinish.set(false);
     this.facade.completeTargetedMemory(this.results()).subscribe({
       next: () => {
-        this.facade.clearMemoryResults(this.sessionId);
         this.router.navigate([
           '/entrainements/cible',
           AxisType.MEMORY,

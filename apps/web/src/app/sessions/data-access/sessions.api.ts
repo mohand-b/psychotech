@@ -68,10 +68,4 @@ export class SessionsApi {
     );
   }
 
-  abandon(sessionId: string): Observable<SessionDto> {
-    return this.http.post<SessionDto>(
-      `${this.baseUrl}/sessions/${sessionId}/abandon`,
-      {},
-    );
-  }
 }

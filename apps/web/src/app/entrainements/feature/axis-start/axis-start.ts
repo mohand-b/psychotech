@@ -37,8 +37,6 @@ export class AxisStart {
   ) as AxisType;
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly helpOptionAvailable = this.axis === AxisType.LOGIC;
-  protected readonly interrupted =
-    this.route.snapshot.queryParamMap.get('interrompu') === '1';
 
   private readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
