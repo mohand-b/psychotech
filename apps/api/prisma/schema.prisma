@@ -161,6 +161,7 @@ model Session {
   status           SessionStatus   @default(IN_PROGRESS)
   seed             String
   helpEnabled      Boolean         @default(false)
+  trainingOptions  String[]        @default([])
   energyCost       Int
   currentAxisIndex Int             @default(0)
   globalScore      Float?

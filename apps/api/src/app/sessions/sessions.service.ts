@@ -44,6 +44,8 @@ import {
   scoreMemorySession,
   scoreMotricitySession,
   scoreReactivitySession,
+  TrainingOptionId,
+  trainingOptionForAxis,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
@@ -81,6 +83,22 @@ export class SessionsService {
   async start(userId: string, request: StartSessionRequest): Promise<SessionDto> {
     const axes = resolveSessionAxes(request.mode, request.axis);
     const cost = energyCost(request.mode);
+    const enabledOptions = request.options?.enabledOptions ?? [];
+    if (enabledOptions.length > 0) {
+      if (request.mode !== SessionMode.TARGETED) {
+        throw new BadRequestException(
+          'Training options are only available for targeted sessions',
+        );
+      }
+      const axisOption = request.axis
+        ? trainingOptionForAxis(request.axis)
+        : null;
+      if (!axisOption || enabledOptions.some((id) => id !== axisOption.id)) {
+        throw new BadRequestException(
+          'The requested training option does not belong to this axis',
+        );
+      }
+    }
     const config = await this.repository.findSectorConfig(request.sector);
     if (!config || !config.isActive) {
       throw new BadRequestException('The requested sector is not available');
@@ -90,10 +108,8 @@ export class SessionsService {
       mode: request.mode,
       sector: request.sector,
       seed: randomUUID(),
-      helpEnabled:
-        request.mode === SessionMode.TARGETED
-          ? (request.options?.helpEnabled ?? false)
-          : false,
+      helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
+      trainingOptions: enabledOptions,
       energyCost: cost,
       sectorThreshold: config.admissibilityThreshold,
       axes,

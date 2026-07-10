@@ -17,6 +17,7 @@ import {
   SessionMode,
   SessionResultDto,
   SessionStatus,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { activePlayDurationSec } from './sessions.logic';
@@ -37,7 +38,9 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     sector: mapEnumValue(Sector, session.sector),
     status: mapEnumValue(SessionStatus, session.status),
     seed: session.seed,
-    options: { helpEnabled: session.helpEnabled },
+    options: {
+      enabledOptions: session.trainingOptions as TrainingOptionId[],
+    },
     energyCost: session.energyCost,
     currentAxisIndex: session.currentAxisIndex,
     globalScore: session.globalScore,

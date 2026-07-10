@@ -1,4 +1,4 @@
-import { SessionStatus as DbSessionStatus } from '@prisma/client';
+﻿import { SessionStatus as DbSessionStatus } from '@prisma/client';
 import { AxisType, Sector, SessionMode } from '@psychotech/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
@@ -28,6 +28,7 @@ const createParams = {
   sector: Sector.RAILWAY,
   seed: 'seed',
   helpEnabled: false,
+  trainingOptions: [],
   energyCost: 1,
   sectorThreshold: 70,
   axes: [AxisType.LOGIC],

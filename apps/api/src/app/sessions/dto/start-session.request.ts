@@ -4,13 +4,15 @@ import {
   SessionMode,
   StartSessionDto,
   TargetedSessionOptionsDto,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, ValidateNested } from 'class-validator';
 
 export class TargetedSessionOptionsRequest implements TargetedSessionOptionsDto {
-  @IsBoolean()
-  helpEnabled!: boolean;
+  @IsArray()
+  @IsEnum(TrainingOptionId, { each: true })
+  enabledOptions!: TrainingOptionId[];
 }
 
 export class StartSessionRequest implements StartSessionDto {

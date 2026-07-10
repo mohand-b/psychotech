@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   NotFoundException,
@@ -11,6 +11,7 @@ import {
   ScoreBand,
   Sector,
   SessionMode,
+  TrainingOptionId,
   generateMotricityCourses,
   scoreMotricitySession,
 } from '@psychotech/shared';
@@ -32,6 +33,7 @@ function buildSession(
     status: 'IN_PROGRESS',
     seed: 'seed',
     helpEnabled: false,
+    trainingOptions: [],
     energyCost: 5,
     currentAxisIndex: 0,
     globalScore: null,
@@ -125,7 +127,7 @@ describe('SessionsService.start', () => {
     );
   });
 
-  it('persists the help option for a targeted session', async () => {
+  it('persists the enabled training options for a targeted session', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
     repository.createSession.mockResolvedValue(
       buildSession({ mode: 'TARGETED', energyCost: 1, helpEnabled: true }),
@@ -135,27 +137,44 @@ describe('SessionsService.start', () => {
       mode: SessionMode.TARGETED,
       sector: Sector.RAILWAY,
       axis: AxisType.LOGIC,
-      options: { helpEnabled: true },
+      options: { enabledOptions: [TrainingOptionId.LOGIC_HELP] },
     });
 
     expect(repository.createSession).toHaveBeenCalledWith(
-      expect.objectContaining({ helpEnabled: true }),
+      expect.objectContaining({
+        helpEnabled: true,
+        trainingOptions: [TrainingOptionId.LOGIC_HELP],
+      }),
     );
   });
 
-  it('ignores the help option outside targeted mode', async () => {
+  it('rejects a training option outside targeted mode', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
-    repository.createSession.mockResolvedValue(buildSession());
 
-    await service.start('user-1', {
-      mode: SessionMode.FULL,
-      sector: Sector.RAILWAY,
-      options: { helpEnabled: true },
-    });
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.FULL,
+        sector: Sector.RAILWAY,
+        options: { enabledOptions: [TrainingOptionId.LOGIC_HELP] },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
 
-    expect(repository.createSession).toHaveBeenCalledWith(
-      expect.objectContaining({ helpEnabled: false }),
-    );
+  it('rejects a training option that does not belong to the targeted axis', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.MEMORY,
+        options: {
+          enabledOptions: [TrainingOptionId.REACTIVITY_LIVE_METRICS],
+        },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
   });
 
   it('rejects an inactive sector before creating anything', async () => {
@@ -1124,8 +1143,8 @@ describe('SessionsService.complete', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const unlockedBadge = {
     code: 'VOLUME_FIRST_SIMULATION',
-    name: 'Première simulation',
-    description: 'Terminez votre première simulation complète.',
+    name: 'PremiÃ¨re simulation',
+    description: 'Terminez votre premiÃ¨re simulation complÃ¨te.',
     category: BadgeCategory.VOLUME,
     icon: 'rocket',
   };

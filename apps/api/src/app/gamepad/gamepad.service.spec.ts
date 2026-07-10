@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   NotFoundException,
@@ -17,6 +17,7 @@ function buildSession(overrides: Partial<PairingSession> = {}): PairingSession {
     status: 'IN_PROGRESS',
     seed: 'seed',
     helpEnabled: false,
+    trainingOptions: [],
     energyCost: 1,
     currentAxisIndex: 0,
     globalScore: null,
