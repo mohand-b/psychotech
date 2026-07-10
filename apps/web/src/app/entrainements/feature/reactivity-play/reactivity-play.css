@@ -231,7 +231,7 @@
   }
 
   .react__zone {
-    margin-bottom: 152px;
+    margin-bottom: calc(152px + var(--safe-bottom));
   }
 
   .react__touch {
@@ -242,7 +242,8 @@
     gap: 10px;
     background: var(--card);
     border-top: 1px solid var(--border);
-    padding: 12px 16px 16px;
+    padding: 12px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
+      calc(16px + var(--safe-left));
     z-index: 30;
   }
 
