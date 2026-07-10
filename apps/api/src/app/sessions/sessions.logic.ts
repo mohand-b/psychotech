@@ -29,8 +29,7 @@ export function targetedContentFullyPlayed(
     );
     return (
       activeMs >= training.timer.durationSec * 1000 ||
-      (rawResult.items.length === training.exerciseCount &&
-        rawResult.items.every((item) => item.answerIndex !== null))
+      rawResult.items.length === training.exerciseCount
     );
   }
   if (rawResult.axis === AxisType.MEMORY) {
