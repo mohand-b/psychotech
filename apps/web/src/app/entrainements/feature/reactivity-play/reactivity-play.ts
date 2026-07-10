@@ -361,23 +361,21 @@ export class ReactivityPlay {
       REACTIVITY_COMMAND_BY_TYPE[active.stimulus.type] === command;
     this.activeStimulus.set(null);
     this.state.set('WAITING');
-    if (correct) {
-      if (this.liveMetricsEnabled()) {
-        this.showFeedback({
-          kind: 'tr',
-          text: `${trMs} ms`,
-          x: active.x,
-          y: active.y + FEEDBACK_OFFSET_PX,
-        });
-      }
-      return;
-    }
-    this.showFeedback({
-      kind: 'wrong',
-      text: 'Mauvaise commande',
-      x: active.x,
-      y: active.y + FEEDBACK_OFFSET_PX,
-    });
+    this.showFeedback(
+      correct
+        ? {
+            kind: 'tr',
+            text: `${trMs} ms`,
+            x: active.x,
+            y: active.y + FEEDBACK_OFFSET_PX,
+          }
+        : {
+            kind: 'wrong',
+            text: 'Mauvaise commande',
+            x: active.x,
+            y: active.y + FEEDBACK_OFFSET_PX,
+          },
+    );
   }
 
   private recordAnswer(
@@ -389,6 +387,9 @@ export class ReactivityPlay {
   }
 
   private showFeedback(feedback: FugitiveFeedback): void {
+    if (!this.liveMetricsEnabled()) {
+      return;
+    }
     this.clearFeedbackTimer();
     this.feedback.set(feedback);
     this.feedbackTimerId = window.setTimeout(() => {
