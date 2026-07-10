@@ -44,6 +44,7 @@
   gap: 1.25rem;
   width: 100%;
   max-width: 36.5rem;
+  min-width: min-content;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
@@ -78,15 +79,23 @@
 .axis-briefing__card--summary {
   flex-direction: row;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 1.5rem;
+}
+
+.axis-briefing__card--summary .axis-briefing__label {
+  white-space: nowrap;
 }
 
 .axis-briefing__metrics {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 1.5rem;
+}
+
+.axis-briefing__metric {
+  white-space: nowrap;
 }
 
 .axis-briefing__metric-icon--mobile {
@@ -166,6 +175,10 @@
     display: contents;
   }
 
+  .axis-briefing__cards {
+    min-width: 0;
+  }
+
   .axis-briefing__card {
     gap: 0.5rem;
     width: 100%;
@@ -220,6 +233,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
     text-align: center;
+    white-space: normal;
   }
 
   .axis-briefing__metric-value {
