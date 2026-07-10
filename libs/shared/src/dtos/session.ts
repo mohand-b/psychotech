@@ -28,12 +28,6 @@ export interface StartSessionDto {
   options?: TargetedSessionOptionsDto;
 }
 
-export interface SubmitAxisResultDto {
-  axis: AxisType;
-  metrics?: AxisMetrics;
-  skipped?: boolean;
-}
-
 export interface LogicItemAnswerDto {
   index: number;
   answerIndex: number | null;
