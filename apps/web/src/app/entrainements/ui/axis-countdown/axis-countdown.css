@@ -95,13 +95,13 @@
   padding: 0 8px;
   border: none;
   background: transparent;
-  font: 500 14px/20px var(--font-ui);
-  color: var(--text-secondary);
+  font: 500 0.8125rem/1.25rem var(--font-ui);
+  color: var(--axis-text);
   cursor: pointer;
 }
 
 .countdown__skip:hover {
-  color: var(--ink);
+  color: var(--axis-plain);
 }
 
 .countdown__skip:focus-visible {
