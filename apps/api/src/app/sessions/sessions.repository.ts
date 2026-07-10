@@ -10,7 +10,6 @@ import {
   SessionStatus as DbSessionStatus,
 } from '@prisma/client';
 import {
-  AxisMetrics,
   AxisRawResultDto,
   AxisType,
   BadgeDto,
@@ -59,13 +58,15 @@ export interface SectorConfigData {
   weights: SectorWeight[];
 }
 
-export interface AxisResultUpdate {
-  normalizedScore: number | null;
-  band: ScoreBand | null;
-  skipped: boolean;
-  metrics: AxisMetrics | null;
+export interface CompleteFullSessionAxisParams {
+  sessionId: string;
+  axis: AxisType;
+  rawResult: AxisRawResultDto;
+  score: { normalizedScore: number; band: ScoreBand };
+  controlModality: ControlModality | null;
   startedAt: Date;
   completedAt: Date;
+  nextAxisIndex: number;
 }
 
 export interface AxisBestInput {
@@ -205,25 +206,41 @@ export class SessionsRepository {
     };
   }
 
-  async updateAxisResult(
-    sessionId: string,
-    axis: AxisType,
-    update: AxisResultUpdate,
+  async completeFullSessionAxis(
+    params: CompleteFullSessionAxisParams,
   ): Promise<void> {
-    await this.prisma.sessionAxis.update({
-      where: { sessionId_axis: { sessionId, axis: mapEnumValue(DbAxisType, axis) } },
-      data: {
-        normalizedScore: update.normalizedScore,
-        band: update.band ? mapEnumValue(DbScoreBand, update.band) : null,
-        skipped: update.skipped,
-        metrics:
-          update.metrics === null
-            ? Prisma.JsonNull
-            : (update.metrics as unknown as Prisma.InputJsonValue),
-        startedAt: update.startedAt,
-        completedAt: update.completedAt,
-      },
-    });
+    await this.prisma.$transaction([
+      this.prisma.sessionAxis.update({
+        where: {
+          sessionId_axis: {
+            sessionId: params.sessionId,
+            axis: mapEnumValue(DbAxisType, params.axis),
+          },
+        },
+        data: {
+          metrics: params.rawResult as unknown as Prisma.InputJsonValue,
+          skipped: false,
+          normalizedScore: params.score.normalizedScore,
+          band: mapEnumValue(DbScoreBand, params.score.band),
+          startedAt: params.startedAt,
+          completedAt: params.completedAt,
+        },
+      }),
+      this.prisma.session.update({
+        where: { id: params.sessionId },
+        data: {
+          currentAxisIndex: params.nextAxisIndex,
+          ...(params.controlModality
+            ? {
+                controlModality: mapEnumValue(
+                  DbControlModality,
+                  params.controlModality,
+                ),
+              }
+            : {}),
+        },
+      }),
+    ]);
   }
 
   async completeSession(

@@ -56,12 +56,11 @@ import { ScoringService } from '../scoring/scoring.service';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
-import { SubmitAxisResultRequest } from './dto/submit-axis-result.request';
 import {
   SESSION_HISTORY_PAGE_SIZE,
+  axisContentFullyPlayed,
   computeStreakUpdate,
   resolveSessionAxes,
-  targetedContentFullyPlayed,
 } from './sessions.logic';
 import {
   toCurrentSessionDto,
@@ -117,53 +116,7 @@ export class SessionsService {
     return toSessionDto(session);
   }
 
-  async submitAxis(
-    userId: string,
-    sessionId: string,
-    axis: AxisType,
-    request: SubmitAxisResultRequest,
-  ): Promise<SessionDto> {
-    const session = await this.loadInProgressSession(sessionId, userId);
-    const target = session.axisResults.find(
-      (result) => mapEnumValue(AxisType, result.axis) === axis,
-    );
-    if (!target) {
-      throw new BadRequestException('The axis is not part of this session');
-    }
-    if (request.axis !== axis) {
-      throw new BadRequestException('The axis in the body does not match the route');
-    }
-    const now = new Date();
-    if (request.skipped) {
-      await this.repository.updateAxisResult(sessionId, axis, {
-        normalizedScore: null,
-        band: null,
-        skipped: true,
-        metrics: null,
-        startedAt: target.startedAt ?? now,
-        completedAt: now,
-      });
-    } else {
-      if (!request.metrics) {
-        throw new BadRequestException('Metrics are required to score an axis');
-      }
-      if (request.metrics.axis !== axis) {
-        throw new BadRequestException('The metrics axis does not match the route');
-      }
-      const { normalizedScore, band } = this.scoringService.scoreAxis(request.metrics);
-      await this.repository.updateAxisResult(sessionId, axis, {
-        normalizedScore,
-        band,
-        skipped: false,
-        metrics: request.metrics,
-        startedAt: target.startedAt ?? now,
-        completedAt: now,
-      });
-    }
-    return toSessionDto(await this.loadOwnedSession(sessionId, userId));
-  }
-
-  async completeTargeted(
+  async completeAxis(
     userId: string,
     sessionId: string,
     axis: AxisType,
@@ -173,9 +126,13 @@ export class SessionsService {
       throw new BadRequestException('The axis in the body does not match the route');
     }
     const session = await this.loadInProgressSession(sessionId, userId);
-    if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
+    const mode = mapEnumValue(SessionMode, session.mode);
+    if (mode === SessionMode.FULL) {
+      return this.completeFullSessionAxis(userId, session, axis, request);
+    }
+    if (mode !== SessionMode.TARGETED) {
       throw new BadRequestException(
-        'Only a targeted session can be completed with raw answers',
+        'Only a targeted or full session can be completed with raw answers',
       );
     }
     const target = session.axisResults.find(
@@ -184,56 +141,11 @@ export class SessionsService {
     if (!target) {
       throw new BadRequestException('The axis is not part of this session');
     }
-    let rawResult: AxisRawResultDto;
-    let score: { normalizedScore: number; band: ScoreBand };
-    if (axis === AxisType.MOTOR_SKILLS) {
-      const motricity = this.scoreMotricityTrajectories(
-        session.seed,
-        request.courses ?? [],
-        request.controlModality ?? null,
-      );
-      rawResult = motricity.rawResult;
-      score = motricity.score;
-    } else if (
-      axis === AxisType.LOGIC ||
-      axis === AxisType.MEMORY ||
-      axis === AxisType.VISUAL_DISCRIMINATION ||
-      axis === AxisType.REACTIVITY
-    ) {
-      rawResult =
-        axis === AxisType.LOGIC
-          ? this.buildLogicRawResult(request.items ?? [])
-          : axis === AxisType.MEMORY
-            ? this.buildMemoryRawResult(request.sequences ?? [])
-            : axis === AxisType.VISUAL_DISCRIMINATION
-              ? this.buildDiscriminationRawResult(request.trials ?? [])
-              : this.buildReactivityRawResult(
-                  session.seed,
-                  request.stimuli ?? [],
-                  request.waitPresses ?? [],
-                );
-      if (!targetedContentFullyPlayed(rawResult, request.playedMs)) {
-        throw new ConflictException(
-          'The session content is not fully played',
-        );
-      }
-      score =
-        rawResult.axis === AxisType.LOGIC
-          ? this.scoreLogicAnswers(session.seed, rawResult.items)
-          : rawResult.axis === AxisType.MEMORY
-            ? this.scoreMemoryAnswers(session.seed, rawResult.sequences)
-            : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
-              ? this.scoreDiscriminationAnswers(session.seed, rawResult.trials)
-              : this.scoreReactivityAnswers(
-                  session.seed,
-                  (rawResult as ReactivityRawResultDto).stimuli,
-                  (rawResult as ReactivityRawResultDto).waitPresses,
-                );
-    } else {
-      throw new BadRequestException(
-        'Raw answers are not supported for this axis',
-      );
-    }
+    const { rawResult, score } = this.scoreRawAnswers(
+      session.seed,
+      axis,
+      request,
+    );
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -245,6 +157,91 @@ export class SessionsService {
       completedAt: new Date(),
     });
     return toSessionDto(completed);
+  }
+
+  private async completeFullSessionAxis(
+    userId: string,
+    session: SessionWithRelations,
+    axis: AxisType,
+    request: CompleteTargetedSessionRequest,
+  ): Promise<SessionDto> {
+    const orderedAxes = [...session.axisResults].sort(
+      (a, b) => a.order - b.order,
+    );
+    const currentAxis = orderedAxes[session.currentAxisIndex];
+    if (!currentAxis || mapEnumValue(AxisType, currentAxis.axis) !== axis) {
+      throw new ConflictException(
+        'The axis is not the current axis of the simulation',
+      );
+    }
+    const { rawResult, score } = this.scoreRawAnswers(
+      session.seed,
+      axis,
+      request,
+    );
+    const previousAxis = orderedAxes[session.currentAxisIndex - 1];
+    await this.repository.completeFullSessionAxis({
+      sessionId: session.id,
+      axis,
+      rawResult,
+      score,
+      controlModality: request.controlModality ?? null,
+      startedAt:
+        currentAxis.startedAt ?? previousAxis?.completedAt ?? session.startedAt,
+      completedAt: new Date(),
+      nextAxisIndex: session.currentAxisIndex + 1,
+    });
+    const updated = await this.loadOwnedSession(session.id, userId);
+    if (updated.axisResults.every((result) => result.completedAt !== null)) {
+      await this.complete(userId, session.id);
+      return toSessionDto(await this.loadOwnedSession(session.id, userId));
+    }
+    return toSessionDto(updated);
+  }
+
+  private scoreRawAnswers(
+    seed: string,
+    axis: AxisType,
+    request: CompleteTargetedSessionRequest,
+  ): {
+    rawResult: AxisRawResultDto;
+    score: { normalizedScore: number; band: ScoreBand };
+  } {
+    if (axis === AxisType.MOTOR_SKILLS) {
+      return this.scoreMotricityTrajectories(
+        seed,
+        request.courses ?? [],
+        request.controlModality ?? null,
+      );
+    }
+    const rawResult =
+      axis === AxisType.LOGIC
+        ? this.buildLogicRawResult(request.items ?? [])
+        : axis === AxisType.MEMORY
+          ? this.buildMemoryRawResult(request.sequences ?? [])
+          : axis === AxisType.VISUAL_DISCRIMINATION
+            ? this.buildDiscriminationRawResult(request.trials ?? [])
+            : this.buildReactivityRawResult(
+                seed,
+                request.stimuli ?? [],
+                request.waitPresses ?? [],
+              );
+    if (!axisContentFullyPlayed(rawResult, request.playedMs)) {
+      throw new ConflictException('The session content is not fully played');
+    }
+    const score =
+      rawResult.axis === AxisType.LOGIC
+        ? this.scoreLogicAnswers(seed, rawResult.items)
+        : rawResult.axis === AxisType.MEMORY
+          ? this.scoreMemoryAnswers(seed, rawResult.sequences)
+          : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
+            ? this.scoreDiscriminationAnswers(seed, rawResult.trials)
+            : this.scoreReactivityAnswers(
+                seed,
+                (rawResult as ReactivityRawResultDto).stimuli,
+                (rawResult as ReactivityRawResultDto).waitPresses,
+              );
+    return { rawResult, score };
   }
 
   private scoreLogicAnswers(
@@ -568,7 +565,11 @@ export class SessionsService {
   }
 
   async results(userId: string, sessionId: string): Promise<SessionResultDto> {
-    return toSessionResultDto(await this.loadOwnedSession(sessionId, userId));
+    const session = await this.loadOwnedSession(sessionId, userId);
+    if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.COMPLETED) {
+      throw new ConflictException('Session is not completed');
+    }
+    return toSessionResultDto(session);
   }
 
   async targetedResult(

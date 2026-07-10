@@ -17,7 +17,7 @@ export function finishedAxisCount(
   ).length;
 }
 
-export function targetedContentFullyPlayed(
+export function axisContentFullyPlayed(
   rawResult: AxisRawResultDto,
   playedMs: number | undefined,
 ): boolean {

@@ -67,12 +67,42 @@ function buildAxis(overrides: Partial<SessionAxis> = {}): SessionAxis {
   };
 }
 
+function walk(
+  course: ReturnType<typeof generateMotricityCourses>[number],
+  durationMs: number,
+  untilPct = 100,
+) {
+  const targetLength = (untilPct / 100) * course.totalLength;
+  const sampleCount = Math.round(durationMs / (1000 / 60));
+  return Array.from({ length: sampleCount + 1 }, (_, index) => {
+    let remaining = (index / sampleCount) * targetLength;
+    let position = course.centerline[0];
+    for (const segment of course.segments) {
+      if (remaining <= segment.length) {
+        const ratio = remaining / segment.length;
+        position = {
+          x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+          y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
+        };
+        break;
+      }
+      remaining -= segment.length;
+      position = segment.end;
+    }
+    return {
+      t: Math.round(index * (1000 / 60)),
+      x: position.x,
+      y: position.y,
+    };
+  });
+}
+
 const repository = {
   createSession: vi.fn(),
   findUserSession: vi.fn(),
   findSectorConfig: vi.fn(),
   findStreakContext: vi.fn(),
-  updateAxisResult: vi.fn(),
+  completeFullSessionAxis: vi.fn(),
   completeSession: vi.fn(),
   completeTargetedSession: vi.fn(),
   suspendSession: vi.fn(),
@@ -190,56 +220,7 @@ describe('SessionsService.start', () => {
   });
 });
 
-describe('SessionsService.submitAxis', () => {
-  const sessionId = '11111111-1111-1111-1111-111111111111';
-
-  it('scores the submitted axis and stores the result', async () => {
-    repository.findUserSession
-      .mockResolvedValueOnce(buildSession({ axisResults: [buildAxis()] }))
-      .mockResolvedValueOnce(buildSession({ axisResults: [buildAxis()] }));
-    scoringService.scoreAxis.mockReturnValue({
-      normalizedScore: 82,
-      band: ScoreBand.EXCELLENT,
-    });
-
-    await service.submitAxis('user-1', sessionId, AxisType.LOGIC, {
-      axis: AxisType.LOGIC,
-      metrics: {
-        axis: AxisType.LOGIC,
-        pointsEarned: 50,
-        itemsProcessed: 18,
-      },
-    });
-
-    expect(scoringService.scoreAxis).toHaveBeenCalledTimes(1);
-    expect(repository.updateAxisResult).toHaveBeenCalledWith(
-      sessionId,
-      AxisType.LOGIC,
-      expect.objectContaining({ normalizedScore: 82, band: ScoreBand.EXCELLENT, skipped: false }),
-    );
-  });
-
-  it('rejects a submission on a session that is not in progress', async () => {
-    repository.findUserSession.mockResolvedValue(
-      buildSession({ status: 'COMPLETED', axisResults: [buildAxis()] }),
-    );
-
-    await expect(
-      service.submitAxis('user-1', sessionId, AxisType.LOGIC, { axis: AxisType.LOGIC, skipped: true }),
-    ).rejects.toBeInstanceOf(ConflictException);
-    expect(repository.updateAxisResult).not.toHaveBeenCalled();
-  });
-
-  it('rejects a submission on a session that does not belong to the user', async () => {
-    repository.findUserSession.mockResolvedValue(null);
-
-    await expect(
-      service.submitAxis('user-1', sessionId, AxisType.LOGIC, { axis: AxisType.LOGIC, skipped: true }),
-    ).rejects.toBeInstanceOf(NotFoundException);
-  });
-});
-
-describe('SessionsService.completeTargeted', () => {
+describe('SessionsService.completeAxis (targeted)', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const targetedSession = () =>
     buildSession({ mode: 'TARGETED', energyCost: 1, axisResults: [buildAxis()] });
@@ -257,7 +238,7 @@ describe('SessionsService.completeTargeted', () => {
       buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
     );
 
-    const result = await service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+    const result = await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
       items: answers(40),
     });
@@ -280,7 +261,7 @@ describe('SessionsService.completeTargeted', () => {
     );
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
         axis: AxisType.LOGIC,
         items: answers(40),
       }),
@@ -288,13 +269,25 @@ describe('SessionsService.completeTargeted', () => {
     expect(repository.completeTargetedSession).not.toHaveBeenCalled();
   });
 
-  it('rejects a session that is not targeted', async () => {
+  it('rejects a submission on a session that does not belong to the user', async () => {
+    repository.findUserSession.mockResolvedValue(null);
+
+    await expect(
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: answers(40),
+      }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects a session that is not targeted nor full', async () => {
     repository.findUserSession.mockResolvedValue(
-      buildSession({ axisResults: [buildAxis()] }),
+      buildSession({ mode: 'TUTORIAL', energyCost: 0, axisResults: [buildAxis()] }),
     );
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
         axis: AxisType.LOGIC,
         items: answers(40),
       }),
@@ -306,14 +299,14 @@ describe('SessionsService.completeTargeted', () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
         axis: AxisType.LOGIC,
         items: [...answers(2), { index: 0, answerIndex: 1, timeMs: 500 }],
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
         axis: AxisType.LOGIC,
         items: [{ index: 40, answerIndex: 1, timeMs: 500 }],
       }),
@@ -325,7 +318,7 @@ describe('SessionsService.completeTargeted', () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
         axis: AxisType.LOGIC,
         items: answers(10),
       }),
@@ -339,7 +332,7 @@ describe('SessionsService.completeTargeted', () => {
       buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.LOGIC, {
+    await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
       items: Array.from({ length: 30 }, (_, index) => ({
         index,
@@ -354,7 +347,7 @@ describe('SessionsService.completeTargeted', () => {
   });
 });
 
-describe('SessionsService.completeTargeted (memory)', () => {
+describe('SessionsService.completeAxis (memory)', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const memorySession = () =>
     buildSession({
@@ -380,7 +373,7 @@ describe('SessionsService.completeTargeted (memory)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+    await service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
       axis: AxisType.MEMORY,
       sequences: sequenceAnswers,
     });
@@ -398,7 +391,7 @@ describe('SessionsService.completeTargeted (memory)', () => {
     repository.findUserSession.mockResolvedValue(memorySession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+      service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
         axis: AxisType.MEMORY,
         sequences: sequenceAnswers.slice(0, 4),
       }),
@@ -410,14 +403,14 @@ describe('SessionsService.completeTargeted (memory)', () => {
     repository.findUserSession.mockResolvedValue(memorySession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+      service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
         axis: AxisType.MEMORY,
         sequences: [sequenceAnswers[0], { ...sequenceAnswers[1], index: 0 }],
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.MEMORY, {
+      service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
         axis: AxisType.MEMORY,
         sequences: [
           { index: 0, input: [1, 2, 3, 4, 5, 6, 7], timeMs: 500, timedOut: false },
@@ -428,7 +421,7 @@ describe('SessionsService.completeTargeted (memory)', () => {
   });
 });
 
-describe('SessionsService.completeTargeted (discrimination)', () => {
+describe('SessionsService.completeAxis (discrimination)', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const discriminationSession = () =>
     buildSession({
@@ -453,7 +446,7 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
       }),
     );
 
-    await service.completeTargeted(
+    await service.completeAxis(
       'user-1',
       sessionId,
       AxisType.VISUAL_DISCRIMINATION,
@@ -476,14 +469,14 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
     repository.findUserSession.mockResolvedValue(discriminationSession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+      service.completeAxis('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
         axis: AxisType.VISUAL_DISCRIMINATION,
         trials: [trialAnswers[0], { ...trialAnswers[1], index: 0 }],
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+      service.completeAxis('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
         axis: AxisType.VISUAL_DISCRIMINATION,
         trials: [{ index: 36, answer: null, timeMs: 0 }],
       }),
@@ -495,7 +488,7 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
     repository.findUserSession.mockResolvedValue(discriminationSession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
+      service.completeAxis('user-1', sessionId, AxisType.VISUAL_DISCRIMINATION, {
         axis: AxisType.VISUAL_DISCRIMINATION,
         trials: trialAnswers.slice(0, 12),
       }),
@@ -504,7 +497,7 @@ describe('SessionsService.completeTargeted (discrimination)', () => {
   });
 });
 
-describe('SessionsService.completeTargeted (reactivity)', () => {
+describe('SessionsService.completeAxis (reactivity)', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const reactivitySession = () =>
     buildSession({
@@ -518,7 +511,7 @@ describe('SessionsService.completeTargeted (reactivity)', () => {
     repository.findUserSession.mockResolvedValue(reactivitySession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.REACTIVITY, {
+      service.completeAxis('user-1', sessionId, AxisType.REACTIVITY, {
         axis: AxisType.REACTIVITY,
         stimuli,
         waitPresses: [],
@@ -538,7 +531,7 @@ describe('SessionsService.completeTargeted (reactivity)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.REACTIVITY, {
+    await service.completeAxis('user-1', sessionId, AxisType.REACTIVITY, {
       axis: AxisType.REACTIVITY,
       stimuli,
       waitPresses: [],
@@ -546,6 +539,216 @@ describe('SessionsService.completeTargeted (reactivity)', () => {
     });
 
     expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('SessionsService.completeAxis (full simulation)', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const axisOrder = [
+    'LOGIC',
+    'MEMORY',
+    'VISUAL_DISCRIMINATION',
+    'REACTIVITY',
+    'MOTOR_SKILLS',
+  ] as const;
+  const fullAxes = (doneCount: number) =>
+    axisOrder.map((axis, order) =>
+      buildAxis({
+        id: `axis-${order + 1}`,
+        axis,
+        order,
+        ...(order < doneCount
+          ? {
+              normalizedScore: 70,
+              band: 'ACCEPTABLE' as const,
+              completedAt: new Date('2026-06-13T10:05:00Z'),
+            }
+          : {}),
+      }),
+    );
+  const fullSession = (doneCount: number) =>
+    buildSession({
+      currentAxisIndex: doneCount,
+      axisResults: fullAxes(doneCount),
+    });
+  const logicAnswers = Array.from({ length: 40 }, (_, index) => ({
+    index,
+    answerIndex: 0,
+    timeMs: 1200,
+    helpUsed: false,
+  }));
+
+  it('rejects an axis submitted before its turn in the simulation order', async () => {
+    repository.findUserSession.mockResolvedValue(fullSession(0));
+
+    await expect(
+      service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
+        axis: AxisType.MEMORY,
+        sequences: [],
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeFullSessionAxis).not.toHaveBeenCalled();
+  });
+
+  it('rejects an axis that was already played', async () => {
+    repository.findUserSession.mockResolvedValue(fullSession(1));
+
+    await expect(
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: logicAnswers,
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeFullSessionAxis).not.toHaveBeenCalled();
+  });
+
+  it('rejects the current axis while its content is not fully played', async () => {
+    repository.findUserSession.mockResolvedValue(fullSession(0));
+
+    await expect(
+      service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
+        axis: AxisType.LOGIC,
+        items: logicAnswers.slice(0, 10),
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(repository.completeFullSessionAxis).not.toHaveBeenCalled();
+  });
+
+  it('scores the current axis, advances the sequencing and hides the score while the simulation runs', async () => {
+    repository.findUserSession
+      .mockResolvedValueOnce(fullSession(0))
+      .mockResolvedValueOnce(fullSession(1));
+
+    const result = await service.completeAxis(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+      { axis: AxisType.LOGIC, items: logicAnswers },
+    );
+
+    expect(repository.completeFullSessionAxis).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId,
+        axis: AxisType.LOGIC,
+        nextAxisIndex: 1,
+        rawResult: { axis: AxisType.LOGIC, items: logicAnswers },
+        score: expect.objectContaining({
+          normalizedScore: expect.any(Number),
+        }),
+      }),
+    );
+    expect(repository.completeSession).not.toHaveBeenCalled();
+    expect(result.status).toBe('IN_PROGRESS');
+    expect(result.currentAxisIndex).toBe(1);
+    expect(result.axisResults[0].completedAt).not.toBeNull();
+    expect(result.axisResults[0].normalizedScore).toBeNull();
+    expect(result.axisResults[0].band).toBeNull();
+    expect(result.axisResults[0].metrics).toBeNull();
+  });
+
+  it('completes the simulation once the fifth axis is played', async () => {
+    const seedCourses = generateMotricityCourses('seed');
+    const trajectories = seedCourses.map((course) => ({
+      index: course.index,
+      samples: walk(course, 45000),
+    }));
+    const allDone = buildSession({
+      currentAxisIndex: 5,
+      axisResults: fullAxes(5),
+    });
+    const completedSession = buildSession({
+      status: 'COMPLETED',
+      currentAxisIndex: 5,
+      globalScore: 70,
+      globalBand: 'ACCEPTABLE',
+      completedAt: new Date('2026-06-13T10:30:00Z'),
+      axisResults: fullAxes(5),
+    });
+    repository.findUserSession
+      .mockResolvedValueOnce(fullSession(4))
+      .mockResolvedValueOnce(allDone)
+      .mockResolvedValueOnce(allDone)
+      .mockResolvedValueOnce(completedSession);
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    scoringService.evaluateSession.mockReturnValue({
+      globalScore: 70,
+      globalBand: ScoreBand.ACCEPTABLE,
+      isAdmissible: true,
+      isEliminated: false,
+      recommendations: [],
+    });
+    repository.findStreakContext.mockResolvedValue({
+      timezone: 'Europe/Paris',
+      streak: null,
+    });
+    badgesService.evaluateAndUnlockWithin.mockResolvedValue([]);
+    repository.completeSession.mockResolvedValue({
+      session: completedSession,
+      unlockedBadges: [],
+    });
+
+    const result = await service.completeAxis(
+      'user-1',
+      sessionId,
+      AxisType.MOTOR_SKILLS,
+      { axis: AxisType.MOTOR_SKILLS, courses: trajectories },
+    );
+
+    expect(repository.completeFullSessionAxis).toHaveBeenCalledWith(
+      expect.objectContaining({
+        axis: AxisType.MOTOR_SKILLS,
+        nextAxisIndex: 5,
+      }),
+    );
+    expect(repository.completeSession).toHaveBeenCalledTimes(1);
+    expect(result.status).toBe('COMPLETED');
+    expect(result.axisResults[0].normalizedScore).toBe(70);
+  });
+});
+
+describe('SessionsService.results', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+
+  it('refuses to expose the results while the simulation is in progress', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        axisResults: [
+          buildAxis({
+            normalizedScore: 82,
+            band: 'EXCELLENT',
+            completedAt: new Date(),
+          }),
+        ],
+      }),
+    );
+
+    await expect(service.results('user-1', sessionId)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+  });
+
+  it('exposes the results of a completed session', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        status: 'COMPLETED',
+        globalScore: 75,
+        globalBand: 'ACCEPTABLE',
+        completedAt: new Date('2026-06-13T10:30:00Z'),
+        axisResults: [
+          buildAxis({
+            normalizedScore: 82,
+            band: 'EXCELLENT',
+            completedAt: new Date('2026-06-13T10:30:00Z'),
+          }),
+        ],
+      }),
+    );
+
+    const result = await service.results('user-1', sessionId);
+
+    expect(result.status).toBe('COMPLETED');
+    expect(result.globalScore).toBe(75);
+    expect(result.axisResults[0].normalizedScore).toBe(82);
   });
 });
 
@@ -669,7 +872,7 @@ describe('SessionsService.list', () => {
   });
 });
 
-describe('SessionsService.completeTargeted (motricity)', () => {
+describe('SessionsService.completeAxis (motricity)', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
   const motricitySession = () =>
     buildSession({
@@ -678,36 +881,6 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       seed: 'motricity-seed',
       axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
     });
-
-  const walk = (
-    course: ReturnType<typeof generateMotricityCourses>[number],
-    durationMs: number,
-    untilPct = 100,
-  ) => {
-    const targetLength = (untilPct / 100) * course.totalLength;
-    const sampleCount = Math.round(durationMs / (1000 / 60));
-    return Array.from({ length: sampleCount + 1 }, (_, index) => {
-      let remaining = (index / sampleCount) * targetLength;
-      let position = course.centerline[0];
-      for (const segment of course.segments) {
-        if (remaining <= segment.length) {
-          const ratio = remaining / segment.length;
-          position = {
-            x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
-            y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
-          };
-          break;
-        }
-        remaining -= segment.length;
-        position = segment.end;
-      }
-      return {
-        t: Math.round(index * (1000 / 60)),
-        x: position.x,
-        y: position.y,
-      };
-    });
-  };
 
   const courses = generateMotricityCourses('motricity-seed');
   const fullTrajectories = courses.map((course) => ({
@@ -719,7 +892,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
         axis: AxisType.MOTOR_SKILLS,
         courses: fullTrajectories.slice(0, 2),
       }),
@@ -731,7 +904,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
 
     await expect(
-      service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+      service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
         axis: AxisType.MOTOR_SKILLS,
         courses: [
           fullTrajectories[0],
@@ -752,7 +925,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+    await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
       courses: fullTrajectories,
     });
@@ -791,7 +964,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+    await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
       controlModality: ControlModality.PHONE_GAMEPAD,
       courses: fullTrajectories.map((trajectory, index) => ({
@@ -824,7 +997,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+    await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
       courses: [
         fullTrajectories[0],
@@ -846,7 +1019,7 @@ describe('SessionsService.completeTargeted (motricity)', () => {
       }),
     );
 
-    await service.completeTargeted('user-1', sessionId, AxisType.MOTOR_SKILLS, {
+    await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
       controlModality: ControlModality.KEYBOARD,
       courses: fullTrajectories,
@@ -1136,6 +1309,29 @@ describe('SessionsService.current', () => {
       'CURRENT',
       'PENDING',
     ]);
+  });
+
+  it('resumes a suspended simulation at the start of the current axis', async () => {
+    repository.findCurrentSession.mockResolvedValue(
+      buildSession({
+        status: 'SUSPENDED',
+        currentAxisIndex: 2,
+        axisResults: [
+          buildAxis({ order: 0, completedAt: new Date() }),
+          buildAxis({ id: 'axis-2', axis: 'MEMORY', order: 1, completedAt: new Date() }),
+          buildAxis({ id: 'axis-3', axis: 'VISUAL_DISCRIMINATION', order: 2 }),
+          buildAxis({ id: 'axis-4', axis: 'REACTIVITY', order: 3 }),
+          buildAxis({ id: 'axis-5', axis: 'MOTOR_SKILLS', order: 4 }),
+        ],
+      }),
+    );
+
+    const current = await service.current('user-1');
+
+    expect(current?.axes[2]).toEqual({
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      status: 'CURRENT',
+    });
   });
 });
 

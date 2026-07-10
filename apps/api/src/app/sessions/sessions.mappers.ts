@@ -32,11 +32,15 @@ export type SessionWithRelations = Prisma.SessionGetPayload<{
 }>;
 
 export function toSessionDto(session: SessionWithRelations): SessionDto {
+  const mode = mapEnumValue(SessionMode, session.mode);
+  const status = mapEnumValue(SessionStatus, session.status);
+  const exposeAxisScores =
+    mode !== SessionMode.FULL || status === SessionStatus.COMPLETED;
   return {
     id: session.id,
-    mode: mapEnumValue(SessionMode, session.mode),
+    mode,
     sector: mapEnumValue(Sector, session.sector),
-    status: mapEnumValue(SessionStatus, session.status),
+    status,
     seed: session.seed,
     options: {
       enabledOptions: session.trainingOptions as TrainingOptionId[],
@@ -54,7 +58,9 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     controlModality: session.controlModality
       ? mapEnumValue(ControlModality, session.controlModality)
       : null,
-    axisResults: sortedAxisResults(session.axisResults).map(toAxisResultDto),
+    axisResults: sortedAxisResults(session.axisResults).map((axis) =>
+      toAxisResultDto(axis, exposeAxisScores),
+    ),
     recommendations: session.recommendations.map(toRecommendationDto),
   };
 }
@@ -73,7 +79,9 @@ export function toSessionResultDto(
     isAdmissible: session.isAdmissible,
     isEliminated: session.isEliminated,
     sectorThreshold: session.sectorThreshold,
-    axisResults: sortedAxisResults(session.axisResults).map(toAxisResultDto),
+    axisResults: sortedAxisResults(session.axisResults).map((axis) =>
+      toAxisResultDto(axis, true),
+    ),
     recommendations: session.recommendations.map(toRecommendationDto),
     unlockedBadges,
     completedAt: session.completedAt ? session.completedAt.toISOString() : null,
@@ -149,15 +157,19 @@ function sortedAxisResults(axisResults: SessionAxis[]): SessionAxis[] {
   return [...axisResults].sort((a, b) => a.order - b.order);
 }
 
-function toAxisResultDto(axis: SessionAxis): SessionAxisResultDto {
+function toAxisResultDto(
+  axis: SessionAxis,
+  exposeScores: boolean,
+): SessionAxisResultDto {
   return {
     axis: mapEnumValue(AxisType, axis.axis),
     order: axis.order,
-    normalizedScore: axis.normalizedScore,
-    band: axis.band ? mapEnumValue(ScoreBand, axis.band) : null,
+    normalizedScore: exposeScores ? axis.normalizedScore : null,
+    band:
+      exposeScores && axis.band ? mapEnumValue(ScoreBand, axis.band) : null,
     skipped: axis.skipped,
     metrics:
-      axis.metrics === null
+      !exposeScores || axis.metrics === null
         ? null
         : (axis.metrics as unknown as AxisMetrics | AxisRawResultDto),
     startedAt: axis.startedAt ? axis.startedAt.toISOString() : null,

@@ -20,7 +20,6 @@ import { CurrentUser } from '../common/current-user.decorator';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
-import { SubmitAxisResultRequest } from './dto/submit-axis-result.request';
 import { SessionsService } from './sessions.service';
 
 @Controller('sessions')
@@ -35,24 +34,14 @@ export class SessionsController {
     return this.sessionsService.start(userId, request);
   }
 
-  @Post(':id/axes/:axis/submit')
-  submit(
-    @CurrentUser() userId: string,
-    @Param('id', ParseUUIDPipe) sessionId: string,
-    @Param('axis', new ParseEnumPipe(AxisType)) axis: AxisType,
-    @Body() request: SubmitAxisResultRequest,
-  ): Promise<SessionDto> {
-    return this.sessionsService.submitAxis(userId, sessionId, axis, request);
-  }
-
   @Post(':id/axes/:axis/results')
-  completeTargeted(
+  completeAxis(
     @CurrentUser() userId: string,
     @Param('id', ParseUUIDPipe) sessionId: string,
     @Param('axis', new ParseEnumPipe(AxisType)) axis: AxisType,
     @Body() request: CompleteTargetedSessionRequest,
   ): Promise<SessionDto> {
-    return this.sessionsService.completeTargeted(userId, sessionId, axis, request);
+    return this.sessionsService.completeAxis(userId, sessionId, axis, request);
   }
 
   @Post(':id/complete')
