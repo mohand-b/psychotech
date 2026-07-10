@@ -9,8 +9,14 @@
 }
 
 .axis-start__cta {
+  display: flex;
+  justify-content: center;
   width: 100%;
   max-width: 36.5rem;
+}
+
+.axis-start__cta-mobile {
+  display: none;
 }
 
 @media (max-width: 767px) {
@@ -28,5 +34,14 @@
     padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
       calc(16px + var(--safe-left));
     z-index: 30;
+  }
+
+  .axis-start__cta-desktop {
+    display: none;
+  }
+
+  .axis-start__cta-mobile {
+    display: flex;
+    flex: 1;
   }
 }

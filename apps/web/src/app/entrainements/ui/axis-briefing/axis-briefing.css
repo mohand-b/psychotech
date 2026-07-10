@@ -93,6 +93,10 @@
   display: none;
 }
 
+.axis-briefing__metric-label--mobile {
+  display: none;
+}
+
 .axis-briefing__metric {
   display: inline-flex;
   align-items: center;
@@ -190,6 +194,14 @@
 
   .axis-briefing__metric-icon--mobile {
     display: inline-flex;
+  }
+
+  .axis-briefing__metric-label--desktop {
+    display: none;
+  }
+
+  .axis-briefing__metric-label--mobile {
+    display: inline;
   }
 
   .axis-briefing__metrics {

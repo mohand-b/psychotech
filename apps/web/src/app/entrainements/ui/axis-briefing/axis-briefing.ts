@@ -97,7 +97,14 @@ interface SummaryTile {
               <span class="axis-briefing__metric-value t-mono">{{
                 threshold
               }}</span>
-              <span class="axis-briefing__metric-label">seuil</span>
+              <span
+                class="axis-briefing__metric-label axis-briefing__metric-label--desktop"
+                >seuil d'admission</span
+              >
+              <span
+                class="axis-briefing__metric-label axis-briefing__metric-label--mobile"
+                >seuil</span
+              >
             </span>
           }
         </div>
