@@ -1,6 +1,7 @@
 import { AxisTimerModel, AxisType, MemoryPhase } from '../enums';
 
 export interface AxisBriefing {
+  exerciseName: string;
   consigne: string;
   objectif: string;
 }
@@ -86,9 +87,11 @@ export const AXIS_TRAINING: {
     exerciseCount: 40,
     difficultyLevels: 5,
     briefing: {
+      exerciseName: 'Suites logiques',
       consigne:
-        'Complétez chaque suite logique en choisissant la bonne réponse. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
-      objectif: 'Raisonnement logique et gestion de votre temps.',
+        "Une suite de nombres s'affiche, avec un élément manquant. Identifiez la règle qui relie les éléments, puis choisissez la bonne réponse parmi les quatre propositions.",
+      objectif:
+        "Répondre juste, vite, et garder un rythme régulier sur l'ensemble des items. La précision compte davantage que la vitesse.",
     },
   },
   [AxisType.MEMORY]: {
@@ -105,9 +108,11 @@ export const AXIS_TRAINING: {
       { phase: MemoryPhase.INVERSE, length: 5 },
     ],
     briefing: {
+      exerciseName: 'Séquences à mémoriser',
       consigne:
-        "Mémorisez la séquence affichée, puis restituez-la dans l'ordre, puis à l'envers. Chaque séquence est un peu plus longue.",
-      objectif: 'Mémoire de travail : retenir, puis manipuler.',
+        "Une séquence de chiffres s'affiche brièvement, puis disparaît. Restituez-la dans l'ordre demandé : ordre normal en phase 1, ordre inversé en phase 2.",
+      objectif:
+        'Allonger votre longueur de séquence mémorisée : chaque restitution réussie ajoute un élément à la suivante.',
     },
   },
   [AxisType.VISUAL_DISCRIMINATION]: {
@@ -118,9 +123,11 @@ export const AXIS_TRAINING: {
     minSequenceLength: 5,
     maxSequenceLength: 8,
     briefing: {
+      exerciseName: 'Comparaison de suites',
       consigne:
-        "Comparez les deux suites et indiquez si elles sont identiques ou différentes. L'essai suivant s'enchaîne aussitôt.",
-      objectif: 'Comparaison visuelle rapide et fiable.',
+        "Deux suites de caractères s'affichent (chiffres, lettres, formes). Décidez si elles sont strictement identiques ou différentes - un seul caractère peut changer.",
+      objectif:
+        'Décider vite sans fausses alertes : la précision sur les suites longues compte autant que le temps de décision.',
     },
   },
   [AxisType.REACTIVITY]: {
@@ -134,9 +141,11 @@ export const AXIS_TRAINING: {
     responseWindowMs: 1500,
     anticipationThresholdMs: 150,
     briefing: {
+      exerciseName: 'Temps de réaction',
       consigne:
-        "Trois signaux, trois commandes. L'épreuve commence avec un seul signal - les autres s'ajoutent en cours de route et seront annoncés. Réagissez le plus vite possible avec la bonne commande.",
-      objectif: 'Vitesse de réaction, régularité et précision des commandes.',
+        "Touchez la zone dès qu'un stimulus apparaît. En seconde partie, une règle d'inhibition s'ajoute : ne réagissez pas aux stimulus rouges.",
+      objectif:
+        "Un temps de réaction court et stable, sans anticipation ni omission. C'est l'axe critique des sélections ferroviaires.",
     },
   },
   [AxisType.MOTOR_SKILLS]: {
@@ -147,9 +156,11 @@ export const AXIS_TRAINING: {
     pauseBetweenCoursesSec: 10,
     increasingDifficulty: true,
     briefing: {
+      exerciseName: 'Coordination bimanuelle',
       consigne:
-        "Pilotez le curseur à deux mains pour suivre au plus près le centre du couloir, jusqu'au bout des 3 parcours.",
-      objectif: 'Coordination des deux mains et précision du tracé.',
+        'Guidez le curseur de START à END sans sortir du couloir. Chaque main pilote une direction : la gauche va à gauche et à droite, la droite monte et descend.',
+      objectif:
+        'Dissocier les deux mains : une trajectoire fluide, sans contact avec les bords (erreur mineure) ni sortie du couloir (erreur majeure).',
     },
   },
 };
