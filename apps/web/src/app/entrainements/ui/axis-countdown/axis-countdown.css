@@ -68,7 +68,7 @@
 }
 
 .countdown__digit {
-  font: 700 64px/1 var(--font-display);
+  font: 700 6.875rem/1 var(--font-display);
   color: var(--axis-plain);
 }
 
@@ -128,10 +128,6 @@
   .countdown__stage {
     width: auto;
     height: auto;
-  }
-
-  .countdown__digit {
-    font-size: 96px;
   }
 
   .countdown__title {
