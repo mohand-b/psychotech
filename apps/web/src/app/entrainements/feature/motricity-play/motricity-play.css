@@ -312,31 +312,6 @@
   gap: 16px;
 }
 
-.motri__keys {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.motri__keys-row {
-  display: flex;
-  gap: 4px;
-}
-
-.motri__keycap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 26px;
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  border-radius: var(--radius-badge);
-  background: var(--card);
-  font: 600 13px/1 var(--font-ui);
-  color: var(--text-secondary);
-}
 
 .motri__hint-label {
   font: 400 13px/18px var(--font-ui);

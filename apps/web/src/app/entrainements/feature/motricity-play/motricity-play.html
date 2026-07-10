@@ -231,23 +231,13 @@
         />
       </div>
 
-      <div class="motri__hint">
-        @if (gamepadExclusive()) {
+      @if (gamepadExclusive()) {
+        <div class="motri__hint">
           <span class="motri__hint-label"
             >pilotez le point avec les manivelles du téléphone</span
           >
-        } @else {
-          <div class="motri__keys" aria-hidden="true">
-            <span class="motri__keycap motri__keycap--up">↑</span>
-            <span class="motri__keys-row">
-              <span class="motri__keycap">←</span>
-              <span class="motri__keycap">↓</span>
-              <span class="motri__keycap">→</span>
-            </span>
-          </div>
-          <span class="motri__hint-label">déplacer le point</span>
-        }
-      </div>
+        </div>
+      }
     </div>
   }
 </section>

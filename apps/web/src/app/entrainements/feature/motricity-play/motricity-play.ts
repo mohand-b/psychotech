@@ -50,7 +50,6 @@ type CursorState = 'depart' | 'normal' | 'contact' | 'outside';
 
 const MAX_FRAME_MS = 50;
 const ARC_COMPLETION_TOLERANCE = 0.5;
-const KEYBOARD_INPUT_THRESHOLD = 0.15;
 const BADGE_WIDTH = 58;
 const BADGE_HEIGHT = 24;
 
@@ -62,7 +61,6 @@ const BADGE_HEIGHT = 24;
   styleUrl: './motricity-play.css',
   host: {
     '(document:keydown)': 'onKeydown($event)',
-    '(document:keyup)': 'onKeyup($event)',
   },
 })
 export class MotricityPlay {
@@ -163,7 +161,6 @@ export class MotricityPlay {
   private samples: MotricitySampleDto[] = [];
   private trajectories: MotricityCourseTrajectoryDto[] = [];
   private lastSampleT = -Infinity;
-  private readonly pressedKeys = new Set<string>();
   private rafId: number | null = null;
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
@@ -211,25 +208,11 @@ export class MotricityPlay {
     }
     if (event.key === 'Escape') {
       this.confirmingExit.set(false);
-      return;
-    }
-    if (this.confirmingExit()) {
-      return;
-    }
-    if (event.key.startsWith('Arrow')) {
-      event.preventDefault();
-      if (!this.gamepadExclusive()) {
-        this.pressedKeys.add(event.key);
-      }
     }
   }
 
   protected regeneratePairing(): void {
     this.gamepad.pair(this.sessionId);
-  }
-
-  protected onKeyup(event: KeyboardEvent): void {
-    this.pressedKeys.delete(event.key);
   }
 
   protected onCrankRotate(axis: 'x' | 'y', deltaRad: number): void {
@@ -429,16 +412,7 @@ export class MotricityPlay {
       inputY = this.crankSpeedY();
       speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, Math.hypot(inputX, inputY));
     } else {
-      inputX =
-        (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
-        (this.pressedKeys.has('ArrowLeft') ? 1 : 0);
-      inputY =
-        (this.pressedKeys.has('ArrowDown') ? 1 : 0) -
-        (this.pressedKeys.has('ArrowUp') ? 1 : 0);
-      if (Math.hypot(inputX, inputY) < KEYBOARD_INPUT_THRESHOLD) {
-        return;
-      }
-      speedFactor = 1;
+      return;
     }
     const magnitude = Math.hypot(inputX, inputY);
     const distance =
