@@ -55,7 +55,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
           @if (helpText(); as helpText) {
             <button
               type="button"
-              class="focused-header__icon-button"
+              class="focused-header__icon-button focused-header__help"
               [title]="helpText"
               aria-label="Aide"
             >
