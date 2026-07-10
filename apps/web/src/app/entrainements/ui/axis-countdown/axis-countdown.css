@@ -68,6 +68,7 @@
 }
 
 .countdown__digit {
+  position: relative;
   font: 700 6.875rem/1 var(--font-display);
   color: var(--axis-plain);
 }
