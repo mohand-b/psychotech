@@ -7,19 +7,20 @@ import {
 } from '@angular/core';
 import {
   AXIS_TRAINING,
-  AxisTimerModel,
   AxisType,
   RailwayPlayableAxis,
+  SCORE_ACCEPTABLE_MIN,
+  SCORE_EXCELLENT_MIN,
 } from '@psychotech/shared';
-import { ListChecks, Timer } from 'lucide-angular';
+import { Clock, LayoutGrid } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Toggle } from '../../../shared/ui/toggle/toggle';
 
-interface TimeSummary {
+interface SummaryTile {
   value: string;
-  suffix: string | null;
+  label: string;
 }
 
 @Component({
@@ -37,81 +38,94 @@ interface TimeSummary {
         <span class="axis-briefing__tile">
           <ui-icon [img]="presentation().icon" [size]="32" />
         </span>
-        <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
+        <h1 class="axis-briefing__name">
+          {{ training().briefing.exerciseName }}
+        </h1>
       </header>
 
       <article class="axis-briefing__card">
-        <section class="axis-briefing__section">
-          <span class="axis-briefing__label">Consigne</span>
-          <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
-        </section>
+        <span class="axis-briefing__label">Consigne</span>
+        <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
+      </article>
 
-        <div class="hairline"></div>
+      <article class="axis-briefing__card">
+        <span class="axis-briefing__label">Objectif</span>
+        <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
+      </article>
 
-        <section class="axis-briefing__section">
-          <span class="axis-briefing__label">Objectif</span>
-          <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
-        </section>
-
-        <div class="hairline"></div>
-
-        <section class="axis-briefing__section">
-          <span class="axis-briefing__label">Exemple</span>
-        </section>
-
-        <div class="hairline"></div>
-
-        <section class="axis-briefing__summary">
-          <span class="axis-briefing__label">Résumé</span>
-          <div class="axis-briefing__summary-row">
-            @if (training().exerciseCount; as exerciseCount) {
-              <span class="axis-briefing__metric">
-                <ui-icon [img]="itemsIcon" [size]="15" />
-                <span class="axis-briefing__metric-value">{{ exerciseCount }}</span>
-                items
-              </span>
-            }
-            @if (timeSummary(); as time) {
-              <span class="axis-briefing__metric">
-                <ui-icon [img]="durationIcon" [size]="15" />
-                <span class="axis-briefing__metric-value">{{ time.value }}</span>
-                @if (time.suffix; as suffix) {
-                  <span>{{ suffix }}</span>
+      <article class="axis-briefing__card">
+        <span class="axis-briefing__label">Résumé</span>
+        <div class="axis-briefing__metrics">
+          <span class="axis-briefing__metric">
+            <ui-icon
+              class="axis-briefing__metric-icon"
+              [img]="volumeIcon"
+              [size]="18"
+            />
+            <span class="axis-briefing__metric-value t-mono">{{
+              volume().value
+            }}</span>
+            <span class="axis-briefing__metric-label">{{
+              volume().label
+            }}</span>
+          </span>
+          <span class="axis-briefing__metric">
+            <ui-icon
+              class="axis-briefing__metric-icon"
+              [img]="timeIcon"
+              [size]="18"
+            />
+            <span class="axis-briefing__metric-value t-mono">{{
+              time().value
+            }}</span>
+            <span class="axis-briefing__metric-label">{{ time().label }}</span>
+          </span>
+          @if (admissibilityThreshold(); as threshold) {
+            <span class="axis-briefing__metric">
+              <span class="axis-briefing__stars" aria-hidden="true">
+                @for (filled of stars(); track $index) {
+                  <svg
+                    class="axis-briefing__star"
+                    [class.axis-briefing__star--filled]="filled"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    />
+                  </svg>
                 }
               </span>
-            }
-            @if (admissibilityThreshold(); as threshold) {
-              <span class="axis-briefing__metric">
-                <span class="axis-briefing__metric-value">{{ threshold }}</span>
-                seuil d'admission
-              </span>
-            }
-          </div>
-        </section>
-
-        @if (optionsEnabled()) {
-          <div class="hairline"></div>
-
-          <section class="axis-briefing__section">
-            <span class="axis-briefing__label">Options d'entraînement</span>
-            <div class="axis-briefing__option">
-              <div class="axis-briefing__option-copy">
-                <span class="axis-briefing__option-title"
-                  >Aide pendant la session</span
-                >
-                <span class="axis-briefing__option-detail"
-                  >Affichez la règle de la suite pendant un exercice - la règle,
-                  pas la réponse.</span
-                >
-              </div>
-              <ui-toggle
-                [(checked)]="helpEnabled"
-                label="Aide pendant la session"
-              />
-            </div>
-          </section>
-        }
+              <span class="axis-briefing__metric-value t-mono">{{
+                threshold
+              }}</span>
+              <span class="axis-briefing__metric-label">seuil</span>
+            </span>
+          }
+        </div>
       </article>
+
+      @if (optionsEnabled()) {
+        <article class="axis-briefing__card">
+          <span class="axis-briefing__label">Options d'entraînement</span>
+          <div class="axis-briefing__option">
+            <div class="axis-briefing__option-copy">
+              <span class="axis-briefing__option-title"
+                >Aide pendant la session</span
+              >
+              <span class="axis-briefing__option-detail"
+                >Affichez la règle de la suite pendant un exercice - la règle,
+                pas la réponse.</span
+              >
+            </div>
+            <ui-toggle
+              [(checked)]="helpEnabled"
+              label="Aide pendant la session"
+            />
+          </div>
+        </article>
+      }
     </div>
   `,
   styleUrl: './axis-briefing.css',
@@ -122,8 +136,8 @@ export class AxisBriefing {
   readonly optionsEnabled = input(false);
   readonly helpEnabled = model(false);
 
-  protected readonly itemsIcon = ListChecks;
-  protected readonly durationIcon = Timer;
+  protected readonly volumeIcon = LayoutGrid;
+  protected readonly timeIcon = Clock;
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
@@ -131,23 +145,58 @@ export class AxisBriefing {
   protected readonly training = computed(
     () => AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
   );
-  protected readonly timeSummary = computed<TimeSummary | null>(() => {
+
+  protected readonly volume = computed<SummaryTile>(() => {
     const training = this.training();
-    if (training.timer.model === AxisTimerModel.GLOBAL) {
-      return { value: formatDuration(training.timer.durationSec), suffix: null };
+    switch (training.axis) {
+      case AxisType.LOGIC:
+        return { value: `${training.exerciseCount}`, label: 'items' };
+      case AxisType.MEMORY:
+        return {
+          value: `${new Set(training.sequences.map((sequence) => sequence.phase)).size}`,
+          label: 'phases',
+        };
+      case AxisType.VISUAL_DISCRIMINATION:
+        return { value: `${training.exerciseCount}`, label: 'essais' };
+      case AxisType.REACTIVITY:
+        return {
+          value: `≈${training.approximateStimulusCount}`,
+          label: 'stimulus',
+        };
+      case AxisType.MOTOR_SKILLS:
+        return { value: `${training.exerciseCount}`, label: 'parcours' };
     }
-    if (training.axis === AxisType.MEMORY) {
-      return {
-        value: formatDuration(training.restitutionSec),
-        suffix: 'par restitution',
-      };
+  });
+
+  protected readonly time = computed<SummaryTile>(() => {
+    const training = this.training();
+    switch (training.axis) {
+      case AxisType.MEMORY:
+        return {
+          value: formatDuration(training.restitutionSec),
+          label: 'par restitution',
+        };
+      case AxisType.MOTOR_SKILLS:
+        return {
+          value: formatDuration(training.secondsPerCourse),
+          label: 'par parcours',
+        };
+      default:
+        return {
+          value: formatDuration(training.timer.durationSec),
+          label: 'temps global',
+        };
     }
-    if (training.axis === AxisType.MOTOR_SKILLS) {
-      return {
-        value: formatDuration(training.secondsPerCourse),
-        suffix: 'par parcours',
-      };
-    }
-    return null;
+  });
+
+  protected readonly stars = computed<boolean[]>(() => {
+    const threshold = this.admissibilityThreshold() ?? 0;
+    const filledCount =
+      threshold >= SCORE_EXCELLENT_MIN
+        ? 3
+        : threshold >= SCORE_ACCEPTABLE_MIN
+          ? 2
+          : 1;
+    return [0, 1, 2].map((index) => index < filledCount);
   });
 }

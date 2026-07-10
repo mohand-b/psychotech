@@ -6,13 +6,16 @@
     [(helpEnabled)]="helpEnabled"
   />
 
-  <ui-button
-    [color]="buttonColor"
-    size="lg"
-    [showArrow]="true"
-    [loading]="starting()"
-    (click)="start()"
-  >
-    Commencer
-  </ui-button>
+  <div class="axis-start__cta">
+    <ui-button
+      [color]="buttonColor"
+      size="lg"
+      [block]="true"
+      [showArrow]="true"
+      [loading]="starting()"
+      (click)="start()"
+    >
+      Commencer
+    </ui-button>
+  </div>
 </section>
