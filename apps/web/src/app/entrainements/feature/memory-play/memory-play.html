@@ -130,12 +130,34 @@
               <button
                 type="button"
                 class="memo__key t-mono"
-                [class.memo__key--zero]="digit === 0"
                 (click)="press(digit)"
               >
                 {{ digit }}
               </button>
             }
+            <button
+              type="button"
+              class="memo__key memo__key--action"
+              [disabled]="input().length === 0"
+              (click)="erase()"
+            >
+              Effacer
+            </button>
+            <button
+              type="button"
+              class="memo__key memo__key--zero t-mono"
+              (click)="press(0)"
+            >
+              0
+            </button>
+            <button
+              type="button"
+              class="memo__key memo__key--action memo__key--validate"
+              [disabled]="input().length !== sequence.length || submitting()"
+              (click)="validate()"
+            >
+              Valider
+            </button>
           </div>
 
           <div class="memo__actions">

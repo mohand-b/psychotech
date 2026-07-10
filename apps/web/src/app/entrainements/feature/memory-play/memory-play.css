@@ -333,6 +333,32 @@
   grid-column: 2;
 }
 
+.memo__key--action {
+  display: none;
+  font: 600 15px/20px var(--font-ui);
+}
+
+.memo__key--action:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.memo__key--validate {
+  background: var(--axis-plain);
+  border-color: var(--axis-plain);
+  color: var(--card);
+}
+
+.memo__key--validate:hover:not(:disabled) {
+  background: var(--axis-plain);
+  border-color: var(--axis-plain);
+}
+
+.memo__key--validate:disabled {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+
 .memo__actions {
   display: flex;
   align-items: center;
@@ -376,10 +402,34 @@
   }
 
   .memo__pad {
-    max-width: 100%;
+    position: fixed;
+    inset: auto 0 0 0;
+    max-width: none;
+    gap: 10px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
+      calc(16px + var(--safe-left));
+    z-index: 30;
   }
 
   .memo__key {
-    height: 56px;
+    height: 48px;
+  }
+
+  .memo__key--action {
+    display: inline-flex;
+  }
+
+  .memo__actions {
+    display: none;
+  }
+
+  .memo__mention {
+    display: none;
+  }
+
+  .memo__stage {
+    padding-bottom: calc(280px + var(--safe-bottom));
   }
 }

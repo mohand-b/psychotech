@@ -73,6 +73,21 @@ describe('computeJitterPlacement', () => {
     assertWithinSafeMargins(overflowingContent, -1, -1);
   });
 
+  it('never collapses the content when the zone is unmeasured or too small', () => {
+    for (const zoneWidth of [0, 10, 2 * JITTER_SAFE_MARGIN_X]) {
+      const placement = computeJitterPlacement(
+        { fx: 1, fy: 1 },
+        { zoneWidth, zoneHeight: 150, contentWidth: 180, contentHeight: 40 },
+      );
+      expect(placement.scale).toBe(1);
+    }
+    const placement = computeJitterPlacement(
+      { fx: 1, fy: 1 },
+      { zoneWidth: 360, zoneHeight: 0, contentWidth: 180, contentHeight: 40 },
+    );
+    expect(placement.scale).toBe(1);
+  });
+
   it('keeps a zero factor centered whatever the metrics', () => {
     for (const metrics of [narrowContent, wideContent, overflowingContent]) {
       const placement = computeJitterPlacement({ fx: 0, fy: 0 }, metrics);

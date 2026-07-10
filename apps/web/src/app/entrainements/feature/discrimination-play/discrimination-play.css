@@ -172,10 +172,18 @@
 }
 
 @media (max-width: 767px) {
+  .discri {
+    padding-bottom: 0;
+  }
+
   .discri__content {
     justify-content: flex-start;
     gap: 16px;
-    padding: 16px 16px 96px;
+    padding: 16px 16px calc(96px + var(--safe-bottom));
+  }
+
+  .discri__hint {
+    display: none;
   }
 
   .discri__question {

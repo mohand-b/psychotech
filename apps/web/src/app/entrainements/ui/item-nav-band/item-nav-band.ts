@@ -18,6 +18,12 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="band" [style.--band-accent]="presentation().plainVar">
+      <span class="band__position"
+        >Item
+        <strong class="t-mono"
+          >{{ currentIndex() + 1 }}/{{ states().length }}</strong
+        ></span
+      >
       <nav class="band__items" aria-label="Navigation des items">
         @for (state of states(); track $index) {
           <button

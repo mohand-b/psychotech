@@ -59,7 +59,7 @@ export class MemoryPlay {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MEMORY];
   protected readonly buttonColor = axisButtonColor(AxisType.MEMORY);
-  protected readonly padDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  protected readonly padDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   private readonly restitutionSec =
     AXIS_TRAINING[AxisType.MEMORY].restitutionSec;
 

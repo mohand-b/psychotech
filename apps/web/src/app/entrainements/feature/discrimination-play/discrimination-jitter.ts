@@ -29,7 +29,10 @@ export function computeJitterPlacement(
     metrics.zoneHeight - 2 * JITTER_SAFE_MARGIN_Y,
   );
   const scale =
-    metrics.contentWidth > 0 && metrics.contentHeight > 0
+    usableWidth > 0 &&
+    usableHeight > 0 &&
+    metrics.contentWidth > 0 &&
+    metrics.contentHeight > 0
       ? Math.min(
           1,
           usableWidth / metrics.contentWidth,

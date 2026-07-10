@@ -104,40 +104,59 @@
   color: var(--label);
 }
 
+.band__position {
+  display: none;
+}
+
 @media (max-width: 767px) {
   .band {
-    justify-content: space-between;
-    gap: 8px;
-    padding: 2px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .band__position {
+    display: block;
+    font: 400 13px/18px var(--font-ui);
+    color: var(--text-secondary);
+  }
+
+  .band__position strong {
+    font-weight: 700;
+    color: var(--ink);
   }
 
   .band__items {
-    flex: 1;
     min-width: 0;
     justify-content: flex-start;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .band__items::-webkit-scrollbar {
-    display: none;
+    gap: 5px;
+    overflow: hidden;
   }
 
   .band__item {
-    min-width: 40px;
-    min-height: 44px;
+    min-width: 0;
+    min-height: 0;
+    padding: 2px 0;
   }
 
   .band__dot {
-    width: 22px;
-    height: 22px;
-    border-radius: 7px;
+    width: 15px;
+    height: 15px;
+    border-radius: 5px;
   }
 
   .band__item--current .band__dot {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
+    width: 17px;
+    height: 17px;
+    border-radius: 6px;
+  }
+
+  .band__tip {
+    display: none;
+  }
+
+  .band__remaining {
+    display: none;
   }
 }

@@ -81,6 +81,10 @@
   display: none;
 }
 
+.play__next-block {
+  display: none;
+}
+
 .play__hint {
   margin: 0;
   text-align: center;
@@ -100,10 +104,18 @@
   }
 
   .play__actions {
+    position: fixed;
+    inset: auto 0 0 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
+      calc(16px + var(--safe-left));
     gap: 8px;
+    z-index: 30;
   }
 
   .play__actions-end {
+    flex: 1;
     gap: 8px;
   }
 
@@ -113,5 +125,22 @@
 
   .play__previous-compact {
     display: inline-flex;
+  }
+
+  .play__next {
+    display: none;
+  }
+
+  .play__next-block {
+    display: flex;
+    flex: 1;
+  }
+
+  .play__hint {
+    display: none;
+  }
+
+  .play__content {
+    padding-bottom: calc(96px + var(--safe-bottom));
   }
 }
