@@ -21,6 +21,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
+  StartSessionDto,
   TargetedAxisResultDto,
   TargetedSessionOptionsDto,
   TrainingOptionId,
@@ -249,8 +250,27 @@ export class TrainingSessionFacade {
     axis: AxisType,
     options: TargetedSessionOptionsDto = { enabledOptions: [] },
   ): Observable<SessionDto> {
-    const sector = this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-    return this.api.start({ mode: SessionMode.TARGETED, sector, axis, options }).pipe(
+    return this.startSession({
+      mode: SessionMode.TARGETED,
+      sector: this.currentSector(),
+      axis,
+      options,
+    });
+  }
+
+  startFull(): Observable<SessionDto> {
+    return this.startSession({
+      mode: SessionMode.FULL,
+      sector: this.currentSector(),
+    });
+  }
+
+  private currentSector(): Sector {
+    return this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
+  }
+
+  private startSession(payload: StartSessionDto): Observable<SessionDto> {
+    return this.api.start(payload).pipe(
       tap((session) => this.install(session)),
       switchMap((session) =>
         this.energyFacade.load().pipe(

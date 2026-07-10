@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
-import { ArrowLeft, CircleQuestionMark, Timer, X } from 'lucide-angular';
+import { ArrowLeft, CircleQuestionMark, Layers, Timer, X } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
 import { EnergyGauge } from '../energy-gauge/energy-gauge';
@@ -31,6 +31,12 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
           <span class="focused-header__title">{{ title() }}</span>
           @if (axisChip(); as chip) {
             <ui-axis-chip [axis]="chip" />
+          }
+          @if (brandChip()) {
+            <span class="focused-header__brand-chip">
+              <ui-icon [img]="brandChipIcon" [size]="14" />
+              <span>{{ title() }}</span>
+            </span>
           }
         </nav>
 
@@ -85,6 +91,7 @@ export class FocusedHeader {
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
   readonly axisChip = input<AxisType | null>(null);
+  readonly brandChip = input(false);
   readonly duration = input<string | null>(null);
   readonly timerSeverity = input<TimerSeverity>('normal');
   readonly showEnergy = input(true);
@@ -93,6 +100,7 @@ export class FocusedHeader {
   readonly closeRequested = output<void>();
 
   protected readonly backIcon = ArrowLeft;
+  protected readonly brandChipIcon = Layers;
   protected readonly timerIcon = Timer;
   protected readonly helpIcon = CircleQuestionMark;
   protected readonly closeIcon = X;

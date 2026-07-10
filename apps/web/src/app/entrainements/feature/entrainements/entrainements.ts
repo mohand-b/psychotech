@@ -35,6 +35,6 @@ export class Entrainements {
   }
 
   protected startSimulation(): void {
-    this.router.navigate(['/sessions']);
+    this.router.navigate(['/entrainements/simulation']);
   }
 }

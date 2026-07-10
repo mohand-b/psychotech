@@ -9,7 +9,7 @@ import { Check, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 
-export type StepState = 'done' | 'current' | 'todo';
+export type StepState = 'done' | 'current' | 'todo' | 'plain';
 
 export interface ChevronStep {
   axis: AxisType;
@@ -190,7 +190,7 @@ export class ChevronStepper {
       return {
         axis: step.axis,
         state: step.state,
-        label: presentation.label,
+        label: presentation.shortLabel,
         icon: presentation.icon,
         pastelVar: presentation.pastelVar,
         textVar: presentation.textVar,

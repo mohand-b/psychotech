@@ -19,6 +19,21 @@ export const entrainementsRoutes: Route[] = [
       import('./axis-selection/axis-selection').then((m) => m.AxisSelection),
   },
   {
+    path: 'entrainements/simulation',
+    data: {
+      focusedHeader: {
+        title: 'Simulation complète',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        brandChip: true,
+      },
+    },
+    loadComponent: () =>
+      import('./simulation-start/simulation-start').then(
+        (m) => m.SimulationStart,
+      ),
+  },
+  {
     path: 'entrainements/cible/:axis',
     data: {
       focusedHeader: {
