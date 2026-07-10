@@ -43,14 +43,6 @@
           }
         </svg>
       }
-      @for (connector of contactConnectors(); track $index) {
-        <span
-          class="chart__connector"
-          [style.left.%]="connector.xPct"
-          [style.bottom.%]="connector.bottomPct"
-          [style.height.%]="connector.heightPct"
-        ></span>
-      }
       @for (contact of contacts(); track $index) {
         <span
           class="chart__dot-slot"

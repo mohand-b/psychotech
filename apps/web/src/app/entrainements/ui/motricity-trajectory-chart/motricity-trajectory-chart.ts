@@ -8,10 +8,8 @@ import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import {
   TrajectoryExitBand,
-  clampDeviation,
+  buildDisplaySeries,
   curveExitRuns,
-  interpolateDeviationAt,
-  smoothTimelinePoints,
   trajectoryExitBands,
   trajectoryExitWindows,
 } from './trajectory-chart.logic';
@@ -23,12 +21,6 @@ interface ChartCoord {
   x: number;
   y: number;
   tMs: number;
-}
-
-interface ContactConnector {
-  xPct: number;
-  bottomPct: number;
-  heightPct: number;
 }
 
 interface CourseZone {
@@ -98,28 +90,37 @@ export class MotricityTrajectoryChart {
     });
   });
 
-  private readonly smoothedByCourse = computed(
-    () =>
-      new Map(
-        this.metrics().timeline.map((series) => [
-          series.courseIndex,
-          smoothTimelinePoints(series.points),
-        ]),
-      ),
-  );
-
   private readonly coords = computed<ChartCoord[]>(() => {
     const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
+    const events = this.metrics().events;
     const coords: ChartCoord[] = [];
     for (const series of this.metrics().timeline) {
       const offset = offsets.get(series.courseIndex) ?? 0;
-      const smoothed = this.smoothedByCourse().get(series.courseIndex) ?? [];
-      for (const point of smoothed) {
-        const clamped = clampDeviation(point.deviationPct);
+      const contactsTMs = events
+        .filter(
+          (event) =>
+            event.type === 'CONTACT' &&
+            event.courseIndex === series.courseIndex,
+        )
+        .map((event) => event.tMs);
+      const exitWindows = events
+        .filter(
+          (event) =>
+            event.type === 'EXIT' && event.courseIndex === series.courseIndex,
+        )
+        .map((event) => ({
+          startMs: event.tMs,
+          endMs: event.tMs + (event.durationMs ?? 0),
+        }));
+      for (const point of buildDisplaySeries(
+        series.points,
+        contactsTMs,
+        exitWindows,
+      )) {
         coords.push({
           x: ((offset + point.tMs) / totalMs) * 100,
-          y: 100 - (clamped / Y_DOMAIN_PCT) * 100,
+          y: 100 - (point.deviationPct / Y_DOMAIN_PCT) * 100,
           tMs: offset + point.tMs,
         });
       }
@@ -150,27 +151,6 @@ export class MotricityTrajectoryChart {
       this.totalMs(),
     ),
   );
-
-  protected readonly contactConnectors = computed<ContactConnector[]>(() => {
-    const offsets = this.courseOffsets();
-    const totalMs = this.totalMs();
-    const borderBottom = this.borderBottomPct;
-    return this.metrics()
-      .events.filter((event) => event.type === 'CONTACT')
-      .map((event) => {
-        const smoothed = this.smoothedByCourse().get(event.courseIndex) ?? [];
-        const deviation = clampDeviation(
-          interpolateDeviationAt(smoothed, event.tMs),
-        );
-        const curveBottom = (deviation / Y_DOMAIN_PCT) * 100;
-        const atMs = (offsets.get(event.courseIndex) ?? 0) + event.tMs;
-        return {
-          xPct: (atMs / totalMs) * 100,
-          bottomPct: Math.min(borderBottom, curveBottom),
-          heightPct: Math.abs(borderBottom - curveBottom),
-        };
-      });
-  });
 
   protected readonly contacts = computed<ContactDot[]>(() => {
     const offsets = this.courseOffsets();

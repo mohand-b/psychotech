@@ -1,6 +1,7 @@
 import { MotorSkillsCourseRecap, MotricityErrorEvent } from '@psychotech/shared';
 import {
   TRAJECTORY_DISPLAY_CLAMP_PCT,
+  buildDisplaySeries,
   clampDeviation,
   curveExitRuns,
   interpolateDeviationAt,
@@ -100,6 +101,45 @@ describe('curveExitRuns', () => {
       { from: 5, to: 6 },
     ]);
     expect(curveExitRuns(times, [])).toEqual([]);
+  });
+});
+
+describe('buildDisplaySeries', () => {
+  const flatRaw = Array.from({ length: 51 }, (_, index) => ({
+    tMs: index * 200,
+    deviationPct: 40,
+  }));
+
+  it('anchors the curve at one hundred on each contact with a soft ease', () => {
+    const series = buildDisplaySeries(flatRaw, [5_000], []);
+    const peak = series.find((point) => point.tMs === 5_000);
+    expect(peak?.deviationPct).toBe(100);
+    const halfway = series.find((point) => point.tMs === 5_200);
+    expect(halfway?.deviationPct).toBeCloseTo(40 + (1 - 200 / 300) * 60, 0);
+    const outside = series.find((point) => point.tMs === 5_400);
+    expect(outside?.deviationPct).toBe(40);
+    expect(Math.max(...series.map((point) => point.deviationPct))).toBe(100);
+  });
+
+  it('follows the raw decimated values inside an exit window, clamped and eased at the bounds', () => {
+    const raw = flatRaw.map((point) =>
+      point.tMs >= 6_000 && point.tMs <= 7_000
+        ? { ...point, deviationPct: point.tMs === 6_400 ? 130 : 105 }
+        : point,
+    );
+    const series = buildDisplaySeries(raw, [], [{ startMs: 6_000, endMs: 7_000 }]);
+    const inside = series.find((point) => point.tMs === 6_200);
+    expect(inside?.deviationPct).toBe(105);
+    const spike = series.find((point) => point.tMs === 6_400);
+    expect(spike?.deviationPct).toBe(TRAJECTORY_DISPLAY_CLAMP_PCT);
+    const farBefore = series.find((point) => point.tMs === 5_000);
+    expect(farBefore?.deviationPct).toBeLessThan(60);
+  });
+
+  it('returns the smoothed series untouched without any event', () => {
+    const series = buildDisplaySeries(flatRaw, [], []);
+    expect(series).toHaveLength(flatRaw.length);
+    expect(series.every((point) => point.deviationPct === 40)).toBe(true);
   });
 });
 

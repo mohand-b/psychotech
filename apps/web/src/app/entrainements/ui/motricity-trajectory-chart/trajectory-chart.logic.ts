@@ -107,6 +107,82 @@ export function curveExitRuns(
   return runs;
 }
 
+export const TRAJECTORY_EVENT_EASE_MS = 300;
+export const TRAJECTORY_BORDER_PCT = 100;
+
+function exitBlendAt(tMs: number, windows: TrajectoryExitWindow[]): number {
+  let blend = 0;
+  for (const window of windows) {
+    if (tMs >= window.startMs && tMs <= window.endMs) {
+      return 1;
+    }
+    if (tMs >= window.startMs - TRAJECTORY_EVENT_EASE_MS && tMs < window.startMs) {
+      blend = Math.max(
+        blend,
+        (tMs - (window.startMs - TRAJECTORY_EVENT_EASE_MS)) /
+          TRAJECTORY_EVENT_EASE_MS,
+      );
+    }
+    if (tMs > window.endMs && tMs <= window.endMs + TRAJECTORY_EVENT_EASE_MS) {
+      blend = Math.max(blend, 1 - (tMs - window.endMs) / TRAJECTORY_EVENT_EASE_MS);
+    }
+  }
+  return blend;
+}
+
+function contactInfluenceAt(tMs: number, contactsTMs: number[]): number {
+  let influence = 0;
+  for (const contactTMs of contactsTMs) {
+    influence = Math.max(
+      influence,
+      1 - Math.abs(tMs - contactTMs) / TRAJECTORY_EVENT_EASE_MS,
+    );
+  }
+  return Math.max(0, Math.min(1, influence));
+}
+
+export function buildDisplaySeries(
+  raw: MotricityTimelinePoint[],
+  contactsTMs: number[],
+  exitWindows: TrajectoryExitWindow[],
+): MotricityTimelinePoint[] {
+  if (raw.length === 0) {
+    return [];
+  }
+  const smoothed = smoothTimelinePoints(raw);
+  const firstMs = raw[0].tMs;
+  const lastMs = raw[raw.length - 1].tMs;
+  const times = new Set<number>(raw.map((point) => point.tMs));
+  for (const contactTMs of contactsTMs) {
+    if (contactTMs >= firstMs && contactTMs <= lastMs) {
+      times.add(contactTMs);
+    }
+  }
+  for (const window of exitWindows) {
+    for (const bound of [window.startMs, window.endMs]) {
+      if (bound >= firstMs && bound <= lastMs) {
+        times.add(bound);
+      }
+    }
+  }
+  return [...times]
+    .sort((a, b) => a - b)
+    .map((tMs) => {
+      const rawValue = interpolateDeviationAt(raw, tMs);
+      const smoothValue = interpolateDeviationAt(smoothed, tMs);
+      const influence = contactInfluenceAt(tMs, contactsTMs);
+      const anchored =
+        smoothValue < TRAJECTORY_BORDER_PCT
+          ? smoothValue + influence * (TRAJECTORY_BORDER_PCT - smoothValue)
+          : smoothValue;
+      const blend = exitBlendAt(tMs, exitWindows);
+      return {
+        tMs,
+        deviationPct: clampDeviation(anchored * (1 - blend) + rawValue * blend),
+      };
+    });
+}
+
 export function interpolateDeviationAt(
   points: MotricityTimelinePoint[],
   tMs: number,
