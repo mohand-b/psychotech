@@ -21,6 +21,7 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
@@ -29,7 +30,14 @@ import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 @Component({
   selector: 'app-logic-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ExitConfirm, ItemNavBand, LogicChoices, LogicSequence],
+  imports: [
+    AxisCountdown,
+    Button,
+    ExitConfirm,
+    ItemNavBand,
+    LogicChoices,
+    LogicSequence,
+  ],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
   host: {
@@ -55,6 +63,7 @@ export class LogicPlay {
     () => (this.facade.remainingFraction() ?? 0) * 100,
   );
   protected readonly loaded = signal(false);
+  protected readonly countingDown = signal(true);
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
   protected readonly submitting = signal(false);
@@ -133,7 +142,7 @@ export class LogicPlay {
       });
     }
     effect(() => {
-      if (this.facade.isExpired() && this.loaded()) {
+      if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {
         this.submit();
       }
     });
@@ -243,7 +252,7 @@ export class LogicPlay {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting()) {
+    if (!this.loaded() || this.submitting() || this.countingDown()) {
       return;
     }
     if (event.key === 'Escape') {
@@ -300,6 +309,15 @@ export class LogicPlay {
     }
     this.enteredAtMs = Date.now();
     this.loaded.set(true);
+  }
+
+  protected onCountdownFinished(): void {
+    if (!this.countingDown()) {
+      return;
+    }
+    this.countingDown.set(false);
+    this.facade.rebaseClock();
+    this.enteredAtMs = Date.now();
   }
 
   private commitTime(): void {

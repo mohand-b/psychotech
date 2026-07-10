@@ -26,6 +26,10 @@ export const TrainingSessionStore = signalStore(
       const nowMs = Date.now();
       patchState(store, { session, nowMs, anchorMs: nowMs });
     },
+    rebaseAnchor(): void {
+      const nowMs = Date.now();
+      patchState(store, { nowMs, anchorMs: nowMs });
+    },
     tick(nowMs: number): void {
       patchState(store, { nowMs });
     },

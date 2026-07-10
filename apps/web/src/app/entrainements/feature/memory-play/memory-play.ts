@@ -25,6 +25,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
 type MemoryStage =
@@ -44,7 +45,7 @@ const RESTITUTION_TICK_MS = 200;
 @Component({
   selector: 'app-memory-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ExitConfirm, Icon],
+  imports: [AxisCountdown, Button, ExitConfirm, Icon],
   templateUrl: './memory-play.html',
   styleUrl: './memory-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -57,6 +58,7 @@ export class MemoryPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly axis = AxisType.MEMORY;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MEMORY];
   protected readonly buttonColor = axisButtonColor(AxisType.MEMORY);
   protected readonly padDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -66,6 +68,7 @@ export class MemoryPlay {
   protected readonly sequences = this.facade.memorySequences;
   protected readonly total = AXIS_TRAINING[AxisType.MEMORY].exerciseCount;
   protected readonly loaded = signal(false);
+  protected readonly countingDown = signal(true);
   protected readonly stage = signal<MemoryStage>('PREPARATION');
   protected readonly currentIndex = signal(0);
   protected readonly memorizeStep = signal(0);
@@ -163,7 +166,7 @@ export class MemoryPlay {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting()) {
+    if (!this.loaded() || this.submitting() || this.countingDown()) {
       return;
     }
     if (event.key === 'Escape') {
@@ -200,6 +203,13 @@ export class MemoryPlay {
     }
     this.loaded.set(true);
     this.results.set([]);
+  }
+
+  protected onCountdownFinished(): void {
+    if (!this.countingDown()) {
+      return;
+    }
+    this.countingDown.set(false);
     this.beginSequence(0);
   }
 

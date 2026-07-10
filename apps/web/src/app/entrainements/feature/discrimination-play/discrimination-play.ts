@@ -31,6 +31,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
+import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
@@ -38,7 +39,7 @@ const SEQUENCE_SIZE = 28;
 @Component({
   selector: 'app-discrimination-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ElementSequence, ExitConfirm, Icon],
+  imports: [AxisCountdown, Button, ElementSequence, ExitConfirm, Icon],
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -50,6 +51,7 @@ export class DiscriminationPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly axis = AxisType.VISUAL_DISCRIMINATION;
   protected readonly presentation =
     AXIS_PRESENTATION[AxisType.VISUAL_DISCRIMINATION];
   protected readonly buttonColor = axisButtonColor(
@@ -60,6 +62,7 @@ export class DiscriminationPlay {
 
   protected readonly trials = this.facade.discriminationTrials;
   protected readonly loaded = signal(false);
+  protected readonly countingDown = signal(true);
   protected readonly currentIndex = signal(0);
   protected readonly submitting = signal(false);
   protected readonly confirmingExit = signal(false);
@@ -111,7 +114,7 @@ export class DiscriminationPlay {
     this.observeJitterZone(this.zoneA, this.contentA, this.metricsA);
     this.observeJitterZone(this.zoneB, this.contentB, this.metricsB);
     effect(() => {
-      if (this.facade.isExpired() && this.loaded()) {
+      if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {
         this.submitAll();
       }
     });
@@ -136,7 +139,12 @@ export class DiscriminationPlay {
   }
 
   protected answer(value: DiscriminationAnswer): void {
-    if (!this.loaded() || this.locked() || this.confirmingExit()) {
+    if (
+      !this.loaded() ||
+      this.locked() ||
+      this.confirmingExit() ||
+      this.countingDown()
+    ) {
       return;
     }
     const entry: DiscriminationTrialAnswerDto = {
@@ -159,7 +167,7 @@ export class DiscriminationPlay {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting()) {
+    if (!this.loaded() || this.submitting() || this.countingDown()) {
       return;
     }
     if (event.key === 'Escape') {
@@ -188,6 +196,14 @@ export class DiscriminationPlay {
     this.loaded.set(true);
     this.results.set([]);
     this.currentIndex.set(0);
+  }
+
+  protected onCountdownFinished(): void {
+    if (!this.countingDown()) {
+      return;
+    }
+    this.countingDown.set(false);
+    this.facade.rebaseClock();
     this.trialStartedAtMs = Date.now();
   }
 

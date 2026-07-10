@@ -135,6 +135,10 @@ export class TrainingSessionFacade {
     this.effectiveCountdown.set(value);
   }
 
+  rebaseClock(): void {
+    this.store.rebaseAnchor();
+  }
+
   readonly remainingSec: Signal<number | null> = computed(() => {
     const override = this.effectiveCountdown();
     if (override) {

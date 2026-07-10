@@ -5,6 +5,9 @@
   [style.--axis-pastel-bd]="presentation.pastelBorderVar"
   [style.--axis-text]="presentation.textVar"
 >
+  @if (loaded() && countingDown()) {
+    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  }
   <div
     class="memo__progress"
     role="progressbar"

@@ -1,4 +1,7 @@
 <section class="play">
+  @if (loaded() && countingDown()) {
+    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  }
   @if (loaded() && durationSec(); as total) {
     <div
       class="play__progress"

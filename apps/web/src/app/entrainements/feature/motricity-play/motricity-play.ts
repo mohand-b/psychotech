@@ -38,6 +38,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import {
   MotricityLiveState,
@@ -57,7 +58,7 @@ const BADGE_HEIGHT = 24;
 @Component({
   selector: 'app-motricity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Crank, ExitConfirm, GamepadPairing],
+  imports: [AxisCountdown, Button, Crank, ExitConfirm, GamepadPairing],
   templateUrl: './motricity-play.html',
   styleUrl: './motricity-play.css',
   host: {
@@ -73,6 +74,7 @@ export class MotricityPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MOTOR_SKILLS];
   private readonly training = AXIS_TRAINING[AxisType.MOTOR_SKILLS];
 
@@ -84,6 +86,7 @@ export class MotricityPlay {
   protected readonly courseCount = this.training.exerciseCount;
 
   protected readonly loaded = signal(false);
+  protected readonly countingDown = signal(true);
   protected readonly courseIndex = signal(0);
   protected readonly phase = signal<MotricityPhase>('PLAYING');
   protected readonly cursorX = signal(0);
@@ -237,6 +240,13 @@ export class MotricityPlay {
     }
     this.loaded.set(true);
     this.gamepad.pair(this.sessionId);
+  }
+
+  protected onCountdownFinished(): void {
+    if (!this.countingDown()) {
+      return;
+    }
+    this.countingDown.set(false);
     this.beginCourse(0);
     this.startLoop();
   }

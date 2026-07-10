@@ -27,6 +27,7 @@ import {
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
@@ -77,7 +78,7 @@ const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
 @Component({
   selector: 'app-reactivity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ExitConfirm],
+  imports: [AxisCountdown, ExitConfirm],
   templateUrl: './reactivity-play.html',
   styleUrl: './reactivity-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -90,6 +91,7 @@ export class ReactivityPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly axis = AxisType.REACTIVITY;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.REACTIVITY];
   private readonly training = AXIS_TRAINING[AxisType.REACTIVITY];
   private readonly totalMs = this.training.timer.durationSec * 1000;
@@ -98,6 +100,7 @@ export class ReactivityPlay {
   protected readonly stimulusSize = STIMULUS_SIZE_PX;
 
   protected readonly loaded = signal(false);
+  protected readonly countingDown = signal(true);
   protected readonly state = signal<PlayState>('WAITING');
   protected readonly phase = signal(1);
   protected readonly activeStimulus = signal<ActiveStimulus | null>(null);
@@ -174,7 +177,12 @@ export class ReactivityPlay {
   protected readonly redActive = computed(() => this.phase() >= 3);
 
   protected press(command: ReactivityCommand): void {
-    if (!this.loaded() || this.hasSubmitted || this.confirmingExit()) {
+    if (
+      !this.loaded() ||
+      this.hasSubmitted ||
+      this.confirmingExit() ||
+      this.countingDown()
+    ) {
       return;
     }
     if (this.state() === 'TRANSITION') {
@@ -232,8 +240,16 @@ export class ReactivityPlay {
     }
     this.stimuli = this.facade.reactivityStimuli();
     this.nextTransitionBoundary = this.phaseMs;
-    this.epochMs = performance.now();
     this.loaded.set(true);
+  }
+
+  protected onCountdownFinished(): void {
+    if (!this.countingDown()) {
+      return;
+    }
+    this.countingDown.set(false);
+    this.facade.rebaseClock();
+    this.epochMs = performance.now();
     this.startTicker();
   }
 
