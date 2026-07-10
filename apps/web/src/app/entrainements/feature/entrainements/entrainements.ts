@@ -18,9 +18,9 @@ export class Entrainements {
 
   protected readonly simulationFeatures = [
     'Tous les axes, notation pondérée par secteur',
-    "Conditions réelles d'examen, minuté",
+    "Conditions réelles d'examen",
     'Analyse de performance globale et par axe',
-    'Conditions réelles, sans aide',
+    "Sans aide ni option d'entraînement",
   ];
 
   protected readonly targetedFeatures = [
