@@ -349,6 +349,7 @@
 
 @media (max-width: 767px) {
   .motri {
+    min-height: calc(100dvh - 65px - var(--safe-top));
     padding-bottom: calc(16px + var(--safe-bottom));
   }
 

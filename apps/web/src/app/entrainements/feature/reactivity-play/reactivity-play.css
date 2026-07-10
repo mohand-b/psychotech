@@ -226,6 +226,10 @@
 }
 
 @media (max-width: 767px) {
+  .react {
+    min-height: calc(100dvh - 65px - var(--safe-top));
+  }
+
   .react__progress {
     position: sticky;
     top: calc(65px + var(--safe-top));

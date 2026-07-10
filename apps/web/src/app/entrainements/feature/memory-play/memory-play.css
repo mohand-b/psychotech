@@ -379,6 +379,10 @@
 }
 
 @media (max-width: 767px) {
+  .memo {
+    min-height: calc(100dvh - 65px - var(--safe-top));
+  }
+
   .memo__progress {
     position: sticky;
     top: calc(65px + var(--safe-top));

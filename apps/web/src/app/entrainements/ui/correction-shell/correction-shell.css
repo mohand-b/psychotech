@@ -62,6 +62,10 @@
     padding: 16px 16px 96px;
   }
 
+  .shell {
+    min-height: calc(100dvh - 65px - var(--safe-top));
+  }
+
   .shell__card {
     gap: 24px;
     padding: 24px 16px;

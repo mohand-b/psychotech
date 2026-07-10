@@ -178,6 +178,7 @@
 
 @media (max-width: 767px) {
   .discri {
+    min-height: calc(100dvh - 65px - var(--safe-top));
     padding-bottom: 0;
   }
 

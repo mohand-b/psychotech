@@ -92,6 +92,10 @@
 }
 
 @media (max-width: 767px) {
+  .play {
+    min-height: calc(100dvh - 65px - var(--safe-top));
+  }
+
   .play__progress {
     position: sticky;
     top: calc(65px + var(--safe-top));
