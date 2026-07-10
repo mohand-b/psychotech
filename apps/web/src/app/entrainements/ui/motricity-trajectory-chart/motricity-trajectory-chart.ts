@@ -7,19 +7,21 @@ import {
 import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import {
+  CurvePoint,
   TrajectoryExitBand,
+  TrajectoryExitWindow,
   buildDisplaySeries,
+  courseContactTimes,
+  courseExitWindows,
   curveExitRuns,
+  monotoneCubicPath,
   trajectoryExitBands,
-  trajectoryExitWindows,
 } from './trajectory-chart.logic';
 
 const Y_DOMAIN_PCT = 120;
 const BORDER_PCT = 100;
 
-interface ChartCoord {
-  x: number;
-  y: number;
+interface ChartCoord extends CurvePoint {
   tMs: number;
 }
 
@@ -33,20 +35,6 @@ interface CourseZone {
 interface ContactDot {
   xPct: number;
   tooltip: string;
-}
-
-function bezierPath(coords: ChartCoord[]): string {
-  if (coords.length < 2) {
-    return '';
-  }
-  let path = `M ${coords[0].x.toFixed(2)} ${coords[0].y.toFixed(2)}`;
-  for (let position = 1; position < coords.length; position += 1) {
-    const previous = coords[position - 1];
-    const current = coords[position];
-    const controlX = ((previous.x + current.x) / 2).toFixed(2);
-    path += ` C ${controlX} ${previous.y.toFixed(2)}, ${controlX} ${current.y.toFixed(2)}, ${current.x.toFixed(2)} ${current.y.toFixed(2)}`;
-  }
-  return path;
 }
 
 @Component({
@@ -90,33 +78,58 @@ export class MotricityTrajectoryChart {
     });
   });
 
+  private readonly mergedContactsByCourse = computed(
+    () =>
+      new Map(
+        this.metrics().timeline.map((series) => [
+          series.courseIndex,
+          courseContactTimes(this.metrics().events, series.courseIndex),
+        ]),
+      ),
+  );
+
+  private readonly mergedWindowsByCourse = computed(
+    () =>
+      new Map(
+        this.metrics().timeline.map((series) => [
+          series.courseIndex,
+          courseExitWindows(this.metrics().events, series.courseIndex),
+        ]),
+      ),
+  );
+
+  private readonly concatenatedWindows = computed<TrajectoryExitWindow[]>(() => {
+    const offsets = this.courseOffsets();
+    const windows: TrajectoryExitWindow[] = [];
+    for (const series of this.metrics().timeline) {
+      const offset = offsets.get(series.courseIndex) ?? 0;
+      for (const window of this.mergedWindowsByCourse().get(
+        series.courseIndex,
+      ) ?? []) {
+        windows.push({
+          startMs: offset + window.startMs,
+          endMs: offset + window.endMs,
+        });
+      }
+    }
+    return windows;
+  });
+
   private readonly coords = computed<ChartCoord[]>(() => {
     const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
-    const events = this.metrics().events;
     const coords: ChartCoord[] = [];
     for (const series of this.metrics().timeline) {
       const offset = offsets.get(series.courseIndex) ?? 0;
-      const contactsTMs = events
-        .filter(
-          (event) =>
-            event.type === 'CONTACT' &&
-            event.courseIndex === series.courseIndex,
-        )
-        .map((event) => event.tMs);
-      const exitWindows = events
-        .filter(
-          (event) =>
-            event.type === 'EXIT' && event.courseIndex === series.courseIndex,
-        )
-        .map((event) => ({
-          startMs: event.tMs,
-          endMs: event.tMs + (event.durationMs ?? 0),
-        }));
+      const contacts =
+        this.mergedContactsByCourse().get(series.courseIndex) ?? [];
+      const windows =
+        this.mergedWindowsByCourse().get(series.courseIndex) ?? [];
       for (const point of buildDisplaySeries(
         series.points,
-        contactsTMs,
-        exitWindows,
+        contacts,
+        windows,
+        totalMs,
       )) {
         coords.push({
           x: ((offset + point.tMs) / totalMs) * 100,
@@ -128,42 +141,41 @@ export class MotricityTrajectoryChart {
     return coords;
   });
 
-  protected readonly curvePath = computed(() => bezierPath(this.coords()));
+  protected readonly curvePath = computed(() =>
+    monotoneCubicPath(this.coords()),
+  );
 
   protected readonly exitCurvePaths = computed<string[]>(() => {
     const coords = this.coords();
-    const windows = trajectoryExitWindows(
-      this.metrics().events,
-      this.metrics().courses,
-    );
     return curveExitRuns(
       coords.map((coord) => coord.tMs),
-      windows,
+      this.concatenatedWindows(),
     )
-      .map((run) => bezierPath(coords.slice(run.from, run.to + 1)))
+      .map((run) => monotoneCubicPath(coords.slice(run.from, run.to + 1)))
       .filter((path) => path !== '');
   });
 
   protected readonly exitBands = computed<TrajectoryExitBand[]>(() =>
-    trajectoryExitBands(
-      this.metrics().events,
-      this.metrics().courses,
-      this.totalMs(),
-    ),
+    trajectoryExitBands(this.concatenatedWindows(), this.totalMs()),
   );
 
   protected readonly contacts = computed<ContactDot[]>(() => {
     const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
-    return this.metrics()
-      .events.filter((event) => event.type === 'CONTACT')
-      .map((event) => {
-        const atMs = (offsets.get(event.courseIndex) ?? 0) + event.tMs;
-        return {
+    const dots: ContactDot[] = [];
+    for (const series of this.metrics().timeline) {
+      const offset = offsets.get(series.courseIndex) ?? 0;
+      for (const contactTMs of this.mergedContactsByCourse().get(
+        series.courseIndex,
+      ) ?? []) {
+        const atMs = offset + contactTMs;
+        dots.push({
           xPct: (atMs / totalMs) * 100,
           tooltip: `${formatDuration(Math.round(atMs / 1000))} · Contact bord`,
-        };
-      });
+        });
+      }
+    }
+    return dots;
   });
 
   protected readonly xLabels = computed(() => {
