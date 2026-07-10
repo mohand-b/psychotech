@@ -5,6 +5,7 @@
 .discri {
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 65px);
   min-height: calc(100dvh - 65px);
   padding-bottom: 24px;
 }
