@@ -114,8 +114,8 @@ export class MotricityPlay {
     () =>
       this.loaded() &&
       this.phase() === 'PLAYING' &&
-      this.cursorState() === 'depart' &&
-      !this.suspended(),
+      !this.suspended() &&
+      (this.cursorState() === 'depart' || this.gamepadConnected()),
   );
 
   protected readonly courses = this.facade.motricityCourses;
