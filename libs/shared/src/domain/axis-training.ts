@@ -77,6 +77,14 @@ export type AxisTraining =
 
 export type RailwayPlayableAxis = AxisTraining['axis'];
 
+export const FULL_SESSION_AXIS_ORDER: readonly RailwayPlayableAxis[] = [
+  AxisType.LOGIC,
+  AxisType.MEMORY,
+  AxisType.VISUAL_DISCRIMINATION,
+  AxisType.REACTIVITY,
+  AxisType.MOTOR_SKILLS,
+];
+
 export const AXIS_TRAINING: {
   [Axis in RailwayPlayableAxis]: Extract<AxisTraining, { axis: Axis }>;
 } = {
