@@ -109,6 +109,12 @@
 }
 
 @media (max-width: 767px) {
+  :host {
+    position: sticky;
+    top: calc(69px + var(--safe-top));
+    z-index: 30;
+  }
+
   .band {
     flex-direction: column;
     align-items: stretch;
@@ -131,7 +137,12 @@
     min-width: 0;
     justify-content: flex-start;
     gap: 5px;
-    overflow: hidden;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .band__items::-webkit-scrollbar {
+    display: none;
   }
 
   .band__item {

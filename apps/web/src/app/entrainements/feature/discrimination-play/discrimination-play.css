@@ -176,6 +176,12 @@
     padding-bottom: 0;
   }
 
+  .discri__progress {
+    position: sticky;
+    top: calc(65px + var(--safe-top));
+    z-index: 30;
+  }
+
   .discri__content {
     justify-content: flex-start;
     gap: 16px;

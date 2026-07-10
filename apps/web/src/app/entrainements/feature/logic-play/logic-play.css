@@ -92,6 +92,12 @@
 }
 
 @media (max-width: 767px) {
+  .play__progress {
+    position: sticky;
+    top: calc(65px + var(--safe-top));
+    z-index: 30;
+  }
+
   .play__content {
     justify-content: flex-start;
     gap: 16px;

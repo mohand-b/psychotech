@@ -379,6 +379,12 @@
 }
 
 @media (max-width: 767px) {
+  .memo__progress {
+    position: sticky;
+    top: calc(65px + var(--safe-top));
+    z-index: 30;
+  }
+
   .memo__stage {
     gap: 20px;
     padding: 16px;

@@ -226,6 +226,12 @@
 }
 
 @media (max-width: 767px) {
+  .react__progress {
+    position: sticky;
+    top: calc(65px + var(--safe-top));
+    z-index: 30;
+  }
+
   .react__mappings {
     display: none;
   }

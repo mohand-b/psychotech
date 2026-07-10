@@ -152,10 +152,6 @@ export class LogicPlay {
     if (this.locked() || !this.loaded()) {
       return;
     }
-    if (this.unansweredCount() > 0) {
-      this.goTo(this.nextUnansweredIndex());
-      return;
-    }
     this.submit();
   }
 

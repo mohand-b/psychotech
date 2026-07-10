@@ -352,6 +352,12 @@
     padding-bottom: calc(16px + var(--safe-bottom));
   }
 
+  .motri__progress {
+    position: sticky;
+    top: calc(65px + var(--safe-top));
+    z-index: 30;
+  }
+
   .motri__content {
     justify-content: flex-start;
     padding: 0 1rem;
