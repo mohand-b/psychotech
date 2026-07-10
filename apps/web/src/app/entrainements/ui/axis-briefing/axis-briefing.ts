@@ -39,10 +39,11 @@ interface SummaryTile {
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
       </header>
 
-      <article class="axis-briefing__card">
-        <span class="axis-briefing__label">Consigne</span>
-        <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
-      </article>
+      <div class="axis-briefing__cards">
+        <article class="axis-briefing__card">
+          <span class="axis-briefing__label">Consigne</span>
+          <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
+        </article>
 
       <article class="axis-briefing__card">
         <span class="axis-briefing__label">Objectif</span>
@@ -92,26 +93,27 @@ interface SummaryTile {
         </div>
       </article>
 
-      @if (optionsEnabled()) {
-        <article class="axis-briefing__card">
-          <span class="axis-briefing__label">Options d'entraînement</span>
-          <div class="axis-briefing__option">
-            <div class="axis-briefing__option-copy">
-              <span class="axis-briefing__option-title"
-                >Aide pendant la session</span
-              >
-              <span class="axis-briefing__option-detail"
-                >Affichez la règle de la suite pendant un exercice - la règle,
-                pas la réponse.</span
-              >
+        @if (optionsEnabled()) {
+          <article class="axis-briefing__card">
+            <span class="axis-briefing__label">Options d'entraînement</span>
+            <div class="axis-briefing__option">
+              <div class="axis-briefing__option-copy">
+                <span class="axis-briefing__option-title"
+                  >Aide pendant la session</span
+                >
+                <span class="axis-briefing__option-detail"
+                  >Affichez la règle de la suite pendant un exercice - la
+                  règle, pas la réponse.</span
+                >
+              </div>
+              <ui-toggle
+                [(checked)]="helpEnabled"
+                label="Aide pendant la session"
+              />
             </div>
-            <ui-toggle
-              [(checked)]="helpEnabled"
-              label="Aide pendant la session"
-            />
-          </div>
-        </article>
-      }
+          </article>
+        }
+      </div>
     </div>
   `,
   styleUrl: './axis-briefing.css',

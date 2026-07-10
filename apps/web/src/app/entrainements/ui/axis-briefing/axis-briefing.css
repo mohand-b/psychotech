@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
 }
 
@@ -15,39 +15,51 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-  padding: 0.5rem 0 0.75rem;
+  gap: 1rem;
+  padding: 0.5rem 0 0;
 }
 
 .axis-briefing__tile {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 1.25rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.125rem;
   background: var(--axis-pastel);
+  border: 1px solid var(--axis-pastel-bd);
   color: var(--axis-plain);
 }
 
 .axis-briefing__name {
   margin: 0;
-  font: 700 1.75rem/2.125rem var(--font-display);
-  color: var(--ink);
+  font: 700 2rem/2.5rem var(--font-display);
+  color: var(--axis-plain);
   text-align: center;
 }
 
-.axis-briefing__card {
+.axis-briefing__cards {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.25rem;
   width: 100%;
   max-width: 36.5rem;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 1.75rem;
+}
+
+.axis-briefing__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.axis-briefing__card + .axis-briefing__card {
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 1.25rem;
 }
 
 .axis-briefing__label {
@@ -64,20 +76,16 @@
 }
 
 .axis-briefing__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
 .axis-briefing__metric {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.875rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  text-align: center;
+  gap: 0.5rem;
 }
 
 .axis-briefing__metric-icon {
@@ -85,13 +93,13 @@
 }
 
 .axis-briefing__metric-value {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--ink);
 }
 
 .axis-briefing__metric-label {
-  font: 400 0.8125rem/1.125rem var(--font-ui);
+  font: 400 0.875rem/1.25rem var(--font-ui);
   color: var(--text-secondary);
 }
 
@@ -129,17 +137,60 @@
   }
 
   .axis-briefing__tile {
-    width: 4rem;
-    height: 4rem;
+    border: none;
+    border-radius: 1.25rem;
   }
 
   .axis-briefing__name {
     font-size: 1.625rem;
     line-height: 2rem;
+    color: var(--ink);
+  }
+
+  .axis-briefing__cards {
+    display: contents;
   }
 
   .axis-briefing__card {
     gap: 0.5rem;
+    width: 100%;
+    max-width: 36.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-card);
     padding: 1rem 1rem 1.125rem;
+  }
+
+  .axis-briefing__card + .axis-briefing__card {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+
+  .axis-briefing__metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .axis-briefing__metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.875rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    text-align: center;
+  }
+
+  .axis-briefing__metric-value {
+    font-size: 1rem;
+  }
+
+  .axis-briefing__metric-label {
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
   }
 }
