@@ -12,12 +12,13 @@ import {
   AxisMetrics,
   MotorSkillsCourseRecap,
   MotorSkillsMetrics,
+  TrainingOptionId,
 } from '../domain';
 import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
 import { BadgeDto } from './badge';
 
 export interface TargetedSessionOptionsDto {
-  helpEnabled: boolean;
+  enabledOptions: TrainingOptionId[];
 }
 
 export interface StartSessionDto {
