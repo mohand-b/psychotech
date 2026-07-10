@@ -95,25 +95,6 @@
   color: var(--text-secondary);
 }
 
-.axis-briefing__stars {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  height: 1.125rem;
-}
-
-.axis-briefing__star {
-  fill: none;
-  stroke: var(--border-hover);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-}
-
-.axis-briefing__star--filled {
-  fill: var(--warning);
-  stroke: var(--warning);
-}
-
 .axis-briefing__option {
   display: flex;
   align-items: center;

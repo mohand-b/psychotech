@@ -9,10 +9,8 @@ import {
   AXIS_TRAINING,
   AxisType,
   RailwayPlayableAxis,
-  SCORE_ACCEPTABLE_MIN,
-  SCORE_EXCELLENT_MIN,
 } from '@psychotech/shared';
-import { Clock, LayoutGrid } from 'lucide-angular';
+import { Clock, LayoutGrid, Target } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -38,9 +36,7 @@ interface SummaryTile {
         <span class="axis-briefing__tile">
           <ui-icon [img]="presentation().icon" [size]="32" />
         </span>
-        <h1 class="axis-briefing__name">
-          {{ training().briefing.exerciseName }}
-        </h1>
+        <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
       </header>
 
       <article class="axis-briefing__card">
@@ -82,21 +78,11 @@ interface SummaryTile {
           </span>
           @if (admissibilityThreshold(); as threshold) {
             <span class="axis-briefing__metric">
-              <span class="axis-briefing__stars" aria-hidden="true">
-                @for (filled of stars(); track $index) {
-                  <svg
-                    class="axis-briefing__star"
-                    [class.axis-briefing__star--filled]="filled"
-                    viewBox="0 0 24 24"
-                    width="16"
-                    height="16"
-                  >
-                    <polygon
-                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                    />
-                  </svg>
-                }
-              </span>
+              <ui-icon
+                class="axis-briefing__metric-icon"
+                [img]="thresholdIcon"
+                [size]="18"
+              />
               <span class="axis-briefing__metric-value t-mono">{{
                 threshold
               }}</span>
@@ -138,6 +124,7 @@ export class AxisBriefing {
 
   protected readonly volumeIcon = LayoutGrid;
   protected readonly timeIcon = Clock;
+  protected readonly thresholdIcon = Target;
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
@@ -152,10 +139,7 @@ export class AxisBriefing {
       case AxisType.LOGIC:
         return { value: `${training.exerciseCount}`, label: 'items' };
       case AxisType.MEMORY:
-        return {
-          value: `${new Set(training.sequences.map((sequence) => sequence.phase)).size}`,
-          label: 'phases',
-        };
+        return { value: `${training.exerciseCount}`, label: 'séquences' };
       case AxisType.VISUAL_DISCRIMINATION:
         return { value: `${training.exerciseCount}`, label: 'essais' };
       case AxisType.REACTIVITY:
@@ -189,14 +173,4 @@ export class AxisBriefing {
     }
   });
 
-  protected readonly stars = computed<boolean[]>(() => {
-    const threshold = this.admissibilityThreshold() ?? 0;
-    const filledCount =
-      threshold >= SCORE_EXCELLENT_MIN
-        ? 3
-        : threshold >= SCORE_ACCEPTABLE_MIN
-          ? 2
-          : 1;
-    return [0, 1, 2].map((index) => index < filledCount);
-  });
 }
