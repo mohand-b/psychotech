@@ -50,24 +50,26 @@
             />
           </div>
         }
-        <div class="motri__counters">
-          <span class="motri__counter">
-            <span
-              class="motri__counter-dot"
-              [style.background]="'var(--warning)'"
-            ></span>
-            Mineures
-            <strong class="t-mono">{{ minorErrors() }}</strong>
-          </span>
-          <span class="motri__counter">
-            <span
-              class="motri__counter-dot"
-              [style.background]="'var(--danger)'"
-            ></span>
-            Majeures
-            <strong class="t-mono">{{ majorErrors() }}</strong>
-          </span>
-        </div>
+        @if (liveErrorCountersEnabled()) {
+          <div class="motri__counters">
+            <span class="motri__counter">
+              <span
+                class="motri__counter-dot"
+                [style.background]="'var(--warning)'"
+              ></span>
+              Mineures
+              <strong class="t-mono">{{ minorErrors() }}</strong>
+            </span>
+            <span class="motri__counter">
+              <span
+                class="motri__counter-dot"
+                [style.background]="'var(--danger)'"
+              ></span>
+              Majeures
+              <strong class="t-mono">{{ majorErrors() }}</strong>
+            </span>
+          </div>
+        }
         <svg
           class="motri__svg"
           [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"

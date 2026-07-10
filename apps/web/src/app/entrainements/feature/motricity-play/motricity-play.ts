@@ -25,6 +25,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
+  TrainingOptionId,
   motricityAdvanceArc,
   motricityArcAdvanceBudget,
   motricityCursorZone,
@@ -103,6 +104,11 @@ export class MotricityPlay {
   protected readonly suspended = signal(false);
   protected readonly sessionMode = computed(
     () => this.facade.session()?.mode ?? SessionMode.TARGETED,
+  );
+  protected readonly liveErrorCountersEnabled = computed(() =>
+    this.facade
+      .enabledTrainingOptions()
+      .includes(TrainingOptionId.MOTOR_LIVE_ERROR_COUNTERS),
   );
 
   protected readonly gamepadPairing = this.gamepad.pairing;

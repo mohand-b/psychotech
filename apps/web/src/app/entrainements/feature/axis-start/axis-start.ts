@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AxisType, Sector } from '@psychotech/shared';
+import { AxisType, Sector, trainingOptionForAxis } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -31,12 +31,12 @@ export class AxisStart {
   private readonly router = inject(Router);
 
   protected readonly starting = signal(false);
-  protected readonly helpEnabled = signal(false);
+  protected readonly optionEnabled = signal(false);
 
   protected readonly axis =
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
   protected readonly buttonColor = axisButtonColor(this.axis);
-  protected readonly helpOptionAvailable = this.axis === AxisType.LOGIC;
+  private readonly trainingOption = trainingOptionForAxis(this.axis);
 
   private readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
@@ -59,7 +59,12 @@ export class AxisStart {
     }
     this.starting.set(true);
     this.trainingSessionFacade
-      .startTargeted(this.axis, { helpEnabled: this.helpEnabled() })
+      .startTargeted(this.axis, {
+        enabledOptions:
+          this.trainingOption && this.optionEnabled()
+            ? [this.trainingOption.id]
+            : [],
+      })
       .subscribe({
         next: (session) =>
           this.router.navigate([

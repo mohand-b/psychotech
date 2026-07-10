@@ -22,6 +22,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -110,6 +111,11 @@ export class ReactivityPlay {
   );
   protected readonly remainingFraction = computed(
     () => this.facade.remainingFraction() ?? 1,
+  );
+  private readonly liveMetricsEnabled = computed(() =>
+    this.facade
+      .enabledTrainingOptions()
+      .includes(TrainingOptionId.REACTIVITY_LIVE_METRICS),
   );
 
   private readonly zone = viewChild<ElementRef<HTMLElement>>('zone');
@@ -355,21 +361,23 @@ export class ReactivityPlay {
       REACTIVITY_COMMAND_BY_TYPE[active.stimulus.type] === command;
     this.activeStimulus.set(null);
     this.state.set('WAITING');
-    this.showFeedback(
-      correct
-        ? {
-            kind: 'tr',
-            text: `${trMs} ms`,
-            x: active.x,
-            y: active.y + FEEDBACK_OFFSET_PX,
-          }
-        : {
-            kind: 'wrong',
-            text: 'Mauvaise commande',
-            x: active.x,
-            y: active.y + FEEDBACK_OFFSET_PX,
-          },
-    );
+    if (correct) {
+      if (this.liveMetricsEnabled()) {
+        this.showFeedback({
+          kind: 'tr',
+          text: `${trMs} ms`,
+          x: active.x,
+          y: active.y + FEEDBACK_OFFSET_PX,
+        });
+      }
+      return;
+    }
+    this.showFeedback({
+      kind: 'wrong',
+      text: 'Mauvaise commande',
+      x: active.x,
+      y: active.y + FEEDBACK_OFFSET_PX,
+    });
   }
 
   private recordAnswer(

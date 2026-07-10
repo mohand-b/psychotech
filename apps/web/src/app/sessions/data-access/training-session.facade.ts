@@ -23,6 +23,7 @@ import {
   SessionStatus,
   TargetedAxisResultDto,
   TargetedSessionOptionsDto,
+  TrainingOptionId,
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
@@ -68,8 +69,12 @@ export class TrainingSessionFacade {
     () => this.store.session()?.axisResults[0]?.axis ?? null,
   );
 
-  readonly helpEnabled: Signal<boolean> = computed(
-    () => this.store.session()?.options.helpEnabled ?? false,
+  readonly enabledTrainingOptions: Signal<TrainingOptionId[]> = computed(
+    () => this.store.session()?.options.enabledOptions ?? [],
+  );
+
+  readonly helpEnabled: Signal<boolean> = computed(() =>
+    this.enabledTrainingOptions().includes(TrainingOptionId.LOGIC_HELP),
   );
 
   readonly logicItems: Signal<LogicItem[]> = computed(() => {
@@ -238,7 +243,7 @@ export class TrainingSessionFacade {
 
   startTargeted(
     axis: AxisType,
-    options: TargetedSessionOptionsDto = { helpEnabled: false },
+    options: TargetedSessionOptionsDto = { enabledOptions: [] },
   ): Observable<SessionDto> {
     const sector = this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
     return this.api.start({ mode: SessionMode.TARGETED, sector, axis, options }).pipe(

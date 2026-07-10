@@ -9,6 +9,7 @@ import {
   AXIS_TRAINING,
   AxisType,
   RailwayPlayableAxis,
+  trainingOptionForAxis,
 } from '@psychotech/shared';
 import { Clock, LayoutGrid, ListChecks, Target, Timer } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -110,23 +111,19 @@ interface SummaryTile {
         </div>
       </article>
 
-        @if (optionsEnabled()) {
+        @if (trainingOption(); as option) {
           <article class="axis-briefing__card">
             <span class="axis-briefing__label">Options d'entraînement</span>
             <div class="axis-briefing__option">
               <div class="axis-briefing__option-copy">
-                <span class="axis-briefing__option-title"
-                  >Aide pendant la session</span
-                >
-                <span class="axis-briefing__option-detail"
-                  >Affichez la règle de la suite pendant un exercice - la
-                  règle, pas la réponse.</span
-                >
+                <span class="axis-briefing__option-title">{{
+                  option.label
+                }}</span>
+                <span class="axis-briefing__option-detail">{{
+                  option.description
+                }}</span>
               </div>
-              <ui-toggle
-                [(checked)]="helpEnabled"
-                label="Aide pendant la session"
-              />
+              <ui-toggle [(checked)]="optionEnabled" [label]="option.label" />
             </div>
           </article>
         }
@@ -138,8 +135,11 @@ interface SummaryTile {
 export class AxisBriefing {
   readonly axis = input.required<AxisType>();
   readonly admissibilityThreshold = input<number | null>(null);
-  readonly optionsEnabled = input(false);
-  readonly helpEnabled = model(false);
+  readonly optionEnabled = model(false);
+
+  protected readonly trainingOption = computed(() =>
+    trainingOptionForAxis(this.axis()),
+  );
 
   protected readonly volumeIcon = LayoutGrid;
   protected readonly timeIcon = Clock;
