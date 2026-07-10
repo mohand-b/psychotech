@@ -30,6 +30,8 @@ import {
   motricityCursorZone,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
+import { crankSmoothedSpeed } from '../../../gamepad/data-access/gamepad-logic';
+import { Crank } from '../../../gamepad/ui/crank/crank';
 import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
@@ -48,14 +50,14 @@ type CursorState = 'depart' | 'normal' | 'contact' | 'outside';
 
 const MAX_FRAME_MS = 50;
 const ARC_COMPLETION_TOLERANCE = 0.5;
-const JOYSTICK_RANGE_PX = 44;
+const KEYBOARD_INPUT_THRESHOLD = 0.15;
 const BADGE_WIDTH = 58;
 const BADGE_HEIGHT = 24;
 
 @Component({
   selector: 'app-motricity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ExitConfirm, GamepadPairing],
+  imports: [Button, Crank, ExitConfirm, GamepadPairing],
   templateUrl: './motricity-play.html',
   styleUrl: './motricity-play.css',
   host: {
@@ -94,8 +96,8 @@ export class MotricityPlay {
     this.training.pauseBetweenCoursesSec,
   );
   protected readonly confirmingExit = signal(false);
-  protected readonly joystickLeftX = signal(0);
-  protected readonly joystickRightY = signal(0);
+  protected readonly crankSpeedX = signal(0);
+  protected readonly crankSpeedY = signal(0);
   protected readonly timerFraction = computed(
     () => this.facade.perExerciseBarFraction() ?? 1,
   );
@@ -166,11 +168,9 @@ export class MotricityPlay {
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
   private hasSubmitted = false;
-  private leftPointerId: number | null = null;
-  private rightPointerId: number | null = null;
-  private leftPointerOrigin = 0;
-  private rightPointerOrigin = 0;
-  private usedTouchJoysticks = false;
+  private crankPendingXRad = 0;
+  private crankPendingYRad = 0;
+  private usedTouchCranks = false;
   private previousCursorState: CursorState = 'depart';
   private handledCloseRequests = this.facade.closeRequests();
 
@@ -232,44 +232,12 @@ export class MotricityPlay {
     this.pressedKeys.delete(event.key);
   }
 
-  protected joystickStart(
-    side: 'left' | 'right',
-    event: PointerEvent,
-  ): void {
-    this.usedTouchJoysticks = true;
-    (event.target as HTMLElement).setPointerCapture(event.pointerId);
-    if (side === 'left') {
-      this.leftPointerId = event.pointerId;
-      this.leftPointerOrigin = event.clientX;
+  protected onCrankRotate(axis: 'x' | 'y', deltaRad: number): void {
+    this.usedTouchCranks = true;
+    if (axis === 'x') {
+      this.crankPendingXRad += deltaRad;
     } else {
-      this.rightPointerId = event.pointerId;
-      this.rightPointerOrigin = event.clientY;
-    }
-  }
-
-  protected joystickMove(side: 'left' | 'right', event: PointerEvent): void {
-    if (side === 'left' && event.pointerId === this.leftPointerId) {
-      const delta = event.clientX - this.leftPointerOrigin;
-      this.joystickLeftX.set(
-        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
-      );
-    }
-    if (side === 'right' && event.pointerId === this.rightPointerId) {
-      const delta = event.clientY - this.rightPointerOrigin;
-      this.joystickRightY.set(
-        Math.max(-1, Math.min(1, delta / JOYSTICK_RANGE_PX)),
-      );
-    }
-  }
-
-  protected joystickEnd(side: 'left' | 'right', event: PointerEvent): void {
-    if (side === 'left' && event.pointerId === this.leftPointerId) {
-      this.leftPointerId = null;
-      this.joystickLeftX.set(0);
-    }
-    if (side === 'right' && event.pointerId === this.rightPointerId) {
-      this.rightPointerId = null;
-      this.joystickRightY.set(0);
+      this.crankPendingYRad += deltaRad;
     }
   }
 
@@ -300,6 +268,10 @@ export class MotricityPlay {
     this.previousCursorState = 'depart';
     this.minorErrors.set(0);
     this.majorErrors.set(0);
+    this.crankSpeedX.set(0);
+    this.crankSpeedY.set(0);
+    this.crankPendingXRad = 0;
+    this.crankPendingYRad = 0;
     this.gamepad.beginCourseLatencyWindow();
     this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
   }
@@ -338,6 +310,7 @@ export class MotricityPlay {
     }
     this.suspended.set(false);
 
+    this.updateCrankSpeeds(deltaMs);
     this.move(course, deltaMs);
     const zone = motricityCursorZone(course, this.position);
     const nextCursorState: CursorState =
@@ -420,6 +393,21 @@ export class MotricityPlay {
       .join(' ');
   }
 
+  private updateCrankSpeeds(deltaMs: number): void {
+    if (deltaMs <= 0) {
+      return;
+    }
+    const dtSec = deltaMs / 1000;
+    this.crankSpeedX.set(
+      crankSmoothedSpeed(this.crankSpeedX(), this.crankPendingXRad / dtSec),
+    );
+    this.crankSpeedY.set(
+      crankSmoothedSpeed(this.crankSpeedY(), this.crankPendingYRad / dtSec),
+    );
+    this.crankPendingXRad = 0;
+    this.crankPendingYRad = 0;
+  }
+
   private move(course: MotricityCourse, deltaMs: number): void {
     if (this.confirmingExit()) {
       return;
@@ -436,16 +424,18 @@ export class MotricityPlay {
         return;
       }
       speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, deflection);
+    } else if (this.crankSpeedX() !== 0 || this.crankSpeedY() !== 0) {
+      inputX = this.crankSpeedX();
+      inputY = this.crankSpeedY();
+      speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, Math.hypot(inputX, inputY));
     } else {
-      const keyX =
+      inputX =
         (this.pressedKeys.has('ArrowRight') ? 1 : 0) -
         (this.pressedKeys.has('ArrowLeft') ? 1 : 0);
-      const keyY =
+      inputY =
         (this.pressedKeys.has('ArrowDown') ? 1 : 0) -
         (this.pressedKeys.has('ArrowUp') ? 1 : 0);
-      inputX = Math.max(-1, Math.min(1, keyX + this.joystickLeftX()));
-      inputY = Math.max(-1, Math.min(1, keyY + this.joystickRightY()));
-      if (Math.hypot(inputX, inputY) < 0.15) {
+      if (Math.hypot(inputX, inputY) < KEYBOARD_INPUT_THRESHOLD) {
         return;
       }
       speedFactor = 1;
@@ -556,7 +546,7 @@ export class MotricityPlay {
     this.facade.setPerExerciseCountdown(null);
     const controlModality = this.gamepadExclusive()
       ? ControlModality.PHONE_GAMEPAD
-      : this.usedTouchJoysticks
+      : this.usedTouchCranks
         ? ControlModality.TOUCH_JOYSTICKS
         : ControlModality.KEYBOARD;
     this.gamepad.sendPhase('FINISHED');

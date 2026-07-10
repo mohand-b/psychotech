@@ -13,10 +13,12 @@
 }
 
 .crank__surface {
-  width: 176px;
-  height: 176px;
+  width: min(176px, 38vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .crank__disc {

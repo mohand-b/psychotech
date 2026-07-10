@@ -17,7 +17,7 @@ import {
   GamepadSignalErrorCode,
 } from '@psychotech/shared';
 import {
-  crankValueFromVelocity,
+  crankSmoothedSpeed,
   gamepadSignalingUrl,
 } from '../../data-access/gamepad-logic';
 import { GamepadTransport } from '../../data-access/gamepad-transport';
@@ -32,8 +32,6 @@ type ManetteView =
   | 'FINISHED';
 
 const RECONNECT_DELAY_MS = 1500;
-const SPEED_SMOOTHING = 0.35;
-const SPEED_REST_EPSILON = 0.02;
 
 const HAPTIC_PATTERNS: Record<GamepadHapticEffect, number | number[]> = {
   CONTACT: 40,
@@ -227,13 +225,10 @@ export class Manette {
           : Math.max(1 / 1000, (now - this.lastTickAtMs) / 1000);
       this.lastTickAtMs = now;
       this.leftSpeed.set(
-        this.smoothedSpeed(
-          this.leftSpeed(),
-          this.leftPendingDeltaRad / dtSec,
-        ),
+        crankSmoothedSpeed(this.leftSpeed(), this.leftPendingDeltaRad / dtSec),
       );
       this.rightSpeed.set(
-        this.smoothedSpeed(
+        crankSmoothedSpeed(
           this.rightSpeed(),
           this.rightPendingDeltaRad / dtSec,
         ),
@@ -258,14 +253,6 @@ export class Manette {
         this.view.set('SUSPENDED');
       }
     }, GAMEPAD_HEARTBEAT_TIMEOUT_MS / 2);
-  }
-
-  private smoothedSpeed(previous: number, radPerSec: number): number {
-    const target = crankValueFromVelocity(radPerSec);
-    const smoothed = previous + (target - previous) * SPEED_SMOOTHING;
-    return Math.abs(smoothed) < SPEED_REST_EPSILON && target === 0
-      ? 0
-      : smoothed;
   }
 
   private stopInputLoop(): void {

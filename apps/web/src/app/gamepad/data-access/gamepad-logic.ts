@@ -116,3 +116,18 @@ export function crankValueFromVelocity(radPerSec: number): number {
     ),
   );
 }
+
+export const GAMEPAD_CRANK_SPEED_SMOOTHING = 0.35;
+export const GAMEPAD_CRANK_REST_EPSILON = 0.02;
+
+export function crankSmoothedSpeed(
+  previous: number,
+  radPerSec: number,
+): number {
+  const target = crankValueFromVelocity(radPerSec);
+  const smoothed =
+    previous + (target - previous) * GAMEPAD_CRANK_SPEED_SMOOTHING;
+  return Math.abs(smoothed) < GAMEPAD_CRANK_REST_EPSILON && target === 0
+    ? 0
+    : smoothed;
+}

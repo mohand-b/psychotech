@@ -1,10 +1,12 @@
 import { GAMEPAD_MAX_OVERDRIVE, GamepadInputFrame } from '@psychotech/shared';
 import {
   GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC,
+  GAMEPAD_CRANK_SPEED_SMOOTHING,
   acceptGamepadFrame,
   applyGamepadDeadzone,
   crankAngleDelta,
   crankPointerAngle,
+  crankSmoothedSpeed,
   crankValueFromVelocity,
   gamepadConnectionLost,
   gamepadLatencyStats,
@@ -113,6 +115,22 @@ describe('crankValueFromVelocity', () => {
   it('is proportional below full speed and zero at rest', () => {
     expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC / 2)).toBeCloseTo(0.5, 5);
     expect(crankValueFromVelocity(0)).toBe(0);
+  });
+});
+
+describe('crankSmoothedSpeed', () => {
+  it('eases toward the target speed with the shared smoothing factor', () => {
+    expect(
+      crankSmoothedSpeed(0, GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC),
+    ).toBeCloseTo(GAMEPAD_CRANK_SPEED_SMOOTHING, 5);
+    expect(
+      crankSmoothedSpeed(1, GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC),
+    ).toBeCloseTo(1, 5);
+  });
+
+  it('snaps to zero once at rest below the epsilon', () => {
+    expect(crankSmoothedSpeed(0.01, 0)).toBe(0);
+    expect(crankSmoothedSpeed(0.5, 0)).toBeCloseTo(0.325, 5);
   });
 });
 

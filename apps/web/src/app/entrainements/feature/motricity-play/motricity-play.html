@@ -214,6 +214,23 @@
         }
       </div>
 
+      <div class="motri__cranks">
+        <ui-crank
+          label="Horizontal"
+          hintClockwise="droite"
+          hintCounterClockwise="gauche"
+          [speed]="crankSpeedX()"
+          (rotated)="onCrankRotate('x', $event)"
+        />
+        <ui-crank
+          label="Vertical"
+          hintClockwise="bas"
+          hintCounterClockwise="haut"
+          [speed]="crankSpeedY()"
+          (rotated)="onCrankRotate('y', $event)"
+        />
+      </div>
+
       <div class="motri__hint">
         @if (gamepadExclusive()) {
           <span class="motri__hint-label"
@@ -231,35 +248,6 @@
           <span class="motri__hint-label">déplacer le point</span>
         }
       </div>
-    </div>
-
-    <div
-      class="motri__joy motri__joy--left"
-      (pointerdown)="joystickStart('left', $event)"
-      (pointermove)="joystickMove('left', $event)"
-      (pointerup)="joystickEnd('left', $event)"
-      (pointercancel)="joystickEnd('left', $event)"
-    >
-      <span class="motri__joy-track motri__joy-track--horizontal">
-        <span
-          class="motri__joy-knob"
-          [style.transform]="'translate(' + joystickLeftX() * 32 + 'px, 0)'"
-        ></span>
-      </span>
-    </div>
-    <div
-      class="motri__joy motri__joy--right"
-      (pointerdown)="joystickStart('right', $event)"
-      (pointermove)="joystickMove('right', $event)"
-      (pointerup)="joystickEnd('right', $event)"
-      (pointercancel)="joystickEnd('right', $event)"
-    >
-      <span class="motri__joy-track motri__joy-track--vertical">
-        <span
-          class="motri__joy-knob"
-          [style.transform]="'translate(0, ' + joystickRightY() * 32 + 'px)'"
-        ></span>
-      </span>
     </div>
   }
 </section>
