@@ -113,9 +113,9 @@ export interface ResultMetricRow {
     }
     .metrics__stroke {
       flex-shrink: 0;
-      width: 12px;
-      height: 2.5px;
-      border-radius: var(--radius-pill);
+      width: 14px;
+      height: 3px;
+      border-radius: 1.5px;
     }
     .metrics__label {
       display: flex;

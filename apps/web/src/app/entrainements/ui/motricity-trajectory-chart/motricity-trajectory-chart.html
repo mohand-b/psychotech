@@ -20,13 +20,6 @@
           ></span>
         }
       }
-      @for (band of exitBands(); track $index) {
-        <span
-          class="chart__exit-band"
-          [style.left.%]="band.leftPct"
-          [style.width.%]="band.widthPct"
-        ></span>
-      }
       <span class="chart__border-line" [style.bottom.%]="borderBottomPct">
         <span class="chart__border-label">bord</span>
       </span>

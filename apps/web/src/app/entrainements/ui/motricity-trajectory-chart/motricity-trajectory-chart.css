@@ -55,15 +55,6 @@
   pointer-events: none;
 }
 
-.chart__exit-band {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: var(--danger);
-  opacity: 0.14;
-  pointer-events: none;
-}
-
 .chart__border-line {
   position: absolute;
   left: 0;
@@ -117,8 +108,9 @@
   left: 0;
   top: 0;
   transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--card);
   border-radius: var(--radius-pill);
   background: var(--warning);
 }

@@ -14,7 +14,6 @@ export const TRAJECTORY_CONTACT_MERGE_MS = 1500;
 export const TRAJECTORY_EXIT_MERGE_MS = 1000;
 export const TRAJECTORY_BORDER_PCT = 100;
 export const TRAJECTORY_DISPLAY_CLAMP_PCT = 110;
-export const TRAJECTORY_EXIT_BAND_MIN_WIDTH_PCT = 0.4;
 
 export interface TrajectoryExitWindow {
   startMs: number;
@@ -263,42 +262,21 @@ export function buildDisplaySeries(
     });
 }
 
-export interface TrajectoryExitBand {
-  leftPct: number;
-  widthPct: number;
-}
-
-export function trajectoryExitBands(
-  windows: TrajectoryExitWindow[],
-  totalMs: number,
-): TrajectoryExitBand[] {
-  return windows.map((window) => ({
-    leftPct: (window.startMs / totalMs) * 100,
-    widthPct: Math.max(
-      TRAJECTORY_EXIT_BAND_MIN_WIDTH_PCT,
-      ((window.endMs - window.startMs) / totalMs) * 100,
-    ),
-  }));
-}
-
 export interface CurveRun {
   from: number;
   to: number;
 }
 
-export function curveExitRuns(
-  timesMs: number[],
-  windows: TrajectoryExitWindow[],
+export function curveAboveBorderRuns(
+  deviationsPct: number[],
+  borderPct: number = TRAJECTORY_BORDER_PCT,
 ): CurveRun[] {
   const runs: CurveRun[] = [];
   let runStart: number | null = null;
-  for (let index = 0; index < timesMs.length - 1; index += 1) {
-    const pairStart = timesMs[index];
-    const pairEnd = timesMs[index + 1];
-    const inWindow = windows.some(
-      (window) => pairStart < window.endMs && pairEnd > window.startMs,
-    );
-    if (inWindow) {
+  for (let index = 0; index < deviationsPct.length - 1; index += 1) {
+    const isAbove =
+      deviationsPct[index] > borderPct || deviationsPct[index + 1] > borderPct;
+    if (isAbove) {
       if (runStart === null) {
         runStart = index;
       }
@@ -308,7 +286,7 @@ export function curveExitRuns(
     }
   }
   if (runStart !== null) {
-    runs.push({ from: runStart, to: timesMs.length - 1 });
+    runs.push({ from: runStart, to: deviationsPct.length - 1 });
   }
   return runs;
 }

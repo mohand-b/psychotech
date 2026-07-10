@@ -8,14 +8,11 @@ import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import {
   CurvePoint,
-  TrajectoryExitBand,
-  TrajectoryExitWindow,
   buildDisplaySeries,
   courseContactTimes,
   courseExitWindows,
-  curveExitRuns,
+  curveAboveBorderRuns,
   monotoneCubicPath,
-  trajectoryExitBands,
 } from './trajectory-chart.logic';
 
 const Y_DOMAIN_PCT = 120;
@@ -23,6 +20,7 @@ const BORDER_PCT = 100;
 
 interface ChartCoord extends CurvePoint {
   tMs: number;
+  deviationPct: number;
 }
 
 interface CourseZone {
@@ -98,23 +96,6 @@ export class MotricityTrajectoryChart {
       ),
   );
 
-  private readonly concatenatedWindows = computed<TrajectoryExitWindow[]>(() => {
-    const offsets = this.courseOffsets();
-    const windows: TrajectoryExitWindow[] = [];
-    for (const series of this.metrics().timeline) {
-      const offset = offsets.get(series.courseIndex) ?? 0;
-      for (const window of this.mergedWindowsByCourse().get(
-        series.courseIndex,
-      ) ?? []) {
-        windows.push({
-          startMs: offset + window.startMs,
-          endMs: offset + window.endMs,
-        });
-      }
-    }
-    return windows;
-  });
-
   private readonly coords = computed<ChartCoord[]>(() => {
     const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
@@ -135,6 +116,7 @@ export class MotricityTrajectoryChart {
           x: ((offset + point.tMs) / totalMs) * 100,
           y: 100 - (point.deviationPct / Y_DOMAIN_PCT) * 100,
           tMs: offset + point.tMs,
+          deviationPct: point.deviationPct,
         });
       }
     }
@@ -147,17 +129,10 @@ export class MotricityTrajectoryChart {
 
   protected readonly exitCurvePaths = computed<string[]>(() => {
     const coords = this.coords();
-    return curveExitRuns(
-      coords.map((coord) => coord.tMs),
-      this.concatenatedWindows(),
-    )
+    return curveAboveBorderRuns(coords.map((coord) => coord.deviationPct))
       .map((run) => monotoneCubicPath(coords.slice(run.from, run.to + 1)))
       .filter((path) => path !== '');
   });
-
-  protected readonly exitBands = computed<TrajectoryExitBand[]>(() =>
-    trajectoryExitBands(this.concatenatedWindows(), this.totalMs()),
-  );
 
   protected readonly contacts = computed<ContactDot[]>(() => {
     const offsets = this.courseOffsets();

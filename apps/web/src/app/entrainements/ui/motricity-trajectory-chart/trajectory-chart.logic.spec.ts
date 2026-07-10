@@ -7,13 +7,12 @@ import {
   clampDeviation,
   courseContactTimes,
   courseExitWindows,
-  curveExitRuns,
+  curveAboveBorderRuns,
   interpolateDeviationAt,
   mergeContactTimes,
   mergeExitWindows,
   monotoneCubicPath,
   smoothTimelinePoints,
-  trajectoryExitBands,
 } from './trajectory-chart.logic';
 
 function flatSeries(untilMs: number, deviationPct: number) {
@@ -168,40 +167,19 @@ describe('clampDeviation', () => {
   });
 });
 
-describe('trajectoryExitBands', () => {
-  it('maps merged windows to bands with a minimum visible width', () => {
-    const bands = trajectoryExitBands(
-      [
-        { startMs: 50_000, endMs: 52_400 },
-        { startMs: 100_000, endMs: 100_050 },
-      ],
-      120_000,
-    );
-    expect(bands[0].leftPct).toBeCloseTo((50_000 / 120_000) * 100, 5);
-    expect(bands[0].widthPct).toBeCloseTo((2_400 / 120_000) * 100, 5);
-    expect(bands[1].widthPct).toBeGreaterThanOrEqual(0.4);
-  });
-});
-
-describe('curveExitRuns', () => {
-  const times = [0, 200, 400, 600, 800, 1000, 1200];
-
-  it('marks the consecutive curve pairs overlapping an exit window as a single run', () => {
-    const runs = curveExitRuns(times, [{ startMs: 350, endMs: 850 }]);
+describe('curveAboveBorderRuns', () => {
+  it('marks every curve portion above the border as a red run', () => {
+    const runs = curveAboveBorderRuns([40, 60, 102, 108, 101, 55, 40]);
     expect(runs).toEqual([{ from: 1, to: 5 }]);
   });
 
-  it('returns one run per disjoint window and none without windows', () => {
-    expect(
-      curveExitRuns(times, [
-        { startMs: 0, endMs: 150 },
-        { startMs: 1_050, endMs: 1_200 },
-      ]),
-    ).toEqual([
+  it('returns one run per excursion and keeps a peak at exactly one hundred black', () => {
+    expect(curveAboveBorderRuns([105, 40, 100, 40, 103])).toEqual([
       { from: 0, to: 1 },
-      { from: 5, to: 6 },
+      { from: 3, to: 4 },
     ]);
-    expect(curveExitRuns(times, [])).toEqual([]);
+    expect(curveAboveBorderRuns([40, 100, 40])).toEqual([]);
+    expect(curveAboveBorderRuns([])).toEqual([]);
   });
 });
 
