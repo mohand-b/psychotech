@@ -56,7 +56,7 @@ const DESKTOP_HELP_TEXTS: Partial<Record<AxisType, string>> = {
             <circle class="countdown__ring-progress" cx="60" cy="60" r="54" />
           </svg>
         }
-        <span class="countdown__digit t-mono">{{ value() }}</span>
+        <span class="countdown__digit">{{ value() }}</span>
       </div>
 
       <p class="countdown__title">L'épreuve commence</p>

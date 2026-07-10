@@ -46,7 +46,7 @@
 }
 
 .countdown__ring-track {
-  fill: none;
+  fill: var(--surface-hover);
   stroke: var(--axis-pastel-bd);
   stroke-width: 5;
 }
@@ -68,8 +68,7 @@
 }
 
 .countdown__digit {
-  font-size: 64px;
-  font-weight: 700;
+  font: 700 64px/1 var(--font-display);
   color: var(--axis-plain);
 }
 
