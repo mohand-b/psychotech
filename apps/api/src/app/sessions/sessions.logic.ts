@@ -3,6 +3,7 @@ import {
   AXIS_TRAINING,
   AxisRawResultDto,
   AxisType,
+  FULL_SESSION_AXIS_ORDER,
   SessionMode,
 } from '@psychotech/shared';
 import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util';
@@ -95,17 +96,9 @@ function axisPlayTimeMs(metrics: unknown): number {
   return 0;
 }
 
-export const FULL_SESSION_AXIS_ORDER: AxisType[] = [
-  AxisType.LOGIC,
-  AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
-  AxisType.MOTOR_SKILLS,
-];
-
 export function resolveSessionAxes(mode: SessionMode, axis?: AxisType): AxisType[] {
   if (mode === SessionMode.FULL) {
-    return FULL_SESSION_AXIS_ORDER;
+    return [...FULL_SESSION_AXIS_ORDER];
   }
   if (!axis) {
     throw new BadRequestException(

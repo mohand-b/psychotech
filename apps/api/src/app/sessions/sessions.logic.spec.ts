@@ -1,8 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
-import { AXIS_TRAINING, AxisType, SessionMode } from '@psychotech/shared';
+import {
+  AXIS_TRAINING,
+  AxisType,
+  FULL_SESSION_AXIS_ORDER,
+  SessionMode,
+} from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
-  FULL_SESSION_AXIS_ORDER,
   activePlayDurationSec,
   computeStreakUpdate,
   resolveSessionAxes,
@@ -17,7 +21,9 @@ describe('resolveSessionAxes', () => {
       AxisType.REACTIVITY,
       AxisType.MOTOR_SKILLS,
     ]);
-    expect(resolveSessionAxes(SessionMode.FULL)).toBe(FULL_SESSION_AXIS_ORDER);
+    expect(resolveSessionAxes(SessionMode.FULL)).toEqual([
+      ...FULL_SESSION_AXIS_ORDER,
+    ]);
   });
 
   it('targets a single axis for targeted and tutorial sessions', () => {
