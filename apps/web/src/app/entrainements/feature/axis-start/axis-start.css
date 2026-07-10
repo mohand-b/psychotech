@@ -15,8 +15,8 @@
   max-width: 36.5rem;
 }
 
-.axis-start__cta-mobile {
-  display: none;
+.axis-start__cta ui-button {
+  width: auto;
 }
 
 @media (max-width: 767px) {
@@ -36,12 +36,7 @@
     z-index: 30;
   }
 
-  .axis-start__cta-desktop {
-    display: none;
-  }
-
-  .axis-start__cta-mobile {
-    display: flex;
-    flex: 1;
+  .axis-start__cta ui-button {
+    width: 100%;
   }
 }

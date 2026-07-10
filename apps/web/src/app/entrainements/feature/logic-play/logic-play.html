@@ -87,15 +87,6 @@
           <ui-button
             class="play__next"
             [color]="buttonColor"
-            [showArrow]="!isLastItem()"
-            [disabled]="locked() || !currentAnswered()"
-            (click)="confirmNext()"
-          >
-            {{ isLastItem() ? 'Terminer' : 'Suivant' }}
-          </ui-button>
-          <ui-button
-            class="play__next-block"
-            [color]="buttonColor"
             [block]="true"
             [showArrow]="!isLastItem()"
             [disabled]="locked() || !currentAnswered()"

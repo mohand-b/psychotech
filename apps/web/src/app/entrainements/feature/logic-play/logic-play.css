@@ -81,8 +81,8 @@
   display: none;
 }
 
-.play__next-block {
-  display: none;
+.play__actions-end .play__next {
+  width: auto;
 }
 
 .play__hint {
@@ -141,13 +141,9 @@
     display: inline-flex;
   }
 
-  .play__next {
-    display: none;
-  }
-
-  .play__next-block {
-    display: flex;
+  .play__actions-end .play__next {
     flex: 1;
+    width: 100%;
   }
 
   .play__hint {
