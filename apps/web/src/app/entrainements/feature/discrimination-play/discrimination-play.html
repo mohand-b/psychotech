@@ -20,14 +20,14 @@
   </div>
 
   @if (loaded() && currentTrial(); as trial) {
-    <div class="discri__content">
-      <p class="discri__counter">
-        Essai
-        <span class="discri__counter-value t-mono"
-          >{{ currentIndex() + 1 }}/{{ total }}</span
-        >
-      </p>
+    <p class="discri__counter">
+      Essai
+      <span class="discri__counter-value t-mono"
+        >{{ currentIndex() + 1 }}/{{ total }}</span
+      >
+    </p>
 
+    <div class="discri__content">
       <p class="discri__question">Les deux suites sont-elles identiques ?</p>
 
       <div class="discri__cards">
