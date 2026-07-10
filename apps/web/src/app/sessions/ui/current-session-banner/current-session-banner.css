@@ -88,7 +88,7 @@
 
 @media (max-width: 767px) {
   :host {
-    top: 3.5rem;
+    top: calc(3.5rem + var(--safe-top));
   }
 
   .banner__inner {

@@ -16,7 +16,7 @@
     <ui-navbar [hideMobile]="mobileFlow() !== null" />
     @if (mobileFlow(); as flow) {
       <header
-        class="flow-header navbar-surface flex h-14 items-center justify-between px-4 md:hidden"
+        class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
       >
         <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
         @if (mobileFlowPresentation(flow); as presentation) {
@@ -35,7 +35,7 @@
   }
   <main
     class="content flex-1 md:pb-0"
-    [class.pb-16]="mobileFlow() === null"
+    [class.content--nav-clearance]="mobileFlow() === null"
   >
     <router-outlet />
   </main>

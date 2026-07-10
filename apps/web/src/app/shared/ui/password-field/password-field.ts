@@ -54,6 +54,16 @@ import { Icon } from '../icon/icon';
       outline-offset: 2px;
       border-radius: 4px;
     }
+    @media (pointer: coarse) {
+      .ui-password-field__toggle {
+        position: relative;
+      }
+      .ui-password-field__toggle::before {
+        content: '';
+        position: absolute;
+        inset: -14px;
+      }
+    }
   `,
 })
 export class PasswordField {

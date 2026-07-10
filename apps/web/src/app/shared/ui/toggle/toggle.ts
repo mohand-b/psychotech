@@ -61,6 +61,16 @@ import {
     .ui-toggle--on .ui-toggle__thumb {
       transform: translateX(20px);
     }
+    @media (pointer: coarse) {
+      .ui-toggle {
+        position: relative;
+      }
+      .ui-toggle::before {
+        content: '';
+        position: absolute;
+        inset: -10px 0;
+      }
+    }
   `,
 })
 export class Toggle {

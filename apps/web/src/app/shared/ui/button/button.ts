@@ -222,6 +222,11 @@ export type ButtonSize = 'md' | 'lg';
     .ui-button__spinner {
       animation: ui-button-spin 0.7s linear infinite;
     }
+    @media (max-width: 767px) {
+      .ui-button {
+        min-height: 44px;
+      }
+    }
     @keyframes ui-button-spin {
       to {
         transform: rotate(360deg);

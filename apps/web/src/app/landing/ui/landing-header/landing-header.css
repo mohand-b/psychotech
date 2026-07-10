@@ -102,6 +102,13 @@
     display: none;
   }
   .header {
-    padding: 0 20px;
+    height: calc(68px + var(--safe-top));
+    padding: var(--safe-top) 20px 0;
+  }
+  .header__signin,
+  .header__cta {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 }

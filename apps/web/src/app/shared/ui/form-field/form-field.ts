@@ -97,6 +97,11 @@ import { inputValue } from '../../util/input-value';
       font: 400 13px/18px var(--font-ui);
       color: var(--axis-motor-text);
     }
+    @media (max-width: 767px) {
+      .ui-form-field__input {
+        font-size: 16px;
+      }
+    }
   `,
 })
 export class FormField {

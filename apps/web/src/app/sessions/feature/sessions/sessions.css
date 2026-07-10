@@ -121,6 +121,7 @@
 
   .sessions__filter {
     flex-shrink: 0;
+    min-height: 44px;
   }
 
   .sessions__filter-label {

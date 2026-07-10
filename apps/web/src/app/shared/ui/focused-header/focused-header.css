@@ -126,3 +126,14 @@
   background: var(--bg);
   color: var(--ink);
 }
+
+@media (max-width: 767px) {
+  .focused-header {
+    padding-top: var(--safe-top);
+  }
+
+  .focused-header__icon-button {
+    width: 44px;
+    height: 44px;
+  }
+}

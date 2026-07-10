@@ -87,6 +87,11 @@ export interface SelectOption {
       color: var(--label);
       pointer-events: none;
     }
+    @media (max-width: 767px) {
+      .ui-select__input {
+        font-size: 16px;
+      }
+    }
   `,
 })
 export class Select {

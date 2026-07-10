@@ -362,10 +362,12 @@
   }
   .hero__panel--dominant {
     height: 82vh;
+    height: 82dvh;
     min-height: 520px;
   }
   .hero__panel--band {
     height: 34vh;
+    height: 34dvh;
     min-height: 220px;
   }
   .hero__content {

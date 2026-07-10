@@ -6,6 +6,12 @@
   background: var(--bg);
 }
 
+@media (max-width: 767px) {
+  .content--nav-clearance {
+    padding-bottom: calc(64px + var(--safe-bottom));
+  }
+}
+
 .flow-header {
   background: var(--card);
   border-bottom: 1px solid var(--border);
