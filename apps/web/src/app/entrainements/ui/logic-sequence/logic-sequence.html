@@ -40,3 +40,9 @@
     }
   </span>
 </div>
+@if (hint() !== null && hintOpen()) {
+  <div class="seq__hint-inline" role="note" aria-label="Règle de la suite">
+    <ui-icon [img]="bulbIcon" [size]="16" />
+    <span class="seq__hint-inline-text">{{ hint() }}</span>
+  </div>
+}

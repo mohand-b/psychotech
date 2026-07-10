@@ -66,6 +66,19 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
       justify-content: center;
       gap: 12px;
     }
+    @media (max-width: 767px) {
+      :host {
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 35;
+        border: none;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+        box-shadow: none;
+        padding: 16px calc(16px + var(--safe-right))
+          calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+      }
+    }
   `,
 })
 export class ExitConfirm {

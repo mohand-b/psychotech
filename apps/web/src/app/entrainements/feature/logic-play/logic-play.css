@@ -99,14 +99,18 @@
   }
 
   .play__content {
-    justify-content: flex-start;
-    gap: 16px;
-    padding: 16px 16px 32px;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 12px 32px;
   }
 
   .play__card {
-    gap: 24px;
-    padding: 24px 16px;
+    gap: 18px;
+    padding: 18px 14px;
+  }
+
+  .play__card-hint {
+    display: none;
   }
 
   .play__actions {
@@ -147,6 +151,6 @@
   }
 
   .play__content {
-    padding-bottom: calc(96px + var(--safe-bottom));
+    padding-bottom: calc(88px + var(--safe-bottom));
   }
 }

@@ -33,3 +33,14 @@
   justify-content: center;
   gap: 1rem;
 }
+
+@media (max-width: 767px) {
+  .axis-selection {
+    gap: 1rem;
+    padding: 1.25rem 1rem 4.5rem;
+  }
+
+  .axis-selection__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,11 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seq__hint-inline {
+  display: none;
 }
 
 .seq {
@@ -166,50 +172,22 @@
     height: 44px;
   }
 
-  .seq__hint-veil {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: var(--ink);
-    opacity: 0.32;
-    z-index: 20;
-  }
-
   .seq__hint-pop {
-    position: fixed;
-    inset: auto 0 0 0;
-    transform: none;
-    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
-    border-bottom: none;
-    padding: 10px 16px calc(16px + var(--safe-bottom));
-    gap: 6px;
-    align-items: center;
-    z-index: 21;
+    display: none;
   }
 
-  .seq__hint-pop::after {
-    content: none;
+  .seq__hint-inline {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--axis-pastel);
+    border: 1px solid var(--axis-pastel-bd);
+    border-radius: var(--radius-card);
+    padding: 10px 12px;
+    color: var(--axis-text);
   }
 
-  .seq__hint-handle {
-    display: block;
-    width: 36px;
-    height: 4px;
-    border-radius: var(--radius-badge);
-    background: var(--axis-pastel-bd);
-  }
-
-  .seq__hint-line {
-    gap: 6px;
-  }
-
-  .seq__hint-text {
-    white-space: normal;
-    font-size: 13px;
-  }
-
-  .seq__hint-close {
-    width: 30px;
-    height: 30px;
+  .seq__hint-inline-text {
+    font: 500 13px/18px var(--font-ui);
   }
 }
