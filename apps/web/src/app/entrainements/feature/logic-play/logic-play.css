@@ -77,6 +77,10 @@
   gap: 12px;
 }
 
+.play__previous-compact {
+  display: none;
+}
+
 .play__hint {
   margin: 0;
   text-align: center;
@@ -95,4 +99,19 @@
     padding: 24px 16px;
   }
 
+  .play__actions {
+    gap: 8px;
+  }
+
+  .play__actions-end {
+    gap: 8px;
+  }
+
+  .play__previous {
+    display: none;
+  }
+
+  .play__previous-compact {
+    display: inline-flex;
+  }
 }

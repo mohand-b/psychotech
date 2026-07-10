@@ -19,6 +19,8 @@
 
 .chart__zone-labels span {
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .chart__frame {

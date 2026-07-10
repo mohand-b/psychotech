@@ -56,6 +56,7 @@
 
       <div class="play__actions">
         <ui-button
+          class="play__previous"
           color="neutral"
           appearance="outlined"
           [icon]="backIcon"
@@ -64,6 +65,15 @@
         >
           Précédent
         </ui-button>
+        <ui-button
+          class="play__previous-compact"
+          color="neutral"
+          appearance="outlined"
+          [icon]="backIcon"
+          aria-label="Précédent"
+          [disabled]="currentIndex() === 0 || locked()"
+          (click)="previous()"
+        />
         <div class="play__actions-end">
           <ui-button
             color="neutral"
