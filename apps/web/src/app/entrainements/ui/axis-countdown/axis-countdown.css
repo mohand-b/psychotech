@@ -35,8 +35,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 180px;
-  height: 180px;
+  width: 13.75rem;
+  height: 13.75rem;
 }
 
 .countdown__ring {
@@ -77,13 +77,6 @@
   margin: 0;
   font: 700 24px/30px var(--font-display);
   color: var(--ink);
-}
-
-.countdown__help {
-  margin: 0;
-  font: 400 15px/22px var(--font-ui);
-  color: var(--text-secondary);
-  text-align: center;
 }
 
 .countdown__mobile-hint {
@@ -132,10 +125,6 @@
   }
 
   .countdown__title {
-    display: none;
-  }
-
-  .countdown__help {
     display: none;
   }
 

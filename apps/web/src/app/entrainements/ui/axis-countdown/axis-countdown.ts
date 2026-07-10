@@ -16,16 +16,6 @@ import { Icon } from '../../../shared/ui/icon/icon';
 export const AXIS_COUNTDOWN_START = 3;
 export const AXIS_COUNTDOWN_TICK_MS = 1000;
 
-const DESKTOP_HELP_TEXTS: Partial<Record<AxisType, string>> = {
-  [AxisType.LOGIC]: '40 items, 10 minutes, navigation libre entre les items.',
-  [AxisType.MEMORY]:
-    "Mémorisez chaque séquence, puis restituez-la dans l'ordre demandé.",
-  [AxisType.VISUAL_DISCRIMINATION]:
-    'Identiques ou différentes ? 36 paires en 3 minutes.',
-  [AxisType.REACTIVITY]:
-    'Un signal apparaît, déclenchez la bonne commande au plus vite.',
-};
-
 @Component({
   selector: 'ui-axis-countdown',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,9 +50,6 @@ const DESKTOP_HELP_TEXTS: Partial<Record<AxisType, string>> = {
       </div>
 
       <p class="countdown__title">L'épreuve commence</p>
-      @if (helpText(); as text) {
-        <p class="countdown__help">{{ text }}</p>
-      }
       <p class="countdown__mobile-hint">Préparez-vous, l'axe commence.</p>
 
       <button type="button" class="countdown__skip" (click)="skip()">
@@ -90,9 +77,6 @@ export class AxisCountdown {
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
-  );
-  protected readonly helpText = computed(
-    () => DESKTOP_HELP_TEXTS[this.axis()] ?? null,
   );
 
   private timerId: number | null = null;

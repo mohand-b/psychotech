@@ -49,17 +49,4 @@ describe('AxisCountdown', () => {
     vi.advanceTimersByTime(5000);
     expect(finished).toHaveBeenCalledTimes(1);
   });
-
-  it('shows the desktop help text for logic but none for motor skills', () => {
-    const logic = create(AxisType.LOGIC);
-    expect(logic.fixture.nativeElement.textContent).toContain(
-      '40 items, 10 minutes',
-    );
-    const motor = TestBed.createComponent(AxisCountdown);
-    motor.componentRef.setInput('axis', AxisType.MOTOR_SKILLS);
-    motor.detectChanges();
-    expect(
-      motor.nativeElement.querySelector('.countdown__help'),
-    ).toBeNull();
-  });
 });
