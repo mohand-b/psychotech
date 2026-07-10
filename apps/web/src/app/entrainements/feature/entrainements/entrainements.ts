@@ -20,12 +20,14 @@ export class Entrainements {
     'Tous les axes, notation pondérée par secteur',
     "Conditions réelles d'examen, minuté",
     'Analyse de performance globale et par axe',
+    'Conditions réelles, sans aide',
   ];
 
   protected readonly targetedFeatures = [
     '1 axe au choix, parmi les cinq',
     'Sessions courtes (3–5 min), retour immédiat',
     'Idéal pour cibler un point faible',
+    "Options d'entraînement selon l'axe",
   ];
 
   protected chooseAxis(): void {
