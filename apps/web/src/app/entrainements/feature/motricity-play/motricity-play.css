@@ -349,10 +349,11 @@
 
 @media (max-width: 767px) {
   .motri {
-    padding-bottom: calc(24px + var(--safe-bottom));
+    padding-bottom: calc(16px + var(--safe-bottom));
   }
 
   .motri__content {
+    justify-content: flex-start;
     padding: 0 1rem;
   }
 
@@ -369,6 +370,7 @@
     align-items: flex-end;
     justify-content: space-evenly;
     gap: 16px;
+    margin-top: auto;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
