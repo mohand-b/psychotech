@@ -1,6 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  effect,
+  inject,
   input,
   output,
 } from '@angular/core';
@@ -62,7 +65,11 @@ export interface StatusBandEntry {
       flex-wrap: nowrap;
       gap: 6px;
       overflow-x: auto;
+      scrollbar-width: none;
       padding: 4px;
+    }
+    .band__dots::-webkit-scrollbar {
+      display: none;
     }
     .band__dot {
       width: 11px;
@@ -116,8 +123,25 @@ export interface StatusBandEntry {
   `,
 })
 export class CorrectionStatusBand {
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
   readonly dots = input.required<StatusBandEntry[]>();
   readonly legend = input.required<StatusBandEntry[]>();
   readonly currentIndex = input.required<number>();
   readonly navigate = output<number>();
+
+  constructor() {
+    effect(() => {
+      this.currentIndex();
+      setTimeout(() =>
+        this.elementRef.nativeElement
+          .querySelector('[aria-current="true"]')
+          ?.scrollIntoView({
+            block: 'nearest',
+            inline: 'center',
+            behavior: 'smooth',
+          }),
+      );
+    });
+  }
 }
