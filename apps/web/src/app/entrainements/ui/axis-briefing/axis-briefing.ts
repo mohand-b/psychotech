@@ -10,7 +10,7 @@ import {
   AxisType,
   RailwayPlayableAxis,
 } from '@psychotech/shared';
-import { Clock, LayoutGrid, Target } from 'lucide-angular';
+import { Clock, LayoutGrid, ListChecks, Target, Timer } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -50,12 +50,17 @@ interface SummaryTile {
         <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
       </article>
 
-      <article class="axis-briefing__card">
+      <article class="axis-briefing__card axis-briefing__card--summary">
         <span class="axis-briefing__label">Résumé</span>
         <div class="axis-briefing__metrics">
           <span class="axis-briefing__metric">
             <ui-icon
-              class="axis-briefing__metric-icon"
+              class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
+              [img]="volumeDesktopIcon"
+              [size]="15"
+            />
+            <ui-icon
+              class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
               [img]="volumeIcon"
               [size]="18"
             />
@@ -68,7 +73,12 @@ interface SummaryTile {
           </span>
           <span class="axis-briefing__metric">
             <ui-icon
-              class="axis-briefing__metric-icon"
+              class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
+              [img]="timeDesktopIcon"
+              [size]="15"
+            />
+            <ui-icon
+              class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
               [img]="timeIcon"
               [size]="18"
             />
@@ -80,7 +90,7 @@ interface SummaryTile {
           @if (admissibilityThreshold(); as threshold) {
             <span class="axis-briefing__metric">
               <ui-icon
-                class="axis-briefing__metric-icon"
+                class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
                 [img]="thresholdIcon"
                 [size]="18"
               />
@@ -127,6 +137,8 @@ export class AxisBriefing {
   protected readonly volumeIcon = LayoutGrid;
   protected readonly timeIcon = Clock;
   protected readonly thresholdIcon = Target;
+  protected readonly volumeDesktopIcon = ListChecks;
+  protected readonly timeDesktopIcon = Timer;
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],

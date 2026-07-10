@@ -75,11 +75,22 @@
   color: var(--ink);
 }
 
+.axis-briefing__card--summary {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
 .axis-briefing__metrics {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
+}
+
+.axis-briefing__metric-icon--mobile {
+  display: none;
 }
 
 .axis-briefing__metric {
@@ -165,6 +176,20 @@
   .axis-briefing__card + .axis-briefing__card {
     border-top: 1px solid var(--border);
     padding-top: 1rem;
+  }
+
+  .axis-briefing__card--summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .axis-briefing__metric-icon--desktop {
+    display: none;
+  }
+
+  .axis-briefing__metric-icon--mobile {
+    display: inline-flex;
   }
 
   .axis-briefing__metrics {
