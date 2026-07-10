@@ -25,7 +25,7 @@ export const AXIS_TRAINING_OPTIONS: Partial<
     id: TrainingOptionId.REACTIVITY_LIVE_METRICS,
     label: 'Métriques en direct',
     description:
-      'Affichez votre temps de réaction après chaque réponse correcte.',
+      "Affichez vos temps de réaction et vos erreurs pendant l'épreuve.",
   },
   [AxisType.MOTOR_SKILLS]: {
     id: TrainingOptionId.MOTOR_LIVE_ERROR_COUNTERS,
