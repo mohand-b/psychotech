@@ -17,21 +17,14 @@ import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
       [style.background]="fillVar()"
     ></span>
     @if (eliminatoryThreshold(); as eliminatory) {
-      <span
-        class="gauge__marker gauge__marker--eliminatory"
-        [style.left.%]="eliminatory"
-      ></span>
+      <span class="gauge__marker" [style.left.%]="eliminatory"></span>
     }
-    <span
-      class="gauge__marker"
-      [style.left.%]="vigilanceThreshold()"
-    ></span>
   `,
   styles: `
     :host {
       position: relative;
       display: block;
-      width: 5.5rem;
+      width: 120px;
       height: 6px;
       border-radius: 3px;
       background: var(--surface-muted);
@@ -44,14 +37,11 @@ import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
     }
     .gauge__marker {
       position: absolute;
-      top: -2px;
-      bottom: -2px;
+      top: -3px;
       width: 2px;
+      height: 12px;
       border-radius: 1px;
-      background: var(--label);
-    }
-    .gauge__marker--eliminatory {
-      background: var(--ink);
+      background: var(--danger-text);
     }
   `,
 })
@@ -59,7 +49,6 @@ export class ThresholdGauge {
   readonly score = input.required<number>();
   readonly band = input.required<ScoreBand>();
   readonly eliminatoryThreshold = input<number | null>(null);
-  readonly vigilanceThreshold = input.required<number>();
 
   protected readonly clampedScore = computed(() =>
     Math.min(100, Math.max(0, this.score())),

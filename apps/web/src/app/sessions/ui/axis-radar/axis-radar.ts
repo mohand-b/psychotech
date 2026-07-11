@@ -21,21 +21,20 @@ interface RadarVertex extends RadarPoint {
   colorVar: string;
 }
 
-interface RadarLabel extends RadarPoint {
-  text: string;
-  anchor: 'start' | 'middle' | 'end';
-}
-
-const VIEW_SIZE = 240;
-const CENTER = VIEW_SIZE / 2;
-const RADIUS = 88;
-const LABEL_RADIUS = RADIUS + 18;
+const VIEW_WIDTH = 170;
+const VIEW_HEIGHT = 130;
+const CENTER_X = 85;
+const CENTER_Y = 64;
+const RADIUS = 48;
 const MESH_LEVELS = [1 / 3, 2 / 3, 1];
 
-const RADAR_LABELS: Partial<Record<AxisType, string>> = {
-  [AxisType.VISUAL_DISCRIMINATION]: 'Discri.',
-  [AxisType.REACTIVITY]: 'Réacti.',
-};
+const RADAR_LABELS = [
+  { text: 'Logique', x: 85, y: 9, anchor: 'middle' },
+  { text: 'Mémoire', x: 135, y: 46, anchor: 'start' },
+  { text: 'Discri.', x: 116, y: 113, anchor: 'start' },
+  { text: 'Réacti.', x: 54, y: 113, anchor: 'end' },
+  { text: 'Motricité', x: 35, y: 46, anchor: 'end' },
+] as const;
 
 @Component({
   selector: 'ui-axis-radar',
@@ -43,7 +42,7 @@ const RADAR_LABELS: Partial<Record<AxisType, string>> = {
   template: `
     <svg
       class="radar"
-      [attr.viewBox]="'0 0 ' + viewSize + ' ' + viewSize"
+      [attr.viewBox]="'0 0 ' + viewWidth + ' ' + viewHeight"
       role="img"
       aria-label="Profil par axe"
     >
@@ -53,23 +52,23 @@ const RADAR_LABELS: Partial<Record<AxisType, string>> = {
       @for (ray of rays; track ray.x) {
         <line
           class="radar__ray"
-          [attr.x1]="center"
-          [attr.y1]="center"
+          [attr.x1]="centerX"
+          [attr.y1]="centerY"
           [attr.x2]="ray.x"
           [attr.y2]="ray.y"
         />
       }
       <polygon class="radar__area" [attr.points]="areaPoints()" />
-      @for (vertex of vertices(); track vertex.colorVar) {
+      @for (vertex of vertices(); track $index) {
         <circle
           class="radar__dot"
           [attr.cx]="vertex.x"
           [attr.cy]="vertex.y"
-          r="2.5"
+          r="2.6"
           [attr.fill]="vertex.colorVar"
         />
       }
-      @for (label of labels(); track label.text) {
+      @for (label of labels; track label.text) {
         <text
           class="radar__label"
           [attr.x]="label.x"
@@ -84,7 +83,7 @@ const RADAR_LABELS: Partial<Record<AxisType, string>> = {
   styles: `
     :host {
       display: block;
-      width: 16.75rem;
+      width: 252px;
     }
     .radar {
       display: block;
@@ -98,23 +97,26 @@ const RADAR_LABELS: Partial<Record<AxisType, string>> = {
       stroke-width: 1;
     }
     .radar__ray {
-      stroke: var(--divider-soft);
+      stroke: var(--border);
       stroke-width: 1;
     }
     .radar__area {
-      fill: var(--brand-pastel-bd);
-      fill-opacity: 0.55;
+      fill: color-mix(in srgb, var(--brand) 13%, transparent);
       stroke: var(--brand);
-      stroke-width: 2;
+      stroke-width: 1.5;
       stroke-linejoin: round;
     }
+    .radar__dot {
+      stroke: var(--card);
+      stroke-width: 0.8;
+    }
     .radar__label {
-      font: 500 11px var(--font-ui);
-      fill: var(--text-secondary);
+      font: 400 8.5px var(--font-ui);
+      fill: var(--label);
     }
     @media (max-width: 767px) {
       :host {
-        width: 18.125rem;
+        width: 260px;
       }
     }
   `,
@@ -122,8 +124,11 @@ const RADAR_LABELS: Partial<Record<AxisType, string>> = {
 export class AxisRadar {
   readonly entries = input.required<readonly AxisRadarEntry[]>();
 
-  protected readonly viewSize = VIEW_SIZE;
-  protected readonly center = CENTER;
+  protected readonly viewWidth = VIEW_WIDTH;
+  protected readonly viewHeight = VIEW_HEIGHT;
+  protected readonly centerX = CENTER_X;
+  protected readonly centerY = CENTER_Y;
+  protected readonly labels = RADAR_LABELS;
 
   protected readonly meshPolygons = MESH_LEVELS.map((level) =>
     polygonPoints((index) => pointAt(index, level)),
@@ -145,31 +150,13 @@ export class AxisRadar {
       colorVar: AXIS_PRESENTATION[entry.axis].plainVar,
     })),
   );
-
-  protected readonly labels = computed<RadarLabel[]>(() =>
-    this.entries().map((entry, index) => {
-      const point = pointAt(index, LABEL_RADIUS / RADIUS);
-      const cos = Math.cos(angleFor(index));
-      return {
-        x: point.x,
-        y: point.y + 4,
-        text:
-          RADAR_LABELS[entry.axis] ?? AXIS_PRESENTATION[entry.axis].label,
-        anchor: cos > 0.3 ? 'start' : cos < -0.3 ? 'end' : 'middle',
-      };
-    }),
-  );
-}
-
-function angleFor(index: number): number {
-  return ((-90 + index * 72) * Math.PI) / 180;
 }
 
 function pointAt(index: number, fraction: number): RadarPoint {
-  const angle = angleFor(index);
+  const angle = (index * 2 * Math.PI) / 5;
   return {
-    x: round2(CENTER + Math.cos(angle) * RADIUS * fraction),
-    y: round2(CENTER + Math.sin(angle) * RADIUS * fraction),
+    x: round1(CENTER_X + RADIUS * fraction * Math.sin(angle)),
+    y: round1(CENTER_Y - RADIUS * fraction * Math.cos(angle)),
   };
 }
 
@@ -179,6 +166,6 @@ function polygonPoints(pointFor: (index: number) => RadarPoint): string {
     .join(' ');
 }
 
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
+function round1(value: number): number {
+  return Math.round(value * 10) / 10;
 }

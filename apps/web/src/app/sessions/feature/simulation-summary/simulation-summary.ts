@@ -13,12 +13,9 @@ import {
   SimulationWeaknessDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
-import { Info } from 'lucide-angular';
-import { ResultActions } from '../../../entrainements/ui/result-actions/result-actions';
+import { Play } from 'lucide-angular';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
-import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import {
   BAND_COLOR_VARS,
@@ -41,15 +38,7 @@ function frenchDecimal(value: number): string {
 @Component({
   selector: 'app-simulation-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    AxisChip,
-    AxisRadar,
-    Button,
-    Icon,
-    ResultActions,
-    SimulationAxisDetail,
-    ThresholdGauge,
-  ],
+  imports: [AxisRadar, Icon, SimulationAxisDetail, ThresholdGauge],
   templateUrl: './simulation-summary.html',
   styleUrl: './simulation-summary.css',
 })
@@ -61,8 +50,9 @@ export class SimulationSummary {
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
 
-  protected readonly infoIcon = Info;
+  protected readonly playIcon = Play;
   protected readonly bandColorVars = BAND_COLOR_VARS;
+  protected readonly presentations = AXIS_PRESENTATION;
 
   protected readonly summary = signal<SimulationSummaryDto | null>(null);
   protected readonly openAxis = signal<AxisType | null>(null);
@@ -78,17 +68,30 @@ export class SimulationSummary {
     });
   }
 
-  protected readonly contextLabel = computed(() => {
+  protected readonly sectorLabel = computed(() => {
+    const summary = this.summary();
+    return summary ? SECTOR_PRESENTATION[summary.sector].label : '';
+  });
+
+  protected readonly contextPrefix = computed(() => {
     const summary = this.summary();
     if (!summary) {
       return '';
     }
-    const sectorLabel = SECTOR_PRESENTATION[summary.sector].label;
-    const dateLabel = formatSessionDate(
-      summary.completedAt,
-      new Date(),
-    ).replace(' · ', ', ');
-    return `Simulation complète · ${sectorLabel} · ${dateLabel}`;
+    const dayLabel = formatSessionDate(summary.completedAt, new Date()).split(
+      ' · ',
+    )[0];
+    return `Simulation complète · ${this.sectorLabel()} · ${dayLabel}, `;
+  });
+
+  protected readonly contextTime = computed(() => {
+    const summary = this.summary();
+    return summary
+      ? new Date(summary.completedAt).toLocaleTimeString('fr-FR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '';
   });
 
   protected readonly scoreLabel = computed(() => {
@@ -102,19 +105,12 @@ export class SimulationSummary {
       return null;
     }
     if (summary.isEliminated) {
-      return { label: 'Défavorable', colorVar: 'var(--rating-bad)' };
+      return { label: 'Défavorable', dotVar: 'var(--danger)' };
     }
     return {
       label: BAND_LABELS[summary.globalBand],
-      colorVar: BAND_COLOR_VARS[summary.globalBand],
+      dotVar: BAND_COLOR_VARS[summary.globalBand],
     };
-  });
-
-  protected readonly thresholdCaption = computed(() => {
-    const summary = this.summary();
-    return summary
-      ? `Seuil d'admissibilité ${SECTOR_PRESENTATION[summary.sector].label} :`
-      : '';
   });
 
   protected readonly gap = computed(() => {
@@ -129,17 +125,6 @@ export class SimulationSummary {
     return { above, label };
   });
 
-  protected readonly eliminatoryLine = computed(() => {
-    const summary = this.summary();
-    if (!summary || !summary.isEliminated) {
-      return null;
-    }
-    const labels = summary.eliminatoryAxes
-      .map((axis) => AXIS_PRESENTATION[axis].label)
-      .join(', ');
-    return `Un axe sous son seuil éliminatoire rend l'avis défavorable quel que soit le score global : ${labels}.`;
-  });
-
   protected readonly radarEntries = computed<AxisRadarEntry[]>(() => {
     const summary = this.summary();
     return summary
@@ -147,13 +132,13 @@ export class SimulationSummary {
       : [];
   });
 
-  protected isEliminatoryAxis(axis: AxisType): boolean {
+  protected isUnderEliminatory(axis: AxisType): boolean {
     return this.summary()?.eliminatoryAxes.includes(axis) ?? false;
   }
 
   protected weaknessMention(weakness: SimulationWeaknessDto): string {
     return weakness.thresholdKind === SimulationThresholdKind.ELIMINATORY
-      ? `Sous le seuil éliminatoire : ${weakness.thresholdValue}`
+      ? `Sous le seuil éliminatoire de l’axe : ${weakness.thresholdValue}`
       : `Sous le seuil de vigilance : ${weakness.thresholdValue}`;
   }
 

@@ -52,11 +52,22 @@ function buildSummary(
       isCritical: CRITICAL_AXES.has(axis),
       eliminatoryThreshold: CRITICAL_AXES.has(axis) ? 55 : null,
       vigilanceThreshold: 65,
-      observables: [{ label: null, value: '38/40', caption: 'items' }],
+      observables: [],
     })),
     selection: {
       strengths: [
-        { axis: AxisType.MOTOR_SKILLS, score: 88, band: ScoreBand.EXCELLENT },
+        {
+          axis: AxisType.MOTOR_SKILLS,
+          score: 88,
+          band: ScoreBand.EXCELLENT,
+          sublabel: 'Votre meilleur axe de la session',
+        },
+        {
+          axis: AxisType.LOGIC,
+          score: 82,
+          band: ScoreBand.EXCELLENT,
+          sublabel: 'Largement au-dessus du seuil de vigilance',
+        },
       ],
       weaknesses: [
         {
@@ -69,7 +80,27 @@ function buildSummary(
       ],
       recommendations: [
         { axis: AxisType.MEMORY, label: 'Consolidez la mémoire de travail' },
+        { axis: AxisType.REACTIVITY, label: 'Stabilisez vos réactions' },
       ],
+    },
+    appreciation: {
+      lead: [
+        { text: 'Votre score global dépasse le seuil Ferroviaire de ', value: false },
+        { text: '4,8', value: true },
+        {
+          text: ' points : votre profil est admissible, avec une marge encore fragile.',
+          value: false,
+        },
+      ],
+      detail: [
+        { text: 'La Motricité (', value: false },
+        { text: '88', value: true },
+        { text: ') porte votre résultat.', value: false },
+      ],
+      priority: {
+        axis: AxisType.MEMORY,
+        label: 'Travailler la restitution en ordre inversé',
+      },
     },
     ...overrides,
   };
@@ -118,54 +149,108 @@ async function setup(summary: SimulationSummaryDto) {
 }
 
 describe('SimulationSummary', () => {
-  it('renders the global score with a french comma and one decimal', async () => {
+  it('renders the global score and gap with french commas', async () => {
     const { fixture } = await setup(buildSummary());
-    const score = fixture.nativeElement.querySelector('.bilan__score');
-    expect(score.textContent.trim()).toBe('74,8');
+    expect(
+      fixture.nativeElement.querySelector('.bilan__score').textContent.trim(),
+    ).toBe('74,8');
     expect(fixture.nativeElement.textContent).toContain('+4,8 au-dessus');
   });
 
-  it('shows the eliminatory line and unfavourable verdict only when an axis eliminates', async () => {
+  it('renders appreciation paragraphs with mono value segments and the priority line', async () => {
     const { fixture } = await setup(buildSummary());
-    expect(
-      fixture.nativeElement.querySelector('.bilan__eliminatory'),
-    ).toBeNull();
-
-    const eliminated = await (async () => {
-      TestBed.resetTestingModule();
-      return setup(
-        buildSummary({
-          isEliminated: true,
-          isAdmissible: false,
-          eliminatoryAxes: [AxisType.REACTIVITY],
-        }),
-      );
-    })();
-    const line = eliminated.fixture.nativeElement.querySelector(
-      '.bilan__eliminatory',
+    const values = [
+      ...fixture.nativeElement.querySelectorAll('.bilan__appreciation-value'),
+    ].map((node) => (node as HTMLElement).textContent);
+    expect(values).toEqual(['4,8', '88']);
+    const priority = fixture.nativeElement.querySelector('.bilan__priority');
+    expect(priority.textContent).toContain('Priorité');
+    expect(priority.textContent).toContain('Mémoire');
+    expect(priority.textContent).toContain(
+      'Travailler la restitution en ordre inversé',
     );
-    expect(line).not.toBeNull();
-    expect(line.textContent).toContain('Réactivité');
-    expect(
-      eliminated.fixture.nativeElement.querySelector('.bilan__verdict')
-        .textContent,
-    ).toContain('Défavorable');
-    expect(
-      eliminated.fixture.nativeElement.querySelector('.bilan__axis-tag'),
-    ).not.toBeNull();
   });
 
-  it('renders a threshold gauge per axis with its own markers', async () => {
+  it('hides the priority line without recommendation and the next steps band', async () => {
+    const { fixture } = await setup(
+      buildSummary({
+        selection: {
+          strengths: [],
+          weaknesses: [],
+          recommendations: [],
+        },
+        appreciation: {
+          lead: [{ text: 'Lead.', value: false }],
+          detail: [{ text: 'Detail.', value: false }],
+          priority: null,
+        },
+      }),
+    );
+    expect(fixture.nativeElement.querySelector('.bilan__priority')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.bilan__next')).toBeNull();
+  });
+
+  it('places an eliminatory marker only on axes owning an eliminatory threshold', async () => {
     const { fixture } = await setup(buildSummary());
     const gauges = fixture.nativeElement.querySelectorAll(
-      '.bilan__axis-row ui-threshold-gauge',
+      '.bilan__axis-gauge--desktop',
     );
     expect(gauges).toHaveLength(5);
-    expect(gauges[0].querySelectorAll('.gauge__marker')).toHaveLength(1);
-    expect(gauges[3].querySelectorAll('.gauge__marker')).toHaveLength(2);
+    expect(gauges[0].querySelectorAll('.gauge__marker')).toHaveLength(0);
+    expect(gauges[1].querySelectorAll('.gauge__marker')).toHaveLength(1);
+    expect(gauges[3].querySelectorAll('.gauge__marker')).toHaveLength(1);
+    expect(gauges[4].querySelectorAll('.gauge__marker')).toHaveLength(0);
+  });
+
+  it('shows no observable, no tag, and tints the row of an eliminatory axis', async () => {
+    const { fixture } = await setup(
+      buildSummary({
+        isEliminated: true,
+        isAdmissible: false,
+        eliminatoryAxes: [AxisType.REACTIVITY],
+      }),
+    );
+    expect(fixture.nativeElement.querySelector('.bilan__axis-tag')).toBeNull();
     expect(
-      gauges[3].querySelector('.gauge__marker--eliminatory'),
+      fixture.nativeElement.querySelector('.bilan__observables'),
+    ).toBeNull();
+    const cards = fixture.nativeElement.querySelectorAll('.bilan__axis-card');
+    expect(
+      cards[3].classList.contains('bilan__axis-card--eliminatory'),
+    ).toBe(true);
+    expect(
+      cards[0].classList.contains('bilan__axis-card--eliminatory'),
+    ).toBe(false);
+    expect(
+      fixture.nativeElement.querySelector('.bilan__verdict').textContent,
+    ).toContain('Défavorable');
+  });
+
+  it('renders the strong point sublabels with the /100 score format', async () => {
+    const { fixture } = await setup(buildSummary());
+    const rows = fixture.nativeElement.querySelectorAll('.bilan__side-row');
+    expect(rows[0].textContent).toContain('Votre meilleur axe de la session');
+    expect(rows[0].textContent).toContain('88');
+    expect(rows[0].querySelector('.bilan__side-score-max').textContent).toBe(
+      '/100',
+    );
+    expect(rows[0].querySelector('.bilan__axis-dot')).toBeNull();
+  });
+
+  it('features only the first next step card with a filled cta', async () => {
+    const { fixture } = await setup(buildSummary());
+    const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');
+    expect(cards).toHaveLength(2);
+    expect(
+      cards[0].classList.contains('bilan__next-card--featured'),
+    ).toBe(true);
+    expect(
+      cards[0].querySelector('.bilan__next-cta--primary'),
     ).not.toBeNull();
+    expect(
+      cards[1].classList.contains('bilan__next-card--featured'),
+    ).toBe(false);
+    expect(cards[1].querySelector('.bilan__next-cta--primary')).toBeNull();
   });
 
   it('keeps a single accordion panel open at a time', async () => {
@@ -197,12 +282,8 @@ describe('SimulationSummary', () => {
 
   it('navigates to the targeted preparation of the recommended axis', async () => {
     const { fixture, navigate } = await setup(buildSummary());
-    const button = [
-      ...fixture.nativeElement.querySelectorAll('.bilan__next-card button'),
-    ].find((candidate) =>
-      (candidate as HTMLButtonElement).textContent?.includes(
-        'Entraîner cet axe',
-      ),
+    const button = fixture.nativeElement.querySelector(
+      '.bilan__next-cta',
     ) as HTMLButtonElement;
 
     button.click();
