@@ -24,6 +24,12 @@
     </div>
     <div class="banner__compact flex flex-col gap-1.5">
       <span class="banner__compact-title">Session en cours</span>
+      @if (isFull()) {
+        <span class="banner__compact-line"
+          >Simulation complète&nbsp;:
+          {{ doneCount() }}/{{ axisTotal() }}</span
+        >
+      }
       <span class="banner__compact-meta flex items-center gap-2">
         @if (isFull()) {
           <ui-chevron-stepper variant="mini" [steps]="steps()" />
