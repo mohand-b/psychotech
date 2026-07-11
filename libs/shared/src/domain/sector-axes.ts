@@ -1,5 +1,13 @@
 import { AxisType, Sector } from '../enums';
 
+export const SECTOR_LABELS: Record<Sector, string> = {
+  [Sector.RAILWAY]: 'Ferroviaire',
+  [Sector.AVIATION]: 'Aérien',
+  [Sector.SECURITY]: 'Sécurité',
+  [Sector.DRIVING]: 'Conduite',
+  [Sector.HEALTHCARE]: 'Santé',
+};
+
 export const SECTOR_AXES: Record<Sector, AxisType[]> = {
   [Sector.RAILWAY]: [
     AxisType.LOGIC,

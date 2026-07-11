@@ -27,6 +27,7 @@ export interface SimulationStrengthDto {
   axis: AxisType;
   score: number;
   band: ScoreBand;
+  sublabel: string;
 }
 
 export interface SimulationWeaknessDto {
@@ -51,6 +52,7 @@ export interface SimulationSummarySelectionDto {
 const STRENGTH_LIMIT = 2;
 const WEAKNESS_LIMIT = 3;
 const RECOMMENDATION_LIMIT = 3;
+const WIDE_VIGILANCE_GAP = 15;
 
 const THRESHOLD_KIND_RANK: Record<SimulationThresholdKind, number> = {
   [SimulationThresholdKind.ELIMINATORY]: 0,
@@ -69,7 +71,7 @@ export function buildSimulationSummary(
   recommendations: SimulationRecommendationInput[],
 ): SimulationSummarySelectionDto {
   return {
-    strengths: selectStrengths(axes),
+    strengths: selectStrengths(axes, thresholds),
     weaknesses: selectWeaknesses(axes, thresholds),
     recommendations: selectRecommendations(axes, recommendations),
   };
@@ -77,12 +79,23 @@ export function buildSimulationSummary(
 
 function selectStrengths(
   axes: SimulationAxisOutcome[],
+  thresholds: SimulationSummaryThresholds,
 ): SimulationStrengthDto[] {
   return [...axes]
     .filter((entry) => entry.band === ScoreBand.EXCELLENT)
     .sort((a, b) => b.score - a.score)
     .slice(0, STRENGTH_LIMIT)
-    .map(({ axis, score, band }) => ({ axis, score, band }));
+    .map(({ axis, score, band }, index) => ({
+      axis,
+      score,
+      band,
+      sublabel:
+        index === 0
+          ? 'Votre meilleur axe de la session'
+          : score - thresholds.vigilanceThreshold >= WIDE_VIGILANCE_GAP
+            ? 'Largement au-dessus du seuil de vigilance'
+            : 'Au-dessus du seuil de vigilance',
+    }));
 }
 
 function selectWeaknesses(
