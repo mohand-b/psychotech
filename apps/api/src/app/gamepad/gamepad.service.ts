@@ -32,11 +32,20 @@ export class GamepadService {
     if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.IN_PROGRESS) {
       throw new ConflictException('Session is not in progress');
     }
+    const mode = mapEnumValue(SessionMode, session.mode);
+    const orderedAxes = [...session.axisResults].sort(
+      (a, b) => a.order - b.order,
+    );
+    const currentAxis = orderedAxes[session.currentAxisIndex];
     const isMotricitySession =
-      mapEnumValue(SessionMode, session.mode) === SessionMode.TARGETED &&
-      session.axisResults.some(
-        (result) => mapEnumValue(AxisType, result.axis) === AxisType.MOTOR_SKILLS,
-      );
+      mode === SessionMode.TARGETED
+        ? session.axisResults.some(
+            (result) =>
+              mapEnumValue(AxisType, result.axis) === AxisType.MOTOR_SKILLS,
+          )
+        : mode === SessionMode.FULL &&
+          currentAxis !== undefined &&
+          mapEnumValue(AxisType, currentAxis.axis) === AxisType.MOTOR_SKILLS;
     if (!isMotricitySession) {
       throw new BadRequestException(
         'Gamepad pairing requires an in-progress motricity session',

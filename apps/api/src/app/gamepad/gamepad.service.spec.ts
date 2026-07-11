@@ -83,6 +83,71 @@ describe('GamepadService.createPairing', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
+  it('pairs a full simulation whose current axis is motricity', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        mode: 'FULL',
+        energyCost: 5,
+        currentAxisIndex: 4,
+        axisResults: (
+          [
+            'LOGIC',
+            'MEMORY',
+            'VISUAL_DISCRIMINATION',
+            'REACTIVITY',
+            'MOTOR_SKILLS',
+          ] as const
+        ).map((axis, order) => ({
+          id: `axis-${order + 1}`,
+          sessionId: 'session-1',
+          axis,
+          order,
+          normalizedScore: null,
+          band: null,
+          skipped: false,
+          startedAt: null,
+          completedAt: order < 4 ? new Date('2026-07-11T10:05:00Z') : null,
+          metrics: null,
+        })),
+      } as Partial<PairingSession>),
+    );
+    const pairing = await service.createPairing('user-1', 'session-1');
+    expect(pairing.code).toMatch(/^\d{6}$/);
+  });
+
+  it('rejects a full simulation whose current axis is not motricity', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        mode: 'FULL',
+        energyCost: 5,
+        currentAxisIndex: 0,
+        axisResults: (
+          [
+            'LOGIC',
+            'MEMORY',
+            'VISUAL_DISCRIMINATION',
+            'REACTIVITY',
+            'MOTOR_SKILLS',
+          ] as const
+        ).map((axis, order) => ({
+          id: `axis-${order + 1}`,
+          sessionId: 'session-1',
+          axis,
+          order,
+          normalizedScore: null,
+          band: null,
+          skipped: false,
+          startedAt: null,
+          completedAt: null,
+          metrics: null,
+        })),
+      } as Partial<PairingSession>),
+    );
+    await expect(
+      service.createPairing('user-1', 'session-1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
   it('rejects a session that is not a targeted motricity session', async () => {
     repository.findUserSession.mockResolvedValue(
       buildSession({
