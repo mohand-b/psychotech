@@ -41,7 +41,7 @@ import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
       width: 2px;
       height: 12px;
       border-radius: 1px;
-      background: var(--danger-text);
+      background: var(--ink);
     }
   `,
 })
