@@ -6,7 +6,6 @@ import {
   output,
 } from '@angular/core';
 import { AxisType } from '@psychotech/shared';
-import { Zap } from 'lucide-angular';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -68,8 +67,7 @@ import { axisButtonColor } from '../axis-button-color';
         [block]="true"
         (click)="launch.emit()"
       >
-        S'entraîner {{ cost() }}
-        <ui-icon [img]="costIcon" [size]="15" />
+        S'entraîner
       </ui-button>
     </article>
   `,
@@ -184,13 +182,10 @@ import { axisButtonColor } from '../axis-button-color';
 export class AxisTrainingCard {
   readonly axis = input.required<AxisType>();
   readonly description = input.required<string>();
-  readonly cost = input.required<number>();
   readonly bestScore = input<number | null>(null);
   readonly badge = input<string | null>(null);
 
   readonly launch = output<void>();
-
-  protected readonly costIcon = Zap;
 
   protected readonly presentation = computed(() => AXIS_PRESENTATION[this.axis()]);
 
