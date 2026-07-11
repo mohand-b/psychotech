@@ -1,7 +1,6 @@
 import {
   AXIS_TRAINING,
   AxisType,
-  ControlModality,
   DiscriminationOutcome,
   DiscriminationSessionScore,
   LogicSessionScore,
@@ -23,12 +22,6 @@ const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
   TRUE_NEGATIVE: 'Juste',
   FALSE_POSITIVE: 'Répondu "différentes" à tort',
   FALSE_NEGATIVE: 'Répondu "identiques" à tort',
-};
-
-const MODALITY_LABELS: Record<ControlModality, string> = {
-  [ControlModality.PHONE_GAMEPAD]: 'Manette téléphone',
-  [ControlModality.KEYBOARD]: 'Clavier',
-  [ControlModality.TOUCH_JOYSTICKS]: 'Tactile',
 };
 
 function frenchSeconds(valueMs: number): string {
@@ -241,7 +234,7 @@ export function buildReactivityMetricRows(
 export function buildMotricityMetricRows(
   metrics: MotorSkillsMetrics,
 ): ResultMetricRow[] {
-  const rows: ResultMetricRow[] = [
+  return [
     {
       label: 'Erreurs mineures',
       sublabel: 'contacts avec les bords',
@@ -267,12 +260,4 @@ export function buildMotricityMetricRows(
       suffix: `/${metrics.courses.length || 3}`,
     },
   ];
-  if (metrics.controlModality !== null) {
-    rows.push({
-      label: 'Modalité',
-      value: MODALITY_LABELS[metrics.controlModality],
-      chip: true,
-    });
-  }
-  return rows;
 }
