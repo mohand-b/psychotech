@@ -3,6 +3,7 @@ export * from './user';
 export * from './subscription';
 export * from './energy';
 export * from './session';
+export * from './simulation-summary';
 export * from './progression';
 export * from './badge';
 export * from './catalog';
