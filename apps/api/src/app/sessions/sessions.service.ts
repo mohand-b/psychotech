@@ -16,6 +16,7 @@ import {
   LogicItemAnswerDto,
   LogicRawResultDto,
   MOTRICITY_COURSE_COUNT,
+  MemoryPhase,
   MemoryRawResultDto,
   MemorySequenceAnswerDto,
   MotorSkillsMetrics,
@@ -23,6 +24,7 @@ import {
   ReactivityRawResultDto,
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
+  RecommendationPriority,
   ScoreBand,
   Sector,
   SessionDto,
@@ -30,8 +32,11 @@ import {
   SessionMode,
   SessionResultDto,
   SessionStatus,
+  SimulationObservableDto,
+  SimulationSummaryDto,
   TargetedAxisResultDto,
   avisFromScore,
+  buildSimulationSummary,
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLogicSession,
@@ -562,6 +567,197 @@ export class SessionsService {
 
   async get(userId: string, sessionId: string): Promise<SessionDto> {
     return toSessionDto(await this.loadOwnedSession(sessionId, userId));
+  }
+
+  async simulationSummary(
+    userId: string,
+    sessionId: string,
+  ): Promise<SimulationSummaryDto> {
+    const session = await this.loadOwnedSession(sessionId, userId);
+    if (mapEnumValue(SessionMode, session.mode) !== SessionMode.FULL) {
+      throw new NotFoundException('Session is not a full simulation');
+    }
+    if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.COMPLETED) {
+      throw new ConflictException('Session is not completed');
+    }
+    const sector = mapEnumValue(Sector, session.sector);
+    const config = await this.repository.findSectorConfig(sector);
+    if (!config) {
+      throw new BadRequestException('Sector configuration is missing');
+    }
+    const criticalByAxis = new Map(
+      config.weights.map((weight) => [weight.axis, weight.isCritical]),
+    );
+    const axes = [...session.axisResults]
+      .sort((a, b) => a.order - b.order)
+      .map((result) => {
+        const axis = mapEnumValue(AxisType, result.axis);
+        if (result.normalizedScore === null || result.band === null) {
+          throw new ConflictException('Session is not completed');
+        }
+        const isCritical = criticalByAxis.get(axis) ?? false;
+        return {
+          axis,
+          score: Math.round(result.normalizedScore),
+          band: mapEnumValue(ScoreBand, result.band),
+          isCritical,
+          eliminatoryThreshold: isCritical ? config.eliminatoryThreshold : null,
+          vigilanceThreshold: config.vigilanceThreshold,
+          observables: this.axisObservables(axis, session.seed, result.metrics),
+        };
+      });
+    const globalScore = session.globalScore ?? 0;
+    const eliminatoryAxes = axes
+      .filter(
+        (entry) =>
+          entry.isCritical && entry.score < config.eliminatoryThreshold,
+      )
+      .map((entry) => entry.axis);
+    return {
+      sessionId: session.id,
+      sector,
+      completedAt: (session.completedAt ?? session.startedAt).toISOString(),
+      globalScore,
+      globalBand: session.globalBand
+        ? mapEnumValue(ScoreBand, session.globalBand)
+        : avisFromScore(globalScore),
+      isAdmissible: session.isAdmissible ?? false,
+      isEliminated: session.isEliminated ?? false,
+      admissibilityThreshold: session.sectorThreshold,
+      admissibilityGap:
+        Math.round((globalScore - session.sectorThreshold) * 10) / 10,
+      eliminatoryAxes,
+      axes,
+      selection: buildSimulationSummary(
+        axes.map(({ axis, score, band, isCritical }) => ({
+          axis,
+          score,
+          band,
+          isCritical,
+        })),
+        {
+          vigilanceThreshold: config.vigilanceThreshold,
+          eliminatoryThreshold: config.eliminatoryThreshold,
+        },
+        session.recommendations.map((recommendation) => ({
+          axis: mapEnumValue(AxisType, recommendation.axis),
+          priority: mapEnumValue(
+            RecommendationPriority,
+            recommendation.priority,
+          ),
+          label: recommendation.label,
+        })),
+      ),
+    };
+  }
+
+  private axisObservables(
+    axis: AxisType,
+    seed: string,
+    metrics: unknown,
+  ): SimulationObservableDto[] {
+    if (axis === AxisType.LOGIC) {
+      const scored = scoreLogicSession(
+        generateLogicSession(seed),
+        this.logicItemsFromMetrics(metrics),
+      );
+      const answered = scored.correctCount + scored.wrongCount;
+      const total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
+      return [
+        { label: null, value: `${answered}/${total}`, caption: 'items' },
+        {
+          label: null,
+          value: `${Math.round(scored.precision)} %`,
+          caption: 'de précision',
+        },
+      ];
+    }
+    if (axis === AxisType.MEMORY) {
+      const sequences = generateMemorySession(seed);
+      const scored = scoreMemorySession(
+        sequences,
+        this.memorySequencesFromMetrics(metrics),
+      );
+      const bestLength = (phase: MemoryPhase) =>
+        sequences.reduce(
+          (best, sequence, index) =>
+            sequence.phase === phase &&
+            scored.results[index]?.status === 'PERFECT'
+              ? Math.max(best, sequence.length)
+              : best,
+          0,
+        );
+      return [
+        {
+          label: 'restitution normale',
+          value: `${bestLength(MemoryPhase.NORMAL)}`,
+          caption: null,
+        },
+        {
+          label: 'inversée',
+          value: `${bestLength(MemoryPhase.INVERSE)}`,
+          caption: null,
+        },
+      ];
+    }
+    if (axis === AxisType.VISUAL_DISCRIMINATION) {
+      const trials = generateDiscriminationSession(seed);
+      const scored = scoreDiscriminationSession(
+        trials,
+        this.discriminationTrialsFromMetrics(metrics),
+      );
+      const identicalCount = trials.filter((trial) => trial.identical).length;
+      const falseAlerts = scored.outcomes.filter(
+        (outcome) => outcome === 'FALSE_POSITIVE',
+      ).length;
+      const falseAlertPct =
+        identicalCount === 0
+          ? 0
+          : Math.round((falseAlerts / identicalCount) * 100);
+      return [
+        {
+          label: null,
+          value: `${scored.correctCount}/${trials.length}`,
+          caption: null,
+        },
+        { label: 'fausses alertes', value: `${falseAlertPct} %`, caption: null },
+      ];
+    }
+    if (axis === AxisType.REACTIVITY) {
+      const reactivity = this.reactivityFromMetrics(metrics);
+      const scored = scoreReactivitySession(
+        generateReactivitySession(seed),
+        reactivity.stimuli,
+        reactivity.waitPresses,
+      );
+      return [
+        {
+          label: 'TR moyen',
+          value:
+            scored.trMoyMs === null ? '-' : `${Math.round(scored.trMoyMs)} ms`,
+          caption: null,
+        },
+        {
+          label: 'régularité',
+          value: scored.sdMs === null ? '-' : `± ${Math.round(scored.sdMs)} ms`,
+          caption: null,
+        },
+      ];
+    }
+    const motor = this.motorMetricsFromRow(metrics, null);
+    return [
+      {
+        label: null,
+        value: `${motor.coursesCompleted}/${MOTRICITY_COURSE_COUNT}`,
+        caption: 'parcours',
+      },
+      {
+        label: 'erreurs mineures',
+        value: `${motor.minorErrors}`,
+        caption: null,
+      },
+      { label: 'majeures', value: `${motor.majorErrors}`, caption: null },
+    ];
   }
 
   async results(userId: string, sessionId: string): Promise<SessionResultDto> {

@@ -706,6 +706,166 @@ describe('SessionsService.completeAxis (full simulation)', () => {
   });
 });
 
+describe('SessionsService.simulationSummary', () => {
+  const sessionId = '11111111-1111-1111-1111-111111111111';
+  const RAILWAY_WEIGHTS = [
+    { axis: AxisType.LOGIC, coefficient: 1, isCritical: false },
+    { axis: AxisType.MEMORY, coefficient: 1.2, isCritical: true },
+    { axis: AxisType.VISUAL_DISCRIMINATION, coefficient: 1.2, isCritical: true },
+    { axis: AxisType.REACTIVITY, coefficient: 1.4, isCritical: true },
+    { axis: AxisType.MOTOR_SKILLS, coefficient: 1, isCritical: false },
+  ];
+  const AXIS_METRICS: Record<string, unknown> = {
+    LOGIC: { axis: 'LOGIC', items: [] },
+    MEMORY: { axis: 'MEMORY', sequences: [] },
+    VISUAL_DISCRIMINATION: { axis: 'VISUAL_DISCRIMINATION', trials: [] },
+    REACTIVITY: { axis: 'REACTIVITY', stimuli: [], waitPresses: [] },
+    MOTOR_SKILLS: {
+      axis: 'MOTOR_SKILLS',
+      minorErrors: 5,
+      majorErrors: 1,
+      totalTimeMs: 120000,
+      coursesCompleted: 3,
+      controlModality: null,
+      courses: [],
+      timeline: [],
+      events: [],
+    },
+  };
+  const scoredAxes = (scores: Partial<Record<string, number>>) =>
+    (
+      [
+        ['LOGIC', 'EXCELLENT'],
+        ['MEMORY', 'FRAGILE'],
+        ['VISUAL_DISCRIMINATION', 'ACCEPTABLE'],
+        ['REACTIVITY', 'INSUFFICIENT'],
+        ['MOTOR_SKILLS', 'EXCELLENT'],
+      ] as const
+    ).map(([axis, band], order) =>
+      buildAxis({
+        id: `axis-${order + 1}`,
+        axis,
+        order,
+        normalizedScore: scores[axis] ?? 75,
+        band,
+        completedAt: new Date('2026-07-12T10:30:00Z'),
+        metrics: AXIS_METRICS[axis] as Prisma.JsonValue,
+      }),
+    );
+  const completedSimulation = (
+    scores: Partial<Record<string, number>>,
+    overrides: Partial<SessionWithRelations> = {},
+  ) =>
+    buildSession({
+      status: 'COMPLETED',
+      currentAxisIndex: 5,
+      globalScore: 72.4,
+      globalBand: 'ACCEPTABLE',
+      isAdmissible: false,
+      isEliminated: true,
+      completedAt: new Date('2026-07-12T10:30:00Z'),
+      axisResults: scoredAxes(scores),
+      ...overrides,
+    });
+
+  it('rejects a session that is not a full simulation', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    await expect(
+      service.simulationSummary('user-1', sessionId),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('rejects a simulation that is not completed', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({ axisResults: [buildAxis()] }),
+    );
+
+    await expect(
+      service.simulationSummary('user-1', sessionId),
+    ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('keeps the persisted unfavourable verdict and names the eliminatory axes', async () => {
+    repository.findUserSession.mockResolvedValue(
+      completedSimulation({
+        LOGIC: 82,
+        MEMORY: 61,
+        VISUAL_DISCRIMINATION: 75,
+        REACTIVITY: 48,
+        MOTOR_SKILLS: 88,
+      }),
+    );
+    repository.findSectorConfig.mockResolvedValue({
+      ...SECTOR_CONFIG,
+      weights: RAILWAY_WEIGHTS,
+    });
+
+    const summary = await service.simulationSummary('user-1', sessionId);
+
+    expect(summary.globalScore).toBe(72.4);
+    expect(summary.admissibilityGap).toBe(2.4);
+    expect(summary.isEliminated).toBe(true);
+    expect(summary.isAdmissible).toBe(false);
+    expect(summary.eliminatoryAxes).toEqual([AxisType.REACTIVITY]);
+    expect(summary.selection.weaknesses[0]).toMatchObject({
+      axis: AxisType.REACTIVITY,
+      thresholdKind: 'ELIMINATORY',
+      thresholdValue: 55,
+    });
+    expect(summary.selection.weaknesses[1]).toMatchObject({
+      axis: AxisType.MEMORY,
+      thresholdKind: 'VIGILANCE',
+      thresholdValue: 65,
+    });
+  });
+
+  it('exposes the five axes with their own thresholds and observables', async () => {
+    repository.findUserSession.mockResolvedValue(
+      completedSimulation(
+        {},
+        { isAdmissible: true, isEliminated: false, globalScore: 74.8 },
+      ),
+    );
+    repository.findSectorConfig.mockResolvedValue({
+      ...SECTOR_CONFIG,
+      weights: RAILWAY_WEIGHTS,
+    });
+
+    const summary = await service.simulationSummary('user-1', sessionId);
+
+    expect(summary.axes).toHaveLength(5);
+    expect(summary.axes.map(({ axis }) => axis)).toEqual([
+      AxisType.LOGIC,
+      AxisType.MEMORY,
+      AxisType.VISUAL_DISCRIMINATION,
+      AxisType.REACTIVITY,
+      AxisType.MOTOR_SKILLS,
+    ]);
+    const logic = summary.axes[0];
+    expect(logic.eliminatoryThreshold).toBeNull();
+    expect(logic.vigilanceThreshold).toBe(65);
+    expect(logic.observables[0]).toEqual({
+      label: null,
+      value: '0/40',
+      caption: 'items',
+    });
+    const reactivity = summary.axes[3];
+    expect(reactivity.eliminatoryThreshold).toBe(55);
+    expect(reactivity.observables[0].label).toBe('TR moyen');
+    const motor = summary.axes[4];
+    expect(motor.observables[0]).toEqual({
+      label: null,
+      value: '3/3',
+      caption: 'parcours',
+    });
+    expect(summary.admissibilityGap).toBe(4.8);
+    expect(summary.eliminatoryAxes).toEqual([]);
+  });
+});
+
 describe('SessionsService.results', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
 

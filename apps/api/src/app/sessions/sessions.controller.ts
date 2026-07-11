@@ -14,6 +14,7 @@ import {
   SessionDto,
   SessionHistoryPageDto,
   SessionResultDto,
+  SimulationSummaryDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
@@ -87,6 +88,14 @@ export class SessionsController {
     @Param('id', ParseUUIDPipe) sessionId: string,
   ): Promise<SessionResultDto> {
     return this.sessionsService.results(userId, sessionId);
+  }
+
+  @Get(':id/summary')
+  simulationSummary(
+    @CurrentUser() userId: string,
+    @Param('id', ParseUUIDPipe) sessionId: string,
+  ): Promise<SimulationSummaryDto> {
+    return this.sessionsService.simulationSummary(userId, sessionId);
   }
 
   @Get(':id/axes/:axis/results')
