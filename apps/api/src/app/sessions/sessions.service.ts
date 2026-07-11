@@ -785,9 +785,10 @@ export class SessionsService {
       );
     }
     const session = await this.loadOwnedSession(sessionId, userId);
-    if (mapEnumValue(SessionMode, session.mode) !== SessionMode.TARGETED) {
+    const mode = mapEnumValue(SessionMode, session.mode);
+    if (mode !== SessionMode.TARGETED && mode !== SessionMode.FULL) {
       throw new BadRequestException(
-        'Only a targeted session exposes an axis result',
+        'Only a targeted or full session exposes an axis result',
       );
     }
     if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.COMPLETED) {
@@ -833,11 +834,24 @@ export class SessionsService {
         ).getTime(),
       });
     }
-    const entry = scoredHistory.find(
+    let entry = scoredHistory.find(
       (candidate) => candidate.sessionId === sessionId,
     );
     if (!entry) {
-      throw new BadRequestException('The session has no result for this axis');
+      if (mode !== SessionMode.FULL || axisRow.normalizedScore === null) {
+        throw new BadRequestException(
+          'The session has no result for this axis',
+        );
+      }
+      entry = {
+        sessionId,
+        score: Math.round(axisRow.normalizedScore),
+        completedAt: (
+          axisRow.completedAt ??
+          session.completedAt ??
+          session.startedAt
+        ).getTime(),
+      };
     }
     const others = scoredHistory.filter(
       (candidate) => candidate.sessionId !== sessionId,

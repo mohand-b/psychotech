@@ -1420,6 +1420,39 @@ describe('SessionsService.targetedResult', () => {
     expect(result.previousScore).toBe(80);
   });
 
+  it('serves the axis result of a completed full simulation without targeted history', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        mode: 'FULL',
+        status: 'COMPLETED',
+        energyCost: 5,
+        completedAt: new Date('2026-07-12T10:30:00Z'),
+        axisResults: [
+          buildAxis({
+            axis: 'LOGIC',
+            normalizedScore: 76,
+            band: 'ACCEPTABLE',
+            startedAt: new Date('2026-07-12T10:00:00Z'),
+            completedAt: new Date('2026-07-12T10:10:00Z'),
+            metrics: { axis: 'LOGIC', items: [] } as unknown as Prisma.JsonValue,
+          }),
+        ],
+      }),
+    );
+    repository.findTargetedAxisHistory.mockResolvedValue([]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.score).toBe(76);
+    expect(result.bestScore).toBe(76);
+    expect(result.isNewBest).toBe(false);
+    expect(result.previousScore).toBeNull();
+  });
+
   it('still reports the record when no other session has reached this score', async () => {
     repository.findUserSession.mockResolvedValue(resultSession());
     repository.findTargetedAxisHistory.mockResolvedValue([
