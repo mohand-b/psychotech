@@ -820,6 +820,13 @@ describe('SessionsService.simulationSummary', () => {
       thresholdKind: 'VIGILANCE',
       thresholdValue: 65,
     });
+    expect(
+      summary.appreciation.lead.map(({ text }) => text).join(''),
+    ).toContain('seuil éliminatoire');
+    expect(summary.appreciation.priority).toBeNull();
+    expect(summary.selection.strengths[0].sublabel).toBe(
+      'Votre meilleur axe de la session',
+    );
   });
 
   it('exposes the five axes with their own thresholds and observables', async () => {
@@ -844,6 +851,21 @@ describe('SessionsService.simulationSummary', () => {
       AxisType.REACTIVITY,
       AxisType.MOTOR_SKILLS,
     ]);
+    expect(summary.appreciation.lead.length).toBeGreaterThan(0);
+    expect(
+      summary.appreciation.lead.every(
+        (segment) =>
+          typeof segment.text === 'string' &&
+          typeof segment.value === 'boolean',
+      ),
+    ).toBe(true);
+    expect(
+      summary.appreciation.lead.map(({ text }) => text).join(''),
+    ).toContain('dépasse le seuil Ferroviaire de ');
+    expect(
+      summary.appreciation.lead.find(({ value }) => value)?.text,
+    ).toBe('4,8');
+    expect(summary.appreciation.detail.length).toBeGreaterThan(0);
     const logic = summary.axes[0];
     expect(logic.eliminatoryThreshold).toBeNull();
     expect(logic.vigilanceThreshold).toBe(65);

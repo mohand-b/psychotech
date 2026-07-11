@@ -25,6 +25,7 @@ import {
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
   RecommendationPriority,
+  SECTOR_LABELS,
   ScoreBand,
   Sector,
   SessionDto,
@@ -36,6 +37,7 @@ import {
   SimulationSummaryDto,
   TargetedAxisResultDto,
   avisFromScore,
+  buildSimulationAppreciation,
   buildSimulationSummary,
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
@@ -613,6 +615,27 @@ export class SessionsService {
           entry.isCritical && entry.score < config.eliminatoryThreshold,
       )
       .map((entry) => entry.axis);
+    const outcomes = axes.map(({ axis, score, band, isCritical }) => ({
+      axis,
+      score,
+      band,
+      isCritical,
+    }));
+    const selection = buildSimulationSummary(
+      outcomes,
+      {
+        vigilanceThreshold: config.vigilanceThreshold,
+        eliminatoryThreshold: config.eliminatoryThreshold,
+      },
+      session.recommendations.map((recommendation) => ({
+        axis: mapEnumValue(AxisType, recommendation.axis),
+        priority: mapEnumValue(
+          RecommendationPriority,
+          recommendation.priority,
+        ),
+        label: recommendation.label,
+      })),
+    );
     return {
       sessionId: session.id,
       sector,
@@ -628,25 +651,17 @@ export class SessionsService {
         Math.round((globalScore - session.sectorThreshold) * 10) / 10,
       eliminatoryAxes,
       axes,
-      selection: buildSimulationSummary(
-        axes.map(({ axis, score, band, isCritical }) => ({
-          axis,
-          score,
-          band,
-          isCritical,
-        })),
+      selection,
+      appreciation: buildSimulationAppreciation(
         {
-          vigilanceThreshold: config.vigilanceThreshold,
+          sectorLabel: SECTOR_LABELS[sector],
+          globalScore,
+          admissibilityThreshold: session.sectorThreshold,
           eliminatoryThreshold: config.eliminatoryThreshold,
+          isEliminated: session.isEliminated ?? false,
         },
-        session.recommendations.map((recommendation) => ({
-          axis: mapEnumValue(AxisType, recommendation.axis),
-          priority: mapEnumValue(
-            RecommendationPriority,
-            recommendation.priority,
-          ),
-          label: recommendation.label,
-        })),
+        outcomes,
+        selection,
       ),
     };
   }
