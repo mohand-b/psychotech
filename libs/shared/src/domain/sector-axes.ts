@@ -1,5 +1,11 @@
 import { AxisType, Sector } from '../enums';
 
+export const VERY_CRITICAL_AXIS_COEFFICIENT = 1.4;
+
+export function isVeryCriticalAxisCoefficient(coefficient: number): boolean {
+  return coefficient >= VERY_CRITICAL_AXIS_COEFFICIENT;
+}
+
 export const SECTOR_LABELS: Record<Sector, string> = {
   [Sector.RAILWAY]: 'Ferroviaire',
   [Sector.AVIATION]: 'Aérien',
