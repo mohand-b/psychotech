@@ -12,6 +12,7 @@ import { GamepadModule } from './gamepad/gamepad.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { SessionsModule } from './sessions/sessions.module';
+import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
 import { validateEnvironment } from './config/environment.validation';
@@ -33,6 +34,7 @@ import { validateEnvironment } from './config/environment.validation';
     GamepadModule,
     ScoringModule,
     SessionsModule,
+    TrainingsModule,
     ProgressionModule,
     BadgesModule,
   ],
