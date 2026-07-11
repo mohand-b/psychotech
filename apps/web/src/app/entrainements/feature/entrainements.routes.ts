@@ -25,6 +25,19 @@ const simulationPlayHeader = {
   closeLink: '/entrainements',
 };
 
+const correctionHeader = {
+  title: 'Correction',
+  backLabel: 'Résultat',
+  backLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+  closeLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
+  axisParam: 'axis',
+  axisChip: true,
+  mobileTitle: true,
+  showEnergy: false,
+  showTimer: false,
+  live: false,
+};
+
 export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements',
@@ -43,7 +56,6 @@ export const entrainementsRoutes: Route[] = [
         title: 'Simulation complète',
         backLabel: 'Entraînements',
         backLink: '/entrainements',
-        brandChip: true,
       },
     },
     loadComponent: () =>
@@ -140,19 +152,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId/correction',
     canMatch: [axisSessionMatcher(AxisType.LOGIC)],
-    data: {
-      focusedHeader: {
-        title: 'Correction',
-        backLabel: 'Résultat',
-        backLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
-        closeLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
-        axisParam: 'axis',
-        axisChip: true,
-        showEnergy: false,
-        showTimer: false,
-        live: false,
-      },
-    },
+    data: { focusedHeader: correctionHeader },
     loadComponent: () =>
       import('./logic-correction/logic-correction').then(
         (m) => m.LogicCorrection,
@@ -170,19 +170,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId/correction',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
-    data: {
-      focusedHeader: {
-        title: 'Correction',
-        backLabel: 'Résultat',
-        backLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
-        closeLink: '/entrainements/cible/:axis/session/:sessionId/resultat',
-        axisParam: 'axis',
-        axisChip: true,
-        showEnergy: false,
-        showTimer: false,
-        live: false,
-      },
-    },
+    data: { focusedHeader: correctionHeader },
     loadComponent: () =>
       import('./memory-correction/memory-correction').then(
         (m) => m.MemoryCorrection,

@@ -69,19 +69,6 @@
   display: none;
 }
 
-.focused-header__brand-chip {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid var(--brand-pastel-bd);
-  border-radius: var(--radius-chip);
-  background: var(--brand-pastel);
-  color: var(--brand);
-  font: 600 13px/1 var(--font-ui);
-  white-space: nowrap;
-}
-
 .focused-header__actions {
   display: flex;
   align-items: center;
@@ -195,12 +182,9 @@
     text-overflow: ellipsis;
   }
 
-  .focused-header__crumb:has(ui-axis-chip) .focused-header__title {
+  .focused-header__crumb:has(ui-axis-chip)
+    .focused-header__title:not(.focused-header__title--mobile-visible) {
     display: none;
-  }
-
-  .focused-header__brand-chip {
-    display: inline-flex;
   }
 
   .focused-header__stepper--full {
@@ -209,11 +193,6 @@
 
   .focused-header__stepper--mini {
     display: inline-block;
-  }
-
-  .focused-header__crumb:has(.focused-header__brand-chip)
-    .focused-header__title {
-    display: none;
   }
 
   .focused-header__actions {

@@ -38,7 +38,7 @@ interface FocusedHeaderData {
   closeLink?: string;
   axisParam?: string;
   axisChip?: boolean;
-  brandChip?: boolean;
+  mobileTitle?: boolean;
   stepper?: boolean;
   showEnergy?: boolean;
   showTimer?: boolean;
@@ -62,7 +62,7 @@ interface FocusedHeaderView {
   duration: string | null;
   closeLink: string | null;
   axisChip: AxisType | null;
-  brandChip: boolean;
+  mobileTitle: boolean;
   stepper: boolean;
   showEnergy: boolean;
   live: boolean;
@@ -215,7 +215,7 @@ export class ConnectedLayout {
       duration,
       closeLink: data.closeLink ? resolveLink(data.closeLink) : null,
       axisChip,
-      brandChip: data.brandChip ?? false,
+      mobileTitle: data.mobileTitle ?? false,
       stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
       live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),
