@@ -72,7 +72,7 @@ export type ButtonSize = 'md' | 'lg';
       cursor: pointer;
     }
     .ui-button__label {
-      white-space: nowrap;
+      display: contents;
     }
     .ui-button--md {
       --btn-pad-y: 10px;

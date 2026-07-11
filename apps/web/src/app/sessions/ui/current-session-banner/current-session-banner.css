@@ -81,6 +81,24 @@
   color: var(--label);
 }
 
+@media (max-width: 429px) {
+  .banner__inner:has(.stepper--mini) .banner__action-label {
+    display: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .banner__inner:has(.stepper--mini) {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .banner__compact ui-chevron-stepper {
+    transform: scale(0.85);
+    transform-origin: left center;
+  }
+}
+
 @media (max-width: 767px) {
   :host {
     top: calc(3.5rem + var(--safe-top));
