@@ -501,73 +501,12 @@
   color: var(--ink);
 }
 
-.bilan__next-cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  width: 100%;
-  background: var(--card);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  font: 600 13px/18px var(--font-ui);
-  border-radius: var(--radius-button);
-  cursor: pointer;
-}
-
-.bilan__next-cta:hover {
-  border-color: var(--border-hover);
-}
-
-.bilan__next-cta--primary {
-  background: var(--brand);
-  color: #ffffff;
-  border-color: var(--brand);
-}
-
-.bilan__next-cta--primary:hover {
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
-}
-
 .bilan__actions {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   padding-top: 4px;
-}
-
-.bilan__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font: 600 14px/20px var(--font-ui);
-  border-radius: var(--radius-button);
-  cursor: pointer;
-}
-
-.bilan__action--primary {
-  background: var(--brand);
-  color: #ffffff;
-  border: none;
-  padding: 11px 18px;
-}
-
-.bilan__action--primary:hover {
-  background: var(--brand-hover);
-}
-
-.bilan__action--secondary {
-  background: var(--card);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  padding: 10px 18px;
-}
-
-.bilan__action--secondary:hover {
-  border-color: var(--border-hover);
 }
 
 .bilan__note {
@@ -797,18 +736,8 @@
     z-index: 30;
   }
 
-  .bilan__action--primary {
-    height: 52px;
-    padding: 0;
-    border-radius: 12px;
-    font-size: 16px;
-  }
-
-  .bilan__action--secondary {
-    height: 48px;
-    padding: 0;
-    border-radius: 12px;
-    font-size: 15px;
+  .bilan__actions-item {
+    width: 100%;
   }
 
   .bilan__note {

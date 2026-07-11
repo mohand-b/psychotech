@@ -340,14 +340,14 @@
               </div>
               <div class="bilan__next-body">
                 <p class="bilan__next-text">{{ recommendation.label }}</p>
-                <button
-                  type="button"
+                <ui-button
                   class="bilan__next-cta"
-                  [class.bilan__next-cta--primary]="first"
+                  [color]="buttonColorFor(recommendation.axis)"
+                  [block]="true"
                   (click)="trainAxis(recommendation.axis)"
                 >
                   Entraîner cet axe
-                </button>
+                </ui-button>
               </div>
             </article>
           }
@@ -356,21 +356,26 @@
     }
 
     <div class="bilan__actions">
-      <button
-        type="button"
-        class="bilan__action bilan__action--primary"
-        (click)="newTraining()"
-      >
-        <ui-icon [img]="playIcon" [size]="15" />
-        <span>Nouvel entraînement</span>
-      </button>
-      <button
-        type="button"
-        class="bilan__action bilan__action--secondary"
-        (click)="back()"
-      >
-        Retour aux entraînements
-      </button>
+      <div class="bilan__actions-item">
+        <ui-button
+          color="brand"
+          [icon]="playIcon"
+          [block]="true"
+          (click)="newTraining()"
+        >
+          Nouvel entraînement
+        </ui-button>
+      </div>
+      <div class="bilan__actions-item">
+        <ui-button
+          color="neutral"
+          appearance="outlined"
+          [block]="true"
+          (click)="back()"
+        >
+          Retour aux entraînements
+        </ui-button>
+      </div>
     </div>
     <p class="bilan__note">Chaque simulation génère de nouvelles épreuves.</p>
   }

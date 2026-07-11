@@ -237,7 +237,7 @@ describe('SimulationSummary', () => {
     expect(rows[0].querySelector('.bilan__axis-dot')).toBeNull();
   });
 
-  it('features only the first next step card with a filled cta', async () => {
+  it('features the first card and fills every cta with its axis color', async () => {
     const { fixture } = await setup(buildSummary());
     const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');
     expect(cards).toHaveLength(2);
@@ -245,12 +245,15 @@ describe('SimulationSummary', () => {
       cards[0].classList.contains('bilan__next-card--featured'),
     ).toBe(true);
     expect(
-      cards[0].querySelector('.bilan__next-cta--primary'),
-    ).not.toBeNull();
-    expect(
       cards[1].classList.contains('bilan__next-card--featured'),
     ).toBe(false);
-    expect(cards[1].querySelector('.bilan__next-cta--primary')).toBeNull();
+    const ctas = fixture.nativeElement.querySelectorAll(
+      '.bilan__next-cta button',
+    );
+    expect(ctas[0].className).toContain('ui-button--memory');
+    expect(ctas[0].className).toContain('ui-button--solid');
+    expect(ctas[1].className).toContain('ui-button--reactivity');
+    expect(ctas[1].className).toContain('ui-button--solid');
   });
 
   it('keeps a single accordion panel open at a time', async () => {
@@ -283,7 +286,7 @@ describe('SimulationSummary', () => {
   it('navigates to the targeted preparation of the recommended axis', async () => {
     const { fixture, navigate } = await setup(buildSummary());
     const button = fixture.nativeElement.querySelector(
-      '.bilan__next-cta',
+      '.bilan__next-cta button',
     ) as HTMLButtonElement;
 
     button.click();

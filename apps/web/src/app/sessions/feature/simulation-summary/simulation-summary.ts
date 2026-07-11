@@ -14,8 +14,10 @@ import {
   TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { Play } from 'lucide-angular';
+import { axisButtonColor } from '../../../entrainements/ui/axis-button-color';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import {
   BAND_COLOR_VARS,
@@ -38,7 +40,7 @@ function frenchDecimal(value: number): string {
 @Component({
   selector: 'app-simulation-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, Icon, SimulationAxisDetail, ThresholdGauge],
+  imports: [AxisRadar, Button, Icon, SimulationAxisDetail, ThresholdGauge],
   templateUrl: './simulation-summary.html',
   styleUrl: './simulation-summary.css',
 })
@@ -165,6 +167,10 @@ export class SimulationSummary {
         }
       },
     });
+  }
+
+  protected buttonColorFor(axis: AxisType): ButtonColor {
+    return axisButtonColor(axis);
   }
 
   protected trainAxis(axis: AxisType): void {
