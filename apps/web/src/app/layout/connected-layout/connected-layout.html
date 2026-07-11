@@ -8,13 +8,15 @@
       [mobileTitle]="header.mobileTitle"
       [steps]="header.stepper ? sessionSteps() : []"
       [duration]="
-        header.live
-          ? liveTimerDisabled()
-            ? null
-            : (liveCountdown() ?? header.duration)
-          : header.stepper
-            ? stepperDuration()
-            : header.duration
+        !header.showTimer
+          ? null
+          : header.live
+            ? liveTimerDisabled()
+              ? null
+              : (liveCountdown() ?? header.duration)
+            : header.stepper
+              ? stepperDuration()
+              : header.duration
       "
       [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
       [showEnergy]="header.showEnergy"

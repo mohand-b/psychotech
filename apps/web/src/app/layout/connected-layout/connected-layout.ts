@@ -65,6 +65,7 @@ interface FocusedHeaderView {
   mobileTitle: boolean;
   stepper: boolean;
   showEnergy: boolean;
+  showTimer: boolean;
   live: boolean;
 }
 
@@ -219,6 +220,7 @@ export class ConnectedLayout {
       mobileTitle: data.mobileTitle ?? false,
       stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
+      showTimer: data.showTimer ?? true,
       live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),
     };
   }

@@ -16,6 +16,7 @@ const simulationBriefingHeader = {
   stepper: true,
   live: false,
   showEnergy: false,
+  showTimer: false,
   closeLink: '/entrainements',
 };
 
@@ -118,6 +119,7 @@ export const entrainementsRoutes: Route[] = [
         backLink: '/entrainements/choisir-axe',
         closeLink: '/entrainements',
         axisParam: 'axis',
+        showTimer: false,
       },
     },
     loadComponent: () =>
