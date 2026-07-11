@@ -1,5 +1,8 @@
 import { AxisType, ScoreBand, Sector } from '../enums';
-import { SimulationSummarySelectionDto } from '../domain';
+import {
+  SimulationAppreciationDto,
+  SimulationSummarySelectionDto,
+} from '../domain';
 
 export interface SimulationObservableDto {
   label: string | null;
@@ -30,4 +33,5 @@ export interface SimulationSummaryDto {
   eliminatoryAxes: AxisType[];
   axes: SimulationAxisSummaryDto[];
   selection: SimulationSummarySelectionDto;
+  appreciation: SimulationAppreciationDto;
 }
