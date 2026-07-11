@@ -81,7 +81,7 @@
   color: var(--label);
 }
 
-@media (max-width: 429px) {
+@media (max-width: 407px) {
   .banner__inner:has(.stepper--mini) .banner__action-label {
     display: none;
   }
