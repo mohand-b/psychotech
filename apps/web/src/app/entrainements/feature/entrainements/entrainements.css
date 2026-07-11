@@ -130,6 +130,10 @@
   background: rgba(95, 206, 90, 0.12);
 }
 
+.duo__hint--hidden {
+  visibility: hidden;
+}
+
 .duo__titleblock {
   display: flex;
   flex-direction: column;
@@ -382,6 +386,9 @@
 }
 
 .duo__bilan-note {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   font: 400 12.5px/1.55 var(--font-ui);
   color: var(--text-secondary);
   border-top: 1px solid var(--divider-soft);

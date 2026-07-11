@@ -27,15 +27,14 @@
     >
       <div class="duo__pitch-head">
         <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
-        @if (panel() !== 'sim') {
-          <button
-            type="button"
-            class="duo__hint duo__hint--sim"
-            aria-label="Déplier le détail"
-          >
-            <ui-icon [img]="chevronRightIcon" [size]="15" />
-          </button>
-        }
+        <button
+          type="button"
+          class="duo__hint duo__hint--sim"
+          [class.duo__hint--hidden]="panel() === 'sim'"
+          aria-label="Déplier le détail"
+        >
+          <ui-icon [img]="chevronRightIcon" [size]="15" />
+        </button>
       </div>
       <div class="duo__titleblock">
         <h2 class="duo__name">Simulation complète</h2>
@@ -46,28 +45,14 @@
         >
       </div>
       <div class="duo__checks duo__checks--sim">
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Conditions réelles d'examen, sans interruption
-        </span>
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Avis d'admissibilité vs seuil {{ sectorLabel }}
-        </span>
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Bilan détaillé et recommandations par axe
-        </span>
+        @for (item of simulationFeatures; track item) {
+          <span class="duo__check">
+            <ui-icon [img]="checkIcon" [size]="15" />
+            {{ item }}
+          </span>
+        }
       </div>
       <div class="duo__chips">
-        <span class="duo__chip">
-          <ui-icon [img]="axesIcon" [size]="12" />
-          <span class="duo__chip-value t-mono">5 axes</span>
-        </span>
-        <span class="duo__chip">
-          <ui-icon [img]="durationIcon" [size]="12" />
-          <span class="duo__chip-value t-mono">~25 min</span>
-        </span>
         <span class="duo__chip duo__chip--energy-sim">
           <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
           <span class="duo__chip-value t-mono">5</span>
@@ -128,10 +113,10 @@
               ></span
             >
           </div>
-          <span class="duo__bilan-note"
-            >{{ bilan.dateLabel }} · Une courte pause sépare chaque axe pendant
-            la session.</span
-          >
+          <span class="duo__bilan-note">
+            <span>{{ bilan.dateLabel }}</span>
+            <span>Une courte pause sépare chaque axe pendant la session.</span>
+          </span>
         } @else if (overviewLoaded()) {
           <span class="duo__empty-title">Aucune simulation pour l'instant</span>
           <span class="duo__empty-hint"
@@ -208,15 +193,14 @@
       (click)="openPanel('cible')"
     >
       <div class="duo__pitch-head">
-        @if (panel() !== 'cible') {
-          <button
-            type="button"
-            class="duo__hint duo__hint--cible"
-            aria-label="Déplier le détail"
-          >
-            <ui-icon [img]="chevronLeftIcon" [size]="15" />
-          </button>
-        }
+        <button
+          type="button"
+          class="duo__hint duo__hint--cible"
+          [class.duo__hint--hidden]="panel() === 'cible'"
+          aria-label="Déplier le détail"
+        >
+          <ui-icon [img]="chevronLeftIcon" [size]="15" />
+        </button>
         <div class="duo__eyebrow-group">
           <span class="duo__eyebrow duo__eyebrow--cible">Entraînement ciblé</span>
           <span class="duo__flexible">Flexible</span>
@@ -230,24 +214,14 @@
         >
       </div>
       <div class="duo__checks duo__checks--cible">
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Sessions courtes de 3 à 5 minutes
-        </span>
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Résultat immédiat et correction détaillée
-        </span>
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          Progression mesurable axe par axe
-        </span>
+        @for (item of targetedFeatures; track item) {
+          <span class="duo__check">
+            <ui-icon [img]="checkIcon" [size]="15" />
+            {{ item }}
+          </span>
+        }
       </div>
       <div class="duo__chips">
-        <span class="duo__chip">
-          <ui-icon [img]="durationIcon" [size]="12" />
-          <span class="duo__chip-value t-mono">3-5 min / axe</span>
-        </span>
         <span class="duo__chip duo__chip--energy-cible">
           <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
           <span class="duo__chip-value t-mono">1 / axe</span>
@@ -277,28 +251,14 @@
         >
       </div>
       <div class="trainm__checks">
-        <span class="trainm__check trainm__check--sim">
-          <ui-icon [img]="checkIcon" [size]="14" />
-          Conditions réelles d'examen, sans interruption
-        </span>
-        <span class="trainm__check trainm__check--sim">
-          <ui-icon [img]="checkIcon" [size]="14" />
-          Avis d'admissibilité vs seuil {{ sectorLabel }}
-        </span>
-        <span class="trainm__check trainm__check--sim">
-          <ui-icon [img]="checkIcon" [size]="14" />
-          Bilan détaillé et recommandations par axe
-        </span>
+        @for (item of simulationFeatures; track item) {
+          <span class="trainm__check trainm__check--sim">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            {{ item }}
+          </span>
+        }
       </div>
       <div class="trainm__chips trainm__chips--sim">
-        <span class="duo__chip">
-          <ui-icon [img]="axesIcon" [size]="12" />
-          <span class="duo__chip-value t-mono">5 axes</span>
-        </span>
-        <span class="duo__chip">
-          <ui-icon [img]="durationIcon" [size]="12" />
-          <span class="duo__chip-value t-mono">~25 min</span>
-        </span>
         <span class="duo__chip duo__chip--energy-sim">
           <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
           <span class="duo__chip-value t-mono">5</span>
@@ -330,24 +290,14 @@
           >
         </div>
         <div class="trainm__checks">
-          <span class="trainm__check trainm__check--cible">
-            <ui-icon [img]="checkIcon" [size]="14" />
-            Sessions courtes de 3 à 5 minutes
-          </span>
-          <span class="trainm__check trainm__check--cible">
-            <ui-icon [img]="checkIcon" [size]="14" />
-            Résultat immédiat et correction détaillée
-          </span>
-          <span class="trainm__check trainm__check--cible">
-            <ui-icon [img]="checkIcon" [size]="14" />
-            Progression mesurable axe par axe
-          </span>
+          @for (item of targetedFeatures; track item) {
+            <span class="trainm__check trainm__check--cible">
+              <ui-icon [img]="checkIcon" [size]="14" />
+              {{ item }}
+            </span>
+          }
         </div>
         <div class="trainm__chips trainm__chips--cible">
-          <span class="duo__chip">
-            <ui-icon [img]="durationIcon" [size]="12" />
-            <span class="duo__chip-value t-mono">3-5 min / axe</span>
-          </span>
           <span class="duo__chip duo__chip--energy-cible">
             <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
             <span class="duo__chip-value t-mono">1 / axe</span>

@@ -19,8 +19,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
-  Clock,
-  LayoutGrid,
   TrainFront,
   Zap,
 } from 'lucide-angular';
@@ -83,9 +81,21 @@ export class Entrainements {
   private readonly router = inject(Router);
 
   protected readonly checkIcon = CircleCheckBig;
-  protected readonly axesIcon = LayoutGrid;
-  protected readonly durationIcon = Clock;
   protected readonly energyIcon = Zap;
+
+  protected readonly simulationFeatures = [
+    'Tous les axes, notation pondérée par secteur',
+    "Conditions réelles d'examen",
+    'Analyse de performance globale et par axe',
+    "Sans aide ni option d'entraînement",
+  ];
+
+  protected readonly targetedFeatures = [
+    '1 axe au choix, parmi les cinq',
+    'Sessions courtes (3–5 min), retour immédiat',
+    'Idéal pour cibler un point faible',
+    "Options d'entraînement selon l'axe",
+  ];
   protected readonly chevronRightIcon = ChevronRight;
   protected readonly chevronLeftIcon = ChevronLeft;
   protected readonly arrowRightIcon = ArrowRight;
