@@ -177,6 +177,9 @@ export type ButtonSize = 'md' | 'lg';
       border-bottom: 3px solid var(--btn-relief);
       padding-bottom: calc(var(--btn-pad-y) - 3px);
     }
+    .ui-button--solid.ui-button--relief:active:not(:disabled) {
+      border-bottom-color: transparent;
+    }
     .ui-button--outlined {
       padding: calc(var(--btn-pad-y) - 1px) var(--btn-pad-x);
       border: 1px solid var(--btn-outline-border);
@@ -209,15 +212,12 @@ export type ButtonSize = 'md' | 'lg';
       border-color: var(--border);
     }
     .ui-button--solid.ui-button--relief:disabled {
-      border-bottom-color: var(--surface-muted);
+      border-bottom-color: transparent;
     }
     .ui-button--loading:disabled {
       background: var(--btn-fill-loading);
       color: var(--btn-on-fill);
       cursor: progress;
-    }
-    .ui-button--loading.ui-button--relief:disabled {
-      border-bottom-color: var(--btn-relief);
     }
     .ui-button__spinner {
       animation: ui-button-spin 0.7s linear infinite;
@@ -230,11 +230,11 @@ export type ButtonSize = 'md' | 'lg';
         border-bottom: 3px solid var(--btn-relief);
         padding-bottom: calc(var(--btn-pad-y) - 3px);
       }
-      .ui-button--solid.ui-button--relief-mobile:disabled {
-        border-bottom-color: var(--surface-muted);
+      .ui-button--solid.ui-button--relief-mobile:active:not(:disabled) {
+        border-bottom-color: transparent;
       }
-      .ui-button--loading.ui-button--relief-mobile:disabled {
-        border-bottom-color: var(--btn-relief);
+      .ui-button--solid.ui-button--relief-mobile:disabled {
+        border-bottom-color: transparent;
       }
     }
     @keyframes ui-button-spin {
