@@ -113,6 +113,23 @@ html:has(body.landing-active) {
   background: #0c0a16;
 }
 
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4.5rem;
+}
+
+@media (max-width: 767px) {
+  .page-shell {
+    gap: 1rem;
+    padding: 1.25rem 1rem 4.5rem;
+  }
+}
+
 .t-display {
   font: 700 40px/44px var(--font-display);
 }

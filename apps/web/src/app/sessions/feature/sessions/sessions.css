@@ -1,9 +1,3 @@
-.sessions {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4.5rem;
-}
-
 .sessions__filters {
   flex-wrap: wrap;
 }
@@ -106,11 +100,6 @@
 }
 
 @media (max-width: 767px) {
-  .sessions {
-    padding: 1.25rem 1rem 4.5rem;
-    gap: 1rem;
-  }
-
   .sessions__filters {
     flex-wrap: nowrap;
     overflow-x: auto;

@@ -4,7 +4,7 @@
     (resumeRequested)="resume(session)"
   />
 }
-<section class="sessions flex flex-col gap-6">
+<section class="page-shell sessions">
   <h1 class="t-page-title">Mes sessions</h1>
   <div class="sessions__filters flex items-center gap-2">
     @for (chip of filterChips; track chip.value; let index = $index) {
