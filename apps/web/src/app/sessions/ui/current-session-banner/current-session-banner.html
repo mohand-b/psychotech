@@ -26,16 +26,7 @@
       <span class="banner__compact-title">Session en cours</span>
       <span class="banner__compact-meta flex items-center gap-2">
         @if (isFull()) {
-          <span class="banner__dots flex items-center gap-1">
-            @for (dot of dots(); track $index) {
-              <span
-                class="banner__dot"
-                [class.banner__dot--current]="dot.state === 'current'"
-                [class.banner__dot--todo]="dot.state === 'todo'"
-                [style.background]="dot.colorVar"
-              ></span>
-            }
-          </span>
+          <ui-chevron-stepper variant="mini" [steps]="steps()" />
           <span class="banner__muted">
             Simulation ·
             <span class="banner__count"

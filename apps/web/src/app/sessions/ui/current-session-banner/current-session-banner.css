@@ -72,15 +72,6 @@
   border-radius: var(--radius-pill);
 }
 
-.banner__dot--current {
-  opacity: 0.45;
-}
-
-.banner__dot--todo {
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-}
-
 .banner__mention {
   font: 400 11px/14px var(--font-ui);
   color: var(--label);

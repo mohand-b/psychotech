@@ -4,8 +4,8 @@
       <ui-axis-chip [axis]="axis" />
     } @else {
       <span class="row__simulation-chip">
-        <ui-icon [img]="simulationIcon" />
-        <span>Simulation</span>
+        <ui-icon [img]="simulationIcon" [size]="14" />
+        <span>{{ view().axisCount }} axes</span>
       </span>
     }
   </span>
@@ -47,10 +47,7 @@
   <span class="rowm__text flex flex-col">
     <span class="rowm__title">{{ view().mobileTitle }}</span>
     <span class="rowm__meta t-mono">
-      {{ view().dateLabel }} · {{ view().durationLabel
-      }}@if (view().mobileMention; as mention) {
-        · {{ mention }}
-      }
+      {{ view().dateLabel }} · {{ view().durationLabel }}
     </span>
   </span>
   <span class="rowm__end flex items-center gap-2">

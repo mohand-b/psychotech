@@ -34,17 +34,23 @@
     }
   </div>
   <div class="sessions__groups flex flex-col gap-6">
-    @for (group of groups(); track group.label) {
-      <div class="flex flex-col gap-2.5">
-        <span class="t-label">{{ group.label }}</span>
-        <div class="sessions__card">
-          @for (row of group.rows; track row.id) {
-            <app-session-history-row [view]="row" />
-          }
-        </div>
+    @if (loading()) {
+      <div class="sessions__card">
+        @for (row of skeletonRows; track row) {
+          <app-session-history-skeleton />
+        }
       </div>
-    } @empty {
-      @if (!loading()) {
+    } @else {
+      @for (group of groups(); track group.label) {
+        <div class="flex flex-col gap-2.5">
+          <span class="t-label">{{ group.label }}</span>
+          <div class="sessions__card">
+            @for (row of group.rows; track row.id) {
+              <app-session-history-row [view]="row" />
+            }
+          </div>
+        </div>
+      } @empty {
         <div class="sessions__card sessions__empty t-support">
           Aucune session pour ce filtre.
         </div>

@@ -27,11 +27,6 @@ const STEP_STATES: Record<AxisProgressStatus, StepState> = {
   [AxisProgressStatus.PENDING]: 'todo',
 };
 
-interface BannerDot {
-  colorVar: string | null;
-  state: StepState;
-}
-
 @Component({
   selector: 'app-current-session-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -95,16 +90,6 @@ export class CurrentSessionBanner {
   protected readonly steps = computed<ChevronStep[]>(() =>
     this.session().axes.map(({ axis, status }) => ({
       axis,
-      state: STEP_STATES[status],
-    })),
-  );
-
-  protected readonly dots = computed<BannerDot[]>(() =>
-    this.session().axes.map(({ axis, status }) => ({
-      colorVar:
-        status === AxisProgressStatus.PENDING
-          ? null
-          : AXIS_PRESENTATION[axis].plainVar,
       state: STEP_STATES[status],
     })),
   );

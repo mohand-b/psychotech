@@ -20,6 +20,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { CurrentSessionBanner } from '../../ui/current-session-banner/current-session-banner';
 import { SessionHistoryRow } from '../../ui/session-history-row/session-history-row';
+import { SessionHistorySkeleton } from '../../ui/session-history-skeleton/session-history-skeleton';
 import {
   SessionRowView,
   buildSessionRowView,
@@ -44,7 +45,13 @@ interface RowGroupView {
 @Component({
   selector: 'app-sessions',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, CurrentSessionBanner, Icon, SessionHistoryRow],
+  imports: [
+    Button,
+    CurrentSessionBanner,
+    Icon,
+    SessionHistoryRow,
+    SessionHistorySkeleton,
+  ],
   templateUrl: './sessions.html',
   styleUrl: './sessions.css',
 })
@@ -54,6 +61,7 @@ export class Sessions {
   private readonly now = new Date();
 
   protected readonly chevronDownIcon = ChevronDown;
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   protected readonly filter = this.facade.filter;
   protected readonly loading = this.facade.loading;
