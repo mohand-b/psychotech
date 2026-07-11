@@ -41,7 +41,6 @@ interface FocusedHeaderData {
   brandChip?: boolean;
   stepper?: boolean;
   showEnergy?: boolean;
-  showHelp?: boolean;
   showTimer?: boolean;
   live?: boolean;
 }
@@ -66,7 +65,6 @@ interface FocusedHeaderView {
   brandChip: boolean;
   stepper: boolean;
   showEnergy: boolean;
-  helpText: string | null;
   live: boolean;
 }
 
@@ -122,10 +120,6 @@ export class ConnectedLayout {
       ? formatDuration(training.timer.durationSec)
       : null;
   });
-
-  protected readonly stepperHelpText = computed(
-    () => this.currentAxisTraining()?.briefing.consigne ?? null,
-  );
 
   constructor() {
     this.energyFacade
@@ -192,7 +186,6 @@ export class ConnectedLayout {
     let title = data.title ?? '';
     let duration: string | null = null;
     let axisChip: AxisType | null = null;
-    let helpText: string | null = null;
     if (data.axisParam) {
       const axis = axisFromSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
       if (axis) {
@@ -207,7 +200,6 @@ export class ConnectedLayout {
             ? training.timer.durationSec
             : null;
         duration = durationSec === null ? null : formatDuration(durationSec);
-        helpText = data.showHelp && training ? training.briefing.consigne : null;
       }
     }
     return {
@@ -220,7 +212,6 @@ export class ConnectedLayout {
       brandChip: data.brandChip ?? false,
       stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
-      helpText,
       live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),
     };
   }

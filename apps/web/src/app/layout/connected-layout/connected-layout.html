@@ -16,7 +16,6 @@
       "
       [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
       [showEnergy]="header.showEnergy"
-      [helpText]="header.helpText ?? (header.stepper ? stepperHelpText() : null)"
       [closeLink]="header.closeLink"
       (closeRequested)="onCloseRequested(header)"
     />

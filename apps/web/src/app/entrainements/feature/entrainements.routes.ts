@@ -123,7 +123,6 @@ export const entrainementsRoutes: Route[] = [
         axisParam: 'axis',
         axisChip: true,
         showEnergy: false,
-        showHelp: true,
       },
     },
     loadComponent: () =>
@@ -234,7 +233,6 @@ export const entrainementsRoutes: Route[] = [
         axisParam: 'axis',
         axisChip: true,
         showEnergy: false,
-        showHelp: true,
       },
     },
     loadComponent: () =>
@@ -252,7 +250,6 @@ export const entrainementsRoutes: Route[] = [
         axisParam: 'axis',
         axisChip: true,
         showEnergy: false,
-        showHelp: true,
       },
     },
     loadComponent: () =>
@@ -272,7 +269,6 @@ export const entrainementsRoutes: Route[] = [
         axisParam: 'axis',
         axisChip: true,
         showEnergy: false,
-        showHelp: true,
       },
     },
     loadComponent: () =>
@@ -290,7 +286,6 @@ export const entrainementsRoutes: Route[] = [
         axisParam: 'axis',
         axisChip: true,
         showEnergy: false,
-        showHelp: true,
       },
     },
     loadComponent: () =>

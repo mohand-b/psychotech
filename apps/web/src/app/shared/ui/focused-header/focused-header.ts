@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
-import { ArrowLeft, CircleQuestionMark, Layers, Timer, X } from 'lucide-angular';
+import { ArrowLeft, Layers, Timer, X } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
 import { ChevronStep, ChevronStepper } from '../chevron-stepper/chevron-stepper';
@@ -73,16 +73,6 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
               <span class="focused-header__timer-value">{{ duration }}</span>
             </span>
           }
-          @if (helpText(); as helpText) {
-            <button
-              type="button"
-              class="focused-header__icon-button focused-header__help"
-              [title]="helpText"
-              aria-label="Aide"
-            >
-              <ui-icon [img]="helpIcon" [size]="17" />
-            </button>
-          }
           @if (closeLink()) {
             <button
               type="button"
@@ -111,14 +101,12 @@ export class FocusedHeader {
   readonly duration = input<string | null>(null);
   readonly timerSeverity = input<TimerSeverity>('normal');
   readonly showEnergy = input(true);
-  readonly helpText = input<string | null>(null);
   readonly closeLink = input<string | null>(null);
   readonly closeRequested = output<void>();
 
   protected readonly backIcon = ArrowLeft;
   protected readonly brandChipIcon = Layers;
   protected readonly timerIcon = Timer;
-  protected readonly helpIcon = CircleQuestionMark;
   protected readonly closeIcon = X;
   protected readonly energy = this.energyFacade.state;
 }
