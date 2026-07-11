@@ -2,32 +2,44 @@ import { AxisType } from '../enums';
 import {
   AXIS_TRAINING_OPTIONS,
   TrainingOptionId,
-  trainingOptionForAxis,
+  trainingOptionsForAxis,
 } from './training-options';
 
 describe('AXIS_TRAINING_OPTIONS', () => {
-  it('offers exactly one option for logic, reactivity and motor skills', () => {
-    expect(trainingOptionForAxis(AxisType.LOGIC)?.id).toBe(
+  it('offers help and no-timer for logic', () => {
+    expect(trainingOptionsForAxis(AxisType.LOGIC).map(({ id }) => id)).toEqual([
       TrainingOptionId.LOGIC_HELP,
-    );
-    expect(trainingOptionForAxis(AxisType.REACTIVITY)?.id).toBe(
-      TrainingOptionId.REACTIVITY_LIVE_METRICS,
-    );
-    expect(trainingOptionForAxis(AxisType.MOTOR_SKILLS)?.id).toBe(
-      TrainingOptionId.MOTOR_LIVE_ERROR_COUNTERS,
-    );
-    expect(Object.keys(AXIS_TRAINING_OPTIONS)).toHaveLength(3);
+      TrainingOptionId.NO_TIMER,
+    ]);
   });
 
-  it('offers no option for memory and visual discrimination', () => {
-    expect(trainingOptionForAxis(AxisType.MEMORY)).toBeNull();
-    expect(trainingOptionForAxis(AxisType.VISUAL_DISCRIMINATION)).toBeNull();
+  it('offers only no-timer for visual discrimination', () => {
+    expect(
+      trainingOptionsForAxis(AxisType.VISUAL_DISCRIMINATION).map(
+        ({ id }) => id,
+      ),
+    ).toEqual([TrainingOptionId.NO_TIMER]);
+  });
+
+  it('offers a single live-feedback option for reactivity and motor skills', () => {
+    expect(
+      trainingOptionsForAxis(AxisType.REACTIVITY).map(({ id }) => id),
+    ).toEqual([TrainingOptionId.REACTIVITY_LIVE_METRICS]);
+    expect(
+      trainingOptionsForAxis(AxisType.MOTOR_SKILLS).map(({ id }) => id),
+    ).toEqual([TrainingOptionId.MOTOR_LIVE_ERROR_COUNTERS]);
+  });
+
+  it('offers no option for memory', () => {
+    expect(trainingOptionsForAxis(AxisType.MEMORY)).toEqual([]);
   });
 
   it('keeps labels and descriptions free of em dashes', () => {
-    for (const option of Object.values(AXIS_TRAINING_OPTIONS)) {
-      expect(option.label).not.toContain('—');
-      expect(option.description).not.toContain('—');
+    for (const options of Object.values(AXIS_TRAINING_OPTIONS)) {
+      for (const option of options) {
+        expect(option.label).not.toContain('—');
+        expect(option.description).not.toContain('—');
+      }
     }
   });
 });
