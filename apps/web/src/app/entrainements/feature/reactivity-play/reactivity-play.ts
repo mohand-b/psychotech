@@ -26,9 +26,12 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
+import {
+  afterAxisSubmitRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
 
@@ -238,6 +241,13 @@ export class ReactivityPlay {
       this.router.navigate(['/entrainements']);
       return;
     }
+    if (
+      session.mode === SessionMode.FULL &&
+      simulationCurrentAxis(session) !== this.axis
+    ) {
+      this.router.navigate(['/entrainements/simulation/session', session.id]);
+      return;
+    }
     this.stimuli = this.facade.reactivityStimuli();
     this.nextTransitionBoundary = this.phaseMs;
     this.loaded.set(true);
@@ -434,15 +444,9 @@ export class ReactivityPlay {
     this.facade
       .completeTargetedReactivity(this.answers, this.waitPresses, playedMs)
       .subscribe({
-        next: () => {
+        next: (session) => {
           this.facade.setEffectiveCountdown(null);
-          this.router.navigate([
-            '/entrainements/cible',
-            axisSlug(AxisType.REACTIVITY),
-            'session',
-            this.sessionId,
-            'resultat',
-          ]);
+          this.router.navigate(afterAxisSubmitRoute(session, this.axis));
         },
         error: () => {
           this.hasSubmitted = false;

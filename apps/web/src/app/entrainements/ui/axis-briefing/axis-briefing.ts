@@ -37,6 +37,9 @@ interface SummaryTile {
         <span class="axis-briefing__tile">
           <ui-icon [img]="presentation().icon" [size]="32" />
         </span>
+        @if (positionLabel(); as position) {
+          <span class="axis-briefing__position">{{ position }}</span>
+        }
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
       </header>
 
@@ -111,7 +114,7 @@ interface SummaryTile {
         </div>
       </article>
 
-        @if (trainingOption(); as option) {
+        @if (showOptions() && trainingOption(); as option) {
           <article class="axis-briefing__card">
             <span class="axis-briefing__label">Options d'entraînement</span>
             <div class="axis-briefing__option">
@@ -135,6 +138,8 @@ interface SummaryTile {
 export class AxisBriefing {
   readonly axis = input.required<AxisType>();
   readonly admissibilityThreshold = input<number | null>(null);
+  readonly showOptions = input(true);
+  readonly positionLabel = input<string | null>(null);
   readonly optionEnabled = model(false);
 
   protected readonly trainingOption = computed(() =>

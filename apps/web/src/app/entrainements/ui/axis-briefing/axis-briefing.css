@@ -31,6 +31,13 @@
   color: var(--axis-plain);
 }
 
+.axis-briefing__position {
+  font: 600 0.75rem/1rem var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--axis-text);
+}
+
 .axis-briefing__name {
   margin: 0;
   font: 700 2rem/2.5rem var(--font-display);

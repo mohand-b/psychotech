@@ -6,10 +6,17 @@
       [backLink]="header.backLink"
       [axisChip]="header.axisChip"
       [brandChip]="header.brandChip"
-      [duration]="header.live ? (liveCountdown() ?? header.duration) : header.duration"
+      [steps]="header.stepper ? sessionSteps() : []"
+      [duration]="
+        header.live
+          ? (liveCountdown() ?? header.duration)
+          : header.stepper
+            ? stepperDuration()
+            : header.duration
+      "
       [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
       [showEnergy]="header.showEnergy"
-      [helpText]="header.helpText"
+      [helpText]="header.helpText ?? (header.stepper ? stepperHelpText() : null)"
       [closeLink]="header.closeLink"
       (closeRequested)="onCloseRequested(header)"
     />

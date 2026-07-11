@@ -10,6 +10,7 @@ import { AxisType } from '@psychotech/shared';
 import { ArrowLeft, CircleQuestionMark, Layers, Timer, X } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
+import { ChevronStep, ChevronStepper } from '../chevron-stepper/chevron-stepper';
 import { EnergyGauge } from '../energy-gauge/energy-gauge';
 import { Icon } from '../icon/icon';
 
@@ -18,27 +19,41 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 @Component({
   selector: 'ui-focused-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, EnergyGauge, AxisChip],
+  imports: [RouterLink, Icon, EnergyGauge, AxisChip, ChevronStepper],
   template: `
     <header class="focused-header">
       <div class="focused-header__inner">
-        <nav class="focused-header__crumb" aria-label="Fil d'Ariane">
-          <a class="focused-header__back" [routerLink]="backLink()">
-            <ui-icon [img]="backIcon" [size]="16" />
-            <span>{{ backLabel() }}</span>
-          </a>
-          <span class="focused-header__separator"></span>
-          <span class="focused-header__title">{{ title() }}</span>
-          @if (axisChip(); as chip) {
-            <ui-axis-chip [axis]="chip" />
-          }
-          @if (brandChip()) {
-            <span class="focused-header__brand-chip">
-              <ui-icon [img]="brandChipIcon" [size]="14" />
-              <span>{{ title() }}</span>
-            </span>
-          }
-        </nav>
+        @if (steps().length > 0) {
+          <div class="focused-header__steps">
+            <ui-chevron-stepper
+              class="focused-header__stepper focused-header__stepper--full"
+              [steps]="steps()"
+            />
+            <ui-chevron-stepper
+              class="focused-header__stepper focused-header__stepper--mini"
+              variant="mini"
+              [steps]="steps()"
+            />
+          </div>
+        } @else {
+          <nav class="focused-header__crumb" aria-label="Fil d'Ariane">
+            <a class="focused-header__back" [routerLink]="backLink()">
+              <ui-icon [img]="backIcon" [size]="16" />
+              <span>{{ backLabel() }}</span>
+            </a>
+            <span class="focused-header__separator"></span>
+            <span class="focused-header__title">{{ title() }}</span>
+            @if (axisChip(); as chip) {
+              <ui-axis-chip [axis]="chip" />
+            }
+            @if (brandChip()) {
+              <span class="focused-header__brand-chip">
+                <ui-icon [img]="brandChipIcon" [size]="14" />
+                <span>{{ title() }}</span>
+              </span>
+            }
+          </nav>
+        }
 
         <div class="focused-header__actions">
           @if (showEnergy()) {
@@ -92,6 +107,7 @@ export class FocusedHeader {
   readonly backLink = input.required<string>();
   readonly axisChip = input<AxisType | null>(null);
   readonly brandChip = input(false);
+  readonly steps = input<readonly ChevronStep[]>([]);
   readonly duration = input<string | null>(null);
   readonly timerSeverity = input<TimerSeverity>('normal');
   readonly showEnergy = input(true);

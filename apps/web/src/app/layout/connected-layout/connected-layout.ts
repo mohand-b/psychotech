@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ActivatedRoute,
@@ -18,6 +24,7 @@ import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
+import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';
 import { axisFromSlug } from '../../shared/util/axis-slug';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
@@ -26,12 +33,13 @@ import { Navbar } from '../../shared/ui/navbar/navbar';
 
 interface FocusedHeaderData {
   title?: string;
-  backLabel: string;
-  backLink: string;
+  backLabel?: string;
+  backLink?: string;
   closeLink?: string;
   axisParam?: string;
   axisChip?: boolean;
   brandChip?: boolean;
+  stepper?: boolean;
   showEnergy?: boolean;
   showHelp?: boolean;
   showTimer?: boolean;
@@ -56,6 +64,7 @@ interface FocusedHeaderView {
   closeLink: string | null;
   axisChip: AxisType | null;
   brandChip: boolean;
+  stepper: boolean;
   showEnergy: boolean;
   helpText: string | null;
   live: boolean;
@@ -83,6 +92,40 @@ export class ConnectedLayout {
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
   protected readonly liveCountdownSeverity =
     this.trainingSessionFacade.countdownSeverity;
+
+  protected readonly sessionSteps = computed<ChevronStep[]>(() => {
+    const session = this.trainingSessionFacade.session();
+    if (!session) {
+      return [];
+    }
+    return session.axisResults.map((result, index) => ({
+      axis: result.axis,
+      state:
+        result.completedAt !== null || result.skipped
+          ? 'done'
+          : index === session.currentAxisIndex
+            ? 'current'
+            : 'todo',
+    }));
+  });
+
+  private readonly currentAxisTraining = computed<AxisTraining | undefined>(
+    () => {
+      const axis = this.trainingSessionFacade.axis();
+      return axis ? AXIS_TRAINING[axis as RailwayPlayableAxis] : undefined;
+    },
+  );
+
+  protected readonly stepperDuration = computed(() => {
+    const training = this.currentAxisTraining();
+    return training && training.timer.model === AxisTimerModel.GLOBAL
+      ? formatDuration(training.timer.durationSec)
+      : null;
+  });
+
+  protected readonly stepperHelpText = computed(
+    () => this.currentAxisTraining()?.briefing.consigne ?? null,
+  );
 
   constructor() {
     this.energyFacade
@@ -169,12 +212,13 @@ export class ConnectedLayout {
     }
     return {
       title,
-      backLabel: data.backLabel,
-      backLink: resolveLink(data.backLink),
+      backLabel: data.backLabel ?? '',
+      backLink: resolveLink(data.backLink ?? ''),
       duration,
       closeLink: data.closeLink ? resolveLink(data.closeLink) : null,
       axisChip,
       brandChip: data.brandChip ?? false,
+      stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
       helpText,
       live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),

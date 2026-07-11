@@ -7,6 +7,24 @@ function axisSessionMatcher(axis: AxisType): CanMatchFn {
     segments[2]?.path === AXIS_SLUGS[axis];
 }
 
+function simulationAxisMatcher(axis: AxisType): CanMatchFn {
+  return (_route: Route, segments: UrlSegment[]) =>
+    segments[5]?.path === AXIS_SLUGS[axis];
+}
+
+const simulationBriefingHeader = {
+  stepper: true,
+  live: false,
+  showEnergy: false,
+  closeLink: '/entrainements',
+};
+
+const simulationPlayHeader = {
+  stepper: true,
+  showEnergy: false,
+  closeLink: '/entrainements',
+};
+
 export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements',
@@ -32,6 +50,53 @@ export const entrainementsRoutes: Route[] = [
       import('./simulation-start/simulation-start').then(
         (m) => m.SimulationStart,
       ),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId',
+    data: { focusedHeader: simulationBriefingHeader },
+    loadComponent: () =>
+      import('./simulation-briefing/simulation-briefing').then(
+        (m) => m.SimulationBriefing,
+      ),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.LOGIC)],
+    data: { focusedHeader: simulationPlayHeader },
+    loadComponent: () =>
+      import('./logic-play/logic-play').then((m) => m.LogicPlay),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.MEMORY)],
+    data: { focusedHeader: simulationPlayHeader },
+    loadComponent: () =>
+      import('./memory-play/memory-play').then((m) => m.MemoryPlay),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    data: { focusedHeader: simulationPlayHeader },
+    loadComponent: () =>
+      import('./discrimination-play/discrimination-play').then(
+        (m) => m.DiscriminationPlay,
+      ),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.REACTIVITY)],
+    data: { focusedHeader: simulationPlayHeader },
+    loadComponent: () =>
+      import('./reactivity-play/reactivity-play').then(
+        (m) => m.ReactivityPlay,
+      ),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.MOTOR_SKILLS)],
+    data: { focusedHeader: simulationPlayHeader },
+    loadComponent: () =>
+      import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
   },
   {
     path: 'entrainements/cible/:axis',

@@ -1,0 +1,58 @@
+.sim-brief {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4.5rem;
+}
+
+.sim-brief__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 36.5rem;
+}
+
+.sim-brief__cta {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sim-brief__cta ui-button {
+  width: auto;
+}
+
+.sim-brief__note {
+  margin: 0;
+  font: 400 0.8125rem/1.125rem var(--font-ui);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .sim-brief {
+    gap: 0.75rem;
+    padding: 0.75rem 1rem calc(7.5rem + var(--safe-bottom));
+  }
+
+  .sim-brief__footer {
+    position: fixed;
+    inset: auto 0 0 0;
+    max-width: none;
+    gap: 0.5rem;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
+      calc(16px + var(--safe-left));
+    z-index: 30;
+  }
+
+  .sim-brief__cta ui-button {
+    width: 100%;
+  }
+}

@@ -37,9 +37,12 @@ import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pair
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
+import {
+  afterAxisSubmitRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
 import {
   MotricityLiveState,
   advanceMotricityLive,
@@ -236,6 +239,13 @@ export class MotricityPlay {
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
       this.router.navigate(['/entrainements']);
+      return;
+    }
+    if (
+      session.mode === SessionMode.FULL &&
+      simulationCurrentAxis(session) !== this.axis
+    ) {
+      this.router.navigate(['/entrainements/simulation/session', session.id]);
       return;
     }
     this.loaded.set(true);
@@ -543,14 +553,8 @@ export class MotricityPlay {
     this.facade
       .completeTargetedMotricity(this.trajectories, controlModality)
       .subscribe({
-        next: () =>
-          this.router.navigate([
-            '/entrainements/cible',
-            axisSlug(AxisType.MOTOR_SKILLS),
-            'session',
-            this.sessionId,
-            'resultat',
-          ]),
+        next: (session) =>
+          this.router.navigate(afterAxisSubmitRoute(session, this.axis)),
         error: () => {
           this.hasSubmitted = false;
         },

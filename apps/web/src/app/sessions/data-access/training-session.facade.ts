@@ -66,9 +66,15 @@ export class TrainingSessionFacade {
 
   readonly session: Signal<SessionDto | null> = this.store.session;
 
-  readonly axis: Signal<AxisType | null> = computed(
-    () => this.store.session()?.axisResults[0]?.axis ?? null,
-  );
+  readonly axis: Signal<AxisType | null> = computed(() => {
+    const session = this.store.session();
+    if (!session) {
+      return null;
+    }
+    const current =
+      session.axisResults[session.currentAxisIndex] ?? session.axisResults[0];
+    return current?.axis ?? null;
+  });
 
   readonly enabledTrainingOptions: Signal<TrainingOptionId[]> = computed(
     () => this.store.session()?.options.enabledOptions ?? [],

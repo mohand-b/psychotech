@@ -28,10 +28,13 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
+import {
+  afterAxisSubmitRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
@@ -193,6 +196,13 @@ export class DiscriminationPlay {
       this.router.navigate(['/entrainements']);
       return;
     }
+    if (
+      session.mode === SessionMode.FULL &&
+      simulationCurrentAxis(session) !== this.axis
+    ) {
+      this.router.navigate(['/entrainements/simulation/session', session.id]);
+      return;
+    }
     this.loaded.set(true);
     this.results.set([]);
     this.currentIndex.set(0);
@@ -255,14 +265,8 @@ export class DiscriminationPlay {
       answers.push({ index, answer: null, timeMs: 0 });
     }
     this.facade.completeTargetedDiscrimination(answers).subscribe({
-      next: () => {
-        this.router.navigate([
-          '/entrainements/cible',
-          axisSlug(AxisType.VISUAL_DISCRIMINATION),
-          'session',
-          this.sessionId,
-          'resultat',
-        ]);
+      next: (session) => {
+        this.router.navigate(afterAxisSubmitRoute(session, this.axis));
       },
       error: () => {
         this.hasSubmitted = false;

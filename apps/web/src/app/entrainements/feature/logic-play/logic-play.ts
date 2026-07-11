@@ -19,8 +19,11 @@ import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import {
+  afterAxisSubmitRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
@@ -185,14 +188,8 @@ export class LogicPlay {
         this.visited().has(index) || this.answers()[index] !== undefined,
     }));
     this.facade.completeTargeted(payload).subscribe({
-      next: () =>
-        this.router.navigate([
-          '/entrainements/cible',
-          axisSlug(this.axis),
-          'session',
-          this.sessionId,
-          'resultat',
-        ]),
+      next: (session) =>
+        this.router.navigate(afterAxisSubmitRoute(session, this.axis)),
       error: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
@@ -305,6 +302,13 @@ export class LogicPlay {
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
       this.router.navigate(['/entrainements']);
+      return;
+    }
+    if (
+      session.mode === SessionMode.FULL &&
+      simulationCurrentAxis(session) !== this.axis
+    ) {
+      this.router.navigate(['/entrainements/simulation/session', session.id]);
       return;
     }
     this.enteredAtMs = Date.now();

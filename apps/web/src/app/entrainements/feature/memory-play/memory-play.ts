@@ -23,10 +23,13 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
+import {
+  afterAxisSubmitRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
 
 type MemoryStage =
   | 'PHASE_TRANSITION'
@@ -201,6 +204,13 @@ export class MemoryPlay {
       this.router.navigate(['/entrainements']);
       return;
     }
+    if (
+      session.mode === SessionMode.FULL &&
+      simulationCurrentAxis(session) !== this.axis
+    ) {
+      this.router.navigate(['/entrainements/simulation/session', session.id]);
+      return;
+    }
     this.loaded.set(true);
     this.results.set([]);
   }
@@ -305,14 +315,8 @@ export class MemoryPlay {
     this.submitting.set(true);
     this.confirmingExit.set(false);
     this.facade.completeTargetedMemory(this.results()).subscribe({
-      next: () => {
-        this.router.navigate([
-          '/entrainements/cible',
-          axisSlug(AxisType.MEMORY),
-          'session',
-          this.sessionId,
-          'resultat',
-        ]);
+      next: (session) => {
+        this.router.navigate(afterAxisSubmitRoute(session, this.axis));
       },
       error: () => {
         this.hasSubmitted = false;

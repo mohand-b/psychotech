@@ -52,6 +52,23 @@
   color: var(--ink);
 }
 
+.focused-header__steps {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.focused-header__steps .focused-header__stepper {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.focused-header__stepper--mini {
+  display: none;
+}
+
 .focused-header__brand-chip {
   display: none;
   align-items: center;
@@ -184,6 +201,14 @@
 
   .focused-header__brand-chip {
     display: inline-flex;
+  }
+
+  .focused-header__stepper--full {
+    display: none;
+  }
+
+  .focused-header__stepper--mini {
+    display: inline-block;
   }
 
   .focused-header__crumb:has(.focused-header__brand-chip)
