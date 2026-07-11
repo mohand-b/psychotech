@@ -226,6 +226,16 @@ export type ButtonSize = 'md' | 'lg';
       .ui-button {
         min-height: 44px;
       }
+      .ui-button--solid.ui-button--relief-mobile {
+        border-bottom: 3px solid var(--btn-relief);
+        padding-bottom: calc(var(--btn-pad-y) - 3px);
+      }
+      .ui-button--solid.ui-button--relief-mobile:disabled {
+        border-bottom-color: var(--surface-muted);
+      }
+      .ui-button--loading.ui-button--relief-mobile:disabled {
+        border-bottom-color: var(--btn-relief);
+      }
     }
     @keyframes ui-button-spin {
       to {
@@ -238,7 +248,7 @@ export class Button {
   readonly color = input<ButtonColor>('brand');
   readonly appearance = input<ButtonAppearance>('solid');
   readonly size = input<ButtonSize>('md');
-  readonly relief = input(false);
+  readonly relief = input<boolean | 'mobile'>(false);
   readonly block = input(false);
   readonly disabled = input(false);
   readonly loading = input(false);
@@ -250,8 +260,13 @@ export class Button {
   protected readonly spinnerIcon = LoaderCircle;
 
   protected readonly classes = computed(() => {
+    const reliefValue = this.appearance() === 'solid' ? this.relief() : false;
     const relief =
-      this.relief() && this.appearance() === 'solid' ? ' ui-button--relief' : '';
+      reliefValue === 'mobile'
+        ? ' ui-button--relief-mobile'
+        : reliefValue
+          ? ' ui-button--relief'
+          : '';
     const loading = this.loading() ? ' ui-button--loading' : '';
     return `ui-button ui-button--${this.color()} ui-button--${this.appearance()} ui-button--${this.size()}${relief}${loading}`;
   });

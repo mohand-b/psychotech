@@ -56,7 +56,7 @@ interface DecoratedStep {
         >
           <ui-icon
             [img]="step.state === 'done' ? checkIcon : step.icon"
-            [size]="iconSize()"
+            [size]="14"
             [strokeWidth]="step.state === 'done' ? 2.5 : 2"
           />
           @if (variant() === 'full') {
@@ -140,14 +140,14 @@ interface DecoratedStep {
     }
     .stepper--mini .step {
       gap: 0;
-      padding: 6px 13px 6px 15px;
+      padding: 8px 15px 8px 17px;
     }
     .stepper--mini .step--first {
-      padding: 6px 13px 6px 10px;
+      padding: 8px 15px 8px 12px;
       border-radius: 6px 0 0 6px;
     }
     .stepper--mini .step--last {
-      padding: 6px 11px 6px 15px;
+      padding: 8px 13px 8px 17px;
       border-radius: 0 6px 6px 0;
     }
     .step__label {
@@ -165,10 +165,6 @@ export class ChevronStepper {
 
   protected readonly navClasses = computed(
     () => `stepper stepper--${this.variant()}`,
-  );
-
-  protected readonly iconSize = computed(() =>
-    this.variant() === 'mini' ? 12 : 14,
   );
 
   private readonly effectiveSteps = computed<ChevronStep[]>(() => {

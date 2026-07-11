@@ -27,13 +27,6 @@
       <span class="banner__compact-meta flex items-center gap-2">
         @if (isFull()) {
           <ui-chevron-stepper variant="mini" [steps]="steps()" />
-          <span class="banner__muted">
-            Simulation ·
-            <span class="banner__count"
-              >{{ doneCount() }}/{{ axisTotal() }}</span
-            >
-            axes
-          </span>
         } @else if (targetedAxisPresentation(); as presentation) {
           <ui-icon
             class="banner__axis-icon"
