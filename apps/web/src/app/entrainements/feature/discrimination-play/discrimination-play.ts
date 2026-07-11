@@ -85,6 +85,7 @@ export class DiscriminationPlay {
     () => this.facade.isExpired() || this.submitting(),
   );
   protected readonly answeredCount = computed(() => this.results().length);
+  protected readonly durationSec = this.facade.durationSec;
   protected readonly remainingPercent = computed(
     () => (this.facade.remainingFraction() ?? 0) * 100,
   );

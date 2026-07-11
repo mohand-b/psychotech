@@ -7,9 +7,11 @@ import {
 } from '@angular/core';
 import {
   AXIS_TRAINING,
+  AxisTimerModel,
   AxisType,
   RailwayPlayableAxis,
-  trainingOptionForAxis,
+  TrainingOptionId,
+  trainingOptionsForAxis,
 } from '@psychotech/shared';
 import { Clock, LayoutGrid, ListChecks, Target, Timer } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -114,20 +116,26 @@ interface SummaryTile {
         </div>
       </article>
 
-        @if (showOptions() && trainingOption(); as option) {
+        @if (showOptions() && trainingOptions().length > 0) {
           <article class="axis-briefing__card">
             <span class="axis-briefing__label">Options d'entraînement</span>
-            <div class="axis-briefing__option">
-              <div class="axis-briefing__option-copy">
-                <span class="axis-briefing__option-title">{{
-                  option.label
-                }}</span>
-                <span class="axis-briefing__option-detail">{{
-                  option.description
-                }}</span>
+            @for (option of trainingOptions(); track option.id) {
+              <div class="axis-briefing__option">
+                <div class="axis-briefing__option-copy">
+                  <span class="axis-briefing__option-title">{{
+                    option.label
+                  }}</span>
+                  <span class="axis-briefing__option-detail">{{
+                    option.description
+                  }}</span>
+                </div>
+                <ui-toggle
+                  [checked]="isOptionEnabled(option.id)"
+                  [label]="option.label"
+                  (checkedChange)="setOptionEnabled(option.id, $event)"
+                />
               </div>
-              <ui-toggle [(checked)]="optionEnabled" [label]="option.label" />
-            </div>
+            }
           </article>
         }
       </div>
@@ -140,11 +148,21 @@ export class AxisBriefing {
   readonly admissibilityThreshold = input<number | null>(null);
   readonly showOptions = input(true);
   readonly positionLabel = input<string | null>(null);
-  readonly optionEnabled = model(false);
+  readonly enabledOptions = model<TrainingOptionId[]>([]);
 
-  protected readonly trainingOption = computed(() =>
-    trainingOptionForAxis(this.axis()),
+  protected readonly trainingOptions = computed(() =>
+    trainingOptionsForAxis(this.axis()),
   );
+
+  protected isOptionEnabled(id: TrainingOptionId): boolean {
+    return this.enabledOptions().includes(id);
+  }
+
+  protected setOptionEnabled(id: TrainingOptionId, enabled: boolean): void {
+    this.enabledOptions.update((ids) =>
+      enabled ? [...ids.filter((other) => other !== id), id] : ids.filter((other) => other !== id),
+    );
+  }
 
   protected readonly volumeIcon = LayoutGrid;
   protected readonly timeIcon = Clock;
@@ -192,6 +210,12 @@ export class AxisBriefing {
           label: 'par parcours',
         };
       default:
+        if (
+          training.timer.model === AxisTimerModel.GLOBAL &&
+          this.enabledOptions().includes(TrainingOptionId.NO_TIMER)
+        ) {
+          return { value: 'Libre', label: 'sans chronomètre' };
+        }
         return {
           value: formatDuration(training.timer.durationSec),
           label: 'temps global',

@@ -9,7 +9,9 @@
       [steps]="header.stepper ? sessionSteps() : []"
       [duration]="
         header.live
-          ? (liveCountdown() ?? header.duration)
+          ? liveTimerDisabled()
+            ? null
+            : (liveCountdown() ?? header.duration)
           : header.stepper
             ? stepperDuration()
             : header.duration

@@ -84,6 +84,10 @@ export class TrainingSessionFacade {
     this.enabledTrainingOptions().includes(TrainingOptionId.LOGIC_HELP),
   );
 
+  readonly timerDisabled: Signal<boolean> = computed(() =>
+    this.enabledTrainingOptions().includes(TrainingOptionId.NO_TIMER),
+  );
+
   readonly logicItems: Signal<LogicItem[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.LOGIC
@@ -121,7 +125,7 @@ export class TrainingSessionFacade {
 
   readonly durationSec: Signal<number | null> = computed(() => {
     const axis = this.axis();
-    if (!axis) {
+    if (!axis || this.timerDisabled()) {
       return null;
     }
     const training: AxisTraining | undefined =
@@ -153,7 +157,12 @@ export class TrainingSessionFacade {
     }
     const session = this.store.session();
     const axis = this.axis();
-    if (!session || !axis || session.status !== SessionStatus.IN_PROGRESS) {
+    if (
+      !session ||
+      !axis ||
+      session.status !== SessionStatus.IN_PROGRESS ||
+      this.timerDisabled()
+    ) {
       return null;
     }
     const training: AxisTraining | undefined =

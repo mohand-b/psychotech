@@ -8,19 +8,21 @@
   @if (loaded() && countingDown()) {
     <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
   }
-  <div
-    class="discri__progress"
-    role="progressbar"
-    aria-label="Temps restant"
-    aria-valuemin="0"
-    [attr.aria-valuemax]="100"
-    [attr.aria-valuenow]="remainingPercent()"
-  >
-    <span
-      class="discri__progress-fill"
-      [style.width.%]="remainingPercent()"
-    ></span>
-  </div>
+  @if (durationSec()) {
+    <div
+      class="discri__progress"
+      role="progressbar"
+      aria-label="Temps restant"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="100"
+      [attr.aria-valuenow]="remainingPercent()"
+    >
+      <span
+        class="discri__progress-fill"
+        [style.width.%]="remainingPercent()"
+      ></span>
+    </div>
+  }
 
   @if (loaded() && currentTrial(); as trial) {
     <p class="discri__counter">

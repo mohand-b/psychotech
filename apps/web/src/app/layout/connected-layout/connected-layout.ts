@@ -91,6 +91,7 @@ export class ConnectedLayout {
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
   protected readonly liveCountdownSeverity =
     this.trainingSessionFacade.countdownSeverity;
+  protected readonly liveTimerDisabled = this.trainingSessionFacade.timerDisabled;
 
   protected readonly sessionSteps = computed<ChevronStep[]>(() => {
     const session = this.trainingSessionFacade.session();
