@@ -19,6 +19,7 @@ import {
   ChevronStepper,
   StepState,
 } from '../../../shared/ui/chevron-stepper/chevron-stepper';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 const STEP_STATES: Record<AxisProgressStatus, StepState> = {
@@ -30,7 +31,7 @@ const STEP_STATES: Record<AxisProgressStatus, StepState> = {
 @Component({
   selector: 'app-current-session-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisChip, Button, ChevronStepper],
+  imports: [AxisChip, Button, ChevronStepper, Icon],
   templateUrl: './current-session-banner.html',
   styleUrl: './current-session-banner.css',
 })
@@ -54,14 +55,9 @@ export class CurrentSessionBanner {
     () => this.session().axes[0]?.axis ?? null,
   );
 
-  protected readonly targetedAxisLabel = computed(() => {
+  protected readonly targetedAxisPresentation = computed(() => {
     const axis = this.targetedAxis();
-    return axis ? AXIS_PRESENTATION[axis].label : '';
-  });
-
-  protected readonly targetedAxisColorVar = computed(() => {
-    const axis = this.targetedAxis();
-    return axis ? AXIS_PRESENTATION[axis].plainVar : null;
+    return axis ? AXIS_PRESENTATION[axis] : null;
   });
 
   protected readonly ctaLabel = computed(() =>

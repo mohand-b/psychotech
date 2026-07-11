@@ -34,12 +34,14 @@
             >
             axes
           </span>
-        } @else {
-          <span
-            class="banner__dot"
-            [style.background]="targetedAxisColorVar()"
-          ></span>
-          <span class="banner__muted">Ciblé · {{ targetedAxisLabel() }}</span>
+        } @else if (targetedAxisPresentation(); as presentation) {
+          <ui-icon
+            class="banner__axis-icon"
+            [img]="presentation.icon"
+            [size]="15"
+            [style.color]="presentation.plainVar"
+          />
+          <span class="banner__muted">Ciblé · {{ presentation.label }}</span>
         }
       </span>
     </div>
