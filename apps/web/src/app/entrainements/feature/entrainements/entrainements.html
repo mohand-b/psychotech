@@ -1,35 +1,426 @@
-<section class="page-shell entrainements">
-  <header class="entrainements__intro">
-    <h1 class="entrainements__title">Prêt à vous entraîner ?</h1>
-    <p class="entrainements__subtitle">
-      Deux façons de progresser. Choisissez le format qui correspond à votre
-      temps et à votre objectif du jour.
-    </p>
-  </header>
-
-  <div class="entrainements__modes">
-    <ui-training-mode-card
-      color="brand"
-      [icon]="simulationIcon"
-      badge="Recommandé"
-      [cost]="5"
-      title="Simulation complète"
-      description="Les 5 axes enchaînés dans les conditions réelles de la sélection. Le vrai test de votre niveau."
-      [features]="simulationFeatures"
-      ctaLabel="Lancer la simulation"
-      (launch)="startSimulation()"
-    />
-
-    <ui-training-mode-card
-      color="green"
-      [icon]="targetedIcon"
-      badge="Flexible"
-      [cost]="1"
-      title="Entraînement ciblé"
-      description="Un axe au choix, en session courte. Parfait pour muscler un point faible entre deux simulations."
-      [features]="targetedFeatures"
-      ctaLabel="Choisir un axe"
-      (launch)="chooseAxis()"
-    />
+<section class="page-shell trainings">
+  <div class="trainings__head">
+    <div class="trainings__head-copy">
+      <h1 class="trainings__title">
+        Prêt à vous entraîner{{ firstName ? ', ' + firstName : '' }}&nbsp;?
+      </h1>
+      <span class="trainings__subtitle trainings__subtitle--desktop"
+        >Deux façons de vous préparer aux sélections du secteur
+        {{ sectorLabel }} - à vous de choisir le rythme du jour.</span
+      >
+      <span class="trainings__subtitle trainings__subtitle--mobile"
+        >Deux façons de vous préparer au secteur {{ sectorLabel }} - à vous de
+        choisir le rythme du jour.</span
+      >
+    </div>
+    <span class="trainings__sector-chip">
+      <ui-icon [img]="sectorIcon" [size]="14" />
+      Secteur&nbsp;: {{ sectorLabel }}
+    </span>
   </div>
+
+  <section class="duo">
+    <div
+      class="duo__pitch"
+      [class.duo__pitch--closed]="panel() !== 'sim'"
+      (click)="openPanel('sim')"
+    >
+      <div class="duo__pitch-head">
+        <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
+        @if (panel() !== 'sim') {
+          <button
+            type="button"
+            class="duo__hint duo__hint--sim"
+            aria-label="Déplier le détail"
+          >
+            <ui-icon [img]="chevronRightIcon" [size]="15" />
+          </button>
+        }
+      </div>
+      <div class="duo__titleblock">
+        <h2 class="duo__name">Simulation complète</h2>
+        <span class="duo__desc"
+          >Les 5 axes enchaînés dans les conditions réelles de l'examen, avec
+          une notation pondérée et un avis d'admissibilité en fin de
+          session.</span
+        >
+      </div>
+      <div class="duo__checks duo__checks--sim">
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Conditions réelles d'examen, sans interruption
+        </span>
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Avis d'admissibilité vs seuil {{ sectorLabel }}
+        </span>
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Bilan détaillé et recommandations par axe
+        </span>
+      </div>
+      <div class="duo__chips">
+        <span class="duo__chip">
+          <ui-icon [img]="axesIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">5 axes</span>
+        </span>
+        <span class="duo__chip">
+          <ui-icon [img]="durationIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">~25 min</span>
+        </span>
+        <span class="duo__chip duo__chip--energy-sim">
+          <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">5</span>
+        </span>
+      </div>
+      <div class="duo__cta">
+        <ui-button
+          color="brand"
+          size="lg"
+          [relief]="true"
+          [iconEnd]="arrowRightIcon"
+          (click)="startSimulation()"
+        >
+          Lancer la simulation
+        </ui-button>
+      </div>
+    </div>
+
+    <div class="duo__panel" [class.duo__panel--open]="panel() === 'sim'">
+      <div class="duo__panel-inner duo__panel-inner--sim">
+        <span class="duo__label">Votre dernier bilan</span>
+        @if (lastSimulation(); as bilan) {
+          <div class="duo__bilan-score-row">
+            <span class="duo__bilan-score">
+              <span class="duo__bilan-value t-mono">{{ bilan.scoreLabel }}</span>
+              <span class="duo__bilan-max t-mono">/100</span>
+            </span>
+            <span class="duo__bilan-badge">
+              <span
+                class="duo__bilan-dot"
+                [style.background]="bilan.bandColorVar"
+              ></span>
+              <span>{{ bilan.bandLabel }}</span>
+            </span>
+          </div>
+          <div class="duo__bilan-bar-block">
+            <div class="duo__bilan-bar">
+              <span
+                class="duo__bilan-fill"
+                [style.width.%]="bilan.barWidth"
+              ></span>
+              <span
+                class="duo__bilan-marker"
+                [style.left.%]="bilan.markerLeft"
+              ></span>
+            </div>
+            <span class="duo__bilan-caption"
+              >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
+              <span class="duo__bilan-threshold t-mono">{{
+                bilan.threshold
+              }}</span>
+              ·
+              <span
+                class="duo__bilan-gap t-mono"
+                [class.duo__bilan-gap--above]="bilan.gap.above"
+                [class.duo__bilan-gap--below]="!bilan.gap.above"
+                >{{ bilan.gap.label }}</span
+              ></span
+            >
+          </div>
+          <span class="duo__bilan-note"
+            >{{ bilan.dateLabel }} · Une courte pause sépare chaque axe pendant
+            la session.</span
+          >
+        } @else if (overviewLoaded()) {
+          <span class="duo__empty-title">Aucune simulation pour l'instant</span>
+          <span class="duo__empty-hint"
+            >Lancez votre première simulation pour découvrir votre bilan.</span
+          >
+        }
+      </div>
+    </div>
+
+    <span class="duo__divider"></span>
+
+    <div class="duo__panel" [class.duo__panel--open]="panel() === 'cible'">
+      <div class="duo__panel-inner duo__panel-inner--cible">
+        <div class="duo__axes-head">
+          <span class="duo__label">Les 5 axes</span>
+          <span class="duo__label">Meilleur score</span>
+        </div>
+        <span class="duo__axes-sep"></span>
+        @for (row of axisRows(); track row.axis; let last = $last) {
+          <a class="duo__axis" [routerLink]="row.link">
+            <span
+              class="duo__axis-tile"
+              [style.background]="row.presentation.pastelVar"
+              [style.border-color]="row.presentation.pastelBorderVar"
+              [style.color]="row.presentation.textVar"
+            >
+              <ui-icon [img]="row.presentation.icon" [size]="17" />
+            </span>
+            <span class="duo__axis-copy">
+              <span class="duo__axis-name-row">
+                <span class="duo__axis-name">{{ row.presentation.label }}</span>
+                @if (row.tag; as tag) {
+                  <span
+                    class="duo__axis-tag"
+                    [style.background]="row.presentation.pastelVar"
+                    [style.border-color]="row.presentation.pastelBorderVar"
+                    [style.color]="row.presentation.textVar"
+                    >{{ tag }}</span
+                  >
+                }
+              </span>
+              <span class="duo__axis-desc">{{ row.description }}</span>
+            </span>
+            @if (row.neverPlayed) {
+              <span class="duo__axis-never">Jamais joué</span>
+            } @else {
+              <span class="duo__axis-score">
+                <span class="duo__axis-bar">
+                  <span
+                    class="duo__axis-fill"
+                    [style.background]="row.presentation.plainVar"
+                    [style.width.%]="row.barWidth"
+                  ></span>
+                </span>
+                <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+              </span>
+            }
+            <ui-icon
+              class="duo__axis-chevron"
+              [img]="chevronRightIcon"
+              [size]="15"
+            />
+          </a>
+          @if (!last) {
+            <span class="duo__axes-sep"></span>
+          }
+        }
+      </div>
+    </div>
+
+    <div
+      class="duo__pitch"
+      [class.duo__pitch--closed]="panel() !== 'cible'"
+      (click)="openPanel('cible')"
+    >
+      <div class="duo__pitch-head">
+        @if (panel() !== 'cible') {
+          <button
+            type="button"
+            class="duo__hint duo__hint--cible"
+            aria-label="Déplier le détail"
+          >
+            <ui-icon [img]="chevronLeftIcon" [size]="15" />
+          </button>
+        }
+        <div class="duo__eyebrow-group">
+          <span class="duo__eyebrow duo__eyebrow--cible">Entraînement ciblé</span>
+          <span class="duo__flexible">Flexible</span>
+        </div>
+      </div>
+      <div class="duo__titleblock">
+        <h2 class="duo__name">Travaillez un axe à la fois</h2>
+        <span class="duo__desc"
+          >Des sessions courtes pour renforcer précisément ce qui vous coûte
+          des points, sans rejouer toute l'épreuve.</span
+        >
+      </div>
+      <div class="duo__checks duo__checks--cible">
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Sessions courtes de 3 à 5 minutes
+        </span>
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Résultat immédiat et correction détaillée
+        </span>
+        <span class="duo__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          Progression mesurable axe par axe
+        </span>
+      </div>
+      <div class="duo__chips">
+        <span class="duo__chip">
+          <ui-icon [img]="durationIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">3-5 min / axe</span>
+        </span>
+        <span class="duo__chip duo__chip--energy-cible">
+          <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">1 / axe</span>
+        </span>
+      </div>
+      <div class="duo__cta">
+        <button type="button" class="duo__foot-link">
+          {{
+            panel() === 'cible'
+              ? 'Choisissez votre axe ci-contre'
+              : 'Voir les 5 axes'
+          }}
+          <ui-icon [img]="arrowLeftIcon" [size]="14" />
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="trainm">
+    <section class="trainm__sim">
+      <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
+      <div class="trainm__titleblock">
+        <h2 class="trainm__name">Simulation complète</h2>
+        <span class="trainm__desc"
+          >Les 5 axes enchaînés en conditions réelles, avec notation pondérée
+          et avis d'admissibilité.</span
+        >
+      </div>
+      <div class="trainm__checks">
+        <span class="trainm__check trainm__check--sim">
+          <ui-icon [img]="checkIcon" [size]="14" />
+          Conditions réelles d'examen, sans interruption
+        </span>
+        <span class="trainm__check trainm__check--sim">
+          <ui-icon [img]="checkIcon" [size]="14" />
+          Avis d'admissibilité vs seuil {{ sectorLabel }}
+        </span>
+        <span class="trainm__check trainm__check--sim">
+          <ui-icon [img]="checkIcon" [size]="14" />
+          Bilan détaillé et recommandations par axe
+        </span>
+      </div>
+      <div class="trainm__chips trainm__chips--sim">
+        <span class="duo__chip">
+          <ui-icon [img]="axesIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">5 axes</span>
+        </span>
+        <span class="duo__chip">
+          <ui-icon [img]="durationIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">~25 min</span>
+        </span>
+        <span class="duo__chip duo__chip--energy-sim">
+          <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
+          <span class="duo__chip-value t-mono">5</span>
+        </span>
+      </div>
+      <ui-button
+        color="brand"
+        size="lg"
+        [relief]="true"
+        [block]="true"
+        [iconEnd]="arrowRightIcon"
+        (click)="startSimulation()"
+      >
+        Lancer la simulation
+      </ui-button>
+    </section>
+
+    <section class="trainm__cible">
+      <div class="trainm__pitch">
+        <div class="trainm__pitch-head">
+          <span class="duo__eyebrow duo__eyebrow--cible">Entraînement ciblé</span>
+          <span class="duo__flexible trainm__flexible">Flexible</span>
+        </div>
+        <div class="trainm__titleblock trainm__titleblock--cible">
+          <h2 class="trainm__name">Travaillez un axe à la fois</h2>
+          <span class="trainm__desc"
+            >Des sessions courtes pour renforcer précisément ce qui vous coûte
+            des points, sans rejouer toute l'épreuve.</span
+          >
+        </div>
+        <div class="trainm__checks">
+          <span class="trainm__check trainm__check--cible">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            Sessions courtes de 3 à 5 minutes
+          </span>
+          <span class="trainm__check trainm__check--cible">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            Résultat immédiat et correction détaillée
+          </span>
+          <span class="trainm__check trainm__check--cible">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            Progression mesurable axe par axe
+          </span>
+        </div>
+        <div class="trainm__chips trainm__chips--cible">
+          <span class="duo__chip">
+            <ui-icon [img]="durationIcon" [size]="12" />
+            <span class="duo__chip-value t-mono">3-5 min / axe</span>
+          </span>
+          <span class="duo__chip duo__chip--energy-cible">
+            <ui-icon class="icon-filled" [img]="energyIcon" [size]="12" />
+            <span class="duo__chip-value t-mono">1 / axe</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="trainm__axes">
+        @for (row of axisRows(); track row.axis) {
+          <a class="trainm__axis" [routerLink]="row.link">
+            <span class="trainm__axis-top">
+              <span
+                class="trainm__axis-tile"
+                [style.background]="row.presentation.pastelVar"
+                [style.border-color]="row.presentation.pastelBorderVar"
+                [style.color]="row.presentation.textVar"
+              >
+                <ui-icon [img]="row.presentation.icon" [size]="19" />
+              </span>
+              <span class="trainm__axis-copy">
+                <span class="trainm__axis-name-row">
+                  <span class="trainm__axis-name">{{
+                    row.presentation.label
+                  }}</span>
+                  @if (row.tag; as tag) {
+                    <span
+                      class="duo__axis-tag"
+                      [style.background]="row.presentation.pastelVar"
+                      [style.border-color]="row.presentation.pastelBorderVar"
+                      [style.color]="row.presentation.textVar"
+                      >{{ tag }}</span
+                    >
+                  }
+                </span>
+                <span class="trainm__axis-desc">{{
+                  row.mobileDescription
+                }}</span>
+              </span>
+              <ui-icon
+                class="duo__axis-chevron"
+                [img]="chevronRightIcon"
+                [size]="16"
+              />
+            </span>
+            <span class="trainm__axis-foot">
+              <span class="trainm__axis-foot-label">Meilleur score</span>
+              @if (row.neverPlayed) {
+                <span class="trainm__axis-never">Jamais joué</span>
+              } @else {
+                <span class="trainm__axis-bar">
+                  <span
+                    class="trainm__axis-fill"
+                    [style.background]="row.presentation.plainVar"
+                    [style.width.%]="row.barWidth"
+                  ></span>
+                </span>
+                <span class="trainm__axis-value t-mono">{{
+                  row.scoreLabel
+                }}</span>
+              }
+            </span>
+          </a>
+        }
+      </div>
+
+      <span class="trainm__note"
+        >Chaque entraînement génère de nouveaux exercices.</span
+      >
+    </section>
+  </div>
+
+  <span class="trainings__footnote"
+    >Chaque entraînement génère de nouveaux exercices. Le premier lancement du
+    jour consomme votre énergie.</span
+  >
 </section>
