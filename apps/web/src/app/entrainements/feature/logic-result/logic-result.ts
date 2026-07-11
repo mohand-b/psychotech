@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
   LogicSessionScore,
   TargetedLogicResultDto,
@@ -18,9 +17,10 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { formatDuration } from '../../../shared/ui/format-duration';
-import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../../ui/logic-status';
+import {
+  buildLogicChartEntries,
+  buildLogicMetricRows,
+} from '../../ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -60,8 +60,6 @@ export class LogicResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  protected readonly presentation = AXIS_PRESENTATION[AxisType.LOGIC];
-  protected readonly training = AXIS_TRAINING[AxisType.LOGIC];
 
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
 
@@ -94,78 +92,15 @@ export class LogicResult {
   );
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
-    const scored = this.scored();
-    if (!scored) {
-      return [];
-    }
-    const avg = scored.avgAnswerTimeMs;
-    return [
-      {
-        label: 'Réponses justes',
-        value: `${scored.correctCount}`,
-        suffix: `/${this.training.exerciseCount}`,
-        dotVar: this.presentation.plainVar,
-      },
-      {
-        label: 'Erreurs',
-        value: `${scored.wrongCount}`,
-        dotVar: 'var(--danger)',
-      },
-      {
-        label: 'Passés sans réponse',
-        value: `${scored.skippedCount}`,
-        dotVar: 'var(--warning)',
-      },
-      {
-        label: 'Non atteints (chrono)',
-        value: `${scored.unreachedCount}`,
-        dotVar: 'var(--text-disabled)',
-      },
-      {
-        label: 'Temps moyen par réponse',
-        value:
-          avg === null
-            ? '-'
-            : (avg / 1000).toLocaleString('fr-FR', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }),
-        suffix: avg === null ? undefined : ' s',
-      },
-      {
-        label: 'Temps restant à la fin',
-        value: this.remainingAtEnd(),
-      },
-    ];
-  });
-
-  private readonly remainingAtEnd = computed(() => {
     const result = this.result();
-    if (!result) {
-      return '-';
-    }
-    const elapsedSec = Math.round(
-      (Date.parse(result.completedAt) - Date.parse(result.startedAt)) / 1000,
-    );
-    return formatDuration(
-      Math.max(0, this.training.timer.durationSec - elapsedSec),
-    );
+    const scored = this.scored();
+    return result && scored ? buildLogicMetricRows(scored, result) : [];
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
     const result = this.result();
     const scored = this.scored();
-    if (!result || !scored) {
-      return [];
-    }
-    const timeByIndex = new Map(
-      result.items.map((item) => [item.index, item.timeMs]),
-    );
-    return scored.statuses.map((status, index) => ({
-      colorVar: LOGIC_STATUS_COLORS[status],
-      label: LOGIC_STATUS_LABELS[status],
-      timeMs: status === 'UNREACHED' ? null : (timeByIndex.get(index) ?? null),
-    }));
+    return result && scored ? buildLogicChartEntries(scored, result) : [];
   });
 
   protected review(): void {

@@ -1,0 +1,251 @@
+<section class="bilan">
+  @if (summary(); as s) {
+    <header class="bilan__hero">
+      <div class="bilan__hero-main">
+        <span class="t-label">Bilan de simulation</span>
+        <p class="bilan__context">{{ contextLabel() }}</p>
+
+        <div class="bilan__score-row">
+          <span class="bilan__score-value">
+            <span class="bilan__score t-mono">{{ scoreLabel() }}</span>
+            <span class="bilan__score-max t-mono">/100</span>
+          </span>
+          @if (verdict(); as v) {
+            <span
+              class="bilan__verdict"
+              [class.bilan__verdict--eliminated]="s.isEliminated"
+            >
+              <span
+                class="bilan__verdict-dot"
+                [style.background]="v.colorVar"
+              ></span>
+              <span>{{ v.label }}</span>
+            </span>
+          }
+        </div>
+
+        <div class="bilan__bar-block">
+          <div class="bilan__bar">
+            <span
+              class="bilan__bar-fill"
+              [style.width.%]="s.globalScore"
+            ></span>
+            <span
+              class="bilan__bar-marker"
+              [style.left.%]="s.admissibilityThreshold"
+            ></span>
+          </div>
+          <div class="bilan__bar-captions">
+            <span class="bilan__bar-threshold">
+              {{ thresholdCaption() }}
+              <strong class="t-mono">{{ s.admissibilityThreshold }}</strong>
+            </span>
+            @if (gap(); as g) {
+              <span
+                class="bilan__gap t-mono"
+                [class.bilan__gap--above]="g.above"
+                [class.bilan__gap--below]="!g.above"
+                >{{ g.label }}</span
+              >
+            }
+          </div>
+        </div>
+
+        @if (eliminatoryLine(); as line) {
+          <p class="bilan__eliminatory">
+            <ui-icon [img]="infoIcon" [size]="14" />
+            <span>{{ line }}</span>
+          </p>
+        }
+      </div>
+
+      <div class="bilan__hero-radar">
+        <span class="t-label">Profil par axe</span>
+        <ui-axis-radar [entries]="radarEntries()" />
+      </div>
+    </header>
+
+    <div class="bilan__columns">
+      <div class="bilan__axes">
+        <span class="t-label">Détail par axe</span>
+        <div class="bilan__axis-list">
+          @for (axis of s.axes; track axis.axis) {
+            <article class="bilan__axis-card">
+              <button
+                type="button"
+                class="bilan__axis-row"
+                [attr.aria-expanded]="openAxis() === axis.axis"
+                (click)="toggle(axis.axis)"
+              >
+                <ui-axis-chip
+                  class="bilan__axis-chip"
+                  [axis]="axis.axis"
+                  [compact]="true"
+                />
+                <span class="bilan__axis-body">
+                  <span class="bilan__observables">
+                    @for (
+                      observable of axis.observables;
+                      track $index;
+                      let last = $last
+                    ) {
+                      <span class="bilan__observable">
+                        @if (observable.label) {
+                          <span>{{ observable.label }}</span>
+                        }
+                        <span class="bilan__observable-value t-mono">{{
+                          observable.value
+                        }}</span>
+                        @if (observable.caption) {
+                          <span>{{ observable.caption }}</span>
+                        }
+                      </span>
+                      @if (!last) {
+                        <span class="bilan__observable-sep">·</span>
+                      }
+                    }
+                  </span>
+                  @if (isEliminatoryAxis(axis.axis)) {
+                    <span class="bilan__axis-tag">
+                      Sous le seuil éliminatoire
+                    </span>
+                  }
+                </span>
+                <ui-threshold-gauge
+                  class="bilan__axis-gauge"
+                  [score]="axis.score"
+                  [band]="axis.band"
+                  [eliminatoryThreshold]="axis.eliminatoryThreshold"
+                  [vigilanceThreshold]="axis.vigilanceThreshold"
+                />
+                <span class="bilan__axis-score">
+                  <span
+                    class="bilan__axis-dot"
+                    [style.background]="bandColorVars[axis.band]"
+                  ></span>
+                  <span class="t-mono">{{ axis.score }}</span>
+                </span>
+                <span
+                  class="bilan__chevron"
+                  [class.bilan__chevron--open]="openAxis() === axis.axis"
+                ></span>
+              </button>
+
+              @if (openAxis() === axis.axis) {
+                <div class="bilan__axis-detail">
+                  @if (details()[axis.axis]; as detail) {
+                    <ui-simulation-axis-detail [detail]="detail" />
+                  } @else if (loadingAxis() === axis.axis) {
+                    <p class="bilan__detail-loading">Chargement du détail...</p>
+                  } @else {
+                    <p class="bilan__detail-loading">
+                      Détail indisponible pour cet axe.
+                    </p>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </div>
+
+      <aside class="bilan__side">
+        <div class="bilan__side-card">
+          <span class="t-label bilan__side-label--strong">Points forts</span>
+          @if (s.selection.strengths.length > 0) {
+            <ul class="bilan__side-list">
+              @for (strength of s.selection.strengths; track strength.axis) {
+                <li class="bilan__side-row">
+                  <ui-axis-chip
+                    class="bilan__side-chip"
+                    [axis]="strength.axis"
+                    [compact]="true"
+                  />
+                  <span class="bilan__side-score">
+                    <span class="t-mono">{{ strength.score }}</span>
+                    <span
+                      class="bilan__axis-dot"
+                      [style.background]="bandColorVars[strength.band]"
+                    ></span>
+                  </span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="bilan__side-empty">
+              Aucun axe au-dessus de 80 sur cette simulation.
+            </p>
+          }
+        </div>
+
+        <div class="bilan__side-card">
+          <span class="t-label bilan__side-label--weak">Points faibles</span>
+          @if (s.selection.weaknesses.length > 0) {
+            <ul class="bilan__side-list">
+              @for (weakness of s.selection.weaknesses; track weakness.axis) {
+                <li class="bilan__side-item">
+                  <span class="bilan__side-row">
+                    <ui-axis-chip
+                      class="bilan__side-chip"
+                      [axis]="weakness.axis"
+                      [compact]="true"
+                    />
+                    <span class="bilan__side-score">
+                      <span class="t-mono">{{ weakness.score }}</span>
+                      <span
+                        class="bilan__axis-dot"
+                        [style.background]="bandColorVars[weakness.band]"
+                      ></span>
+                    </span>
+                  </span>
+                  <span class="bilan__side-mention">{{
+                    weaknessMention(weakness)
+                  }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="bilan__side-empty">
+              Aucun axe sous un seuil sur cette simulation.
+            </p>
+          }
+        </div>
+      </aside>
+    </div>
+
+    @if (s.selection.recommendations.length > 0) {
+      <div class="bilan__next">
+        <span class="t-label">Prochaines étapes</span>
+        <div class="bilan__next-cards">
+          @for (
+            recommendation of s.selection.recommendations;
+            track recommendation.axis
+          ) {
+            <article class="bilan__next-card">
+              <ui-axis-chip
+                class="bilan__next-chip"
+                [axis]="recommendation.axis"
+                [compact]="true"
+              />
+              <p class="bilan__next-text">{{ recommendation.label }}</p>
+              <ui-button
+                color="neutral"
+                appearance="outlined"
+                (click)="trainAxis(recommendation.axis)"
+              >
+                Entraîner cet axe
+              </ui-button>
+            </article>
+          }
+        </div>
+      </div>
+    }
+
+    <ui-result-actions
+      footnote="Chaque simulation génère de nouvelles épreuves."
+      backLabel="Retour aux entraînements"
+      (newTraining)="newTraining()"
+      (back)="back()"
+    />
+  }
+</section>

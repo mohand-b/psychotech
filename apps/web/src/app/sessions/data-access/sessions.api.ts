@@ -6,6 +6,7 @@ import {
   CurrentSessionDto,
   SessionDto,
   SessionHistoryPageDto,
+  SimulationSummaryDto,
   StartSessionDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
@@ -65,6 +66,12 @@ export class SessionsApi {
   current(): Observable<CurrentSessionDto | null> {
     return this.http.get<CurrentSessionDto | null>(
       `${this.baseUrl}/sessions/current`,
+    );
+  }
+
+  simulationSummary(sessionId: string): Observable<SimulationSummaryDto> {
+    return this.http.get<SimulationSummaryDto>(
+      `${this.baseUrl}/sessions/${sessionId}/summary`,
     );
   }
 

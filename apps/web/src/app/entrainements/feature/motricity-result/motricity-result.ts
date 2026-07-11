@@ -8,15 +8,14 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
-  ControlModality,
   MotorSkillsMetrics,
   TargetedMotricityResultDto,
   TrainingRecommendation,
   getMotricityRecommendation,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
-import { formatDuration } from '../../../shared/ui/format-duration';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { buildMotricityMetricRows } from '../../ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -28,12 +27,6 @@ import { ResultRecommendation } from '../../ui/result-recommendation/result-reco
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { MotricityTrajectoryChart } from '../../ui/motricity-trajectory-chart/motricity-trajectory-chart';
-
-const MODALITY_LABELS: Record<ControlModality, string> = {
-  [ControlModality.PHONE_GAMEPAD]: 'Manette téléphone',
-  [ControlModality.KEYBOARD]: 'Clavier',
-  [ControlModality.TOUCH_JOYSTICKS]: 'Tactile',
-};
 
 @Component({
   selector: 'app-motricity-result',
@@ -100,43 +93,7 @@ export class MotricityResult {
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const metrics = this.metrics();
-    if (!metrics) {
-      return [];
-    }
-    const rows: ResultMetricRow[] = [
-      {
-        label: 'Erreurs mineures',
-        sublabel: 'contacts avec les bords',
-        value: `${metrics.minorErrors}`,
-        dotVar: 'var(--warning)',
-        marker: 'dot' as const,
-      },
-      {
-        label: 'Erreurs majeures',
-        sublabel: 'sorties de couloir',
-        value: `${metrics.majorErrors}`,
-        dotVar: 'var(--danger)',
-        marker: 'line' as const,
-      },
-      {
-        label: 'Temps total',
-        sublabel: 'sur les 3 parcours',
-        value: formatDuration(Math.round(metrics.totalTimeMs / 1000)),
-      },
-      {
-        label: 'Parcours terminés',
-        value: `${metrics.coursesCompleted}`,
-        suffix: `/${metrics.courses.length || 3}`,
-      },
-    ];
-    if (metrics.controlModality !== null) {
-      rows.push({
-        label: 'Modalité',
-        value: MODALITY_LABELS[metrics.controlModality],
-        chip: true,
-      });
-    }
-    return rows;
+    return metrics ? buildMotricityMetricRows(metrics) : [];
   });
 
   protected newTraining(): void {

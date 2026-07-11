@@ -45,20 +45,22 @@
     </div>
   </header>
 
-  <nav
-    class="bottom-nav navbar-surface fixed inset-x-0 bottom-0 grid grid-cols-4 md:hidden"
-    aria-label="Sections"
-  >
-    @for (item of navItems; track item.path) {
-      <a
-        class="tab"
-        [routerLink]="item.path"
-        routerLinkActive="tab--active"
-        ariaCurrentWhenActive="page"
-      >
-        <ui-icon [img]="item.icon" [size]="20" [strokeWidth]="2" />
-        <span class="tab__label">{{ item.label }}</span>
-      </a>
-    }
-  </nav>
+  @if (!hideMobileTabs()) {
+    <nav
+      class="bottom-nav navbar-surface fixed inset-x-0 bottom-0 grid grid-cols-4 md:hidden"
+      aria-label="Sections"
+    >
+      @for (item of navItems; track item.path) {
+        <a
+          class="tab"
+          [routerLink]="item.path"
+          routerLinkActive="tab--active"
+          ariaCurrentWhenActive="page"
+        >
+          <ui-icon [img]="item.icon" [size]="20" [strokeWidth]="2" />
+          <span class="tab__label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  }
 }

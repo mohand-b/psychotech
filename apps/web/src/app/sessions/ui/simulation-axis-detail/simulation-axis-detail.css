@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail__panel {
+  display: grid;
+  grid-template-columns: 22rem 1fr;
+  gap: 40px;
+}
+
+.detail__chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface-hover);
+  font: 400 13px/18px var(--font-ui);
+  color: var(--label);
+  text-align: center;
+  padding: 0 24px;
+}
+
+@media (max-width: 767px) {
+  .detail__panel {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

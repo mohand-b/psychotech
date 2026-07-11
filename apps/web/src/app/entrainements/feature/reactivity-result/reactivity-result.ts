@@ -17,6 +17,7 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { buildReactivityMetricRows } from '../../ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -92,40 +93,7 @@ export class ReactivityResult {
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();
-    if (!scored) {
-      return [];
-    }
-    return [
-      {
-        label: 'Temps de réaction moyen',
-        value: scored.trMoyMs === null ? '-' : `${scored.trMoyMs}`,
-        suffix: scored.trMoyMs === null ? undefined : ' ms',
-      },
-      {
-        label: 'Régularité',
-        sublabel: "écart entre vos réactions, à structure d'épreuve égale",
-        value: scored.sdMs === null ? '-' : `± ${scored.sdMs}`,
-        suffix: scored.sdMs === null ? undefined : ' ms',
-      },
-      {
-        label: 'Mauvaises commandes',
-        value: `${scored.wrongCommandCount}`,
-        dotVar: 'var(--danger)',
-        marker: 'dot' as const,
-      },
-      {
-        label: 'Appuis trop tôt',
-        value: `${scored.anticipationCount}`,
-        dotVar: 'var(--warning)',
-        marker: 'outlined-dot' as const,
-      },
-      {
-        label: 'Signaux manqués',
-        value: `${scored.omissionCount}`,
-        dotVar: 'var(--text-disabled)',
-        marker: 'cross' as const,
-      },
-    ];
+    return scored ? buildReactivityMetricRows(scored) : [];
   });
 
   protected newTraining(): void {

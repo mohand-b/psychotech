@@ -35,6 +35,7 @@ interface NavItem {
 })
 export class Navbar {
   readonly hideMobile = input(false);
+  readonly hideMobileTabs = input(false);
 
   private readonly authFacade = inject(AuthFacade);
   private readonly energyFacade = inject(EnergyFacade);

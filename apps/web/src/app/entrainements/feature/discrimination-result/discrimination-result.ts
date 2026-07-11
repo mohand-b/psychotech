@@ -7,9 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
-  DiscriminationOutcome,
   DiscriminationSessionScore,
   TargetedDiscriminationResultDto,
   TrainingRecommendation,
@@ -19,7 +17,10 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import {
+  buildDiscriminationChartEntries,
+  buildDiscriminationMetricRows,
+} from '../../ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -31,13 +32,6 @@ import { ResultRecommendation } from '../../ui/result-recommendation/result-reco
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
-
-const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
-  TRUE_POSITIVE: 'Juste',
-  TRUE_NEGATIVE: 'Juste',
-  FALSE_POSITIVE: 'Répondu "différentes" à tort',
-  FALSE_NEGATIVE: 'Répondu "identiques" à tort',
-};
 
 @Component({
   selector: 'app-discrimination-result',
@@ -66,9 +60,6 @@ export class DiscriminationResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  private readonly presentation =
-    AXIS_PRESENTATION[AxisType.VISUAL_DISCRIMINATION];
-  private readonly training = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
 
   protected readonly result = signal<TargetedDiscriminationResultDto | null>(
     null,
@@ -106,73 +97,15 @@ export class DiscriminationResult {
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();
-    if (!scored) {
-      return [];
-    }
-    const avg = scored.avgAnswerTimeMs;
-    return [
-      {
-        label: 'Réponses justes',
-        value: `${scored.correctCount}`,
-        suffix: `/${this.training.exerciseCount}`,
-        dotVar: this.presentation.plainVar,
-      },
-      {
-        label: 'Répondu "identiques" à tort',
-        value: `${scored.wrongIdenticalCount}`,
-        dotVar: 'var(--danger)',
-      },
-      {
-        label: 'Répondu "différentes" à tort',
-        value: `${scored.wrongDifferentCount}`,
-        dotVar: 'var(--danger)',
-      },
-      {
-        label: 'Essais non atteints',
-        value: `${scored.unansweredCount}`,
-        dotVar: 'var(--text-disabled)',
-      },
-      {
-        label: 'Temps moyen par réponse',
-        value:
-          avg === null
-            ? '-'
-            : (avg / 1000).toLocaleString('fr-FR', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }),
-        suffix: avg === null ? undefined : ' s',
-      },
-    ];
+    return scored ? buildDiscriminationMetricRows(scored) : [];
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
     const result = this.result();
     const scored = this.scored();
-    if (!result || !scored) {
-      return [];
-    }
-    const responseByIndex = new Map(
-      result.trials.map((trialAnswer) => [trialAnswer.index, trialAnswer]),
-    );
-    return scored.outcomes.map((outcome, index) => {
-      const response = responseByIndex.get(index);
-      const answered = (response?.answer ?? null) !== null;
-      if (!answered) {
-        return {
-          colorVar: 'var(--text-disabled)',
-          label: 'Non atteint',
-          timeMs: null,
-        };
-      }
-      const correct =
-        outcome === 'TRUE_POSITIVE' || outcome === 'TRUE_NEGATIVE';
-      return {
-        colorVar: correct ? this.presentation.plainVar : 'var(--danger)',
-        label: OUTCOME_LABELS[outcome],
-        timeMs: response?.timeMs ?? null,
-      };
-    });
+    return result && scored
+      ? buildDiscriminationChartEntries(scored, result)
+      : [];
   });
 
   protected newTraining(): void {

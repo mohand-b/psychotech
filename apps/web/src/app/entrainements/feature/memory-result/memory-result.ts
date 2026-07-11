@@ -7,9 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
-  MemoryPhase,
   MemorySessionScore,
   TargetedMemoryResultDto,
   TrainingRecommendation,
@@ -19,6 +17,7 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { buildMemoryMetricRows } from '../../ui/axis-result-content';
 import { MemoryReliabilityChart } from '../../ui/memory-reliability-chart/memory-reliability-chart';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
@@ -58,7 +57,6 @@ export class MemoryResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  private readonly training = AXIS_TRAINING[AxisType.MEMORY];
 
   protected readonly result = signal<TargetedMemoryResultDto | null>(null);
 
@@ -89,44 +87,7 @@ export class MemoryResult {
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();
-    if (!scored) {
-      return [];
-    }
-    const normalCount = this.training.sequences.filter(
-      ({ phase }) => phase === MemoryPhase.NORMAL,
-    ).length;
-    const inverseCount = this.training.sequences.length - normalCount;
-    return [
-      {
-        label: 'Séquences parfaites',
-        value: `${scored.perfectCount}`,
-        suffix: `/${this.training.sequences.length}`,
-      },
-      {
-        label: 'Ordre normal',
-        value: `${scored.perfectNormalCount}`,
-        suffix: `/${normalCount}`,
-      },
-      {
-        label: 'Ordre inversé',
-        value: `${scored.perfectInverseCount}`,
-        suffix: `/${inverseCount}`,
-      },
-      {
-        label: 'Éléments restitués',
-        value: `${scored.restitutedPct}`,
-        suffix: ' %',
-      },
-      {
-        label: 'Éléments bien placés',
-        value: `${scored.placedPct}`,
-        suffix: ' %',
-      },
-      {
-        label: 'Restitutions hors délai',
-        value: `${scored.timedOutCount}`,
-      },
-    ];
+    return scored ? buildMemoryMetricRows(scored) : [];
   });
 
   protected review(): void {

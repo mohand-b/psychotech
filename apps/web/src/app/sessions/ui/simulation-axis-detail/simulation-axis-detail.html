@@ -1,0 +1,74 @@
+<div class="detail__panel">
+  <ui-result-metrics [rows]="metricRows()" />
+
+  @switch (detail().axis) {
+    @case (axisTypes.LOGIC) {
+      <ui-result-timing
+        heading="Gestion du temps"
+        note="Hauteur = temps passé sur l'item, dans l'ordre de la session."
+        [showReview]="false"
+      >
+        <ui-time-chart [entries]="logicChartEntries()" />
+      </ui-result-timing>
+    }
+    @case (axisTypes.MEMORY) {
+      @if (memoryScored(); as s) {
+        <ui-result-timing
+          heading="Fiabilité par position"
+          note="Taux de restitution correcte par position - toutes séquences confondues."
+          [showReview]="false"
+        >
+          <ui-memory-reliability-chart [reliabilities]="s.positionReliability" />
+        </ui-result-timing>
+      }
+    }
+    @case (axisTypes.VISUAL_DISCRIMINATION) {
+      <ui-result-timing
+        heading="Gestion du temps"
+        note="Hauteur = temps de décision par essai, dans l'ordre de la session."
+        [showReview]="false"
+      >
+        <ui-time-chart [entries]="discriminationChartEntries()" itemLabel="Essai" />
+      </ui-result-timing>
+    }
+    @case (axisTypes.REACTIVITY) {
+      @if (reactivityScored(); as s) {
+        <ui-result-timing
+          heading="Temps de réaction"
+          note="Chaque point est un stimulus, hauteur = temps de réaction. La courbe montre votre tendance au fil de l'épreuve."
+          [showReview]="false"
+        >
+          @if (detail().axis === axisTypes.REACTIVITY) {
+            <ui-reactivity-tr-chart
+              [points]="s.points"
+              [trend]="s.trend"
+              [meanMs]="s.trMoyMs"
+              [waitPresses]="reactivityWaitPresses()"
+            />
+          }
+        </ui-result-timing>
+      }
+    }
+    @case (axisTypes.MOTOR_SKILLS) {
+      @if (motorMetrics(); as m) {
+        <ui-result-timing
+          heading="Maîtrise de trajectoire"
+          note="Votre distance aux bords au fil de l'épreuve - 0 % au centre, 100 % au contact du bord. Les portions rouges sont les périodes hors couloir."
+          [showReview]="false"
+        >
+          @if (hasMotorTimeline()) {
+            <ui-motricity-trajectory-chart [metrics]="m" />
+          } @else {
+            <div class="detail__chart-empty">
+              Données de trajectoire indisponibles pour cette session
+            </div>
+          }
+        </ui-result-timing>
+      }
+    }
+  }
+</div>
+
+@if (recommendation(); as reco) {
+  <ui-result-recommendation [recommendation]="reco" />
+}

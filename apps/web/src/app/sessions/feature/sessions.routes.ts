@@ -7,7 +7,10 @@ export const sessionsRoutes: Route[] = [
   },
   {
     path: 'sessions/:sessionId/resultat',
+    data: { hideMobileNav: true },
     loadComponent: () =>
-      import('./session-result/session-result').then((m) => m.SessionResult),
+      import('./simulation-summary/simulation-summary').then(
+        (m) => m.SimulationSummary,
+      ),
   },
 ];

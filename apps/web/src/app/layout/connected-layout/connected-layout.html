@@ -20,7 +20,10 @@
       (closeRequested)="onCloseRequested(header)"
     />
   } @else {
-    <ui-navbar [hideMobile]="mobileFlow() !== null" />
+    <ui-navbar
+      [hideMobile]="mobileFlow() !== null"
+      [hideMobileTabs]="hideMobileNav()"
+    />
     @if (mobileFlow(); as flow) {
       <header
         class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"

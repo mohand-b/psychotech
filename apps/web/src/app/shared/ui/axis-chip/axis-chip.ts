@@ -20,7 +20,9 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
       [style.--axis-text]="presentation().textVar"
     >
       <ui-icon [img]="presentation().icon" />
-      <span class="ui-axis-chip__label">{{ presentation().label }}</span>
+      <span class="ui-axis-chip__label">{{
+        compact() ? presentation().shortLabel : presentation().label
+      }}</span>
     </span>
   `,
   styles: `
@@ -31,6 +33,8 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      flex: 1;
+      min-width: 0;
       padding: 7px 12px;
       border: 1px solid var(--axis-pastel-bd);
       border-radius: var(--radius-chip);
@@ -42,6 +46,7 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
 })
 export class AxisChip {
   readonly axis = input.required<AxisType>();
+  readonly compact = input(false);
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
