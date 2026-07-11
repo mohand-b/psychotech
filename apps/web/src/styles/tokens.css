@@ -126,7 +126,7 @@ html:has(body.landing-active) {
 @media (max-width: 767px) {
   .page-shell {
     gap: 1rem;
-    padding: 1.25rem 1rem 4.5rem;
+    padding: 1.25rem 1rem 2rem;
   }
 }
 

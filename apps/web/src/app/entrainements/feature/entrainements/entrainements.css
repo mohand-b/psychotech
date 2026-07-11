@@ -24,11 +24,6 @@
 }
 
 @media (max-width: 768px) {
-  .entrainements {
-    gap: 24px;
-    padding: 24px 16px 88px;
-  }
-
   .entrainements__title {
     font-size: 26px;
     line-height: 32px;
