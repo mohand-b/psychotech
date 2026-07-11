@@ -140,14 +140,14 @@ interface DecoratedStep {
     }
     .stepper--mini .step {
       gap: 0;
-      padding: 8px 15px 8px 17px;
+      padding: 8px 20px 8px 22px;
     }
     .stepper--mini .step--first {
-      padding: 8px 15px 8px 12px;
+      padding: 8px 20px 8px 16px;
       border-radius: 6px 0 0 6px;
     }
     .stepper--mini .step--last {
-      padding: 8px 13px 8px 17px;
+      padding: 8px 18px 8px 22px;
       border-radius: 0 6px 6px 0;
     }
     .step__label {
