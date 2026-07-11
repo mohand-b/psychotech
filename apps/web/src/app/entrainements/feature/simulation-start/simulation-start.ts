@@ -17,7 +17,6 @@ import {
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
-import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import {
   ChevronStep,
@@ -61,10 +60,6 @@ export class SimulationStart {
   protected readonly steps: ChevronStep[] = FULL_SESSION_AXIS_ORDER.map(
     (axis) => ({ axis, state: 'plain' }),
   );
-
-  protected readonly axisNames = FULL_SESSION_AXIS_ORDER.map(
-    (axis) => AXIS_PRESENTATION[axis].label,
-  ).join(' · ');
 
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
   protected readonly energyCost = FULL_SESSION_ENERGY_COST;
