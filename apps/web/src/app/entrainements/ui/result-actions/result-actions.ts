@@ -54,8 +54,15 @@ import { Button } from '../../../shared/ui/button/button';
     }
     @media (max-width: 767px) {
       .actions {
+        position: fixed;
+        inset: auto 0 0 0;
         flex-direction: column;
-        gap: 12px;
+        align-items: stretch;
+        gap: 8px;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+        padding: 12px 16px calc(16px + var(--safe-bottom));
+        z-index: 30;
       }
       .actions__item {
         width: 100%;
