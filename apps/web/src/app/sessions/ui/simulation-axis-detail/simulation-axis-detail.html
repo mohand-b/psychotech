@@ -1,61 +1,56 @@
-<div class="detail__panel">
-  <ui-result-metrics [rows]="metricRows()" />
+<div class="detail__metrics">
+  <span class="detail__label">Métriques</span>
+  @for (row of metricRows(); track row.label) {
+    <div class="detail__metric-row">
+      <span class="detail__metric-copy">
+        <span class="detail__metric-label">{{ row.label }}</span>
+        @if (row.sublabel) {
+          <span class="detail__metric-sublabel">{{ row.sublabel }}</span>
+        }
+      </span>
+      <span class="detail__metric-value t-mono"
+        >{{ row.value
+        }}@if (row.suffix) {<span class="detail__metric-suffix">{{
+          row.suffix
+        }}</span
+        >}</span
+      >
+    </div>
+  }
+</div>
 
-  @switch (detail().axis) {
-    @case (axisTypes.LOGIC) {
-      <ui-result-timing
-        heading="Gestion du temps"
-        note="Hauteur = temps passé sur l'item, dans l'ordre de la session."
-        [showReview]="false"
-      >
+<div class="detail__graph">
+  <span class="detail__label">{{ content().graphTitle }}</span>
+  <div class="detail__chart-box">
+    @switch (detail().axis) {
+      @case (axisTypes.LOGIC) {
         <ui-time-chart [entries]="logicChartEntries()" />
-      </ui-result-timing>
-    }
-    @case (axisTypes.MEMORY) {
-      @if (memoryScored(); as s) {
-        <ui-result-timing
-          heading="Fiabilité par position"
-          note="Taux de restitution correcte par position - toutes séquences confondues."
-          [showReview]="false"
-        >
-          <ui-memory-reliability-chart [reliabilities]="s.positionReliability" />
-        </ui-result-timing>
       }
-    }
-    @case (axisTypes.VISUAL_DISCRIMINATION) {
-      <ui-result-timing
-        heading="Gestion du temps"
-        note="Hauteur = temps de décision par essai, dans l'ordre de la session."
-        [showReview]="false"
-      >
-        <ui-time-chart [entries]="discriminationChartEntries()" itemLabel="Essai" />
-      </ui-result-timing>
-    }
-    @case (axisTypes.REACTIVITY) {
-      @if (reactivityScored(); as s) {
-        <ui-result-timing
-          heading="Temps de réaction"
-          note="Chaque point est un stimulus, hauteur = temps de réaction. La courbe montre votre tendance au fil de l'épreuve."
-          [showReview]="false"
-        >
-          @if (detail().axis === axisTypes.REACTIVITY) {
-            <ui-reactivity-tr-chart
-              [points]="s.points"
-              [trend]="s.trend"
-              [meanMs]="s.trMoyMs"
-              [waitPresses]="reactivityWaitPresses()"
-            />
-          }
-        </ui-result-timing>
+      @case (axisTypes.MEMORY) {
+        @if (memoryScored(); as s) {
+          <ui-memory-reliability-chart
+            [reliabilities]="s.positionReliability"
+          />
+        }
       }
-    }
-    @case (axisTypes.MOTOR_SKILLS) {
-      @if (motorMetrics(); as m) {
-        <ui-result-timing
-          heading="Maîtrise de trajectoire"
-          note="Votre distance aux bords au fil de l'épreuve - 0 % au centre, 100 % au contact du bord. Les portions rouges sont les périodes hors couloir."
-          [showReview]="false"
-        >
+      @case (axisTypes.VISUAL_DISCRIMINATION) {
+        <ui-time-chart
+          [entries]="discriminationChartEntries()"
+          itemLabel="Essai"
+        />
+      }
+      @case (axisTypes.REACTIVITY) {
+        @if (reactivityScored(); as s) {
+          <ui-reactivity-tr-chart
+            [points]="s.points"
+            [trend]="s.trend"
+            [meanMs]="s.trMoyMs"
+            [waitPresses]="reactivityWaitPresses()"
+          />
+        }
+      }
+      @case (axisTypes.MOTOR_SKILLS) {
+        @if (motorMetrics(); as m) {
           @if (hasMotorTimeline()) {
             <ui-motricity-trajectory-chart [metrics]="m" />
           } @else {
@@ -63,12 +58,9 @@
               Données de trajectoire indisponibles pour cette session
             </div>
           }
-        </ui-result-timing>
+        }
       }
     }
-  }
+  </div>
+  <span class="detail__caption">{{ content().caption }}</span>
 </div>
-
-@if (recommendation(); as reco) {
-  <ui-result-recommendation [recommendation]="reco" />
-}

@@ -1,13 +1,78 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 24px;
 }
 
-.detail__panel {
-  display: grid;
-  grid-template-columns: 22rem 1fr;
-  gap: 40px;
+.detail__label {
+  font: 600 11px/14px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.detail__metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail__metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--divider-soft);
+}
+
+.detail__metric-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.detail__metric-label {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.detail__metric-sublabel {
+  font: 400 11px/14px var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.detail__metric-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.detail__metric-suffix {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label);
+  white-space: pre;
+}
+
+.detail__graph {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.detail__chart-box {
+  background: var(--surface-hover);
+  border: 1px solid var(--divider-soft);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.detail__caption {
+  font: 400 12px/16px var(--font-ui);
+  color: var(--label);
 }
 
 .detail__chart-empty {
@@ -15,9 +80,6 @@
   align-items: center;
   justify-content: center;
   height: 180px;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-panel);
-  background: var(--surface-hover);
   font: 400 13px/18px var(--font-ui);
   color: var(--label);
   text-align: center;
@@ -25,8 +87,29 @@
 }
 
 @media (max-width: 767px) {
-  .detail__panel {
+  :host {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 14px;
+  }
+
+  .detail__metrics {
+    gap: 4px;
+  }
+
+  .detail__metric-row {
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .detail__graph {
+    gap: 8px;
+  }
+
+  .detail__chart-box {
+    padding: 4px;
+  }
+
+  .detail__caption {
+    font-size: 11px;
   }
 }

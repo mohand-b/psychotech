@@ -7,16 +7,10 @@ import {
 import {
   AxisType,
   TargetedAxisResultDto,
-  TrainingRecommendation,
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
   generateReactivitySession,
-  getDiscriminationRecommendation,
-  getLogicRecommendation,
-  getMemoryRecommendation,
-  getMotricityRecommendation,
-  getReactivityRecommendation,
   scoreDiscriminationSession,
   scoreLogicSession,
   scoreMemorySession,
@@ -34,16 +28,44 @@ import {
 import { MemoryReliabilityChart } from '../../../entrainements/ui/memory-reliability-chart/memory-reliability-chart';
 import { MotricityTrajectoryChart } from '../../../entrainements/ui/motricity-trajectory-chart/motricity-trajectory-chart';
 import { ReactivityTrChart } from '../../../entrainements/ui/reactivity-tr-chart/reactivity-tr-chart';
-import {
-  ResultMetricRow,
-  ResultMetrics,
-} from '../../../entrainements/ui/result-metrics/result-metrics';
-import { ResultRecommendation } from '../../../entrainements/ui/result-recommendation/result-recommendation';
-import { ResultTiming } from '../../../entrainements/ui/result-timing/result-timing';
+import { ResultMetricRow } from '../../../entrainements/ui/result-metrics/result-metrics';
 import {
   TimeChart,
   TimeChartEntry,
 } from '../../../entrainements/ui/time-chart/time-chart';
+
+interface AxisDetailContent {
+  graphTitle: string;
+  caption: string;
+}
+
+const DETAIL_CONTENT: Record<string, AxisDetailContent> = {
+  [AxisType.LOGIC]: {
+    graphTitle: 'Gestion du temps',
+    caption:
+      'Hauteur = temps passé sur l’item, dans l’ordre de la session. Bleu = juste, rouge = erreur, ambre = passé.',
+  },
+  [AxisType.MEMORY]: {
+    graphTitle: 'Fiabilité par position',
+    caption:
+      'Taux de restitution correcte par position, toutes séquences confondues.',
+  },
+  [AxisType.VISUAL_DISCRIMINATION]: {
+    graphTitle: 'Gestion du temps',
+    caption:
+      'Hauteur = temps de décision par essai, dans l’ordre de la session. Vert = juste, rouge = erreur.',
+  },
+  [AxisType.REACTIVITY]: {
+    graphTitle: 'Temps de réaction',
+    caption:
+      'Chaque point est un stimulus, la courbe montre votre tendance au fil de l’épreuve.',
+  },
+  [AxisType.MOTOR_SKILLS]: {
+    graphTitle: 'Maîtrise de trajectoire',
+    caption:
+      'Distance aux bords au fil de l’épreuve, 0 % au centre, 100 % au contact du bord. Les portions rouges sont les sorties.',
+  },
+};
 
 @Component({
   selector: 'ui-simulation-axis-detail',
@@ -52,9 +74,6 @@ import {
     MemoryReliabilityChart,
     MotricityTrajectoryChart,
     ReactivityTrChart,
-    ResultMetrics,
-    ResultRecommendation,
-    ResultTiming,
     TimeChart,
   ],
   templateUrl: './simulation-axis-detail.html',
@@ -64,6 +83,10 @@ export class SimulationAxisDetail {
   readonly detail = input.required<TargetedAxisResultDto>();
 
   protected readonly axisTypes = AxisType;
+
+  protected readonly content = computed(
+    () => DETAIL_CONTENT[this.detail().axis],
+  );
 
   protected readonly logicScored = computed(() => {
     const detail = this.detail();
@@ -157,32 +180,6 @@ export class SimulationAxisDetail {
       return detail.axis === AxisType.VISUAL_DISCRIMINATION && scored
         ? buildDiscriminationChartEntries(scored, detail)
         : [];
-    },
-  );
-
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const detail = this.detail();
-      switch (detail.axis) {
-        case AxisType.LOGIC: {
-          const scored = this.logicScored();
-          return scored ? getLogicRecommendation(scored, detail.items) : null;
-        }
-        case AxisType.MEMORY: {
-          const scored = this.memoryScored();
-          return scored ? getMemoryRecommendation(scored) : null;
-        }
-        case AxisType.VISUAL_DISCRIMINATION: {
-          const scored = this.discriminationScored();
-          return scored ? getDiscriminationRecommendation(scored) : null;
-        }
-        case AxisType.REACTIVITY: {
-          const scored = this.reactivityScored();
-          return scored ? getReactivityRecommendation(scored) : null;
-        }
-        case AxisType.MOTOR_SKILLS:
-          return getMotricityRecommendation(detail.metrics);
-      }
     },
   );
 }
