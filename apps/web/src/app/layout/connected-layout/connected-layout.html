@@ -45,7 +45,9 @@
   }
   <main
     class="content flex-1 md:pb-0"
-    [class.content--nav-clearance]="focusedHeader() === null && mobileFlow() === null"
+    [class.content--nav-clearance]="
+      focusedHeader() === null && mobileFlow() === null && !hideMobileNav()
+    "
   >
     <router-outlet />
   </main>
