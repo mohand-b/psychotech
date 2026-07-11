@@ -178,6 +178,67 @@ describe('SessionsService.start', () => {
     );
   });
 
+  it('accepts the no-timer option combined with help for logic', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', energyCost: 1, helpEnabled: true }),
+    );
+
+    await service.start('user-1', {
+      mode: SessionMode.TARGETED,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+      options: {
+        enabledOptions: [TrainingOptionId.LOGIC_HELP, TrainingOptionId.NO_TIMER],
+      },
+    });
+
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        helpEnabled: true,
+        trainingOptions: [
+          TrainingOptionId.LOGIC_HELP,
+          TrainingOptionId.NO_TIMER,
+        ],
+      }),
+    );
+  });
+
+  it('accepts the no-timer option for visual discrimination', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', energyCost: 1 }),
+    );
+
+    await service.start('user-1', {
+      mode: SessionMode.TARGETED,
+      sector: Sector.RAILWAY,
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      options: { enabledOptions: [TrainingOptionId.NO_TIMER] },
+    });
+
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        helpEnabled: false,
+        trainingOptions: [TrainingOptionId.NO_TIMER],
+      }),
+    );
+  });
+
+  it('rejects the no-timer option for an axis without it', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.MEMORY,
+        options: { enabledOptions: [TrainingOptionId.NO_TIMER] },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
   it('rejects a training option outside targeted mode', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
 

@@ -52,7 +52,7 @@ import {
   scoreMotricitySession,
   scoreReactivitySession,
   TrainingOptionId,
-  trainingOptionForAxis,
+  trainingOptionsForAxis,
 } from '@psychotech/shared';
 import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
@@ -96,10 +96,12 @@ export class SessionsService {
           'Training options are only available for targeted sessions',
         );
       }
-      const axisOption = request.axis
-        ? trainingOptionForAxis(request.axis)
-        : null;
-      if (!axisOption || enabledOptions.some((id) => id !== axisOption.id)) {
+      const axisOptionIds = new Set(
+        (request.axis ? trainingOptionsForAxis(request.axis) : []).map(
+          ({ id }) => id,
+        ),
+      );
+      if (enabledOptions.some((id) => !axisOptionIds.has(id))) {
         throw new BadRequestException(
           'The requested training option does not belong to this axis',
         );
