@@ -17,6 +17,7 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { backFromTargetedResult } from '../../ui/result-navigation';
 import { buildMemoryMetricRows } from '../../ui/axis-result-content';
 import { MemoryReliabilityChart } from '../../ui/memory-reliability-chart/memory-reliability-chart';
 import { ResultActions } from '../../ui/result-actions/result-actions';
@@ -105,8 +106,6 @@ export class MemoryResult {
   }
 
   protected back(): void {
-    this.router.navigate([
-      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
-    ]);
+    backFromTargetedResult(this.router, this.cameFromPlay);
   }
 }

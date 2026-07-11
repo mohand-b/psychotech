@@ -35,6 +35,7 @@ interface FocusedHeaderData {
   title?: string;
   backLabel?: string;
   backLink?: string;
+  backQueryParams?: Record<string, string>;
   closeLink?: string;
   axisParam?: string;
   axisChip?: boolean;
@@ -59,6 +60,7 @@ interface FocusedHeaderView {
   title: string;
   backLabel: string;
   backLink: string;
+  backQueryParams: Record<string, string> | null;
   duration: string | null;
   closeLink: string | null;
   axisChip: AxisType | null;
@@ -214,6 +216,7 @@ export class ConnectedLayout {
       title,
       backLabel: data.backLabel ?? '',
       backLink: resolveLink(data.backLink ?? ''),
+      backQueryParams: data.backQueryParams ?? null,
       duration,
       closeLink: data.closeLink ? resolveLink(data.closeLink) : null,
       axisChip,

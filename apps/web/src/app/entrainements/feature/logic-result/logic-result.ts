@@ -17,6 +17,7 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
   buildLogicChartEntries,
   buildLogicMetricRows,
@@ -118,8 +119,6 @@ export class LogicResult {
   }
 
   protected back(): void {
-    this.router.navigate([
-      this.cameFromPlay ? '/entrainements/choisir-axe' : '/sessions',
-    ]);
+    backFromTargetedResult(this.router, this.cameFromPlay);
   }
 }

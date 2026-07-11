@@ -46,11 +46,6 @@ export const entrainementsRoutes: Route[] = [
       import('./entrainements/entrainements').then((m) => m.Entrainements),
   },
   {
-    path: 'entrainements/choisir-axe',
-    loadComponent: () =>
-      import('./axis-selection/axis-selection').then((m) => m.AxisSelection),
-  },
-  {
     path: 'entrainements/simulation',
     data: {
       focusedHeader: {
@@ -116,7 +111,8 @@ export const entrainementsRoutes: Route[] = [
     data: {
       focusedHeader: {
         backLabel: 'Entraînement ciblé',
-        backLink: '/entrainements/choisir-axe',
+        backLink: '/entrainements',
+        backQueryParams: { panel: 'cible' },
         closeLink: '/entrainements',
         axisParam: 'axis',
         showTimer: false,

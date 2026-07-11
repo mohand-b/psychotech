@@ -37,7 +37,11 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
           </div>
         } @else {
           <nav class="focused-header__crumb" aria-label="Fil d'Ariane">
-            <a class="focused-header__back" [routerLink]="backLink()">
+            <a
+              class="focused-header__back"
+              [routerLink]="backLink()"
+              [queryParams]="backQueryParams()"
+            >
               <ui-icon [img]="backIcon" [size]="16" />
               <span>{{ backLabel() }}</span>
             </a>
@@ -93,6 +97,7 @@ export class FocusedHeader {
   readonly title = input.required<string>();
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
+  readonly backQueryParams = input<Record<string, string> | null>(null);
   readonly axisChip = input<AxisType | null>(null);
   readonly mobileTitle = input(false);
   readonly steps = input<readonly ChevronStep[]>([]);

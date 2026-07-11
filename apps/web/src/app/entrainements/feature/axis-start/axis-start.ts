@@ -48,7 +48,9 @@ export class AxisStart {
 
   constructor() {
     if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
-      this.router.navigate(['/entrainements/choisir-axe']);
+      this.router.navigate(['/entrainements'], {
+        queryParams: { panel: 'cible' },
+      });
     }
   }
   private readonly referential = toSignal(
