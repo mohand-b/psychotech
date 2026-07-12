@@ -32,4 +32,14 @@ describe('SectorChip', () => {
       fixture.nativeElement.querySelector('.sector__name').textContent.trim(),
     ).toBe('Aérien');
   });
+
+  it('hides the label in the label-less variant', async () => {
+    const fixture = await setup(Sector.RAILWAY);
+    fixture.componentRef.setInput('showLabel', false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.sector__label')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.sector__name').textContent.trim(),
+    ).toBe('Ferroviaire');
+  });
 });

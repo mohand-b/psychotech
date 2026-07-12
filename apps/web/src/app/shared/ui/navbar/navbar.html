@@ -36,9 +36,9 @@
     <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
     <div class="flex items-center gap-2">
       @if (sector(); as current) {
-        <ui-sector-chip [sector]="current" [compact]="true" />
+        <ui-sector-chip [sector]="current" [showLabel]="false" />
       }
-      <ui-energy-chip [state]="energy()" [compact]="true" />
+      <ui-energy-chip [state]="energy()" />
     </div>
   </header>
 
