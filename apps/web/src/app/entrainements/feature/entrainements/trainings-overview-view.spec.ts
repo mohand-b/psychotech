@@ -1,35 +1,8 @@
 import {
-  AXIS_TAG_CRITICAL,
-  AXIS_TAG_NEEDS_WORK,
   formatOverviewDate,
   formatOverviewScore,
   formatSignedGap,
-  resolveAxisTag,
 } from './trainings-overview-view';
-
-describe('resolveAxisTag', () => {
-  it('returns no tag for a standard axis', () => {
-    expect(resolveAxisTag({ needsWork: false, isCriticalAxis: false })).toBeNull();
-  });
-
-  it('tags a very critical axis', () => {
-    expect(resolveAxisTag({ needsWork: false, isCriticalAxis: true })).toBe(
-      AXIS_TAG_CRITICAL,
-    );
-  });
-
-  it('tags an axis under the vigilance threshold', () => {
-    expect(resolveAxisTag({ needsWork: true, isCriticalAxis: false })).toBe(
-      AXIS_TAG_NEEDS_WORK,
-    );
-  });
-
-  it('gives precedence to the needs-work tag when both apply', () => {
-    expect(resolveAxisTag({ needsWork: true, isCriticalAxis: true })).toBe(
-      AXIS_TAG_NEEDS_WORK,
-    );
-  });
-});
 
 describe('formatOverviewScore', () => {
   it('renders the score with a french decimal comma', () => {

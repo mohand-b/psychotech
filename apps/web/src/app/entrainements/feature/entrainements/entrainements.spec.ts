@@ -161,35 +161,25 @@ describe('Entrainements', () => {
     ).toBe(true);
   });
 
-  it('renders conditional tags with needs-work precedence and the never-played state', async () => {
-    const { fixture } = await setup(
-      buildOverview({
-        axes: buildOverview().axes.map((entry) =>
-          entry.axis === AxisType.REACTIVITY
-            ? { ...entry, needsWork: true }
-            : entry,
-        ),
-      }),
-    );
-    const rows = [...fixture.nativeElement.querySelectorAll('.duo__axis')];
-    const textOf = (index: number) => rows[index].textContent ?? '';
-    expect(textOf(1)).toContain('À travailler');
-    expect(textOf(3)).toContain('À travailler');
-    expect(textOf(3)).not.toContain('Axe critique');
-    expect(textOf(4)).toContain('Jamais joué');
-    expect(rows[4].querySelector('.duo__axis-bar')).toBeNull();
-  });
-
-  it('shows the critical tag on the very critical axis', async () => {
+  it('renders a never-played axis with an empty bar and a muted dash', async () => {
     const { fixture } = await setup(buildOverview());
     const rows = [...fixture.nativeElement.querySelectorAll('.duo__axis')];
-    expect(rows[3].textContent).toContain('Axe critique');
+    const motorRow = rows[4];
+    const fill = motorRow.querySelector('.duo__axis-fill') as HTMLElement;
+    const value = motorRow.querySelector('.duo__axis-value') as HTMLElement;
+    expect(fill.style.width).toBe('0%');
+    expect(value.textContent.trim()).toBe('-');
+    expect(value.classList.contains('duo__axis-value--empty')).toBe(true);
+    expect(motorRow.textContent).not.toContain('Jamais joué');
   });
 
-  it('shows the sober empty state without a completed simulation', async () => {
+  it('shows the first-time empty state without a completed simulation', async () => {
     const { fixture } = await setup(buildOverview({ lastSimulation: null }));
     expect(fixture.nativeElement.textContent).toContain(
       "Aucune simulation pour l'instant",
+    );
+    expect(fixture.nativeElement.textContent).toContain(
+      "Votre bilan s'affichera ici après votre première simulation complète",
     );
     expect(fixture.nativeElement.querySelector('.duo__bilan-value')).toBeNull();
   });

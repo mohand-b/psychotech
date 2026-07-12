@@ -1,8 +1,4 @@
-import {
-  AxisType,
-  TrainingsAxisOverviewDto,
-  TrainingsLastSimulationDto,
-} from '@psychotech/shared';
+import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
 
 export type TrainingsPanel = 'sim' | 'cible';
 
@@ -18,8 +14,8 @@ export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> =
       mobileDescription: 'Suites à compléter, 40 items',
     },
     [AxisType.MEMORY]: {
-      description: 'Séquences à restituer, ordre normal et inversé',
-      mobileDescription: 'Séquences, ordre normal et inversé',
+      description: 'Séquences à mémoriser et restituer',
+      mobileDescription: 'Séquences à mémoriser et restituer',
     },
     [AxisType.VISUAL_DISCRIMINATION]: {
       description: 'Comparaison rapide de suites',
@@ -34,21 +30,6 @@ export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> =
       mobileDescription: 'Coordination bimanuelle en couloir',
     },
   };
-
-export const AXIS_TAG_NEEDS_WORK = 'À travailler';
-export const AXIS_TAG_CRITICAL = 'Axe critique';
-
-export function resolveAxisTag(
-  entry: Pick<TrainingsAxisOverviewDto, 'needsWork' | 'isCriticalAxis'>,
-): string | null {
-  if (entry.needsWork) {
-    return AXIS_TAG_NEEDS_WORK;
-  }
-  if (entry.isCriticalAxis) {
-    return AXIS_TAG_CRITICAL;
-  }
-  return null;
-}
 
 export function formatOverviewScore(score: number): string {
   return score.toLocaleString('fr-FR', {

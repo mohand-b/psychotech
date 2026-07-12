@@ -119,7 +119,9 @@
         } @else if (overviewLoaded()) {
           <span class="duo__empty-title">Aucune simulation pour l'instant</span>
           <span class="duo__empty-hint"
-            >Lancez votre première simulation pour découvrir votre bilan.</span
+            >Votre bilan s'affichera ici après votre première simulation
+            complète, avec votre score, l'avis d'admissibilité et votre
+            position vs le seuil d'admissibilité de votre secteur.</span
           >
         }
       </div>
@@ -145,34 +147,23 @@
               <ui-icon [img]="row.presentation.icon" [size]="17" />
             </span>
             <span class="duo__axis-copy">
-              <span class="duo__axis-name-row">
-                <span class="duo__axis-name">{{ row.presentation.label }}</span>
-                @if (row.tag; as tag) {
-                  <span
-                    class="duo__axis-tag"
-                    [style.background]="row.presentation.pastelVar"
-                    [style.border-color]="row.presentation.pastelBorderVar"
-                    [style.color]="row.presentation.textVar"
-                    >{{ tag }}</span
-                  >
-                }
-              </span>
+              <span class="duo__axis-name">{{ row.presentation.label }}</span>
               <span class="duo__axis-desc">{{ row.description }}</span>
             </span>
-            @if (row.neverPlayed) {
-              <span class="duo__axis-never">Jamais joué</span>
-            } @else {
-              <span class="duo__axis-score">
-                <span class="duo__axis-bar">
-                  <span
-                    class="duo__axis-fill"
-                    [style.background]="row.presentation.plainVar"
-                    [style.width.%]="row.barWidth"
-                  ></span>
-                </span>
-                <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+            <span class="duo__axis-score">
+              <span class="duo__axis-bar">
+                <span
+                  class="duo__axis-fill"
+                  [style.background]="row.presentation.plainVar"
+                  [style.width.%]="row.barWidth"
+                ></span>
               </span>
-            }
+              <span
+                class="duo__axis-value t-mono"
+                [class.duo__axis-value--empty]="row.neverPlayed"
+                >{{ row.scoreLabel }}</span
+              >
+            </span>
             <ui-icon
               class="duo__axis-chevron"
               [img]="chevronRightIcon"
@@ -317,20 +308,9 @@
                 <ui-icon [img]="row.presentation.icon" [size]="19" />
               </span>
               <span class="trainm__axis-copy">
-                <span class="trainm__axis-name-row">
-                  <span class="trainm__axis-name">{{
-                    row.presentation.label
-                  }}</span>
-                  @if (row.tag; as tag) {
-                    <span
-                      class="duo__axis-tag"
-                      [style.background]="row.presentation.pastelVar"
-                      [style.border-color]="row.presentation.pastelBorderVar"
-                      [style.color]="row.presentation.textVar"
-                      >{{ tag }}</span
-                    >
-                  }
-                </span>
+                <span class="trainm__axis-name">{{
+                  row.presentation.label
+                }}</span>
                 <span class="trainm__axis-desc">{{
                   row.mobileDescription
                 }}</span>
@@ -343,20 +323,18 @@
             </span>
             <span class="trainm__axis-foot">
               <span class="trainm__axis-foot-label">Meilleur score</span>
-              @if (row.neverPlayed) {
-                <span class="trainm__axis-never">Jamais joué</span>
-              } @else {
-                <span class="trainm__axis-bar">
-                  <span
-                    class="trainm__axis-fill"
-                    [style.background]="row.presentation.plainVar"
-                    [style.width.%]="row.barWidth"
-                  ></span>
-                </span>
-                <span class="trainm__axis-value t-mono">{{
-                  row.scoreLabel
-                }}</span>
-              }
+              <span class="trainm__axis-bar">
+                <span
+                  class="trainm__axis-fill"
+                  [style.background]="row.presentation.plainVar"
+                  [style.width.%]="row.barWidth"
+                ></span>
+              </span>
+              <span
+                class="trainm__axis-value t-mono"
+                [class.trainm__axis-value--empty]="row.neverPlayed"
+                >{{ row.scoreLabel }}</span
+              >
             </span>
           </a>
         }

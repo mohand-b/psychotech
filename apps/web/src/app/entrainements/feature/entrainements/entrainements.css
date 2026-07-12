@@ -468,23 +468,8 @@
   min-width: 0;
 }
 
-.duo__axis-name-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
 .duo__axis-name {
   font: 600 14px/20px var(--font-ui);
-}
-
-.duo__axis-tag {
-  display: inline-flex;
-  align-items: center;
-  font: 600 10px/14px var(--font-ui);
-  border: 1px solid;
-  border-radius: 5px;
-  padding: 1px 6px;
 }
 
 .duo__axis-desc {
@@ -526,10 +511,8 @@
   color: var(--ink);
 }
 
-.duo__axis-never {
-  font: 400 11.5px/16px var(--font-ui);
+.duo__axis-value--empty {
   color: var(--label);
-  flex-shrink: 0;
 }
 
 .duo__axis-chevron {
@@ -693,12 +676,6 @@
   min-width: 0;
 }
 
-.trainm__axis-name-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
 .trainm__axis-name {
   font: 600 14.5px/20px var(--font-ui);
 }
@@ -747,8 +724,7 @@
   color: var(--ink);
 }
 
-.trainm__axis-never {
-  font: 400 12px/16px var(--font-ui);
+.trainm__axis-value--empty {
   color: var(--label);
 }
 

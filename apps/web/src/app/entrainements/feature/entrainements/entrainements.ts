@@ -40,7 +40,6 @@ import {
   formatOverviewDate,
   formatOverviewScore,
   formatSignedGap,
-  resolveAxisTag,
 } from './trainings-overview-view';
 
 interface AxisRowView {
@@ -49,8 +48,7 @@ interface AxisRowView {
   presentation: AxisPresentation;
   description: string;
   mobileDescription: string;
-  tag: string | null;
-  scoreLabel: string | null;
+  scoreLabel: string;
   barWidth: number;
   neverPlayed: boolean;
 }
@@ -134,9 +132,8 @@ export class Entrainements {
         presentation: AXIS_PRESENTATION[entry.axis],
         description: copy?.description ?? '',
         mobileDescription: copy?.mobileDescription ?? '',
-        tag: resolveAxisTag(entry),
         scoreLabel:
-          entry.bestScore === null ? null : `${Math.round(entry.bestScore)}`,
+          entry.bestScore === null ? '-' : `${Math.round(entry.bestScore)}`,
         barWidth: entry.bestScore ?? 0,
         neverPlayed: entry.neverPlayed,
       };
