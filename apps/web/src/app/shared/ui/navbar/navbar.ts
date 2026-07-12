@@ -18,7 +18,7 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
-import { SECTOR_PRESENTATION } from '../sector-presentation';
+import { SectorChip } from '../sector-chip/sector-chip';
 
 interface NavItem {
   label: string;
@@ -29,7 +29,7 @@ interface NavItem {
 @Component({
   selector: 'ui-navbar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, Icon, EnergyChip],
+  imports: [RouterLink, RouterLinkActive, Icon, EnergyChip, SectorChip],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -52,10 +52,9 @@ export class Navbar {
     { label: 'Progression', path: '/progression', icon: TrendingUp },
   ];
 
-  protected readonly sector = computed(() => {
-    const current = this.user();
-    return current ? SECTOR_PRESENTATION[current.currentSector] : null;
-  });
+  protected readonly sector = computed(
+    () => this.user()?.currentSector ?? null,
+  );
 
   protected logout(): void {
     this.authFacade.logout().subscribe({

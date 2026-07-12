@@ -33,17 +33,6 @@
   display: none;
 }
 
-.sim-start__sector {
-  margin: 0;
-  font: 400 0.9375rem/1.375rem var(--font-ui);
-  color: var(--text-secondary);
-}
-
-.sim-start__sector strong {
-  font-weight: 600;
-  color: var(--ink);
-}
-
 .sim-start__cards {
   display: flex;
   flex-direction: column;

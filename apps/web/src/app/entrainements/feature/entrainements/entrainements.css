@@ -26,17 +26,7 @@
   display: none;
 }
 
-.trainings__sector-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-chip);
-  padding: 7px 12px;
-  font: 600 12px/16px var(--font-ui);
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
+.trainings__sector {
   flex-shrink: 0;
 }
 
@@ -763,7 +753,7 @@
     display: inline;
   }
 
-  .trainings__sector-chip {
+  .trainings__sector {
     display: none;
   }
 

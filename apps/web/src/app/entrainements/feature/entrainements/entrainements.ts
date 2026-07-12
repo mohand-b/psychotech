@@ -21,7 +21,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
-  TrainFront,
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -33,6 +32,7 @@ import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { BAND_COLOR_VARS, BAND_LABELS } from '../../../shared/ui/score-rating';
+import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
@@ -69,7 +69,7 @@ interface LastSimulationView {
 @Component({
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button, Icon, RouterLink],
+  imports: [BoltIcon, Button, Icon, RouterLink, SectorChip],
   providers: [TrainingsOverviewFacade],
   templateUrl: './entrainements.html',
   styleUrl: './entrainements.css',
@@ -99,7 +99,6 @@ export class Entrainements {
   protected readonly chevronLeftIcon = ChevronLeft;
   protected readonly arrowRightIcon = ArrowRight;
   protected readonly arrowLeftIcon = ArrowLeft;
-  protected readonly sectorIcon = TrainFront;
 
   private readonly panelParam = toSignal(
     this.route.queryParamMap.pipe(map((params) => params.get('panel'))),
@@ -113,7 +112,7 @@ export class Entrainements {
   protected readonly firstName =
     this.authFacade.currentUser()?.firstName ?? null;
 
-  private readonly sector =
+  protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
   protected readonly sectorLabel = SECTOR_LABELS[this.sector];
 

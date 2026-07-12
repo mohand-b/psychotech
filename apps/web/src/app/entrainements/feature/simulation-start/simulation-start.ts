@@ -18,12 +18,12 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
+import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import {
   ChevronStep,
   ChevronStepper,
 } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 const FULL_SESSION_ENERGY_COST = 5;
 const ESTIMATED_DURATION_LABEL = '~25 min';
@@ -36,7 +36,7 @@ interface AdviceItem {
 @Component({
   selector: 'app-simulation-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button, ChevronStepper, Icon],
+  imports: [BoltIcon, Button, ChevronStepper, Icon, SectorChip],
   templateUrl: './simulation-start.html',
   styleUrl: './simulation-start.css',
 })
@@ -51,10 +51,8 @@ export class SimulationStart {
 
   protected readonly starting = signal(false);
 
-  protected readonly sectorLabel =
-    SECTOR_PRESENTATION[
-      this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY
-    ].label;
+  protected readonly sector =
+    this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
 
   protected readonly steps: ChevronStep[] = FULL_SESSION_AXIS_ORDER.map(
     (axis) => ({ axis, state: 'plain' }),

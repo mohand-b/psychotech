@@ -13,10 +13,7 @@
         choisir le rythme du jour.</span
       >
     </div>
-    <span class="trainings__sector-chip">
-      <ui-icon [img]="sectorIcon" [size]="14" />
-      Secteur&nbsp;: {{ sectorLabel }}
-    </span>
+    <ui-sector-chip class="trainings__sector" [sector]="sector" />
   </div>
 
   <section class="duo" [class.duo--animate]="animationsReady()">
