@@ -8,12 +8,11 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AxisType, Sector, TrainingOptionId } from '@psychotech/shared';
-import { Zap } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
-import { Icon } from '../../../shared/ui/icon/icon';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
@@ -23,7 +22,7 @@ const TARGETED_AXIS_ENERGY_COST = 1;
 @Component({
   selector: 'app-axis-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisBriefing, Button, Icon],
+  imports: [AxisBriefing, BoltIcon, Button],
   templateUrl: './axis-start.html',
   styleUrl: './axis-start.css',
 })
@@ -36,7 +35,6 @@ export class AxisStart {
 
   protected readonly starting = signal(false);
   protected readonly enabledOptions = signal<TrainingOptionId[]>([]);
-  protected readonly energyIcon = Zap;
   protected readonly energyCost = TARGETED_AXIS_ENERGY_COST;
 
   protected readonly axis =

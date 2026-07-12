@@ -11,7 +11,7 @@ import { ArrowLeft, Timer, X } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
 import { ChevronStep, ChevronStepper } from '../chevron-stepper/chevron-stepper';
-import { EnergyGauge } from '../energy-gauge/energy-gauge';
+import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
 
 export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
@@ -19,7 +19,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 @Component({
   selector: 'ui-focused-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, EnergyGauge, AxisChip, ChevronStepper],
+  imports: [RouterLink, Icon, EnergyChip, AxisChip, ChevronStepper],
   template: `
     <header class="focused-header">
       <div class="focused-header__inner">
@@ -59,7 +59,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 
         <div class="focused-header__actions">
           @if (showEnergy()) {
-            <ui-energy-gauge [state]="energy()" />
+            <ui-energy-chip [state]="energy()" />
             @if (duration() || closeLink()) {
               <span class="focused-header__separator"></span>
             }

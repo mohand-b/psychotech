@@ -163,10 +163,6 @@ html:has(body.landing-active) {
   font-variant-numeric: tabular-nums;
 }
 
-.icon-filled svg {
-  fill: currentColor;
-}
-
 .hairline {
   height: 1px;
   background: var(--border);

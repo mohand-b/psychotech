@@ -20,7 +20,6 @@ import {
   ChevronRight,
   CircleCheckBig,
   TrainFront,
-  Zap,
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -28,6 +27,7 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
+import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { BAND_COLOR_VARS, BAND_LABELS } from '../../../shared/ui/score-rating';
@@ -69,7 +69,7 @@ interface LastSimulationView {
 @Component({
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, RouterLink],
+  imports: [BoltIcon, Button, Icon, RouterLink],
   providers: [TrainingsOverviewFacade],
   templateUrl: './entrainements.html',
   styleUrl: './entrainements.css',
@@ -81,7 +81,6 @@ export class Entrainements {
   private readonly router = inject(Router);
 
   protected readonly checkIcon = CircleCheckBig;
-  protected readonly energyIcon = Zap;
 
   protected readonly simulationFeatures = [
     'Notation pondérée par secteur',

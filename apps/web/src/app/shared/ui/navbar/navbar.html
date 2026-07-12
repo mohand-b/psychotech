@@ -16,7 +16,7 @@
     </nav>
 
     <div class="flex items-center gap-4">
-      <ui-energy-gauge [state]="energy()" />
+      <ui-energy-chip [state]="energy()" />
       <span class="separator"></span>
       @if (user(); as current) {
         <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
@@ -41,7 +41,7 @@
           <span>{{ current.label }}</span>
         </span>
       }
-      <ui-energy-gauge [state]="energy()" [compact]="true" />
+      <ui-energy-chip [state]="energy()" />
     </div>
   </header>
 

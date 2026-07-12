@@ -13,10 +13,10 @@ import {
   LayoutGrid,
   LucideIconData,
   VolumeX,
-  Zap,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import {
   ChevronStep,
@@ -36,7 +36,7 @@ interface AdviceItem {
 @Component({
   selector: 'app-simulation-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, ChevronStepper, Icon],
+  imports: [BoltIcon, Button, ChevronStepper, Icon],
   templateUrl: './simulation-start.html',
   styleUrl: './simulation-start.css',
 })
@@ -48,7 +48,6 @@ export class SimulationStart {
   protected readonly heroIcon = Layers;
   protected readonly axesIcon = LayoutGrid;
   protected readonly durationIcon = Clock;
-  protected readonly energyIcon = Zap;
 
   protected readonly starting = signal(false);
 

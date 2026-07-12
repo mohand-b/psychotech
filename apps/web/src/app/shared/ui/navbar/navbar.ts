@@ -16,7 +16,7 @@ import {
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { EnergyGauge } from '../energy-gauge/energy-gauge';
+import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
 import { SECTOR_PRESENTATION } from '../sector-presentation';
 
@@ -29,7 +29,7 @@ interface NavItem {
 @Component({
   selector: 'ui-navbar',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, Icon, EnergyGauge],
+  imports: [RouterLink, RouterLinkActive, Icon, EnergyChip],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
