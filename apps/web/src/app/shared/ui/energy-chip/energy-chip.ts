@@ -15,13 +15,17 @@ const ENERGY_CAPACITY = 5;
   imports: [BoltIcon],
   template: `
     @if (unlimited()) {
-      <span class="chip">
-        <ui-bolt class="chip__bolt" [size]="14" />
+      <span class="chip" [class.chip--compact]="compact()">
+        <ui-bolt class="chip__bolt" [size]="compact() ? 13 : 14" />
         <span class="chip__label">Illimité</span>
       </span>
     } @else {
-      <span class="chip" [class.chip--depleted]="depleted()">
-        <ui-bolt class="chip__bolt" [size]="14" />
+      <span
+        class="chip"
+        [class.chip--compact]="compact()"
+        [class.chip--depleted]="depleted()"
+      >
+        <ui-bolt class="chip__bolt" [size]="compact() ? 13 : 14" />
         <span class="chip__value"
           >{{ balance() }}<span class="chip__max">/{{ capacity }}</span></span
         >
@@ -58,6 +62,15 @@ const ENERGY_CAPACITY = 5;
       letter-spacing: 0.02em;
       color: var(--brand);
     }
+    .chip--compact {
+      padding: 6px 10px;
+    }
+    .chip--compact .chip__value {
+      font-size: 12.5px;
+    }
+    .chip--compact .chip__max {
+      font-size: 10px;
+    }
     .chip--depleted {
       background: var(--bg);
     }
@@ -74,6 +87,7 @@ const ENERGY_CAPACITY = 5;
 })
 export class EnergyChip {
   readonly state = input<EnergyStateDto | null>(null);
+  readonly compact = input(false);
 
   protected readonly capacity = ENERGY_CAPACITY;
 
