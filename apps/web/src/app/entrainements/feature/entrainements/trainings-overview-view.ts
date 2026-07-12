@@ -10,8 +10,8 @@ export interface AxisOverviewCopy {
 export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> =
   {
     [AxisType.LOGIC]: {
-      description: 'Suites à compléter, 40 items',
-      mobileDescription: 'Suites à compléter, 40 items',
+      description: 'Suites à compléter',
+      mobileDescription: 'Suites à compléter',
     },
     [AxisType.MEMORY]: {
       description: 'Séquences à mémoriser et restituer',
