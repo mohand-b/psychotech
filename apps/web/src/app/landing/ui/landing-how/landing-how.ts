@@ -83,13 +83,13 @@ import { LandingReveal } from '../landing-reveal.directive';
     .how__inner {
       max-width: 1160px;
       margin: 0 auto;
-      padding: 96px 32px 112px;
+      padding: 64px 32px 72px;
     }
     .how__head {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      margin-bottom: 64px;
+      margin-bottom: 44px;
       max-width: 560px;
     }
     .how__eyebrow {
@@ -180,7 +180,7 @@ import { LandingReveal } from '../landing-reveal.directive';
         border-top: none;
       }
       .how__inner {
-        padding: 56px 24px;
+        padding: 40px 24px;
       }
       .how__head {
         gap: 10px;

@@ -251,13 +251,13 @@ import { LandingReveal } from '../landing-reveal.directive';
     .platform__inner {
       max-width: 1160px;
       margin: 0 auto;
-      padding: 104px 32px 88px;
+      padding: 72px 32px 64px;
     }
     .platform__head {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      margin-bottom: 56px;
+      margin-bottom: 40px;
       max-width: 620px;
     }
     .platform__eyebrow {
@@ -344,7 +344,7 @@ import { LandingReveal } from '../landing-reveal.directive';
         background: var(--bg);
       }
       .platform__inner {
-        padding: 56px 24px;
+        padding: 40px 24px;
       }
       .platform__head {
         gap: 10px;

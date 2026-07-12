@@ -97,13 +97,13 @@ const MOBILE_FAQ: FaqEntry[] = [
     .faq__inner {
       max-width: 820px;
       margin: 0 auto;
-      padding: 104px 32px;
+      padding: 72px 32px;
     }
     .faq__head {
       display: flex;
       flex-direction: column;
       gap: 14px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
     .faq__eyebrow {
       font: 600 11px/14px var(--landing-font-ui);
@@ -170,7 +170,7 @@ const MOBILE_FAQ: FaqEntry[] = [
         border-top: 1px solid var(--border);
       }
       .faq__inner {
-        padding: 56px 24px;
+        padding: 40px 24px;
       }
       .faq__head {
         gap: 8px;

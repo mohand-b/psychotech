@@ -70,7 +70,7 @@ import { LandingReveal } from '../landing-reveal.directive';
     .enjeu__grid {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 112px 32px;
+      padding: 72px 32px;
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       gap: 72px;
@@ -136,7 +136,7 @@ import { LandingReveal } from '../landing-reveal.directive';
     }
     @media (max-width: 767px) {
       .enjeu__grid {
-        padding: 56px 24px;
+        padding: 40px 24px;
         display: flex;
         flex-direction: column;
         gap: 20px;

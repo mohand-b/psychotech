@@ -26,16 +26,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
           <a class="footer__link">Mentions légales</a>
           <a class="footer__link">Confidentialité</a>
           <a class="footer__link">CGV</a>
-          <a class="footer__link footer__link--mobile-contact"
-            href="mailto:contact@psychotech.fr"
-            >contact&#64;psychotech.fr</a
-          >
-        </div>
-        <div class="footer__col footer__col--contact">
-          <span class="footer__col-title">Contact</span>
-          <a class="footer__link" href="mailto:contact@psychotech.fr"
-            >contact&#64;psychotech.fr</a
-          >
         </div>
       </div>
       <div class="footer__bottom">
@@ -56,9 +46,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     .footer__grid {
       max-width: 1232px;
       margin: 0 auto;
-      padding: 52px 32px 36px;
+      padding: 40px 32px 28px;
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      grid-template-columns: 1.4fr 1fr 1fr;
       gap: 32px;
     }
     .footer__brand {
@@ -98,9 +88,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     .footer__link:hover {
       color: var(--landing-text);
     }
-    .footer__link--mobile-contact {
-      display: none;
-    }
     .footer__bottom {
       border-top: 1px solid var(--landing-border-soft);
     }
@@ -118,7 +105,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     }
     @media (max-width: 767px) {
       .footer__grid {
-        padding: 36px 24px 28px;
+        padding: 28px 24px 24px;
         display: flex;
         flex-direction: column;
         gap: 24px;
@@ -137,18 +124,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       .footer__col--product {
         display: none;
       }
-      .footer__col--contact {
-        display: none;
-      }
       .footer__col-title--desktop {
         display: none;
       }
       .footer__link {
         font-size: 13px;
         color: rgba(255, 255, 255, 0.6);
-      }
-      .footer__link--mobile-contact {
-        display: inline;
       }
       .footer__bottom {
         border-top: none;

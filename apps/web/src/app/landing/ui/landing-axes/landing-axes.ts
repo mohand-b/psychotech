@@ -193,14 +193,14 @@ const LANDING_AXES: LandingAxis[] = [
     .axes__inner {
       max-width: 1160px;
       margin: 0 auto;
-      padding: 88px 32px;
+      padding: 64px 32px;
     }
     .axes__head {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       gap: 32px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
     .axes__head-copy {
       display: flex;
@@ -307,7 +307,7 @@ const LANDING_AXES: LandingAxis[] = [
     }
     @media (max-width: 767px) {
       .axes__inner {
-        padding: 56px 24px;
+        padding: 40px 24px;
       }
       .axes__head {
         margin-bottom: 28px;

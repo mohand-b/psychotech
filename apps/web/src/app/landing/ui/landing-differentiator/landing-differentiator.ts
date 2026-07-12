@@ -132,7 +132,7 @@ import { LandingReveal } from '../landing-reveal.directive';
       z-index: 1;
       max-width: 860px;
       margin: 0 auto;
-      padding: 112px 32px;
+      padding: 72px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -190,7 +190,7 @@ import { LandingReveal } from '../landing-reveal.directive';
       .diff {
         background: var(--bg);
         overflow: visible;
-        padding: 0 16px 56px;
+        padding: 0 16px 40px;
       }
       .diff__panel {
         background: var(--landing-bg);

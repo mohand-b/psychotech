@@ -155,7 +155,7 @@ type BillingPeriod = 'monthly' | 'annual';
     .pricing {
       background: var(--card);
       border-top: 1px solid var(--border);
-      padding: 56px 24px;
+      padding: 40px 24px;
       scroll-margin-top: calc(64px + env(safe-area-inset-top));
     }
     .pricing__head {

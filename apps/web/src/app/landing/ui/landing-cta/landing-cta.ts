@@ -64,7 +64,7 @@ import { LandingReveal } from '../landing-reveal.directive';
       z-index: 1;
       max-width: 1232px;
       margin: 0 auto;
-      padding: 96px 32px;
+      padding: 72px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -97,7 +97,6 @@ import { LandingReveal } from '../landing-reveal.directive';
       text-decoration: none;
       padding: 16px 28px;
       border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(124, 92, 252, 0.4);
     }
     .cta__button:hover {
       background: var(--landing-accent-hover);
@@ -108,7 +107,7 @@ import { LandingReveal } from '../landing-reveal.directive';
         height: 340px;
       }
       .cta__content {
-        padding: 64px 24px;
+        padding: 48px 24px;
         gap: 20px;
       }
       .cta__title {

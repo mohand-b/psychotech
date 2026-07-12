@@ -126,14 +126,14 @@ import { LandingReveal } from '../landing-reveal.directive';
     .scoring__inner {
       max-width: 1160px;
       margin: 0 auto;
-      padding: 104px 32px;
+      padding: 72px 32px;
     }
     .scoring__head {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       gap: 32px;
-      margin-bottom: 60px;
+      margin-bottom: 44px;
     }
     .scoring__head-copy {
       display: flex;
