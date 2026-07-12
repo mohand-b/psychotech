@@ -63,10 +63,12 @@
 
 .duo > .duo__pitch:first-child {
   border-bottom: 3px solid var(--brand);
+  border-bottom-left-radius: var(--radius-panel);
 }
 
 .duo > .duo__pitch:last-child {
   border-bottom: 3px solid var(--secondary-dark);
+  border-bottom-right-radius: var(--radius-panel);
 }
 
 .duo__panel:has(.duo__panel-inner--sim) {
