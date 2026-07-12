@@ -8,18 +8,23 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  height: 64px;
-  padding: 0 32px;
   background: transparent;
   border-bottom: 1px solid transparent;
   transition:
     background 0.3s ease,
     border-color 0.3s ease,
     backdrop-filter 0.3s ease;
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 64px;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 .header--glass {
