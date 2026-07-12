@@ -84,9 +84,9 @@ export class Entrainements {
   protected readonly energyIcon = Zap;
 
   protected readonly simulationFeatures = [
-    'Tous les axes, notation pondérée par secteur',
+    'Notation pondérée par secteur',
     "Conditions réelles d'examen",
-    'Analyse de performance globale et par axe',
+    'Analyse globale et par axe',
     "Sans aide ni option d'entraînement",
   ];
 
