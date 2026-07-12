@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-cta',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [LandingReveal, RouterLink],
   template: `
     <section class="cta">
       <div class="cta__glow" aria-hidden="true"></div>
-      <div class="cta__content">
+      <div class="cta__content" appLandingReveal>
         <h2 class="cta__title">
           Prêt à mettre toutes les chances de votre côté&nbsp;?
         </h2>

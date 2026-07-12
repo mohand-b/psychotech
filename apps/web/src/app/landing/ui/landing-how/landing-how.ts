@@ -1,17 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-how',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="how" id="fonctionnement">
       <div class="how__inner">
-        <div class="how__head">
+        <div class="how__head" appLandingReveal>
           <span class="how__eyebrow">Comment ça marche</span>
           <h2 class="how__title">Trois étapes, des résultats exploitables</h2>
         </div>
         <div class="how__steps">
-          <div class="how__step how__step--first">
+          <div class="how__step how__step--first" appLandingReveal>
             <span class="how__num how__num--active t-mono">01</span>
             <span class="how__step-title">Choisissez votre séance</span>
             <span class="how__step-text"
@@ -19,7 +21,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
               entraînement ciblé sur l'axe de votre choix.</span
             >
           </div>
-          <div class="how__step">
+          <div class="how__step" appLandingReveal="0.1s">
             <span class="how__num t-mono">02</span>
             <span class="how__step-title"
               >Passez l'épreuve en conditions réelles</span
@@ -29,7 +31,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
               de la sélection, jusqu'à la pression du temps.</span
             >
           </div>
-          <div class="how__step">
+          <div class="how__step" appLandingReveal="0.1s">
             <span class="how__num t-mono">03</span>
             <span class="how__step-title">Analysez, corrigez, progressez</span>
             <span class="how__step-text"

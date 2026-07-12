@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-differentiator',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="diff">
       <div class="diff__panel">
         <div class="diff__glow" aria-hidden="true"></div>
-        <div class="diff__content">
+        <div class="diff__content" appLandingReveal>
           <span class="diff__badge">
             <svg
               width="14"

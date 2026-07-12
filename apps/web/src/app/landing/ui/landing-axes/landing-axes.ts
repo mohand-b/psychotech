@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 interface LandingAxis {
   name: string;
@@ -87,10 +88,11 @@ const LANDING_AXES: LandingAxis[] = [
 @Component({
   selector: 'app-landing-axes',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="axes" id="axes">
       <div class="axes__inner">
-        <div class="axes__head">
+        <div class="axes__head" appLandingReveal>
           <div class="axes__head-copy">
             <span class="axes__eyebrow axes__eyebrow--desktop"
               >Les axes d'entraînement disponibles</span
@@ -112,7 +114,7 @@ const LANDING_AXES: LandingAxis[] = [
         </div>
         <div class="axes__list">
           @for (axis of axes; track axis.name) {
-            <div class="axes__row">
+            <div class="axes__row" appLandingReveal>
               <span
                 class="axes__row-icon"
                 [style.border-bottom-color]="axis.plainVar"

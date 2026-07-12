@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-scoring',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="scoring">
       <div class="scoring__inner">
-        <div class="scoring__head">
+        <div class="scoring__head" appLandingReveal>
           <div class="scoring__head-copy">
             <span class="scoring__eyebrow">Le scoring</span>
             <h2 class="scoring__title">
@@ -18,7 +20,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
             est construit comme celui d'une vraie sélection.
           </p>
         </div>
-        <div class="scoring__grid">
+        <div class="scoring__grid" appLandingReveal="0.1s">
           <div class="scoring__item">
             <svg
               width="21"

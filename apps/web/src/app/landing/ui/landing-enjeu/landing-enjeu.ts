@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-enjeu',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="enjeu">
       <div class="enjeu__grid">
-        <div class="enjeu__head">
+        <div class="enjeu__head" appLandingReveal>
           <span class="enjeu__eyebrow">L'enjeu</span>
           <h2 class="enjeu__title enjeu__title--desktop">
             Les tests psychotechniques sont la première étape éliminatoire.
@@ -15,7 +17,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
             La première étape éliminatoire. On ne s'y improvise pas.
           </h2>
         </div>
-        <div class="enjeu__copy">
+        <div class="enjeu__copy" appLandingReveal="0.12s">
           <p class="enjeu__text enjeu__text--desktop">
             Dans une sélection professionnelle, l'épreuve psychotechnique
             élimine souvent avant même l'entretien. Un score sous le seuil, un

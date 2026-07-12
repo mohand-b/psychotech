@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-platform',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="platform">
       <div class="platform__inner">
-        <div class="platform__head">
+        <div class="platform__head" appLandingReveal>
           <span class="platform__eyebrow platform__eyebrow--desktop"
             >La plateforme</span
           >
@@ -20,7 +22,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
             Tout ce qu'il faut pour arriver prêt
           </h2>
         </div>
-        <div class="platform__grid">
+        <div class="platform__grid" appLandingReveal="0.1s">
           <div class="platform__item">
             <svg
               class="platform__icon"

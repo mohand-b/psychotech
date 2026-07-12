@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { LandingReveal } from '../landing-reveal.directive';
 
 interface FaqEntry {
   question: string;
@@ -54,10 +55,11 @@ const MOBILE_FAQ: FaqEntry[] = [
 @Component({
   selector: 'app-landing-faq',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [LandingReveal],
   template: `
     <section class="faq" id="faq">
       <div class="faq__inner">
-        <div class="faq__head">
+        <div class="faq__head" appLandingReveal>
           <span class="faq__eyebrow">Questions fréquentes</span>
           <h2 class="faq__title faq__title--desktop">
             Tout ce qu'il faut savoir avant de commencer
@@ -66,7 +68,7 @@ const MOBILE_FAQ: FaqEntry[] = [
         </div>
         <div class="faq__list">
           @for (entry of desktopFaq; track entry.question) {
-            <div class="faq__row">
+            <div class="faq__row" appLandingReveal>
               <span class="faq__question">{{ entry.question }}</span>
               <span class="faq__answer">{{ entry.answer }}</span>
             </div>
