@@ -262,7 +262,7 @@
 }
 
 .duo__panel--open {
-  width: 440px;
+  width: 480px;
   opacity: 1;
 }
 
@@ -275,7 +275,7 @@
 }
 
 .duo__panel-inner {
-  width: 440px;
+  width: 480px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -489,7 +489,7 @@
 
 .duo__axis-bar {
   position: relative;
-  width: 56px;
+  width: 80px;
   height: 5px;
   border-radius: 3px;
   background: var(--surface-muted);
