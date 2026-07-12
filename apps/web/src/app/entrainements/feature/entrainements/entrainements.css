@@ -489,7 +489,7 @@
 
 .duo__axis-bar {
   position: relative;
-  width: 48px;
+  width: 56px;
   height: 5px;
   border-radius: 3px;
   background: var(--surface-muted);
@@ -516,7 +516,7 @@
   width: 8px;
   height: 2px;
   border-radius: 1px;
-  background: var(--surface-muted);
+  background: var(--label);
   vertical-align: middle;
 }
 
