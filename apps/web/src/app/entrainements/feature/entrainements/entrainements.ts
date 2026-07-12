@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  afterNextRender,
   computed,
   inject,
   linkedSignal,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -115,8 +117,13 @@ export class Entrainements {
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
   protected readonly sectorLabel = SECTOR_LABELS[this.sector];
 
+  protected readonly animationsReady = signal(false);
+
   constructor() {
     this.facade.load(this.sector);
+    afterNextRender(() => {
+      requestAnimationFrame(() => this.animationsReady.set(true));
+    });
   }
 
   protected readonly axisRows = computed<AxisRowView[]>(() => {

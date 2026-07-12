@@ -19,7 +19,7 @@
     </span>
   </div>
 
-  <section class="duo">
+  <section class="duo" [class.duo--animate]="animationsReady()">
     <div
       class="duo__pitch"
       [class.duo__pitch--closed]="panel() !== 'sim'"
