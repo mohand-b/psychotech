@@ -61,6 +61,22 @@
   transition: background 0.3s ease;
 }
 
+.duo > .duo__pitch:first-child {
+  border-bottom: 3px solid var(--brand);
+}
+
+.duo > .duo__pitch:last-child {
+  border-bottom: 3px solid var(--secondary-dark);
+}
+
+.duo__panel:has(.duo__panel-inner--sim) {
+  border-bottom: 3px solid var(--brand);
+}
+
+.duo__panel:has(.duo__panel-inner--cible) {
+  border-bottom: 3px solid var(--secondary-dark);
+}
+
 .duo__pitch--closed {
   cursor: pointer;
   background: #fcfcfd;
