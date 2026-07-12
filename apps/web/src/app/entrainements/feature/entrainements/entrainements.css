@@ -511,8 +511,13 @@
   color: var(--ink);
 }
 
-.duo__axis-value--empty {
-  color: var(--label);
+.duo__axis-dash {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-muted);
+  vertical-align: middle;
 }
 
 .duo__axis-chevron {
@@ -722,10 +727,6 @@
   font-weight: 600;
   flex-shrink: 0;
   color: var(--ink);
-}
-
-.trainm__axis-value--empty {
-  color: var(--label);
 }
 
 .trainm__note {

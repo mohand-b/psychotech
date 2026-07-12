@@ -161,23 +161,19 @@ describe('Entrainements', () => {
     ).toBe(true);
   });
 
-  it('renders a never-played axis with an empty bar and a muted dash', async () => {
+  it('renders a never-played axis with an empty bar and a grey dash', async () => {
     const { fixture } = await setup(buildOverview());
     const rows = [...fixture.nativeElement.querySelectorAll('.duo__axis')];
     const motorRow = rows[4];
     const fill = motorRow.querySelector('.duo__axis-fill') as HTMLElement;
-    const value = motorRow.querySelector('.duo__axis-value') as HTMLElement;
     expect(fill.style.width).toBe('0%');
-    expect(value.textContent.trim()).toBe('-');
-    expect(value.classList.contains('duo__axis-value--empty')).toBe(true);
+    expect(motorRow.querySelector('.duo__axis-dash')).not.toBeNull();
     expect(motorRow.textContent).not.toContain('Jamais joué');
   });
 
   it('shows the first-time empty state without a completed simulation', async () => {
     const { fixture } = await setup(buildOverview({ lastSimulation: null }));
-    expect(fixture.nativeElement.textContent).toContain(
-      "Aucune simulation pour l'instant",
-    );
+    expect(fixture.nativeElement.textContent).toContain('Pas encore de bilan');
     expect(fixture.nativeElement.textContent).toContain(
       "Votre bilan s'affichera ici après votre première simulation complète",
     );

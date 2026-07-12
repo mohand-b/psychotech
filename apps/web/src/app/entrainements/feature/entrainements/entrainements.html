@@ -117,7 +117,7 @@
             <span>Une courte pause sépare chaque axe pendant la session.</span>
           </span>
         } @else if (overviewLoaded()) {
-          <span class="duo__empty-title">Aucune simulation pour l'instant</span>
+          <span class="duo__empty-title">Pas encore de bilan</span>
           <span class="duo__empty-hint"
             >Votre bilan s'affichera ici après votre première simulation
             complète, avec votre score, l'avis d'admissibilité et votre
@@ -158,11 +158,13 @@
                   [style.width.%]="row.barWidth"
                 ></span>
               </span>
-              <span
-                class="duo__axis-value t-mono"
-                [class.duo__axis-value--empty]="row.neverPlayed"
-                >{{ row.scoreLabel }}</span
-              >
+              @if (row.neverPlayed) {
+                <span class="duo__axis-value"
+                  ><span class="duo__axis-dash"></span
+                ></span>
+              } @else {
+                <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+              }
             </span>
             <ui-icon
               class="duo__axis-chevron"
@@ -330,11 +332,15 @@
                   [style.width.%]="row.barWidth"
                 ></span>
               </span>
-              <span
-                class="trainm__axis-value t-mono"
-                [class.trainm__axis-value--empty]="row.neverPlayed"
-                >{{ row.scoreLabel }}</span
-              >
+              @if (row.neverPlayed) {
+                <span class="trainm__axis-value"
+                  ><span class="duo__axis-dash"></span
+                ></span>
+              } @else {
+                <span class="trainm__axis-value t-mono">{{
+                  row.scoreLabel
+                }}</span>
+              }
             </span>
           </a>
         }
