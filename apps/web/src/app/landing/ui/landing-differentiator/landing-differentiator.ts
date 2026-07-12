@@ -10,24 +10,6 @@ import { LandingReveal } from '../landing-reveal.directive';
       <div class="diff__panel">
         <div class="diff__glow" aria-hidden="true"></div>
         <div class="diff__content" appLandingReveal>
-          <span class="diff__badge">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--secondary)"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-              <path d="M21 3v5h-5"></path>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-              <path d="M3 21v-5h5"></path>
-            </svg>
-            <span>Le différenciateur</span>
-          </span>
           <h2 class="diff__title">Des exercices renouvelés à chaque session</h2>
           <p class="diff__text diff__text--desktop">
             Impossible d'apprendre les réponses par cœur&nbsp;: chaque session
@@ -138,16 +120,6 @@ import { LandingReveal } from '../landing-reveal.directive';
       align-items: center;
       gap: 24px;
       text-align: center;
-    }
-    .diff__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid rgba(95, 206, 90, 0.35);
-      border-radius: 999px;
-      padding: 6px 13px;
-      font: 600 12px/16px var(--landing-font-ui);
-      color: var(--secondary);
     }
     .diff__title {
       font: 600 46px/1.08 var(--landing-font-display);
