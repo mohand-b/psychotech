@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  height: 68px;
+  height: 64px;
   padding: 0 32px;
   background: transparent;
   border-bottom: 1px solid transparent;
@@ -29,8 +29,7 @@
 }
 
 .header__logo {
-  font: 600 19px/1 var(--landing-font-display);
-  letter-spacing: -0.02em;
+  font: 700 22px/1 var(--font-display);
   color: var(--landing-text);
   text-decoration: none;
 }
