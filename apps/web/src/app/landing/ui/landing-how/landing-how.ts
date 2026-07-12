@@ -78,6 +78,7 @@ import { LandingReveal } from '../landing-reveal.directive';
     .how {
       background: var(--card);
       border-top: 1px solid var(--border);
+      scroll-margin-top: calc(64px + env(safe-area-inset-top));
     }
     .how__inner {
       max-width: 1160px;

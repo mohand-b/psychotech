@@ -188,6 +188,7 @@ const LANDING_AXES: LandingAxis[] = [
     .axes {
       background: var(--card);
       border-top: 1px solid var(--border);
+      scroll-margin-top: calc(64px + env(safe-area-inset-top));
     }
     .axes__inner {
       max-width: 1160px;

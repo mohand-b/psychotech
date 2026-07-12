@@ -92,6 +92,7 @@ const MOBILE_FAQ: FaqEntry[] = [
   styles: `
     .faq {
       background: var(--card);
+      scroll-margin-top: calc(64px + env(safe-area-inset-top));
     }
     .faq__inner {
       max-width: 820px;

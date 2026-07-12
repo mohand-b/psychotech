@@ -113,6 +113,16 @@ html:has(body.landing-active) {
   background: #0c0a16;
 }
 
+html:has(body.landing-active) {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(body.landing-active) {
+    scroll-behavior: auto;
+  }
+}
+
 .page-shell {
   display: flex;
   flex-direction: column;
