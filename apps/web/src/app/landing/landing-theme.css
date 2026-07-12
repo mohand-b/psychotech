@@ -10,6 +10,7 @@
   --landing-border: rgba(255, 255, 255, 0.12);
   --landing-border-strong: rgba(255, 255, 255, 0.18);
   --landing-glass: rgba(12, 10, 22, 0.72);
+  --landing-accent-soft: #9b82ff;
   --landing-font-display: 'Space Grotesk', sans-serif;
   --landing-font-ui: 'Inter', sans-serif;
 }

@@ -8,13 +8,36 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { LandingAxes } from '../../ui/landing-axes/landing-axes';
+import { LandingCta } from '../../ui/landing-cta/landing-cta';
+import { LandingDifferentiator } from '../../ui/landing-differentiator/landing-differentiator';
+import { LandingEnjeu } from '../../ui/landing-enjeu/landing-enjeu';
+import { LandingFaq } from '../../ui/landing-faq/landing-faq';
+import { LandingFooter } from '../../ui/landing-footer/landing-footer';
 import { LandingHeader } from '../../ui/landing-header/landing-header';
 import { LandingHero } from '../../ui/landing-hero/landing-hero';
+import { LandingHow } from '../../ui/landing-how/landing-how';
+import { LandingPlatform } from '../../ui/landing-platform/landing-platform';
+import { LandingPricing } from '../../ui/landing-pricing/landing-pricing';
+import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
 
 @Component({
   selector: 'app-landing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LandingHeader, LandingHero],
+  imports: [
+    LandingAxes,
+    LandingCta,
+    LandingDifferentiator,
+    LandingEnjeu,
+    LandingFaq,
+    LandingFooter,
+    LandingHeader,
+    LandingHero,
+    LandingHow,
+    LandingPlatform,
+    LandingPricing,
+    LandingScoring,
+  ],
   templateUrl: './landing.html',
   styleUrls: ['./landing.css', '../../landing-theme.css'],
 })
