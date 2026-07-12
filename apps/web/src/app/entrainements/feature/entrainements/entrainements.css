@@ -48,7 +48,6 @@
   overflow: hidden;
   display: flex;
   align-items: stretch;
-  min-height: 480px;
 }
 
 .duo__pitch {
