@@ -92,7 +92,7 @@ export class Entrainements {
 
   protected readonly targetedFeatures = [
     '1 axe au choix, parmi les cinq',
-    'Sessions courtes (3–5 min), retour immédiat',
+    'Sessions courtes, retour immédiat',
     'Idéal pour cibler un point faible',
     "Options d'entraînement selon l'axe",
   ];
