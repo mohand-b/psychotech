@@ -268,7 +268,7 @@
 }
 
 .duo__panel--open {
-  width: 480px;
+  width: 464px;
   opacity: 1;
 }
 
@@ -281,7 +281,7 @@
 }
 
 .duo__panel-inner {
-  width: 480px;
+  width: 464px;
   height: 100%;
   display: flex;
   flex-direction: column;
