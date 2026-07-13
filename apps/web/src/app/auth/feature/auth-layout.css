@@ -11,9 +11,9 @@
 }
 
 .auth__bar-inner {
-  max-width: 1280px;
+  max-width: 1152px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 24px;
   height: 64px;
   display: flex;
   align-items: center;
