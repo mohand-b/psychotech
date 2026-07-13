@@ -58,6 +58,12 @@ const SEGMENT_COLORS = [
       display: flex;
       align-items: center;
       gap: 10px;
+      padding: 0 var(--radius-input);
+    }
+    @media (min-width: 768px) {
+      .meter {
+        padding: 0 12px;
+      }
     }
     .meter__track {
       display: flex;
