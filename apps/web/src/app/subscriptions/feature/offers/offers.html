@@ -1,0 +1,513 @@
+<section class="page-shell offers">
+  <div class="offers__intro">
+    <div class="offers__head">
+      <h1 class="offers__title">Choisissez votre rythme de préparation</h1>
+      <p class="offers__subtitle offers__subtitle--desktop">
+        Trois offres pour préparer les sélections du secteur ferroviaire, du
+        premier contact à la préparation intensive.
+      </p>
+      <p class="offers__subtitle offers__subtitle--mobile">
+        Trois offres, sans engagement, annulables à tout moment.
+      </p>
+    </div>
+
+    <div class="offd">
+      <section class="offd__card">
+        @if (isFreeCurrent()) {
+        <span class="offd__current-badge">Votre formule actuelle</span>
+        }
+        <div class="offd__card-head">
+          <span class="offd__plan">Découverte</span>
+          <span class="offd__price-row">
+            <span class="offd__price">Gratuit</span>
+          </span>
+          <span class="offd__card-desc"
+            >Pour découvrir les épreuves, sans engagement.</span
+          >
+        </div>
+        <div class="offd__features">
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Mode tutoriel des 5 axes
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Score indicatif en fin de tutoriel
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Aucune carte bancaire requise
+          </span>
+          <span class="offd__feature offd__feature--off">
+            <ui-icon class="offd__feature-dash" [img]="dashIcon" [size]="16" />
+            Score non enregistré dans la progression
+          </span>
+        </div>
+        @if (isFreeCurrent()) {
+        <span class="offers__current-pill">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          appearance="outlined"
+          color="brand"
+          [block]="true"
+          (click)="choosePlanProvisional(tiers.FREE)"
+        >
+          Passer en Découverte
+        </ui-button>
+        }
+      </section>
+
+      <section class="offd__card">
+        @if (isEssentialCurrent()) {
+        <span class="offd__current-badge">Votre formule actuelle</span>
+        }
+        <div class="offd__card-head">
+          <span class="offd__plan">Essentiel</span>
+          <span class="offd__price-row">
+            <span class="offd__price">9,99&nbsp;€</span>
+            <span class="offd__price-period">/mois</span>
+          </span>
+          <span class="offd__card-desc"
+            >Sans engagement, annulable à tout moment</span
+          >
+        </div>
+        <div class="offd__features">
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            <span
+              ><span class="offd__feature-strong">5 énergies par jour</span> -
+              simulation complète (5) ou axes ciblés (1 chacun)</span
+            >
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Résultats détaillés et recommandations
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Suivi de progression
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Énergie rechargée chaque jour à minuit
+          </span>
+        </div>
+        @if (isEssentialCurrent()) {
+        <span class="offers__current-pill">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          appearance="outlined"
+          color="brand"
+          [block]="true"
+          (click)="choosePlanProvisional(tiers.ESSENTIAL)"
+        >
+          Choisir Essentiel
+        </ui-button>
+        }
+      </section>
+
+      <section class="offd__card offd__card--featured">
+        <span class="offd__featured-badge">{{ unlimitedBadge() }}</span>
+        <div class="offd__card-head">
+          <span class="offd__plan offd__plan--featured">Illimité</span>
+          <span class="offd__price-row">
+            <span class="offd__price">19,99&nbsp;€</span>
+            <span class="offd__price-period">/mois</span>
+          </span>
+          <span class="offd__card-desc"
+            >Sans engagement, annulable à tout moment</span
+          >
+        </div>
+        <div class="offd__features">
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            <span
+              ><span class="offd__feature-strong"
+                >Sessions complètes illimitées</span
+              ></span
+            >
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            <span
+              ><span class="offd__feature-strong"
+                >Entraînements ciblés illimités</span
+              >
+              sur les 5 axes</span
+            >
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Résultats détaillés et recommandations
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Suivi de progression
+          </span>
+          <span class="offd__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="16"
+              [strokeWidth]="2.5"
+            />
+            Énergie illimitée - entraînez-vous à votre rythme
+          </span>
+        </div>
+        @if (isUnlimitedCurrent()) {
+        <span class="offers__current-pill offers__current-pill--featured">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          color="brand"
+          [block]="true"
+          [iconEnd]="arrowIcon"
+          (click)="choosePlanProvisional(tiers.UNLIMITED)"
+        >
+          Passer à l'Illimité
+        </ui-button>
+        }
+      </section>
+    </div>
+
+    <div class="offm">
+      <section class="offm__card offm__card--featured">
+        <span class="offd__featured-badge">{{ unlimitedBadge() }}</span>
+        <div class="offm__card-head">
+          <span class="offd__plan offd__plan--featured">Illimité</span>
+          <span class="offm__price-row">
+            <span class="offm__price">19,99&nbsp;€</span>
+            <span class="offm__price-period">/mois</span>
+          </span>
+        </div>
+        <div class="offm__features">
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            <span class="offd__feature-strong">Sessions et axes illimités</span>
+          </span>
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Exercices renouvelés à chaque session
+          </span>
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check offd__feature-check--featured"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Résultats détaillés et suivi de progression
+          </span>
+        </div>
+        @if (isUnlimitedCurrent()) {
+        <span class="offers__current-pill offers__current-pill--featured">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          color="brand"
+          size="lg"
+          [block]="true"
+          [iconEnd]="arrowIcon"
+          (click)="choosePlanProvisional(tiers.UNLIMITED)"
+        >
+          Passer à l'Illimité
+        </ui-button>
+        }
+      </section>
+
+      <section class="offm__card">
+        @if (isEssentialCurrent()) {
+        <span class="offd__current-badge">Votre formule actuelle</span>
+        }
+        <div class="offm__card-head">
+          <span class="offd__plan">Essentiel</span>
+          <span class="offm__price-row">
+            <span class="offm__price">9,99&nbsp;€</span>
+            <span class="offm__price-period">/mois</span>
+          </span>
+        </div>
+        <div class="offm__features">
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            <span
+              ><span class="offd__feature-strong">5 énergies par jour</span> -
+              simulation (5) ou axe (1)</span
+            >
+          </span>
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Exercices renouvelés, résultats détaillés, progression
+          </span>
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Énergie rechargée chaque jour à minuit
+          </span>
+        </div>
+        @if (isEssentialCurrent()) {
+        <span class="offers__current-pill">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          appearance="outlined"
+          color="brand"
+          size="lg"
+          [block]="true"
+          (click)="choosePlanProvisional(tiers.ESSENTIAL)"
+        >
+          Choisir Essentiel
+        </ui-button>
+        }
+      </section>
+
+      <section class="offm__card">
+        @if (isFreeCurrent()) {
+        <span class="offd__current-badge">Votre formule actuelle</span>
+        }
+        <div class="offm__card-head">
+          <span class="offd__plan">Découverte</span>
+          <span class="offm__price">Gratuit</span>
+        </div>
+        <div class="offm__features">
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Mode tutoriel des 5 axes, score indicatif
+          </span>
+          <span class="offm__feature">
+            <ui-icon
+              class="offd__feature-check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            Aucune carte bancaire requise
+          </span>
+          <span class="offm__feature offd__feature--off">
+            <ui-icon class="offd__feature-dash" [img]="dashIcon" [size]="14" />
+            Score non enregistré dans la progression
+          </span>
+        </div>
+        @if (isFreeCurrent()) {
+        <span class="offers__current-pill">
+          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+          Formule actuelle
+        </span>
+        } @else {
+        <ui-button
+          appearance="outlined"
+          color="brand"
+          size="lg"
+          [block]="true"
+          (click)="choosePlanProvisional(tiers.FREE)"
+        >
+          Commencer
+        </ui-button>
+        }
+      </section>
+    </div>
+  </div>
+
+  <section class="cmp">
+    <div class="cmp__row cmp__row--head">
+      <span class="cmp__label-head cmp__label-head--desktop"
+        >Comparatif détaillé</span
+      >
+      <span class="cmp__label-head cmp__label-head--mobile">Comparatif</span>
+      <span class="cmp__col cmp__col--desktop">Découverte</span>
+      <span class="cmp__col cmp__col--mobile">Découv.</span>
+      <span class="cmp__col cmp__col--desktop">Essentiel</span>
+      <span class="cmp__col cmp__col--mobile">Essent.</span>
+      <span class="cmp__col cmp__col--featured">Illimité</span>
+    </div>
+    @for (row of compareRows; track row.label) {
+    <div class="cmp__row">
+      <span class="cmp__label cmp__label--desktop">{{ row.label }}</span>
+      <span class="cmp__label cmp__label--mobile">{{ row.mobileLabel }}</span>
+      @for (cell of row.desktop; track $index; let column = $index) {
+      <span class="cmp__cell cmp__cell--desktop">
+        @if (cell.kind === 'check') {
+        <ui-icon
+          class="offd__feature-check"
+          [class.offd__feature-check--featured]="column === 2"
+          [img]="checkIcon"
+          [size]="16"
+          [strokeWidth]="2.5"
+        />
+        } @else if (cell.kind === 'dash') {
+        <span class="cmp__dash t-mono">-</span>
+        } @else {
+        <span class="cmp__mono t-mono">{{ cell.value }}</span>
+        }
+      </span>
+      } @for (cell of row.mobile; track $index; let column = $index) {
+      <span class="cmp__cell cmp__cell--mobile">
+        @if (cell.kind === 'check') {
+        <ui-icon
+          class="offd__feature-check"
+          [class.offd__feature-check--featured]="column === 2"
+          [img]="checkIcon"
+          [size]="14"
+          [strokeWidth]="2.5"
+        />
+        } @else if (cell.kind === 'dash') {
+        <span class="cmp__dash t-mono">-</span>
+        } @else {
+        <span class="cmp__mono t-mono">{{ cell.value }}</span>
+        }
+      </span>
+      }
+    </div>
+    }
+  </section>
+
+  <section class="faq">
+    <span class="faq__label">Questions fréquentes</span>
+    <div class="faq__card">
+      <span class="faq__question"
+        >Puis-je changer d'offre à tout moment&nbsp;?</span
+      >
+      <span class="faq__answer faq__answer--desktop"
+        >Oui. Le changement est immédiat à la hausse&nbsp;; à la baisse, il
+        prend effet à la fin de la période en cours. Votre progression est
+        conservée dans tous les cas.</span
+      >
+      <span class="faq__answer faq__answer--mobile"
+        >Oui. Immédiat à la hausse&nbsp;; à la baisse, à la fin de la période en
+        cours. Votre progression est conservée.</span
+      >
+    </div>
+    <div class="faq__card">
+      <span class="faq__question">Que se passe-t-il à minuit&nbsp;?</span>
+      <span class="faq__answer faq__answer--desktop"
+        >Vos <span class="faq__strong">5 énergies sont rechargées</span> à
+        <span class="faq__mono t-mono">00:00</span> (heure de Paris), quel que
+        soit votre usage de la veille.</span
+      >
+      <span class="faq__answer faq__answer--mobile"
+        >Vos 5 énergies sont rechargées à
+        <span class="faq__mono t-mono">00:00</span>, quel que soit votre usage
+        de la veille.</span
+      >
+    </div>
+    <div class="faq__card">
+      <span class="faq__question">Les exercices se répètent-ils&nbsp;?</span>
+      <span class="faq__answer faq__answer--desktop"
+        >Non&nbsp;: chaque session est inédite, impossible d'apprendre les
+        réponses par cœur. Vous entraînez la compétence évaluée le jour de la
+        sélection, pas la mémorisation d'une série d'items.</span
+      >
+      <span class="faq__answer faq__answer--mobile"
+        >Non&nbsp;: chaque session est inédite, impossible d'apprendre les
+        réponses par cœur.</span
+      >
+    </div>
+    <div class="faq__card">
+      <span class="faq__question">Puis-je annuler&nbsp;?</span>
+      <span class="faq__answer faq__answer--desktop"
+        >À tout moment, en deux clics depuis votre compte. Vous conservez
+        l'accès jusqu'à la fin de la période payée, puis votre compte repasse en
+        offre Découverte - rien n'est supprimé.</span
+      >
+      <span class="faq__answer faq__answer--mobile"
+        >À tout moment. Vous gardez l'accès jusqu'à la fin de la période payée,
+        puis repassez en Découverte.</span
+      >
+    </div>
+  </section>
+</section>
