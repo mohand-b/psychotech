@@ -1,200 +1,245 @@
-@if (step() === 1) {
-<div class="auth__panel register__panel--sector">
-  <div class="register__head">
+@if (sectorOptions().length > 0) {
+  <div
+    class="auth__panel register__panel"
+    [class.register__panel--wide]="step() === 1"
+  >
     <div class="register__progress">
       <span class="register__progress-bar register__progress-bar--done"></span>
-      <span class="register__progress-bar"></span>
-      <span class="register__progress-step t-mono">1/2</span>
+      <span
+        class="register__progress-bar"
+        [class.register__progress-bar--done]="step() === 2"
+      ></span>
+      <span class="register__progress-step t-mono">{{ step() }}/2</span>
     </div>
-    <h1 class="auth__title">Que préparez-vous&nbsp;?</h1>
-    <p class="auth__subtitle">
-      Votre secteur détermine les axes d'entraînement, les barèmes et le seuil
-      d'admissibilité de vos épreuves.
-    </p>
-  </div>
 
-  <div class="register__sectors">
-    @for (option of activeSectors(); track option.value) {
-    <button
-      type="button"
-      class="register__sector"
-      [class.register__sector--picked]="sector() === option.value"
-      (click)="sector.set(option.value)"
-    >
-      <span class="register__sector-tile">
-        <ui-icon [img]="sectorIcon(option.value)" [size]="21" />
-      </span>
-      <span class="register__sector-copy">
-        <span class="register__sector-name">{{ option.label }}</span>
-        <span class="register__sector-desc"
-          >5 axes d'entraînement, scoring calibré<span
-            class="register__sector-desc-tail"
-          >
-            sur les sélections du secteur</span
-          ></span
-        >
-      </span>
-      @if (sector() === option.value) {
-      <span class="register__sector-radio register__sector-radio--on">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#ffffff"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </span>
+    <div class="register__viewport">
+      @if (step() === 1) {
+        <div class="register__step register__step--sector">
+          <div class="register__head">
+            <h1 class="auth__title">Que préparez-vous&nbsp;?</h1>
+            <p class="auth__subtitle">
+              Votre secteur détermine les axes d'entraînement, les barèmes et
+              le seuil d'admissibilité de vos épreuves.
+            </p>
+          </div>
+
+          <div class="register__sectors">
+            @for (option of activeSectors(); track option.value) {
+              <button
+                type="button"
+                class="register__sector"
+                [class.register__sector--picked]="sector() === option.value"
+                (click)="sector.set(option.value)"
+              >
+                <span class="register__sector-tile">
+                  <ui-icon [img]="sectorIcon(option.value)" [size]="21" />
+                </span>
+                <span class="register__sector-copy">
+                  <span class="register__sector-name">{{ option.label }}</span>
+                  <span class="register__sector-desc"
+                    >5 axes d'entraînement, scoring calibré<span
+                      class="register__sector-desc-tail"
+                    >
+                      sur les sélections du secteur</span
+                    ></span
+                  >
+                </span>
+                @if (sector() === option.value) {
+                  <span
+                    class="register__sector-radio register__sector-radio--on"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#ffffff"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                } @else {
+                  <span class="register__sector-radio"></span>
+                }
+              </button>
+            }
+            <div class="register__soon">
+              @for (option of comingSectors(); track option.value) {
+                <div class="register__soon-card" title="En préparation">
+                  <span class="register__soon-tile">
+                    <ui-icon [img]="sectorIcon(option.value)" [size]="18" />
+                  </span>
+                  <span class="register__soon-copy">
+                    <span class="register__soon-name">{{ option.label }}</span>
+                    <span class="register__soon-badge">Bientôt</span>
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="register__step-foot">
+            <div class="auth__actions">
+              <ui-button
+                color="brand"
+                size="lg"
+                [block]="true"
+                [iconEnd]="arrowIcon"
+                [relief]="'mobile'"
+                [disabled]="!sector()"
+                (click)="step.set(2)"
+              >
+                Continuer
+              </ui-button>
+            </div>
+            <span class="register__note"
+              >Modifiable plus tard dans vos réglages.</span
+            >
+            <div class="auth__footer">
+              <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>
+              <a routerLink="/login" class="auth__footer-link">Se connecter</a>
+            </div>
+          </div>
+        </div>
       } @else {
-      <span class="register__sector-radio"></span>
+        <div class="register__step register__step--form">
+          <div class="register__head">
+            <h1 class="auth__title">Créer un compte</h1>
+            <p class="auth__subtitle">
+              Quelques secondes suffisent pour démarrer.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="register__sector-chip"
+            (click)="step.set(1)"
+          >
+            <ui-icon [img]="sectorIcon(sector())" [size]="15" />
+            <span class="register__sector-chip-label"
+              >Secteur&nbsp;: {{ sectorLabel() }}</span
+            >
+            <span class="register__sector-chip-edit">Modifier</span>
+          </button>
+
+          <div class="auth__fields register__fields">
+            <div class="register__names">
+              <ui-form-field
+                label="Nom"
+                placeholder="Votre nom"
+                [(value)]="lastName"
+                [error]="lastNameError()"
+              />
+              <ui-form-field
+                label="Prénom"
+                placeholder="Votre prénom"
+                [(value)]="firstName"
+                [error]="firstNameError()"
+              />
+            </div>
+            <ui-form-field
+              label="Email"
+              type="email"
+              placeholder="vous@exemple.fr"
+              [(value)]="email"
+              [error]="emailError()"
+            />
+            <div class="register__password">
+              <ui-password-field
+                label="Mot de passe"
+                placeholder="8 caractères minimum"
+                [(value)]="password"
+                [error]="passwordError()"
+              />
+              <ui-password-strength-meter [value]="password()" />
+            </div>
+            <ui-password-field
+              label="Confirmer le mot de passe"
+              placeholder="Votre mot de passe"
+              [(value)]="confirmation"
+              [valid]="confirmationValid()"
+              [error]="confirmationError()"
+            />
+            <span class="register__cgu">
+              <button
+                type="button"
+                class="register__cgu-box"
+                [class.register__cgu-box--on]="cgu()"
+                role="checkbox"
+                [attr.aria-checked]="cgu()"
+                (click)="cgu.set(!cgu())"
+              >
+                @if (cgu()) {
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#ffffff"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                }
+              </button>
+              <span class="register__cgu-text"
+                >J'accepte les
+                <span class="register__cgu-link">conditions d'utilisation</span
+                ><span class="register__cgu-privacy">
+                  et la politique de confidentialité.</span
+                ></span
+              >
+            </span>
+          </div>
+
+          <div class="auth__actions">
+            <ui-button
+              color="brand"
+              size="lg"
+              [block]="true"
+              [iconEnd]="arrowIcon"
+              [relief]="'mobile'"
+              [loading]="pending()"
+              (click)="submit()"
+            >
+              Créer mon compte
+            </ui-button>
+            @if (serverError(); as message) {
+              <span class="auth__server-error" role="alert">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" x2="12" y1="8" y2="12"></line>
+                  <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                {{ message }}
+              </span>
+            }
+          </div>
+
+          <div class="auth__footer">
+            <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>
+            <a routerLink="/login" class="auth__footer-link">Se connecter</a>
+          </div>
+        </div>
       }
-    </button>
-    }
-    <div class="register__soon">
-      @for (option of comingSectors(); track option.value) {
-      <div class="register__soon-card" title="En préparation">
-        <span class="register__soon-tile">
-          <ui-icon [img]="sectorIcon(option.value)" [size]="18" />
-        </span>
-        <span class="register__soon-copy">
-          <span class="register__soon-name">{{ option.label }}</span>
-          <span class="register__soon-badge">Bientôt</span>
-        </span>
-      </div>
-      }
     </div>
   </div>
-
-  <div class="register__step-foot">
-    <div class="auth__actions">
-      <ui-button
-        color="brand"
-        size="lg"
-        [block]="true"
-        [iconEnd]="arrowIcon"
-        [relief]="'mobile'"
-        [disabled]="!sector()"
-        (click)="step.set(2)"
-      >
-        Continuer
-      </ui-button>
-    </div>
-    <span class="register__note">Modifiable plus tard dans vos réglages.</span>
-    <div class="auth__footer">
-      <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>
-      <a routerLink="/login" class="auth__footer-link">Se connecter</a>
-    </div>
-  </div>
-</div>
-} @else {
-<div class="auth__panel register__panel--form">
-  <div class="register__head">
-    <div class="register__progress">
-      <span class="register__progress-bar register__progress-bar--done"></span>
-      <span class="register__progress-bar register__progress-bar--done"></span>
-      <span class="register__progress-step t-mono">2/2</span>
-    </div>
-    <h1 class="auth__title">Créer un compte</h1>
-    <p class="auth__subtitle">Quelques secondes suffisent pour démarrer.</p>
-  </div>
-
-  <button type="button" class="register__sector-chip" (click)="step.set(1)">
-    <ui-icon [img]="sectorIcon(sector())" [size]="15" />
-    <span class="register__sector-chip-label"
-      >Secteur&nbsp;: {{ sectorLabel() }}</span
-    >
-    <span class="register__sector-chip-edit">Modifier</span>
-  </button>
-
-  <div class="auth__fields register__fields">
-    <div class="register__names">
-      <ui-form-field
-        label="Nom"
-        placeholder="Votre nom"
-        [(value)]="lastName"
-        [error]="lastNameError()"
-      />
-      <ui-form-field
-        label="Prénom"
-        placeholder="Votre prénom"
-        [(value)]="firstName"
-        [error]="firstNameError()"
-      />
-    </div>
-    <ui-form-field
-      label="Email"
-      type="email"
-      placeholder="vous@exemple.fr"
-      [(value)]="email"
-      [error]="emailError()"
-    />
-    <div class="register__password">
-      <ui-password-field
-        label="Mot de passe"
-        placeholder="8 caractères minimum"
-        [(value)]="password"
-        [error]="passwordError()"
-      />
-      <ui-password-strength-meter [value]="password()" />
-    </div>
-    <ui-password-field
-      label="Confirmer le mot de passe"
-      placeholder="Votre mot de passe"
-      [(value)]="confirmation"
-      [valid]="confirmationValid()"
-      [error]="confirmationError()"
-    />
-    <span class="register__cgu">
-      <button
-        type="button"
-        class="register__cgu-box"
-        [class.register__cgu-box--on]="cgu()"
-        role="checkbox"
-        [attr.aria-checked]="cgu()"
-        (click)="cgu.set(!cgu())"
-      >
-        @if (cgu()) {
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#ffffff"
-          stroke-width="3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        }
-      </button>
-      <span class="register__cgu-text"
-        >J'accepte les
-        <span class="register__cgu-link">conditions d'utilisation</span
-        ><span class="register__cgu-privacy">
-          et la politique de confidentialité.</span
-        ></span
-      >
-    </span>
-  </div>
-
-  <div class="auth__actions">
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [iconEnd]="arrowIcon"
-      [relief]="'mobile'"
-      [loading]="pending()"
-      (click)="submit()"
-    >
-      Créer mon compte
-    </ui-button>
-    @if (serverError(); as message) {
+} @else if (serverError(); as message) {
+  <div class="auth__panel">
     <span class="auth__server-error" role="alert">
       <svg
         width="14"
@@ -212,12 +257,5 @@
       </svg>
       {{ message }}
     </span>
-    }
   </div>
-
-  <div class="auth__footer">
-    <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>
-    <a routerLink="/login" class="auth__footer-link">Se connecter</a>
-  </div>
-</div>
 }

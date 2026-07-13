@@ -2,13 +2,57 @@
   display: contents;
 }
 
-.register__panel--sector {
+.register__panel {
+  width: 440px;
+  gap: 14px;
+  animation: none;
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.register__panel--wide {
   width: 496px;
 }
 
-.register__panel--form {
-  width: 440px;
+.register__panel > * {
+  animation: none;
+}
+
+.register__viewport {
+  overflow-x: clip;
+}
+
+.register__step {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
+  animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.register__step--sector {
+  gap: 26px;
+  animation-name: step-back;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .register__head {
@@ -28,6 +72,7 @@
   flex: 1;
   border-radius: 2px;
   background: var(--border);
+  transition: background 0.25s;
 }
 
 .register__progress-bar--done {
@@ -180,7 +225,7 @@
 }
 
 .register__step-foot .auth__footer,
-.register__panel--form .auth__footer {
+.register__step--form .auth__footer {
   padding-top: 20px;
 }
 
@@ -267,58 +312,40 @@
   cursor: pointer;
 }
 
-@keyframes step-in {
-  from {
-    opacity: 0;
-    transform: translateX(26px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes step-back {
-  from {
-    opacity: 0;
-    transform: translateX(-26px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @media (max-width: 767px) {
-  .register__panel--sector,
-  .register__panel--form {
+  .register__panel,
+  .register__panel--wide {
     width: 100%;
   }
 
-  .register__panel--sector {
-    gap: 22px;
+  .register__panel {
+    gap: 12px;
   }
 
-  .register__panel--form {
+  .register__step {
+    gap: 22px;
+    animation: none;
+  }
+
+  .register__step--form {
     gap: 20px;
   }
 
-  .register__panel--sector > *,
-  .register__panel--sector .register__step-foot > * {
-    animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .register__panel--form > *,
-  .register__panel--form .register__step-foot > * {
+  .register__step > * {
     animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .register__panel--sector .register__step-foot,
-  .register__panel--form .register__step-foot,
-  .register__panel--sector .register__step-foot > .auth__actions,
-  .register__panel--form .register__step-foot > .auth__actions,
-  .register__panel--sector > .auth__actions,
-  .register__panel--form > .auth__actions {
+  .register__step--sector > * {
+    animation-name: step-back;
+  }
+
+  .register__step--sector .register__step-foot > * {
+    animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__step > .auth__actions,
+  .register__step--sector .register__step-foot,
+  .register__step--sector .register__step-foot > .auth__actions {
     animation: none;
   }
 
@@ -416,7 +443,7 @@
   }
 
   .register__step-foot .auth__footer,
-  .register__panel--form .auth__footer {
+  .register__step--form .auth__footer {
     padding-top: 16px;
   }
 }
