@@ -595,8 +595,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid var(--divider-soft);
-  padding-top: 12px;
 }
 
 .trainm__cible {
@@ -875,8 +873,6 @@
   min-height: 44px;
   font: 600 13.5px/18px var(--font-ui);
   color: var(--label);
-  border-top: 1px solid var(--divider-soft);
-  padding-top: 12px;
 }
 
 .trainm__offer {
