@@ -50,7 +50,7 @@ import { inputValue } from '../../util/input-value';
     .ui-form-field {
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
     }
     .ui-form-field__label-row {
       display: flex;
@@ -58,8 +58,10 @@ import { inputValue } from '../../util/input-value';
       justify-content: space-between;
     }
     .ui-form-field__label {
-      font: 600 13px/18px var(--font-ui);
-      color: var(--ink);
+      font: 600 11px/14px var(--font-ui);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--label);
     }
     .ui-form-field__control {
       display: flex;
@@ -67,10 +69,10 @@ import { inputValue } from '../../util/input-value';
       gap: 10px;
       height: 50px;
       min-width: 0;
-      padding: 0 14px;
+      padding: 0 16px;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-input);
+      border-radius: 12px;
     }
     .ui-form-field__control--valid {
       border-color: var(--axis-discrimination);
@@ -107,26 +109,11 @@ import { inputValue } from '../../util/input-value';
       color: var(--axis-motor-text);
     }
     @media (max-width: 767px) {
+      .ui-form-field__control {
+        height: 52px;
+      }
       .ui-form-field__input {
         font-size: 16px;
-      }
-    }
-    @media (min-width: 768px) {
-      .ui-form-field {
-        gap: 8px;
-      }
-      .ui-form-field__label {
-        font: 600 11px/14px var(--font-ui);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--label);
-      }
-      .ui-form-field__control {
-        border-radius: 12px;
-        padding: 0 16px;
-      }
-      .ui-form-field__icon {
-        display: none;
       }
     }
   `,

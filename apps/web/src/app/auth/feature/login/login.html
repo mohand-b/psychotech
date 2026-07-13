@@ -1,11 +1,8 @@
 <div class="auth__panel">
   <div class="auth__head">
     <h1 class="auth__title">Connexion</h1>
-    <p class="auth__subtitle auth__subtitle--desktop">
+    <p class="auth__subtitle">
       Reprenez votre préparation là où vous l'avez laissée.
-    </p>
-    <p class="auth__subtitle auth__subtitle--mobile">
-      Accédez à votre espace de préparation.
     </p>
   </div>
 
@@ -14,7 +11,6 @@
       label="Email"
       type="email"
       placeholder="vous@exemple.fr"
-      [icon]="mailIcon"
       [(value)]="email"
       [error]="emailError()"
     />
@@ -23,14 +19,8 @@
       placeholder="Votre mot de passe"
       [(value)]="password"
       [error]="passwordError()"
-    >
-      <span field-label-suffix class="auth__forgot auth__forgot--mobile"
-        >Oublié&nbsp;?</span
-      >
-    </ui-password-field>
-    <span class="auth__forgot auth__forgot--desktop"
-      >Mot de passe oublié&nbsp;?</span
-    >
+    />
+    <span class="auth__forgot">Mot de passe oublié&nbsp;?</span>
   </div>
 
   <div class="auth__actions">
@@ -39,6 +29,7 @@
       size="lg"
       [block]="true"
       [iconEnd]="arrowIcon"
+      [relief]="'mobile'"
       [loading]="pending()"
       (click)="submit()"
     >
@@ -65,15 +56,8 @@
     }
   </div>
 
-  <div class="auth__footer auth__footer--desktop">
+  <div class="auth__footer">
     <span class="auth__footer-hint">Pas encore de compte&nbsp;?</span>
     <a routerLink="/register" class="auth__footer-link">Créer un compte</a>
   </div>
-
-  <div class="auth__divider">
-    <span class="auth__divider-line"></span>
-    <span class="auth__divider-label">ou</span>
-    <span class="auth__divider-line"></span>
-  </div>
-  <a routerLink="/register" class="auth__alt-cta">Créer un compte</a>
 </div>

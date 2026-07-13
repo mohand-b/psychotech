@@ -6,47 +6,6 @@
       >
     </div>
   </header>
-  <div class="auth__brand">
-    <a routerLink="/" class="auth__brand-logo"
-      >Psycho<span class="auth__brand-accent">Tech</span></a
-    >
-    <h1 class="auth__brand-title">{{ brand().title }}</h1>
-    @if (brand().deco) {
-    <svg
-      class="auth__brand-deco"
-      width="200"
-      height="150"
-      viewBox="0 0 200 150"
-      aria-hidden="true"
-    >
-      <g transform="translate(130 80)">
-        <polygon
-          points="0,-48 45.6,-14.8 28.2,38.8 -28.2,38.8 -45.6,-14.8"
-          fill="none"
-          stroke="#333b4a"
-          stroke-width="1.2"
-        ></polygon>
-        <polygon
-          points="0,-38 33,-11 22,30 -20,28 -37,-10"
-          fill="rgba(124,92,252,0.20)"
-          stroke="var(--brand)"
-          stroke-width="2"
-          stroke-linejoin="round"
-        ></polygon>
-        <circle cx="0" cy="-38" r="3" fill="var(--axis-logic)"></circle>
-        <circle cx="33" cy="-11" r="3" fill="var(--axis-memory)"></circle>
-        <circle
-          cx="22"
-          cy="30"
-          r="3"
-          fill="var(--axis-discrimination)"
-        ></circle>
-        <circle cx="-20" cy="28" r="3" fill="var(--axis-reactivity)"></circle>
-        <circle cx="-37" cy="-10" r="3" fill="var(--axis-motor)"></circle>
-      </g>
-    </svg>
-    }
-  </div>
 
   <main class="auth__main">
     <router-outlet />

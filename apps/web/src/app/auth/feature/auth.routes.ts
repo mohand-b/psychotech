@@ -10,18 +10,11 @@ export const authRoutes: Route[] = [
       {
         path: 'login',
         canMatch: [guestGuard],
-        data: {
-          brandTitle: 'Reprenez votre préparation.',
-          brandDeco: true,
-        },
         loadComponent: () => import('./login/login').then((m) => m.Login),
       },
       {
         path: 'register',
         canMatch: [guestGuard],
-        data: {
-          brandTitle: 'Commencez gratuitement, sans carte bancaire.',
-        },
         loadComponent: () =>
           import('./register/register').then((m) => m.Register),
       },

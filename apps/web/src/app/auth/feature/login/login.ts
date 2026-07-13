@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ArrowRight, Mail } from 'lucide-angular';
+import { ArrowRight } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
 import { FormField } from '../../../shared/ui/form-field/form-field';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
@@ -26,7 +26,6 @@ export class Login {
   private readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
 
-  protected readonly mailIcon = Mail;
   protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
 

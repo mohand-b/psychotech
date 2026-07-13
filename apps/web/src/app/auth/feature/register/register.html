@@ -27,8 +27,11 @@
       <span class="register__sector-copy">
         <span class="register__sector-name">{{ option.label }}</span>
         <span class="register__sector-desc"
-          >5 axes d'entraînement, scoring calibré sur les sélections du
-          secteur</span
+          >5 axes d'entraînement, scoring calibré<span
+            class="register__sector-desc-tail"
+          >
+            sur les sélections du secteur</span
+          ></span
         >
       </span>
       @if (sector() === option.value) {
@@ -67,16 +70,19 @@
   </div>
 
   <div class="register__step-foot">
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [iconEnd]="arrowIcon"
-      [disabled]="!sector()"
-      (click)="step.set(2)"
-    >
-      Continuer
-    </ui-button>
+    <div class="auth__actions">
+      <ui-button
+        color="brand"
+        size="lg"
+        [block]="true"
+        [iconEnd]="arrowIcon"
+        [relief]="'mobile'"
+        [disabled]="!sector()"
+        (click)="step.set(2)"
+      >
+        Continuer
+      </ui-button>
+    </div>
     <span class="register__note">Modifiable plus tard dans vos réglages.</span>
     <div class="auth__footer">
       <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>
@@ -123,7 +129,6 @@
       label="Email"
       type="email"
       placeholder="vous@exemple.fr"
-      [icon]="mailIcon"
       [(value)]="email"
       [error]="emailError()"
     />
@@ -169,8 +174,10 @@
       </button>
       <span class="register__cgu-text"
         >J'accepte les
-        <span class="register__cgu-link">conditions d'utilisation</span>
-        et la politique de confidentialité.</span
+        <span class="register__cgu-link">conditions d'utilisation</span
+        ><span class="register__cgu-privacy">
+          et la politique de confidentialité.</span
+        ></span
       >
     </span>
   </div>
@@ -181,6 +188,7 @@
       size="lg"
       [block]="true"
       [iconEnd]="arrowIcon"
+      [relief]="'mobile'"
       [loading]="pending()"
       (click)="submit()"
     >
@@ -206,23 +214,6 @@
     </span>
     }
   </div>
-
-  <span class="register__free">
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <circle cx="12" cy="12" r="10"></circle>
-      <path d="m9 12 2 2 4-4"></path>
-    </svg>
-    Offre Découverte gratuite - aucun paiement requis.
-  </span>
 
   <div class="auth__footer">
     <span class="auth__footer-hint">Déjà inscrit&nbsp;?</span>

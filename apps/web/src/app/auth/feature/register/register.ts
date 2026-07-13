@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -9,7 +8,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Sector, SectorSummaryDto } from '@psychotech/shared';
-import { ArrowRight, Mail } from 'lucide-angular';
+import { ArrowRight } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { FormField } from '../../../shared/ui/form-field/form-field';
@@ -42,13 +41,11 @@ export class Register {
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly router = inject(Router);
-  private readonly document = inject(DOCUMENT);
 
-  protected readonly mailIcon = Mail;
   protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
 
-  protected readonly step = signal<1 | 2>(this.isMobileViewport() ? 2 : 1);
+  protected readonly step = signal<1 | 2>(1);
   protected readonly cgu = signal(false);
 
   protected readonly firstName = signal('');
@@ -76,13 +73,6 @@ export class Register {
 
   protected sectorIcon(value: string) {
     return SECTOR_PRESENTATION[value as Sector].icon;
-  }
-
-  private isMobileViewport(): boolean {
-    return (
-      this.document.defaultView?.matchMedia('(max-width: 767px)').matches ??
-      false
-    );
   }
 
   protected readonly confirmationValid = computed(() =>

@@ -267,53 +267,156 @@
   cursor: pointer;
 }
 
-.register__free {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font: 400 13px/18px var(--font-ui);
-  color: var(--secondary-label);
-  background: var(--secondary-pastel);
-  border: 1px solid var(--secondary-pastel-bd);
-  border-radius: var(--radius-button);
-  padding: 9px 12px;
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-.register__free svg {
-  flex-shrink: 0;
+@keyframes step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (max-width: 767px) {
   .register__panel--sector,
   .register__panel--form {
     width: 100%;
-    gap: 18px;
   }
 
-  .register__progress,
-  .register__sector-chip {
-    display: none;
+  .register__panel--sector {
+    gap: 22px;
   }
 
-  .register__fields {
-    gap: 18px;
+  .register__panel--form {
+    gap: 20px;
+  }
+
+  .register__panel--sector > *,
+  .register__panel--sector .register__step-foot > * {
+    animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__panel--form > *,
+  .register__panel--form .register__step-foot > * {
+    animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__panel--sector .register__step-foot,
+  .register__panel--form .register__step-foot,
+  .register__panel--sector .register__step-foot > .auth__actions,
+  .register__panel--form .register__step-foot > .auth__actions,
+  .register__panel--sector > .auth__actions,
+  .register__panel--form > .auth__actions {
+    animation: none;
+  }
+
+  .register__head {
+    gap: 12px;
+  }
+
+  .register__head .auth__title {
+    font-size: 27px;
+  }
+
+  .register__head .auth__subtitle {
+    font-size: 14px;
   }
 
   .register__sector {
-    padding: 14px 16px;
+    gap: 14px;
+    border-radius: 14px;
+    padding: 16px;
+    min-height: 76px;
+  }
+
+  .register__sector-tile {
+    width: 44px;
+    height: 44px;
+  }
+
+  .register__sector-name {
+    font-size: 15.5px;
+  }
+
+  .register__sector-desc {
+    font: 400 12.5px/1.45 var(--font-ui);
+  }
+
+  .register__sector-desc-tail {
+    display: none;
   }
 
   .register__soon {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
-  .register__free {
-    display: inline-flex;
+  .register__soon-card {
+    gap: 10px;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .register__soon-tile {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+  }
+
+  .register__soon-name {
+    font-size: 13px;
+  }
+
+  .register__soon-badge {
+    font-size: 10.5px;
+  }
+
+  .register__sector-chip {
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-height: 44px;
+  }
+
+  .register__fields {
+    gap: 14px;
+  }
+
+  .register__names {
+    gap: 10px;
+  }
+
+  .register__cgu-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+  }
+
+  .register__cgu-text {
+    font-size: 13.5px;
+  }
+
+  .register__cgu-link {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .register__cgu-privacy {
+    display: none;
   }
 
   .register__step-foot .auth__footer,
   .register__panel--form .auth__footer {
-    padding-top: 0;
+    padding-top: 16px;
   }
 }

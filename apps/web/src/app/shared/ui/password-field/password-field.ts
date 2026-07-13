@@ -5,7 +5,7 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { Eye, EyeOff, Lock } from 'lucide-angular';
+import { Eye, EyeOff } from 'lucide-angular';
 import { FormField } from '../form-field/form-field';
 import { Icon } from '../icon/icon';
 
@@ -17,7 +17,6 @@ import { Icon } from '../icon/icon';
     <ui-form-field
       [label]="label()"
       [placeholder]="placeholder()"
-      [icon]="lockIcon"
       [type]="visible() ? 'text' : 'password'"
       [error]="error()"
       [valid]="valid()"
@@ -44,40 +43,31 @@ import { Icon } from '../icon/icon';
     .ui-password-field__toggle {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
       padding: 0;
       border: none;
+      border-radius: 9px;
       background: transparent;
       color: var(--label);
       cursor: pointer;
+      margin-right: -8px;
     }
     .ui-password-field__toggle:hover {
       color: var(--ink);
+      background: var(--bg);
     }
     .ui-password-field__toggle:focus-visible {
       outline: 2px solid var(--brand);
       outline-offset: 2px;
-      border-radius: 4px;
     }
-    @media (min-width: 768px) {
+    @media (max-width: 767px) {
       .ui-password-field__toggle {
-        width: 38px;
-        height: 38px;
-        justify-content: center;
-        border-radius: 9px;
-        margin-right: -8px;
-      }
-      .ui-password-field__toggle:hover {
-        background: var(--bg);
-      }
-    }
-    @media (pointer: coarse) {
-      .ui-password-field__toggle {
-        position: relative;
-      }
-      .ui-password-field__toggle::before {
-        content: '';
-        position: absolute;
-        inset: -14px;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        margin-right: -10px;
       }
     }
   `,
@@ -90,7 +80,6 @@ export class PasswordField {
   readonly value = model('');
 
   protected readonly visible = signal(false);
-  protected readonly lockIcon = Lock;
   protected readonly eyeIcon = Eye;
   protected readonly eyeOffIcon = EyeOff;
 
