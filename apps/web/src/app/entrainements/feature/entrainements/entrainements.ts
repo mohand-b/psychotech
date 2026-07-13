@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  afterNextRender,
   computed,
   inject,
   linkedSignal,
@@ -20,6 +21,7 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  ChevronLeft,
   ChevronRight,
   CircleCheckBig,
   GraduationCap,
@@ -44,7 +46,7 @@ import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.fa
 import {
   AXIS_OVERVIEW_COPY,
   SignedGap,
-  TrainingsVoletView,
+  TrainingsPanel,
   formatOverviewDate,
   formatOverviewScore,
   formatRechargeCountdown,
@@ -73,7 +75,6 @@ interface TutorialAxisView {
 }
 
 interface LastSimulationView {
-  sessionId: string;
   scoreLabel: string;
   bandLabel: string;
   bandColorVar: string;
@@ -103,6 +104,7 @@ export class Entrainements {
 
   protected readonly checkIcon = CircleCheckBig;
   protected readonly chevronRightIcon = ChevronRight;
+  protected readonly chevronLeftIcon = ChevronLeft;
   protected readonly arrowRightIcon = ArrowRight;
   protected readonly arrowLeftIcon = ArrowLeft;
   protected readonly lockIcon = Lock;
@@ -128,8 +130,8 @@ export class Entrainements {
     { initialValue: this.route.snapshot.queryParamMap.get('panel') },
   );
 
-  protected readonly view = linkedSignal<TrainingsVoletView>(() =>
-    this.panelParam() === 'sim' ? 'bilan' : 'axes',
+  protected readonly panel = linkedSignal<TrainingsPanel>(() =>
+    this.panelParam() === 'cible' ? 'cible' : 'sim',
   );
 
   protected readonly firstName =
@@ -138,6 +140,8 @@ export class Entrainements {
   protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
   protected readonly sectorLabel = SECTOR_LABELS[this.sector];
+
+  protected readonly animationsReady = signal(false);
 
   protected readonly tier = this.coreFacade.tier;
   protected readonly isFree = computed(
@@ -156,6 +160,9 @@ export class Entrainements {
 
   constructor() {
     this.facade.load(this.sector);
+    afterNextRender(() => {
+      requestAnimationFrame(() => this.animationsReady.set(true));
+    });
     const intervalId = setInterval(
       () => this.now.set(new Date()),
       REFRESH_INTERVAL_MS,
@@ -204,8 +211,11 @@ export class Entrainements {
     () => this.facade.overview() !== null,
   );
 
-  protected toggleView(): void {
-    this.view.set(this.view() === 'axes' ? 'bilan' : 'axes');
+  protected openPanel(panel: TrainingsPanel): void {
+    if (this.isFree()) {
+      return;
+    }
+    this.panel.set(panel);
   }
 
   protected startSimulation(): void {
@@ -216,7 +226,6 @@ export class Entrainements {
     simulation: TrainingsLastSimulationDto,
   ): LastSimulationView {
     return {
-      sessionId: simulation.sessionId,
       scoreLabel: formatOverviewScore(simulation.globalScore),
       bandLabel: BAND_LABELS[simulation.globalBand],
       bandColorVar: BAND_COLOR_VARS[simulation.globalBand],

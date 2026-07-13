@@ -156,78 +156,72 @@ describe('Entrainements', () => {
     vi.useRealTimers();
   });
 
-  it('shows the axes view by default and slides to the bilan on toggle', async () => {
+  it('opens the simulation panel by default and shows the last bilan', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
-    const axesSlide = element.querySelector('.tri__slide--axes');
-    const bilanSlide = element.querySelector('.tri__slide--bilan');
-    expect(axesSlide?.classList.contains('tri__slide--hidden-left')).toBe(
-      false,
-    );
-    expect(bilanSlide?.classList.contains('tri__slide--hidden-right')).toBe(
-      true,
-    );
-    (element.querySelector('.tri__toggle') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(axesSlide?.classList.contains('tri__slide--hidden-left')).toBe(true);
-    expect(bilanSlide?.classList.contains('tri__slide--hidden-right')).toBe(
-      false,
-    );
+    const panels = element.querySelectorAll('.duo__panel');
+    expect(panels[0].classList.contains('duo__panel--open')).toBe(true);
+    expect(panels[1].classList.contains('duo__panel--open')).toBe(false);
+    expect(text(element.querySelector('.duo__bilan-value'))).toBe('74,8');
   });
 
-  it('deep-links to the bilan view with ?panel=sim', async () => {
+  it('deep-links to the targeted panel with ?panel=cible', async () => {
     const { fixture } = await setup(buildOverview(), {
-      queryParams: { panel: 'sim' },
+      queryParams: { panel: 'cible' },
     });
     const element: HTMLElement = fixture.nativeElement;
-    expect(
-      element
-        .querySelector('.tri__slide--bilan')
-        ?.classList.contains('tri__slide--hidden-right'),
-    ).toBe(false);
+    const panels = element.querySelectorAll('.duo__panel');
+    expect(panels[1].classList.contains('duo__panel--open')).toBe(true);
   });
 
-  it('renders the last bilan with its detail link', async () => {
+  it('switches panels when clicking the opposite pitch', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
-    expect(text(element.querySelector('.tri__bilan-value'))).toBe('74,8');
-    expect(text(element.querySelector('.tri__bilan-badge'))).toContain(
-      'Acceptable',
+    const pitches = element.querySelectorAll<HTMLElement>('.duo__pitch');
+    pitches[1].click();
+    fixture.detectChanges();
+    const panels = element.querySelectorAll('.duo__panel');
+    expect(panels[1].classList.contains('duo__panel--open')).toBe(true);
+    expect(panels[0].classList.contains('duo__panel--open')).toBe(false);
+  });
+
+  it('renders a never-played axis with an empty bar and a grey dash', async () => {
+    const { fixture } = await setup(buildOverview());
+    const element: HTMLElement = fixture.nativeElement;
+    const rows = element.querySelectorAll('.duo__axis');
+    expect(rows[4].querySelector('.duo__axis-dash')).not.toBeNull();
+  });
+
+  it('shows the first-time empty state without a completed simulation', async () => {
+    const { fixture } = await setup(buildOverview({ lastSimulation: null }));
+    const element: HTMLElement = fixture.nativeElement;
+    expect(text(element.querySelector('.duo__empty-title'))).toBe(
+      'Pas encore de bilan',
     );
-    expect(
-      element.querySelector('.tri__bilan-link')?.getAttribute('href'),
-    ).toBe('/sessions/session-1/resultat');
-  });
-
-  it('shows the axis badges provided by the overview', async () => {
-    const { fixture } = await setup(buildOverview());
-    const element: HTMLElement = fixture.nativeElement;
-    const badges = Array.from(element.querySelectorAll('.tri__axis-badge')).map(
-      (badge) => text(badge),
-    );
-    expect(badges).toContain('À travailler');
-    expect(badges).toContain('Axe critique');
-  });
-
-  it('renders a never-played axis with a dash instead of a score', async () => {
-    const { fixture } = await setup(buildOverview());
-    const element: HTMLElement = fixture.nativeElement;
-    const rows = element.querySelectorAll('.tri__axis');
-    expect(rows[4].querySelector('.tri__axis-dash')).not.toBeNull();
   });
 
   it('links each axis row to its targeted preparation screen', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
-    const first = element.querySelector('.tri__axis');
+    const first = element.querySelector('.duo__axis');
     expect(first?.getAttribute('href')).toBe('/entrainements/cible/logique');
   });
 
   it('navigates to the simulation configuration from the CTA', async () => {
     const { fixture, navigate } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
-    (element.querySelector('.tri__cta button') as HTMLButtonElement).click();
+    (element.querySelector('.duo__cta button') as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith(['/entrainements/simulation']);
+  });
+
+  it('shows the axis badges provided by the overview', async () => {
+    const { fixture } = await setup(buildOverview());
+    const element: HTMLElement = fixture.nativeElement;
+    const badges = Array.from(element.querySelectorAll('.duo__axis-badge')).map(
+      (badge) => text(badge),
+    );
+    expect(badges).toContain('À travailler');
+    expect(badges).toContain('Axe critique');
   });
 
   it('links every tutorial card to the axis tutorial flow', async () => {
@@ -262,32 +256,46 @@ describe('Entrainements', () => {
   });
 
   describe('offre Découverte', () => {
-    it('replaces the volet with the offer panel and hides the toggle', async () => {
+    it('replaces the sliding panels with the central offer block', async () => {
       const { fixture } = await setup(buildOverview(), {
         tier: SubscriptionTier.FREE,
       });
       const element: HTMLElement = fixture.nativeElement;
-      expect(element.querySelector('.tri__offer')).not.toBeNull();
-      expect(element.querySelector('.tri__slide--axes')).toBeNull();
-      expect(element.querySelector('.tri__toggle')).toBeNull();
-      expect(text(element.querySelector('.tri__offer-title'))).toBe(
+      expect(element.querySelector('.duo__offer')).not.toBeNull();
+      expect(element.querySelector('.duo__panel')).toBeNull();
+      expect(element.querySelector('.duo__hint')).toBeNull();
+      expect(text(element.querySelector('.duo__offer-title'))).toBe(
         'Vous êtes en offre Découverte',
       );
+      expect(
+        element
+          .querySelector('.duo__offer ui-button')
+          ?.getAttribute('routerlink'),
+      ).toBe('/offres');
     });
 
-    it('locks both pitches and links to the offers page', async () => {
+    it('locks both pitches symmetrically and disables the panel toggle', async () => {
       const { fixture } = await setup(buildOverview(), {
         tier: SubscriptionTier.FREE,
       });
       const element: HTMLElement = fixture.nativeElement;
-      const locked = element.querySelectorAll('.tri__locked');
+      const locked = element.querySelectorAll('.duo__locked');
       expect(locked).toHaveLength(2);
-      expect(element.querySelector('.tri__cta button')).toBeNull();
-      expect(
-        element
-          .querySelector('.tri__offer ui-button')
-          ?.getAttribute('routerlink'),
-      ).toBe('/offres');
+      expect(element.querySelector('.duo__cta button')).toBeNull();
+      const pitches = element.querySelectorAll<HTMLElement>('.duo__pitch');
+      pitches[1].click();
+      fixture.detectChanges();
+      expect(element.querySelector('.duo__panel--open')).toBeNull();
+    });
+
+    it('locks both mobile pitch cards and shows the offer card', async () => {
+      const { fixture } = await setup(buildOverview(), {
+        tier: SubscriptionTier.FREE,
+      });
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelectorAll('.trainm__locked')).toHaveLength(2);
+      expect(element.querySelector('.trainm__offer')).not.toBeNull();
+      expect(element.querySelectorAll('.trainm__axis')).toHaveLength(0);
     });
 
     it('keeps the tutorial band available', async () => {

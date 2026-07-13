@@ -1,6 +1,6 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
 
-export type TrainingsVoletView = 'axes' | 'bilan';
+export type TrainingsPanel = 'sim' | 'cible';
 
 export interface AxisOverviewCopy {
   description: string;
