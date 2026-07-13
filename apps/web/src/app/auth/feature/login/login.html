@@ -1,125 +1,79 @@
-<div class="auth">
-  <header class="auth__bar">
-    <div class="auth__bar-inner">
-      <a routerLink="/" class="auth__logo"
-        >Psycho<span class="auth__logo-accent">Tech</span></a
-      >
-    </div>
-  </header>
-  <div class="auth__brand">
-    <a routerLink="/" class="auth__brand-logo"
-      >Psycho<span class="auth__brand-accent">Tech</span></a
-    >
-    <h1 class="auth__brand-title">Reprenez votre préparation.</h1>
-    <svg
-      class="auth__brand-deco"
-      width="200"
-      height="150"
-      viewBox="0 0 200 150"
-      aria-hidden="true"
-    >
-      <g transform="translate(130 80)">
-        <polygon
-          points="0,-48 45.6,-14.8 28.2,38.8 -28.2,38.8 -45.6,-14.8"
-          fill="none"
-          stroke="#333b4a"
-          stroke-width="1.2"
-        ></polygon>
-        <polygon
-          points="0,-38 33,-11 22,30 -20,28 -37,-10"
-          fill="rgba(124,92,252,0.20)"
-          stroke="var(--brand)"
-          stroke-width="2"
-          stroke-linejoin="round"
-        ></polygon>
-        <circle cx="0" cy="-38" r="3" fill="var(--axis-logic)"></circle>
-        <circle cx="33" cy="-11" r="3" fill="var(--axis-memory)"></circle>
-        <circle cx="22" cy="30" r="3" fill="var(--axis-discrimination)"></circle>
-        <circle cx="-20" cy="28" r="3" fill="var(--axis-reactivity)"></circle>
-        <circle cx="-37" cy="-10" r="3" fill="var(--axis-motor)"></circle>
-      </g>
-    </svg>
+<div class="auth__panel">
+  <div class="auth__head">
+    <h1 class="auth__title">Connexion</h1>
+    <p class="auth__subtitle auth__subtitle--desktop">
+      Reprenez votre préparation là où vous l'avez laissée.
+    </p>
+    <p class="auth__subtitle auth__subtitle--mobile">
+      Accédez à votre espace de préparation.
+    </p>
   </div>
 
-  <main class="auth__main">
-    <div class="auth__panel">
-      <div class="auth__head">
-        <h1 class="auth__title">Connexion</h1>
-        <p class="auth__subtitle auth__subtitle--desktop">
-          Reprenez votre préparation là où vous l'avez laissée.
-        </p>
-        <p class="auth__subtitle auth__subtitle--mobile">
-          Accédez à votre espace de préparation.
-        </p>
-      </div>
+  <div class="auth__fields">
+    <ui-form-field
+      label="Email"
+      type="email"
+      placeholder="vous@exemple.fr"
+      [icon]="mailIcon"
+      [(value)]="email"
+      [error]="emailError()"
+    />
+    <ui-password-field
+      label="Mot de passe"
+      placeholder="Votre mot de passe"
+      [(value)]="password"
+      [error]="passwordError()"
+    >
+      <span field-label-suffix class="auth__forgot auth__forgot--mobile"
+        >Oublié&nbsp;?</span
+      >
+    </ui-password-field>
+    <span class="auth__forgot auth__forgot--desktop"
+      >Mot de passe oublié&nbsp;?</span
+    >
+  </div>
 
-      <div class="auth__fields">
-        <ui-form-field
-          label="Email"
-          type="email"
-          placeholder="vous@exemple.fr"
-          [icon]="mailIcon"
-          [(value)]="email"
-          [error]="emailError()"
-        />
-        <ui-password-field
-          label="Mot de passe"
-          placeholder="Votre mot de passe"
-          [(value)]="password"
-          [error]="passwordError()"
-        >
-          <span field-label-suffix class="auth__forgot auth__forgot--mobile"
-            >Oublié&nbsp;?</span
-          >
-        </ui-password-field>
-        <span class="auth__forgot auth__forgot--desktop"
-          >Mot de passe oublié&nbsp;?</span
-        >
-      </div>
+  <div class="auth__actions">
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [iconEnd]="arrowIcon"
+      [loading]="pending()"
+      (click)="submit()"
+    >
+      Se connecter
+    </ui-button>
+    @if (serverError(); as message) {
+    <span class="auth__server-error" role="alert">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" x2="12" y1="8" y2="12"></line>
+        <line x1="12" x2="12.01" y1="16" y2="16"></line>
+      </svg>
+      {{ message }}
+    </span>
+    }
+  </div>
 
-      <div class="auth__actions">
-        <ui-button
-          color="brand"
-          size="lg"
-          [block]="true"
-          [iconEnd]="arrowIcon"
-          [loading]="pending()"
-          (click)="submit()"
-        >
-          Se connecter
-        </ui-button>
-        @if (serverError(); as message) {
-          <span class="auth__server-error" role="alert">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" x2="12" y1="8" y2="12"></line>
-              <line x1="12" x2="12.01" y1="16" y2="16"></line>
-            </svg>
-            {{ message }}
-          </span>
-        }
-      </div>
+  <div class="auth__footer auth__footer--desktop">
+    <span class="auth__footer-hint">Pas encore de compte&nbsp;?</span>
+    <a routerLink="/register" class="auth__footer-link">Créer un compte</a>
+  </div>
 
-      <div class="auth__footer auth__footer--desktop">
-        <span class="auth__footer-hint">Pas encore de compte&nbsp;?</span>
-        <a routerLink="/register" class="auth__footer-link">Créer un compte</a>
-      </div>
-
-      <div class="auth__divider">
-        <span class="auth__divider-line"></span>
-        <span class="auth__divider-label">ou</span>
-        <span class="auth__divider-line"></span>
-      </div>
-      <a routerLink="/register" class="auth__alt-cta">Créer un compte</a>
-    </div>
-  </main>
+  <div class="auth__divider">
+    <span class="auth__divider-line"></span>
+    <span class="auth__divider-label">ou</span>
+    <span class="auth__divider-line"></span>
+  </div>
+  <a routerLink="/register" class="auth__alt-cta">Créer un compte</a>
 </div>

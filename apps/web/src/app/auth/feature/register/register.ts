@@ -35,7 +35,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     PasswordStrengthMeter,
   ],
   templateUrl: './register.html',
-  styleUrls: ['../auth-layout.css', './register.css'],
+  styleUrls: ['../auth-panel.css', './register.css'],
 })
 export class Register {
   private readonly authFacade = inject(AuthFacade);
