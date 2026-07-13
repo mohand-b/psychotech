@@ -22,7 +22,8 @@ const mockAuthFacade = {
 } as unknown as AuthFacade;
 
 const mockCatalogFacade = {
-  getSectors: () => of(mockSectors),
+  sectors: signal(mockSectors),
+  sectorsError: signal(null),
 } as unknown as CatalogFacade;
 
 const meta: Meta<Register> = {

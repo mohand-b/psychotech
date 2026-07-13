@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  linkedSignal,
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -51,13 +52,30 @@ export class Register {
   protected readonly firstName = signal('');
   protected readonly lastName = signal('');
   protected readonly email = signal('');
-  protected readonly sector = signal<string>(Sector.RAILWAY);
   protected readonly password = signal('');
   protected readonly confirmation = signal('');
 
-  protected readonly sectorOptions = signal<readonly SelectOption[]>([]);
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
+
+  protected readonly sectorOptions = computed<readonly SelectOption[]>(() =>
+    this.catalogFacade.sectors().map((sector: SectorSummaryDto) => ({
+      value: sector.code,
+      label: sector.label,
+      disabled: !sector.isActive,
+    })),
+  );
+  protected readonly catalogError = computed(() =>
+    this.catalogFacade.sectorsError()
+      ? 'Impossible de charger les secteurs. Réessayez plus tard.'
+      : null,
+  );
+
+  protected readonly sector = linkedSignal<string>(
+    () =>
+      this.catalogFacade.sectors().find((sector) => sector.isActive)?.code ??
+      Sector.RAILWAY,
+  );
 
   protected readonly activeSectors = computed(() =>
     this.sectorOptions().filter((option) => !option.disabled),
@@ -116,28 +134,6 @@ export class Register {
       ? null
       : 'Les mots de passe ne correspondent pas';
   });
-
-  constructor() {
-    this.catalogFacade.getSectors().subscribe({
-      next: (sectors) => {
-        this.sectorOptions.set(
-          sectors.map((sector: SectorSummaryDto) => ({
-            value: sector.code,
-            label: sector.label,
-            disabled: !sector.isActive,
-          })),
-        );
-        const firstActive = sectors.find((sector) => sector.isActive);
-        if (firstActive) {
-          this.sector.set(firstActive.code);
-        }
-      },
-      error: () =>
-        this.serverError.set(
-          'Impossible de charger les secteurs. Réessayez plus tard.',
-        ),
-    });
-  }
 
   protected submit(): void {
     this.submitted.set(true);

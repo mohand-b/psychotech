@@ -5,7 +5,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AxisType, Sector, TrainingOptionId } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -50,12 +49,12 @@ export class AxisStart {
         queryParams: { panel: 'cible' },
       });
     }
+    this.catalogFacade.loadSectorReferential(this.sector);
   }
-  private readonly referential = toSignal(
-    this.catalogFacade.getSector(this.sector),
-  );
+
   protected readonly admissibilityThreshold = computed(
-    () => this.referential()?.admissibilityThreshold ?? null,
+    () =>
+      this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? null,
   );
 
   protected start(): void {
