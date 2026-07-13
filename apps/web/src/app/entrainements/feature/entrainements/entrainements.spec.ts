@@ -89,7 +89,7 @@ async function setup(
         provide: AuthFacade,
         useValue: {
           currentUser: () => ({
-            firstName: 'Mohand',
+            firstName: 'Camille',
             currentSector: Sector.RAILWAY,
           }),
         },

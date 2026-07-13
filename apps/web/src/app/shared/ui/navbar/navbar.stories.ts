@@ -15,9 +15,9 @@ import { Navbar } from './navbar';
 
 const mockUser: UserProfileDto = {
   id: 'user-1',
-  email: 'mohand@exemple.fr',
-  firstName: 'Mohand',
-  lastName: 'Boudjema',
+  email: 'camille@exemple.fr',
+  firstName: 'Camille',
+  lastName: 'Dupont',
   locale: 'fr',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
