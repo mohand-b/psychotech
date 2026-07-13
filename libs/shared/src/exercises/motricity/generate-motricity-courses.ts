@@ -210,7 +210,10 @@ function buildCenterlineZigzag(
     const actualLength =
       vector.y === 0
         ? length
-        : Math.max(VERTICAL_MIN_LENGTH / 2, Math.abs((clampedY - current.y) / vector.y));
+        : Math.max(
+            VERTICAL_MIN_LENGTH / 2,
+            Math.abs((clampedY - current.y) / vector.y),
+          );
     const next: MotricityPoint = {
       x: current.x + vector.x * actualLength,
       y: current.y + vector.y * actualLength,
@@ -230,7 +233,8 @@ function buildCenterlineSerpentine(
 ): MotricityPoint[] {
   const startX = courseStartX(startWidth);
   const endX = courseEndX();
-  const laneBottom = SERPENTINE_LANE_BOTTOM_MIN + rng.next() * SERPENTINE_LANE_JITTER;
+  const laneBottom =
+    SERPENTINE_LANE_BOTTOM_MIN + rng.next() * SERPENTINE_LANE_JITTER;
   const laneMid = SERPENTINE_LANE_MID_MIN + rng.next() * SERPENTINE_LANE_JITTER;
   const laneTop = SERPENTINE_LANE_TOP_MIN + rng.next() * SERPENTINE_LANE_JITTER;
   const rise = SERPENTINE_RISE_MIN + rng.next() * SERPENTINE_RISE_SPAN;
@@ -238,8 +242,10 @@ function buildCenterlineSerpentine(
   const xLeft = SERPENTINE_LEFT_MIN + rng.next() * SERPENTINE_LEFT_SPAN;
   const runA1 = SERPENTINE_RUN_A1_MIN + rng.next() * SERPENTINE_RUN_A1_SPAN;
   const runA2 = SERPENTINE_RUN_A2_MIN + rng.next() * SERPENTINE_RUN_A2_SPAN;
-  const returnTail = SERPENTINE_RETURN_TAIL_MIN + rng.next() * SERPENTINE_RETURN_TAIL_SPAN;
-  const finalJogX = SERPENTINE_FINAL_JOG_X_MIN + rng.next() * SERPENTINE_FINAL_JOG_X_SPAN;
+  const returnTail =
+    SERPENTINE_RETURN_TAIL_MIN + rng.next() * SERPENTINE_RETURN_TAIL_SPAN;
+  const finalJogX =
+    SERPENTINE_FINAL_JOG_X_MIN + rng.next() * SERPENTINE_FINAL_JOG_X_SPAN;
   const finalJogRise =
     SERPENTINE_FINAL_JOG_RISE_MIN + rng.next() * SERPENTINE_FINAL_JOG_RISE_SPAN;
 
@@ -354,9 +360,12 @@ function buildCenterline(
   return rng.next() < 0.5 ? mirrorVertically(points) : points;
 }
 
-function buildCourse(seed: string, index: number): MotricityCourse {
+function buildCourse(
+  seed: string,
+  index: number,
+  startWidth: number,
+): MotricityCourse {
   const rng = createSeededRng(`${seed}:motricity:${index}`);
-  const startWidth = COURSE_START_WIDTHS[index];
 
   const points = recenterVertically(
     buildCenterline(rng, index, startWidth),
@@ -364,14 +373,17 @@ function buildCourse(seed: string, index: number): MotricityCourse {
   );
   const segmentCount = points.length - 1;
 
-  const widths = points.slice(0, -1).map(
-    (_, segmentIndex) =>
-      startWidth *
-      (1 - MOTRICITY_WIDTH_SHRINK * (segmentIndex / (segmentCount - 1))),
-  );
+  const widths = points
+    .slice(0, -1)
+    .map(
+      (_, segmentIndex) =>
+        startWidth *
+        (1 - MOTRICITY_WIDTH_SHRINK * (segmentIndex / (segmentCount - 1))),
+    );
 
-  const segments: MotricitySegment[] = points.slice(0, -1).map(
-    (start, segmentIndex) => ({
+  const segments: MotricitySegment[] = points
+    .slice(0, -1)
+    .map((start, segmentIndex) => ({
       start,
       end: points[segmentIndex + 1],
       width: widths[segmentIndex],
@@ -379,8 +391,7 @@ function buildCourse(seed: string, index: number): MotricityCourse {
         points[segmentIndex + 1].x - start.x,
         points[segmentIndex + 1].y - start.y,
       ),
-    }),
-  );
+    }));
   const totalLength = segments.reduce(
     (sum, segment) => sum + segment.length,
     0,
@@ -453,8 +464,18 @@ function buildCourse(seed: string, index: number): MotricityCourse {
   };
 }
 
-export function generateMotricityCourses(seed: string): MotricityCourse[] {
-  return Array.from({ length: MOTRICITY_COURSE_COUNT }, (_, index) =>
-    buildCourse(seed, index),
+export interface MotricityGenerationOptions {
+  courseCount?: number;
+  startWidths?: readonly number[];
+}
+
+export function generateMotricityCourses(
+  seed: string,
+  options: MotricityGenerationOptions = {},
+): MotricityCourse[] {
+  const startWidths = options.startWidths ?? COURSE_START_WIDTHS;
+  const courseCount = options.courseCount ?? MOTRICITY_COURSE_COUNT;
+  return Array.from({ length: courseCount }, (_, index) =>
+    buildCourse(seed, index, startWidths[index]),
   );
 }

@@ -26,7 +26,11 @@ function drawElement(rng: SeededRng): DiscriminationElement {
     return { kind: 'CHAR', value: rng.pick(DISCRIMINATION_CHAR_POOL) };
   }
   const shape = rng.pick(SHAPE_IDS);
-  return { kind: 'SHAPE', shape, rotation: rng.pick(DISTINCT_ROTATIONS[shape]) };
+  return {
+    kind: 'SHAPE',
+    shape,
+    rotation: rng.pick(DISTINCT_ROTATIONS[shape]),
+  };
 }
 
 function drawOffsetFactor(rng: SeededRng): number {
@@ -57,7 +61,10 @@ function mutationOptionsFor(
     rotation: canonicalRotation(shape, element.rotation),
   }));
   const rotations: DiscriminationElement[] = DISTINCT_ROTATIONS[element.shape]
-    .filter((rotation) => rotation !== canonicalRotation(element.shape, element.rotation))
+    .filter(
+      (rotation) =>
+        rotation !== canonicalRotation(element.shape, element.rotation),
+    )
     .map((rotation) => ({ kind: 'SHAPE', shape: element.shape, rotation }));
   return [...substitutions, ...rotations];
 }
@@ -92,8 +99,8 @@ export function generateDiscriminationSession(
   const rng = createSeededRng(seed);
   const trialCount = training.exerciseCount;
   const identicalTarget = rng.nextInt(
-    DISCRIMINATION_IDENTICAL_MIN,
-    DISCRIMINATION_IDENTICAL_MAX,
+    training.identicalMin ?? DISCRIMINATION_IDENTICAL_MIN,
+    training.identicalMax ?? DISCRIMINATION_IDENTICAL_MAX,
   );
   const identicalIndexes = new Set(
     rng

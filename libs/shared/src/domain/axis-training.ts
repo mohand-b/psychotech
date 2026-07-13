@@ -47,6 +47,8 @@ export interface VisualDiscriminationTraining extends BaseAxisTraining {
   increasingDifficulty: boolean;
   minSequenceLength: number;
   maxSequenceLength: number;
+  identicalMin?: number;
+  identicalMax?: number;
 }
 
 export interface ReactivityTraining extends BaseAxisTraining {
