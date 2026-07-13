@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
   REACTIVITY_COMMAND_BY_TYPE,
   ReactivityCommand,
@@ -96,7 +95,7 @@ export class ReactivityPlay {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
   protected readonly axis = AxisType.REACTIVITY;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.REACTIVITY];
-  private readonly training = AXIS_TRAINING[AxisType.REACTIVITY];
+  private readonly training = this.facade.trainingConfig(AxisType.REACTIVITY);
   private readonly totalMs = this.training.timer.durationSec * 1000;
   private readonly phaseMs = this.training.phaseDurationSec * 1000;
 

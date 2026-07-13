@@ -1,0 +1,77 @@
+.tutorial-end {
+  display: flex;
+  justify-content: center;
+}
+
+.tutorial-end__card {
+  width: 440px;
+  max-width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  text-align: center;
+}
+
+.tutorial-end__tile {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tutorial-end__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.tutorial-end__tag {
+  font: 600 11px/14px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.tutorial-end__title {
+  font: 700 26px/1.15 var(--font-display);
+  margin: 0;
+  color: var(--ink);
+}
+
+.tutorial-end__subtitle {
+  font: 400 13.5px/1.55 var(--font-ui);
+  color: var(--text-secondary);
+  max-width: 320px;
+}
+
+.tutorial-end__card ui-result-metrics {
+  width: 100%;
+}
+
+.tutorial-end__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .tutorial-end__card {
+    padding: 22px 18px;
+    gap: 18px;
+  }
+
+  .tutorial-end__title {
+    font-size: 23px;
+  }
+}

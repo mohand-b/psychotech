@@ -1,0 +1,58 @@
+<section class="page-shell tutorial-end">
+  <div class="tutorial-end__card">
+    @if (presentation; as axisPresentation) {
+    <span
+      class="tutorial-end__tile"
+      [style.background]="axisPresentation.pastelVar"
+      [style.border-color]="axisPresentation.pastelBorderVar"
+      [style.color]="axisPresentation.textVar"
+    >
+      <ui-icon [img]="axisPresentation.icon" [size]="26" />
+    </span>
+    <div class="tutorial-end__head">
+      <span class="tutorial-end__tag">Tutoriel</span>
+      <h1 class="tutorial-end__title">Tutoriel terminé</h1>
+      <span class="tutorial-end__subtitle"
+        >{{ axisPresentation.label }} - vos observables sur ce tutoriel. Rien
+        n'est enregistré dans votre progression.</span
+      >
+    </div>
+    }
+
+    <ui-result-metrics [rows]="metricRows()" />
+
+    <div class="tutorial-end__actions">
+      <ui-button
+        appearance="outlined"
+        [color]="buttonColor"
+        size="lg"
+        [block]="true"
+        [icon]="retryIcon"
+        [routerLink]="replayLink"
+      >
+        Refaire le tutoriel
+      </ui-button>
+      @if (isFree()) {
+      <ui-button
+        color="brand"
+        size="lg"
+        [block]="true"
+        [iconEnd]="arrowIcon"
+        routerLink="/offres"
+      >
+        Voir les offres
+      </ui-button>
+      } @else {
+      <ui-button
+        [color]="buttonColor"
+        size="lg"
+        [block]="true"
+        [iconEnd]="arrowIcon"
+        [routerLink]="targetedLink"
+      >
+        Entraînement ciblé
+      </ui-button>
+      }
+    </div>
+  </div>
+</section>

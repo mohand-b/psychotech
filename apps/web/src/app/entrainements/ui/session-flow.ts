@@ -5,6 +5,7 @@ import {
   SessionStatus,
 } from '@psychotech/shared';
 import { axisSlug } from '../../shared/util/axis-slug';
+import { TUTORIAL_SESSION_ID } from '../data-access/tutorial-session.facade';
 
 export function simulationCurrentAxis(session: SessionDto): AxisType | null {
   return session.axisResults[session.currentAxisIndex]?.axis ?? null;
@@ -14,6 +15,9 @@ export function afterAxisSubmitRoute(
   session: SessionDto,
   axis: AxisType,
 ): string[] {
+  if (session.id === TUTORIAL_SESSION_ID) {
+    return ['/entrainements/tutoriel', axisSlug(axis), 'fin'];
+  }
   if (session.mode !== SessionMode.FULL) {
     return [
       '/entrainements/cible',

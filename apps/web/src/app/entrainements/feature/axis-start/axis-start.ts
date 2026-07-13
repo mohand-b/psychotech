@@ -39,6 +39,7 @@ export class AxisStart {
   protected readonly axis =
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
   protected readonly buttonColor = axisButtonColor(this.axis);
+  protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
 
   private readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
@@ -49,12 +50,16 @@ export class AxisStart {
         queryParams: { panel: 'cible' },
       });
     }
-    this.catalogFacade.loadSectorReferential(this.sector);
+    if (!this.tutorial) {
+      this.catalogFacade.loadSectorReferential(this.sector);
+    }
   }
 
-  protected readonly admissibilityThreshold = computed(
-    () =>
-      this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? null,
+  protected readonly admissibilityThreshold = computed(() =>
+    this.tutorial
+      ? null
+      : (this.catalogFacade.sectorReferential()?.admissibilityThreshold ??
+        null),
   );
 
   protected start(): void {
@@ -67,7 +72,7 @@ export class AxisStart {
       .subscribe({
         next: (session) =>
           this.router.navigate([
-            '/entrainements/cible',
+            this.tutorial ? '/entrainements/tutoriel' : '/entrainements/cible',
             axisSlug(this.axis),
             'session',
             session.id,

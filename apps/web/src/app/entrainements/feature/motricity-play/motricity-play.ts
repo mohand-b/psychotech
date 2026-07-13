@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
   ControlModality,
   MOTRICITY_CANVAS_HEIGHT,
@@ -79,7 +78,8 @@ export class MotricityPlay {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
   protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MOTOR_SKILLS];
-  private readonly training = AXIS_TRAINING[AxisType.MOTOR_SKILLS];
+  protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
+  private readonly training = this.facade.trainingConfig(AxisType.MOTOR_SKILLS);
 
   protected readonly canvasWidth = MOTRICITY_CANVAS_WIDTH;
   protected readonly canvasHeight = MOTRICITY_CANVAS_HEIGHT;
@@ -124,6 +124,7 @@ export class MotricityPlay {
   protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
   protected readonly showPairing = computed(
     () =>
+      !this.tutorial &&
       this.loaded() &&
       this.phase() === 'PLAYING' &&
       !this.suspended() &&
@@ -224,6 +225,9 @@ export class MotricityPlay {
   }
 
   protected regeneratePairing(): void {
+    if (this.tutorial) {
+      return;
+    }
     this.gamepad.pair(this.sessionId);
   }
 
@@ -249,7 +253,9 @@ export class MotricityPlay {
       return;
     }
     this.loaded.set(true);
-    this.gamepad.pair(this.sessionId);
+    if (!this.tutorial) {
+      this.gamepad.pair(this.sessionId);
+    }
   }
 
   protected onCountdownFinished(): void {

@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
   MemoryPhase,
   MemorySequence,
@@ -65,11 +64,12 @@ export class MemoryPlay {
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MEMORY];
   protected readonly buttonColor = axisButtonColor(AxisType.MEMORY);
   protected readonly padDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  private readonly restitutionSec =
-    AXIS_TRAINING[AxisType.MEMORY].restitutionSec;
+  private readonly restitutionSec = this.facade.trainingConfig(AxisType.MEMORY)
+    .restitutionSec;
 
   protected readonly sequences = this.facade.memorySequences;
-  protected readonly total = AXIS_TRAINING[AxisType.MEMORY].exerciseCount;
+  protected readonly total = this.facade.trainingConfig(AxisType.MEMORY)
+    .exerciseCount;
   protected readonly loaded = signal(false);
   protected readonly countingDown = signal(true);
   protected readonly stage = signal<MemoryStage>('PREPARATION');

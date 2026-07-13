@@ -1,6 +1,7 @@
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
 import { AXIS_SLUGS } from '../../shared/util/axis-slug';
+import { tutorialSessionProviders } from '../data-access/tutorial-session.facade';
 
 function axisSessionMatcher(axis: AxisType): CanMatchFn {
   return (_route: Route, segments: UrlSegment[]) =>
@@ -26,6 +27,18 @@ const simulationPlayHeader = {
   closeLink: '/entrainements',
 };
 
+const tutorialPlayHeader = {
+  title: 'Tutoriel',
+  backLabel: 'Entraînements',
+  backLink: '/entrainements',
+  closeLink: '/entrainements',
+  axisParam: 'axis',
+  axisChip: true,
+  showEnergy: false,
+  showTimer: false,
+  live: false,
+};
+
 const correctionHeader = {
   title: 'Correction',
   backLabel: 'Résultat',
@@ -47,8 +60,82 @@ export const entrainementsRoutes: Route[] = [
   },
   {
     path: 'entrainements/tutoriel/:axis',
+    data: {
+      tutorial: true,
+      focusedHeader: {
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+        showTimer: false,
+        showEnergy: false,
+        live: false,
+      },
+    },
+    providers: tutorialSessionProviders(),
     loadComponent: () =>
-      import('./tutorial-start/tutorial-start').then((m) => m.TutorialStart),
+      import('./axis-start/axis-start').then((m) => m.AxisStart),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.LOGIC)],
+    data: { tutorial: true, focusedHeader: tutorialPlayHeader },
+    providers: tutorialSessionProviders(AxisType.LOGIC),
+    loadComponent: () =>
+      import('./logic-play/logic-play').then((m) => m.LogicPlay),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    data: { tutorial: true, focusedHeader: tutorialPlayHeader },
+    providers: tutorialSessionProviders(AxisType.MEMORY),
+    loadComponent: () =>
+      import('./memory-play/memory-play').then((m) => m.MemoryPlay),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    data: { tutorial: true, focusedHeader: tutorialPlayHeader },
+    providers: tutorialSessionProviders(AxisType.VISUAL_DISCRIMINATION),
+    loadComponent: () =>
+      import('./discrimination-play/discrimination-play').then(
+        (m) => m.DiscriminationPlay,
+      ),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.REACTIVITY)],
+    data: { tutorial: true, focusedHeader: tutorialPlayHeader },
+    providers: tutorialSessionProviders(AxisType.REACTIVITY),
+    loadComponent: () =>
+      import('./reactivity-play/reactivity-play').then((m) => m.ReactivityPlay),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/session/:sessionId',
+    canMatch: [axisSessionMatcher(AxisType.MOTOR_SKILLS)],
+    data: { tutorial: true, focusedHeader: tutorialPlayHeader },
+    providers: tutorialSessionProviders(AxisType.MOTOR_SKILLS),
+    loadComponent: () =>
+      import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
+  },
+  {
+    path: 'entrainements/tutoriel/:axis/fin',
+    data: {
+      tutorial: true,
+      focusedHeader: {
+        title: 'Tutoriel',
+        backLabel: 'Entraînements',
+        backLink: '/entrainements',
+        closeLink: '/entrainements',
+        axisParam: 'axis',
+        axisChip: true,
+        showTimer: false,
+        showEnergy: false,
+        live: false,
+      },
+    },
+    loadComponent: () =>
+      import('./tutorial-end/tutorial-end').then((m) => m.TutorialEnd),
   },
   {
     path: 'entrainements/simulation',

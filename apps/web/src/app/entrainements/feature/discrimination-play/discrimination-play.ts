@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
   DiscriminationAnswer,
   DiscriminationTrial,
@@ -60,8 +59,9 @@ export class DiscriminationPlay {
   protected readonly buttonColor = axisButtonColor(
     AxisType.VISUAL_DISCRIMINATION,
   );
-  protected readonly total =
-    AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION].exerciseCount;
+  protected readonly total = this.facade.trainingConfig(
+    AxisType.VISUAL_DISCRIMINATION,
+  ).exerciseCount;
 
   protected readonly trials = this.facade.discriminationTrials;
   protected readonly loaded = signal(false);

@@ -25,13 +25,22 @@ import {
   TargetedAxisResultDto,
   TargetedSessionOptionsDto,
   TrainingOptionId,
+  MotricityGenerationOptions,
   generateDiscriminationSession,
   generateLogicSession,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
 } from '@psychotech/shared';
-import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  map,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TimerSeverity } from '../../shared/ui/focused-header/focused-header';
@@ -50,7 +59,9 @@ const DEFAULT_GLOBAL_THRESHOLDS: GlobalTimerThresholds = {
   dangerSec: 60,
 };
 
-const GLOBAL_TIMER_THRESHOLDS: Partial<Record<AxisType, GlobalTimerThresholds>> = {
+const GLOBAL_TIMER_THRESHOLDS: Partial<
+  Record<AxisType, GlobalTimerThresholds>
+> = {
   [AxisType.LOGIC]: DEFAULT_GLOBAL_THRESHOLDS,
   [AxisType.VISUAL_DISCRIMINATION]: { warningSec: 60, dangerSec: 30 },
   [AxisType.REACTIVITY]: { warningSec: 60, dangerSec: 30 },
@@ -88,38 +99,63 @@ export class TrainingSessionFacade {
     this.enabledTrainingOptions().includes(TrainingOptionId.NO_TIMER),
   );
 
+  protected trainingFor(axis: AxisType): AxisTraining | undefined {
+    return AXIS_TRAINING[axis as RailwayPlayableAxis];
+  }
+
+  trainingConfig<Axis extends RailwayPlayableAxis>(
+    axis: Axis,
+  ): Extract<AxisTraining, { axis: Axis }> {
+    return this.trainingFor(axis) as Extract<AxisTraining, { axis: Axis }>;
+  }
+
+  protected motricityGeneration(): MotricityGenerationOptions {
+    return {};
+  }
+
   readonly logicItems: Signal<LogicItem[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.LOGIC
-      ? generateLogicSession(session.seed)
+      ? generateLogicSession(session.seed, this.trainingConfig(AxisType.LOGIC))
       : [];
   });
 
   readonly memorySequences: Signal<MemorySequence[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.MEMORY
-      ? generateMemorySession(session.seed)
+      ? generateMemorySession(
+          session.seed,
+          this.trainingConfig(AxisType.MEMORY),
+        )
       : [];
   });
 
-  readonly discriminationTrials: Signal<DiscriminationTrial[]> = computed(() => {
-    const session = this.store.session();
-    return session && this.axis() === AxisType.VISUAL_DISCRIMINATION
-      ? generateDiscriminationSession(session.seed)
-      : [];
-  });
+  readonly discriminationTrials: Signal<DiscriminationTrial[]> = computed(
+    () => {
+      const session = this.store.session();
+      return session && this.axis() === AxisType.VISUAL_DISCRIMINATION
+        ? generateDiscriminationSession(
+            session.seed,
+            this.trainingConfig(AxisType.VISUAL_DISCRIMINATION),
+          )
+        : [];
+    },
+  );
 
   readonly reactivityStimuli: Signal<ReactivityStimulus[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.REACTIVITY
-      ? generateReactivitySession(session.seed)
+      ? generateReactivitySession(
+          session.seed,
+          this.trainingConfig(AxisType.REACTIVITY),
+        )
       : [];
   });
 
   readonly motricityCourses: Signal<MotricityCourse[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.MOTOR_SKILLS
-      ? generateMotricityCourses(session.seed)
+      ? generateMotricityCourses(session.seed, this.motricityGeneration())
       : [];
   });
 
@@ -128,8 +164,7 @@ export class TrainingSessionFacade {
     if (!axis || this.timerDisabled()) {
       return null;
     }
-    const training: AxisTraining | undefined =
-      AXIS_TRAINING[axis as RailwayPlayableAxis];
+    const training = this.trainingFor(axis);
     return training && training.timer.model === AxisTimerModel.GLOBAL
       ? training.timer.durationSec
       : null;
@@ -165,8 +200,7 @@ export class TrainingSessionFacade {
     ) {
       return null;
     }
-    const training: AxisTraining | undefined =
-      AXIS_TRAINING[axis as RailwayPlayableAxis];
+    const training = this.trainingFor(axis);
     if (!training || training.timer.model !== AxisTimerModel.GLOBAL) {
       return null;
     }
@@ -184,7 +218,11 @@ export class TrainingSessionFacade {
     }
     const session = this.store.session();
     const duration = this.durationSec();
-    if (!session || duration === null || session.status !== SessionStatus.IN_PROGRESS) {
+    if (
+      !session ||
+      duration === null ||
+      session.status !== SessionStatus.IN_PROGRESS
+    ) {
       return null;
     }
     return countdownFrom(this.store.anchorMs(), this.store.nowMs(), duration)
@@ -203,9 +241,7 @@ export class TrainingSessionFacade {
     if (!session || !axis || session.status !== SessionStatus.IN_PROGRESS) {
       return false;
     }
-    const training: AxisTraining | undefined =
-      AXIS_TRAINING[axis as RailwayPlayableAxis];
-    return training?.timer.model === AxisTimerModel.PER_EXERCISE;
+    return this.trainingFor(axis)?.timer.model === AxisTimerModel.PER_EXERCISE;
   });
 
   setPerExerciseCountdown(
@@ -252,10 +288,13 @@ export class TrainingSessionFacade {
     return local <= 10 ? 'warning' : 'normal';
   });
 
-  readonly isExpired: Signal<boolean> = computed(() => this.remainingSec() === 0);
+  readonly isExpired: Signal<boolean> = computed(
+    () => this.remainingSec() === 0,
+  );
 
   private readonly closeRequestCounter = signal(0);
-  readonly closeRequests: Signal<number> = this.closeRequestCounter.asReadonly();
+  readonly closeRequests: Signal<number> =
+    this.closeRequestCounter.asReadonly();
 
   requestClose(): void {
     this.closeRequestCounter.update((count) => count + 1);
@@ -297,7 +336,9 @@ export class TrainingSessionFacade {
   }
 
   load(sessionId: string): Observable<SessionDto> {
-    return this.api.get(sessionId).pipe(tap((session) => this.install(session)));
+    return this.api
+      .get(sessionId)
+      .pipe(tap((session) => this.install(session)));
   }
 
   private readonly targetedResultCache = signal<TargetedAxisResultDto | null>(
@@ -393,7 +434,7 @@ export class TrainingSessionFacade {
     this.store.setSession(null);
   }
 
-  private install(session: SessionDto): void {
+  protected install(session: SessionDto): void {
     this.effectiveCountdown.set(null);
     this.store.setSession(session);
     if (session.status === SessionStatus.IN_PROGRESS) {

@@ -1,6 +1,8 @@
 <section class="page-shell axis-start">
   <ui-axis-briefing
     [axis]="axis"
+    [tutorial]="tutorial"
+    [showOptions]="!tutorial"
     [admissibilityThreshold]="admissibilityThreshold()"
     [(enabledOptions)]="enabledOptions"
   />
@@ -15,10 +17,11 @@
       (click)="start()"
     >
       <span class="axis-start__cta-content">
-        Commencer
+        Commencer @if (!tutorial) {
         <span class="axis-start__cta-sep"></span>
         <ui-bolt [size]="14" />
         <span class="t-mono">{{ energyCost }}</span>
+        }
       </span>
     </ui-button>
   </div>

@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   AXIS_TRAINING,
+  AXIS_TUTORIAL,
   AxisTimerModel,
   AxisType,
   RailwayPlayableAxis,
@@ -41,6 +42,9 @@ interface SummaryTile {
         </span>
         @if (positionLabel(); as position) {
           <span class="axis-briefing__position">{{ position }}</span>
+        }
+        @if (tutorial()) {
+          <span class="axis-briefing__tutorial-tag">Tutoriel</span>
         }
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
       </header>
@@ -149,6 +153,7 @@ export class AxisBriefing {
   readonly axis = input.required<AxisType>();
   readonly admissibilityThreshold = input<number | null>(null);
   readonly showOptions = input(true);
+  readonly tutorial = input(false);
   readonly positionLabel = input<string | null>(null);
   readonly enabledOptions = model<TrainingOptionId[]>([]);
 
@@ -177,8 +182,10 @@ export class AxisBriefing {
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
   );
-  protected readonly training = computed(
-    () => AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
+  protected readonly training = computed(() =>
+    this.tutorial()
+      ? AXIS_TUTORIAL[this.axis() as RailwayPlayableAxis]
+      : AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
   );
 
   protected readonly volume = computed<SummaryTile>(() => {
