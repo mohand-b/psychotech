@@ -66,6 +66,22 @@
   box-shadow: var(--shadow-focus);
 }
 
+.energy-link {
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: 9px;
+  transition: filter 0.15s;
+}
+
+.energy-link:hover {
+  filter: brightness(0.97);
+}
+
+.energy-link:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
 .separator {
   width: 1px;
   height: 24px;
