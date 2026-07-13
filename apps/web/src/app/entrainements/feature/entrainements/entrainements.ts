@@ -64,8 +64,6 @@ interface AxisRowView {
   scoreLabel: string;
   barWidth: number;
   neverPlayed: boolean;
-  isCriticalAxis: boolean;
-  needsWork: boolean;
 }
 
 interface TutorialAxisView {
@@ -187,8 +185,6 @@ export class Entrainements {
           entry.bestScore === null ? '-' : `${Math.round(entry.bestScore)}`,
         barWidth: entry.bestScore ?? 0,
         neverPlayed: entry.neverPlayed,
-        isCriticalAxis: entry.isCriticalAxis,
-        needsWork: entry.needsWork,
       };
     });
   });

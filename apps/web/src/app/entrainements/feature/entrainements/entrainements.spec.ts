@@ -214,16 +214,6 @@ describe('Entrainements', () => {
     expect(navigate).toHaveBeenCalledWith(['/entrainements/simulation']);
   });
 
-  it('shows the axis badges provided by the overview', async () => {
-    const { fixture } = await setup(buildOverview());
-    const element: HTMLElement = fixture.nativeElement;
-    const badges = Array.from(element.querySelectorAll('.duo__axis-badge')).map(
-      (badge) => text(badge),
-    );
-    expect(badges).toContain('À travailler');
-    expect(badges).toContain('Axe critique');
-  });
-
   it('links every tutorial card to the axis tutorial flow', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;

@@ -170,7 +170,7 @@
     <div class="duo__panel" [class.duo__panel--open]="panel() === 'cible'">
       <div class="duo__panel-inner duo__panel-inner--cible">
         <div class="duo__axes-head">
-          <span class="duo__label">Les 5 axes</span>
+          <span class="duo__label">Les axes</span>
           <span class="duo__label">Meilleur score</span>
         </div>
         <span class="duo__axes-sep"></span>
@@ -185,26 +185,7 @@
             <ui-icon [img]="row.presentation.icon" [size]="17" />
           </span>
           <span class="duo__axis-copy">
-            <span class="duo__axis-name-row">
-              <span class="duo__axis-name">{{ row.presentation.label }}</span>
-              @if (row.needsWork) {
-              <span
-                class="duo__axis-badge"
-                [style.background]="row.presentation.pastelVar"
-                [style.border-color]="row.presentation.pastelBorderVar"
-                [style.color]="row.presentation.textVar"
-                >À travailler</span
-              >
-              } @if (row.isCriticalAxis) {
-              <span
-                class="duo__axis-badge"
-                [style.background]="row.presentation.pastelVar"
-                [style.border-color]="row.presentation.pastelBorderVar"
-                [style.color]="row.presentation.textVar"
-                >Axe critique</span
-              >
-              }
-            </span>
+            <span class="duo__axis-name">{{ row.presentation.label }}</span>
             <span class="duo__axis-desc">{{ row.description }}</span>
           </span>
           <span class="duo__axis-score">
@@ -420,28 +401,9 @@
               <ui-icon [img]="row.presentation.icon" [size]="19" />
             </span>
             <span class="trainm__axis-copy">
-              <span class="duo__axis-name-row">
-                <span class="trainm__axis-name"
-                  >{{ row.presentation.label }}</span
-                >
-                @if (row.needsWork) {
-                <span
-                  class="duo__axis-badge"
-                  [style.background]="row.presentation.pastelVar"
-                  [style.border-color]="row.presentation.pastelBorderVar"
-                  [style.color]="row.presentation.textVar"
-                  >À travailler</span
-                >
-                } @if (row.isCriticalAxis) {
-                <span
-                  class="duo__axis-badge"
-                  [style.background]="row.presentation.pastelVar"
-                  [style.border-color]="row.presentation.pastelBorderVar"
-                  [style.color]="row.presentation.textVar"
-                  >Axe critique</span
-                >
-                }
-              </span>
+              <span class="trainm__axis-name"
+                >{{ row.presentation.label }}</span
+              >
               <span class="trainm__axis-desc">{{ row.mobileDescription }}</span>
             </span>
             <ui-icon

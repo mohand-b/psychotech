@@ -846,22 +846,6 @@
   color: var(--text-disabled);
 }
 
-.duo__axis-name-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.duo__axis-badge {
-  display: inline-flex;
-  align-items: center;
-  font: 600 10px/14px var(--font-ui);
-  border: 1px solid transparent;
-  border-radius: 5px;
-  padding: 1px 6px;
-  flex-shrink: 0;
-}
-
 .trainings__footnote-countdown {
   font-weight: 600;
   color: var(--brand-hover);
