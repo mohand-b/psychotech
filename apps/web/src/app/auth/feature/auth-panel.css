@@ -179,6 +179,20 @@
     display: none;
   }
 
+  .auth__footer {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .auth__footer-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .auth__footer-link {
+    font-size: 13px;
+  }
+
   .auth__divider {
     display: flex;
   }

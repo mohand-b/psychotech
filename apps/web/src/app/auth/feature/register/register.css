@@ -291,6 +291,15 @@
     gap: 18px;
   }
 
+  .register__progress,
+  .register__sector-chip {
+    display: none;
+  }
+
+  .register__fields {
+    gap: 18px;
+  }
+
   .register__sector {
     padding: 14px 16px;
   }
@@ -301,5 +310,10 @@
 
   .register__free {
     display: inline-flex;
+  }
+
+  .register__step-foot .auth__footer,
+  .register__panel--form .auth__footer {
+    padding-top: 0;
   }
 }

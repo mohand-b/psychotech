@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -41,12 +42,13 @@ export class Register {
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
 
   protected readonly mailIcon = Mail;
   protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
 
-  protected readonly step = signal<1 | 2>(1);
+  protected readonly step = signal<1 | 2>(this.isMobileViewport() ? 2 : 1);
   protected readonly cgu = signal(false);
 
   protected readonly firstName = signal('');
@@ -74,6 +76,13 @@ export class Register {
 
   protected sectorIcon(value: string) {
     return SECTOR_PRESENTATION[value as Sector].icon;
+  }
+
+  private isMobileViewport(): boolean {
+    return (
+      this.document.defaultView?.matchMedia('(max-width: 767px)').matches ??
+      false
+    );
   }
 
   protected readonly confirmationValid = computed(() =>
