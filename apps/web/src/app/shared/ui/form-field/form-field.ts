@@ -62,10 +62,11 @@ import { inputValue } from '../../util/input-value';
       color: var(--ink);
     }
     .ui-form-field__control {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 10px;
       height: 50px;
+      min-width: 0;
       padding: 0 14px;
       background: var(--card);
       border: 1px solid var(--border);
