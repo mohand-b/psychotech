@@ -1,4 +1,5 @@
 import { Injectable, InjectionToken, Provider, inject } from '@angular/core';
+import { CanActivateFn } from '@angular/router';
 import {
   AXIS_TUTORIAL,
   AxisTraining,
@@ -44,6 +45,14 @@ export function tutorialSessionProviders(
   return providers;
 }
 
+export const tutorialPlayResetGuard: CanActivateFn = () => {
+  const facade = inject(TrainingSessionFacade);
+  if (facade instanceof TutorialSessionFacade) {
+    facade.resetForNewRun();
+  }
+  return true;
+};
+
 @Injectable()
 export class TutorialSessionFacade extends TrainingSessionFacade {
   private readonly runFacade = inject(TutorialRunFacade);
@@ -52,6 +61,12 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
 
   constructor() {
     super();
+    if (this.presetAxis) {
+      this.installTutorialSession(this.presetAxis);
+    }
+  }
+
+  resetForNewRun(): void {
     if (this.presetAxis) {
       this.installTutorialSession(this.presetAxis);
     }

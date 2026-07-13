@@ -1,7 +1,10 @@
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
 import { AXIS_SLUGS } from '../../shared/util/axis-slug';
-import { tutorialSessionProviders } from '../data-access/tutorial-session.facade';
+import {
+  tutorialPlayResetGuard,
+  tutorialSessionProviders,
+} from '../data-access/tutorial-session.facade';
 
 function axisSessionMatcher(axis: AxisType): CanMatchFn {
   return (_route: Route, segments: UrlSegment[]) =>
@@ -79,6 +82,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/tutoriel/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.LOGIC)],
+    canActivate: [tutorialPlayResetGuard],
     data: { tutorial: true, focusedHeader: tutorialPlayHeader },
     providers: tutorialSessionProviders(AxisType.LOGIC),
     loadComponent: () =>
@@ -87,6 +91,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/tutoriel/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    canActivate: [tutorialPlayResetGuard],
     data: { tutorial: true, focusedHeader: tutorialPlayHeader },
     providers: tutorialSessionProviders(AxisType.MEMORY),
     loadComponent: () =>
@@ -95,6 +100,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/tutoriel/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    canActivate: [tutorialPlayResetGuard],
     data: { tutorial: true, focusedHeader: tutorialPlayHeader },
     providers: tutorialSessionProviders(AxisType.VISUAL_DISCRIMINATION),
     loadComponent: () =>
@@ -105,6 +111,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/tutoriel/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.REACTIVITY)],
+    canActivate: [tutorialPlayResetGuard],
     data: { tutorial: true, focusedHeader: tutorialPlayHeader },
     providers: tutorialSessionProviders(AxisType.REACTIVITY),
     loadComponent: () =>
@@ -113,6 +120,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/tutoriel/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MOTOR_SKILLS)],
+    canActivate: [tutorialPlayResetGuard],
     data: { tutorial: true, focusedHeader: tutorialPlayHeader },
     providers: tutorialSessionProviders(AxisType.MOTOR_SKILLS),
     loadComponent: () =>
