@@ -23,10 +23,8 @@ import {
   ChevronRight,
   CircleCheckBig,
   GraduationCap,
-  LayoutGrid,
   Lock,
   Play,
-  Timer,
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -110,8 +108,6 @@ export class Entrainements {
   protected readonly lockIcon = Lock;
   protected readonly graduationIcon = GraduationCap;
   protected readonly playIcon = Play;
-  protected readonly timerIcon = Timer;
-  protected readonly gridIcon = LayoutGrid;
 
   protected readonly simulationFeatures = [
     'Notation pondérée par secteur',
@@ -125,12 +121,6 @@ export class Entrainements {
     'Sessions courtes, retour immédiat',
     'Idéal pour cibler un point faible',
     "Options d'entraînement selon l'axe",
-  ];
-
-  protected readonly mobileTargetedFeatures = [
-    'Sessions courtes de 3 à 5 minutes',
-    'Résultat immédiat et correction détaillée',
-    'Progression mesurable axe par axe',
   ];
 
   private readonly panelParam = toSignal(
@@ -148,12 +138,6 @@ export class Entrainements {
   protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
   protected readonly sectorLabel = SECTOR_LABELS[this.sector];
-
-  protected readonly mobileSimulationFeatures = [
-    "Conditions réelles d'examen, sans interruption",
-    `Avis d'admissibilité vs seuil ${this.sectorLabel}`,
-    'Bilan détaillé et recommandations par axe',
-  ];
 
   protected readonly tier = this.coreFacade.tier;
   protected readonly isFree = computed(

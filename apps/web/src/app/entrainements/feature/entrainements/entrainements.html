@@ -293,12 +293,12 @@
       <div class="trainm__titleblock">
         <h2 class="trainm__name">Simulation complète</h2>
         <span class="trainm__desc"
-          >Les 5 axes enchaînés en conditions réelles, avec notation pondérée et
-          avis d'admissibilité.</span
+          >Les 5 axes enchaînés dans les conditions réelles de l'examen, avec un
+          avis d'admissibilité en fin de session.</span
         >
       </div>
       <div class="trainm__checks">
-        @for (item of mobileSimulationFeatures; track item) {
+        @for (item of simulationFeatures; track item) {
         <span class="trainm__check trainm__check--sim">
           <ui-icon [img]="checkIcon" [size]="14" />
           {{ item }}
@@ -306,14 +306,6 @@
         }
       </div>
       <div class="trainm__chips">
-        <span class="tri__chip tri__chip--muted">
-          <ui-icon [img]="gridIcon" [size]="12" />
-          <span class="tri__chip-value t-mono">5 axes</span>
-        </span>
-        <span class="tri__chip tri__chip--muted">
-          <ui-icon [img]="timerIcon" [size]="12" />
-          <span class="tri__chip-value t-mono">~25 min</span>
-        </span>
         <span class="tri__chip tri__chip--energy-sim">
           <ui-bolt [size]="12" />
           <span class="tri__chip-value t-mono">5</span>
@@ -347,14 +339,14 @@
           <span class="tri__flexible trainm__flexible">Flexible</span>
         </div>
         <div class="trainm__titleblock trainm__titleblock--cible">
-          <h2 class="trainm__name">Travaillez un axe à la fois</h2>
+          <h2 class="trainm__name">Un axe à la fois</h2>
           <span class="trainm__desc"
             >Des sessions courtes pour renforcer précisément ce qui vous coûte
             des points, sans rejouer toute l'épreuve.</span
           >
         </div>
         <div class="trainm__checks">
-          @for (item of mobileTargetedFeatures; track item) {
+          @for (item of targetedFeatures; track item) {
           <span class="trainm__check trainm__check--cible">
             <ui-icon [img]="checkIcon" [size]="14" />
             {{ item }}
@@ -362,13 +354,9 @@
           }
         </div>
         <div class="trainm__chips trainm__chips--cible">
-          <span class="tri__chip tri__chip--muted">
-            <ui-icon [img]="timerIcon" [size]="12" />
-            <span class="tri__chip-value t-mono">3-5 min / axe</span>
-          </span>
           <span class="tri__chip tri__chip--energy-cible">
             <ui-bolt [size]="12" />
-            <span class="tri__chip-value t-mono">1 / axe</span>
+            <span class="tri__chip-value t-mono">1</span>
           </span>
         </div>
       </div>
