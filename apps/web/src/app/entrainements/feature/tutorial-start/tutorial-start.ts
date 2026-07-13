@@ -11,8 +11,9 @@ import { axisFromSlug } from '../../../shared/util/axis-slug';
     <section class="page-shell tutorial">
       <h1 class="tutorial__title">Tutoriel {{ axisLabel }}</h1>
       <p class="tutorial__hint">
-        Le tutoriel guidé de cet axe est en préparation. Il proposera 5 items
-        fixes, gratuits et sans énergie, pour découvrir l'épreuve.
+        Le tutoriel guidé de cet axe est en préparation. Ce sera un aperçu
+        très court et volontairement limité : 5 items fixes, gratuits et sans
+        énergie, juste pour découvrir l'épreuve.
       </p>
       <a routerLink="/entrainements" class="tutorial__back"
         >Revenir aux entraînements</a
