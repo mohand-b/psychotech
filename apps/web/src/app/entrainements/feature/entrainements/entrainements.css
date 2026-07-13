@@ -213,6 +213,11 @@
   padding-top: 8px;
 }
 
+.tri--free .tri__cta {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .tri__locked {
   display: inline-flex;
   align-items: center;
