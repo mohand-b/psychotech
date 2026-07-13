@@ -5,8 +5,8 @@
         Prêt à vous entraîner{{ firstName ? ', ' + firstName : '' }}&nbsp;?
       </h1>
       <span class="trainings__subtitle trainings__subtitle--desktop"
-        >Deux façons de vous préparer aux sélections du secteur
-        {{ sectorLabel }} - à vous de choisir le rythme du jour.</span
+        >Deux façons de vous préparer aux sélections du secteur {{ sectorLabel
+        }} - à vous de choisir le rythme du jour.</span
       >
       <span class="trainings__subtitle trainings__subtitle--mobile"
         >Deux façons de vous préparer au secteur {{ sectorLabel }} - à vous de
@@ -16,242 +16,315 @@
     <ui-sector-chip class="trainings__sector" [sector]="sector" />
   </div>
 
-  <section class="duo" [class.duo--animate]="animationsReady()">
-    <div
-      class="duo__pitch"
-      [class.duo__pitch--closed]="panel() !== 'sim'"
-      (click)="openPanel('sim')"
-    >
-      <div class="duo__pitch-head">
-        <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
+  <section class="tri">
+    <div class="tri__pitch tri__pitch--sim">
+      <div class="tri__pitch-head">
+        <span class="tri__eyebrow tri__eyebrow--sim">Épreuve de référence</span>
+        @if (!isFree()) {
         <button
           type="button"
-          class="duo__hint duo__hint--sim"
-          [class.duo__hint--hidden]="panel() === 'sim'"
-          aria-label="Déplier le détail"
+          class="tri__toggle"
+          [class.tri__toggle--bilan]="view() === 'bilan'"
+          [attr.title]="
+              view() === 'bilan'
+                ? 'Revenir aux 5 axes'
+                : 'Voir votre dernier bilan'
+            "
+          (click)="toggleView()"
         >
           <ui-icon [img]="chevronRightIcon" [size]="15" />
         </button>
-      </div>
-      <div class="duo__titleblock">
-        <h2 class="duo__name">Simulation complète</h2>
-        <span class="duo__desc"
-          >Les 5 axes enchaînés dans les conditions réelles de l'examen, avec
-          un avis d'admissibilité en fin de session.</span
-        >
-      </div>
-      <div class="duo__checks duo__checks--sim">
-        @for (item of simulationFeatures; track item) {
-          <span class="duo__check">
-            <ui-icon [img]="checkIcon" [size]="15" />
-            {{ item }}
-          </span>
         }
       </div>
-      <div class="duo__chips">
-        <span class="duo__chip duo__chip--energy-sim">
-          <ui-bolt [size]="12" />
-          <span class="duo__chip-value t-mono">5</span>
-        </span>
+      <div class="tri__titleblock">
+        <h2 class="tri__name">Simulation complète</h2>
+        <span class="tri__desc"
+          >Les 5 axes enchaînés dans les conditions réelles de l'examen, avec un
+          avis d'admissibilité en fin de session.</span
+        >
       </div>
-      <div class="duo__cta">
+      <div class="tri__checks tri__checks--sim">
+        @for (item of simulationFeatures; track item) {
+        <span class="tri__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          {{ item }}
+        </span>
+        }
+      </div>
+      <span class="tri__chip tri__chip--energy-sim">
+        <ui-bolt [size]="12" />
+        <span class="tri__chip-value t-mono">5</span>
+      </span>
+      <div class="tri__cta">
+        @if (isFree()) {
+        <span class="tri__locked">
+          <ui-icon [img]="lockIcon" [size]="14" />
+          Réservé aux formules payantes
+        </span>
+        } @else {
         <ui-button
           color="brand"
           size="lg"
+          [relief]="true"
           [iconEnd]="arrowRightIcon"
           (click)="startSimulation()"
         >
           Accéder à la simulation
         </ui-button>
-      </div>
-    </div>
-
-    <div class="duo__panel" [class.duo__panel--open]="panel() === 'sim'">
-      <div class="duo__panel-inner duo__panel-inner--sim">
-        <span class="duo__label">Votre dernier bilan</span>
-        @if (lastSimulation(); as bilan) {
-          <div class="duo__bilan-score-row">
-            <span class="duo__bilan-score">
-              <span class="duo__bilan-value t-mono">{{ bilan.scoreLabel }}</span>
-              <span class="duo__bilan-max t-mono">/100</span>
-            </span>
-            <span class="duo__bilan-badge">
-              <span
-                class="duo__bilan-dot"
-                [style.background]="bilan.bandColorVar"
-              ></span>
-              <span>{{ bilan.bandLabel }}</span>
-            </span>
-          </div>
-          <div class="duo__bilan-bar-block">
-            <div class="duo__bilan-bar">
-              <span
-                class="duo__bilan-fill"
-                [style.width.%]="bilan.barWidth"
-              ></span>
-              <span
-                class="duo__bilan-marker"
-                [style.left.%]="bilan.markerLeft"
-              ></span>
-            </div>
-            <span class="duo__bilan-caption"
-              >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
-              <span class="duo__bilan-threshold t-mono">{{
-                bilan.threshold
-              }}</span>
-              ·
-              <span
-                class="duo__bilan-gap t-mono"
-                [class.duo__bilan-gap--above]="bilan.gap.above"
-                [class.duo__bilan-gap--below]="!bilan.gap.above"
-                >{{ bilan.gap.label }}</span
-              ></span
-            >
-          </div>
-          <span class="duo__bilan-note">
-            <span>{{ bilan.dateLabel }}</span>
-            <span>Une courte pause sépare chaque axe pendant la session.</span>
-          </span>
-        } @else if (overviewLoaded()) {
-          <span class="duo__empty-title">Pas encore de bilan</span>
-          <span class="duo__empty-hint"
-            >Votre bilan s'affichera ici après votre première simulation
-            complète, avec votre score, l'avis d'admissibilité et votre
-            position vs le seuil d'admissibilité de votre secteur.</span
-          >
         }
       </div>
     </div>
 
-    <span class="duo__divider"></span>
-
-    <div class="duo__panel" [class.duo__panel--open]="panel() === 'cible'">
-      <div class="duo__panel-inner duo__panel-inner--cible">
-        <div class="duo__axes-head">
-          <span class="duo__label">Les 5 axes</span>
-          <span class="duo__label">Meilleur score</span>
+    <div class="tri__volet" [class.tri__volet--free]="isFree()">
+      @if (isFree()) {
+      <div class="tri__offer">
+        <span class="tri__offer-tile">
+          <ui-icon [img]="lockIcon" [size]="20" />
+        </span>
+        <div class="tri__offer-copy">
+          <span class="tri__offer-title-row">
+            <span class="tri__offer-title">Vous êtes en offre Découverte</span>
+            <span class="tri__offer-badge">Gratuit</span>
+          </span>
+          <span class="tri__offer-hint"
+            >Les simulations et entraînements ciblés sont réservés aux formules
+            payantes. Les tutoriels restent en libre accès, ci-dessous.</span
+          >
         </div>
-        <span class="duo__axes-sep"></span>
+        <ui-button
+          color="brand"
+          size="md"
+          [iconEnd]="arrowRightIcon"
+          routerLink="/offres"
+        >
+          Voir les offres
+        </ui-button>
+        <span class="tri__offer-prices"
+          >Essentiel <span class="t-mono">9,99&nbsp;€</span>/mois · Illimité
+          <span class="t-mono">19,99&nbsp;€</span>/mois</span
+        >
+      </div>
+      } @else {
+      <div
+        class="tri__slide tri__slide--axes"
+        [class.tri__slide--hidden-left]="view() === 'bilan'"
+      >
+        <div class="tri__axes-head">
+          <span class="tri__label">Les 5 axes</span>
+          <span class="tri__label">Meilleur score</span>
+        </div>
+        <span class="tri__sep"></span>
         @for (row of axisRows(); track row.axis; let last = $last) {
-          <a class="duo__axis" [routerLink]="row.link">
-            <span
-              class="duo__axis-tile"
-              [style.background]="row.presentation.pastelVar"
-              [style.border-color]="row.presentation.pastelBorderVar"
-              [style.color]="row.presentation.textVar"
-            >
-              <ui-icon [img]="row.presentation.icon" [size]="17" />
-            </span>
-            <span class="duo__axis-copy">
-              <span class="duo__axis-name">{{ row.presentation.label }}</span>
-              <span class="duo__axis-desc">{{ row.description }}</span>
-            </span>
-            <span class="duo__axis-score">
-              <span class="duo__axis-bar">
-                <span
-                  class="duo__axis-fill"
-                  [style.background]="row.presentation.plainVar"
-                  [style.width.%]="row.barWidth"
-                ></span>
-              </span>
-              @if (row.neverPlayed) {
-                <span class="duo__axis-value"
-                  ><span class="duo__axis-dash"></span
-                ></span>
-              } @else {
-                <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+        <a class="tri__axis" [routerLink]="row.link">
+          <span
+            class="tri__axis-tile"
+            [style.background]="row.presentation.pastelVar"
+            [style.border-color]="row.presentation.pastelBorderVar"
+            [style.color]="row.presentation.textVar"
+          >
+            <ui-icon [img]="row.presentation.icon" [size]="17" />
+          </span>
+          <span class="tri__axis-copy">
+            <span class="tri__axis-name-row">
+              <span class="tri__axis-name">{{ row.presentation.label }}</span>
+              @if (row.needsWork) {
+              <span
+                class="tri__axis-badge"
+                [style.background]="row.presentation.pastelVar"
+                [style.border-color]="row.presentation.pastelBorderVar"
+                [style.color]="row.presentation.textVar"
+                >À travailler</span
+              >
+              } @if (row.isCriticalAxis) {
+              <span
+                class="tri__axis-badge"
+                [style.background]="row.presentation.pastelVar"
+                [style.border-color]="row.presentation.pastelBorderVar"
+                [style.color]="row.presentation.textVar"
+                >Axe critique</span
+              >
               }
             </span>
-            <ui-icon
-              class="duo__axis-chevron"
-              [img]="chevronRightIcon"
-              [size]="15"
-            />
-          </a>
-          @if (!last) {
-            <span class="duo__axes-sep"></span>
-          }
+            <span class="tri__axis-desc">{{ row.description }}</span>
+          </span>
+          <span class="tri__axis-score">
+            <span class="tri__axis-bar">
+              <span
+                class="tri__axis-fill"
+                [style.background]="row.presentation.plainVar"
+                [style.width.%]="row.barWidth"
+              ></span>
+            </span>
+            @if (row.neverPlayed) {
+            <span class="tri__axis-value"
+              ><span class="tri__axis-dash"></span
+            ></span>
+            } @else {
+            <span class="tri__axis-value t-mono">{{ row.scoreLabel }}</span>
+            }
+          </span>
+          <ui-icon
+            class="tri__axis-chevron"
+            [img]="chevronRightIcon"
+            [size]="15"
+          />
+        </a>
+        @if (!last) {
+        <span class="tri__sep"></span>
+        } }
+      </div>
+
+      <div
+        class="tri__slide tri__slide--bilan"
+        [class.tri__slide--hidden-right]="view() === 'axes'"
+      >
+        <div class="tri__bilan-head">
+          <span class="tri__label">Votre dernier bilan</span>
+          <button type="button" class="tri__bilan-back" (click)="toggleView()">
+            <ui-icon [img]="arrowLeftIcon" [size]="13" />
+            Les 5 axes
+          </button>
+        </div>
+        @if (lastSimulation(); as bilan) {
+        <div class="tri__bilan-score-row">
+          <span class="tri__bilan-score">
+            <span class="tri__bilan-value t-mono">{{ bilan.scoreLabel }}</span>
+            <span class="tri__bilan-max t-mono">/100</span>
+          </span>
+          <span class="tri__bilan-badge">
+            <span
+              class="tri__bilan-dot"
+              [style.background]="bilan.bandColorVar"
+            ></span>
+            <span>{{ bilan.bandLabel }}</span>
+          </span>
+        </div>
+        <div class="tri__bilan-bar-block">
+          <div class="tri__bilan-bar">
+            <span
+              class="tri__bilan-fill"
+              [style.width.%]="bilan.barWidth"
+            ></span>
+            <span
+              class="tri__bilan-marker"
+              [style.left.%]="bilan.markerLeft"
+            ></span>
+          </div>
+          <span class="tri__bilan-caption"
+            >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
+            <span class="tri__bilan-threshold t-mono"
+              >{{ bilan.threshold }}</span
+            >
+            ·
+            <span
+              class="tri__bilan-gap t-mono"
+              [class.tri__bilan-gap--above]="bilan.gap.above"
+              [class.tri__bilan-gap--below]="!bilan.gap.above"
+              >{{ bilan.gap.label }}</span
+            ></span
+          >
+        </div>
+        <a
+          class="tri__bilan-link"
+          [routerLink]="['/sessions', bilan.sessionId, 'resultat']"
+        >
+          Voir le détail
+          <ui-icon [img]="arrowRightIcon" [size]="14" />
+        </a>
+        <span class="tri__bilan-note"
+          >{{ bilan.dateLabel }} · Une courte pause sépare chaque axe pendant la
+          session.</span
+        >
+        } @else if (overviewLoaded()) {
+        <span class="tri__empty-title">Pas encore de bilan</span>
+        <span class="tri__empty-hint"
+          >Votre bilan s'affichera ici après votre première simulation complète,
+          avec votre score, l'avis d'admissibilité et votre position vs le seuil
+          d'admissibilité de votre secteur.</span
+        >
         }
       </div>
+      }
     </div>
 
-    <div
-      class="duo__pitch"
-      [class.duo__pitch--closed]="panel() !== 'cible'"
-      (click)="openPanel('cible')"
-    >
-      <div class="duo__pitch-head">
-        <button
-          type="button"
-          class="duo__hint duo__hint--cible"
-          [class.duo__hint--hidden]="panel() === 'cible'"
-          aria-label="Déplier le détail"
-        >
-          <ui-icon [img]="chevronLeftIcon" [size]="15" />
-        </button>
-        <div class="duo__eyebrow-group">
-          <span class="duo__eyebrow duo__eyebrow--cible">Entraînement ciblé</span>
-          <span class="duo__flexible">Flexible</span>
-        </div>
+    <div class="tri__pitch tri__pitch--cible">
+      <div class="tri__pitch-head tri__pitch-head--cible">
+        <span class="tri__eyebrow tri__eyebrow--cible">Entraînement ciblé</span>
+        <span class="tri__flexible">Flexible</span>
       </div>
-      <div class="duo__titleblock">
-        <h2 class="duo__name">Un axe à la fois</h2>
-        <span class="duo__desc"
-          >Des sessions courtes pour renforcer précisément ce qui vous coûte
-          des points, sans rejouer toute l'épreuve.</span
+      <div class="tri__titleblock">
+        <h2 class="tri__name">Un axe à la fois</h2>
+        <span class="tri__desc"
+          >Des sessions courtes pour renforcer précisément ce qui vous coûte des
+          points, sans rejouer toute l'épreuve.</span
         >
       </div>
-      <div class="duo__checks duo__checks--cible">
+      <div class="tri__checks tri__checks--cible">
         @for (item of targetedFeatures; track item) {
-          <span class="duo__check">
-            <ui-icon [img]="checkIcon" [size]="15" />
-            {{ item }}
-          </span>
+        <span class="tri__check">
+          <ui-icon [img]="checkIcon" [size]="15" />
+          {{ item }}
+        </span>
         }
       </div>
-      <div class="duo__chips">
-        <span class="duo__chip duo__chip--energy-cible">
-          <ui-bolt [size]="12" />
-          <span class="duo__chip-value t-mono">1</span>
+      <span class="tri__chip tri__chip--energy-cible">
+        <ui-bolt [size]="12" />
+        <span class="tri__chip-value t-mono">1</span>
+      </span>
+      <div class="tri__cta">
+        @if (isFree()) {
+        <span class="tri__locked">
+          <ui-icon [img]="lockIcon" [size]="14" />
+          Réservé aux formules payantes
         </span>
-      </div>
-      <div class="duo__cta">
-        <button type="button" class="duo__foot-link">
+        } @else {
+        <span class="tri__aside">
           <ui-icon [img]="arrowLeftIcon" [size]="14" />
-          {{
-            panel() === 'cible'
-              ? 'Choisissez votre axe ci-contre'
-              : 'Voir les axes'
-          }}
-        </button>
+          Choisissez votre axe ci-contre
+        </span>
+        }
       </div>
     </div>
   </section>
 
   <div class="trainm">
     <section class="trainm__sim">
-      <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
+      <span class="tri__eyebrow tri__eyebrow--sim">Épreuve de référence</span>
       <div class="trainm__titleblock">
         <h2 class="trainm__name">Simulation complète</h2>
         <span class="trainm__desc"
-          >Les 5 axes enchaînés en conditions réelles, avec notation pondérée
-          et avis d'admissibilité.</span
+          >Les 5 axes enchaînés en conditions réelles, avec notation pondérée et
+          avis d'admissibilité.</span
         >
       </div>
       <div class="trainm__checks">
-        @for (item of simulationFeatures; track item) {
-          <span class="trainm__check trainm__check--sim">
-            <ui-icon [img]="checkIcon" [size]="14" />
-            {{ item }}
-          </span>
+        @for (item of mobileSimulationFeatures; track item) {
+        <span class="trainm__check trainm__check--sim">
+          <ui-icon [img]="checkIcon" [size]="14" />
+          {{ item }}
+        </span>
         }
       </div>
-      <div class="trainm__chips trainm__chips--sim">
-        <span class="duo__chip duo__chip--energy-sim">
+      <div class="trainm__chips">
+        <span class="tri__chip tri__chip--muted">
+          <ui-icon [img]="gridIcon" [size]="12" />
+          <span class="tri__chip-value t-mono">5 axes</span>
+        </span>
+        <span class="tri__chip tri__chip--muted">
+          <ui-icon [img]="timerIcon" [size]="12" />
+          <span class="tri__chip-value t-mono">~25 min</span>
+        </span>
+        <span class="tri__chip tri__chip--energy-sim">
           <ui-bolt [size]="12" />
-          <span class="duo__chip-value t-mono">5</span>
+          <span class="tri__chip-value t-mono">5</span>
         </span>
       </div>
+      @if (isFree()) {
+      <span class="trainm__locked">
+        <ui-icon [img]="lockIcon" [size]="14" />
+        Réservé aux formules payantes
+      </span>
+      } @else {
       <ui-button
         color="brand"
         size="lg"
@@ -262,94 +335,193 @@
       >
         Accéder à la simulation
       </ui-button>
+      }
     </section>
 
     <section class="trainm__cible">
       <div class="trainm__pitch">
         <div class="trainm__pitch-head">
-          <span class="duo__eyebrow duo__eyebrow--cible">Entraînement ciblé</span>
-          <span class="duo__flexible trainm__flexible">Flexible</span>
+          <span class="tri__eyebrow tri__eyebrow--cible"
+            >Entraînement ciblé</span
+          >
+          <span class="tri__flexible trainm__flexible">Flexible</span>
         </div>
         <div class="trainm__titleblock trainm__titleblock--cible">
-          <h2 class="trainm__name">Un axe à la fois</h2>
+          <h2 class="trainm__name">Travaillez un axe à la fois</h2>
           <span class="trainm__desc"
             >Des sessions courtes pour renforcer précisément ce qui vous coûte
             des points, sans rejouer toute l'épreuve.</span
           >
         </div>
         <div class="trainm__checks">
-          @for (item of targetedFeatures; track item) {
-            <span class="trainm__check trainm__check--cible">
-              <ui-icon [img]="checkIcon" [size]="14" />
-              {{ item }}
-            </span>
+          @for (item of mobileTargetedFeatures; track item) {
+          <span class="trainm__check trainm__check--cible">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            {{ item }}
+          </span>
           }
         </div>
         <div class="trainm__chips trainm__chips--cible">
-          <span class="duo__chip duo__chip--energy-cible">
+          <span class="tri__chip tri__chip--muted">
+            <ui-icon [img]="timerIcon" [size]="12" />
+            <span class="tri__chip-value t-mono">3-5 min / axe</span>
+          </span>
+          <span class="tri__chip tri__chip--energy-cible">
             <ui-bolt [size]="12" />
-            <span class="duo__chip-value t-mono">1</span>
+            <span class="tri__chip-value t-mono">1 / axe</span>
           </span>
         </div>
       </div>
 
+      @if (isFree()) {
+      <div class="trainm__offer">
+        <span class="tri__offer-tile trainm__offer-tile">
+          <ui-icon [img]="lockIcon" [size]="19" />
+        </span>
+        <div class="tri__offer-copy">
+          <span class="tri__offer-title-row">
+            <span class="tri__offer-title">Vous êtes en offre Découverte</span>
+            <span class="tri__offer-badge">Gratuit</span>
+          </span>
+          <span class="tri__offer-hint trainm__offer-hint"
+            >Les simulations et entraînements ciblés sont réservés aux formules
+            payantes. Les tutoriels restent en libre accès, ci-dessous.</span
+          >
+        </div>
+        <ui-button
+          color="brand"
+          size="lg"
+          [block]="true"
+          routerLink="/offres"
+          [iconEnd]="arrowRightIcon"
+        >
+          Voir les offres
+        </ui-button>
+        <span class="tri__offer-prices trainm__offer-prices"
+          >Essentiel <span class="t-mono">9,99&nbsp;€</span>/mois · Illimité
+          <span class="t-mono">19,99&nbsp;€</span>/mois</span
+        >
+      </div>
+      } @else {
       <div class="trainm__axes">
         @for (row of axisRows(); track row.axis) {
-          <a class="trainm__axis" [routerLink]="row.link">
-            <span class="trainm__axis-top">
-              <span
-                class="trainm__axis-tile"
-                [style.background]="row.presentation.pastelVar"
-                [style.border-color]="row.presentation.pastelBorderVar"
-                [style.color]="row.presentation.textVar"
-              >
-                <ui-icon [img]="row.presentation.icon" [size]="19" />
-              </span>
-              <span class="trainm__axis-copy">
-                <span class="trainm__axis-name">{{
-                  row.presentation.label
-                }}</span>
-                <span class="trainm__axis-desc">{{
-                  row.mobileDescription
-                }}</span>
-              </span>
-              <ui-icon
-                class="duo__axis-chevron"
-                [img]="chevronRightIcon"
-                [size]="16"
-              />
+        <a class="trainm__axis" [routerLink]="row.link">
+          <span class="trainm__axis-top">
+            <span
+              class="trainm__axis-tile"
+              [style.background]="row.presentation.pastelVar"
+              [style.border-color]="row.presentation.pastelBorderVar"
+              [style.color]="row.presentation.textVar"
+            >
+              <ui-icon [img]="row.presentation.icon" [size]="19" />
             </span>
-            <span class="trainm__axis-foot">
-              <span class="trainm__axis-foot-label">Meilleur score</span>
-              <span class="trainm__axis-bar">
+            <span class="trainm__axis-copy">
+              <span class="trainm__axis-name-row">
+                <span class="trainm__axis-name"
+                  >{{ row.presentation.label }}</span
+                >
+                @if (row.needsWork) {
                 <span
-                  class="trainm__axis-fill"
-                  [style.background]="row.presentation.plainVar"
-                  [style.width.%]="row.barWidth"
-                ></span>
+                  class="tri__axis-badge"
+                  [style.background]="row.presentation.pastelVar"
+                  [style.border-color]="row.presentation.pastelBorderVar"
+                  [style.color]="row.presentation.textVar"
+                  >À travailler</span
+                >
+                } @if (row.isCriticalAxis) {
+                <span
+                  class="tri__axis-badge"
+                  [style.background]="row.presentation.pastelVar"
+                  [style.border-color]="row.presentation.pastelBorderVar"
+                  [style.color]="row.presentation.textVar"
+                  >Axe critique</span
+                >
+                }
               </span>
-              @if (row.neverPlayed) {
-                <span class="trainm__axis-value"
-                  ><span class="duo__axis-dash"></span
-                ></span>
-              } @else {
-                <span class="trainm__axis-value t-mono">{{
-                  row.scoreLabel
-                }}</span>
-              }
+              <span class="trainm__axis-desc">{{ row.mobileDescription }}</span>
             </span>
-          </a>
+            <ui-icon
+              class="tri__axis-chevron"
+              [img]="chevronRightIcon"
+              [size]="16"
+            />
+          </span>
+          <span class="trainm__axis-foot">
+            <span class="trainm__axis-foot-label">Meilleur score</span>
+            <span class="trainm__axis-bar">
+              <span
+                class="trainm__axis-fill"
+                [style.background]="row.presentation.plainVar"
+                [style.width.%]="row.barWidth"
+              ></span>
+            </span>
+            @if (row.neverPlayed) {
+            <span class="trainm__axis-value"
+              ><span class="tri__axis-dash"></span
+            ></span>
+            } @else {
+            <span class="trainm__axis-value t-mono">{{ row.scoreLabel }}</span>
+            }
+          </span>
+        </a>
         }
       </div>
+      }
 
       <span class="trainm__note"
-        >Chaque entraînement génère de nouveaux exercices.</span
+        >Chaque entraînement génère de nouveaux exercices. L'énergie est débitée
+        au lancement.</span
       >
     </section>
   </div>
 
   <span class="trainings__footnote"
-    >Chaque entraînement génère de nouveaux exercices. L'énergie est débitée
-    au lancement.</span
+    >Chaque entraînement génère de nouveaux exercices. L'énergie est débitée au
+    lancement.@if (isEssential() && rechargeLabel(); as recharge) {
+    <span>
+      Recharge complète dans
+      <span class="trainings__footnote-countdown t-mono">{{ recharge }}</span>,
+      à minuit.</span
+    >
+    }</span
   >
+
+  <section class="tut">
+    <div class="tut__head">
+      <span class="tut__tile">
+        <ui-icon [img]="graduationIcon" [size]="17" />
+      </span>
+      <span class="tut__copy">
+        <span class="tut__title"
+          >Jamais vu ces épreuves&nbsp;? Essayez un axe en tutoriel</span
+        >
+        <span class="tut__hint tut__hint--desktop"
+          >5 items guidés, gratuit et sans énergie. Le tutoriel est toujours
+          identique et son score n'est pas enregistré.</span
+        >
+        <span class="tut__hint tut__hint--mobile"
+          >5 items guidés, gratuit et sans énergie. Le tutoriel est toujours
+          identique, score non enregistré.</span
+        >
+      </span>
+    </div>
+    <div class="tut__grid">
+      @for (tutorial of tutorialAxes; track tutorial.axis) {
+      <a class="tut__card" [routerLink]="tutorial.link">
+        <span
+          class="tut__card-tile"
+          [style.background]="tutorial.presentation.pastelVar"
+          [style.color]="tutorial.presentation.textVar"
+        >
+          <ui-icon [img]="tutorial.presentation.icon" [size]="17" />
+        </span>
+        <span class="tut__card-name">{{ tutorial.presentation.label }}</span>
+        <span class="tut__try" [style.color]="tutorial.presentation.textVar">
+          <ui-icon [img]="playIcon" [size]="11" />
+          Essayer
+        </span>
+      </a>
+      }
+    </div>
+  </section>
 </section>

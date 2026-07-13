@@ -117,7 +117,8 @@ export function courseContactTimes(
   return mergeContactTimes(
     events
       .filter(
-        (event) => event.type === 'CONTACT' && event.courseIndex === courseIndex,
+        (event) =>
+          event.type === 'CONTACT' && event.courseIndex === courseIndex,
       )
       .map((event) => event.tMs),
   );
@@ -304,9 +305,7 @@ export function monotoneCubicPath(coords: CurvePoint[]): string {
   const slopes: number[] = [];
   for (let index = 0; index < count - 1; index += 1) {
     const dx = coords[index + 1].x - coords[index].x;
-    slopes.push(
-      dx === 0 ? 0 : (coords[index + 1].y - coords[index].y) / dx,
-    );
+    slopes.push(dx === 0 ? 0 : (coords[index + 1].y - coords[index].y) / dx);
   }
   const tangents: number[] = [slopes[0]];
   for (let index = 1; index < count - 1; index += 1) {

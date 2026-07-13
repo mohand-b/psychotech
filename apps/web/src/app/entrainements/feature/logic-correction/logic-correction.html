@@ -1,40 +1,38 @@
 @if (result() && currentItem(); as item) {
-  <ui-correction-shell
-    [axis]="axis"
-    [dots]="dots()"
-    [legend]="legend"
-    [currentIndex]="currentIndex()"
-    [isFirst]="isFirst()"
-    [isLast]="isLast()"
-    (navigate)="goTo($event)"
-    (previous)="previous()"
-    (next)="next()"
-    (backToResult)="backToResult()"
-  >
-    <header class="corr__card-head">
-      <span
-        class="corr__badge"
-        [style.background]="badge().backgroundVar"
-        [style.color]="badge().colorVar"
-        >{{ badge().label }}</span
-      >
-      <span class="corr__count t-mono"
-        >{{ currentIndex() + 1 }}/{{ total }}</span
-      >
-    </header>
-
-    <ui-logic-sequence #sequence [terms]="item.sequence" [hint]="hint()" />
-
-    <ui-logic-choices
-      [review]="true"
-      [choices]="item.choices"
-      [correctIndex]="item.answerIndex"
-      [userAnswerIndex]="userAnswerIndex()"
-    />
-
-    <span class="corr__time"
-      >Votre temps :
-      <strong class="corr__time-value t-mono">{{ timeLabel() }}</strong></span
+<ui-correction-shell
+  [axis]="axis"
+  [dots]="dots()"
+  [legend]="legend"
+  [currentIndex]="currentIndex()"
+  [isFirst]="isFirst()"
+  [isLast]="isLast()"
+  (navigate)="goTo($event)"
+  (previous)="previous()"
+  (next)="next()"
+  (backToResult)="backToResult()"
+>
+  <header class="corr__card-head">
+    <span
+      class="corr__badge"
+      [style.background]="badge().backgroundVar"
+      [style.color]="badge().colorVar"
+      >{{ badge().label }}</span
     >
-  </ui-correction-shell>
+    <span class="corr__count t-mono">{{ currentIndex() + 1 }}/{{ total }}</span>
+  </header>
+
+  <ui-logic-sequence #sequence [terms]="item.sequence" [hint]="hint()" />
+
+  <ui-logic-choices
+    [review]="true"
+    [choices]="item.choices"
+    [correctIndex]="item.answerIndex"
+    [userAnswerIndex]="userAnswerIndex()"
+  />
+
+  <span class="corr__time"
+    >Votre temps :
+    <strong class="corr__time-value t-mono">{{ timeLabel() }}</strong></span
+  >
+</ui-correction-shell>
 }

@@ -1,42 +1,38 @@
 <ui-result-page>
   @if (result(); as r) {
-    <ui-result-summary
-      [axis]="r.axis"
-      [score]="r.score"
-      [band]="r.band"
-      [previousScore]="r.previousScore"
-      [bestScore]="r.bestScore"
-      [isNewBest]="r.isNewBest"
-      [isEqualBest]="r.isEqualBest"
-      [sector]="r.sector"
-      [completedAt]="r.completedAt"
-    />
+  <ui-result-summary
+    [axis]="r.axis"
+    [score]="r.score"
+    [band]="r.band"
+    [previousScore]="r.previousScore"
+    [bestScore]="r.bestScore"
+    [isNewBest]="r.isNewBest"
+    [isEqualBest]="r.isEqualBest"
+    [sector]="r.sector"
+    [completedAt]="r.completedAt"
+  />
 
-    @if (scored(); as s) {
-      <ui-result-panel>
-        <ui-result-metrics panelStart [rows]="metricRows()" />
-        <ui-result-timing
-          panelEnd
-          heading="Fiabilité par position"
-          note="Taux de restitution correcte par position - toutes séquences confondues."
-          (review)="review()"
-        >
-          <ui-memory-reliability-chart
-            [reliabilities]="s.positionReliability"
-          />
-        </ui-result-timing>
-      </ui-result-panel>
-    }
+  @if (scored(); as s) {
+  <ui-result-panel>
+    <ui-result-metrics panelStart [rows]="metricRows()" />
+    <ui-result-timing
+      panelEnd
+      heading="Fiabilité par position"
+      note="Taux de restitution correcte par position - toutes séquences confondues."
+      (review)="review()"
+    >
+      <ui-memory-reliability-chart [reliabilities]="s.positionReliability" />
+    </ui-result-timing>
+  </ui-result-panel>
+  } @if (recommendation(); as reco) {
+  <ui-result-recommendation [recommendation]="reco" />
+  }
 
-    @if (recommendation(); as reco) {
-      <ui-result-recommendation [recommendation]="reco" />
-    }
-
-    <ui-result-actions
-      footnote="Chaque entraînement génère de nouvelles séquences."
-      (newTraining)="newTraining()"
-      [backLabel]="backLabel"
-      (back)="back()"
-    />
+  <ui-result-actions
+    footnote="Chaque entraînement génère de nouvelles séquences."
+    (newTraining)="newTraining()"
+    [backLabel]="backLabel"
+    (back)="back()"
+  />
   }
 </ui-result-page>

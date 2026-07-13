@@ -8,9 +8,13 @@ import {
 import { RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
 import { ArrowLeft, Timer, X } from 'lucide-angular';
+import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
-import { ChevronStep, ChevronStepper } from '../chevron-stepper/chevron-stepper';
+import {
+  ChevronStep,
+  ChevronStepper,
+} from '../chevron-stepper/chevron-stepper';
 import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
 
@@ -59,7 +63,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 
         <div class="focused-header__actions">
           @if (showEnergy()) {
-            <ui-energy-chip [state]="energy()" />
+            <ui-energy-chip [state]="energy()" [tier]="tier()" />
             @if (duration() || closeLink()) {
               <span class="focused-header__separator"></span>
             }
@@ -67,9 +71,15 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
           @if (duration(); as duration) {
             <span
               class="focused-header__timer"
-              [class.focused-header__timer--warning]="timerSeverity() === 'warning'"
-              [class.focused-header__timer--danger]="timerSeverity() === 'danger'"
-              [class.focused-header__timer--inactive]="timerSeverity() === 'inactive'"
+              [class.focused-header__timer--warning]="
+                timerSeverity() === 'warning'
+              "
+              [class.focused-header__timer--danger]="
+                timerSeverity() === 'danger'
+              "
+              [class.focused-header__timer--inactive]="
+                timerSeverity() === 'inactive'
+              "
             >
               <ui-icon [img]="timerIcon" [size]="15" />
               <span class="focused-header__timer-value">{{ duration }}</span>
@@ -93,6 +103,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 })
 export class FocusedHeader {
   private readonly energyFacade = inject(EnergyFacade);
+  private readonly coreFacade = inject(CoreFacade);
 
   readonly title = input.required<string>();
   readonly backLabel = input.required<string>();
@@ -111,4 +122,5 @@ export class FocusedHeader {
   protected readonly timerIcon = Timer;
   protected readonly closeIcon = X;
   protected readonly energy = this.energyFacade.state;
+  protected readonly tier = this.coreFacade.tier;
 }

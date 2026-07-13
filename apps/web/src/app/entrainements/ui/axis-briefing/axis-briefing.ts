@@ -51,70 +51,72 @@ interface SummaryTile {
           <p class="axis-briefing__text">{{ training().briefing.consigne }}</p>
         </article>
 
-      <article class="axis-briefing__card">
-        <span class="axis-briefing__label">Objectif</span>
-        <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
-      </article>
+        <article class="axis-briefing__card">
+          <span class="axis-briefing__label">Objectif</span>
+          <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
+        </article>
 
-      <article class="axis-briefing__card axis-briefing__card--summary">
-        <span class="axis-briefing__label">Résumé</span>
-        <div class="axis-briefing__metrics">
-          <span class="axis-briefing__metric">
-            <ui-icon
-              class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
-              [img]="volumeDesktopIcon"
-              [size]="15"
-            />
-            <ui-icon
-              class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
-              [img]="volumeIcon"
-              [size]="18"
-            />
-            <span class="axis-briefing__metric-value t-mono">{{
-              volume().value
-            }}</span>
-            <span class="axis-briefing__metric-label">{{
-              volume().label
-            }}</span>
-          </span>
-          <span class="axis-briefing__metric">
-            <ui-icon
-              class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
-              [img]="timeDesktopIcon"
-              [size]="15"
-            />
-            <ui-icon
-              class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
-              [img]="timeIcon"
-              [size]="18"
-            />
-            <span class="axis-briefing__metric-value t-mono">{{
-              time().value
-            }}</span>
-            <span class="axis-briefing__metric-label">{{ time().label }}</span>
-          </span>
-          @if (admissibilityThreshold(); as threshold) {
+        <article class="axis-briefing__card axis-briefing__card--summary">
+          <span class="axis-briefing__label">Résumé</span>
+          <div class="axis-briefing__metrics">
             <span class="axis-briefing__metric">
               <ui-icon
+                class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
+                [img]="volumeDesktopIcon"
+                [size]="15"
+              />
+              <ui-icon
                 class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
-                [img]="thresholdIcon"
+                [img]="volumeIcon"
                 [size]="18"
               />
               <span class="axis-briefing__metric-value t-mono">{{
-                threshold
+                volume().value
               }}</span>
-              <span
-                class="axis-briefing__metric-label axis-briefing__metric-label--desktop"
-                >seuil d'admission</span
-              >
-              <span
-                class="axis-briefing__metric-label axis-briefing__metric-label--mobile"
-                >seuil</span
-              >
+              <span class="axis-briefing__metric-label">{{
+                volume().label
+              }}</span>
             </span>
-          }
-        </div>
-      </article>
+            <span class="axis-briefing__metric">
+              <ui-icon
+                class="axis-briefing__metric-icon axis-briefing__metric-icon--desktop"
+                [img]="timeDesktopIcon"
+                [size]="15"
+              />
+              <ui-icon
+                class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
+                [img]="timeIcon"
+                [size]="18"
+              />
+              <span class="axis-briefing__metric-value t-mono">{{
+                time().value
+              }}</span>
+              <span class="axis-briefing__metric-label">{{
+                time().label
+              }}</span>
+            </span>
+            @if (admissibilityThreshold(); as threshold) {
+              <span class="axis-briefing__metric">
+                <ui-icon
+                  class="axis-briefing__metric-icon axis-briefing__metric-icon--mobile"
+                  [img]="thresholdIcon"
+                  [size]="18"
+                />
+                <span class="axis-briefing__metric-value t-mono">{{
+                  threshold
+                }}</span>
+                <span
+                  class="axis-briefing__metric-label axis-briefing__metric-label--desktop"
+                  >seuil d'admission</span
+                >
+                <span
+                  class="axis-briefing__metric-label axis-briefing__metric-label--mobile"
+                  >seuil</span
+                >
+              </span>
+            }
+          </div>
+        </article>
 
         @if (showOptions() && trainingOptions().length > 0) {
           <article class="axis-briefing__card">
@@ -160,7 +162,9 @@ export class AxisBriefing {
 
   protected setOptionEnabled(id: TrainingOptionId, enabled: boolean): void {
     this.enabledOptions.update((ids) =>
-      enabled ? [...ids.filter((other) => other !== id), id] : ids.filter((other) => other !== id),
+      enabled
+        ? [...ids.filter((other) => other !== id), id]
+        : ids.filter((other) => other !== id),
     );
   }
 
@@ -222,5 +226,4 @@ export class AxisBriefing {
         };
     }
   });
-
 }

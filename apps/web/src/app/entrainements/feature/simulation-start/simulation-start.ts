@@ -78,10 +78,7 @@ export class SimulationStart {
     this.starting.set(true);
     this.trainingSessionFacade.startFull().subscribe({
       next: (session) =>
-        this.router.navigate([
-          '/entrainements/simulation/session',
-          session.id,
-        ]),
+        this.router.navigate(['/entrainements/simulation/session', session.id]),
       error: () => this.starting.set(false),
     });
   }

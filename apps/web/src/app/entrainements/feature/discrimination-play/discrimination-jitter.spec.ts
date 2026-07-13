@@ -99,16 +99,19 @@ describe('computeJitterPlacement', () => {
 
 describe('jitterTransform', () => {
   it('falls back to a neutral transform before any measurement', () => {
-    expect(jitterTransform({ fx: 1, fy: 1 }, null)).toBe(
-      'translate(0px, 0px)',
-    );
+    expect(jitterTransform({ fx: 1, fy: 1 }, null)).toBe('translate(0px, 0px)');
   });
 
   it('renders the computed placement as a css transform', () => {
     expect(
       jitterTransform(
         { fx: 0.5, fy: -0.5 },
-        { zoneWidth: 360, zoneHeight: 150, contentWidth: 180, contentHeight: 40 },
+        {
+          zoneWidth: 360,
+          zoneHeight: 150,
+          contentWidth: 180,
+          contentHeight: 40,
+        },
       ),
     ).toBe('translate(33px, -19.5px) scale(1)');
   });

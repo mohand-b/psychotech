@@ -1,35 +1,46 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
 
-export type TrainingsPanel = 'sim' | 'cible';
+export type TrainingsVoletView = 'axes' | 'bilan';
 
 export interface AxisOverviewCopy {
   description: string;
   mobileDescription: string;
 }
 
-export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> =
-  {
-    [AxisType.LOGIC]: {
-      description: 'Suites à compléter',
-      mobileDescription: 'Suites à compléter',
-    },
-    [AxisType.MEMORY]: {
-      description: 'Séquences à mémoriser et restituer',
-      mobileDescription: 'Séquences à mémoriser et restituer',
-    },
-    [AxisType.VISUAL_DISCRIMINATION]: {
-      description: 'Comparaison rapide de suites',
-      mobileDescription: 'Comparaison rapide de suites',
-    },
-    [AxisType.REACTIVITY]: {
-      description: 'Temps de réaction et inhibition',
-      mobileDescription: 'Temps de réaction et inhibition',
-    },
-    [AxisType.MOTOR_SKILLS]: {
-      description: 'Coordination bimanuelle en couloir',
-      mobileDescription: 'Coordination bimanuelle en couloir',
-    },
-  };
+export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> = {
+  [AxisType.LOGIC]: {
+    description: 'Suites à compléter',
+    mobileDescription: 'Suites à compléter',
+  },
+  [AxisType.MEMORY]: {
+    description: 'Séquences à restituer, ordre normal et inversé',
+    mobileDescription: 'Séquences, ordre normal et inversé',
+  },
+  [AxisType.VISUAL_DISCRIMINATION]: {
+    description: 'Comparaison rapide de suites',
+    mobileDescription: 'Comparaison rapide de suites',
+  },
+  [AxisType.REACTIVITY]: {
+    description: 'Temps de réaction et inhibition',
+    mobileDescription: 'Temps de réaction et inhibition',
+  },
+  [AxisType.MOTOR_SKILLS]: {
+    description: 'Coordination bimanuelle en couloir',
+    mobileDescription: 'Coordination bimanuelle en couloir',
+  },
+};
+
+export function formatRechargeCountdown(resetsAt: string, now: Date): string {
+  const minutes = Math.max(
+    1,
+    Math.round((new Date(resetsAt).getTime() - now.getTime()) / 60_000),
+  );
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+  return hours > 0
+    ? `${hours} h ${String(remaining).padStart(2, '0')}`
+    : `${remaining} min`;
+}
 
 export function formatOverviewScore(score: number): string {
   return score.toLocaleString('fr-FR', {
@@ -44,7 +55,10 @@ export interface SignedGap {
 }
 
 export function formatSignedGap(
-  simulation: Pick<TrainingsLastSimulationDto, 'globalScore' | 'sectorThreshold'>,
+  simulation: Pick<
+    TrainingsLastSimulationDto,
+    'globalScore' | 'sectorThreshold'
+  >,
 ): SignedGap {
   const gap = simulation.globalScore - simulation.sectorThreshold;
   const above = gap >= 0;

@@ -56,8 +56,7 @@ export class LogicResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  private readonly cameFromPlay =
-    this.facade.session()?.id === this.sessionId;
+  private readonly cameFromPlay = this.facade.session()?.id === this.sessionId;
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';

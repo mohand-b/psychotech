@@ -140,7 +140,9 @@ export class MemoryCorrection {
     () => this.scored()?.results[this.currentIndex()]?.status ?? 'FAILED',
   );
 
-  protected readonly badge = computed(() => STATUS_BADGES[this.currentStatus()]);
+  protected readonly badge = computed(
+    () => STATUS_BADGES[this.currentStatus()],
+  );
 
   protected readonly phaseIcon = computed<LucideIconData>(() =>
     this.currentSequence()?.phase === MemoryPhase.INVERSE

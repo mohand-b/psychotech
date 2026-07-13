@@ -13,17 +13,21 @@ describe('formatOverviewScore', () => {
 
 describe('formatSignedGap', () => {
   it('signs a score above the threshold as positive', () => {
-    expect(formatSignedGap({ globalScore: 74.8, sectorThreshold: 70 })).toEqual({
-      label: '+4,8',
-      above: true,
-    });
+    expect(formatSignedGap({ globalScore: 74.8, sectorThreshold: 70 })).toEqual(
+      {
+        label: '+4,8',
+        above: true,
+      },
+    );
   });
 
   it('signs a score under the threshold as negative', () => {
-    expect(formatSignedGap({ globalScore: 53.8, sectorThreshold: 70 })).toEqual({
-      label: '-16,2',
-      above: false,
-    });
+    expect(formatSignedGap({ globalScore: 53.8, sectorThreshold: 70 })).toEqual(
+      {
+        label: '-16,2',
+        above: false,
+      },
+    );
   });
 });
 

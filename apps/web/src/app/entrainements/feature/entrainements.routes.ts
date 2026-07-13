@@ -46,6 +46,11 @@ export const entrainementsRoutes: Route[] = [
       import('./entrainements/entrainements').then((m) => m.Entrainements),
   },
   {
+    path: 'entrainements/tutoriel/:axis',
+    loadComponent: () =>
+      import('./tutorial-start/tutorial-start').then((m) => m.TutorialStart),
+  },
+  {
     path: 'entrainements/simulation',
     data: {
       focusedHeader: {
@@ -95,9 +100,7 @@ export const entrainementsRoutes: Route[] = [
     canMatch: [simulationAxisMatcher(AxisType.REACTIVITY)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
-      import('./reactivity-play/reactivity-play').then(
-        (m) => m.ReactivityPlay,
-      ),
+      import('./reactivity-play/reactivity-play').then((m) => m.ReactivityPlay),
   },
   {
     path: 'entrainements/simulation/session/:sessionId/axe/:axis',
@@ -239,9 +242,7 @@ export const entrainementsRoutes: Route[] = [
       },
     },
     loadComponent: () =>
-      import('./reactivity-play/reactivity-play').then(
-        (m) => m.ReactivityPlay,
-      ),
+      import('./reactivity-play/reactivity-play').then((m) => m.ReactivityPlay),
   },
   {
     path: 'entrainements/cible/:axis/session/:sessionId',

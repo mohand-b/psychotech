@@ -37,11 +37,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
 
       <div class="countdown__stage">
         @for (tick of ringKey(); track tick) {
-          <svg
-            class="countdown__ring"
-            viewBox="0 0 120 120"
-            aria-hidden="true"
-          >
+          <svg class="countdown__ring" viewBox="0 0 120 120" aria-hidden="true">
             <circle class="countdown__ring-track" cx="60" cy="60" r="54" />
             <circle class="countdown__ring-progress" cx="60" cy="60" r="54" />
           </svg>
@@ -55,11 +51,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
       <button type="button" class="countdown__skip" (click)="skip()">
         <span class="countdown__skip-label--desktop">Passer le décompte</span>
         <span class="countdown__skip-label--mobile">Passer</span>
-        <ui-icon
-          class="countdown__skip-arrow"
-          [img]="arrowIcon"
-          [size]="15"
-        />
+        <ui-icon class="countdown__skip-arrow" [img]="arrowIcon" [size]="15" />
       </button>
     </div>
   `,

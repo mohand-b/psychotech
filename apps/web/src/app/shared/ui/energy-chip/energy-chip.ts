@@ -14,7 +14,12 @@ const ENERGY_CAPACITY = 5;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BoltIcon],
   template: `
-    @if (unlimited()) {
+    @if (free()) {
+      <span class="chip chip--free">
+        <ui-bolt class="chip__bolt" [size]="14" [filled]="false" />
+        <span class="chip__label">Découverte</span>
+      </span>
+    } @else if (unlimited()) {
       <span class="chip">
         <ui-bolt class="chip__bolt" [size]="14" />
         <span class="chip__label">Illimité</span>
@@ -54,7 +59,7 @@ const ENERGY_CAPACITY = 5;
       opacity: 0.6;
     }
     .chip__label {
-      font: 600 12px/1 var(--font-ui);
+      font: 600 13px/1 var(--font-ui);
       letter-spacing: 0.02em;
       color: var(--brand);
     }
@@ -70,15 +75,48 @@ const ENERGY_CAPACITY = 5;
     .chip--depleted .chip__max {
       opacity: 0.7;
     }
+    .chip--free {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+    }
+    .chip--free .chip__bolt,
+    .chip--free .chip__label {
+      color: var(--label);
+    }
+    @media (max-width: 767px) {
+      .chip {
+        gap: 6px;
+        border-radius: 8px;
+        padding: 6px 10px;
+      }
+      .chip--free {
+        padding: 5px 10px;
+      }
+      .chip__value {
+        font-size: 12.5px;
+      }
+      .chip__label {
+        font-size: 12px;
+      }
+    }
   `,
 })
 export class EnergyChip {
   readonly state = input<EnergyStateDto | null>(null);
+  readonly tier = input<SubscriptionTier | null>(null);
 
   protected readonly capacity = ENERGY_CAPACITY;
 
+  private readonly effectiveTier = computed(
+    () => this.tier() ?? this.state()?.tier ?? null,
+  );
+
+  protected readonly free = computed(
+    () => this.effectiveTier() === SubscriptionTier.FREE,
+  );
   protected readonly unlimited = computed(
-    () => this.state()?.tier === SubscriptionTier.UNLIMITED,
+    () => this.effectiveTier() === SubscriptionTier.UNLIMITED,
   );
   protected readonly balance = computed(() => this.state()?.balance ?? 0);
   protected readonly depleted = computed(() => this.balance() === 0);

@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       [attr.width]="size()"
       [attr.height]="size()"
       viewBox="0 0 24 24"
-      fill="currentColor"
+      [attr.fill]="filled() ? 'currentColor' : 'none'"
       stroke="currentColor"
       stroke-width="2"
       stroke-linecap="round"
@@ -29,4 +29,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class BoltIcon {
   readonly size = input(14);
+  readonly filled = input(true);
 }

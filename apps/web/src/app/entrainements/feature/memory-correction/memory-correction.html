@@ -1,116 +1,112 @@
 @if (result() && currentSequence(); as sequence) {
-  <ui-correction-shell
-    [axis]="axis"
-    [dots]="dots()"
-    [legend]="legend"
-    [currentIndex]="currentIndex()"
-    [isFirst]="isFirst()"
-    [isLast]="isLast()"
-    (navigate)="goTo($event)"
-    (previous)="previous()"
-    (next)="next()"
-    (backToResult)="backToResult()"
-  >
-    <header class="memo__card-head">
-      <span
-        class="memo__badge"
-        [style.background]="badge().backgroundVar"
-        [style.color]="badge().colorVar"
-        >{{ badge().label }}</span
-      >
-      <span class="memo__meta">
-        <span class="memo__phase">
-          <ui-icon [img]="phaseIcon()" [size]="14" />
-          {{ phaseLabel() }}
-        </span>
-        <span class="memo__count"
-          >Séquence
-          <span class="memo__count-value t-mono">{{ currentIndex() + 1 }}</span
-          ><span class="memo__count-total t-mono">/{{ total }}</span></span
-        >
+<ui-correction-shell
+  [axis]="axis"
+  [dots]="dots()"
+  [legend]="legend"
+  [currentIndex]="currentIndex()"
+  [isFirst]="isFirst()"
+  [isLast]="isLast()"
+  (navigate)="goTo($event)"
+  (previous)="previous()"
+  (next)="next()"
+  (backToResult)="backToResult()"
+>
+  <header class="memo__card-head">
+    <span
+      class="memo__badge"
+      [style.background]="badge().backgroundVar"
+      [style.color]="badge().colorVar"
+      >{{ badge().label }}</span
+    >
+    <span class="memo__meta">
+      <span class="memo__phase">
+        <ui-icon [img]="phaseIcon()" [size]="14" />
+        {{ phaseLabel() }}
       </span>
-    </header>
+      <span class="memo__count"
+        >Séquence
+        <span class="memo__count-value t-mono">{{ currentIndex() + 1 }}</span
+        ><span class="memo__count-total t-mono">/{{ total }}</span></span
+      >
+    </span>
+  </header>
 
-    <div class="memo__grid">
-      <div class="memo__row">
-        <span class="memo__row-label">Séquence affichée</span>
-        <div class="memo__cells">
-          @for (digit of sequence.elements; track $index) {
-            <span class="memo__cell t-mono">{{ digit }}</span>
-          }
-        </div>
-      </div>
-
-      @if (sequence.phase === inversePhase) {
-        <div class="memo__row">
-          <span class="memo__row-label">Réponse attendue (ordre inversé)</span>
-          <div class="memo__cells">
-            @for (digit of expectedAnswer(); track $index) {
-              <span class="memo__cell t-mono">{{ digit }}</span>
-            }
-          </div>
-        </div>
-      }
-
-      <div class="memo__row">
-        <span class="memo__row-label">Votre réponse</span>
-        <div class="memo__cells">
-          @for (cell of answerCells(); track $index) {
-            <span
-              class="memo__cell memo__cell--answer t-mono"
-              [class.memo__cell--placed]="cell.state === 'PLACED'"
-              [class.memo__cell--misplaced]="cell.state === 'MISPLACED'"
-              [class.memo__cell--absent]="cell.state === 'ABSENT'"
-              [class.memo__cell--empty]="cell.state === 'EMPTY'"
-            >
-              @if (cell.digit !== null) {
-                <span class="memo__cell-digit">{{ cell.digit }}</span>
-                <span class="memo__cell-mark" aria-hidden="true">
-                  @switch (cell.state) {
-                    @case ('PLACED') {
-                      <ui-icon [img]="checkIcon" [size]="11" />
-                    }
-                    @case ('MISPLACED') {
-                      <ui-icon [img]="misplacedIcon" [size]="11" />
-                    }
-                    @case ('ABSENT') {
-                      <ui-icon [img]="crossIcon" [size]="11" />
-                    }
-                  }
-                </span>
-              }
-            </span>
-          }
-        </div>
+  <div class="memo__grid">
+    <div class="memo__row">
+      <span class="memo__row-label">Séquence affichée</span>
+      <div class="memo__cells">
+        @for (digit of sequence.elements; track $index) {
+        <span class="memo__cell t-mono">{{ digit }}</span>
+        }
       </div>
     </div>
 
-    <div class="memo__legend">
-      <span class="memo__legend-item">
-        <span class="memo__legend-dot memo__legend-dot--placed"></span>
-        bien placé
-      </span>
-      <span class="memo__legend-item">
-        <span class="memo__legend-dot memo__legend-dot--misplaced"></span>
-        présent, mal placé
-      </span>
-      <span class="memo__legend-item">
-        <span class="memo__legend-dot memo__legend-dot--absent"></span>
-        absent
-      </span>
+    @if (sequence.phase === inversePhase) {
+    <div class="memo__row">
+      <span class="memo__row-label">Réponse attendue (ordre inversé)</span>
+      <div class="memo__cells">
+        @for (digit of expectedAnswer(); track $index) {
+        <span class="memo__cell t-mono">{{ digit }}</span>
+        }
+      </div>
     </div>
-
-    @if (currentStatus() === 'TIMED_OUT') {
-      <span class="memo__timeout">
-        <ui-icon [img]="clockIcon" [size]="14" />
-        Hors délai - restitution incomplète
-      </span>
-    } @else {
-      <span class="memo__time"
-        >Votre temps :
-        <strong class="memo__time-value t-mono">{{ timeLabel() }}</strong>
-        <span class="memo__time-unit t-mono">s</span></span
-      >
     }
-  </ui-correction-shell>
+
+    <div class="memo__row">
+      <span class="memo__row-label">Votre réponse</span>
+      <div class="memo__cells">
+        @for (cell of answerCells(); track $index) {
+        <span
+          class="memo__cell memo__cell--answer t-mono"
+          [class.memo__cell--placed]="cell.state === 'PLACED'"
+          [class.memo__cell--misplaced]="cell.state === 'MISPLACED'"
+          [class.memo__cell--absent]="cell.state === 'ABSENT'"
+          [class.memo__cell--empty]="cell.state === 'EMPTY'"
+        >
+          @if (cell.digit !== null) {
+          <span class="memo__cell-digit">{{ cell.digit }}</span>
+          <span class="memo__cell-mark" aria-hidden="true">
+            @switch (cell.state) { @case ('PLACED') {
+            <ui-icon [img]="checkIcon" [size]="11" />
+            } @case ('MISPLACED') {
+            <ui-icon [img]="misplacedIcon" [size]="11" />
+            } @case ('ABSENT') {
+            <ui-icon [img]="crossIcon" [size]="11" />
+            } }
+          </span>
+          }
+        </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="memo__legend">
+    <span class="memo__legend-item">
+      <span class="memo__legend-dot memo__legend-dot--placed"></span>
+      bien placé
+    </span>
+    <span class="memo__legend-item">
+      <span class="memo__legend-dot memo__legend-dot--misplaced"></span>
+      présent, mal placé
+    </span>
+    <span class="memo__legend-item">
+      <span class="memo__legend-dot memo__legend-dot--absent"></span>
+      absent
+    </span>
+  </div>
+
+  @if (currentStatus() === 'TIMED_OUT') {
+  <span class="memo__timeout">
+    <ui-icon [img]="clockIcon" [size]="14" />
+    Hors délai - restitution incomplète
+  </span>
+  } @else {
+  <span class="memo__time"
+    >Votre temps :
+    <strong class="memo__time-value t-mono">{{ timeLabel() }}</strong>
+    <span class="memo__time-unit t-mono">s</span></span
+  >
+  }
+</ui-correction-shell>
 }

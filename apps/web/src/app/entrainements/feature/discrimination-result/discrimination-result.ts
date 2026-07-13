@@ -56,8 +56,7 @@ export class DiscriminationResult {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  private readonly cameFromPlay =
-    this.facade.session()?.id === this.sessionId;
+  private readonly cameFromPlay = this.facade.session()?.id === this.sessionId;
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
@@ -79,15 +78,17 @@ export class DiscriminationResult {
       });
   }
 
-  protected readonly scored = computed<DiscriminationSessionScore | null>(() => {
-    const result = this.result();
-    return result
-      ? scoreDiscriminationSession(
-          generateDiscriminationSession(result.seed),
-          result.trials,
-        )
-      : null;
-  });
+  protected readonly scored = computed<DiscriminationSessionScore | null>(
+    () => {
+      const result = this.result();
+      return result
+        ? scoreDiscriminationSession(
+            generateDiscriminationSession(result.seed),
+            result.trials,
+          )
+        : null;
+    },
+  );
 
   protected readonly recommendation = computed<TrainingRecommendation | null>(
     () => {

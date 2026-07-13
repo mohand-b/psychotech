@@ -1,25 +1,25 @@
 <section class="page-shell sim-brief">
   @if (loaded() && axis(); as currentAxis) {
-    <ui-axis-briefing
-      [axis]="currentAxis"
-      [admissibilityThreshold]="admissibilityThreshold()"
-      [showOptions]="false"
-      [positionLabel]="positionLabel()"
-    />
+  <ui-axis-briefing
+    [axis]="currentAxis"
+    [admissibilityThreshold]="admissibilityThreshold()"
+    [showOptions]="false"
+    [positionLabel]="positionLabel()"
+  />
 
-    <div class="sim-brief__footer">
-      <div class="sim-brief__cta">
-        <ui-button
-          [color]="buttonColor()"
-          size="lg"
-          relief="mobile"
-          [block]="true"
-          [showArrow]="true"
-          (click)="start()"
-        >
-          Commencer
-        </ui-button>
-      </div>
+  <div class="sim-brief__footer">
+    <div class="sim-brief__cta">
+      <ui-button
+        [color]="buttonColor()"
+        size="lg"
+        relief="mobile"
+        [block]="true"
+        [showArrow]="true"
+        (click)="start()"
+      >
+        Commencer
+      </ui-button>
     </div>
+  </div>
   }
 </section>

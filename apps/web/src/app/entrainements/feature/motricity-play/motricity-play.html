@@ -6,7 +6,7 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
   }
   <div
     class="motri__progress"
@@ -23,115 +23,113 @@
   </div>
 
   @if (loaded() && course(); as activeCourse) {
-    <div class="motri__dots-row">
-      <div class="motri__dots">
-        @for (dot of courses(); track dot.index) {
-          <span
-            class="motri__dot"
-            [class.motri__dot--done]="dot.index < courseIndex()"
-            [class.motri__dot--current]="dot.index === courseIndex()"
-          ></span>
-        }
-      </div>
-      <span class="motri__dots-count t-mono"
-        >{{ courseIndex() + 1 }}/{{ courseCount }}</span
-      >
+  <div class="motri__dots-row">
+    <div class="motri__dots">
+      @for (dot of courses(); track dot.index) {
+      <span
+        class="motri__dot"
+        [class.motri__dot--done]="dot.index < courseIndex()"
+        [class.motri__dot--current]="dot.index === courseIndex()"
+      ></span>
+      }
     </div>
+    <span class="motri__dots-count t-mono"
+      >{{ courseIndex() + 1 }}/{{ courseCount }}</span
+    >
+  </div>
 
-    <div class="motri__content">
-      <div class="motri__board">
-        @if (showPairing()) {
-          <div
-            class="motri__pairing"
-            [class.motri__pairing--connected]="gamepadConnected()"
-          >
-            <ui-gamepad-pairing
-              [pairing]="gamepadPairing()"
-              [connected]="gamepadConnected()"
-              [latency]="gamepadLatency()"
-              [latencyGood]="gamepadLatencyGood()"
-            />
-          </div>
+  <div class="motri__content">
+    <div class="motri__board">
+      @if (showPairing()) {
+      <div
+        class="motri__pairing"
+        [class.motri__pairing--connected]="gamepadConnected()"
+      >
+        <ui-gamepad-pairing
+          [pairing]="gamepadPairing()"
+          [connected]="gamepadConnected()"
+          [latency]="gamepadLatency()"
+          [latencyGood]="gamepadLatencyGood()"
+        />
+      </div>
+      } @if (liveErrorCountersEnabled()) {
+      <div class="motri__counters">
+        <span class="motri__counter">
+          <span
+            class="motri__counter-dot"
+            [style.background]="'var(--warning)'"
+          ></span>
+          Mineures
+          <strong class="t-mono">{{ minorErrors() }}</strong>
+        </span>
+        <span class="motri__counter">
+          <span
+            class="motri__counter-dot"
+            [style.background]="'var(--danger)'"
+          ></span>
+          Majeures
+          <strong class="t-mono">{{ majorErrors() }}</strong>
+        </span>
+      </div>
+      }
+      <svg
+        class="motri__svg"
+        [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <rect
+          class="motri__zone"
+          [attr.x]="activeCourse.garage.x"
+          [attr.y]="activeCourse.garage.y"
+          [attr.width]="activeCourse.garage.width"
+          [attr.height]="activeCourse.garage.height"
+        />
+        <polygon class="motri__corridor" [attr.points]="polygonPoints()" />
+        <polyline class="motri__border" [attr.points]="leftSidePoints()" />
+        <polyline class="motri__border" [attr.points]="rightSidePoints()" />
+        <polyline
+          class="motri__centerline"
+          [attr.points]="centerlinePoints()"
+        />
+        @if (traveledPoints()) {
+        <polyline
+          class="motri__centerline motri__centerline--done"
+          [attr.points]="traveledPoints()"
+        />
+        } @for (wall of activeCourse.garageWalls; track $index) {
+        <line
+          class="motri__wall"
+          [attr.x1]="wall.start.x"
+          [attr.y1]="wall.start.y"
+          [attr.x2]="wall.end.x"
+          [attr.y2]="wall.end.y"
+        />
         }
-        @if (liveErrorCountersEnabled()) {
-          <div class="motri__counters">
-            <span class="motri__counter">
-              <span
-                class="motri__counter-dot"
-                [style.background]="'var(--warning)'"
-              ></span>
-              Mineures
-              <strong class="t-mono">{{ minorErrors() }}</strong>
-            </span>
-            <span class="motri__counter">
-              <span
-                class="motri__counter-dot"
-                [style.background]="'var(--danger)'"
-              ></span>
-              Majeures
-              <strong class="t-mono">{{ majorErrors() }}</strong>
-            </span>
-          </div>
-        }
-        <svg
-          class="motri__svg"
-          [attr.viewBox]="'0 0 ' + canvasWidth + ' ' + canvasHeight"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <rect
-            class="motri__zone"
-            [attr.x]="activeCourse.garage.x"
-            [attr.y]="activeCourse.garage.y"
-            [attr.width]="activeCourse.garage.width"
-            [attr.height]="activeCourse.garage.height"
-          />
-          <polygon class="motri__corridor" [attr.points]="polygonPoints()" />
-          <polyline class="motri__border" [attr.points]="leftSidePoints()" />
-          <polyline class="motri__border" [attr.points]="rightSidePoints()" />
-          <polyline
-            class="motri__centerline"
-            [attr.points]="centerlinePoints()"
-          />
-          @if (traveledPoints()) {
-            <polyline
-              class="motri__centerline motri__centerline--done"
-              [attr.points]="traveledPoints()"
-            />
-          }
-          @for (wall of activeCourse.garageWalls; track $index) {
-            <line
-              class="motri__wall"
-              [attr.x1]="wall.start.x"
-              [attr.y1]="wall.start.y"
-              [attr.x2]="wall.end.x"
-              [attr.y2]="wall.end.y"
-            />
-          }
-          <g
-            [attr.transform]="
+        <g
+          [attr.transform]="
               'translate(' +
               activeCourse.garage.x +
               ',' +
               (activeCourse.garage.y + activeCourse.garage.height + 12) +
               ')'
             "
+        >
+          <rect
+            class="motri__badge motri__badge--start"
+            [attr.width]="badgeWidth"
+            [attr.height]="badgeHeight"
+            rx="7"
+          />
+          <text
+            class="motri__badge-text motri__badge-text--start"
+            [attr.x]="badgeWidth / 2"
+            [attr.y]="badgeHeight / 2 + 4"
           >
-            <rect
-              class="motri__badge motri__badge--start"
-              [attr.width]="badgeWidth"
-              [attr.height]="badgeHeight"
-              rx="7"
-            />
-            <text
-              class="motri__badge-text motri__badge-text--start"
-              [attr.x]="badgeWidth / 2"
-              [attr.y]="badgeHeight / 2 + 4"
-            >
-              START
-            </text>
-          </g>
-          <g
-            [attr.transform]="
+            START
+          </text>
+        </g>
+        <g
+          [attr.transform]="
               'translate(' +
               (activeCourse.endZone.x +
                 activeCourse.endZone.width -
@@ -140,109 +138,102 @@
               (activeCourse.endZone.y - badgeHeight - 12) +
               ')'
             "
-          >
-            <rect
-              class="motri__badge motri__badge--end"
-              [attr.width]="badgeWidth"
-              [attr.height]="badgeHeight"
-              rx="7"
-            />
-            <text
-              class="motri__badge-text motri__badge-text--end"
-              [attr.x]="badgeWidth / 2"
-              [attr.y]="badgeHeight / 2 + 4"
-            >
-              END
-            </text>
-          </g>
-          @if (cursorState() === 'outside') {
-            <circle
-              class="motri__halo"
-              [attr.cx]="cursorX()"
-              [attr.cy]="cursorY()"
-              [attr.r]="cursorRadius + 7"
-            />
-          }
-          <circle
-            class="motri__cursor"
-            [class.motri__cursor--depart]="cursorState() === 'depart'"
-            [class.motri__cursor--contact]="cursorState() === 'contact'"
-            [class.motri__cursor--outside]="cursorState() === 'outside'"
-            [attr.cx]="cursorX()"
-            [attr.cy]="cursorY()"
-            [attr.r]="cursorRadius"
+        >
+          <rect
+            class="motri__badge motri__badge--end"
+            [attr.width]="badgeWidth"
+            [attr.height]="badgeHeight"
+            rx="7"
           />
-        </svg>
-
-        @if (phase() === 'TRANSITION') {
-          <div class="motri__transition" role="alert">
-            <span class="motri__transition-badge t-label"
-              >Parcours terminé</span
-            >
-            <p class="motri__transition-text">
-              Parcours {{ courseIndex() + 2 }}/{{ courseCount }} dans
-              <strong class="t-mono">{{ transitionCountdown() }}</strong> s
-            </p>
-            <p class="motri__transition-hint">
-              Le chrono repart à la sortie du garage.
-            </p>
-          </div>
-        }
-
-        @if (suspended()) {
-          <div class="motri__suspend" role="alert">
-            <span class="motri__suspend-title">Manette déconnectée</span>
-            <p class="motri__suspend-text">
-              Le point et le chrono sont figés. Reconnexion automatique en
-              cours...
-            </p>
-            <ui-gamepad-pairing
-              [pairing]="gamepadPairing()"
-              [connected]="gamepadConnected()"
-              [latency]="gamepadLatency()"
-              [latencyGood]="gamepadLatencyGood()"
-            />
-            <ui-button color="motor" size="md" (click)="regeneratePairing()">
-              Régénérer un QR
-            </ui-button>
-          </div>
-        }
-
-        @if (confirmingExit()) {
-          <app-exit-confirm
-            class="motri__exit"
-            [mode]="sessionMode()"
-            color="motor"
-            (continueRequested)="confirmingExit.set(false)"
-            (quitRequested)="quit()"
-          />
-        }
-      </div>
-
-      <div class="motri__cranks">
-        <ui-crank
-          label="Horizontal"
-          hintClockwise="droite"
-          hintCounterClockwise="gauche"
-          [speed]="crankSpeedX()"
-          (rotated)="onCrankRotate('x', $event)"
-        />
-        <ui-crank
-          label="Vertical"
-          hintClockwise="bas"
-          hintCounterClockwise="haut"
-          [speed]="crankSpeedY()"
-          (rotated)="onCrankRotate('y', $event)"
-        />
-      </div>
-
-      @if (gamepadExclusive()) {
-        <div class="motri__hint">
-          <span class="motri__hint-label"
-            >pilotez le point avec les manivelles du téléphone</span
+          <text
+            class="motri__badge-text motri__badge-text--end"
+            [attr.x]="badgeWidth / 2"
+            [attr.y]="badgeHeight / 2 + 4"
           >
-        </div>
+            END
+          </text>
+        </g>
+        @if (cursorState() === 'outside') {
+        <circle
+          class="motri__halo"
+          [attr.cx]="cursorX()"
+          [attr.cy]="cursorY()"
+          [attr.r]="cursorRadius + 7"
+        />
+        }
+        <circle
+          class="motri__cursor"
+          [class.motri__cursor--depart]="cursorState() === 'depart'"
+          [class.motri__cursor--contact]="cursorState() === 'contact'"
+          [class.motri__cursor--outside]="cursorState() === 'outside'"
+          [attr.cx]="cursorX()"
+          [attr.cy]="cursorY()"
+          [attr.r]="cursorRadius"
+        />
+      </svg>
+
+      @if (phase() === 'TRANSITION') {
+      <div class="motri__transition" role="alert">
+        <span class="motri__transition-badge t-label">Parcours terminé</span>
+        <p class="motri__transition-text">
+          Parcours {{ courseIndex() + 2 }}/{{ courseCount }} dans
+          <strong class="t-mono">{{ transitionCountdown() }}</strong> s
+        </p>
+        <p class="motri__transition-hint">
+          Le chrono repart à la sortie du garage.
+        </p>
+      </div>
+      } @if (suspended()) {
+      <div class="motri__suspend" role="alert">
+        <span class="motri__suspend-title">Manette déconnectée</span>
+        <p class="motri__suspend-text">
+          Le point et le chrono sont figés. Reconnexion automatique en cours...
+        </p>
+        <ui-gamepad-pairing
+          [pairing]="gamepadPairing()"
+          [connected]="gamepadConnected()"
+          [latency]="gamepadLatency()"
+          [latencyGood]="gamepadLatencyGood()"
+        />
+        <ui-button color="motor" size="md" (click)="regeneratePairing()">
+          Régénérer un QR
+        </ui-button>
+      </div>
+      } @if (confirmingExit()) {
+      <app-exit-confirm
+        class="motri__exit"
+        [mode]="sessionMode()"
+        color="motor"
+        (continueRequested)="confirmingExit.set(false)"
+        (quitRequested)="quit()"
+      />
       }
     </div>
+
+    <div class="motri__cranks">
+      <ui-crank
+        label="Horizontal"
+        hintClockwise="droite"
+        hintCounterClockwise="gauche"
+        [speed]="crankSpeedX()"
+        (rotated)="onCrankRotate('x', $event)"
+      />
+      <ui-crank
+        label="Vertical"
+        hintClockwise="bas"
+        hintCounterClockwise="haut"
+        [speed]="crankSpeedY()"
+        (rotated)="onCrankRotate('y', $event)"
+      />
+    </div>
+
+    @if (gamepadExclusive()) {
+    <div class="motri__hint">
+      <span class="motri__hint-label"
+        >pilotez le point avec les manivelles du téléphone</span
+      >
+    </div>
+    }
+  </div>
   }
 </section>

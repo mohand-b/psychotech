@@ -331,7 +331,10 @@ export class MotricityPlay {
             ? 'contact'
             : 'normal';
     this.cursorState.set(nextCursorState);
-    if (this.gamepadConnected() && nextCursorState !== this.previousCursorState) {
+    if (
+      this.gamepadConnected() &&
+      nextCursorState !== this.previousCursorState
+    ) {
       if (nextCursorState === 'contact') {
         this.gamepad.sendHaptic('CONTACT');
       } else if (nextCursorState === 'outside') {
@@ -372,7 +375,8 @@ export class MotricityPlay {
       this.maxArc = arc;
       this.traveledPoints.set(this.traveledPath(course, arc));
     }
-    const crossed = this.maxArc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
+    const crossed =
+      this.maxArc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
     if (crossed || this.live.activeMs >= limitMs) {
       this.finishCourse(crossed ? Math.round(activeMs) : limitMs);
     }

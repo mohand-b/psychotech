@@ -18,7 +18,11 @@ export interface StatusBandEntry {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="band">
-      <div class="band__dots" role="tablist" aria-label="Exercices de la session">
+      <div
+        class="band__dots"
+        role="tablist"
+        aria-label="Exercices de la session"
+      >
         @for (dot of dots(); track $index) {
           <button
             type="button"

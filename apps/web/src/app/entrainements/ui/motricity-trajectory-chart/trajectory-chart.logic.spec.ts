@@ -76,8 +76,20 @@ describe('merging', () => {
       { courseIndex: 0, tMs: 1_000, type: 'CONTACT', segment: 'H' },
       { courseIndex: 0, tMs: 2_000, type: 'CONTACT', segment: 'H' },
       { courseIndex: 1, tMs: 5_000, type: 'CONTACT', segment: 'V' },
-      { courseIndex: 0, tMs: 8_000, type: 'EXIT', segment: 'H', durationMs: 700 },
-      { courseIndex: 0, tMs: 9_000, type: 'EXIT', segment: 'H', durationMs: 500 },
+      {
+        courseIndex: 0,
+        tMs: 8_000,
+        type: 'EXIT',
+        segment: 'H',
+        durationMs: 700,
+      },
+      {
+        courseIndex: 0,
+        tMs: 9_000,
+        type: 'EXIT',
+        segment: 'H',
+        durationMs: 500,
+      },
     ];
     expect(courseContactTimes(events, 0)).toEqual([1_500]);
     expect(courseContactTimes(events, 1)).toEqual([5_000]);

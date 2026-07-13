@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
@@ -39,10 +40,12 @@ export class Navbar {
 
   private readonly authFacade = inject(AuthFacade);
   private readonly energyFacade = inject(EnergyFacade);
+  private readonly coreFacade = inject(CoreFacade);
   private readonly router = inject(Router);
 
   protected readonly user = this.authFacade.currentUser;
   protected readonly energy = this.energyFacade.state;
+  protected readonly tier = this.coreFacade.tier;
   protected readonly logOutIcon = LogOut;
 
   protected readonly navItems: readonly NavItem[] = [

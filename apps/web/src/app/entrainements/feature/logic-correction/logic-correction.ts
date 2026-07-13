@@ -18,13 +18,14 @@ import {
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import {
-  CorrectionShell,
-} from '../../ui/correction-shell/correction-shell';
+import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
-import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from '../../ui/logic-status';
+import {
+  LOGIC_STATUS_COLORS,
+  LOGIC_STATUS_LABELS,
+} from '../../ui/logic-status';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,
@@ -100,9 +101,7 @@ export class LogicCorrection {
 
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
     const result = this.result();
-    return result
-      ? scoreLogicSession(this.items(), result.items).statuses
-      : [];
+    return result ? scoreLogicSession(this.items(), result.items).statuses : [];
   });
 
   protected readonly dots = computed<StatusBandEntry[]>(() =>
@@ -134,7 +133,9 @@ export class LogicCorrection {
     () => this.statuses()[this.currentIndex()] ?? 'UNREACHED',
   );
 
-  protected readonly badge = computed(() => STATUS_BADGES[this.currentStatus()]);
+  protected readonly badge = computed(
+    () => STATUS_BADGES[this.currentStatus()],
+  );
 
   protected readonly hint = computed(() => {
     const item = this.currentItem();

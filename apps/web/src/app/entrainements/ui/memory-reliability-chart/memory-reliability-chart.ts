@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 const WEAK_POSITION_THRESHOLD = 60;
 const BAR_MAX_HEIGHT_PX = 156;
@@ -106,9 +102,6 @@ export class MemoryReliabilityChart {
   }
 
   protected barHeight(reliability: number): number {
-    return Math.max(
-      BAR_MIN_HEIGHT_PX,
-      (reliability / 100) * BAR_MAX_HEIGHT_PX,
-    );
+    return Math.max(BAR_MIN_HEIGHT_PX, (reliability / 100) * BAR_MAX_HEIGHT_PX);
   }
 }

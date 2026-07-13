@@ -1,19 +1,21 @@
 <section class="play">
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
-  }
-  @if (loaded() && durationSec(); as total) {
-    <div
-      class="play__progress"
-      role="progressbar"
-      aria-label="Temps restant"
-      aria-valuemin="0"
-      [attr.aria-valuemax]="total"
-      [attr.aria-valuenow]="remainingSec()"
-      [style.--progress-accent]="presentation.plainVar"
-    >
-      <span class="play__progress-fill" [style.width.%]="remainingPercent()"></span>
-    </div>
+  <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  } @if (loaded() && durationSec(); as total) {
+  <div
+    class="play__progress"
+    role="progressbar"
+    aria-label="Temps restant"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="total"
+    [attr.aria-valuenow]="remainingSec()"
+    [style.--progress-accent]="presentation.plainVar"
+  >
+    <span
+      class="play__progress-fill"
+      [style.width.%]="remainingPercent()"
+    ></span>
+  </div>
   }
   <ui-item-nav-band
     [states]="itemStates()"
@@ -24,95 +26,95 @@
   />
 
   @if (loaded() && currentItem(); as item) {
-    <div
-      class="play__content"
-      [style.--axis-plain]="presentation.plainVar"
-      [style.--axis-pastel]="presentation.pastelVar"
-      [style.--axis-pastel-bd]="presentation.pastelBorderVar"
-      [style.--axis-text]="presentation.textVar"
-    >
-      <article class="play__card">
-        <header class="play__card-head">
-          <span class="t-label">Complétez la suite</span>
-          <span class="play__card-count t-mono"
-            >{{ currentIndex() + 1 }}/{{ items().length }}</span
-          >
-        </header>
-
-        <ui-logic-sequence
-          #sequence
-          [terms]="item.sequence"
-          [hint]="helpEnabled() ? currentHint() : null"
-          [hintUsed]="currentHelpUsed()"
-          (hintOpened)="markHelpUsed()"
-        />
-
-        <ui-logic-choices
-          [choices]="item.choices"
-          [selectedIndex]="answers()[currentIndex()] ?? null"
-          [disabled]="locked()"
-          (chosen)="select($event)"
-        />
-
-        <span class="play__card-hint">A–D ou 1–4 pour répondre</span>
-      </article>
-
-      <div class="play__actions">
-        <ui-button
-          class="play__previous"
-          color="neutral"
-          appearance="outlined"
-          [icon]="backIcon"
-          [disabled]="currentIndex() === 0 || locked()"
-          (click)="previous()"
+  <div
+    class="play__content"
+    [style.--axis-plain]="presentation.plainVar"
+    [style.--axis-pastel]="presentation.pastelVar"
+    [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+    [style.--axis-text]="presentation.textVar"
+  >
+    <article class="play__card">
+      <header class="play__card-head">
+        <span class="t-label">Complétez la suite</span>
+        <span class="play__card-count t-mono"
+          >{{ currentIndex() + 1 }}/{{ items().length }}</span
         >
-          Précédent
+      </header>
+
+      <ui-logic-sequence
+        #sequence
+        [terms]="item.sequence"
+        [hint]="helpEnabled() ? currentHint() : null"
+        [hintUsed]="currentHelpUsed()"
+        (hintOpened)="markHelpUsed()"
+      />
+
+      <ui-logic-choices
+        [choices]="item.choices"
+        [selectedIndex]="answers()[currentIndex()] ?? null"
+        [disabled]="locked()"
+        (chosen)="select($event)"
+      />
+
+      <span class="play__card-hint">A–D ou 1–4 pour répondre</span>
+    </article>
+
+    <div class="play__actions">
+      <ui-button
+        class="play__previous"
+        color="neutral"
+        appearance="outlined"
+        [icon]="backIcon"
+        [disabled]="currentIndex() === 0 || locked()"
+        (click)="previous()"
+      >
+        Précédent
+      </ui-button>
+      <ui-button
+        class="play__previous-compact"
+        color="neutral"
+        appearance="outlined"
+        [icon]="backIcon"
+        aria-label="Précédent"
+        [disabled]="currentIndex() === 0 || locked()"
+        (click)="previous()"
+      />
+      <div class="play__actions-end">
+        <ui-button
+          color="neutral"
+          appearance="ghost"
+          [iconEnd]="skipIcon"
+          [disabled]="locked() || nextUnansweredIndex() === -1"
+          (click)="skip()"
+        >
+          Passer
         </ui-button>
         <ui-button
-          class="play__previous-compact"
-          color="neutral"
-          appearance="outlined"
-          [icon]="backIcon"
-          aria-label="Précédent"
-          [disabled]="currentIndex() === 0 || locked()"
-          (click)="previous()"
-        />
-        <div class="play__actions-end">
-          <ui-button
-            color="neutral"
-            appearance="ghost"
-            [iconEnd]="skipIcon"
-            [disabled]="locked() || nextUnansweredIndex() === -1"
-            (click)="skip()"
-          >
-            Passer
-          </ui-button>
-          <ui-button
-            class="play__next"
-            [color]="buttonColor"
-            [block]="true"
-            [showArrow]="!isLastItem()"
-            [disabled]="locked() || !currentAnswered()"
-            (click)="confirmNext()"
-          >
-            {{ isLastItem() ? 'Terminer' : 'Suivant' }}
-          </ui-button>
-        </div>
-      </div>
-
-      <p class="play__hint t-support">
-        « Suivant » valide votre réponse - « Passer » laisse l'item sans réponse
-        pour y revenir.
-      </p>
-
-      @if (confirmingExit()) {
-        <app-exit-confirm
-          [mode]="sessionMode()"
+          class="play__next"
           [color]="buttonColor"
-          (continueRequested)="confirmingExit.set(false)"
-          (quitRequested)="quit()"
-        />
-      }
+          [block]="true"
+          [showArrow]="!isLastItem()"
+          [disabled]="locked() || !currentAnswered()"
+          (click)="confirmNext()"
+        >
+          {{ isLastItem() ? 'Terminer' : 'Suivant' }}
+        </ui-button>
+      </div>
     </div>
+
+    <p class="play__hint t-support">
+      « Suivant » valide votre réponse - « Passer » laisse l'item sans réponse
+      pour y revenir.
+    </p>
+
+    @if (confirmingExit()) {
+    <app-exit-confirm
+      [mode]="sessionMode()"
+      [color]="buttonColor"
+      (continueRequested)="confirmingExit.set(false)"
+      (quitRequested)="quit()"
+    />
+    }
+  </div>
   }
 </section>

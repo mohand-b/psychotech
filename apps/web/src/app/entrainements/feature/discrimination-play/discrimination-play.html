@@ -6,101 +6,97 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
-  }
-  @if (durationSec()) {
-    <div
-      class="discri__progress"
-      role="progressbar"
-      aria-label="Temps restant"
-      aria-valuemin="0"
-      [attr.aria-valuemax]="100"
-      [attr.aria-valuenow]="remainingPercent()"
+  <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  } @if (durationSec()) {
+  <div
+    class="discri__progress"
+    role="progressbar"
+    aria-label="Temps restant"
+    aria-valuemin="0"
+    [attr.aria-valuemax]="100"
+    [attr.aria-valuenow]="remainingPercent()"
+  >
+    <span
+      class="discri__progress-fill"
+      [style.width.%]="remainingPercent()"
+    ></span>
+  </div>
+  } @if (loaded() && currentTrial(); as trial) {
+  <p class="discri__counter">
+    Essai
+    <span class="discri__counter-value t-mono"
+      >{{ currentIndex() + 1 }}/{{ total }}</span
     >
-      <span
-        class="discri__progress-fill"
-        [style.width.%]="remainingPercent()"
-      ></span>
-    </div>
-  }
+  </p>
 
-  @if (loaded() && currentTrial(); as trial) {
-    <p class="discri__counter">
-      Essai
-      <span class="discri__counter-value t-mono"
-        >{{ currentIndex() + 1 }}/{{ total }}</span
+  <div class="discri__content">
+    <p class="discri__question">Les deux suites sont-elles identiques ?</p>
+
+    <div class="discri__cards">
+      <article class="discri__card">
+        <span class="t-label">Suite A</span>
+        <div class="discri__card-zone" #zoneA>
+          <div
+            class="discri__jitter"
+            #contentA
+            [style.transform]="transformA()"
+          >
+            <ui-element-sequence [elements]="trial.a" [size]="sequenceSize" />
+          </div>
+        </div>
+      </article>
+      <article class="discri__card">
+        <span class="t-label">Suite B</span>
+        <div class="discri__card-zone" #zoneB>
+          <div
+            class="discri__jitter"
+            #contentB
+            [style.transform]="transformB()"
+          >
+            <ui-element-sequence [elements]="trial.b" [size]="sequenceSize" />
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="discri__actions">
+      <button
+        type="button"
+        class="discri__answer"
+        [disabled]="locked()"
+        (click)="answer('IDENTICAL')"
       >
-    </p>
-
-    <div class="discri__content">
-      <p class="discri__question">Les deux suites sont-elles identiques ?</p>
-
-      <div class="discri__cards">
-        <article class="discri__card">
-          <span class="t-label">Suite A</span>
-          <div class="discri__card-zone" #zoneA>
-            <div
-              class="discri__jitter"
-              #contentA
-              [style.transform]="transformA()"
-            >
-              <ui-element-sequence [elements]="trial.a" [size]="sequenceSize" />
-            </div>
-          </div>
-        </article>
-        <article class="discri__card">
-          <span class="t-label">Suite B</span>
-          <div class="discri__card-zone" #zoneB>
-            <div
-              class="discri__jitter"
-              #contentB
-              [style.transform]="transformB()"
-            >
-              <ui-element-sequence [elements]="trial.b" [size]="sequenceSize" />
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div class="discri__actions">
-        <button
-          type="button"
-          class="discri__answer"
-          [disabled]="locked()"
-          (click)="answer('IDENTICAL')"
-        >
-          <span class="discri__key" aria-hidden="true">
-            <ui-icon [img]="identicalIcon" [size]="14" />
-          </span>
-          <span class="discri__answer-label">Identique</span>
-        </button>
-        <button
-          type="button"
-          class="discri__answer discri__answer--different"
-          [disabled]="locked()"
-          (click)="answer('DIFFERENT')"
-        >
-          <span class="discri__answer-label">Différent</span>
-          <span class="discri__key" aria-hidden="true">
-            <ui-icon [img]="differentIcon" [size]="14" />
-          </span>
-        </button>
-      </div>
-
-      <p class="discri__hint t-support">
-        Répondez vite - les essais non traités à la fin du chrono comptent comme
-        manqués.
-      </p>
+        <span class="discri__key" aria-hidden="true">
+          <ui-icon [img]="identicalIcon" [size]="14" />
+        </span>
+        <span class="discri__answer-label">Identique</span>
+      </button>
+      <button
+        type="button"
+        class="discri__answer discri__answer--different"
+        [disabled]="locked()"
+        (click)="answer('DIFFERENT')"
+      >
+        <span class="discri__answer-label">Différent</span>
+        <span class="discri__key" aria-hidden="true">
+          <ui-icon [img]="differentIcon" [size]="14" />
+        </span>
+      </button>
     </div>
 
-    @if (confirmingExit()) {
-      <app-exit-confirm
-        class="discri__exit"
-        [mode]="sessionMode()"
-        [color]="buttonColor"
-        (continueRequested)="confirmingExit.set(false)"
-        (quitRequested)="quit()"
-      />
-    }
-  }
+    <p class="discri__hint t-support">
+      Répondez vite - les essais non traités à la fin du chrono comptent comme
+      manqués.
+    </p>
+  </div>
+
+  @if (confirmingExit()) {
+  <app-exit-confirm
+    class="discri__exit"
+    [mode]="sessionMode()"
+    [color]="buttonColor"
+    (continueRequested)="confirmingExit.set(false)"
+    (quitRequested)="quit()"
+  />
+  } }
 </section>

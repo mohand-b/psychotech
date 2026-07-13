@@ -4,6 +4,7 @@ import { dashboardRoutes } from '../dashboard/feature/dashboard.routes';
 import { entrainementsRoutes } from '../entrainements/feature/entrainements.routes';
 import { progressionRoutes } from '../progression/feature/progression.routes';
 import { sessionsRoutes } from '../sessions/feature/sessions.routes';
+import { subscriptionsRoutes } from '../subscriptions/feature/subscriptions.routes';
 
 export const connectedRoutes: Route[] = [
   {
@@ -18,6 +19,7 @@ export const connectedRoutes: Route[] = [
       ...entrainementsRoutes,
       ...sessionsRoutes,
       ...progressionRoutes,
+      ...subscriptionsRoutes,
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: '**', redirectTo: 'dashboard' },
     ],

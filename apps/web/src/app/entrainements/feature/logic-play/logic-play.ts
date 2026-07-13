@@ -26,7 +26,10 @@ import {
 } from '../../ui/session-flow';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
-import { ItemNavBand, ItemNavState } from '../../ui/item-nav-band/item-nav-band';
+import {
+  ItemNavBand,
+  ItemNavState,
+} from '../../ui/item-nav-band/item-nav-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 
@@ -184,8 +187,7 @@ export class LogicPlay {
       answerIndex: this.answers()[index] ?? null,
       timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
       helpUsed: this.helpUsed().has(index),
-      visited:
-        this.visited().has(index) || this.answers()[index] !== undefined,
+      visited: this.visited().has(index) || this.answers()[index] !== undefined,
     }));
     this.facade.completeTargeted(payload).subscribe({
       next: (session) =>

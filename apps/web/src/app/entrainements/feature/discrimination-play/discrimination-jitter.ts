@@ -20,10 +20,7 @@ export function computeJitterPlacement(
   offset: SequenceOffset,
   metrics: JitterZoneMetrics,
 ): JitterPlacement {
-  const usableWidth = Math.max(
-    0,
-    metrics.zoneWidth - 2 * JITTER_SAFE_MARGIN_X,
-  );
+  const usableWidth = Math.max(0, metrics.zoneWidth - 2 * JITTER_SAFE_MARGIN_X);
   const usableHeight = Math.max(
     0,
     metrics.zoneHeight - 2 * JITTER_SAFE_MARGIN_Y,

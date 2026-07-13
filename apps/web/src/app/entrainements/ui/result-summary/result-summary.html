@@ -13,19 +13,20 @@
   <div class="summary__score">
     <span class="summary__score-value t-mono">{{ score() }}</span>
     <span class="summary__score-max t-mono">/100</span>
-    @if (delta(); as d) {
-      @if (d !== 0) {
-        <span
-          class="summary__delta t-mono"
-          [class.summary__delta--up]="d > 0"
-          [class.summary__delta--down]="d < 0"
-          >{{ d > 0 ? '+' + d : d }}</span
-        >
-      }
-    }
+    @if (delta(); as d) { @if (d !== 0) {
+    <span
+      class="summary__delta t-mono"
+      [class.summary__delta--up]="d > 0"
+      [class.summary__delta--down]="d < 0"
+      >{{ d > 0 ? '+' + d : d }}</span
+    >
+    } }
   </div>
   <span class="summary__verdict">
-    <span class="summary__verdict-dot" [style.background]="verdictColor()"></span>
+    <span
+      class="summary__verdict-dot"
+      [style.background]="verdictColor()"
+    ></span>
     {{ verdictLabel() }}
   </span>
   <p class="summary__best">

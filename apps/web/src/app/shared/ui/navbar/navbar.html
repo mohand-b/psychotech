@@ -16,7 +16,7 @@
     </nav>
 
     <div class="flex items-center gap-4">
-      <ui-energy-chip [state]="energy()" />
+      <ui-energy-chip [state]="energy()" [tier]="tier()" />
       <span class="separator"></span>
       @if (user(); as current) {
         <span class="user-name">{{ current.firstName }} {{ current.lastName }}</span>
@@ -38,7 +38,7 @@
       @if (sector(); as current) {
         <ui-sector-chip [sector]="current" [showLabel]="false" />
       }
-      <ui-energy-chip [state]="energy()" />
+      <ui-energy-chip [state]="energy()" [tier]="tier()" />
     </div>
   </header>
 

@@ -43,7 +43,9 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
           </button>
         }
       </nav>
-      <span class="band__remaining t-mono">{{ remainingCount() }} restants</span>
+      <span class="band__remaining t-mono"
+        >{{ remainingCount() }} restants</span
+      >
     </div>
   `,
   styleUrl: './item-nav-band.css',
@@ -57,7 +59,9 @@ export class ItemNavBand {
   readonly remainingCount = input.required<number>();
   readonly navigate = output<number>();
 
-  protected readonly presentation = computed(() => AXIS_PRESENTATION[this.axis()]);
+  protected readonly presentation = computed(
+    () => AXIS_PRESENTATION[this.axis()],
+  );
 
   constructor() {
     effect(() => {
@@ -65,7 +69,11 @@ export class ItemNavBand {
       setTimeout(() =>
         this.elementRef.nativeElement
           .querySelector('[aria-current="true"]')
-          ?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }),
+          ?.scrollIntoView({
+            block: 'nearest',
+            inline: 'center',
+            behavior: 'smooth',
+          }),
       );
     });
   }
