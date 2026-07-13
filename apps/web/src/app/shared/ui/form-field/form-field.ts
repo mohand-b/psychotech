@@ -16,7 +16,10 @@ import { inputValue } from '../../util/input-value';
   template: `
     <label class="ui-form-field">
       @if (label()) {
-        <span class="ui-form-field__label">{{ label() }}</span>
+        <span class="ui-form-field__label-row">
+          <span class="ui-form-field__label">{{ label() }}</span>
+          <ng-content select="[field-label-suffix]" />
+        </span>
       }
       <span [class]="controlClasses()">
         @if (icon(); as glyph) {
@@ -49,6 +52,11 @@ import { inputValue } from '../../util/input-value';
       flex-direction: column;
       gap: 7px;
     }
+    .ui-form-field__label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     .ui-form-field__label {
       font: 600 13px/18px var(--font-ui);
       color: var(--ink);
@@ -57,7 +65,7 @@ import { inputValue } from '../../util/input-value';
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      height: 48px;
+      height: 50px;
       padding: 0 14px;
       background: var(--card);
       border: 1px solid var(--border);
@@ -87,7 +95,7 @@ import { inputValue } from '../../util/input-value';
       color: var(--ink);
     }
     .ui-form-field__input::placeholder {
-      color: var(--label);
+      color: var(--text-disabled);
     }
     .ui-form-field__check {
       display: inline-flex;
@@ -100,6 +108,24 @@ import { inputValue } from '../../util/input-value';
     @media (max-width: 767px) {
       .ui-form-field__input {
         font-size: 16px;
+      }
+    }
+    @media (min-width: 768px) {
+      .ui-form-field {
+        gap: 8px;
+      }
+      .ui-form-field__label {
+        font: 600 11px/14px var(--font-ui);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--label);
+      }
+      .ui-form-field__control {
+        border-radius: 12px;
+        padding: 0 16px;
+      }
+      .ui-form-field__icon {
+        display: none;
       }
     }
   `,

@@ -7,9 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Mail } from 'lucide-angular';
+import { ArrowRight, Mail } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
-import { Card } from '../../../shared/ui/card/card';
 import { FormField } from '../../../shared/ui/form-field/form-field';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
 import { AuthFacade } from '../../data-access/auth.facade';
@@ -19,15 +18,16 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-login',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Button, Card, FormField, PasswordField],
+  imports: [RouterLink, Button, FormField, PasswordField],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['./login.css', '../auth-layout.css'],
 })
 export class Login {
   private readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
 
   protected readonly mailIcon = Mail;
+  protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
 
   protected readonly email = signal('');

@@ -23,6 +23,10 @@ import { Icon } from '../icon/icon';
       [valid]="valid()"
       [(value)]="value"
     >
+      <ng-content
+        select="[field-label-suffix]"
+        ngProjectAs="[field-label-suffix]"
+      />
       <button
         field-suffix
         type="button"
@@ -53,6 +57,18 @@ import { Icon } from '../icon/icon';
       outline: 2px solid var(--brand);
       outline-offset: 2px;
       border-radius: 4px;
+    }
+    @media (min-width: 768px) {
+      .ui-password-field__toggle {
+        width: 38px;
+        height: 38px;
+        justify-content: center;
+        border-radius: 9px;
+        margin-right: -8px;
+      }
+      .ui-password-field__toggle:hover {
+        background: var(--bg);
+      }
     }
     @media (pointer: coarse) {
       .ui-password-field__toggle {
