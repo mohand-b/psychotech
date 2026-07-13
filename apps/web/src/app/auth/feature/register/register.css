@@ -5,12 +5,6 @@
 .register__panel {
   width: 440px;
   gap: 14px;
-  animation: none;
-  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.register__panel--wide {
-  width: 496px;
 }
 
 .register__panel > * {
@@ -25,12 +19,24 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .register__step--sector {
   gap: 26px;
-  animation-name: step-back;
+}
+
+@media (min-width: 768px) {
+  .register__viewport {
+    min-height: 720px;
+  }
+
+  .register__step--enter-forward {
+    animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__step--enter-back {
+    animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @keyframes step-in {
@@ -324,7 +330,6 @@
 
   .register__step {
     gap: 22px;
-    animation: none;
   }
 
   .register__step--form {
@@ -332,20 +337,31 @@
   }
 
   .register__step > * {
+    animation: auth-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__step--enter-forward > * {
     animation: step-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .register__step--sector > * {
-    animation-name: step-back;
+  .register__step--enter-back > * {
+    animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  .register__step--sector .register__step-foot > * {
+  .register__step .register__step-foot {
+    animation: none;
+  }
+
+  .register__step .register__step-foot > * {
+    animation: auth-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .register__step--enter-back .register__step-foot > * {
     animation: step-back 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .register__step > .auth__actions,
-  .register__step--sector .register__step-foot,
-  .register__step--sector .register__step-foot > .auth__actions {
+  .register__step .register__step-foot > .auth__actions {
     animation: none;
   }
 

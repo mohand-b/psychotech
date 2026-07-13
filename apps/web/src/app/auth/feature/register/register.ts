@@ -47,6 +47,9 @@ export class Register {
   protected readonly pending = this.authFacade.pending;
 
   protected readonly step = signal<1 | 2>(1);
+  protected readonly stepDirection = signal<'entry' | 'forward' | 'back'>(
+    'entry',
+  );
   protected readonly cgu = signal(false);
 
   protected readonly firstName = signal('');
@@ -91,6 +94,11 @@ export class Register {
 
   protected sectorIcon(value: string) {
     return SECTOR_PRESENTATION[value as Sector].icon;
+  }
+
+  protected goToStep(target: 1 | 2): void {
+    this.stepDirection.set(target > this.step() ? 'forward' : 'back');
+    this.step.set(target);
   }
 
   protected readonly confirmationValid = computed(() =>
