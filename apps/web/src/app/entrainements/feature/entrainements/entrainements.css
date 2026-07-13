@@ -240,11 +240,11 @@
 
 .tri__volet--free {
   border-bottom-color: var(--border);
+  min-height: 0;
 }
 
 .tri__offer {
-  position: absolute;
-  inset: 0;
+  height: 100%;
   background: var(--card);
   padding: 32px;
   display: flex;
