@@ -143,7 +143,16 @@ export class Register {
       : 'Les mots de passe ne correspondent pas';
   });
 
+  protected submitOnEnter(event: Event): void {
+    if (event.target instanceof HTMLInputElement) {
+      this.submit();
+    }
+  }
+
   protected submit(): void {
+    if (this.pending()) {
+      return;
+    }
     this.submitted.set(true);
     this.serverError.set(null);
     if (

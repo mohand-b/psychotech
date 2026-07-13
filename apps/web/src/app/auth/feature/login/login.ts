@@ -47,7 +47,16 @@ export class Login {
     this.submitted() && this.password() === '' ? 'Mot de passe requis' : null,
   );
 
+  protected submitOnEnter(event: Event): void {
+    if (event.target instanceof HTMLInputElement) {
+      this.submit();
+    }
+  }
+
   protected submit(): void {
+    if (this.pending()) {
+      return;
+    }
     this.submitted.set(true);
     this.serverError.set(null);
     if (this.emailError() || this.passwordError()) {
