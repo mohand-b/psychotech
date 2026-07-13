@@ -20,7 +20,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, Button, FormField, PasswordField],
   templateUrl: './login.html',
-  styleUrls: ['./login.css', '../auth-layout.css'],
+  styleUrls: ['../auth-layout.css', './login.css'],
 })
 export class Login {
   private readonly authFacade = inject(AuthFacade);

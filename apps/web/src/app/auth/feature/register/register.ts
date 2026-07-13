@@ -8,14 +8,15 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Sector, SectorSummaryDto } from '@psychotech/shared';
-import { Mail } from 'lucide-angular';
+import { ArrowRight, Mail } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { Button } from '../../../shared/ui/button/button';
-import { Card } from '../../../shared/ui/card/card';
 import { FormField } from '../../../shared/ui/form-field/form-field';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
-import { Select, SelectOption } from '../../../shared/ui/select/select';
+import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { SelectOption } from '../../../shared/ui/select/select';
 import { passwordsMatch } from '../../../shared/util/password-match';
 import { AuthFacade } from '../../data-access/auth.facade';
 
@@ -28,14 +29,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   imports: [
     RouterLink,
     Button,
-    Card,
     FormField,
+    Icon,
     PasswordField,
     PasswordStrengthMeter,
-    Select,
   ],
   templateUrl: './register.html',
-  styleUrl: './register.css',
+  styleUrls: ['../auth-layout.css', './register.css'],
 })
 export class Register {
   private readonly authFacade = inject(AuthFacade);
@@ -43,7 +43,11 @@ export class Register {
   private readonly router = inject(Router);
 
   protected readonly mailIcon = Mail;
+  protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
+
+  protected readonly step = signal<1 | 2>(1);
+  protected readonly cgu = signal(false);
 
   protected readonly firstName = signal('');
   protected readonly lastName = signal('');
@@ -55,6 +59,22 @@ export class Register {
   protected readonly sectorOptions = signal<readonly SelectOption[]>([]);
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
+
+  protected readonly activeSectors = computed(() =>
+    this.sectorOptions().filter((option) => !option.disabled),
+  );
+  protected readonly comingSectors = computed(() =>
+    this.sectorOptions().filter((option) => option.disabled),
+  );
+  protected readonly sectorLabel = computed(
+    () =>
+      this.sectorOptions().find((option) => option.value === this.sector())
+        ?.label ?? '',
+  );
+
+  protected sectorIcon(value: string) {
+    return SECTOR_PRESENTATION[value as Sector].icon;
+  }
 
   protected readonly confirmationValid = computed(() =>
     passwordsMatch(this.password(), this.confirmation()),
