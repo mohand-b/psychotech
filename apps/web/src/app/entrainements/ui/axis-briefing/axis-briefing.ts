@@ -43,9 +43,6 @@ interface SummaryTile {
         @if (positionLabel(); as position) {
           <span class="axis-briefing__position">{{ position }}</span>
         }
-        @if (tutorial()) {
-          <span class="axis-briefing__tutorial-tag">Tutoriel</span>
-        }
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
       </header>
 
