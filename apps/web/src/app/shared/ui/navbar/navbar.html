@@ -51,6 +51,14 @@
       >
         <ui-energy-chip [state]="energy()" [tier]="tier()" />
       </a>
+      <button
+        type="button"
+        class="logout-mobile"
+        aria-label="Déconnexion"
+        (click)="logout()"
+      >
+        <ui-icon [img]="logOutIcon" [size]="17" />
+      </button>
     </div>
   </header>
 
