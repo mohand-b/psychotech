@@ -12,6 +12,7 @@
 }
 
 .focused-header__inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -206,5 +207,29 @@
   .focused-header__icon-button {
     width: 44px;
     height: 44px;
+  }
+}
+
+.focused-header__discovery {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 11px/14px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .focused-header__discovery {
+    font-size: 10.5px;
+  }
+
+  .focused-header__discovery-icon {
+    display: none;
   }
 }

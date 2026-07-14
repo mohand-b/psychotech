@@ -1,14 +1,15 @@
 <div class="flex min-h-dvh flex-col">
   @if (focusedHeader(); as header) {
-    <ui-focused-header
-      [title]="header.title"
-      [backLabel]="header.backLabel"
-      [backLink]="header.backLink"
-      [backQueryParams]="header.backQueryParams"
-      [axisChip]="header.axisChip"
-      [mobileTitle]="header.mobileTitle"
-      [steps]="header.stepper ? sessionSteps() : []"
-      [duration]="
+  <ui-focused-header
+    [title]="header.title"
+    [discoveryTag]="header.discoveryTag"
+    [backLabel]="header.backLabel"
+    [backLink]="header.backLink"
+    [backQueryParams]="header.backQueryParams"
+    [axisChip]="header.axisChip"
+    [mobileTitle]="header.mobileTitle"
+    [steps]="header.stepper ? sessionSteps() : []"
+    [duration]="
         !header.showTimer
           ? null
           : header.live
@@ -19,35 +20,36 @@
               ? stepperDuration()
               : header.duration
       "
-      [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
-      [showEnergy]="header.showEnergy"
-      [closeLink]="header.closeLink"
-      (closeRequested)="onCloseRequested(header)"
-    />
+    [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
+    [showEnergy]="header.showEnergy"
+    [closeLink]="header.closeLink"
+    (closeRequested)="onCloseRequested(header)"
+  />
   } @else {
-    <ui-navbar
-      [hideMobile]="mobileFlow() !== null"
-      [hideMobileTabs]="hideMobileNav()"
-    />
-    @if (mobileFlow(); as flow) {
-      <header
-        class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
-      >
-        <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
-        @if (mobileFlowPresentation(flow); as presentation) {
-          <span
-            class="flow-header__chip"
-            [style.background]="presentation.pastelVar"
-            [style.border-color]="presentation.pastelBorderVar"
-            [style.color]="presentation.textVar"
-          >
-            <ui-icon [img]="presentation.icon" [size]="13" />
-            <span>{{ presentation.label }} · {{ flow.suffix }}</span>
-          </span>
-        }
-      </header>
+  <ui-navbar
+    [hideMobile]="mobileFlow() !== null"
+    [hideMobileTabs]="hideMobileNav()"
+  />
+  @if (mobileFlow(); as flow) {
+  <header
+    class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
+  >
+    <span class="logo logo--compact"
+      >Psycho<span class="logo__accent">Tech</span></span
+    >
+    @if (mobileFlowPresentation(flow); as presentation) {
+    <span
+      class="flow-header__chip"
+      [style.background]="presentation.pastelVar"
+      [style.border-color]="presentation.pastelBorderVar"
+      [style.color]="presentation.textVar"
+    >
+      <ui-icon [img]="presentation.icon" [size]="13" />
+      <span>{{ presentation.label }} · {{ flow.suffix }}</span>
+    </span>
     }
-  }
+  </header>
+  } }
   <main
     class="content flex-1 md:pb-0"
     [class.content--nav-clearance]="

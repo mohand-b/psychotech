@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
-import { ArrowLeft, Timer, X } from 'lucide-angular';
+import { ArrowLeft, BookOpen, Timer, X } from 'lucide-angular';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
@@ -49,16 +49,31 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
               <ui-icon [img]="backIcon" [size]="16" />
               <span>{{ backLabel() }}</span>
             </a>
-            <span class="focused-header__separator"></span>
-            <span
-              class="focused-header__title"
-              [class.focused-header__title--mobile-visible]="mobileTitle()"
-              >{{ title() }}</span
-            >
+            @if (title() || axisChip()) {
+              <span class="focused-header__separator"></span>
+            }
+            @if (title()) {
+              <span
+                class="focused-header__title"
+                [class.focused-header__title--mobile-visible]="mobileTitle()"
+                >{{ title() }}</span
+              >
+            }
             @if (axisChip(); as chip) {
               <ui-axis-chip [axis]="chip" />
             }
           </nav>
+        }
+
+        @if (discoveryTag()) {
+          <span class="focused-header__discovery">
+            <ui-icon
+              class="focused-header__discovery-icon"
+              [img]="discoveryIcon"
+              [size]="13"
+            />
+            Mode découverte
+          </span>
         }
 
         <div class="focused-header__actions">
@@ -106,6 +121,7 @@ export class FocusedHeader {
   private readonly coreFacade = inject(CoreFacade);
 
   readonly title = input.required<string>();
+  readonly discoveryTag = input(false);
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
   readonly backQueryParams = input<Record<string, string> | null>(null);
@@ -119,6 +135,7 @@ export class FocusedHeader {
   readonly closeRequested = output<void>();
 
   protected readonly backIcon = ArrowLeft;
+  protected readonly discoveryIcon = BookOpen;
   protected readonly timerIcon = Timer;
   protected readonly closeIcon = X;
   protected readonly energy = this.energyFacade.state;

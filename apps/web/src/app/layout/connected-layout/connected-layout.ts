@@ -33,6 +33,7 @@ import { Navbar } from '../../shared/ui/navbar/navbar';
 
 interface FocusedHeaderData {
   title?: string;
+  discoveryTag?: boolean;
   backLabel?: string;
   backLink?: string;
   backQueryParams?: Record<string, string>;
@@ -58,6 +59,7 @@ interface MobileFlowView {
 
 interface FocusedHeaderView {
   title: string;
+  discoveryTag: boolean;
   backLabel: string;
   backLink: string;
   backQueryParams: Record<string, string> | null;
@@ -94,7 +96,8 @@ export class ConnectedLayout {
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
   protected readonly liveCountdownSeverity =
     this.trainingSessionFacade.countdownSeverity;
-  protected readonly liveTimerDisabled = this.trainingSessionFacade.timerDisabled;
+  protected readonly liveTimerDisabled =
+    this.trainingSessionFacade.timerDisabled;
 
   protected readonly sessionSteps = computed<ChevronStep[]>(() => {
     const session = this.trainingSessionFacade.session();
@@ -214,6 +217,7 @@ export class ConnectedLayout {
     }
     return {
       title,
+      discoveryTag: data.discoveryTag ?? false,
       backLabel: data.backLabel ?? '',
       backLink: resolveLink(data.backLink ?? ''),
       backQueryParams: data.backQueryParams ?? null,
@@ -224,7 +228,7 @@ export class ConnectedLayout {
       stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
       showTimer: data.showTimer ?? true,
-      live: data.live ?? (snapshot?.paramMap.has('sessionId') ?? false),
+      live: data.live ?? snapshot?.paramMap.has('sessionId') ?? false,
     };
   }
 }

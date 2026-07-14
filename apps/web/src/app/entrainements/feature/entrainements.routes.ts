@@ -31,7 +31,8 @@ const simulationPlayHeader = {
 };
 
 const tutorialPlayHeader = {
-  title: 'Tutoriel',
+  title: '',
+  discoveryTag: true,
   backLabel: 'Entraînements',
   backLink: '/entrainements',
   closeLink: '/entrainements',
@@ -66,6 +67,7 @@ export const entrainementsRoutes: Route[] = [
     data: {
       tutorial: true,
       focusedHeader: {
+        discoveryTag: true,
         backLabel: 'Entraînements',
         backLink: '/entrainements',
         closeLink: '/entrainements',
@@ -131,7 +133,8 @@ export const entrainementsRoutes: Route[] = [
     data: {
       tutorial: true,
       focusedHeader: {
-        title: 'Mode découverte',
+        title: '',
+        discoveryTag: true,
         backLabel: 'Entraînements',
         backLink: '/entrainements',
         closeLink: '/entrainements',
