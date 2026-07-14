@@ -200,6 +200,7 @@ export function motricityAdvanceArc(
   previousArc: number,
   maxAdvance: number,
 ): number {
+  const windowStart = previousArc;
   const windowEnd = previousArc + maxAdvance;
   let accumulated = 0;
   let bestDistance = Infinity;
@@ -210,6 +211,9 @@ export function motricityAdvanceArc(
     if (segmentStart > windowEnd) {
       break;
     }
+    if (accumulated < windowStart) {
+      continue;
+    }
     const dx = segment.end.x - segment.start.x;
     const dy = segment.end.y - segment.start.y;
     const lengthSq = dx * dx + dy * dy;
@@ -219,9 +223,9 @@ export function motricityAdvanceArc(
         : ((point.x - segment.start.x) * dx +
             (point.y - segment.start.y) * dy) /
           lengthSq;
-    t = Math.min(1, Math.max(0, t));
-    const tWindow = (windowEnd - segmentStart) / segment.length;
-    t = Math.min(t, Math.max(0, tWindow));
+    const tMin = Math.max(0, (windowStart - segmentStart) / segment.length);
+    const tMax = Math.min(1, (windowEnd - segmentStart) / segment.length);
+    t = Math.min(tMax, Math.max(tMin, t));
     const px = segment.start.x + t * dx;
     const py = segment.start.y + t * dy;
     const distance = Math.hypot(point.x - px, point.y - py);

@@ -9,6 +9,9 @@ import {
   MOTRICITY_CANVAS_HEIGHT,
   MOTRICITY_CANVAS_WIDTH,
   MotricityCourse,
+  MotricityPoint,
+  MotricitySegment,
+  motricityAdvanceArc,
   motricityCursorZone,
   motricityProgressionPct,
 } from './motricity-course';
@@ -352,5 +355,36 @@ describe('motricityProgressionPct', () => {
         motricityProgressionPct(course, insidePoint(course)),
       ).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('motricityAdvanceArc', () => {
+  function segment(
+    start: MotricityPoint,
+    end: MotricityPoint,
+  ): MotricitySegment {
+    return {
+      start,
+      end,
+      width: 24,
+      length: Math.hypot(end.x - start.x, end.y - start.y),
+    };
+  }
+
+  it('keeps advancing when the cursor is offset toward an earlier fold-back segment', () => {
+    const foldBack = {
+      segments: [
+        segment({ x: 0, y: 0 }, { x: 100, y: 0 }),
+        segment({ x: 100, y: 0 }, { x: 100, y: 12 }),
+        segment({ x: 100, y: 12 }, { x: 0, y: 12 }),
+      ],
+    } as unknown as MotricityCourse;
+    const previousArc = 160;
+    const offsetCursor = { x: 50, y: 4 };
+
+    const arc = motricityAdvanceArc(foldBack, offsetCursor, previousArc, 5);
+
+    expect(arc).toBeGreaterThan(previousArc);
+    expect(arc).toBeCloseTo(162, 0);
   });
 });
