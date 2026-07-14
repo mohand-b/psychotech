@@ -1,77 +1,305 @@
-.tutorial-end {
+.te {
+  width: 100%;
+  max-width: 832px;
+  margin-inline: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.tutorial-end__card {
-  width: 440px;
-  max-width: 100%;
+.te__flow,
+.te__actions,
+.te__footnote {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.te__flow {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.te__hero {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
+  padding: 32px;
   box-shadow: var(--shadow-card);
-  padding: 28px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 22px;
-  text-align: center;
+  gap: 16px;
 }
 
-.tutorial-end__tile {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  display: inline-flex;
+.te__hero-head {
+  display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.tutorial-end__head {
+.te__hero-copy {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 6px;
 }
 
-.tutorial-end__tag {
+.te__label {
   font: 600 11px/14px var(--font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--label);
 }
 
-.tutorial-end__title {
-  font: 700 26px/1.15 var(--font-display);
-  margin: 0;
-  color: var(--ink);
-}
-
-.tutorial-end__subtitle {
-  font: 400 13.5px/1.55 var(--font-ui);
+.te__meta {
+  font: 400 13px/18px var(--font-ui);
   color: var(--text-secondary);
-  max-width: 320px;
 }
 
-.tutorial-end__card ui-result-metrics {
-  width: 100%;
+.te__meta--mobile {
+  display: none;
 }
 
-.tutorial-end__actions {
-  width: 100%;
+.te__axis-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  font: 600 13px/18px var(--font-ui);
+  padding: 7px 12px;
+  border-radius: var(--radius-chip);
+  flex-shrink: 0;
+}
+
+.te__hero-note {
+  font: 400 14px/1.55 var(--font-ui);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 16px;
+}
+
+.te__duo {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.te__col {
   display: flex;
   flex-direction: column;
+}
+
+.te__col-label {
+  padding-bottom: 8px;
+}
+
+.te__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--divider-soft);
+}
+
+.te__row--check {
+  justify-content: flex-start;
   gap: 10px;
 }
 
+.te__row-label {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.te__row-value {
+  font: 600 14px/18px var(--font-mono);
+  color: var(--ink);
+}
+
+.te__row-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label);
+}
+
+.te__check {
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+.te__check-text {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--ink);
+}
+
+.te__col-note {
+  font: 400 12px/16px var(--font-ui);
+  color: var(--label);
+  padding-top: 12px;
+}
+
+.te__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.te__actions .te__secondary-link,
+.te__actions .te__primary-mobile {
+  display: none;
+}
+
+.te__secondary-link {
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font: 600 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.te__footnote {
+  font: 400 12px/16px var(--font-ui);
+  color: var(--label);
+  text-align: center;
+}
+
 @media (max-width: 767px) {
-  .tutorial-end__card {
-    padding: 22px 18px;
-    gap: 18px;
+  .te {
+    gap: 14px;
+    padding-bottom: calc(150px + env(safe-area-inset-bottom));
   }
 
-  .tutorial-end__title {
-    font-size: 23px;
+  .te__flow {
+    gap: 14px;
+  }
+
+  .te__hero {
+    border-radius: var(--radius-card);
+    padding: 20px 18px;
+    gap: 14px;
+  }
+
+  .te__hero-head {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .te__hero-copy {
+    gap: 5px;
+  }
+
+  .te__meta {
+    font-size: 12.5px;
+  }
+
+  .te__meta--desktop {
+    display: none;
+  }
+
+  .te__meta--mobile {
+    display: inline;
+  }
+
+  .te__axis-chip {
+    gap: 7px;
+    font-size: 12.5px;
+    padding: 6px 11px;
+  }
+
+  .te__hero-note {
+    font-size: 13px;
+    padding-top: 14px;
+  }
+
+  .te__duo {
+    display: contents;
+  }
+
+  .te__col {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .te__col-label {
+    padding-bottom: 4px;
+  }
+
+  .te__row {
+    padding: 10px 0;
+  }
+
+  .te__row--last {
+    border-bottom: none;
+  }
+
+  .te__col-note {
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding-top: 10px;
+  }
+
+  .te__col-note--eval {
+    border-top: 1px solid var(--divider-soft);
+  }
+
+  .te__actions {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 30;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    animation: none;
+  }
+
+  .te__actions .te__primary-desktop,
+  .te__actions .te__secondary-button {
+    display: none;
+  }
+
+  .te__actions .te__primary-mobile {
+    display: block;
+  }
+
+  .te__actions .te__secondary-link {
+    display: inline-flex;
+  }
+
+  .te__footnote {
+    font-size: 11.5px;
+    line-height: 1.5;
+    text-align: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .te__secondary-link {
+    display: none;
   }
 }

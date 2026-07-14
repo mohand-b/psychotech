@@ -131,12 +131,11 @@ export const entrainementsRoutes: Route[] = [
     data: {
       tutorial: true,
       focusedHeader: {
-        title: 'Tutoriel',
+        title: 'Mode découverte',
         backLabel: 'Entraînements',
         backLink: '/entrainements',
         closeLink: '/entrainements',
         axisParam: 'axis',
-        axisChip: true,
         showTimer: false,
         showEnergy: false,
         live: false,

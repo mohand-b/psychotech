@@ -9,6 +9,8 @@ import {
   AXIS_TUTORIAL,
   AxisType,
   MOTRICITY_TUTORIAL_START_WIDTH,
+  SECTOR_LABELS,
+  Sector,
   SubscriptionTier,
   TUTORIAL_SEED,
   generateDiscriminationSession,
@@ -22,26 +24,35 @@ import {
   scoreMotricityCourse,
   scoreReactivitySession,
 } from '@psychotech/shared';
-import { ArrowRight, RotateCcw } from 'lucide-angular';
+import { ArrowRight, Check } from 'lucide-angular';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import {
-  ResultMetricRow,
-  ResultMetrics,
-} from '../../ui/result-metrics/result-metrics';
-import { axisButtonColor } from '../../ui/axis-button-color';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
-import { TUTORIAL_SESSION_ID } from '../../data-access/tutorial-session.facade';
 import { TutorialRunResult } from '../../data-access/tutorial-run.store';
+import { formatOverviewDate } from '../entrainements/trainings-overview-view';
 
-function formatSeconds(ms: number | null): string {
-  return ms === null ? '-' : `${(ms / 1000).toFixed(1).replace('.', ',')} s`;
+interface TutorialMetricRow {
+  label: string;
+  main: string;
+  unit: string;
 }
 
-function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
+const FULL_EVALUATION_POINTS = [
+  "L'épreuve entière, notée sur 100",
+  'Des exercices renouvelés à chaque session',
+  'Métriques détaillées, graphiques et recommandations',
+  "Suivi de progression et avis d'admissibilité",
+];
+
+function formatSeconds(ms: number | null): string {
+  return ms === null ? '-' : (ms / 1000).toFixed(1).replace('.', ',');
+}
+
+function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
   switch (result.axis) {
     case AxisType.LOGIC: {
       const scored = scoreLogicSession(
@@ -51,11 +62,13 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
       return [
         {
           label: 'Bonnes réponses',
-          value: `${scored.correctCount}/${result.items.length}`,
+          main: `${scored.correctCount}`,
+          unit: `/${result.items.length}`,
         },
         {
           label: 'Temps moyen par item',
-          value: formatSeconds(scored.avgAnswerTimeMs),
+          main: formatSeconds(scored.avgAnswerTimeMs),
+          unit: ' s',
         },
       ];
     }
@@ -66,13 +79,14 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
       );
       return [
         {
-          label: 'Séquence restituée',
-          value: scored.perfectCount > 0 ? 'Sans faute' : 'Avec erreurs',
+          label: 'Séquence restituée sans faute',
+          main: scored.perfectCount > 0 ? 'Oui' : 'Non',
+          unit: '',
         },
         {
           label: 'Chiffres bien placés',
-          value: `${Math.round(scored.placedPct)}`,
-          suffix: '%',
+          main: `${Math.round(scored.placedPct)}`,
+          unit: ' %',
         },
       ];
     }
@@ -87,11 +101,13 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
       return [
         {
           label: 'Essais corrects',
-          value: `${scored.correctCount}/${result.trials.length}`,
+          main: `${scored.correctCount}`,
+          unit: `/${result.trials.length}`,
         },
         {
           label: 'Temps moyen par essai',
-          value: formatSeconds(scored.avgAnswerTimeMs),
+          main: formatSeconds(scored.avgAnswerTimeMs),
+          unit: ' s',
         },
       ];
     }
@@ -107,18 +123,15 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
       return [
         {
           label: 'Temps de réaction moyen',
-          value:
-            scored.trMoyMs === null ? '-' : `${Math.round(scored.trMoyMs)}`,
-          suffix: 'ms',
+          main: scored.trMoyMs === null ? '-' : `${Math.round(scored.trMoyMs)}`,
+          unit: ' ms',
         },
         {
           label: 'Erreurs de commande',
-          value: `${scored.wrongCommandCount}`,
+          main: `${scored.wrongCommandCount}`,
+          unit: '',
         },
-        {
-          label: 'Signaux manqués',
-          value: `${scored.omissionCount}`,
-        },
+        { label: 'Signaux manqués', main: `${scored.omissionCount}`, unit: '' },
       ];
     }
     case AxisType.MOTOR_SKILLS: {
@@ -133,11 +146,14 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
       return [
         {
           label: 'Parcours complété',
-          value: `${Math.round(scored.progressionPct)}`,
-          suffix: '%',
+          main: `${Math.round(scored.progressionPct)}`,
+          unit: ' %',
         },
-        { label: 'Erreurs mineures', value: `${scored.minorErrors}` },
-        { label: 'Erreurs majeures', value: `${scored.majorErrors}` },
+        {
+          label: 'Erreurs',
+          main: `${scored.minorErrors + scored.majorErrors}`,
+          unit: '',
+        },
       ];
     }
   }
@@ -146,7 +162,7 @@ function tutorialMetricRows(result: TutorialRunResult): ResultMetricRow[] {
 @Component({
   selector: 'app-tutorial-end',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, ResultMetrics, RouterLink],
+  imports: [Button, Icon, RouterLink],
   templateUrl: './tutorial-end.html',
   styleUrl: './tutorial-end.css',
 })
@@ -155,9 +171,11 @@ export class TutorialEnd {
   private readonly router = inject(Router);
   private readonly runFacade = inject(TutorialRunFacade);
   private readonly coreFacade = inject(CoreFacade);
+  private readonly authFacade = inject(AuthFacade);
 
   protected readonly arrowIcon = ArrowRight;
-  protected readonly retryIcon = RotateCcw;
+  protected readonly checkIcon = Check;
+  protected readonly evaluationPoints = FULL_EVALUATION_POINTS;
 
   private readonly axis = axisFromSlug(
     this.route.snapshot.paramMap.get('axis'),
@@ -166,18 +184,16 @@ export class TutorialEnd {
   protected readonly presentation = this.axis
     ? AXIS_PRESENTATION[this.axis]
     : null;
-  protected readonly buttonColor = this.axis
-    ? axisButtonColor(this.axis)
-    : 'brand';
 
-  protected readonly replayLink = this.axis
-    ? [
-        '/entrainements/tutoriel',
-        axisSlug(this.axis),
-        'session',
-        TUTORIAL_SESSION_ID,
-      ]
-    : ['/entrainements'];
+  protected readonly sectorLabel =
+    SECTOR_LABELS[
+      this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY
+    ];
+
+  protected readonly dateLabel = formatOverviewDate(
+    new Date().toISOString(),
+    new Date(),
+  );
 
   protected readonly targetedLink = this.axis
     ? ['/entrainements/cible', axisSlug(this.axis)]
@@ -187,7 +203,15 @@ export class TutorialEnd {
     () => this.coreFacade.tier() === SubscriptionTier.FREE,
   );
 
-  protected readonly metricRows = computed<ResultMetricRow[]>(() => {
+  protected readonly primaryLabel = computed(() =>
+    this.isFree() ? 'Découvrir les offres' : 'Entraînement ciblé',
+  );
+
+  protected readonly primaryLink = computed(() =>
+    this.isFree() ? ['/offres'] : this.targetedLink,
+  );
+
+  protected readonly metricRows = computed<TutorialMetricRow[]>(() => {
     const result = this.runFacade.result();
     return result && result.axis === this.axis
       ? tutorialMetricRows(result)

@@ -1,58 +1,108 @@
-<section class="page-shell tutorial-end">
-  <div class="tutorial-end__card">
-    @if (presentation; as axisPresentation) {
-    <span
-      class="tutorial-end__tile"
-      [style.background]="axisPresentation.pastelVar"
-      [style.border-color]="axisPresentation.pastelBorderVar"
-      [style.color]="axisPresentation.textVar"
-    >
-      <ui-icon [img]="axisPresentation.icon" [size]="26" />
-    </span>
-    <div class="tutorial-end__head">
-      <span class="tutorial-end__tag">Tutoriel</span>
-      <h1 class="tutorial-end__title">Tutoriel terminé</h1>
-      <span class="tutorial-end__subtitle"
-        >{{ axisPresentation.label }} - vos observables sur ce tutoriel. Rien
-        n'est enregistré dans votre progression.</span
+<section class="page-shell te">
+  <div class="te__flow">
+    <section class="te__hero">
+      <div class="te__hero-head">
+        <div class="te__hero-copy">
+          <span class="te__label">Tutoriel terminé</span>
+          <span class="te__meta te__meta--desktop"
+            >Mode découverte · {{ sectorLabel }} · {{ dateLabel }}</span
+          >
+          <span class="te__meta te__meta--mobile"
+            >Mode découverte · {{ sectorLabel }}</span
+          >
+        </div>
+        @if (presentation; as axisPresentation) {
+        <span
+          class="te__axis-chip"
+          [style.background]="axisPresentation.pastelVar"
+          [style.border-color]="axisPresentation.pastelBorderVar"
+          [style.color]="axisPresentation.textVar"
+        >
+          <ui-icon [img]="axisPresentation.icon" [size]="15" />
+          {{ axisPresentation.label }}
+        </span>
+        }
+      </div>
+      <span class="te__hero-note"
+        >Vous connaissez maintenant le principe de l'épreuve. Le tutoriel sert à
+        découvrir : rien n'est enregistré dans votre progression.</span
       >
-    </div>
-    }
+    </section>
 
-    <ui-result-metrics [rows]="metricRows()" />
+    <div class="te__duo">
+      <section class="te__col te__col--metrics">
+        <span class="te__label te__col-label">Métriques</span>
+        @for (row of metricRows(); track row.label) {
+        <div class="te__row">
+          <span class="te__row-label">{{ row.label }}</span>
+          <span class="te__row-value t-mono"
+            >{{ row.main }}<span class="te__row-unit"
+              >{{ row.unit }}</span
+            ></span
+          >
+        </div>
+        }
+        <span class="te__col-note"
+          >Aperçu réduit, sans notation ni analyse.</span
+        >
+      </section>
 
-    <div class="tutorial-end__actions">
-      <ui-button
-        appearance="outlined"
-        [color]="buttonColor"
-        size="lg"
-        [block]="true"
-        [icon]="retryIcon"
-        [routerLink]="replayLink"
-      >
-        Refaire le tutoriel
-      </ui-button>
-      @if (isFree()) {
-      <ui-button
-        color="brand"
-        size="lg"
-        [block]="true"
-        [iconEnd]="arrowIcon"
-        routerLink="/offres"
-      >
-        Voir les offres
-      </ui-button>
-      } @else {
-      <ui-button
-        [color]="buttonColor"
-        size="lg"
-        [block]="true"
-        [iconEnd]="arrowIcon"
-        [routerLink]="targetedLink"
-      >
-        Entraînement ciblé
-      </ui-button>
-      }
+      <section class="te__col te__col--eval">
+        <span class="te__label te__col-label">Avec une vraie évaluation</span>
+        @for (point of evaluationPoints; track point; let last = $last) {
+        <div class="te__row te__row--check" [class.te__row--last]="last">
+          <ui-icon
+            class="te__check"
+            [img]="checkIcon"
+            [size]="14"
+            [strokeWidth]="2.5"
+          />
+          <span class="te__check-text">{{ point }}</span>
+        </div>
+        }
+        <span class="te__col-note te__col-note--eval"
+          >En entraînement ciblé sur cet axe, ou en simulation complète sur les
+          axes de votre secteur.</span
+        >
+      </section>
     </div>
   </div>
+
+  <div class="te__actions">
+    <ui-button
+      class="te__primary-desktop"
+      color="brand"
+      [iconEnd]="arrowIcon"
+      [routerLink]="primaryLink()"
+    >
+      {{ primaryLabel() }}
+    </ui-button>
+    <ui-button
+      class="te__secondary-button"
+      appearance="outlined"
+      color="brand"
+      routerLink="/entrainements"
+    >
+      Essayer un autre tutoriel
+    </ui-button>
+    <ui-button
+      class="te__primary-mobile"
+      color="brand"
+      size="lg"
+      [relief]="'mobile'"
+      [block]="true"
+      [iconEnd]="arrowIcon"
+      [routerLink]="primaryLink()"
+    >
+      {{ primaryLabel() }}
+    </ui-button>
+    <a routerLink="/entrainements" class="te__secondary-link"
+      >Essayer un autre tutoriel</a
+    >
+  </div>
+
+  <span class="te__footnote"
+    >Le tutoriel reste identique à chaque essai. Les sessions complètes génèrent
+    des exercices inédits.</span
+  >
 </section>
