@@ -68,7 +68,8 @@
           appearance="outlined"
           color="brand"
           [block]="true"
-          (click)="choosePlanProvisional(tiers.FREE)"
+          (click)="choosePlan(tiers.FREE)"
+          [loading]="choosing() === tiers.FREE"
         >
           Passer en Découverte
         </ui-button>
@@ -140,7 +141,8 @@
           appearance="outlined"
           color="brand"
           [block]="true"
-          (click)="choosePlanProvisional(tiers.ESSENTIAL)"
+          (click)="choosePlan(tiers.ESSENTIAL)"
+          [loading]="choosing() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -225,7 +227,8 @@
           color="brand"
           [block]="true"
           [iconEnd]="arrowIcon"
-          (click)="choosePlanProvisional(tiers.UNLIMITED)"
+          (click)="choosePlan(tiers.UNLIMITED)"
+          [loading]="choosing() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -283,7 +286,8 @@
           size="lg"
           [block]="true"
           [iconEnd]="arrowIcon"
-          (click)="choosePlanProvisional(tiers.UNLIMITED)"
+          (click)="choosePlan(tiers.UNLIMITED)"
+          [loading]="choosing() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -344,7 +348,8 @@
           color="brand"
           size="lg"
           [block]="true"
-          (click)="choosePlanProvisional(tiers.ESSENTIAL)"
+          (click)="choosePlan(tiers.ESSENTIAL)"
+          [loading]="choosing() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -394,7 +399,8 @@
           color="brand"
           size="lg"
           [block]="true"
-          (click)="choosePlanProvisional(tiers.FREE)"
+          (click)="choosePlan(tiers.FREE)"
+          [loading]="choosing() === tiers.FREE"
         >
           Commencer
         </ui-button>

@@ -2,26 +2,31 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { SubscriptionTier } from '@psychotech/shared';
+import { of } from 'rxjs';
 import { CoreFacade } from '../../../core/data-access/core.facade';
+import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Offers } from './offers';
 
 async function setup(tier: SubscriptionTier) {
   const coreFacade = {
     tier: signal(tier),
-    setTierOverride: vi.fn(),
+  };
+  const subscriptionsFacade = {
+    choosePlan: vi.fn().mockReturnValue(of({ tier })),
   };
   await TestBed.configureTestingModule({
     imports: [Offers],
     providers: [
       provideRouter([]),
       { provide: CoreFacade, useValue: coreFacade },
+      { provide: SubscriptionsFacade, useValue: subscriptionsFacade },
     ],
   }).compileComponents();
   const fixture = TestBed.createComponent(Offers);
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   fixture.detectChanges();
-  return { fixture, coreFacade, navigate };
+  return { fixture, coreFacade, subscriptionsFacade, navigate };
 }
 
 function texts(element: HTMLElement, selector: string): string[] {
@@ -74,8 +79,8 @@ describe('Offers', () => {
     ]);
   });
 
-  it('switches the plan placeholder and returns to the trainings page', async () => {
-    const { fixture, coreFacade, navigate } = await setup(
+  it('persists the chosen plan and returns to the trainings page', async () => {
+    const { fixture, subscriptionsFacade, navigate } = await setup(
       SubscriptionTier.FREE,
     );
     const element: HTMLElement = fixture.nativeElement;
@@ -83,7 +88,7 @@ describe('Offers', () => {
       '.offd ui-button button',
     );
     buttons[1].click();
-    expect(coreFacade.setTierOverride).toHaveBeenCalledWith(
+    expect(subscriptionsFacade.choosePlan).toHaveBeenCalledWith(
       SubscriptionTier.UNLIMITED,
     );
     expect(navigate).toHaveBeenCalledWith(['/entrainements']);

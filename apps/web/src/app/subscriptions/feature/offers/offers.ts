@@ -3,11 +3,13 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { SubscriptionTier } from '@psychotech/shared';
 import { ArrowRight, Check, Minus } from 'lucide-angular';
 import { CoreFacade } from '../../../core/data-access/core.facade';
+import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 
@@ -36,7 +38,10 @@ const mono = (value: string): CompareCell => ({ kind: 'mono', value });
 })
 export class Offers {
   private readonly coreFacade = inject(CoreFacade);
+  private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly router = inject(Router);
+
+  protected readonly choosing = signal<SubscriptionTier | null>(null);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -106,8 +111,14 @@ export class Offers {
     },
   ];
 
-  protected choosePlanProvisional(tier: SubscriptionTier): void {
-    this.coreFacade.setTierOverride(tier);
-    this.router.navigate(['/entrainements']);
+  protected choosePlan(tier: SubscriptionTier): void {
+    if (this.choosing() !== null) {
+      return;
+    }
+    this.choosing.set(tier);
+    this.subscriptionsFacade.choosePlan(tier).subscribe({
+      next: () => this.router.navigate(['/entrainements']),
+      error: () => this.choosing.set(null),
+    });
   }
 }
