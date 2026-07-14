@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
+  Crosshair,
   GraduationCap,
   Lock,
   Play,
@@ -108,6 +109,7 @@ export class Entrainements {
   protected readonly lockIcon = Lock;
   protected readonly graduationIcon = GraduationCap;
   protected readonly playIcon = Play;
+  protected readonly targetIcon = Crosshair;
 
   protected readonly simulationFeatures = [
     'Notation pondérée par secteur',

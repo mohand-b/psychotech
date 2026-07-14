@@ -987,7 +987,41 @@
   font: 600 12px/16px var(--font-ui);
 }
 
+.tut__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tut__score-bar {
+  position: relative;
+  width: 56px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface-muted);
+}
+
+.tut__score-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 5px;
+  border-radius: 3px;
+}
+
+.tut__score-value {
+  font-size: 12.5px;
+  font-weight: 600;
+  min-width: 18px;
+  text-align: right;
+  color: var(--ink);
+}
+
 @media (max-width: 767px) {
+  .tut--axes {
+    display: none;
+  }
+
   .tut {
     padding: 16px;
     gap: 14px;

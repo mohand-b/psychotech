@@ -217,11 +217,32 @@ describe('Entrainements', () => {
   it('links every tutorial card to the axis tutorial flow', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
-    const cards = element.querySelectorAll('.tut__card');
+    const cards = element.querySelectorAll(
+      '.tut:not(.tut--axes) .tut__card',
+    );
     expect(cards).toHaveLength(5);
     expect(cards[0].getAttribute('href')).toBe(
       '/entrainements/tutoriel/logique',
     );
+  });
+
+  it('shows the axis band with best scores linking to the targeted briefing on paying plans', async () => {
+    const { fixture } = await setup(buildOverview());
+    const element: HTMLElement = fixture.nativeElement;
+    const cards = element.querySelectorAll('.tut--axes .tut__card');
+    expect(cards).toHaveLength(5);
+    expect(cards[0].getAttribute('href')).toBe('/entrainements/cible/logique');
+    expect(text(cards[0].querySelector('.tut__score-value'))).toBe('82');
+    expect(element.querySelectorAll('.tut__try')).toHaveLength(5);
+  });
+
+  it('hides the axis band but keeps the discovery band on the free plan', async () => {
+    const { fixture } = await setup(buildOverview(), {
+      tier: SubscriptionTier.FREE,
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.tut--axes')).toBeNull();
+    expect(element.querySelectorAll('.tut__try')).toHaveLength(5);
   });
 
   it('shows the recharge countdown for the essential plan only', async () => {
