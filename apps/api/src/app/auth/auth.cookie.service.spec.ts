@@ -10,7 +10,6 @@ const config = {
   accessTtlSeconds: 900,
   refreshTtlSeconds: 604800,
   cookie: { secure: false, sameSite: 'lax', domain: undefined },
-  corsOrigin: 'http://localhost:4200',
 };
 
 const service = new AuthCookieService(

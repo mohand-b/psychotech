@@ -16,6 +16,7 @@ import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
 import { validateEnvironment } from './config/environment.validation';
+import { webAppServingImports } from './config/web-app-serving';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { validateEnvironment } from './config/environment.validation';
       load: [authConfig],
       validate: validateEnvironment,
     }),
+    ...webAppServingImports(),
     PrismaModule,
     AuthModule,
     UsersModule,

@@ -18,7 +18,6 @@ export interface AuthConfig {
     sameSite: CookieSameSite;
     domain?: string;
   };
-  corsOrigin: string;
 }
 
 export const authConfig = registerAs(
@@ -33,7 +32,6 @@ export const authConfig = registerAs(
       sameSite: readSameSite('COOKIE_SAMESITE', DEFAULT_COOKIE_SAME_SITE),
       domain: readOptional('COOKIE_DOMAIN'),
     },
-    corsOrigin: readRequired('CORS_ORIGIN'),
   }),
 );
 
