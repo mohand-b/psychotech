@@ -113,6 +113,7 @@ export type ButtonSize = 'md' | 'lg';
       --btn-outline-text: var(--ink);
       --btn-outline-border: var(--border);
       --btn-outline-hover: var(--surface-hover);
+      --btn-ghost-text: var(--text-secondary);
     }
     .ui-button--logic {
       --btn-fill: var(--axis-logic);
@@ -193,7 +194,7 @@ export type ButtonSize = 'md' | 'lg';
       padding: var(--btn-pad-y) var(--btn-pad-x);
       border: none;
       background: transparent;
-      color: var(--text-secondary);
+      color: var(--btn-ghost-text, var(--btn-outline-text));
     }
     .ui-button--ghost:hover:not(:disabled) {
       background: var(--surface-muted);

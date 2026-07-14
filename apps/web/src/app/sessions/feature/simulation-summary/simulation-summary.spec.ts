@@ -237,7 +237,7 @@ describe('SimulationSummary', () => {
     expect(rows[0].querySelector('.bilan__axis-dot')).toBeNull();
   });
 
-  it('features the first card and fills every cta with its axis color', async () => {
+  it('features the first card and renders every cta as an axis-tinted text button', async () => {
     const { fixture } = await setup(buildSummary());
     const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');
     expect(cards).toHaveLength(2);
@@ -251,9 +251,9 @@ describe('SimulationSummary', () => {
       '.bilan__next-cta button',
     );
     expect(ctas[0].className).toContain('ui-button--memory');
-    expect(ctas[0].className).toContain('ui-button--solid');
+    expect(ctas[0].className).toContain('ui-button--ghost');
     expect(ctas[1].className).toContain('ui-button--reactivity');
-    expect(ctas[1].className).toContain('ui-button--solid');
+    expect(ctas[1].className).toContain('ui-button--ghost');
   });
 
   it('keeps a single accordion panel open at a time', async () => {
