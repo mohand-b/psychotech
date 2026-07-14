@@ -452,53 +452,6 @@
     }</span
   >
 
-  @if (!isFree()) {
-  <section class="tut tut--axes">
-    <div class="tut__head">
-      <span class="tut__tile">
-        <ui-icon [img]="targetIcon" [size]="17" />
-      </span>
-      <span class="tut__copy">
-        <span class="tut__title">Lancez un entraînement ciblé</span>
-        <span class="tut__hint"
-          >Votre meilleur score sur chaque axe. Cliquez sur un axe pour ouvrir
-          son briefing et lancer une session.</span
-        >
-      </span>
-    </div>
-    <div class="tut__grid">
-      @for (row of axisRows(); track row.axis) {
-      <a class="tut__card" [routerLink]="row.link">
-        <span
-          class="tut__card-tile"
-          [style.background]="row.presentation.pastelVar"
-          [style.color]="row.presentation.textVar"
-        >
-          <ui-icon [img]="row.presentation.icon" [size]="17" />
-        </span>
-        <span class="tut__card-name">{{ row.presentation.label }}</span>
-        <span class="tut__score">
-          <span class="tut__score-bar">
-            <span
-              class="tut__score-fill"
-              [style.background]="row.presentation.plainVar"
-              [style.width.%]="row.barWidth"
-            ></span>
-          </span>
-          @if (row.neverPlayed) {
-          <span class="tut__score-value"
-            ><span class="duo__axis-dash"></span
-          ></span>
-          } @else {
-          <span class="tut__score-value t-mono">{{ row.scoreLabel }}</span>
-          }
-        </span>
-      </a>
-      }
-    </div>
-  </section>
-  }
-
   <section class="tut">
     <div class="tut__head">
       <span class="tut__tile">
