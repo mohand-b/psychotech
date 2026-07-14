@@ -7,3 +7,7 @@ export interface SubscriptionDto {
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
 }
+
+export interface UpdateSubscriptionDto {
+  tier: SubscriptionTier;
+}
