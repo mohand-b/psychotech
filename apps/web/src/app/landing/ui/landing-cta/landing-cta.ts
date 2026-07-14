@@ -120,7 +120,6 @@ import { LandingReveal } from '../landing-reveal.directive';
         padding: 0;
         border-radius: 12px;
         font-size: 15.5px;
-        box-shadow: 0 8px 30px rgba(124, 92, 252, 0.4);
       }
     }
   `,

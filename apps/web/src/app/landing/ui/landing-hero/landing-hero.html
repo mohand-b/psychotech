@@ -99,6 +99,16 @@
   </div>
 
   <div class="hero__stacked">
+    <picture class="hero__stacked-media">
+      <source srcset="/sectors/railway.webp" type="image/webp" />
+      <img
+        class="hero__stacked-image"
+        src="/sectors/railway.jpg"
+        alt="Secteur ferroviaire"
+        fetchpriority="high"
+      />
+    </picture>
+    <span class="hero__stacked-veil" aria-hidden="true"></span>
     <span class="hero__stacked-glow" aria-hidden="true"></span>
     <div class="hero__stacked-content">
       <div class="hero__stacked-copy">
@@ -149,12 +159,24 @@
         </ul>
         <div class="hero__stacked-coming hero__animate">
           <span class="hero__stacked-coming-label">Prochains secteurs</span>
-          <div class="hero__stacked-chips">
+          <div class="hero__stacked-cards">
             @for (band of bands; track band.name) {
-              <span class="hero__stacked-chip">
-                <ui-icon [img]="band.icon" [size]="15" [strokeWidth]="1.6" />
-                <span class="hero__stacked-chip-name">{{ band.name }}</span>
-                <span class="hero__stacked-chip-soon">Bientôt</span>
+              <span class="hero__stacked-card">
+                <picture class="hero__stacked-card-media">
+                  <source [srcset]="band.image + '.webp'" type="image/webp" />
+                  <img
+                    class="hero__stacked-card-image"
+                    [src]="band.image + '.jpg'"
+                    [alt]="band.alt"
+                    loading="lazy"
+                  />
+                </picture>
+                <span class="hero__stacked-card-veil" aria-hidden="true"></span>
+                <span class="hero__stacked-card-soon">Bientôt</span>
+                <span class="hero__stacked-card-name">
+                  <ui-icon [img]="band.icon" [size]="14" [strokeWidth]="1.8" />
+                  {{ band.name }}
+                </span>
               </span>
             }
           </div>
