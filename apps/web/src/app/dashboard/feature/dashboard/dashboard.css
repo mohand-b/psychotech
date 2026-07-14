@@ -1,0 +1,38 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard__title {
+  font: 700 34px/1.1 var(--font-display);
+  margin: 0;
+  color: var(--ink);
+}
+
+.dashboard__hint {
+  font: 400 15px/1.55 var(--font-ui);
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 480px;
+}
+
+.dashboard__link {
+  font: 600 14px/20px var(--font-ui);
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.dashboard__link:hover {
+  color: var(--brand-hover);
+}
+
+@media (max-width: 767px) {
+  .dashboard__title {
+    font-size: 27px;
+  }
+
+  .dashboard__hint {
+    font-size: 13.5px;
+  }
+}

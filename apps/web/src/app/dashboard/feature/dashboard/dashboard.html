@@ -1,11 +1,10 @@
-<div class="page-shell">
-  @if (currentUser(); as user) {
-    <h1 class="text-2xl font-bold">Bonjour {{ user.firstName }}</h1>
-    <div class="flex flex-col gap-2">
-      <p>{{ user.firstName }} {{ user.lastName }}</p>
-      <p>{{ user.email }}</p>
-      <p>{{ user.currentSector }}</p>
-    </div>
-  }
-  <button type="button" (click)="logout()">Se déconnecter</button>
-</div>
+<section class="page-shell dashboard">
+  <h1 class="dashboard__title">Accueil</h1>
+  <p class="dashboard__hint">
+    Cette page est en cours de construction. Vous y retrouverez bientôt votre
+    progression, vos dernières sessions et vos recommandations.
+  </p>
+  <a routerLink="/entrainements" class="dashboard__link"
+    >Aller aux entraînements</a
+  >
+</section>

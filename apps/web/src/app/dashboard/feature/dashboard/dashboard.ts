@@ -1,21 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
   templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
-export class Dashboard {
-  private readonly authFacade = inject(AuthFacade);
-  private readonly router = inject(Router);
-  protected readonly currentUser = this.authFacade.currentUser;
-
-  logout(): void {
-    this.authFacade.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
-  }
-}
+export class Dashboard {}
