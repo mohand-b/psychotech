@@ -54,7 +54,9 @@ async function bootstrap() {
   const port = Number(process.env.PORT) || DEFAULT_PORT;
   await app.listen(port, '0.0.0.0');
   Logger.log(
-    `Application is running on: http://localhost:${port}/${globalPrefix}`,
+    isProduction
+      ? `Application is running on port ${port} (API prefix: /${globalPrefix})`
+      : `Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
   if (!isProduction) {
     const lanAddress = detectLanAddress();
