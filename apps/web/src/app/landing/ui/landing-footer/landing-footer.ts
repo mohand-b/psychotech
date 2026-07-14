@@ -15,14 +15,14 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
             professionnelles.</span
           >
         </div>
-        <div class="footer__col footer__col--product">
+        <div class="footer__col">
           <span class="footer__col-title">Produit</span>
           <a class="footer__link" href="#axes">Les axes</a>
           <a class="footer__link" href="#fonctionnement">Fonctionnement</a>
           <a class="footer__link" href="#faq">FAQ</a>
         </div>
         <div class="footer__col">
-          <span class="footer__col-title footer__col-title--desktop">Légal</span>
+          <span class="footer__col-title">Légal</span>
           <a class="footer__link">Mentions légales</a>
           <a class="footer__link">Confidentialité</a>
           <a class="footer__link">CGV</a>
@@ -31,7 +31,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       <div class="footer__bottom">
         <div class="footer__bottom-inner">
           <span class="footer__mention">© 2026 PsychoTech. Tous droits réservés.</span>
-          <span class="footer__mention footer__mention--desktop"
+          <span class="footer__mention"
             >Conçu pour les candidats aux sélections professionnelles.</span
           >
         </div>
@@ -105,46 +105,36 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     }
     @media (max-width: 767px) {
       .footer__grid {
-        padding: 28px 24px 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
+        padding: 40px 20px 28px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px 24px;
+      }
+      .footer__brand {
+        grid-column: 1 / -1;
+        gap: 10px;
       }
       .footer__logo {
-        font-size: 19px;
+        font-size: 18px;
       }
       .footer__baseline {
         max-width: none;
       }
       .footer__col {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 16px;
-      }
-      .footer__col--product {
-        display: none;
-      }
-      .footer__col-title--desktop {
-        display: none;
+        gap: 10px;
       }
       .footer__link {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
-      }
-      .footer__bottom {
-        border-top: none;
+        font-size: 13.5px;
+        padding: 3px 0;
       }
       .footer__bottom-inner {
-        padding: 0 24px 28px;
+        padding: 18px 20px calc(28px + env(safe-area-inset-bottom));
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
       }
       .footer__mention {
         font-size: 12px;
-        border-top: 1px solid var(--landing-border-soft);
-        padding-top: 18px;
-        flex: 1;
-      }
-      .footer__mention--desktop {
-        display: none;
       }
     }
   `,

@@ -181,8 +181,41 @@ import { LandingReveal } from '../landing-reveal.directive';
       color: rgba(255, 255, 255, 0.55);
     }
     @media (max-width: 767px) {
-      .scoring {
-        display: none;
+      .scoring__inner {
+        padding: 60px 20px;
+      }
+      .scoring__head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+      .scoring__head-copy {
+        gap: 12px;
+      }
+      .scoring__title {
+        font-size: 26px;
+        line-height: 1.15;
+      }
+      .scoring__intro {
+        font-size: 13.5px;
+        max-width: none;
+        padding-bottom: 0;
+      }
+      .scoring__grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .scoring__item {
+        gap: 10px;
+        padding-top: 18px;
+      }
+      .scoring__item-title {
+        font-size: 14.5px;
+        line-height: 20px;
+      }
+      .scoring__item-text {
+        font-size: 13px;
       }
     }
   `,

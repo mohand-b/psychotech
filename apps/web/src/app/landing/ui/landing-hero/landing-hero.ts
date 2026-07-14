@@ -11,20 +11,23 @@ import { RouterLink } from '@angular/router';
 import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, LucideIconData } from 'lucide-angular';
+import { ArrowRight, CirclePlay, LucideIconData } from 'lucide-angular';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface HeroAxis {
   label: string;
+  shortLabel: string;
   icon: LucideIconData;
   colorVar: string;
 }
 
 interface SectorBand {
   name: string;
+  icon: LucideIconData;
   image: string;
   alt: string;
   description: string;
@@ -36,6 +39,7 @@ function axesFor(sector: Sector): HeroAxis[] {
     const presentation = AXIS_PRESENTATION[axis];
     return {
       label: presentation.label,
+      shortLabel: presentation.label.split(' ')[0],
       icon: presentation.icon,
       colorVar: presentation.plainVar,
     };
@@ -55,11 +59,13 @@ export class LandingHero {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly arrowIcon = ArrowRight;
+  protected readonly playIcon = CirclePlay;
   protected readonly railwayAxes: readonly HeroAxis[] = axesFor(Sector.RAILWAY);
 
   protected readonly bands: readonly SectorBand[] = [
     {
       name: 'Aviation',
+      icon: SECTOR_PRESENTATION[Sector.AVIATION].icon,
       image: '/sectors/aviation',
       alt: 'Secteur aérien',
       description:
@@ -68,6 +74,7 @@ export class LandingHero {
     },
     {
       name: 'Sécurité',
+      icon: SECTOR_PRESENTATION[Sector.SECURITY].icon,
       image: '/sectors/security',
       alt: 'Secteur sécurité',
       description:
@@ -76,6 +83,7 @@ export class LandingHero {
     },
     {
       name: 'Conduite',
+      icon: SECTOR_PRESENTATION[Sector.DRIVING].icon,
       image: '/sectors/driving',
       alt: 'Secteur conduite',
       description:
@@ -84,6 +92,7 @@ export class LandingHero {
     },
     {
       name: 'Médical',
+      icon: SECTOR_PRESENTATION[Sector.HEALTHCARE].icon,
       image: '/sectors/medical',
       alt: 'Secteur médical',
       description:

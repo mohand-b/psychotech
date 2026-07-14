@@ -18,7 +18,6 @@ import { LandingHeader } from '../../ui/landing-header/landing-header';
 import { LandingHero } from '../../ui/landing-hero/landing-hero';
 import { LandingHow } from '../../ui/landing-how/landing-how';
 import { LandingPlatform } from '../../ui/landing-platform/landing-platform';
-import { LandingPricing } from '../../ui/landing-pricing/landing-pricing';
 import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
 
 @Component({
@@ -35,7 +34,6 @@ import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
     LandingHero,
     LandingHow,
     LandingPlatform,
-    LandingPricing,
     LandingScoring,
   ],
   templateUrl: './landing.html',

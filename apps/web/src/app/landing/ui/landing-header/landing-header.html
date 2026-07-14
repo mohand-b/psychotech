@@ -1,7 +1,4 @@
-<header
-  class="header"
-  [class.header--glass]="scrolled() || menuOpen()"
->
+<header class="header" [class.header--glass]="scrolled()">
   <div class="header__inner">
     <a href="#hero" class="header__logo">
       Psycho<span class="header__logo-accent">Tech</span>
@@ -14,34 +11,6 @@
     <div class="header__actions">
       <a routerLink="/login" class="header__signin">Connexion</a>
       <a routerLink="/register" class="header__cta">Créer un compte</a>
-      <button
-        type="button"
-        class="header__burger"
-        [attr.aria-expanded]="menuOpen()"
-        aria-label="Menu"
-        (click)="toggleMenu()"
-      >
-        <ui-icon [img]="menuOpen() ? closeIcon : menuIcon" [size]="18" />
-      </button>
     </div>
   </div>
-  @if (menuOpen()) {
-    <div class="header__menu">
-      <nav class="header__menu-links" aria-label="Sections">
-        <a
-          href="#fonctionnement"
-          class="header__menu-link"
-          (click)="closeMenu()"
-          >Fonctionnement</a
-        >
-        <a href="#axes" class="header__menu-link" (click)="closeMenu()"
-          >Les axes</a
-        >
-        <a href="#tarifs" class="header__menu-link" (click)="closeMenu()"
-          >Tarifs</a
-        >
-      </nav>
-      <a routerLink="/register" class="header__menu-cta">Créer un compte</a>
-    </div>
-  }
 </header>

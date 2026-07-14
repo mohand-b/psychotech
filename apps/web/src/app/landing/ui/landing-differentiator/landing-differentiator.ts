@@ -11,14 +11,10 @@ import { LandingReveal } from '../landing-reveal.directive';
         <div class="diff__glow" aria-hidden="true"></div>
         <div class="diff__content" appLandingReveal>
           <h2 class="diff__title">Des exercices renouvelés à chaque session</h2>
-          <p class="diff__text diff__text--desktop">
+          <p class="diff__text">
             Impossible d'apprendre les réponses par cœur&nbsp;: chaque session
             est inédite. Vous entraînez la compétence réelle évaluée le jour de
             l'examen, et votre score mesure votre vraie performance.
-          </p>
-          <p class="diff__text diff__text--mobile">
-            Impossible d'apprendre par cœur : chaque session est inédite. Votre
-            score mesure votre vraie performance.
           </p>
           <div class="diff__points">
             <span class="diff__point">
@@ -34,12 +30,7 @@ import { LandingReveal } from '../landing-reveal.directive';
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span class="diff__point-label--desktop"
-                >Aucune session identique à la précédente</span
-              >
-              <span class="diff__point-label--mobile"
-                >Aucune session identique</span
-              >
+              Aucune session identique à la précédente
             </span>
             <span class="diff__point">
               <svg
@@ -54,12 +45,7 @@ import { LandingReveal } from '../landing-reveal.directive';
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span class="diff__point-label--desktop"
-                >Un niveau calibré sur les barèmes du secteur</span
-              >
-              <span class="diff__point-label--mobile"
-                >Niveau calibré sur le secteur</span
-              >
+              Un niveau calibré sur les barèmes du secteur
             </span>
             <span class="diff__point">
               <svg
@@ -74,12 +60,7 @@ import { LandingReveal } from '../landing-reveal.directive';
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span class="diff__point-label--desktop"
-                >Un score fidèle à votre niveau réel</span
-              >
-              <span class="diff__point-label--mobile"
-                >Score fidèle à votre niveau réel</span
-              >
+              Un score fidèle à votre niveau réel
             </span>
           </div>
         </div>
@@ -134,9 +115,6 @@ import { LandingReveal } from '../landing-reveal.directive';
       margin: 0;
       max-width: 560px;
     }
-    .diff__text--mobile {
-      display: none;
-    }
     .diff__points {
       display: flex;
       align-items: center;
@@ -155,68 +133,35 @@ import { LandingReveal } from '../landing-reveal.directive';
     .diff__point svg {
       flex-shrink: 0;
     }
-    .diff__point-label--mobile {
-      display: none;
-    }
     @media (max-width: 767px) {
-      .diff {
-        background: var(--bg);
-        overflow: visible;
-        padding: 0 16px 40px;
-      }
-      .diff__panel {
-        background: var(--landing-bg);
-        border-radius: 20px;
-        overflow: hidden;
-      }
       .diff__glow {
-        top: -10%;
-        left: auto;
-        right: -10%;
-        width: 280px;
-        height: 280px;
-        transform: none;
-        background: radial-gradient(
-          circle,
-          rgba(95, 206, 90, 0.16) 0%,
-          rgba(95, 206, 90, 0) 65%
-        );
+        width: 480px;
+        height: 380px;
       }
       .diff__content {
-        padding: 36px 26px;
-        align-items: flex-start;
-        gap: 20px;
-        text-align: left;
+        padding: 64px 20px;
+        gap: 18px;
       }
       .diff__title {
-        font-size: 28px;
-        line-height: 1.1;
+        font-size: 29px;
+        line-height: 1.12;
         letter-spacing: -0.02em;
       }
-      .diff__text--desktop {
-        display: none;
-      }
-      .diff__text--mobile {
-        display: block;
-        font-size: 15px;
-        line-height: 1.6;
+      .diff__text {
+        font-size: 14.5px;
+        line-height: 1.65;
       }
       .diff__points {
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
         gap: 10px;
-        margin-top: 0;
+        text-align: left;
       }
       .diff__point {
-        gap: 11px;
-        font-size: 14px;
-      }
-      .diff__point-label--desktop {
-        display: none;
-      }
-      .diff__point-label--mobile {
-        display: inline;
+        font-size: 13.5px;
+        line-height: 1.45;
+        align-items: flex-start;
       }
     }
   `,

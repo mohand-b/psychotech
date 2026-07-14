@@ -40,37 +40,6 @@ import { LandingReveal } from '../landing-reveal.directive';
             >
           </div>
         </div>
-        <div class="how__stack">
-          <div class="how__item">
-            <span class="how__badge t-mono">1</span>
-            <span class="how__item-copy">
-              <span class="how__item-title">Choisissez votre mode</span>
-              <span class="how__item-text"
-                >Simulation complète de tous les axes, ou entraînement ciblé
-                sur un seul.</span
-              >
-            </span>
-          </div>
-          <div class="how__item">
-            <span class="how__badge t-mono">2</span>
-            <span class="how__item-copy">
-              <span class="how__item-title">Passez l'épreuve</span>
-              <span class="how__item-text"
-                >En conditions réelles : minuté, chronométré, sans seconde
-                chance.</span
-              >
-            </span>
-          </div>
-          <div class="how__item">
-            <span class="how__badge t-mono">3</span>
-            <span class="how__item-copy">
-              <span class="how__item-title">Analysez et progressez</span>
-              <span class="how__item-text"
-                >Score par axe, recommandations et suivi de progression.</span
-              >
-            </span>
-          </div>
-        </div>
       </div>
     </section>
   `,
@@ -136,65 +105,36 @@ import { LandingReveal } from '../landing-reveal.directive';
       font: 400 14.5px/1.65 var(--landing-font-ui);
       color: var(--text-secondary);
     }
-    .how__stack {
-      display: none;
-      flex-direction: column;
-      gap: 18px;
-    }
-    .how__item {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .how__badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--landing-accent);
-      flex-shrink: 0;
-    }
-    .how__item-copy {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding-top: 6px;
-    }
-    .how__item-title {
-      font: 600 16px/22px var(--landing-font-ui);
-      color: var(--ink);
-    }
-    .how__item-text {
-      font: 400 14px/1.55 var(--landing-font-ui);
-      color: var(--text-secondary);
-    }
     @media (max-width: 767px) {
-      .how {
-        background: var(--bg);
-        border-top: none;
-      }
       .how__inner {
-        padding: 40px 24px;
+        padding: 56px 20px 60px;
       }
       .how__head {
-        gap: 10px;
-        margin-bottom: 28px;
+        gap: 12px;
+        margin-bottom: 32px;
       }
       .how__title {
-        font-size: 27px;
-        line-height: 1.14;
+        font-size: 26px;
+        line-height: 1.15;
       }
       .how__steps {
-        display: none;
+        grid-template-columns: 1fr;
+        gap: 26px;
       }
-      .how__stack {
-        display: flex;
+      .how__step {
+        gap: 10px;
+        padding-top: 18px;
+      }
+      .how__num {
+        font-size: 12.5px;
+      }
+      .how__step-title {
+        font-size: 18px;
+        line-height: 24px;
+      }
+      .how__step-text {
+        font-size: 13.5px;
+        line-height: 1.6;
       }
     }
   `,

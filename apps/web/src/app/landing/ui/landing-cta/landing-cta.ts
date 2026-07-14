@@ -13,12 +13,9 @@ import { LandingReveal } from '../landing-reveal.directive';
         <h2 class="cta__title">
           Prêt à mettre toutes les chances de votre côté&nbsp;?
         </h2>
-        <p class="cta__text cta__text--desktop">
+        <p class="cta__text">
           Créez votre compte gratuitement et essayez chaque épreuve en mode
           découverte. Aucune carte bancaire requise.
-        </p>
-        <p class="cta__text cta__text--mobile">
-          Commencez gratuitement avec le mode découverte de chaque axe.
         </p>
         <a class="cta__button" routerLink="/register">
           Créer un compte
@@ -84,9 +81,6 @@ import { LandingReveal } from '../landing-reveal.directive';
       margin: 0;
       max-width: 480px;
     }
-    .cta__text--mobile {
-      display: none;
-    }
     .cta__button {
       display: inline-flex;
       align-items: center;
@@ -103,28 +97,30 @@ import { LandingReveal } from '../landing-reveal.directive';
     }
     @media (max-width: 767px) {
       .cta__glow {
-        width: 440px;
-        height: 340px;
+        width: 520px;
+        height: 400px;
       }
       .cta__content {
-        padding: 48px 24px;
-        gap: 20px;
+        padding: 64px 20px;
+        gap: 18px;
       }
       .cta__title {
         font-size: 28px;
-        line-height: 1.1;
+        line-height: 1.12;
         letter-spacing: -0.02em;
       }
-      .cta__text--desktop {
-        display: none;
-      }
-      .cta__text--mobile {
-        display: block;
-        font-size: 15px;
+      .cta__text {
+        font-size: 14px;
+        line-height: 1.6;
       }
       .cta__button {
         justify-content: center;
         width: 100%;
+        height: 52px;
+        padding: 0;
+        border-radius: 12px;
+        font-size: 15.5px;
+        box-shadow: 0 8px 30px rgba(124, 92, 252, 0.4);
       }
     }
   `,
