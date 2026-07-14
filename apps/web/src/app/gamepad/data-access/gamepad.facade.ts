@@ -9,6 +9,7 @@ import {
   GamepadSessionPhase,
   GamepadTransportMode,
 } from '@psychotech/shared';
+import { Observable } from 'rxjs';
 import {
   GamepadLatencyStats,
   GamepadStickVector,
@@ -35,7 +36,7 @@ export class GamepadFacade {
   private courseRttSamples: number[] = [];
   private lastSeq: number | null = null;
   private expiryTimerId: number | null = null;
-  private pairedSessionId: string | null = null;
+  private pairingRequest: (() => Observable<GamepadPairingDto>) | null = null;
 
   private readonly pairingSignal = signal<GamepadPairingDto | null>(null);
   private readonly stateSignal = signal<GamepadConnectionState>(
@@ -65,15 +66,25 @@ export class GamepadFacade {
 
   readonly latencyIsGood: Signal<boolean> = computed(() => {
     const latency = this.latencySignal();
-    return latency !== null && latency.avgMs < GAMEPAD_LATENCY_GREEN_THRESHOLD_MS;
+    return (
+      latency !== null && latency.avgMs < GAMEPAD_LATENCY_GREEN_THRESHOLD_MS
+    );
   });
 
   pair(sessionId: string): void {
+    this.startPairing(() => this.api.createPairing(sessionId));
+  }
+
+  pairTutorial(): void {
+    this.startPairing(() => this.api.createTutorialPairing());
+  }
+
+  private startPairing(request: () => Observable<GamepadPairingDto>): void {
     const keepExclusivity = this.everConnectedSignal();
     this.disconnect();
     this.everConnectedSignal.set(keepExclusivity);
-    this.pairedSessionId = sessionId;
-    this.api.createPairing(sessionId).subscribe({
+    this.pairingRequest = request;
+    request().subscribe({
       next: (pairing) => {
         this.pairingSignal.set(pairing);
         this.openTransport(pairing.token);
@@ -84,7 +95,8 @@ export class GamepadFacade {
 
   gamepadInputLost(nowMs: number): boolean {
     return (
-      !this.connected() || gamepadConnectionLost(this.lastFrameAtSignal(), nowMs)
+      !this.connected() ||
+      gamepadConnectionLost(this.lastFrameAtSignal(), nowMs)
     );
   }
 
@@ -122,13 +134,12 @@ export class GamepadFacade {
     this.rttWindow = [];
     this.courseRttSamples = [];
     this.lastSeq = null;
-    this.pairedSessionId = null;
+    this.pairingRequest = null;
   }
 
   private openTransport(token: string): void {
-    const forceRelay = new URLSearchParams(window.location.search).get(
-      'transport',
-    ) === 'relay';
+    const forceRelay =
+      new URLSearchParams(window.location.search).get('transport') === 'relay';
     this.transport = new GamepadTransport({
       url: gamepadSignalingUrl(window.location),
       token,
@@ -202,8 +213,9 @@ export class GamepadFacade {
     this.clearExpiryTimer();
     const delayMs = Math.max(0, Date.parse(pairing.expiresAt) - Date.now());
     this.expiryTimerId = window.setTimeout(() => {
-      if (!this.connected() && this.pairedSessionId) {
-        this.pair(this.pairedSessionId);
+      const request = this.pairingRequest;
+      if (!this.connected() && request) {
+        this.startPairing(request);
       }
     }, delayMs);
   }

@@ -124,7 +124,6 @@ export class MotricityPlay {
   protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
   protected readonly showPairing = computed(
     () =>
-      !this.tutorial &&
       this.loaded() &&
       this.phase() === 'PLAYING' &&
       !this.suspended() &&
@@ -225,10 +224,15 @@ export class MotricityPlay {
   }
 
   protected regeneratePairing(): void {
+    this.requestPairing();
+  }
+
+  private requestPairing(): void {
     if (this.tutorial) {
-      return;
+      this.gamepad.pairTutorial();
+    } else {
+      this.gamepad.pair(this.sessionId);
     }
-    this.gamepad.pair(this.sessionId);
   }
 
   protected onCrankRotate(axis: 'x' | 'y', deltaRad: number): void {
@@ -253,9 +257,7 @@ export class MotricityPlay {
       return;
     }
     this.loaded.set(true);
-    if (!this.tutorial) {
-      this.gamepad.pair(this.sessionId);
-    }
+    this.requestPairing();
   }
 
   protected onCountdownFinished(): void {

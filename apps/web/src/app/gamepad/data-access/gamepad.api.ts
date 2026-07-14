@@ -15,4 +15,11 @@ export class GamepadApi {
       {},
     );
   }
+
+  createTutorialPairing(): Observable<GamepadPairingDto> {
+    return this.http.post<GamepadPairingDto>(
+      `${this.baseUrl}/gamepad/tutoriel/pairing`,
+      {},
+    );
+  }
 }
