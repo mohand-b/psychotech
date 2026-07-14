@@ -25,7 +25,7 @@ const DESKTOP_FAQ: FaqEntry[] = [
   {
     question: 'Comment commencer ?',
     answer:
-      'Créez un compte gratuitement : les tutoriels de chaque axe sont en accès libre, sans carte bancaire. Vous choisissez ensuite la formule qui correspond à votre rythme.',
+      'Créez un compte gratuitement : le mode découverte de chaque axe est en accès libre, sans carte bancaire. Vous choisissez ensuite la formule qui correspond à votre rythme.',
   },
 ];
 

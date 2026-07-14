@@ -14,11 +14,11 @@ import { LandingReveal } from '../landing-reveal.directive';
           Prêt à mettre toutes les chances de votre côté&nbsp;?
         </h2>
         <p class="cta__text cta__text--desktop">
-          Créez votre compte gratuitement et découvrez chaque épreuve en
-          tutoriel. Aucune carte bancaire requise.
+          Créez votre compte gratuitement et essayez chaque épreuve en mode
+          découverte. Aucune carte bancaire requise.
         </p>
         <p class="cta__text cta__text--mobile">
-          Commencez gratuitement avec les tutoriels des 5 axes.
+          Commencez gratuitement avec le mode découverte de chaque axe.
         </p>
         <a class="cta__button" routerLink="/register">
           Créer un compte

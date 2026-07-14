@@ -63,8 +63,8 @@ export class Offers {
 
   protected readonly compareRows: CompareRow[] = [
     {
-      label: 'Tutoriels des 5 axes',
-      mobileLabel: 'Tutoriels des 5 axes',
+      label: 'Mode découverte des axes',
+      mobileLabel: 'Mode découverte',
       desktop: [CHECK, CHECK, CHECK],
       mobile: [CHECK, CHECK, CHECK],
     },

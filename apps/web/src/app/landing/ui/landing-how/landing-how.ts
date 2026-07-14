@@ -46,8 +46,8 @@ import { LandingReveal } from '../landing-reveal.directive';
             <span class="how__item-copy">
               <span class="how__item-title">Choisissez votre mode</span>
               <span class="how__item-text"
-                >Simulation complète des 5 axes, ou entraînement ciblé sur un
-                axe.</span
+                >Simulation complète de tous les axes, ou entraînement ciblé
+                sur un seul.</span
               >
             </span>
           </div>

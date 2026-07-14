@@ -143,7 +143,7 @@ type BillingPeriod = 'monthly' | 'annual';
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              Tutoriels des 5 axes, score indicatif
+              Mode découverte de chaque axe, score indicatif
             </span>
           </div>
           <a class="pricing__cta" routerLink="/register">Commencer</a>
