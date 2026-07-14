@@ -172,3 +172,24 @@ describe('GamepadService.createPairing', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
+
+describe('GamepadService.createTutorialPairing', () => {
+  const repository = { findUserSession: vi.fn() };
+  let service: GamepadService;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    service = new GamepadService(
+      repository as never,
+      new GamepadPairingService(),
+    );
+  });
+
+  it('returns a pairing without looking up any session', () => {
+    const pairing = service.createTutorialPairing('user-1');
+    expect(pairing.token.length).toBeGreaterThanOrEqual(24);
+    expect(pairing.code).toMatch(/^\d{6}$/);
+    expect(Date.parse(pairing.expiresAt)).toBeGreaterThan(Date.now());
+    expect(repository.findUserSession).not.toHaveBeenCalled();
+  });
+});

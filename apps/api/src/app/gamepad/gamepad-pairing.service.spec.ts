@@ -23,7 +23,10 @@ describe('GamepadPairingService', () => {
     const now = 1_000_000;
     const record = service.create(userId, sessionId, now);
     const first = service.claimPhone(record.token, now + 1000);
-    expect(first).toEqual({ ok: true, record: expect.objectContaining({ consumedAt: now + 1000 }) });
+    expect(first).toEqual({
+      ok: true,
+      record: expect.objectContaining({ consumedAt: now + 1000 }),
+    });
     const reconnect = service.claimPhone(record.token, now + 5000);
     expect(reconnect.ok).toBe(true);
   });

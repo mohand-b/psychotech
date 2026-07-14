@@ -15,3 +15,13 @@ export class GamepadController {
     return this.gamepadService.createPairing(userId, sessionId);
   }
 }
+
+@Controller('gamepad/tutoriel')
+export class GamepadTutorialController {
+  constructor(private readonly gamepadService: GamepadService) {}
+
+  @Post('pairing')
+  createTutorialPairing(@CurrentUser() userId: string): GamepadPairingDto {
+    return this.gamepadService.createTutorialPairing(userId);
+  }
+}

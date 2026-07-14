@@ -40,8 +40,15 @@ describe('GamepadGateway', () => {
     token = pairing.create('user-1', 'session-1').token;
   });
 
-  function join(socket: GamepadSocket, role: 'DESKTOP' | 'PHONE', joinToken = token): void {
-    gateway.handleMessage(socket, JSON.stringify({ type: 'join', role, token: joinToken }));
+  function join(
+    socket: GamepadSocket,
+    role: 'DESKTOP' | 'PHONE',
+    joinToken = token,
+  ): void {
+    gateway.handleMessage(
+      socket,
+      JSON.stringify({ type: 'join', role, token: joinToken }),
+    );
   }
 
   it('acknowledges the join and notifies the peer already in the room', () => {
@@ -98,7 +105,10 @@ describe('GamepadGateway', () => {
     join(desktop, 'DESKTOP');
     join(phone, 'PHONE');
     join(otherDesktop, 'DESKTOP', otherToken);
-    gateway.handleMessage(desktop, JSON.stringify({ type: 'offer', sdp: 'sdp-offer' }));
+    gateway.handleMessage(
+      desktop,
+      JSON.stringify({ type: 'offer', sdp: 'sdp-offer' }),
+    );
     expect(phone.sent).toContainEqual({ type: 'offer', sdp: 'sdp-offer' });
     gateway.handleMessage(
       phone,
@@ -119,7 +129,10 @@ describe('GamepadGateway', () => {
   it('ignores malformed payloads and messages from sockets outside a room', () => {
     const stranger = createSocket();
     gateway.handleMessage(stranger, 'not-json');
-    gateway.handleMessage(stranger, JSON.stringify({ type: 'offer', sdp: 'x' }));
+    gateway.handleMessage(
+      stranger,
+      JSON.stringify({ type: 'offer', sdp: 'x' }),
+    );
     expect(stranger.sent).toEqual([]);
   });
 });

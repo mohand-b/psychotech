@@ -29,7 +29,9 @@ export class GamepadService {
     if (!session) {
       throw new NotFoundException('Session not found');
     }
-    if (mapEnumValue(SessionStatus, session.status) !== SessionStatus.IN_PROGRESS) {
+    if (
+      mapEnumValue(SessionStatus, session.status) !== SessionStatus.IN_PROGRESS
+    ) {
       throw new ConflictException('Session is not in progress');
     }
     const mode = mapEnumValue(SessionMode, session.mode);
@@ -52,6 +54,15 @@ export class GamepadService {
       );
     }
     const record = this.pairingService.create(userId, sessionId);
+    return {
+      token: record.token,
+      code: record.code,
+      expiresAt: new Date(record.expiresAt).toISOString(),
+    };
+  }
+
+  createTutorialPairing(userId: string): GamepadPairingDto {
+    const record = this.pairingService.create(userId, `tutoriel:${userId}`);
     return {
       token: record.token,
       code: record.code,

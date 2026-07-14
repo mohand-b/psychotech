@@ -45,7 +45,10 @@ export class GamepadPairingService {
     return record;
   }
 
-  claimPhone(tokenOrCode: string, now: number = Date.now()): GamepadPairingClaim {
+  claimPhone(
+    tokenOrCode: string,
+    now: number = Date.now(),
+  ): GamepadPairingClaim {
     const record = this.resolve(tokenOrCode);
     if (!record) {
       return { ok: false, error: 'INVALID_TOKEN' };
@@ -92,6 +95,8 @@ export class GamepadPairingService {
 
   private generateCode(): string {
     const max = 10 ** GAMEPAD_PAIRING_CODE_LENGTH;
-    return randomInt(0, max).toString().padStart(GAMEPAD_PAIRING_CODE_LENGTH, '0');
+    return randomInt(0, max)
+      .toString()
+      .padStart(GAMEPAD_PAIRING_CODE_LENGTH, '0');
   }
 }

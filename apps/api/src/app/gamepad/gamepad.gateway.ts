@@ -31,7 +31,9 @@ interface GamepadMembership {
 }
 
 @WebSocketGateway({ path: GAMEPAD_SIGNALING_PATH })
-export class GamepadGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class GamepadGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly rooms = new Map<string, GamepadRoom>();
   private readonly memberships = new Map<GamepadSocket, GamepadMembership>();
 
@@ -76,7 +78,11 @@ export class GamepadGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
     const token = claim.record.token;
     const room = this.rooms.get(token) ?? { desktop: null, phone: null };
-    if (message.role === 'PHONE' && this.isOpen(room.phone) && room.phone !== client) {
+    if (
+      message.role === 'PHONE' &&
+      this.isOpen(room.phone) &&
+      room.phone !== client
+    ) {
       this.send(client, { type: 'error', code: 'ROOM_FULL' });
       client.close();
       return;
@@ -129,7 +135,10 @@ export class GamepadGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
   }
 
-  private forwardToPeer(client: GamepadSocket, message: GamepadSignalMessage): void {
+  private forwardToPeer(
+    client: GamepadSocket,
+    message: GamepadSignalMessage,
+  ): void {
     const membership = this.memberships.get(client);
     if (!membership) {
       return;
@@ -144,7 +153,10 @@ export class GamepadGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
   }
 
-  private peerOf(room: GamepadRoom, role: GamepadPeerRole): GamepadSocket | null {
+  private peerOf(
+    room: GamepadRoom,
+    role: GamepadPeerRole,
+  ): GamepadSocket | null {
     return role === 'PHONE' ? room.desktop : room.phone;
   }
 
