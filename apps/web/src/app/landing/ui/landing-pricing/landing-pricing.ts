@@ -323,9 +323,9 @@ export class LandingPricing {
   protected readonly billing = signal<BillingPeriod>('monthly');
 
   protected readonly essentialPrice = computed(() =>
-    this.billing() === 'annual' ? '7,99 €' : '9,99 €',
+    this.billing() === 'annual' ? '7,19 €' : '8,99 €',
   );
   protected readonly unlimitedPrice = computed(() =>
-    this.billing() === 'annual' ? '15,99 €' : '19,99 €',
+    this.billing() === 'annual' ? '11,99 €' : '14,99 €',
   );
 }
