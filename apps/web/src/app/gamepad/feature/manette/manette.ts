@@ -4,6 +4,7 @@ import {
   DestroyRef,
   computed,
   inject,
+  isDevMode,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -148,6 +149,7 @@ export class Manette {
     this.errorMessage.set(null);
     this.view.set('WAITING');
     const forceRelay =
+      isDevMode() &&
       this.route.snapshot.queryParamMap.get('transport') === 'relay';
     this.transport = new GamepadTransport({
       url: gamepadSignalingUrl(window.location),

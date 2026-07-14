@@ -1,4 +1,11 @@
-import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import {
+  Injectable,
+  Signal,
+  computed,
+  inject,
+  isDevMode,
+  signal,
+} from '@angular/core';
 import {
   GAMEPAD_LATENCY_GREEN_THRESHOLD_MS,
   GAMEPAD_PING_INTERVAL_MS,
@@ -139,6 +146,7 @@ export class GamepadFacade {
 
   private openTransport(token: string): void {
     const forceRelay =
+      isDevMode() &&
       new URLSearchParams(window.location.search).get('transport') === 'relay';
     this.transport = new GamepadTransport({
       url: gamepadSignalingUrl(window.location),
