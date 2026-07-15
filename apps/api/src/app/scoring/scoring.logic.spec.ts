@@ -258,7 +258,7 @@ describe('buildRecommendations', () => {
       { axis: AxisType.LOGIC, score: 95, coefficient: 1, isCritical: false },
       { axis: AxisType.MEMORY, score: 62, coefficient: 1.2, isCritical: true },
       { axis: AxisType.VISUAL_DISCRIMINATION, score: 50, coefficient: 1.2, isCritical: true },
-      { axis: AxisType.MOTOR_SKILLS, score: 68, coefficient: 1, isCritical: false },
+      { axis: AxisType.MOTOR_SKILLS, score: 63, coefficient: 1, isCritical: false },
     ];
     const recommendations = buildRecommendations(scores, RAILWAY_THRESHOLDS);
     expect(recommendations.map((entry) => entry.axis)).toEqual([
@@ -269,13 +269,14 @@ describe('buildRecommendations', () => {
     expect(recommendations[0].priority).toBe(RecommendationPriority.HIGH);
     expect(recommendations[0].code).toBe('CRITICAL_AXIS_ELIMINATORY');
     expect(recommendations[1].code).toBe('CRITICAL_AXIS_VIGILANCE');
-    expect(recommendations[2].priority).toBe(RecommendationPriority.LOW);
-    expect(recommendations[2].code).toBe('AXIS_BELOW_ADMISSIBILITY');
+    expect(recommendations[2].priority).toBe(RecommendationPriority.MEDIUM);
+    expect(recommendations[2].code).toBe('AXIS_BELOW_VIGILANCE');
   });
 
-  it('produces no recommendation for axes above the admissibility threshold', () => {
+  it('produces no recommendation for axes at or above the vigilance threshold', () => {
     const scores: AxisScore[] = [
       { axis: AxisType.LOGIC, score: 88, coefficient: 1, isCritical: false },
+      { axis: AxisType.MOTOR_SKILLS, score: 68, coefficient: 1, isCritical: false },
     ];
     expect(buildRecommendations(scores, RAILWAY_THRESHOLDS)).toEqual([]);
   });

@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import {
   AXIS_TRAINING,
+  AxisFinding,
+  AxisFindingsEntry,
   AxisRawResultDto,
   AxisType,
   ControlModality,
@@ -24,7 +26,6 @@ import {
   ReactivityRawResultDto,
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
-  RecommendationPriority,
   SECTOR_LABELS,
   ScoreBand,
   Sector,
@@ -36,6 +37,11 @@ import {
   SimulationObservableDto,
   SimulationSummaryDto,
   TargetedAxisResultDto,
+  analyzeDiscrimination,
+  analyzeLogic,
+  analyzeMemory,
+  analyzeMotricity,
+  analyzeReactivity,
   avisFromScore,
   buildSimulationAppreciation,
   buildSimulationSummary,
@@ -592,6 +598,7 @@ export class SessionsService {
     const criticalByAxis = new Map(
       config.weights.map((weight) => [weight.axis, weight.isCritical]),
     );
+    const findingsByAxis: AxisFindingsEntry[] = [];
     const axes = [...session.axisResults]
       .sort((a, b) => a.order - b.order)
       .map((result) => {
@@ -600,6 +607,8 @@ export class SessionsService {
           throw new ConflictException('Session is not completed');
         }
         const isCritical = criticalByAxis.get(axis) ?? false;
+        const analysis = this.axisAnalysis(axis, session.seed, result.metrics);
+        findingsByAxis.push({ axis, findings: analysis.findings });
         return {
           axis,
           score: Math.round(result.normalizedScore),
@@ -607,7 +616,7 @@ export class SessionsService {
           isCritical,
           eliminatoryThreshold: isCritical ? config.eliminatoryThreshold : null,
           vigilanceThreshold: config.vigilanceThreshold,
-          observables: this.axisObservables(axis, session.seed, result.metrics),
+          observables: analysis.observables,
         };
       });
     const globalScore = session.globalScore ?? 0;
@@ -629,14 +638,7 @@ export class SessionsService {
         vigilanceThreshold: config.vigilanceThreshold,
         eliminatoryThreshold: config.eliminatoryThreshold,
       },
-      session.recommendations.map((recommendation) => ({
-        axis: mapEnumValue(AxisType, recommendation.axis),
-        priority: mapEnumValue(
-          RecommendationPriority,
-          recommendation.priority,
-        ),
-        label: recommendation.label,
-      })),
+      findingsByAxis,
     );
     return {
       sessionId: session.id,
@@ -664,30 +666,33 @@ export class SessionsService {
         },
         outcomes,
         selection,
+        findingsByAxis,
       ),
     };
   }
 
-  private axisObservables(
+  private axisAnalysis(
     axis: AxisType,
     seed: string,
     metrics: unknown,
-  ): SimulationObservableDto[] {
+  ): { observables: SimulationObservableDto[]; findings: AxisFinding[] } {
     if (axis === AxisType.LOGIC) {
-      const scored = scoreLogicSession(
-        generateLogicSession(seed),
-        this.logicItemsFromMetrics(metrics),
-      );
+      const items = generateLogicSession(seed);
+      const responses = this.logicItemsFromMetrics(metrics);
+      const scored = scoreLogicSession(items, responses);
       const answered = scored.correctCount + scored.wrongCount;
       const total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
-      return [
-        { label: null, value: `${answered}/${total}`, caption: 'items' },
-        {
-          label: null,
-          value: `${Math.round(scored.precision)} %`,
-          caption: 'de précision',
-        },
-      ];
+      return {
+        observables: [
+          { label: null, value: `${answered}/${total}`, caption: 'items' },
+          {
+            label: null,
+            value: `${Math.round(scored.precision)} %`,
+            caption: 'de précision',
+          },
+        ],
+        findings: analyzeLogic(items, scored, responses),
+      };
     }
     if (axis === AxisType.MEMORY) {
       const sequences = generateMemorySession(seed);
@@ -704,18 +709,21 @@ export class SessionsService {
               : best,
           0,
         );
-      return [
-        {
-          label: 'restitution normale',
-          value: `${bestLength(MemoryPhase.NORMAL)}`,
-          caption: null,
-        },
-        {
-          label: 'inversée',
-          value: `${bestLength(MemoryPhase.INVERSE)}`,
-          caption: null,
-        },
-      ];
+      return {
+        observables: [
+          {
+            label: 'restitution normale',
+            value: `${bestLength(MemoryPhase.NORMAL)}`,
+            caption: null,
+          },
+          {
+            label: 'inversée',
+            value: `${bestLength(MemoryPhase.INVERSE)}`,
+            caption: null,
+          },
+        ],
+        findings: analyzeMemory(sequences, scored),
+      };
     }
     if (axis === AxisType.VISUAL_DISCRIMINATION) {
       const trials = generateDiscriminationSession(seed);
@@ -731,14 +739,21 @@ export class SessionsService {
         identicalCount === 0
           ? 0
           : Math.round((falseAlerts / identicalCount) * 100);
-      return [
-        {
-          label: null,
-          value: `${scored.correctCount}/${trials.length}`,
-          caption: null,
-        },
-        { label: 'fausses alertes', value: `${falseAlertPct} %`, caption: null },
-      ];
+      return {
+        observables: [
+          {
+            label: null,
+            value: `${scored.correctCount}/${trials.length}`,
+            caption: null,
+          },
+          {
+            label: 'fausses alertes',
+            value: `${falseAlertPct} %`,
+            caption: null,
+          },
+        ],
+        findings: analyzeDiscrimination(scored),
+      };
     }
     if (axis === AxisType.REACTIVITY) {
       const reactivity = this.reactivityFromMetrics(metrics);
@@ -747,34 +762,43 @@ export class SessionsService {
         reactivity.stimuli,
         reactivity.waitPresses,
       );
-      return [
-        {
-          label: 'TR moyen',
-          value:
-            scored.trMoyMs === null ? '-' : `${Math.round(scored.trMoyMs)} ms`,
-          caption: null,
-        },
-        {
-          label: 'régularité',
-          value: scored.sdMs === null ? '-' : `± ${Math.round(scored.sdMs)} ms`,
-          caption: null,
-        },
-      ];
+      return {
+        observables: [
+          {
+            label: 'TR moyen',
+            value:
+              scored.trMoyMs === null
+                ? '-'
+                : `${Math.round(scored.trMoyMs)} ms`,
+            caption: null,
+          },
+          {
+            label: 'régularité',
+            value:
+              scored.sdMs === null ? '-' : `± ${Math.round(scored.sdMs)} ms`,
+            caption: null,
+          },
+        ],
+        findings: analyzeReactivity(scored),
+      };
     }
     const motor = this.motorMetricsFromRow(metrics, null);
-    return [
-      {
-        label: null,
-        value: `${motor.coursesCompleted}/${MOTRICITY_COURSE_COUNT}`,
-        caption: 'parcours',
-      },
-      {
-        label: 'erreurs mineures',
-        value: `${motor.minorErrors}`,
-        caption: null,
-      },
-      { label: 'majeures', value: `${motor.majorErrors}`, caption: null },
-    ];
+    return {
+      observables: [
+        {
+          label: null,
+          value: `${motor.coursesCompleted}/${MOTRICITY_COURSE_COUNT}`,
+          caption: 'parcours',
+        },
+        {
+          label: 'erreurs mineures',
+          value: `${motor.minorErrors}`,
+          caption: null,
+        },
+        { label: 'majeures', value: `${motor.majorErrors}`, caption: null },
+      ],
+      findings: analyzeMotricity(motor),
+    };
   }
 
   async results(userId: string, sessionId: string): Promise<SessionResultDto> {

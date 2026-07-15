@@ -275,14 +275,6 @@ function recommendationFor(
       label: `${axisLabel} sous le seuil de vigilance : prévoyez des séances ciblées`,
     };
   }
-  if (entry.score < thresholds.admissibilityThreshold) {
-    return {
-      axis: entry.axis,
-      priority: RecommendationPriority.LOW,
-      code: 'AXIS_BELOW_ADMISSIBILITY',
-      label: `${axisLabel} en dessous du seuil d'admissibilité : quelques révisions suffiront`,
-    };
-  }
   return null;
 }
 

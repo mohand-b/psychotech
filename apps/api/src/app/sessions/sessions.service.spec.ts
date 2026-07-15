@@ -884,7 +884,16 @@ describe('SessionsService.simulationSummary', () => {
     expect(
       summary.appreciation.lead.map(({ text }) => text).join(''),
     ).toContain('seuil éliminatoire');
-    expect(summary.appreciation.priority).toBeNull();
+    expect(summary.appreciation.priority).toEqual({
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      label: 'Fiabiliser la comparaison des séquences',
+    });
+    expect(summary.selection.recommendations[0]).toMatchObject({
+      axis: AxisType.VISUAL_DISCRIMINATION,
+    });
+    expect(
+      summary.selection.recommendations[0].findings[0].id,
+    ).toBe('DISCRIMINATION_SLOW_ACCURATE');
     expect(summary.selection.strengths[0].sublabel).toBe(
       'Votre meilleur axe de la session',
     );
