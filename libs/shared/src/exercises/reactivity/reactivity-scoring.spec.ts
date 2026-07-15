@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ReactivityStimulusAnswerDto } from '../../dtos/session';
+import { generateReactivitySession } from './generate-reactivity-session';
 import {
   ReactivityCommand,
   ReactivityStimulus,
@@ -260,5 +261,13 @@ describe('scoreReactivitySession', () => {
     expect(scored.trend.map(({ appearAtMs }) => appearAtMs)).toEqual(
       bigSequence.map(({ appearAtMs }) => appearAtMs),
     );
+  });
+
+  it('scales the error rate to the dynamically generated stimulus count', () => {
+    const generated = generateReactivitySession('isi-count-seed');
+    const scored = scoreReactivitySession(generated, [], []);
+    expect(scored.omissionCount).toBe(generated.length);
+    expect(generated.length).toBeGreaterThanOrEqual(88);
+    expect(scored.score).toBe(0);
   });
 });

@@ -3,7 +3,7 @@
 exports[`generateReactivitySession > matches the reference snapshot for a fixed seed 1`] = `
 [
   {
-    "appearAtMs": 2463,
+    "appearAtMs": 1701,
     "index": 0,
     "position": {
       "fx": -0.368,
@@ -12,7 +12,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 5865,
+    "appearAtMs": 3110,
     "index": 1,
     "position": {
       "fx": 0.141,
@@ -21,7 +21,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 9449,
+    "appearAtMs": 4613,
     "index": 2,
     "position": {
       "fx": -0.523,
@@ -30,7 +30,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 14835,
+    "appearAtMs": 7054,
     "index": 3,
     "position": {
       "fx": 0.088,
@@ -39,7 +39,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 18933,
+    "appearAtMs": 8825,
     "index": 4,
     "position": {
       "fx": 0.001,
@@ -48,7 +48,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 22622,
+    "appearAtMs": 10383,
     "index": 5,
     "position": {
       "fx": -0.69,
@@ -57,7 +57,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 27898,
+    "appearAtMs": 12767,
     "index": 6,
     "position": {
       "fx": -0.866,
@@ -66,7 +66,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 31675,
+    "appearAtMs": 14371,
     "index": 7,
     "position": {
       "fx": 0.593,
@@ -75,7 +75,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 35066,
+    "appearAtMs": 15774,
     "index": 8,
     "position": {
       "fx": -0.047,
@@ -84,7 +84,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 40144,
+    "appearAtMs": 18055,
     "index": 9,
     "position": {
       "fx": -0.679,
@@ -93,7 +93,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 44636,
+    "appearAtMs": 20031,
     "index": 10,
     "position": {
       "fx": 0.647,
@@ -102,7 +102,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 49037,
+    "appearAtMs": 21960,
     "index": 11,
     "position": {
       "fx": -0.348,
@@ -111,7 +111,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 53082,
+    "appearAtMs": 23703,
     "index": 12,
     "position": {
       "fx": 0.069,
@@ -120,7 +120,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 57980,
+    "appearAtMs": 25890,
     "index": 13,
     "position": {
       "fx": -0.985,
@@ -129,25 +129,25 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 63158,
+    "appearAtMs": 28223,
     "index": 14,
     "position": {
       "fx": 0.803,
       "fy": 0.194,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 67163,
+    "appearAtMs": 29946,
     "index": 15,
     "position": {
       "fx": 0.111,
       "fy": 0.523,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 72543,
+    "appearAtMs": 32384,
     "index": 16,
     "position": {
       "fx": 0.943,
@@ -156,7 +156,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 75743,
+    "appearAtMs": 33688,
     "index": 17,
     "position": {
       "fx": 0.214,
@@ -165,16 +165,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 79265,
+    "appearAtMs": 35159,
     "index": 18,
     "position": {
       "fx": 0.233,
       "fy": -0.05,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 84674,
+    "appearAtMs": 37612,
     "index": 19,
     "position": {
       "fx": -0.26,
@@ -183,7 +183,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 87891,
+    "appearAtMs": 38924,
     "index": 20,
     "position": {
       "fx": 0.882,
@@ -192,34 +192,34 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 92908,
+    "appearAtMs": 41173,
     "index": 21,
     "position": {
       "fx": -0.09,
       "fy": 0.857,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 97437,
+    "appearAtMs": 43168,
     "index": 22,
     "position": {
       "fx": 0.422,
       "fy": -0.044,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 102577,
+    "appearAtMs": 45481,
     "index": 23,
     "position": {
       "fx": -0.275,
       "fy": -0.872,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 106585,
+    "appearAtMs": 47205,
     "index": 24,
     "position": {
       "fx": -0.79,
@@ -228,25 +228,25 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 109684,
+    "appearAtMs": 48456,
     "index": 25,
     "position": {
       "fx": -0.954,
       "fy": 0.716,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 114007,
+    "appearAtMs": 50344,
     "index": 26,
     "position": {
       "fx": -0.326,
       "fy": 0.223,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 118630,
+    "appearAtMs": 52388,
     "index": 27,
     "position": {
       "fx": 0.273,
@@ -255,25 +255,25 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 121686,
+    "appearAtMs": 53617,
     "index": 28,
     "position": {
       "fx": -0.695,
       "fy": 0.557,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 124729,
+    "appearAtMs": 54839,
     "index": 29,
     "position": {
       "fx": 0.088,
       "fy": -0.064,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 130026,
+    "appearAtMs": 57234,
     "index": 30,
     "position": {
       "fx": -0.838,
@@ -282,7 +282,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 133936,
+    "appearAtMs": 58907,
     "index": 31,
     "position": {
       "fx": 0.033,
@@ -291,52 +291,52 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 137091,
+    "appearAtMs": 60188,
     "index": 32,
     "position": {
       "fx": -0.656,
       "fy": 0.513,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 141294,
+    "appearAtMs": 62013,
     "index": 33,
     "position": {
       "fx": 0.151,
       "fy": 0.071,
     },
-    "type": "RED",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 146742,
+    "appearAtMs": 64486,
     "index": 34,
     "position": {
       "fx": 0.978,
       "fy": -0.212,
     },
-    "type": "RED",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 151816,
+    "appearAtMs": 66765,
     "index": 35,
     "position": {
       "fx": -0.446,
       "fy": 0.618,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 156694,
+    "appearAtMs": 68941,
     "index": 36,
     "position": {
       "fx": 0.852,
       "fy": 0.375,
     },
-    "type": "RED",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 159789,
+    "appearAtMs": 70190,
     "index": 37,
     "position": {
       "fx": 0.866,
@@ -345,7 +345,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 163227,
+    "appearAtMs": 71617,
     "index": 38,
     "position": {
       "fx": -0.883,
@@ -354,16 +354,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 166944,
+    "appearAtMs": 73190,
     "index": 39,
     "position": {
       "fx": 0.373,
       "fy": -0.437,
     },
-    "type": "RED",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 172251,
+    "appearAtMs": 75590,
     "index": 40,
     "position": {
       "fx": 0.974,
@@ -372,11 +372,506 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 176962,
+    "appearAtMs": 77680,
     "index": 41,
     "position": {
       "fx": -0.731,
       "fy": -0.251,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 79421,
+    "index": 42,
+    "position": {
+      "fx": 0.472,
+      "fy": -0.468,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 81411,
+    "index": 43,
+    "position": {
+      "fx": -0.226,
+      "fy": 0.796,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 83806,
+    "index": 44,
+    "position": {
+      "fx": 0.632,
+      "fy": 0.907,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 85177,
+    "index": 45,
+    "position": {
+      "fx": 0.71,
+      "fy": -0.033,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 86984,
+    "index": 46,
+    "position": {
+      "fx": 0.176,
+      "fy": 0.889,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 88715,
+    "index": 47,
+    "position": {
+      "fx": 0.656,
+      "fy": 0.28,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 90554,
+    "index": 48,
+    "position": {
+      "fx": 0.433,
+      "fy": -0.949,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 91875,
+    "index": 49,
+    "position": {
+      "fx": 0.882,
+      "fy": 0.279,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 93435,
+    "index": 50,
+    "position": {
+      "fx": -0.476,
+      "fy": 0.83,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 95382,
+    "index": 51,
+    "position": {
+      "fx": -0.206,
+      "fy": -0.026,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 97265,
+    "index": 52,
+    "position": {
+      "fx": 0.058,
+      "fy": 0.998,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 98565,
+    "index": 53,
+    "position": {
+      "fx": 0.351,
+      "fy": 0.386,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 100410,
+    "index": 54,
+    "position": {
+      "fx": -0.931,
+      "fy": 0.22,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 102514,
+    "index": 55,
+    "position": {
+      "fx": -0.248,
+      "fy": 0.021,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 104235,
+    "index": 56,
+    "position": {
+      "fx": -0.304,
+      "fy": 0.946,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 106126,
+    "index": 57,
+    "position": {
+      "fx": -0.591,
+      "fy": -0.35,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 108306,
+    "index": 58,
+    "position": {
+      "fx": 0.134,
+      "fy": -0.462,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 109717,
+    "index": 59,
+    "position": {
+      "fx": 1,
+      "fy": 0.256,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 111326,
+    "index": 60,
+    "position": {
+      "fx": 0.318,
+      "fy": 0.727,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 113599,
+    "index": 61,
+    "position": {
+      "fx": 0.378,
+      "fy": -0.307,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 116040,
+    "index": 62,
+    "position": {
+      "fx": 0.006,
+      "fy": 0.554,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 117812,
+    "index": 63,
+    "position": {
+      "fx": -0.557,
+      "fy": -0.825,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 119637,
+    "index": 64,
+    "position": {
+      "fx": 0.022,
+      "fy": 0.996,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 121248,
+    "index": 65,
+    "position": {
+      "fx": -0.934,
+      "fy": -0.72,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 123035,
+    "index": 66,
+    "position": {
+      "fx": -0.595,
+      "fy": 0.754,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 125520,
+    "index": 67,
+    "position": {
+      "fx": 0.203,
+      "fy": 0.336,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 127907,
+    "index": 68,
+    "position": {
+      "fx": 0.011,
+      "fy": -0.698,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 129181,
+    "index": 69,
+    "position": {
+      "fx": -0.901,
+      "fy": -0.66,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 131256,
+    "index": 70,
+    "position": {
+      "fx": 0.927,
+      "fy": -0.891,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 133229,
+    "index": 71,
+    "position": {
+      "fx": -0.131,
+      "fy": 0.583,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 134961,
+    "index": 72,
+    "position": {
+      "fx": -0.362,
+      "fy": -0.647,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 137205,
+    "index": 73,
+    "position": {
+      "fx": 0.898,
+      "fy": 0.154,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 139539,
+    "index": 74,
+    "position": {
+      "fx": 0.333,
+      "fy": -0.591,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 141121,
+    "index": 75,
+    "position": {
+      "fx": -0.773,
+      "fy": -0.142,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 143398,
+    "index": 76,
+    "position": {
+      "fx": -0.673,
+      "fy": -0.757,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 144724,
+    "index": 77,
+    "position": {
+      "fx": -0.837,
+      "fy": -0.043,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 146435,
+    "index": 78,
+    "position": {
+      "fx": -0.149,
+      "fy": -0.309,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 147887,
+    "index": 79,
+    "position": {
+      "fx": -0.085,
+      "fy": 0.847,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 149730,
+    "index": 80,
+    "position": {
+      "fx": 0.022,
+      "fy": -0.887,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 151064,
+    "index": 81,
+    "position": {
+      "fx": -0.978,
+      "fy": -0.257,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 152319,
+    "index": 82,
+    "position": {
+      "fx": -0.825,
+      "fy": 0.577,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 153943,
+    "index": 83,
+    "position": {
+      "fx": 0.836,
+      "fy": 0.016,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 155872,
+    "index": 84,
+    "position": {
+      "fx": -0.586,
+      "fy": 0.167,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 157508,
+    "index": 85,
+    "position": {
+      "fx": -0.758,
+      "fy": -0.716,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 158834,
+    "index": 86,
+    "position": {
+      "fx": 0.301,
+      "fy": 0.651,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 160800,
+    "index": 87,
+    "position": {
+      "fx": -0.844,
+      "fy": 0.416,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 162717,
+    "index": 88,
+    "position": {
+      "fx": -0.134,
+      "fy": -0.849,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 164729,
+    "index": 89,
+    "position": {
+      "fx": 0.849,
+      "fy": -0.934,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 167223,
+    "index": 90,
+    "position": {
+      "fx": 0.826,
+      "fy": 0.549,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 168475,
+    "index": 91,
+    "position": {
+      "fx": 0.33,
+      "fy": -0.825,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 170885,
+    "index": 92,
+    "position": {
+      "fx": 0.199,
+      "fy": 0.516,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 173374,
+    "index": 93,
+    "position": {
+      "fx": -0.613,
+      "fy": 0.414,
+    },
+    "type": "RED",
+  },
+  {
+    "appearAtMs": 174706,
+    "index": 94,
+    "position": {
+      "fx": 0.657,
+      "fy": 0.01,
+    },
+    "type": "YELLOW",
+  },
+  {
+    "appearAtMs": 176138,
+    "index": 95,
+    "position": {
+      "fx": 0.676,
+      "fy": -0.917,
+    },
+    "type": "BLUE",
+  },
+  {
+    "appearAtMs": 178351,
+    "index": 96,
+    "position": {
+      "fx": -0.513,
+      "fy": -0.164,
     },
     "type": "BLUE",
   },

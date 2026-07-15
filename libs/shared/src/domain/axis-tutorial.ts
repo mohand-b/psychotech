@@ -1,5 +1,10 @@
 import { AxisTimerModel, AxisType, MemoryPhase } from '../enums';
-import { AxisTraining, RailwayPlayableAxis } from './axis-training';
+import {
+  AxisTraining,
+  RailwayPlayableAxis,
+  REACTIVITY_ISI_MAX_MS,
+  REACTIVITY_ISI_MIN_MS,
+} from './axis-training';
 
 export const TUTORIAL_SEED = 'psychotech-tutoriel-v1';
 
@@ -51,10 +56,10 @@ export const AXIS_TUTORIAL: {
     axis: AxisType.REACTIVITY,
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 30 },
     exerciseCount: 1,
-    approximateStimulusCount: 6,
+    approximateStimulusCount: 15,
     phaseDurationSec: 10,
-    minIntervalMs: 1500,
-    maxIntervalMs: 4000,
+    isiMinMs: REACTIVITY_ISI_MIN_MS,
+    isiMaxMs: REACTIVITY_ISI_MAX_MS,
     responseWindowMs: 1500,
     anticipationThresholdMs: 150,
     briefing: {

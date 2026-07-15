@@ -35,25 +35,21 @@ describe('generateReactivitySession', () => {
     }
   });
 
-  it('draws intervals within the configured bounds and fits the trial duration', () => {
+  it('draws onset-to-onset intervals within the ISI bounds and fits the trial duration', () => {
     const totalMs = TRAINING.timer.durationSec * 1000;
     for (const seed of SAMPLE_SEEDS) {
       const stimuli = generateReactivitySession(seed);
-      expect(stimuli[0].appearAtMs).toBeGreaterThanOrEqual(
-        TRAINING.minIntervalMs,
-      );
+      expect(stimuli[0].appearAtMs).toBeGreaterThanOrEqual(TRAINING.isiMinMs);
+      expect(stimuli[0].appearAtMs).toBeLessThanOrEqual(TRAINING.isiMaxMs);
       for (const [position, stimulus] of stimuli.entries()) {
         expect(stimulus.index).toBe(position);
         expect(stimulus.appearAtMs + TRAINING.responseWindowMs).toBeLessThanOrEqual(
           totalMs,
         );
         if (position > 0) {
-          const gap =
-            stimulus.appearAtMs -
-            stimuli[position - 1].appearAtMs -
-            TRAINING.responseWindowMs;
-          expect(gap).toBeGreaterThanOrEqual(TRAINING.minIntervalMs);
-          expect(gap).toBeLessThanOrEqual(TRAINING.maxIntervalMs);
+          const gap = stimulus.appearAtMs - stimuli[position - 1].appearAtMs;
+          expect(gap).toBeGreaterThanOrEqual(TRAINING.isiMinMs);
+          expect(gap).toBeLessThanOrEqual(TRAINING.isiMaxMs);
         }
       }
     }
@@ -102,8 +98,8 @@ describe('generateReactivitySession', () => {
   it('produces roughly the expected stimulus count', () => {
     for (const seed of SAMPLE_SEEDS) {
       const count = generateReactivitySession(seed).length;
-      expect(count).toBeGreaterThanOrEqual(38);
-      expect(count).toBeLessThanOrEqual(52);
+      expect(count).toBeGreaterThanOrEqual(88);
+      expect(count).toBeLessThanOrEqual(104);
     }
   });
 });

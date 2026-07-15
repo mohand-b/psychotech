@@ -51,13 +51,16 @@ export interface VisualDiscriminationTraining extends BaseAxisTraining {
   identicalMax?: number;
 }
 
+export const REACTIVITY_ISI_MIN_MS = 1200;
+export const REACTIVITY_ISI_MAX_MS = 2500;
+
 export interface ReactivityTraining extends BaseAxisTraining {
   axis: AxisType.REACTIVITY;
   timer: GlobalAxisTimer;
   approximateStimulusCount: number;
   phaseDurationSec: number;
-  minIntervalMs: number;
-  maxIntervalMs: number;
+  isiMinMs: number;
+  isiMaxMs: number;
   responseWindowMs: number;
   anticipationThresholdMs: number;
 }
@@ -137,10 +140,10 @@ export const AXIS_TRAINING: {
     axis: AxisType.REACTIVITY,
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 180 },
     exerciseCount: 1,
-    approximateStimulusCount: 45,
+    approximateStimulusCount: 95,
     phaseDurationSec: 60,
-    minIntervalMs: 1500,
-    maxIntervalMs: 4000,
+    isiMinMs: REACTIVITY_ISI_MIN_MS,
+    isiMaxMs: REACTIVITY_ISI_MAX_MS,
     responseWindowMs: 1500,
     anticipationThresholdMs: 150,
     briefing: {

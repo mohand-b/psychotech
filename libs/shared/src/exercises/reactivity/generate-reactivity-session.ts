@@ -77,16 +77,14 @@ export function generateReactivitySession(
   const stimuli: ReactivityStimulus[] = [];
   const types: ReactivityStimulusType[] = [];
   let previousPosition: ReactivityStimulusPosition | null = null;
-  let appearAtMs = rng.nextInt(training.minIntervalMs, training.maxIntervalMs);
+  let appearAtMs = rng.nextInt(training.isiMinMs, training.isiMaxMs);
   while (appearAtMs + training.responseWindowMs <= totalMs) {
     const type = drawType(rng, phasePool(appearAtMs, phaseDurationMs), types);
     const position = drawPosition(rng, previousPosition);
     stimuli.push({ index: stimuli.length, type, appearAtMs, position });
     types.push(type);
     previousPosition = position;
-    appearAtMs +=
-      training.responseWindowMs +
-      rng.nextInt(training.minIntervalMs, training.maxIntervalMs);
+    appearAtMs += rng.nextInt(training.isiMinMs, training.isiMaxMs);
   }
   return stimuli;
 }
