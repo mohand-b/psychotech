@@ -1,4 +1,9 @@
 import { AxisType } from '../enums';
+import {
+  AxisFindingFamily,
+  AxisFindingsEntry,
+  crossAxisFindingFamilies,
+} from '../exercises/axis-findings';
 import { AXIS_META } from './axis-meta';
 import { RailwayPlayableAxis } from './axis-training';
 import {
@@ -41,6 +46,13 @@ export const AXIS_PRIORITY_LABELS: Record<RailwayPlayableAxis, string> = {
 const COMFORTABLE_MARGIN = 10;
 const PRIORITY_LABEL_FALLBACK = 'Entraîner cet axe en priorité';
 
+const FAMILY_TRANSVERSAL_LABELS: Record<AxisFindingFamily, string> = {
+  POST_ERROR_DISRUPTION:
+    'une erreur vous déstabilise sur les actions qui suivent',
+  FATIGUE: 'votre niveau baisse en fin d’épreuve',
+  IMPULSIVITY: 'vous déclenchez avant d’avoir toute l’information',
+};
+
 function text(value: string): AppreciationSegment {
   return { text: value, value: false };
 }
@@ -68,16 +80,32 @@ export function buildSimulationAppreciation(
   context: SimulationAppreciationContext,
   axes: SimulationAxisOutcome[],
   selection: SimulationSummarySelectionDto,
+  findingsByAxis: AxisFindingsEntry[] = [],
 ): SimulationAppreciationDto {
   const eliminatoryAxes = axes.filter(
     (entry) =>
       entry.isCritical && entry.score < context.eliminatoryThreshold,
   );
+  const detail = buildDetail(context, axes, selection, eliminatoryAxes);
+  const transversal = buildTransversal(findingsByAxis);
+  if (transversal !== null) {
+    detail.push(text(` ${transversal}`));
+  }
   return {
     lead: buildLead(context, eliminatoryAxes),
-    detail: buildDetail(context, axes, selection, eliminatoryAxes),
+    detail,
     priority: buildPriority(selection),
   };
+}
+
+function buildTransversal(
+  findingsByAxis: AxisFindingsEntry[],
+): string | null {
+  const [family] = crossAxisFindingFamilies(findingsByAxis);
+  if (!family) {
+    return null;
+  }
+  return `Constat transversal : sur ${joinWithArticle(family.axes)}, ${FAMILY_TRANSVERSAL_LABELS[family.family]} — c’est le levier commun que révèle cette session, qu’aucun axe seul ne montre.`;
 }
 
 function buildLead(

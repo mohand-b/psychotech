@@ -1,4 +1,5 @@
 import { AxisType, RecommendationPriority, ScoreBand } from '../enums';
+import { AxisFinding } from '../exercises/axis-findings';
 import {
   SimulationAppreciationContext,
   buildSimulationAppreciation,
@@ -45,12 +46,20 @@ const STANDARD_AXES = [
   outcome(AxisType.MOTOR_SKILLS, 88, ScoreBand.EXCELLENT),
 ];
 
+function finding(
+  id: string,
+  severity: RecommendationPriority = RecommendationPriority.MEDIUM,
+): AxisFinding {
+  return {
+    id,
+    severity,
+    finding: `constat ${id}`,
+    recommendation: `reco ${id}`,
+  };
+}
+
 const STANDARD_SELECTION = buildSimulationSummary(STANDARD_AXES, THRESHOLDS, [
-  {
-    axis: AxisType.MEMORY,
-    priority: RecommendationPriority.MEDIUM,
-    label: 'Mémoire sous le seuil de vigilance : prévoyez des séances ciblées',
-  },
+  { axis: AxisType.MEMORY, findings: [finding('MEMORY_TIMEOUTS')] },
 ]);
 
 describe('buildSimulationAppreciation', () => {
@@ -65,8 +74,7 @@ describe('buildSimulationAppreciation', () => {
     const selection = buildSimulationSummary(axes, THRESHOLDS, [
       {
         axis: AxisType.REACTIVITY,
-        priority: RecommendationPriority.HIGH,
-        label: 'reco',
+        findings: [finding('REACTIVITY_ANTICIPATIONS')],
       },
     ]);
 
@@ -169,6 +177,49 @@ describe('buildSimulationAppreciation', () => {
     expect(plainText(appreciation.detail)).toBe(
       'En retravaillant la Réactivité en priorité, un avis favorable est à votre portée dès les prochaines sessions.',
     );
+  });
+
+  it('names a finding family shared by several axes in a transversal sentence', () => {
+    const findingsByAxis = [
+      {
+        axis: AxisType.REACTIVITY,
+        findings: [
+          finding('REACTIVITY_POST_ERROR_SLOWDOWN', RecommendationPriority.HIGH),
+        ],
+      },
+      {
+        axis: AxisType.MOTOR_SKILLS,
+        findings: [
+          finding('MOTRICITY_POST_EXIT_CASCADE', RecommendationPriority.HIGH),
+        ],
+      },
+    ];
+    const appreciation = buildSimulationAppreciation(
+      context(),
+      STANDARD_AXES,
+      STANDARD_SELECTION,
+      findingsByAxis,
+    );
+
+    expect(plainText(appreciation.detail)).toContain(
+      'Constat transversal : sur la Réactivité et la Motricité, une erreur vous déstabilise sur les actions qui suivent',
+    );
+  });
+
+  it('adds no transversal sentence when no family spans several axes', () => {
+    const appreciation = buildSimulationAppreciation(
+      context(),
+      STANDARD_AXES,
+      STANDARD_SELECTION,
+      [
+        {
+          axis: AxisType.REACTIVITY,
+          findings: [finding('REACTIVITY_IRREGULARITY')],
+        },
+      ],
+    );
+
+    expect(plainText(appreciation.detail)).not.toContain('Constat transversal');
   });
 
   it('handles an all-green session without weakness nor priority line', () => {

@@ -1,4 +1,5 @@
 import { AxisType, RecommendationPriority, ScoreBand } from '../enums';
+import { AxisFinding } from '../exercises/axis-findings';
 import {
   SimulationAxisOutcome,
   SimulationThresholdKind,
@@ -14,6 +15,18 @@ function outcome(
   isCritical = false,
 ): SimulationAxisOutcome {
   return { axis, score, band, isCritical };
+}
+
+function finding(
+  id: string,
+  severity: RecommendationPriority = RecommendationPriority.MEDIUM,
+): AxisFinding {
+  return {
+    id,
+    severity,
+    finding: `constat ${id}`,
+    recommendation: `reco ${id}`,
+  };
 }
 
 describe('buildSimulationSummary', () => {
@@ -56,26 +69,13 @@ describe('buildSimulationSummary', () => {
       ],
       THRESHOLDS,
       [
-        {
-          axis: AxisType.LOGIC,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco logique',
-        },
-        {
-          axis: AxisType.MEMORY,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco mémoire',
-        },
+        { axis: AxisType.LOGIC, findings: [finding('logic')] },
+        { axis: AxisType.MEMORY, findings: [finding('memory')] },
         {
           axis: AxisType.VISUAL_DISCRIMINATION,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco discrimination',
+          findings: [finding('discrimination')],
         },
-        {
-          axis: AxisType.REACTIVITY,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco réactivité',
-        },
+        { axis: AxisType.REACTIVITY, findings: [finding('reactivity')] },
       ],
     );
 
@@ -120,44 +120,62 @@ describe('buildSimulationSummary', () => {
     expect(summary.weaknesses).toHaveLength(0);
   });
 
-  it('sorts recommendations by priority then ascending axis score', () => {
+  it('orders next-step axes by threshold severity then ascending score', () => {
     const summary = buildSimulationSummary(
       [
         outcome(AxisType.LOGIC, 62, ScoreBand.FRAGILE),
-        outcome(AxisType.MEMORY, 58, ScoreBand.INSUFFICIENT, true),
+        outcome(AxisType.MEMORY, 50, ScoreBand.INSUFFICIENT, true),
         outcome(AxisType.VISUAL_DISCRIMINATION, 64, ScoreBand.FRAGILE, true),
         outcome(AxisType.REACTIVITY, 68, ScoreBand.FRAGILE),
         outcome(AxisType.MOTOR_SKILLS, 85, ScoreBand.EXCELLENT),
       ],
       THRESHOLDS,
       [
-        {
-          axis: AxisType.REACTIVITY,
-          priority: RecommendationPriority.LOW,
-          label: 'reco réactivité',
-        },
-        {
-          axis: AxisType.LOGIC,
-          priority: RecommendationPriority.MEDIUM,
-          label: 'reco logique',
-        },
+        { axis: AxisType.REACTIVITY, findings: [finding('reactivity')] },
+        { axis: AxisType.LOGIC, findings: [finding('logic')] },
         {
           axis: AxisType.VISUAL_DISCRIMINATION,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco discrimination',
+          findings: [finding('discrimination')],
         },
-        {
-          axis: AxisType.MEMORY,
-          priority: RecommendationPriority.HIGH,
-          label: 'reco mémoire',
-        },
+        { axis: AxisType.MEMORY, findings: [finding('memory')] },
       ],
     );
 
-    expect(summary.recommendations).toEqual([
-      { axis: AxisType.MEMORY, label: 'reco mémoire' },
-      { axis: AxisType.VISUAL_DISCRIMINATION, label: 'reco discrimination' },
-      { axis: AxisType.LOGIC, label: 'reco logique' },
+    expect(summary.recommendations.map(({ axis }) => axis)).toEqual([
+      AxisType.MEMORY,
+      AxisType.LOGIC,
+      AxisType.VISUAL_DISCRIMINATION,
     ]);
+  });
+
+  it('skips axes without findings and caps each card at three findings', () => {
+    const summary = buildSimulationSummary(
+      [
+        outcome(AxisType.LOGIC, 62, ScoreBand.FRAGILE),
+        outcome(AxisType.MEMORY, 58, ScoreBand.INSUFFICIENT, true),
+        outcome(AxisType.MOTOR_SKILLS, 85, ScoreBand.EXCELLENT),
+      ],
+      THRESHOLDS,
+      [
+        { axis: AxisType.LOGIC, findings: [] },
+        {
+          axis: AxisType.MEMORY,
+          findings: [
+            finding('a', RecommendationPriority.LOW),
+            finding('b', RecommendationPriority.HIGH),
+            finding('c', RecommendationPriority.MEDIUM),
+            finding('d', RecommendationPriority.MEDIUM),
+          ],
+        },
+        { axis: AxisType.MOTOR_SKILLS, findings: [finding('motor')] },
+      ],
+    );
+
+    expect(summary.recommendations.map(({ axis }) => axis)).toEqual([
+      AxisType.MEMORY,
+      AxisType.MOTOR_SKILLS,
+    ]);
+    expect(summary.recommendations[0].findings).toHaveLength(3);
+    expect(summary.recommendations[0].findings[0].id).toBe('b');
   });
 });

@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { MotorSkillsMetrics } from '../../domain/axis-metrics';
 import { MotricitySampleDto } from '../../dtos/session';
-import { AxisType, ControlModality, RecommendationPriority } from '../../enums';
+import { AxisType, ControlModality } from '../../enums';
 import { generateMotricityCourses } from './generate-motricity-courses';
 import { MotricityCourse } from './motricity-course';
-import { getMotricityRecommendation } from './motricity-recommendation';
 import {
   MOTRICITY_TIMELINE_WINDOW_MS,
   deriveMotorSkillsMetrics,
@@ -188,89 +186,5 @@ describe('deriveMotorSkillsMetrics', () => {
       ControlModality.KEYBOARD,
     );
     expect(keyboard.handIndependence).toBeUndefined();
-  });
-});
-
-describe('getMotricityRecommendation', () => {
-  function metricsBase(
-    overrides: Partial<MotorSkillsMetrics>,
-  ): MotorSkillsMetrics {
-    return {
-      axis: AxisType.MOTOR_SKILLS,
-      minorErrors: 0,
-      majorErrors: 0,
-      totalTimeMs: 120_000,
-      coursesCompleted: 3,
-      controlModality: ControlModality.KEYBOARD,
-      courses: [0, 1, 2].map((index) => ({
-        index,
-        minorErrors: 0,
-        majorErrors: 0,
-        progressionPct: 100,
-        tReelMs: 40_000,
-        avgLatencyMs: null,
-        jitterMs: null,
-      })),
-      timeline: [],
-      events: [],
-      ...overrides,
-    };
-  }
-
-  it('prioritizes an unfinished course above everything else', () => {
-    const metrics = metricsBase({
-      majorErrors: 5,
-      courses: [
-        {
-          index: 0,
-          minorErrors: 0,
-          majorErrors: 0,
-          progressionPct: 70,
-          tReelMs: 90_000,
-          avgLatencyMs: null,
-          jitterMs: null,
-        },
-      ],
-    });
-    const recommendation = getMotricityRecommendation(metrics);
-    expect(recommendation.id).toBe('MOTRICITY_TIMEOUT');
-    expect(recommendation.priority).toBe(RecommendationPriority.HIGH);
-  });
-
-  it('flags three or more major errors as high priority', () => {
-    const recommendation = getMotricityRecommendation(
-      metricsBase({ majorErrors: 3 }),
-    );
-    expect(recommendation.id).toBe('MOTRICITY_EXITS');
-    expect(recommendation.priority).toBe(RecommendationPriority.HIGH);
-  });
-
-  it('detects exits concentrated in diagonal segments', () => {
-    const recommendation = getMotricityRecommendation(
-      metricsBase({
-        majorErrors: 2,
-        events: [
-          { courseIndex: 0, tMs: 1000, type: 'EXIT', segment: 'DIAG', durationMs: 500 },
-          { courseIndex: 1, tMs: 2000, type: 'EXIT', segment: 'H', durationMs: 400 },
-          { courseIndex: 2, tMs: 3000, type: 'EXIT', segment: 'DIAG', durationMs: 600 },
-        ],
-      }),
-    );
-    expect(recommendation.id).toBe('MOTRICITY_DIAGONALS');
-    expect(recommendation.priority).toBe(RecommendationPriority.MEDIUM);
-  });
-
-  it('suggests centering when contacts pile up without exits', () => {
-    const recommendation = getMotricityRecommendation(
-      metricsBase({ minorErrors: 6, majorErrors: 1 }),
-    );
-    expect(recommendation.id).toBe('MOTRICITY_CENTERING');
-    expect(recommendation.priority).toBe(RecommendationPriority.MEDIUM);
-  });
-
-  it('falls back to a low priority encouragement', () => {
-    const recommendation = getMotricityRecommendation(metricsBase({}));
-    expect(recommendation.id).toBe('MOTRICITY_KEEP_GOING');
-    expect(recommendation.priority).toBe(RecommendationPriority.LOW);
   });
 });

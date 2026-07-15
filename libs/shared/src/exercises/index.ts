@@ -1,5 +1,5 @@
 export * from './rng';
-export * from './recommendation';
+export * from './axis-findings';
 export * from './logic';
 export * from './memory';
 export * from './discrimination';

@@ -1,4 +1,9 @@
-import { AxisType, RecommendationPriority, ScoreBand } from '../enums';
+import { AxisType, ScoreBand } from '../enums';
+import {
+  AxisFinding,
+  AxisFindingsEntry,
+  getAxisRecommendations,
+} from '../exercises/axis-findings';
 
 export enum SimulationThresholdKind {
   ELIMINATORY = 'ELIMINATORY',
@@ -15,12 +20,6 @@ export interface SimulationAxisOutcome {
 export interface SimulationSummaryThresholds {
   vigilanceThreshold: number;
   eliminatoryThreshold: number;
-}
-
-export interface SimulationRecommendationInput {
-  axis: AxisType;
-  priority: RecommendationPriority;
-  label: string;
 }
 
 export interface SimulationStrengthDto {
@@ -40,7 +39,7 @@ export interface SimulationWeaknessDto {
 
 export interface SimulationSummaryRecommendationDto {
   axis: AxisType;
-  label: string;
+  findings: AxisFinding[];
 }
 
 export interface SimulationSummarySelectionDto {
@@ -59,21 +58,15 @@ const THRESHOLD_KIND_RANK: Record<SimulationThresholdKind, number> = {
   [SimulationThresholdKind.VIGILANCE]: 1,
 };
 
-const PRIORITY_RANK: Record<RecommendationPriority, number> = {
-  [RecommendationPriority.HIGH]: 0,
-  [RecommendationPriority.MEDIUM]: 1,
-  [RecommendationPriority.LOW]: 2,
-};
-
 export function buildSimulationSummary(
   axes: SimulationAxisOutcome[],
   thresholds: SimulationSummaryThresholds,
-  recommendations: SimulationRecommendationInput[],
+  findingsByAxis: AxisFindingsEntry[],
 ): SimulationSummarySelectionDto {
   return {
     strengths: selectStrengths(axes, thresholds),
     weaknesses: selectWeaknesses(axes, thresholds),
-    recommendations: selectRecommendations(axes, recommendations),
+    recommendations: selectRecommendations(axes, thresholds, findingsByAxis),
   };
 }
 
@@ -135,17 +128,24 @@ function selectWeaknesses(
 
 function selectRecommendations(
   axes: SimulationAxisOutcome[],
-  recommendations: SimulationRecommendationInput[],
+  thresholds: SimulationSummaryThresholds,
+  findingsByAxis: AxisFindingsEntry[],
 ): SimulationSummaryRecommendationDto[] {
-  const scoreByAxis = new Map(axes.map((entry) => [entry.axis, entry.score]));
-  return [...recommendations]
-    .sort(
-      (a, b) =>
-        PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority] ||
-        (scoreByAxis.get(a.axis) ?? 0) - (scoreByAxis.get(b.axis) ?? 0),
-    )
+  const findingsMap = new Map(
+    findingsByAxis.map((entry) => [entry.axis, entry.findings]),
+  );
+  const thresholdRank = (entry: SimulationAxisOutcome): number => {
+    const kind = weaknessThresholdKind(entry, thresholds);
+    return kind === null ? 2 : THRESHOLD_KIND_RANK[kind];
+  };
+  return [...axes]
+    .filter((entry) => (findingsMap.get(entry.axis) ?? []).length > 0)
+    .sort((a, b) => thresholdRank(a) - thresholdRank(b) || a.score - b.score)
     .slice(0, RECOMMENDATION_LIMIT)
-    .map(({ axis, label }) => ({ axis, label }));
+    .map((entry) => ({
+      axis: entry.axis,
+      findings: getAxisRecommendations(findingsMap.get(entry.axis) ?? []),
+    }));
 }
 
 function weaknessThresholdKind(
