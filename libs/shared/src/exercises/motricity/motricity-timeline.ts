@@ -15,8 +15,7 @@ import {
   MotricityCourse,
   MotricityCursorZone,
   distanceToSegment,
-  motricityAdvanceArc,
-  motricityArcAdvanceBudget,
+  motricityAnchoredArc,
   motricityCursorZone,
 } from './motricity-course';
 import { scoreMotricitySession } from './motricity-scoring';
@@ -94,12 +93,7 @@ function deriveCourse(
   };
 
   for (const sample of trajectory.samples) {
-    arc = motricityAdvanceArc(
-      course,
-      sample,
-      arc,
-      motricityArcAdvanceBudget(sample.t - previousT),
-    );
+    arc = motricityAnchoredArc(course, sample, arc, sample.t - previousT);
     previousT = sample.t;
     const segmentIndex = motricitySegmentIndexAtArc(course, arc);
     const deviation = deviationPct(course, sample, segmentIndex);

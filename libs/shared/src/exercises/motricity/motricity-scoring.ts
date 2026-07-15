@@ -6,8 +6,7 @@ import { generateMotricityCourses } from './generate-motricity-courses';
 import {
   MotricityCourse,
   MotricityCursorZone,
-  motricityAdvanceArc,
-  motricityArcAdvanceBudget,
+  motricityAnchoredArc,
   motricityCursorZone,
 } from './motricity-course';
 
@@ -115,12 +114,7 @@ export function scoreMotricityCourse(
         outsideSinceMs = null;
       }
     }
-    maxArc = motricityAdvanceArc(
-      course,
-      sample,
-      maxArc,
-      motricityArcAdvanceBudget(sample.t - previousT),
-    );
+    maxArc = motricityAnchoredArc(course, sample, maxArc, sample.t - previousT);
     previousT = sample.t;
     if (reachedAtMs === null && maxArc >= completionArc) {
       reachedAtMs = sample.t;
@@ -173,12 +167,7 @@ export function motricityCourseFinished(
   let arc = 0;
   let previousT = 0;
   for (const sample of samples) {
-    arc = motricityAdvanceArc(
-      course,
-      sample,
-      arc,
-      motricityArcAdvanceBudget(sample.t - previousT),
-    );
+    arc = motricityAnchoredArc(course, sample, arc, sample.t - previousT);
     previousT = sample.t;
     if (arc >= completionArc) {
       return true;

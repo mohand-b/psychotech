@@ -25,8 +25,7 @@ import {
   SessionMode,
   SessionStatus,
   TrainingOptionId,
-  motricityAdvanceArc,
-  motricityArcAdvanceBudget,
+  motricityAnchoredArc,
   motricityCursorZone,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
@@ -373,11 +372,11 @@ export class MotricityPlay {
       Math.max(0, 1 - activeMs / limitMs),
     );
 
-    const arc = motricityAdvanceArc(
+    const arc = motricityAnchoredArc(
       course,
       this.position,
       this.maxArc,
-      motricityArcAdvanceBudget(deltaMs),
+      deltaMs,
     );
     if (arc > this.maxArc) {
       this.maxArc = arc;

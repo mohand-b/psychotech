@@ -12,6 +12,8 @@ import {
   MotricityPoint,
   MotricitySegment,
   motricityAdvanceArc,
+  motricityAnchoredArc,
+  motricityArcAdvanceBudget,
   motricityCursorZone,
   motricityProgressionPct,
 } from './motricity-course';
@@ -27,35 +29,87 @@ import {
 const SAMPLE_SEEDS = ['alpha', 'bravo', 'charlie', 'delta', 'echo'];
 const FRAME_MS = 1000 / 60;
 
+function centerlinePositionAtPct(
+  course: MotricityCourse,
+  pct: number,
+): MotricityPoint {
+  let remaining = (pct / 100) * course.totalLength;
+  let position = course.centerline[0];
+  for (const segment of course.segments) {
+    if (remaining <= segment.length) {
+      const ratio = remaining / segment.length;
+      return {
+        x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
+        y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
+      };
+    }
+    remaining -= segment.length;
+    position = segment.end;
+  }
+  return position;
+}
+
 function walkCenterline(
   course: MotricityCourse,
   durationMs: number,
   untilPct = 100,
 ): MotricitySampleDto[] {
-  const targetLength = (untilPct / 100) * course.totalLength;
   const sampleCount = Math.round(durationMs / FRAME_MS);
   const samples: MotricitySampleDto[] = [];
   for (let index = 0; index <= sampleCount; index += 1) {
-    const arc = (index / sampleCount) * targetLength;
-    let remaining = arc;
-    let position = course.centerline[0];
-    for (const segment of course.segments) {
-      if (remaining <= segment.length) {
-        const ratio = remaining / segment.length;
-        position = {
-          x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
-          y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
-        };
-        break;
-      }
-      remaining -= segment.length;
-      position = segment.end;
-    }
+    const position = centerlinePositionAtPct(
+      course,
+      (index / sampleCount) * untilPct,
+    );
     samples.push({
       t: Math.round(index * FRAME_MS),
       x: position.x,
       y: position.y,
     });
+  }
+  return samples;
+}
+
+function outsidePointNear(
+  course: MotricityCourse,
+  target: MotricityPoint,
+): MotricityPoint {
+  const directions = [
+    { x: 0, y: 1 },
+    { x: 0, y: -1 },
+    { x: 1, y: 0 },
+    { x: -1, y: 0 },
+  ];
+  for (let radius = 40; radius <= 400; radius += 20) {
+    for (const direction of directions) {
+      const candidate = {
+        x: target.x + direction.x * radius,
+        y: target.y + direction.y * radius,
+      };
+      if (motricityCursorZone(course, candidate) === 'OUTSIDE') {
+        return candidate;
+      }
+    }
+  }
+  throw new Error('No outside point found near target');
+}
+
+function cheatingTrajectory(course: MotricityCourse): MotricitySampleDto[] {
+  const samples: MotricitySampleDto[] = [];
+  let t = 0;
+  const push = (position: MotricityPoint) => {
+    samples.push({ t: Math.round(t), x: position.x, y: position.y });
+    t += FRAME_MS;
+  };
+  for (let step = 0; step <= 600; step += 1) {
+    push(centerlinePositionAtPct(course, (step / 600) * 30));
+  }
+  const outside = outsidePointNear(course, centerlinePositionAtPct(course, 50));
+  for (let step = 0; step < 150; step += 1) {
+    push(outside);
+  }
+  for (let step = 0; step <= 600; step += 1) {
+    push(centerlinePositionAtPct(course, 70 + (step / 600) * 30));
   }
   return samples;
 }
@@ -246,6 +300,32 @@ describe('scoreMotricityCourse', () => {
     expect(scored.progressionPct).toBeLessThanOrEqual(71);
     expect(scored.score).toBeCloseTo(0.7 * scored.progressionPct, 0);
   });
+
+  it('completes a cheating run, counts its major errors, and matches the live arc tracking', () => {
+    const cheat = cheatingTrajectory(course);
+    const scored = scoreMotricityCourse(course, cheat);
+
+    expect(scored.progressionPct).toBe(100);
+    expect(scored.minorErrors).toBeGreaterThanOrEqual(1);
+    expect(scored.majorErrors).toBeGreaterThanOrEqual(2);
+
+    let liveArc = 0;
+    let previousT = 0;
+    for (const sample of cheat) {
+      liveArc = motricityAnchoredArc(
+        course,
+        sample,
+        liveArc,
+        sample.t - previousT,
+      );
+      previousT = sample.t;
+    }
+    const liveProgression = Math.min(
+      100,
+      (liveArc / course.totalLength) * 100,
+    );
+    expect(scored.progressionPct).toBe(Math.round(liveProgression));
+  });
 });
 
 describe('scoreMotricityRecap calibration', () => {
@@ -301,7 +381,7 @@ describe('motricityCourseFinished', () => {
     expect(motricityCourseFinished(course, [])).toBe(false);
   });
 
-  it('rejects a trajectory that jumps to the arrival without traversing the path', () => {
+  it('accepts a trajectory that reenters the corridor at the arrival', () => {
     const start = course.centerline[0];
     const end = course.centerline[course.centerline.length - 1];
     const teleport: MotricitySampleDto[] = [
@@ -309,7 +389,46 @@ describe('motricityCourseFinished', () => {
       { t: 17, x: end.x, y: end.y },
       { t: 34, x: end.x, y: end.y },
     ];
-    expect(motricityCourseFinished(course, teleport)).toBe(false);
+    expect(motricityCourseFinished(course, teleport)).toBe(true);
+  });
+
+  it('accepts a cheating trajectory that skips a section outside the corridor', () => {
+    expect(motricityCourseFinished(course, cheatingTrajectory(course))).toBe(
+      true,
+    );
+  });
+});
+
+describe('motricityAnchoredArc', () => {
+  const course = generateMotricityCourses('anchor')[0];
+
+  it('anchors the arc to the curvilinear projection when the cursor is inside the corridor', () => {
+    const reentry = centerlinePositionAtPct(course, 60);
+    expect(motricityCursorZone(course, reentry)).toBe('INSIDE');
+    const previousArc = 0.1 * course.totalLength;
+    const arc = motricityAnchoredArc(course, reentry, previousArc, 16);
+    expect(arc).toBeCloseTo(0.6 * course.totalLength, 0);
+  });
+
+  it('keeps the budgeted advance while the cursor stays outside the corridor', () => {
+    const target = centerlinePositionAtPct(course, 60);
+    const outside = outsidePointNear(course, target);
+    const previousArc = 0.1 * course.totalLength;
+    const arc = motricityAnchoredArc(course, outside, previousArc, 16);
+    expect(arc).toBeLessThanOrEqual(
+      previousArc + motricityArcAdvanceBudget(16),
+    );
+  });
+
+  it('never decreases across a trajectory that exits and reenters', () => {
+    let arc = 0;
+    let previousT = 0;
+    for (const sample of cheatingTrajectory(course)) {
+      const next = motricityAnchoredArc(course, sample, arc, sample.t - previousT);
+      expect(next).toBeGreaterThanOrEqual(arc);
+      arc = next;
+      previousT = sample.t;
+    }
   });
 });
 

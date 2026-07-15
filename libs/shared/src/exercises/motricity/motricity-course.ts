@@ -194,6 +194,25 @@ export function motricityArcAdvanceBudget(deltaMs: number): number {
   );
 }
 
+export function motricityAnchoredArc(
+  course: MotricityCourse,
+  point: MotricityPoint,
+  previousArc: number,
+  deltaMs: number,
+): number {
+  const advanced = motricityAdvanceArc(
+    course,
+    point,
+    previousArc,
+    motricityArcAdvanceBudget(deltaMs),
+  );
+  const zone = motricityCursorZone(course, point);
+  if (zone === 'GARAGE' || zone === 'OUTSIDE') {
+    return advanced;
+  }
+  return Math.max(advanced, motricityArcLength(course, point));
+}
+
 export function motricityAdvanceArc(
   course: MotricityCourse,
   point: MotricityPoint,
