@@ -8,11 +8,15 @@ import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import {
   CurvePoint,
+  TrajectoryBorderMarkerKind,
+  borderMarkers,
   buildDisplaySeries,
   courseContactTimes,
   courseExitWindows,
   curveAboveBorderRuns,
+  insertBorderCrossings,
   monotoneCubicPath,
+  monotoneCubicSubPath,
 } from './trajectory-chart.logic';
 
 const Y_DOMAIN_PCT = 120;
@@ -34,6 +38,12 @@ interface ContactDot {
   xPct: number;
   tooltip: string;
 }
+
+const MARKER_LABELS: Record<TrajectoryBorderMarkerKind, string> = {
+  TOUCH: 'Contact bord',
+  EXIT_START: 'Sortie de couloir',
+  EXIT_END: 'Retour en couloir',
+};
 
 @Component({
   selector: 'ui-motricity-trajectory-chart',
@@ -106,11 +116,8 @@ export class MotricityTrajectoryChart {
         this.mergedContactsByCourse().get(series.courseIndex) ?? [];
       const windows =
         this.mergedWindowsByCourse().get(series.courseIndex) ?? [];
-      for (const point of buildDisplaySeries(
-        series.points,
-        contacts,
-        windows,
-        totalMs,
+      for (const point of insertBorderCrossings(
+        buildDisplaySeries(series.points, contacts, windows, totalMs),
       )) {
         coords.push({
           x: ((offset + point.tMs) / totalMs) * 100,
@@ -130,27 +137,16 @@ export class MotricityTrajectoryChart {
   protected readonly exitCurvePaths = computed<string[]>(() => {
     const coords = this.coords();
     return curveAboveBorderRuns(coords.map((coord) => coord.deviationPct))
-      .map((run) => monotoneCubicPath(coords.slice(run.from, run.to + 1)))
+      .map((run) => monotoneCubicSubPath(coords, run.from, run.to))
       .filter((path) => path !== '');
   });
 
   protected readonly contacts = computed<ContactDot[]>(() => {
-    const offsets = this.courseOffsets();
     const totalMs = this.totalMs();
-    const dots: ContactDot[] = [];
-    for (const series of this.metrics().timeline) {
-      const offset = offsets.get(series.courseIndex) ?? 0;
-      for (const contactTMs of this.mergedContactsByCourse().get(
-        series.courseIndex,
-      ) ?? []) {
-        const atMs = offset + contactTMs;
-        dots.push({
-          xPct: (atMs / totalMs) * 100,
-          tooltip: `${formatDuration(Math.round(atMs / 1000))} · Contact bord`,
-        });
-      }
-    }
-    return dots;
+    return borderMarkers(this.coords()).map((marker) => ({
+      xPct: (marker.tMs / totalMs) * 100,
+      tooltip: `${formatDuration(Math.round(marker.tMs / 1000))} · ${MARKER_LABELS[marker.kind]}`,
+    }));
   });
 
   protected readonly xLabels = computed(() => {

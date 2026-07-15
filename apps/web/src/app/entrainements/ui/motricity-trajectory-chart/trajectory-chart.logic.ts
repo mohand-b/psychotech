@@ -263,6 +263,61 @@ export function buildDisplaySeries(
     });
 }
 
+export function insertBorderCrossings(
+  points: MotricityTimelinePoint[],
+  borderPct: number = TRAJECTORY_BORDER_PCT,
+): MotricityTimelinePoint[] {
+  const result: MotricityTimelinePoint[] = [];
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index];
+    if (index > 0) {
+      const previous = points[index - 1];
+      const crosses =
+        (previous.deviationPct - borderPct) *
+          (current.deviationPct - borderPct) <
+        0;
+      if (crosses) {
+        const ratio =
+          (borderPct - previous.deviationPct) /
+          (current.deviationPct - previous.deviationPct);
+        result.push({
+          tMs: previous.tMs + (current.tMs - previous.tMs) * ratio,
+          deviationPct: borderPct,
+        });
+      }
+    }
+    result.push(current);
+  }
+  return result;
+}
+
+export type TrajectoryBorderMarkerKind = 'TOUCH' | 'EXIT_START' | 'EXIT_END';
+
+export interface TrajectoryBorderMarker {
+  tMs: number;
+  kind: TrajectoryBorderMarkerKind;
+}
+
+export function borderMarkers(
+  points: MotricityTimelinePoint[],
+  borderPct: number = TRAJECTORY_BORDER_PCT,
+): TrajectoryBorderMarker[] {
+  const markers: TrajectoryBorderMarker[] = [];
+  for (let index = 0; index < points.length; index += 1) {
+    if (points[index].deviationPct !== borderPct) {
+      continue;
+    }
+    const before =
+      index > 0 && points[index - 1].deviationPct > borderPct;
+    const after =
+      index < points.length - 1 && points[index + 1].deviationPct > borderPct;
+    const kind: TrajectoryBorderMarkerKind =
+      after && !before ? 'EXIT_START' : before && !after ? 'EXIT_END' : 'TOUCH';
+    markers.push({ tMs: points[index].tMs, kind });
+  }
+  return markers;
+}
+
 export interface CurveRun {
   from: number;
   to: number;
@@ -274,21 +329,28 @@ export function curveAboveBorderRuns(
 ): CurveRun[] {
   const runs: CurveRun[] = [];
   let runStart: number | null = null;
-  for (let index = 0; index < deviationsPct.length - 1; index += 1) {
-    const isAbove =
-      deviationsPct[index] > borderPct || deviationsPct[index + 1] > borderPct;
-    if (isAbove) {
+  let strictlyAbove = false;
+  const closeRun = (to: number) => {
+    if (runStart !== null && strictlyAbove && to > runStart) {
+      runs.push({ from: runStart, to });
+    }
+    runStart = null;
+    strictlyAbove = false;
+  };
+  for (let index = 0; index < deviationsPct.length; index += 1) {
+    const value = deviationsPct[index];
+    if (value >= borderPct) {
       if (runStart === null) {
         runStart = index;
       }
-    } else if (runStart !== null) {
-      runs.push({ from: runStart, to: index });
-      runStart = null;
+      if (value > borderPct) {
+        strictlyAbove = true;
+      }
+    } else {
+      closeRun(index - 1);
     }
   }
-  if (runStart !== null) {
-    runs.push({ from: runStart, to: deviationsPct.length - 1 });
-  }
+  closeRun(deviationsPct.length - 1);
   return runs;
 }
 
@@ -297,10 +359,7 @@ export interface CurvePoint {
   y: number;
 }
 
-export function monotoneCubicPath(coords: CurvePoint[]): string {
-  if (coords.length < 2) {
-    return '';
-  }
+function monotoneCubicTangents(coords: CurvePoint[]): number[] {
   const count = coords.length;
   const slopes: number[] = [];
   for (let index = 0; index < count - 1; index += 1) {
@@ -331,12 +390,28 @@ export function monotoneCubicPath(coords: CurvePoint[]): string {
       tangents[index + 1] = tau * b * slopes[index];
     }
   }
-  let path = `M ${coords[0].x.toFixed(2)} ${coords[0].y.toFixed(2)}`;
-  for (let index = 0; index < count - 1; index += 1) {
+  return tangents;
+}
+
+export function monotoneCubicSubPath(
+  coords: CurvePoint[],
+  from: number,
+  to: number,
+): string {
+  if (coords.length < 2 || to <= from) {
+    return '';
+  }
+  const tangents = monotoneCubicTangents(coords);
+  let path = `M ${coords[from].x.toFixed(2)} ${coords[from].y.toFixed(2)}`;
+  for (let index = from; index < to; index += 1) {
     const current = coords[index];
     const next = coords[index + 1];
     const h = (next.x - current.x) / 3;
     path += ` C ${(current.x + h).toFixed(2)} ${(current.y + tangents[index] * h).toFixed(2)}, ${(next.x - h).toFixed(2)} ${(next.y - tangents[index + 1] * h).toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
   }
   return path;
+}
+
+export function monotoneCubicPath(coords: CurvePoint[]): string {
+  return monotoneCubicSubPath(coords, 0, coords.length - 1);
 }
