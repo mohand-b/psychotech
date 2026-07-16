@@ -5,6 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { formatSecondsTenths } from '../../../shared/ui/format-duration';
+import { ChartTouchTips } from '../chart-touch-tips.directive';
 
 export interface TimeChartEntry {
   colorVar: string;
@@ -15,11 +16,12 @@ export interface TimeChartEntry {
 @Component({
   selector: 'ui-time-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ChartTouchTips],
   template: `
     <div class="chart">
-      <div class="chart__bars">
+      <div class="chart__bars" uiChartTouchTips>
         @for (entry of entries(); track $index) {
-          <div class="chart__slot">
+          <div class="chart__slot" data-tip-slot>
             <span
               class="chart__bar"
               [class.chart__bar--unreached]="entry.timeMs === null"
@@ -91,6 +93,12 @@ export interface TimeChartEntry {
       .chart__slot:hover .chart__bar {
         opacity: 0.8;
       }
+    }
+    .chart__slot.tip-open .chart__tip {
+      display: block;
+    }
+    .chart__slot.tip-open .chart__bar {
+      opacity: 0.8;
     }
     .chart__scale {
       display: flex;

@@ -10,7 +10,7 @@
       <span [style.bottom.%]="yTickBottom(50)">50</span>
       <span [style.bottom.%]="yTickBottom(0)">0</span>
     </div>
-    <div class="chart__plot">
+    <div class="chart__plot" uiChartTouchTips>
       @for (zone of zones(); track zone.label) { @if (zone.tinted) {
       <span
         class="chart__band"
@@ -36,6 +36,7 @@
       } @for (contact of contacts(); track $index) {
       <span
         class="chart__dot-slot"
+        data-tip-slot
         [style.left.%]="contact.xPct"
         [style.bottom.%]="borderBottomPct"
       >

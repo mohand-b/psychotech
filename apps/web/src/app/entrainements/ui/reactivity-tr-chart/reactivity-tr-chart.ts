@@ -13,6 +13,7 @@ import {
   ReactivityWaitPressDto,
 } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
+import { ChartTouchTips } from '../chart-touch-tips.directive';
 
 const Y_MIN_DOMAIN_MS = 650;
 const Y_HEADROOM_MS = 60;
@@ -35,6 +36,7 @@ interface ChartDot {
 @Component({
   selector: 'ui-reactivity-tr-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ChartTouchTips],
   templateUrl: './reactivity-tr-chart.html',
   styleUrl: './reactivity-tr-chart.css',
 })

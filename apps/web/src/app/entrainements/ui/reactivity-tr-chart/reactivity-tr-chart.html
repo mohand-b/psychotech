@@ -5,7 +5,7 @@
     <span>3 signaux</span>
   </div>
   <div class="chart__frame">
-    <div class="chart__plot">
+    <div class="chart__plot" uiChartTouchTips>
       <span class="chart__band chart__band--middle"></span>
       @if (meanBottomPct(); as meanBottom) {
       <span class="chart__mean" [style.bottom.%]="meanBottom">
@@ -23,6 +23,7 @@
       } @for (dot of dots(); track $index) {
       <span
         class="chart__dot-slot"
+        data-tip-slot
         [style.left.%]="dot.xPct"
         [style.bottom.%]="dot.bottomPct"
       >

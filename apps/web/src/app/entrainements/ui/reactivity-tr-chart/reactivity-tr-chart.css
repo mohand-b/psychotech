@@ -120,8 +120,25 @@
   color: var(--text-disabled);
 }
 
-.chart__dot-slot:hover .chart__tip {
+@media (hover: hover) {
+  .chart__dot-slot:hover .chart__tip {
+    display: block;
+  }
+}
+
+.chart__dot-slot.tip-open .chart__tip {
   display: block;
+}
+
+@media (pointer: coarse) {
+  .chart__dot-slot::after {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: -9px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .chart__tip {
@@ -138,12 +155,6 @@
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
-}
-
-@media (hover: none) {
-  .chart__dot-slot:hover .chart__tip {
-    display: none;
-  }
 }
 
 .chart__x-axis {

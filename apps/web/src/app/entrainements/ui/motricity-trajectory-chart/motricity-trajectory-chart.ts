@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { MotorSkillsMetrics } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
+import { ChartTouchTips } from '../chart-touch-tips.directive';
 import {
   CurvePoint,
   TrajectoryBorderMarkerKind,
@@ -48,6 +49,7 @@ const MARKER_LABELS: Record<TrajectoryBorderMarkerKind, string> = {
 @Component({
   selector: 'ui-motricity-trajectory-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ChartTouchTips],
   templateUrl: './motricity-trajectory-chart.html',
   styleUrl: './motricity-trajectory-chart.css',
 })
