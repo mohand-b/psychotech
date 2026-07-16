@@ -1,4 +1,9 @@
-import { AxisFeaturedMetric, AxisType, ScoreBand } from '../enums';
+import {
+  AxisFeaturedMetric,
+  AxisType,
+  ScoreBand,
+  SessionMode,
+} from '../enums';
 
 export interface AxisBestDto {
   axis: AxisType;
@@ -17,8 +22,13 @@ export interface ProgressionStatsDto {
   currentStreak: number;
   longestStreak: number;
   completedSessions: number;
+  fullSessionsCount: number;
+  targetedSessionsCount: number;
   firstSessionAt: string | null;
+  firstFullSessionAt: string | null;
+  firstGlobalScore: number | null;
   bestGlobalScore: number | null;
+  bestGlobalScoreAt: string | null;
 }
 
 export interface EvolutionPointDto {
@@ -45,6 +55,8 @@ export interface AxisProgressionDto {
   deltaOver30Days: number | null;
   sparkline: AxisSparklinePointDto[];
   featuredMetric: AxisFeaturedMetricDto | null;
+  lastSessionId: string | null;
+  lastSessionMode: SessionMode | null;
 }
 
 export interface RadarAxisScoreDto {
