@@ -13,7 +13,7 @@ import {
   SimulationWeaknessDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
-import { ChevronRight, Play } from 'lucide-angular';
+import { Lightbulb, Play } from 'lucide-angular';
 import { axisButtonColor } from '../../../entrainements/ui/axis-button-color';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -61,7 +61,7 @@ export class SimulationSummary {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
 
   protected readonly playIcon = Play;
-  protected readonly chevronIcon = ChevronRight;
+  protected readonly markerIcon = Lightbulb;
   protected readonly bandColorVars = BAND_COLOR_VARS;
   protected readonly presentations = AXIS_PRESENTATION;
 

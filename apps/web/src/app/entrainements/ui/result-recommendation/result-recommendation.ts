@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { AxisFinding, AxisType } from '@psychotech/shared';
-import { ChevronRight } from 'lucide-angular';
+import { Lightbulb } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 
@@ -19,13 +19,15 @@ import { Icon } from '../../../shared/ui/icon/icon';
       <ul class="reco__list">
         @for (finding of findings(); track finding.id) {
           <li class="reco__item">
-            <ui-icon
-              class="reco__marker"
-              [img]="markerIcon"
-              [size]="14"
-              [style.color]="markerVar()"
-            />
             <p class="reco__text">
+              <span
+                class="reco__marker"
+                [style.background]="presentation().pastelVar"
+                [style.border-color]="presentation().pastelBorderVar"
+                [style.color]="presentation().textVar"
+              >
+                <ui-icon [img]="markerIcon" [size]="12" />
+              </span>
               {{ finding.finding }}.
               <span class="reco__action">{{ finding.recommendation }}</span>
             </p>
@@ -58,12 +60,17 @@ import { Icon } from '../../../shared/ui/icon/icon';
     }
     .reco__item {
       display: flex;
-      gap: 10px;
     }
     .reco__marker {
-      flex-shrink: 0;
-      align-self: flex-start;
-      transform: translateY(3px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      border: 1px solid;
+      border-radius: var(--radius-badge);
+      vertical-align: -5px;
     }
     .reco__text {
       margin: 0;
@@ -87,9 +94,9 @@ export class ResultRecommendation {
   readonly axis = input.required<AxisType>();
   readonly findings = input.required<AxisFinding[]>();
 
-  protected readonly markerIcon = ChevronRight;
+  protected readonly markerIcon = Lightbulb;
 
-  protected readonly markerVar = computed(
-    () => AXIS_PRESENTATION[this.axis()].plainVar,
+  protected readonly presentation = computed(
+    () => AXIS_PRESENTATION[this.axis()],
   );
 }

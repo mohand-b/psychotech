@@ -336,15 +336,21 @@
                 <ul class="bilan__next-findings">
                   @for (finding of recommendation.findings; track finding.id) {
                     <li class="bilan__next-finding">
-                      <ui-icon
-                        class="bilan__next-marker"
-                        [img]="chevronIcon"
-                        [size]="14"
-                        [style.color]="
-                          presentations[recommendation.axis].plainVar
-                        "
-                      />
                       <p class="bilan__next-text">
+                        <span
+                          class="bilan__next-marker"
+                          [style.background]="
+                            presentations[recommendation.axis].pastelVar
+                          "
+                          [style.border-color]="
+                            presentations[recommendation.axis].pastelBorderVar
+                          "
+                          [style.color]="
+                            presentations[recommendation.axis].textVar
+                          "
+                        >
+                          <ui-icon [img]="markerIcon" [size]="12" />
+                        </span>
                         {{ finding.finding }}.
                         <span class="bilan__next-action">{{
                           finding.recommendation
