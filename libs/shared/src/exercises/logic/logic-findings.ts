@@ -1,6 +1,7 @@
 import { LogicItemAnswerDto } from '../../dtos/session';
 import { RecommendationPriority } from '../../enums';
 import { AxisFinding, sortFindingsBySeverity } from '../axis-findings';
+import { formatFindingSeconds } from '../finding-format';
 import { LogicItem } from './logic-item';
 import { resolveLogicRuleHint } from './logic-rule-hints';
 import { LogicSessionScore } from './logic-scoring';
@@ -13,6 +14,7 @@ export const LOGIC_SLOW_PRECISION_MIN = 85;
 export const LOGIC_END_QUARTER_RATIO = 0.75;
 export const LOGIC_END_CONCENTRATION_RATIO = 0.5;
 export const LOGIC_END_MIN_MISSES = 3;
+export const LOGIC_SKIPPED_MIN = 2;
 
 function ruleFamilyErrors(
   items: LogicItem[],
@@ -75,7 +77,7 @@ function impulsivity(
   return {
     id: 'LOGIC_IMPULSIVITY',
     severity: RecommendationPriority.MEDIUM,
-    finding: `${rushed} items ratés en moins de la moitié de votre temps moyen de réponse (${scored.avgAnswerTimeMs} ms)`,
+    finding: `${rushed} items ratés en moins de la moitié de votre temps moyen de réponse (${formatFindingSeconds(scored.avgAnswerTimeMs)})`,
     recommendation:
       'Ces points étaient à votre portée : prenez quelques secondes de plus pour vérifier la règle avant de valider.',
   };
@@ -98,7 +100,7 @@ function slowButAccurate(scored: LogicSessionScore): AxisFinding | null {
 }
 
 function skippedNeverRevisited(scored: LogicSessionScore): AxisFinding | null {
-  if (scored.skippedCount === 0) {
+  if (scored.skippedCount < LOGIC_SKIPPED_MIN) {
     return null;
   }
   return {

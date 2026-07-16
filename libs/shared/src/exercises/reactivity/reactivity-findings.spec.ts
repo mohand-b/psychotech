@@ -55,8 +55,8 @@ describe('analyzeReactivity', () => {
     );
     expect(slowdown).toBeDefined();
     expect(slowdown?.severity).toBe(RecommendationPriority.HIGH);
-    expect(slowdown?.finding).toContain('470 ms');
-    expect(slowdown?.finding).toContain('350 ms');
+    expect(slowdown?.finding).toContain('0,47 s');
+    expect(slowdown?.finding).toContain('0,35 s');
   });
 
   it('stays silent on post-error slowdown when the rhythm holds after errors', () => {
@@ -82,7 +82,7 @@ describe('analyzeReactivity', () => {
     const findings = analyzeReactivity(score({ trend }));
     const fatigue = findings.find(({ id }) => id === 'REACTIVITY_FATIGUE_SLOPE');
     expect(fatigue).toBeDefined();
-    expect(fatigue?.finding).toMatch(/345 ms à 430 ms/);
+    expect(fatigue?.finding).toMatch(/0,35 s à 0,43 s/);
   });
 
   it('stays silent on fatigue for a flat trend', () => {
@@ -146,8 +146,8 @@ describe('analyzeReactivity', () => {
     const findings = analyzeReactivity(score({ points }));
     const step = findings.find(({ id }) => id === 'REACTIVITY_PHASE_STEP');
     expect(step).toBeDefined();
-    expect(step?.finding).toContain('355 ms');
-    expect(step?.finding).toContain('435 ms');
+    expect(step?.finding).toContain('0,36 s');
+    expect(step?.finding).toContain('0,44 s');
   });
 
   it('stays silent on the phase step when both phases align', () => {

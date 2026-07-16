@@ -68,8 +68,8 @@ describe('analyzeDiscrimination', () => {
     );
     const rush = findings.find(({ id }) => id === 'DISCRIMINATION_RUSH');
     expect(rush).toBeDefined();
-    expect(rush?.finding).toContain('550 ms');
-    expect(rush?.finding).toContain('1000 ms');
+    expect(rush?.finding).toContain('0,55 s');
+    expect(rush?.finding).toContain('1,0 s');
   });
 
   it('flags the slow-but-accurate trade-off', () => {

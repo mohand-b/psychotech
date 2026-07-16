@@ -73,7 +73,7 @@ function faultNature(scored: MemorySessionScore): AxisFinding | null {
       severity: RecommendationPriority.MEDIUM,
       finding: `${absentCount} éléments saisis qui n'appartenaient pas à la séquence, contre ${misplacedCount} simples inversions d'ordre`,
       recommendation:
-        'Ne comblez pas les trous : mieux vaut une case laissée vide qu’un élément inventé.',
+        'N’inventez jamais pour combler un trou : un élément étranger est pénalisé, une case vide non. En cas de doute, resaisissez un élément réellement vu.',
     };
   }
   return null;

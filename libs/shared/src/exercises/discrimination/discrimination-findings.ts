@@ -1,5 +1,6 @@
 import { RecommendationPriority } from '../../enums';
 import { AxisFinding, sortFindingsBySeverity } from '../axis-findings';
+import { formatFindingSeconds } from '../finding-format';
 import {
   DiscriminationOutcome,
   DiscriminationSessionScore,
@@ -61,7 +62,7 @@ function speedAccuracyTradeoff(
     return {
       id: 'DISCRIMINATION_RUSH',
       severity: RecommendationPriority.MEDIUM,
-      finding: `Vos erreurs partent en ${scored.wrongAnswerAvgMs} ms contre ${scored.correctAnswerAvgMs} ms pour vos bonnes réponses`,
+      finding: `Vos erreurs partent en ${formatFindingSeconds(scored.wrongAnswerAvgMs)} contre ${formatFindingSeconds(scored.correctAnswerAvgMs)} pour vos bonnes réponses`,
       recommendation:
         'Stabilisez votre cadence : la demi-seconde gagnée sur une paire coûte la paire entière.',
     };
