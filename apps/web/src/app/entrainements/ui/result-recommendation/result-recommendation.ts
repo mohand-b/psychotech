@@ -19,13 +19,8 @@ import { Icon } from '../../../shared/ui/icon/icon';
       <ul class="reco__list">
         @for (finding of findings(); track finding.id) {
           <li class="reco__item">
-            <span
-              class="reco__marker"
-              [style.background]="presentation().pastelVar"
-              [style.border-color]="presentation().pastelBorderVar"
-              [style.color]="presentation().textVar"
-            >
-              <ui-icon [img]="markerIcon" [size]="12" />
+            <span class="reco__marker" [style.color]="presentation().textVar">
+              <ui-icon [img]="markerIcon" [size]="14" />
             </span>
             <p class="reco__text">
               {{ finding.finding }}.
@@ -70,8 +65,6 @@ import { Icon } from '../../../shared/ui/icon/icon';
       justify-content: center;
       width: 20px;
       height: 20px;
-      border: 1px solid;
-      border-radius: var(--radius-badge);
     }
     .reco__text {
       margin: 0;

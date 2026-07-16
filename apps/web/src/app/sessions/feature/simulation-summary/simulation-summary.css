@@ -485,8 +485,6 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border: 1px solid;
-  border-radius: var(--radius-badge);
 }
 
 .bilan__next-text {

@@ -77,14 +77,13 @@ describe('ResultRecommendation', () => {
     expect(texts[1]).toContain('Constat mineur');
   });
 
-  it('tints the marker chips with the axis color tokens', async () => {
+  it('tints the markers with the axis color token', async () => {
     const fixture = await setup(AxisType.VISUAL_DISCRIMINATION, [
       buildFinding(),
     ]);
     const marker = fixture.nativeElement.querySelector(
       '.reco__marker',
     ) as HTMLElement;
-    expect(marker.style.background).toContain('--axis-discrimination-pastel');
     expect(marker.style.color).toContain('--axis-discrimination-text');
   });
 });
