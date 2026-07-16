@@ -186,6 +186,15 @@ export class SimulationSummary {
     this.router.navigate(['/entrainements/cible', axisSlug(axis)]);
   }
 
+  protected reviewAxis(axis: AxisType): void {
+    this.router.navigate([
+      '/entrainements/simulation/session',
+      this.sessionId,
+      'correction',
+      axisSlug(axis),
+    ]);
+  }
+
   protected newTraining(): void {
     this.router.navigate(['/entrainements/simulation']);
   }

@@ -75,6 +75,10 @@
   color: var(--label);
 }
 
+.detail__review {
+  display: flex;
+}
+
 .detail__chart-empty {
   display: flex;
   align-items: center;

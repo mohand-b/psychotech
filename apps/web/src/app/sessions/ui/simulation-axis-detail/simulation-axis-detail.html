@@ -63,4 +63,16 @@
     }
   </div>
   <span class="detail__caption">{{ content().caption }}</span>
+  @if (reviewable()) {
+    <div class="detail__review">
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        [icon]="reviewIcon"
+        (click)="review.emit()"
+      >
+        Revoir mes réponses
+      </ui-button>
+    </div>
+  }
 </div>

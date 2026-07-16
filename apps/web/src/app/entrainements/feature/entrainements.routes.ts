@@ -56,6 +56,19 @@ const correctionHeader = {
   live: false,
 };
 
+const simulationCorrectionHeader = {
+  title: 'Correction',
+  backLabel: 'Bilan',
+  backLink: '/sessions/:sessionId/resultat',
+  closeLink: '/sessions/:sessionId/resultat',
+  axisParam: 'axis',
+  axisChip: true,
+  mobileTitle: true,
+  showEnergy: false,
+  showTimer: false,
+  live: false,
+};
+
 export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements',
@@ -205,6 +218,24 @@ export const entrainementsRoutes: Route[] = [
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/correction/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.LOGIC)],
+    data: { simulation: true, focusedHeader: simulationCorrectionHeader },
+    loadComponent: () =>
+      import('./logic-correction/logic-correction').then(
+        (m) => m.LogicCorrection,
+      ),
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/correction/:axis',
+    canMatch: [simulationAxisMatcher(AxisType.MEMORY)],
+    data: { simulation: true, focusedHeader: simulationCorrectionHeader },
+    loadComponent: () =>
+      import('./memory-correction/memory-correction').then(
+        (m) => m.MemoryCorrection,
+      ),
   },
   {
     path: 'entrainements/cible/:axis',

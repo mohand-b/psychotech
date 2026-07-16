@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   input,
+  output,
 } from '@angular/core';
 import {
   AxisType,
@@ -33,6 +34,8 @@ import {
   TimeChart,
   TimeChartEntry,
 } from '../../../entrainements/ui/time-chart/time-chart';
+import { ListChecks } from 'lucide-angular';
+import { Button } from '../../../shared/ui/button/button';
 
 interface AxisDetailContent {
   graphTitle: string;
@@ -71,6 +74,7 @@ const DETAIL_CONTENT: Record<string, AxisDetailContent> = {
   selector: 'ui-simulation-axis-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    Button,
     MemoryReliabilityChart,
     MotricityTrajectoryChart,
     ReactivityTrChart,
@@ -81,11 +85,17 @@ const DETAIL_CONTENT: Record<string, AxisDetailContent> = {
 })
 export class SimulationAxisDetail {
   readonly detail = input.required<TargetedAxisResultDto>();
+  readonly review = output<void>();
 
   protected readonly axisTypes = AxisType;
+  protected readonly reviewIcon = ListChecks;
 
   protected readonly content = computed(
     () => DETAIL_CONTENT[this.detail().axis],
+  );
+
+  protected readonly reviewable = computed(() =>
+    [AxisType.LOGIC, AxisType.MEMORY].includes(this.detail().axis),
   );
 
   protected readonly logicScored = computed(() => {

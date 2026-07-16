@@ -85,6 +85,8 @@ export class MemoryCorrection {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly fromSimulation =
+    this.route.snapshot.data['simulation'] === true;
   protected readonly axis = AxisType.MEMORY;
   protected readonly total = AXIS_TRAINING[AxisType.MEMORY].exerciseCount;
   protected readonly inversePhase = MemoryPhase.INVERSE;
@@ -207,6 +209,10 @@ export class MemoryCorrection {
   }
 
   protected backToResult(): void {
+    if (this.fromSimulation) {
+      this.router.navigate(['/sessions', this.sessionId, 'resultat']);
+      return;
+    }
     this.router.navigate([
       '/entrainements/cible',
       axisSlug(AxisType.MEMORY),

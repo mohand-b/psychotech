@@ -75,6 +75,8 @@ export class LogicCorrection {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly fromSimulation =
+    this.route.snapshot.data['simulation'] === true;
   protected readonly axis = AxisType.LOGIC;
   protected readonly total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
 
@@ -176,6 +178,10 @@ export class LogicCorrection {
   }
 
   protected backToResult(): void {
+    if (this.fromSimulation) {
+      this.router.navigate(['/sessions', this.sessionId, 'resultat']);
+      return;
+    }
     this.router.navigate([
       '/entrainements/cible',
       axisSlug(AxisType.LOGIC),

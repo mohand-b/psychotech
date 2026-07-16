@@ -145,7 +145,10 @@
               @if (openAxis() === axis.axis) {
                 <div class="bilan__axis-detail">
                   @if (details()[axis.axis]; as detail) {
-                    <ui-simulation-axis-detail [detail]="detail" />
+                    <ui-simulation-axis-detail
+                      [detail]="detail"
+                      (review)="reviewAxis(axis.axis)"
+                    />
                   } @else if (loadingAxis() === axis.axis) {
                     <p class="bilan__detail-loading">Chargement du détail...</p>
                   } @else {
