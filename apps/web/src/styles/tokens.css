@@ -180,16 +180,25 @@ html:has(body.landing-active) {
   background: var(--border);
 }
 
-@media (min-width: 768px) {
-  .landing-reveal {
-    opacity: 0;
-    transform: translateY(26px);
-    transition:
-      opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-  }
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-  .landing-reveal.landing-reveal--in {
+.landing-reveal.landing-reveal--in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes auth-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
     opacity: 1;
     transform: none;
   }
