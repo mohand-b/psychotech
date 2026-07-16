@@ -98,10 +98,12 @@ const RADAR_LABELS = [
       fill: none;
       stroke: var(--border);
       stroke-width: 1;
+      vector-effect: non-scaling-stroke;
     }
     .radar__ray {
       stroke: var(--border);
       stroke-width: 1;
+      vector-effect: non-scaling-stroke;
     }
     .radar__baseline {
       fill: color-mix(in srgb, var(--label) 10%, transparent);
@@ -109,19 +111,21 @@ const RADAR_LABELS = [
       stroke-width: 1.5;
       stroke-linejoin: round;
       stroke-dasharray: 3 3;
+      vector-effect: non-scaling-stroke;
     }
     .radar__area {
       fill: color-mix(in srgb, var(--brand) 13%, transparent);
       stroke: var(--brand);
       stroke-width: 1.5;
       stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
     }
     .radar__dot {
       stroke: var(--card);
       stroke-width: 0.8;
     }
     .radar__label {
-      font: 400 8.5px var(--font-ui);
+      font: 400 7px var(--font-ui);
       fill: var(--label);
     }
     @media (max-width: 767px) {
