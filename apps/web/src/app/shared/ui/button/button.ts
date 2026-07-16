@@ -190,6 +190,15 @@ export type ButtonSize = 'md' | 'lg';
     .ui-button--outlined:hover:not(:disabled) {
       background: var(--btn-outline-hover);
     }
+    .ui-button--outlined.ui-button--relief {
+      border-bottom-width: 3px;
+      padding-bottom: calc(var(--btn-pad-y) - 3px);
+    }
+    .ui-button--outlined.ui-button--relief:active:not(:disabled),
+    .ui-button--outlined.ui-button--relief:disabled {
+      border-bottom-width: 1px;
+      padding-bottom: calc(var(--btn-pad-y) - 1px);
+    }
     .ui-button--ghost {
       padding: var(--btn-pad-y) var(--btn-pad-x);
       border: none;
@@ -236,6 +245,15 @@ export type ButtonSize = 'md' | 'lg';
       .ui-button--solid.ui-button--relief-mobile:disabled {
         border-bottom-color: transparent;
       }
+      .ui-button--outlined.ui-button--relief-mobile {
+        border-bottom-width: 3px;
+        padding-bottom: calc(var(--btn-pad-y) - 3px);
+      }
+      .ui-button--outlined.ui-button--relief-mobile:active:not(:disabled),
+      .ui-button--outlined.ui-button--relief-mobile:disabled {
+        border-bottom-width: 1px;
+        padding-bottom: calc(var(--btn-pad-y) - 1px);
+      }
     }
     @keyframes ui-button-spin {
       to {
@@ -260,7 +278,7 @@ export class Button {
   protected readonly spinnerIcon = LoaderCircle;
 
   protected readonly classes = computed(() => {
-    const reliefValue = this.appearance() === 'solid' ? this.relief() : false;
+    const reliefValue = this.appearance() === 'ghost' ? false : this.relief();
     const relief =
       reliefValue === 'mobile'
         ? ' ui-button--relief-mobile'
