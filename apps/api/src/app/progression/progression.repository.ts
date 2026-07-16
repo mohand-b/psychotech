@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AxisType as DbAxisType } from '@prisma/client';
-import { AxisType, ScoreBand } from '@psychotech/shared';
+import { AxisType, ScoreBand, SessionMode } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -14,6 +14,22 @@ export interface StreakSummary {
   longest: number;
 }
 
+export interface SessionCounts {
+  full: number;
+  targeted: number;
+}
+
+export interface BestFullSession {
+  globalScore: number;
+  completedAt: Date | null;
+}
+
+export interface BoundaryFullSession {
+  globalScore: number | null;
+  completedAt: Date | null;
+  axes: RadarAxisScore[];
+}
+
 @Injectable()
 export class ProgressionRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -25,31 +41,40 @@ export class ProgressionRepository {
     });
   }
 
-  countCompletedSessions(userId: string): Promise<number> {
-    return this.prisma.session.count({
+  async countCompletedSessionsByMode(userId: string): Promise<SessionCounts> {
+    const groups = await this.prisma.session.groupBy({
+      by: ['mode'],
       where: { userId, status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },
+      _count: { _all: true },
     });
+    const countFor = (mode: 'FULL' | 'TARGETED') =>
+      groups.find((group) => group.mode === mode)?._count._all ?? 0;
+    return { full: countFor('FULL'), targeted: countFor('TARGETED') };
   }
 
   async getFirstSessionDate(userId: string): Promise<Date | null> {
     const aggregate = await this.prisma.session.aggregate({
-      where: { userId, status: 'COMPLETED' },
+      where: { userId, status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },
       _min: { startedAt: true },
     });
     return aggregate._min.startedAt;
   }
 
-  async getBestFullScore(userId: string): Promise<number | null> {
-    const aggregate = await this.prisma.session.aggregate({
+  async getBestFullSession(userId: string): Promise<BestFullSession | null> {
+    const session = await this.prisma.session.findFirst({
       where: {
         userId,
         status: 'COMPLETED',
         mode: 'FULL',
         globalScore: { not: null },
       },
-      _max: { globalScore: true },
+      orderBy: [{ globalScore: 'desc' }, { completedAt: 'asc' }],
+      select: { globalScore: true, completedAt: true },
     });
-    return aggregate._max.globalScore;
+    if (!session || session.globalScore === null) {
+      return null;
+    }
+    return { globalScore: session.globalScore, completedAt: session.completedAt };
   }
 
   async getEvolution(userId: string, limit: number): Promise<EvolutionInput[]> {
@@ -92,11 +117,21 @@ export class ProgressionRepository {
         normalizedScore: { not: null },
         band: { not: null },
         completedAt: { not: null },
-        session: { userId, status: 'COMPLETED' },
+        session: {
+          userId,
+          status: 'COMPLETED',
+          mode: { in: ['FULL', 'TARGETED'] },
+        },
       },
       orderBy: { completedAt: 'desc' },
       take: limit,
-      select: { normalizedScore: true, band: true, completedAt: true, metrics: true },
+      select: {
+        normalizedScore: true,
+        band: true,
+        completedAt: true,
+        metrics: true,
+        session: { select: { id: true, mode: true } },
+      },
     });
     const timeline: AxisTimelinePoint[] = [];
     for (const row of rows) {
@@ -108,34 +143,44 @@ export class ProgressionRepository {
         score: row.normalizedScore,
         band: mapEnumValue(ScoreBand, row.band),
         metrics: row.metrics,
+        sessionId: row.session.id,
+        sessionMode: mapEnumValue(SessionMode, row.session.mode),
       });
     }
     return timeline.reverse();
   }
 
-  getFirstFullSession(userId: string): Promise<RadarAxisScore[] | null> {
+  getFirstFullSession(userId: string): Promise<BoundaryFullSession | null> {
     return this.getBoundaryFullSession(userId, 'asc');
   }
 
-  getLastFullSession(userId: string): Promise<RadarAxisScore[] | null> {
+  getLastFullSession(userId: string): Promise<BoundaryFullSession | null> {
     return this.getBoundaryFullSession(userId, 'desc');
   }
 
   private async getBoundaryFullSession(
     userId: string,
     order: 'asc' | 'desc',
-  ): Promise<RadarAxisScore[] | null> {
+  ): Promise<BoundaryFullSession | null> {
     const session = await this.prisma.session.findFirst({
       where: { userId, status: 'COMPLETED', mode: 'FULL' },
       orderBy: { completedAt: order },
-      select: { axisResults: { select: { axis: true, normalizedScore: true } } },
+      select: {
+        globalScore: true,
+        completedAt: true,
+        axisResults: { select: { axis: true, normalizedScore: true } },
+      },
     });
     if (!session) {
       return null;
     }
-    return session.axisResults.map((result) => ({
-      axis: mapEnumValue(AxisType, result.axis),
-      score: result.normalizedScore,
-    }));
+    return {
+      globalScore: session.globalScore,
+      completedAt: session.completedAt,
+      axes: session.axisResults.map((result) => ({
+        axis: mapEnumValue(AxisType, result.axis),
+        score: result.normalizedScore,
+      })),
+    };
   }
 }

@@ -24,18 +24,18 @@ export class ProgressionService {
     const now = new Date();
     const [
       streak,
-      completedSessions,
+      sessionCounts,
       firstSessionAt,
-      bestGlobalScore,
+      bestFullSession,
       evolution,
       firstFullSession,
       lastFullSession,
       axes,
     ] = await Promise.all([
       this.repository.getStreak(userId),
-      this.repository.countCompletedSessions(userId),
+      this.repository.countCompletedSessionsByMode(userId),
       this.repository.getFirstSessionDate(userId),
-      this.repository.getBestFullScore(userId),
+      this.repository.getBestFullSession(userId),
       this.repository.getEvolution(userId, PROGRESSION_EVOLUTION_LIMIT),
       this.repository.getFirstFullSession(userId),
       this.repository.getLastFullSession(userId),
@@ -46,15 +46,27 @@ export class ProgressionService {
       stats: {
         currentStreak: streak?.current ?? 0,
         longestStreak: streak?.longest ?? 0,
-        completedSessions,
+        completedSessions: sessionCounts.full + sessionCounts.targeted,
+        fullSessionsCount: sessionCounts.full,
+        targetedSessionsCount: sessionCounts.targeted,
         firstSessionAt: firstSessionAt ? firstSessionAt.toISOString() : null,
-        bestGlobalScore,
+        firstFullSessionAt:
+          firstFullSession?.completedAt?.toISOString() ?? null,
+        firstGlobalScore: firstFullSession?.globalScore ?? null,
+        bestGlobalScore: bestFullSession?.globalScore ?? null,
+        bestGlobalScoreAt: bestFullSession?.completedAt?.toISOString() ?? null,
       },
       evolution: buildEvolutionCurve(evolution),
       axes,
       radar: {
-        first: buildRadarScores(firstFullSession, PROGRESSION_AXIS_ORDER),
-        last: buildRadarScores(lastFullSession, PROGRESSION_AXIS_ORDER),
+        first: buildRadarScores(
+          firstFullSession?.axes ?? null,
+          PROGRESSION_AXIS_ORDER,
+        ),
+        last: buildRadarScores(
+          lastFullSession?.axes ?? null,
+          PROGRESSION_AXIS_ORDER,
+        ),
       },
     };
   }
@@ -83,6 +95,8 @@ export class ProgressionService {
       deltaOver30Days: computeDeltaOverWindow(timeline, now, PROGRESSION_DELTA_WINDOW_DAYS),
       sparkline: buildSparkline(timeline, PROGRESSION_SPARKLINE_LIMIT),
       featuredMetric: current ? extractFeaturedMetric(axis, current.metrics) : null,
+      lastSessionId: current ? current.sessionId : null,
+      lastSessionMode: current ? current.sessionMode : null,
     };
   }
 }

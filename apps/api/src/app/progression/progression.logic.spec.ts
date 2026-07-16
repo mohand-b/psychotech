@@ -2,6 +2,7 @@ import {
   AxisFeaturedMetric,
   AxisType,
   ScoreBand,
+  SessionMode,
 } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import { PROGRESSION_AXIS_ORDER } from './progression.constants';
@@ -15,7 +16,14 @@ import {
 } from './progression.logic';
 
 function point(date: string, score: number, metrics: unknown = null): AxisTimelinePoint {
-  return { date: new Date(date), score, band: ScoreBand.ACCEPTABLE, metrics };
+  return {
+    date: new Date(date),
+    score,
+    band: ScoreBand.ACCEPTABLE,
+    metrics,
+    sessionId: 'session-1',
+    sessionMode: SessionMode.TARGETED,
+  };
 }
 
 const NOW = new Date('2026-06-14T00:00:00Z');

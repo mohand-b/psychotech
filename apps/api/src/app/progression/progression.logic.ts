@@ -6,6 +6,7 @@ import {
   EvolutionPointDto,
   RadarAxisScoreDto,
   ScoreBand,
+  SessionMode,
 } from '@psychotech/shared';
 import { isJsonRecord, readJsonNumber } from '../common/json.util';
 import { MS_PER_DAY } from './progression.constants';
@@ -15,6 +16,8 @@ export interface AxisTimelinePoint {
   score: number;
   band: ScoreBand;
   metrics: unknown;
+  sessionId: string;
+  sessionMode: SessionMode;
 }
 
 export interface EvolutionInput {
