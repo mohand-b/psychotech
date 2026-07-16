@@ -474,18 +474,19 @@
 
 .bilan__next-finding {
   display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .bilan__next-marker {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 20px;
   height: 20px;
-  margin-right: 8px;
   border: 1px solid;
   border-radius: var(--radius-badge);
-  vertical-align: -5px;
 }
 
 .bilan__next-text {

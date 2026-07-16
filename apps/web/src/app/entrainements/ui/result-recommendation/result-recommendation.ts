@@ -19,15 +19,15 @@ import { Icon } from '../../../shared/ui/icon/icon';
       <ul class="reco__list">
         @for (finding of findings(); track finding.id) {
           <li class="reco__item">
+            <span
+              class="reco__marker"
+              [style.background]="presentation().pastelVar"
+              [style.border-color]="presentation().pastelBorderVar"
+              [style.color]="presentation().textVar"
+            >
+              <ui-icon [img]="markerIcon" [size]="12" />
+            </span>
             <p class="reco__text">
-              <span
-                class="reco__marker"
-                [style.background]="presentation().pastelVar"
-                [style.border-color]="presentation().pastelBorderVar"
-                [style.color]="presentation().textVar"
-              >
-                <ui-icon [img]="markerIcon" [size]="12" />
-              </span>
               {{ finding.finding }}.
               <span class="reco__action">{{ finding.recommendation }}</span>
             </p>
@@ -60,17 +60,18 @@ import { Icon } from '../../../shared/ui/icon/icon';
     }
     .reco__item {
       display: flex;
+      align-items: flex-start;
+      gap: 10px;
     }
     .reco__marker {
+      flex-shrink: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 20px;
       height: 20px;
-      margin-right: 8px;
       border: 1px solid;
       border-radius: var(--radius-badge);
-      vertical-align: -5px;
     }
     .reco__text {
       margin: 0;
