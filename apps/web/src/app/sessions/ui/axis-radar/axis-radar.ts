@@ -58,6 +58,9 @@ const RADAR_LABELS = [
           [attr.y2]="ray.y"
         />
       }
+      @if (baselinePoints(); as points) {
+        <polygon class="radar__baseline" [attr.points]="points" />
+      }
       <polygon class="radar__area" [attr.points]="areaPoints()" />
       @for (vertex of vertices(); track $index) {
         <circle
@@ -100,6 +103,13 @@ const RADAR_LABELS = [
       stroke: var(--border);
       stroke-width: 1;
     }
+    .radar__baseline {
+      fill: color-mix(in srgb, var(--label) 10%, transparent);
+      stroke: var(--label);
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-dasharray: 3 3;
+    }
     .radar__area {
       fill: color-mix(in srgb, var(--brand) 13%, transparent);
       stroke: var(--brand);
@@ -123,6 +133,7 @@ const RADAR_LABELS = [
 })
 export class AxisRadar {
   readonly entries = input.required<readonly AxisRadarEntry[]>();
+  readonly baseline = input<readonly AxisRadarEntry[]>([]);
 
   protected readonly viewWidth = VIEW_WIDTH;
   protected readonly viewHeight = VIEW_HEIGHT;
@@ -142,6 +153,14 @@ export class AxisRadar {
     polygonPoints((index) =>
       pointAt(index, (this.entries()[index]?.score ?? 0) / 100),
     ),
+  );
+
+  protected readonly baselinePoints = computed(() =>
+    this.baseline().length === 0
+      ? null
+      : polygonPoints((index) =>
+          pointAt(index, (this.baseline()[index]?.score ?? 0) / 100),
+        ),
   );
 
   protected readonly vertices = computed<RadarVertex[]>(() =>

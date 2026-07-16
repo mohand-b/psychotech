@@ -1,4 +1,254 @@
-<section class="page-shell">
-  <h1 class="t-page-title">Progression</h1>
-  <p class="t-support">Suivez l'évolution de vos scores par axe. Cette section arrive prochainement.</p>
-</section>
+<div class="prog">
+  <div class="prog__head">
+    <h1 class="prog__title">Progression</h1>
+    <span class="prog__subtitle">
+      Votre préparation {{ sectorLabel
+      }}@if (subtitleDate(); as date) {
+        depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span
+        >}.
+    </span>
+  </div>
+
+  @if (loaded()) {
+    <section class="prog__card prog__kpis">
+      <div class="prog__kpi">
+        <span class="prog__kpi-label">Dernière simulation</span>
+        @if (lastSimulation(); as last) {
+          <span class="prog__kpi-value-row">
+            <span class="prog__kpi-value t-mono">{{ last.scoreLabel }}</span>
+            <span class="prog__kpi-unit t-mono">/100</span>
+          </span>
+          <span class="prog__kpi-sub">
+            {{ last.dateLabel }}
+            <span
+              class="prog__kpi-band-dot"
+              [style.background]="last.bandColorVar"
+            ></span>
+          </span>
+        } @else {
+          <span class="prog__kpi-value t-mono">-</span>
+          <span class="prog__kpi-sub">Aucune simulation complétée</span>
+        }
+      </div>
+      <div class="prog__kpi">
+        <span class="prog__kpi-label"
+          >Meilleur score<span class="prog__kpi-label-long"> global</span></span
+        >
+        @if (bestScore(); as best) {
+          <span class="prog__kpi-value-row">
+            <span class="prog__kpi-value t-mono">{{ best.scoreLabel }}</span>
+            <span class="prog__kpi-unit t-mono">/100</span>
+          </span>
+          <span class="prog__kpi-sub">
+            @if (best.dateLabel) {
+              Simulation du
+              <span class="t-mono">{{ best.dateLabel }}</span>
+            }
+          </span>
+        } @else {
+          <span class="prog__kpi-value t-mono">-</span>
+          <span class="prog__kpi-sub">Après votre première simulation</span>
+        }
+      </div>
+      <div class="prog__kpi">
+        <span class="prog__kpi-label">Depuis la première session</span>
+        @if (sinceFirst(); as since) {
+          <span class="prog__kpi-value-row">
+            <span
+              class="prog__kpi-value t-mono"
+              [class.prog__kpi-value--up]="since.positive"
+              [class.prog__kpi-value--down]="!since.positive"
+              >{{ since.deltaLabel }}</span
+            >
+            <span class="prog__kpi-unit t-mono">pts</span>
+          </span>
+          <span class="prog__kpi-sub">
+            De <span class="t-mono">{{ since.fromLabel }}</span> à
+            <span class="t-mono">{{ since.toLabel }}</span>
+          </span>
+        } @else {
+          <span class="prog__kpi-value t-mono">-</span>
+          <span class="prog__kpi-sub">Dès votre deuxième simulation</span>
+        }
+      </div>
+      <div class="prog__kpi">
+        <span class="prog__kpi-label">Sessions</span>
+        @if (sessionCounts(); as counts) {
+          <span class="prog__kpi-value t-mono">{{ counts.total }}</span>
+          <span class="prog__kpi-sub">
+            <span class="t-mono">{{ counts.full }}</span>
+            simulation{{ counts.full > 1 ? 's' : '' }} ·
+            <span class="t-mono">{{ counts.targeted }}</span>&ngsp;
+            <span class="prog__kpi-sub-long"
+              >entraînement{{ counts.targeted > 1 ? 's' : '' }} ciblé{{
+                counts.targeted > 1 ? 's' : ''
+              }}</span
+            >
+            <span class="prog__kpi-sub-short"
+              >ciblé{{ counts.targeted > 1 ? 's' : '' }}</span
+            >
+          </span>
+        }
+      </div>
+    </section>
+
+    <section class="prog__card prog__curve">
+      <div class="prog__curve-head">
+        <span class="t-label">Score global, 10 dernières simulations</span>
+        <span class="prog__legend">
+          <span class="prog__legend-item">
+            <span class="prog__legend-line"></span>
+            Score
+          </span>
+          <span class="prog__legend-item">
+            <span class="prog__legend-dash"></span>
+            Seuil d'admissibilité {{ sectorLabel }} {{ threshold() }}
+          </span>
+        </span>
+      </div>
+      @if (evolutionPoints().length > 0) {
+        <ui-evolution-chart
+          class="prog__chart-desktop"
+          [points]="evolutionPoints()"
+          [threshold]="threshold()"
+          (pointSelected)="openSession($event)"
+        />
+        <ui-evolution-chart
+          class="prog__chart-mobile"
+          [points]="evolutionPoints()"
+          [threshold]="threshold()"
+          [compact]="true"
+          (pointSelected)="openSession($event)"
+        />
+        <span class="prog__caption prog__caption-desktop"
+          >La couleur de chaque point reprend l'avis de la simulation. Les
+          entraînements ciblés n'apparaissent pas dans cette courbe.</span
+        >
+        <span class="prog__caption prog__caption-mobile"
+          >Pointillé&nbsp;: seuil d'admissibilité {{ sectorLabel }}
+          <span class="t-mono">{{ threshold() }}</span
+          >. La couleur des points reprend l'avis de la simulation.</span
+        >
+      } @else {
+        <div class="prog__curve-empty">
+          <span class="prog__empty-title">Aucune simulation pour l'instant</span>
+          <span class="prog__caption"
+            >Vos simulations complètes dessineront ici votre courbe de score
+            global.</span
+          >
+        </div>
+      }
+    </section>
+
+    <div class="prog__duo">
+      <section class="prog__card prog__axes">
+        <div class="prog__axes-head">
+          <span class="t-label">Par axe</span>
+          <span class="prog__axes-window">30 derniers jours</span>
+        </div>
+        @for (row of axisRows(); track row.axis) {
+          <button
+            class="prog__axis-row"
+            [disabled]="!row.clickable"
+            (click)="openAxis(row.axis)"
+          >
+            <span class="prog__axis-ident">
+              <span
+                class="prog__axis-icon"
+                [style.background]="row.presentation.pastelVar"
+                [style.color]="row.presentation.textVar"
+              >
+                <ui-icon [img]="row.presentation.icon" [size]="16" />
+              </span>
+              <span class="prog__axis-copy">
+                <span class="prog__axis-name">{{ row.presentation.label }}</span>
+                @if (row.tag) {
+                  <span class="prog__axis-tag" [style.color]="row.tagColorVar">{{
+                    row.tag
+                  }}</span>
+                }
+              </span>
+            </span>
+            <svg
+              class="prog__axis-spark"
+              viewBox="0 0 140 28"
+              preserveAspectRatio="none"
+            >
+              @if (row.sparklinePoints; as points) {
+                <polyline
+                  [attr.points]="points"
+                  fill="none"
+                  [attr.stroke]="row.presentation.plainVar"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              }
+            </svg>
+            <span class="prog__axis-score">
+              <span class="prog__axis-score-value t-mono">{{
+                row.score === null ? '-' : row.score
+              }}</span>
+              @if (row.deltaLabel) {
+                <span
+                  class="prog__axis-delta t-mono"
+                  [class.prog__axis-delta--up]="row.deltaPositive"
+                  [class.prog__axis-delta--down]="!row.deltaPositive"
+                  >{{ row.deltaLabel }}</span
+                >
+              }
+            </span>
+            <ui-icon class="prog__axis-chevron" [img]="chevronIcon" [size]="15" />
+          </button>
+        }
+        <span class="prog__caption prog__axes-caption"
+          >Le score affiché est votre dernier résultat sur l'axe, avec son gain
+          sur 30 jours. Chaque ligne ouvre le détail.</span
+        >
+      </section>
+
+      <section class="prog__card prog__radar">
+        <span class="t-label">Première vs dernière simulation</span>
+        @if (radarLast().length > 0) {
+          <div class="prog__radar-box">
+            <ui-axis-radar [entries]="radarLast()" [baseline]="radarFirst()" />
+          </div>
+          <div class="prog__radar-legend">
+            @if (radarFirst().length > 0 && radarFirstDate(); as firstDate) {
+              <span class="prog__radar-legend-item">
+                <span class="prog__legend-dash prog__legend-dash--muted"></span>
+                Première simulation, le
+                <span class="t-mono prog__radar-legend-date">{{
+                  firstDate
+                }}</span>
+              </span>
+            }
+            @if (radarLastDate(); as lastDate) {
+              <span class="prog__radar-legend-item">
+                <span class="prog__legend-line"></span>
+                Dernière simulation, {{ lastDate }}
+              </span>
+            }
+          </div>
+          @if (strongestGain(); as gain) {
+            <span class="prog__caption">
+              @if (gain.allImproved) {
+                Votre profil s'est élargi sur chaque axe.
+              }
+              Le plus fort gain&nbsp;: {{ gain.label }},
+              <span class="t-mono prog__gain-value">{{ gain.gainLabel }}</span>
+              pts.
+            </span>
+          }
+        } @else {
+          <div class="prog__radar-box prog__radar-box--empty">
+            <ui-axis-radar [entries]="[]" />
+          </div>
+          <span class="prog__caption"
+            >Votre profil par axe se dessinera après votre première
+            simulation.</span
+          >
+        }
+      </section>
+    </div>
+  }
+</div>
