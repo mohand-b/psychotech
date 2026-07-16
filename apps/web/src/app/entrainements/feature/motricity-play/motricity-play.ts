@@ -526,7 +526,6 @@ export class MotricityPlay {
     });
     if (this.courseIndex() < this.courseCount - 1) {
       this.phase.set('TRANSITION');
-      this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
       this.transitionCountdown.set(this.training.pauseBetweenCoursesSec);
       this.transitionTimerId = window.setInterval(() => {
         const next = this.transitionCountdown() - 1;
