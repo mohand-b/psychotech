@@ -5,7 +5,6 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { WsAdapter } from '@nestjs/platform-ws';
 import cookieParser from 'cookie-parser';
-import { json } from 'express';
 import { AppModule } from './app/app.module';
 
 const JSON_BODY_LIMIT = '3mb';
@@ -26,11 +25,14 @@ function detectLanAddress(): string | null {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+    bodyParser: false,
+  });
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   app.useWebSocketAdapter(new WsAdapter(app));
-  app.use(json({ limit: JSON_BODY_LIMIT }));
+  app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({

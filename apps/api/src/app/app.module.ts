@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { AxesModule } from './axes/axes.module';
 import { BadgesModule } from './badges/badges.module';
+import { BillingModule } from './billing/billing.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { EnergyModule } from './energy/energy.module';
 import { GamepadModule } from './gamepad/gamepad.module';
@@ -31,6 +32,7 @@ import { webAppServingImports } from './config/web-app-serving';
     ...webAppServingImports(),
     PrismaModule,
     AuthModule,
+    BillingModule,
     UsersModule,
     CatalogModule,
     AxesModule,
