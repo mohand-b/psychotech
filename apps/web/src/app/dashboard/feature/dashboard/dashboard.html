@@ -1,10 +1,392 @@
-<section class="page-shell dashboard">
-  <h1 class="dashboard__title">Accueil</h1>
-  <p class="dashboard__hint">
-    Cette page est en cours de construction. Vous y retrouverez bientôt votre
-    progression, vos dernières sessions et vos recommandations.
-  </p>
-  <a routerLink="/entrainements" class="dashboard__link"
-    >Aller aux entraînements</a
-  >
-</section>
+<div class="home">
+  <div class="home__head">
+    <div class="home__greeting">
+      <h1 class="home__title">{{ greeting() }}</h1>
+      <p class="home__subtitle">{{ subtitle() }}</p>
+    </div>
+    <span class="home__sector">
+      <span class="home__sector-kicker">Secteur</span>
+      <span class="home__sector-value">
+        <ui-icon
+          class="home__sector-icon"
+          [img]="sectorPresentation().icon"
+          [size]="14"
+        />
+        {{ sectorPresentation().label }}
+      </span>
+    </span>
+  </div>
+
+  @if (overviewLoaded()) {
+    <div class="home__grid">
+      <section class="home__card home__day">
+        <div class="home__day-head">
+          <span class="t-label">Séance du jour</span>
+          @switch (variant()) {
+            @case ('session') {
+              <span class="home__day-live">
+                <span class="home__day-live-dot"></span>
+                Session en cours
+              </span>
+            }
+            @case ('train') {
+              <span class="home__day-energy"
+                >{{ energyLabel()
+                }}@if (energyValue(); as value) {
+                  <span class="home__day-energy-sep">·</span>
+                  <span class="home__day-energy-value t-mono">{{ value }}</span>
+                }</span
+              >
+            }
+            @case ('new') {
+              <span class="home__day-first">Première session</span>
+            }
+          }
+        </div>
+        <div class="home__day-body">
+          <div class="home__day-main">
+            @switch (variant()) {
+              @case ('session') {
+                <span class="home__day-title">
+                  {{
+                    sessionIsFull()
+                      ? 'Reprenez votre simulation'
+                      : 'Reprenez votre entraînement ciblé'
+                  }}
+                </span>
+                @if (sessionIsFull()) {
+                  <div class="home__day-meta home__day-meta--mobile">
+                    <span class="home__day-next-label"
+                      >Prochain axe&nbsp;:
+                      @if (sessionNextLabel(); as next) {
+                        <span class="home__day-next">{{ next }}</span>
+                      }</span
+                    >
+                    <span class="home__day-dots-wrap">
+                      <span class="home__day-dots">
+                        @for (
+                          chip of sessionChips();
+                          track chip.presentation.label
+                        ) {
+                          <span
+                            class="home__day-dot-item"
+                            [class.home__day-dot-item--current]="
+                              chip.status === statuses.CURRENT
+                            "
+                            [style.background]="
+                              chip.status === statuses.DONE
+                                ? chip.presentation.plainVar
+                                : chip.status === statuses.CURRENT
+                                  ? chip.presentation.pastelVar
+                                  : 'var(--border)'
+                            "
+                            [style.border-color]="
+                              chip.status === statuses.CURRENT
+                                ? chip.presentation.plainVar
+                                : null
+                            "
+                          ></span>
+                        }
+                      </span>
+                      <span class="home__day-count t-mono"
+                        >{{ sessionDoneCount() }}/{{ sessionAxisTotal() }}</span
+                      >
+                    </span>
+                  </div>
+                  <div class="home__day-meta home__day-meta--desktop">
+                    <span class="home__chips">
+                      @for (
+                        chip of sessionChips();
+                        track chip.presentation.label;
+                        let first = $first, last = $last
+                      ) {
+                        <span
+                          class="home__chip"
+                          [class.home__chip--first]="first"
+                          [class.home__chip--last]="last"
+                          [style.background]="chipBackground(chip)"
+                          [style.color]="chipColor(chip)"
+                          [style.box-shadow]="
+                            chip.status === statuses.CURRENT
+                              ? 'inset 0 -2px 0 ' + chip.presentation.plainVar
+                              : null
+                          "
+                        >
+                          @if (chip.status === statuses.DONE) {
+                            <ui-icon [img]="checkIcon" [size]="12" />
+                          } @else {
+                            <ui-icon [img]="chip.presentation.icon" [size]="12" />
+                          }
+                        </span>
+                      }
+                    </span>
+                    <span class="home__day-progress">
+                      <span class="home__day-count t-mono"
+                        >{{ sessionDoneCount() }}/{{ sessionAxisTotal() }}</span
+                      >
+                      axes
+                      @if (sessionNextLabel(); as next) {
+                        · prochain :
+                        <span class="home__day-next">{{ next }}</span>
+                      }
+                    </span>
+                  </div>
+                } @else if (targetedPresentation(); as presentation) {
+                  <div class="home__day-meta">
+                    <span
+                      class="home__day-axis-chip"
+                      [style.background]="presentation.pastelVar"
+                      [style.border-color]="presentation.pastelBorderVar"
+                      [style.color]="presentation.textVar"
+                    >
+                      <ui-icon [img]="presentation.icon" [size]="13" />
+                      {{ presentation.label }}
+                    </span>
+                  </div>
+                }
+              }
+              @case ('train') {
+                <span class="home__day-title">C'est le moment de vous entraîner</span>
+                <span class="home__day-sub">{{ trainSub() }}</span>
+              }
+              @case ('new') {
+                <span class="home__day-title">Découvrez votre niveau, axe par axe</span>
+                <span class="home__day-sub"
+                  >Une simulation complète établit votre score de référence et
+                  votre position vs le seuil d'admissibilité
+                  {{ sectorPresentation().label }}, ou commencez en douceur par
+                  un axe ciblé.</span
+                >
+              }
+            }
+          </div>
+          <div class="home__day-cta">
+            @switch (variant()) {
+              @case ('session') {
+                <button class="home__cta-primary" (click)="resume()">
+                  <ui-icon [img]="playIcon" [size]="15" />
+                  Reprendre la session
+                </button>
+                <span class="home__day-foot">Reprend au début de l'axe en cours</span>
+              }
+              @case ('train') {
+                <button class="home__cta-primary" (click)="train()">
+                  S'entraîner
+                  <ui-icon [img]="arrowIcon" [size]="15" />
+                </button>
+                <span class="home__day-foot">Choix du mode à l'étape suivante</span>
+              }
+              @case ('new') {
+                <button class="home__cta-primary" (click)="train()">
+                  Lancer ma première session
+                  <ui-icon [img]="arrowIcon" [size]="15" />
+                </button>
+                <span class="home__day-foot">Les tutoriels restent en libre accès</span>
+              }
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="home__card home__plan">
+        <div class="home__card-head">
+          <span class="t-label">Votre formule</span>
+          @if (tier() === tiers.FREE) {
+            <span class="home__plan-badge">Gratuit</span>
+          }
+        </div>
+        <div class="home__plan-main">
+          <span class="home__plan-icon">
+            <ui-icon [img]="planIcon" [size]="20" />
+          </span>
+          <div class="home__plan-copy">
+            <span class="home__plan-name">{{ planName() }}</span>
+            <span class="home__plan-desc">{{ planDesc() }}</span>
+          </div>
+        </div>
+        @if (tier() === tiers.FREE) {
+          <div class="home__plan-foot home__plan-foot--discover">
+            <button class="home__link" (click)="openOffers()">
+              Découvrir les offres
+              <ui-icon [img]="arrowIcon" [size]="13" />
+            </button>
+            <span class="home__plan-note">Aucun paiement requis pour commencer.</span>
+          </div>
+        } @else {
+          <div class="home__plan-foot">
+            <button class="home__link-muted" (click)="openOffers()">
+              Gérer ma formule
+            </button>
+            @if (canUpgrade()) {
+              <button class="home__link" (click)="openOffers()">
+                Passer à l'Illimité
+                <ui-icon [img]="arrowIcon" [size]="13" />
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="home__card home__result">
+        <div class="home__card-head">
+          <span class="t-label">Dernier résultat</span>
+          @if (lastResult()) {
+            <button class="home__link" (click)="openLastResult()">
+              Voir le détail
+              <ui-icon [img]="arrowIcon" [size]="13" />
+            </button>
+          }
+        </div>
+        @if (lastResult(); as result) {
+          <div class="home__result-body">
+            <div class="home__result-top">
+              <span class="home__result-score">
+                <span class="home__result-value t-mono">{{ result.scoreLabel }}</span>
+                <span class="home__result-max t-mono">/100</span>
+              </span>
+              <span class="home__result-band">
+                <span
+                  class="home__result-band-dot"
+                  [style.background]="result.bandColorVar"
+                ></span>
+                <span>{{ result.bandLabel }}</span>
+              </span>
+            </div>
+            <div class="home__result-bar">
+              <ui-threshold-bar
+                [value]="result.score"
+                [threshold]="result.threshold"
+              />
+              <div class="home__result-captions">
+                <span class="home__result-threshold"
+                  >Seuil {{ sectorPresentation().label }}&nbsp;:
+                  <span class="home__result-threshold-value t-mono">{{
+                    result.threshold
+                  }}</span></span
+                >
+                <span
+                  class="home__result-delta t-mono"
+                  [class.home__result-delta--above]="result.deltaAbove"
+                  [class.home__result-delta--below]="!result.deltaAbove"
+                  >{{ result.deltaLabel }}</span
+                >
+              </div>
+            </div>
+            <span class="home__result-date t-mono"
+              >Simulation complète · {{ result.dateLabel }}</span
+            >
+          </div>
+        } @else {
+          <div class="home__result-empty">
+            <span class="home__empty-title">Aucun résultat pour l'instant</span>
+            <span class="home__empty-text"
+              >Votre premier bilan s'affichera ici : score global, avis
+              d'admissibilité et position vs le seuil
+              {{ sectorPresentation().label }}.</span
+            >
+          </div>
+        }
+      </section>
+
+      <section class="home__card home__radar">
+        <div class="home__card-head">
+          <span class="t-label">Profil par axe</span>
+          <button class="home__link" (click)="openProgression()">
+            Voir la progression
+            <ui-icon [img]="arrowIcon" [size]="13" />
+          </button>
+        </div>
+        @if (!isNew()) {
+          <div class="home__radar-body">
+            <div class="home__radar-segs">
+              <button
+                class="home__radar-seg"
+                [class.home__radar-seg--active]="radarMode() === 'derniere'"
+                (click)="setRadarMode('derniere')"
+              >
+                Dernière session
+              </button>
+              <button
+                class="home__radar-seg"
+                [class.home__radar-seg--active]="radarMode() === 'meilleur'"
+                (click)="setRadarMode('meilleur')"
+              >
+                Meilleur score
+              </button>
+            </div>
+            <ui-axis-radar [entries]="radarEntries()" />
+            <span class="home__radar-caption">{{ radarCaption() }}</span>
+          </div>
+        } @else {
+          <div class="home__radar-body home__radar-body--empty">
+            <ui-axis-radar [entries]="[]" />
+            <span class="home__radar-caption"
+              >Votre profil se dessinera après votre première simulation.</span
+            >
+          </div>
+        }
+      </section>
+
+      <section class="home__card home__weak">
+        <span class="t-label">Votre point faible</span>
+        @if (weakAxis(); as weak) {
+          <div class="home__weak-body">
+            <div class="home__weak-head">
+              <span
+                class="home__weak-icon"
+                [style.background]="weak.presentation.pastelVar"
+                [style.border-color]="weak.presentation.pastelBorderVar"
+                [style.color]="weak.presentation.textVar"
+              >
+                <ui-icon [img]="weak.presentation.icon" [size]="22" />
+              </span>
+              <div class="home__weak-copy">
+                <span class="home__weak-name">{{ weak.presentation.label }}</span>
+                <span class="home__weak-tag" [style.color]="weak.tagColorVar">{{
+                  weak.tag
+                }}</span>
+              </div>
+            </div>
+            <div class="home__weak-score">
+              <div class="home__weak-score-row">
+                <span class="home__weak-score-label">Meilleur score</span>
+                <span class="home__weak-score-value t-mono"
+                  >{{ weak.bestScore
+                  }}<span class="home__weak-score-max">/100</span></span
+                >
+              </div>
+              <span class="home__weak-bar">
+                <span
+                  class="home__weak-bar-fill"
+                  [style.width.%]="weak.bestScore"
+                  [style.background]="weak.presentation.plainVar"
+                ></span>
+              </span>
+            </div>
+            <p class="home__weak-text">
+              C'est l'axe à sécuriser en priorité. Un entraînement ciblé coûte
+              <span class="home__weak-cost t-mono">1</span>
+              <ui-bolt class="home__weak-bolt" [size]="12" [filled]="false" />
+              et dure 3 à 5 minutes.
+            </p>
+            <button class="home__cta-outline" (click)="workWeakAxis()">
+              Travailler la {{ weak.presentation.label }}
+              <ui-icon [img]="arrowIcon" [size]="15" />
+            </button>
+          </div>
+        } @else {
+          <div class="home__weak-empty">
+            <span class="home__weak-empty-icon">
+              <ui-icon [img]="discoverIcon" [size]="20" />
+            </span>
+            <span class="home__empty-title">À découvrir</span>
+            <span class="home__empty-text"
+              >Après vos premières sessions, l'axe à travailler en priorité
+              s'affichera ici avec une recommandation.</span
+            >
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

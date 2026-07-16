@@ -8,6 +8,15 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import {
+  DAY_MS,
+  capitalize,
+  formatSessionDate,
+  startOfDay,
+  startOfWeek,
+} from '../../../shared/util/format-session-date';
+
+export { formatSessionDate };
 
 export interface SessionHistoryGroup {
   label: string;
@@ -29,25 +38,7 @@ export interface SessionRowView {
   detailLink: string[] | null;
 }
 
-const DAY_MS = 86_400_000;
 const WEEK_MS = 7 * DAY_MS;
-
-function startOfDay(date: Date): number {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  ).getTime();
-}
-
-function startOfWeek(date: Date): number {
-  const dayIndexFromMonday = (date.getDay() + 6) % 7;
-  return startOfDay(date) - dayIndexFromMonday * DAY_MS;
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
 
 export function periodLabelFor(finishedAt: Date, now: Date): string {
   const weekStart = startOfWeek(now);
@@ -81,30 +72,6 @@ export function groupSessionsByPeriod(
     }
   }
   return groups;
-}
-
-export function formatSessionDate(iso: string, now: Date): string {
-  const date = new Date(iso);
-  const time = date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const dayDiff = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);
-  if (dayDiff === 0) {
-    return `Aujourd'hui · ${time}`;
-  }
-  if (dayDiff === 1) {
-    return `Hier · ${time}`;
-  }
-  if (date.getTime() >= startOfWeek(now)) {
-    const weekday = date.toLocaleDateString('fr-FR', { weekday: 'long' });
-    return `${capitalize(weekday)} · ${time}`;
-  }
-  const day = date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-  });
-  return `${day} · ${time}`;
 }
 
 export function formatSessionDuration(durationSec: number): string {

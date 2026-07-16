@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { applicationConfig } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
@@ -10,7 +11,7 @@ const meta: Meta<Dashboard> = {
   parameters: { layout: 'fullscreen' },
   decorators: [
     applicationConfig({
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient()],
     }),
   ],
 };
