@@ -24,7 +24,6 @@ import {
 import { ArrowLeft, ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { Button } from '../../../shared/ui/button/button';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
@@ -41,7 +40,7 @@ const SEQUENCE_SIZE = 28;
 @Component({
   selector: 'app-discrimination-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisCountdown, Button, ElementSequence, ExitConfirm, Icon],
+  imports: [AxisCountdown, ElementSequence, ExitConfirm, Icon],
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },

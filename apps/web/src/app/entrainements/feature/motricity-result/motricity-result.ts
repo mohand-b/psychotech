@@ -7,11 +7,12 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  AxisFinding,
   AxisType,
   MotorSkillsMetrics,
   TargetedMotricityResultDto,
-  TrainingRecommendation,
-  getMotricityRecommendation,
+  analyzeMotricity,
+  getAxisRecommendations,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -57,6 +58,7 @@ export class MotricityResult {
     ? 'Retour aux axes'
     : 'Retour aux sessions';
 
+  protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly result = signal<TargetedMotricityResultDto | null>(null);
 
   constructor() {
@@ -84,12 +86,10 @@ export class MotricityResult {
     );
   });
 
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const metrics = this.metrics();
-      return metrics ? getMotricityRecommendation(metrics) : null;
-    },
-  );
+  protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const metrics = this.metrics();
+    return metrics ? getAxisRecommendations(analyzeMotricity(metrics)) : [];
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const metrics = this.metrics();

@@ -7,12 +7,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  AxisFinding,
   AxisType,
+  MemorySequence,
   MemorySessionScore,
   TargetedMemoryResultDto,
-  TrainingRecommendation,
+  analyzeMemory,
   generateMemorySession,
-  getMemoryRecommendation,
+  getAxisRecommendations,
   scoreMemorySession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -58,6 +60,7 @@ export class MemoryResult {
     ? 'Retour aux axes'
     : 'Retour aux sessions';
 
+  protected readonly axis = AxisType.MEMORY;
   protected readonly result = signal<TargetedMemoryResultDto | null>(null);
 
   constructor() {
@@ -71,19 +74,26 @@ export class MemoryResult {
     });
   }
 
+  private readonly sequences = computed<MemorySequence[] | null>(() => {
+    const result = this.result();
+    return result ? generateMemorySession(result.seed) : null;
+  });
+
   protected readonly scored = computed<MemorySessionScore | null>(() => {
     const result = this.result();
-    return result
-      ? scoreMemorySession(generateMemorySession(result.seed), result.sequences)
+    const sequences = this.sequences();
+    return result && sequences
+      ? scoreMemorySession(sequences, result.sequences)
       : null;
   });
 
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const scored = this.scored();
-      return scored ? getMemoryRecommendation(scored) : null;
-    },
-  );
+  protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const sequences = this.sequences();
+    const scored = this.scored();
+    return sequences && scored
+      ? getAxisRecommendations(analyzeMemory(sequences, scored))
+      : [];
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();

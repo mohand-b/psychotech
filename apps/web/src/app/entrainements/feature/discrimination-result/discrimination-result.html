@@ -24,8 +24,8 @@
       <ui-time-chart [entries]="chartEntries()" itemLabel="Essai" />
     </ui-result-timing>
   </ui-result-panel>
-  } @if (recommendation(); as reco) {
-  <ui-result-recommendation [recommendation]="reco" />
+  } @if (recommendations().length > 0) {
+  <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
   }
 
   <ui-result-actions

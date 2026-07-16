@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  RecommendationPriority,
   ScoreBand,
   Sector,
   SimulationSummaryDto,
@@ -79,8 +80,34 @@ function buildSummary(
         },
       ],
       recommendations: [
-        { axis: AxisType.MEMORY, label: 'Consolidez la mémoire de travail' },
-        { axis: AxisType.REACTIVITY, label: 'Stabilisez vos réactions' },
+        {
+          axis: AxisType.MEMORY,
+          findings: [
+            {
+              id: 'MEMORY_REVERSED_GAP',
+              severity: RecommendationPriority.HIGH,
+              finding: 'Votre restitution inversée perd 2 éléments',
+              recommendation: 'Consolidez la mémoire de travail',
+            },
+            {
+              id: 'MEMORY_LENGTH_CLIFF',
+              severity: RecommendationPriority.MEDIUM,
+              finding: 'Vous échouez systématiquement au-delà de 6 éléments',
+              recommendation: 'Allongez progressivement les séquences',
+            },
+          ],
+        },
+        {
+          axis: AxisType.REACTIVITY,
+          findings: [
+            {
+              id: 'REACTIVITY_LOW_REGULARITY',
+              severity: RecommendationPriority.MEDIUM,
+              finding: 'Vos temps de réaction varient de 40 %',
+              recommendation: 'Stabilisez vos réactions',
+            },
+          ],
+        },
       ],
     },
     appreciation: {
@@ -254,6 +281,22 @@ describe('SimulationSummary', () => {
     expect(ctas[0].className).toContain('ui-button--ghost');
     expect(ctas[1].className).toContain('ui-button--reactivity');
     expect(ctas[1].className).toContain('ui-button--ghost');
+  });
+
+  it('lists each recommended axis findings with the recommendation emphasised', async () => {
+    const { fixture } = await setup(buildSummary());
+    const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');
+    const memoryFindings = cards[0].querySelectorAll('.bilan__next-finding');
+    expect(memoryFindings).toHaveLength(2);
+    expect(memoryFindings[0].textContent).toContain(
+      'Votre restitution inversée perd 2 éléments.',
+    );
+    expect(
+      memoryFindings[0].querySelector('.bilan__next-action').textContent,
+    ).toBe('Consolidez la mémoire de travail');
+    expect(
+      cards[1].querySelectorAll('.bilan__next-finding'),
+    ).toHaveLength(1);
   });
 
   it('keeps a single accordion panel open at a time', async () => {

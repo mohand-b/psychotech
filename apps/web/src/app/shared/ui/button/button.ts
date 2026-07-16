@@ -197,8 +197,7 @@ export type ButtonSize = 'md' | 'lg';
       color: var(--btn-ghost-text, var(--btn-outline-text));
     }
     .ui-button--ghost:hover:not(:disabled) {
-      background: var(--surface-muted);
-      color: var(--ink);
+      background: color-mix(in srgb, var(--btn-fill) 5%, transparent);
     }
     .ui-button--ghost:disabled {
       background: transparent;

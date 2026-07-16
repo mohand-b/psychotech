@@ -339,7 +339,24 @@
                 }}</span>
               </div>
               <div class="bilan__next-body">
-                <p class="bilan__next-text">{{ recommendation.label }}</p>
+                <ul class="bilan__next-findings">
+                  @for (finding of recommendation.findings; track finding.id) {
+                    <li class="bilan__next-finding">
+                      <span
+                        class="bilan__next-bullet"
+                        [style.background]="
+                          presentations[recommendation.axis].plainVar
+                        "
+                      ></span>
+                      <p class="bilan__next-text">
+                        {{ finding.finding }}.
+                        <span class="bilan__next-action">{{
+                          finding.recommendation
+                        }}</span>
+                      </p>
+                    </li>
+                  }
+                </ul>
                 <ui-button
                   class="bilan__next-cta"
                   appearance="ghost"

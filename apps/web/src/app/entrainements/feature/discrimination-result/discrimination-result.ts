@@ -7,12 +7,13 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  AxisFinding,
   AxisType,
   DiscriminationSessionScore,
   TargetedDiscriminationResultDto,
-  TrainingRecommendation,
+  analyzeDiscrimination,
   generateDiscriminationSession,
-  getDiscriminationRecommendation,
+  getAxisRecommendations,
   scoreDiscriminationSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -61,6 +62,7 @@ export class DiscriminationResult {
     ? 'Retour aux axes'
     : 'Retour aux sessions';
 
+  protected readonly axis = AxisType.VISUAL_DISCRIMINATION;
   protected readonly result = signal<TargetedDiscriminationResultDto | null>(
     null,
   );
@@ -90,12 +92,10 @@ export class DiscriminationResult {
     },
   );
 
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const scored = this.scored();
-      return scored ? getDiscriminationRecommendation(scored) : null;
-    },
-  );
+  protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const scored = this.scored();
+    return scored ? getAxisRecommendations(analyzeDiscrimination(scored)) : [];
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();

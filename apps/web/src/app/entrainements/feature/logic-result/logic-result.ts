@@ -7,12 +7,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  AxisFinding,
   AxisType,
+  LogicItem,
   LogicSessionScore,
   TargetedLogicResultDto,
-  TrainingRecommendation,
+  analyzeLogic,
   generateLogicSession,
-  getLogicRecommendation,
+  getAxisRecommendations,
   scoreLogicSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -61,6 +63,7 @@ export class LogicResult {
     ? 'Retour aux axes'
     : 'Retour aux sessions';
 
+  protected readonly axis = AxisType.LOGIC;
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
 
   constructor() {
@@ -74,22 +77,25 @@ export class LogicResult {
     });
   }
 
-  protected readonly scored = computed<LogicSessionScore | null>(() => {
+  private readonly items = computed<LogicItem[] | null>(() => {
     const result = this.result();
-    return result
-      ? scoreLogicSession(generateLogicSession(result.seed), result.items)
-      : null;
+    return result ? generateLogicSession(result.seed) : null;
   });
 
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const result = this.result();
-      const scored = this.scored();
-      return result && scored
-        ? getLogicRecommendation(scored, result.items)
-        : null;
-    },
-  );
+  protected readonly scored = computed<LogicSessionScore | null>(() => {
+    const result = this.result();
+    const items = this.items();
+    return result && items ? scoreLogicSession(items, result.items) : null;
+  });
+
+  protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const result = this.result();
+    const items = this.items();
+    const scored = this.scored();
+    return result && items && scored
+      ? getAxisRecommendations(analyzeLogic(items, scored, result.items))
+      : [];
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const result = this.result();

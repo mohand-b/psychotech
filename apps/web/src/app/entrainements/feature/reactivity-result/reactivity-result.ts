@@ -7,12 +7,13 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  AxisFinding,
   AxisType,
   ReactivitySessionScore,
   TargetedReactivityResultDto,
-  TrainingRecommendation,
+  analyzeReactivity,
   generateReactivitySession,
-  getReactivityRecommendation,
+  getAxisRecommendations,
   scoreReactivitySession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -58,6 +59,7 @@ export class ReactivityResult {
     ? 'Retour aux axes'
     : 'Retour aux sessions';
 
+  protected readonly axis = AxisType.REACTIVITY;
   protected readonly result = signal<TargetedReactivityResultDto | null>(null);
 
   constructor() {
@@ -84,12 +86,10 @@ export class ReactivityResult {
       : null;
   });
 
-  protected readonly recommendation = computed<TrainingRecommendation | null>(
-    () => {
-      const scored = this.scored();
-      return scored ? getReactivityRecommendation(scored) : null;
-    },
-  );
+  protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const scored = this.scored();
+    return scored ? getAxisRecommendations(analyzeReactivity(scored)) : [];
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const scored = this.scored();

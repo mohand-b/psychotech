@@ -51,7 +51,7 @@
 
       <ui-logic-choices
         [choices]="item.choices"
-        [selectedIndex]="answers()[currentIndex()] ?? null"
+        [selectedIndex]="answers()[currentIndex()]"
         [disabled]="locked()"
         (chosen)="select($event)"
       />
