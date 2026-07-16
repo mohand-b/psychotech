@@ -7,6 +7,7 @@ export type MemorySequenceStatus = 'PERFECT' | 'FAILED' | 'TIMED_OUT';
 
 export const MEMORY_PLACED_POINTS = 1;
 export const MEMORY_MISPLACED_POINTS = 0.3;
+export const MEMORY_INTRUSION_PENALTY = -0.2;
 export const MEMORY_NORMAL_PHASE_WEIGHT = 0.4;
 export const MEMORY_INVERSE_PHASE_WEIGHT = 0.6;
 
@@ -67,7 +68,10 @@ function pointsFor(state: MemoryPositionState): number {
   if (state === 'PLACED') {
     return MEMORY_PLACED_POINTS;
   }
-  return state === 'MISPLACED' ? MEMORY_MISPLACED_POINTS : 0;
+  if (state === 'MISPLACED') {
+    return MEMORY_MISPLACED_POINTS;
+  }
+  return state === 'ABSENT' ? MEMORY_INTRUSION_PENALTY : 0;
 }
 
 export function scoreMemorySession(
@@ -81,9 +85,11 @@ export function scoreMemorySession(
     const restitution = restitutionByIndex.get(sequence.index);
     const target = expectedMemoryAnswer(sequence);
     const positionStates = positionStatesFor(target, restitution?.input ?? []);
-    const sequenceScore =
+    const sequenceScore = Math.max(
+      0,
       positionStates.reduce((sum, state) => sum + pointsFor(state), 0) /
-      sequence.length;
+        sequence.length,
+    );
     const status: MemorySequenceStatus = restitution?.timedOut
       ? 'TIMED_OUT'
       : positionStates.every((state) => state === 'PLACED')

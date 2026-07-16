@@ -47,6 +47,31 @@ describe('scoreMemorySession', () => {
       'PLACED',
       'ABSENT',
     ]);
+    expect(scored.results[0].sequenceScore).toBeCloseTo(0.6 / 3, 10);
+  });
+
+  it('scores an invented element below a blank cell', () => {
+    const target = [sequence(0, MemoryPhase.NORMAL, [1, 2, 3])];
+    const withBlanks = scoreMemorySession(target, [restitution(0, [1])]);
+    const withIntrusions = scoreMemorySession(target, [
+      restitution(0, [1, 9, 9]),
+    ]);
+    expect(withBlanks.results[0].sequenceScore).toBeCloseTo(1 / 3, 10);
+    expect(withIntrusions.results[0].sequenceScore).toBeCloseTo(0.6 / 3, 10);
+    expect(withIntrusions.results[0].sequenceScore).toBeLessThan(
+      withBlanks.results[0].sequenceScore,
+    );
+  });
+
+  it('floors a sequence made of intrusions at zero instead of going negative', () => {
+    const scored = scoreMemorySession(
+      [sequence(0, MemoryPhase.NORMAL, [1, 2, 3])],
+      [restitution(0, [7, 8, 9])],
+    );
+    expect(
+      scored.results[0].positionStates.every((state) => state === 'ABSENT'),
+    ).toBe(true);
+    expect(scored.results[0].sequenceScore).toBe(0);
   });
 
   it('pairs well-placed digits before crediting misplaced ones', () => {
