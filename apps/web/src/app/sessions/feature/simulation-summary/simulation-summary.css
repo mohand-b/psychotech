@@ -477,12 +477,10 @@
   gap: 8px;
 }
 
-.bilan__next-bullet {
+.bilan__next-marker {
   flex-shrink: 0;
-  width: 5px;
-  height: 5px;
-  border-radius: var(--radius-pill);
-  transform: translateY(8px);
+  align-self: flex-start;
+  transform: translateY(3px);
 }
 
 .bilan__next-text {

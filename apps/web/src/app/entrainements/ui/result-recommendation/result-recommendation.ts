@@ -5,18 +5,26 @@ import {
   input,
 } from '@angular/core';
 import { AxisFinding, AxisType } from '@psychotech/shared';
+import { ChevronRight } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { Icon } from '../../../shared/ui/icon/icon';
 
 @Component({
   selector: 'ui-result-recommendation',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Icon],
   template: `
     <aside class="reco">
       <span class="t-label">Recommandations</span>
       <ul class="reco__list">
         @for (finding of findings(); track finding.id) {
           <li class="reco__item">
-            <span class="reco__bullet" [style.background]="bulletVar()"></span>
+            <ui-icon
+              class="reco__marker"
+              [img]="markerIcon"
+              [size]="14"
+              [style.color]="markerVar()"
+            />
             <p class="reco__text">
               {{ finding.finding }}.
               <span class="reco__action">{{ finding.recommendation }}</span>
@@ -52,12 +60,10 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
       display: flex;
       gap: 10px;
     }
-    .reco__bullet {
+    .reco__marker {
       flex-shrink: 0;
-      width: 6px;
-      height: 6px;
-      border-radius: var(--radius-pill);
-      transform: translateY(7px);
+      align-self: flex-start;
+      transform: translateY(3px);
     }
     .reco__text {
       margin: 0;
@@ -81,7 +87,9 @@ export class ResultRecommendation {
   readonly axis = input.required<AxisType>();
   readonly findings = input.required<AxisFinding[]>();
 
-  protected readonly bulletVar = computed(
+  protected readonly markerIcon = ChevronRight;
+
+  protected readonly markerVar = computed(
     () => AXIS_PRESENTATION[this.axis()].plainVar,
   );
 }

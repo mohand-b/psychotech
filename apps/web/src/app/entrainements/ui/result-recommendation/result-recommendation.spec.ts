@@ -77,13 +77,13 @@ describe('ResultRecommendation', () => {
     expect(texts[1]).toContain('Constat mineur');
   });
 
-  it('tints the bullets with the axis color token', async () => {
+  it('tints the chevron markers with the axis color token', async () => {
     const fixture = await setup(AxisType.VISUAL_DISCRIMINATION, [
       buildFinding(),
     ]);
-    const bullet = fixture.nativeElement.querySelector(
-      '.reco__bullet',
+    const marker = fixture.nativeElement.querySelector(
+      '.reco__marker',
     ) as HTMLElement;
-    expect(bullet.style.background).toContain('--axis-discrimination');
+    expect(marker.style.color).toContain('--axis-discrimination');
   });
 });
