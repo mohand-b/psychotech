@@ -39,11 +39,17 @@ describe('computeDeltaOverWindow', () => {
     expect(computeDeltaOverWindow(timeline, NOW, WINDOW_DAYS)).toBe(13);
   });
 
-  it('returns null when every score is within the window', () => {
+  it('falls back to the first session when every score is within the window', () => {
     const timeline = [
       point('2026-06-01T10:00:00Z', 70),
+      point('2026-06-05T10:00:00Z', 74),
       point('2026-06-10T10:00:00Z', 78),
     ];
+    expect(computeDeltaOverWindow(timeline, NOW, WINDOW_DAYS)).toBe(8);
+  });
+
+  it('returns null with a single session', () => {
+    const timeline = [point('2026-06-10T10:00:00Z', 78)];
     expect(computeDeltaOverWindow(timeline, NOW, WINDOW_DAYS)).toBeNull();
   });
 

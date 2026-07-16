@@ -57,21 +57,18 @@ export function computeDeltaOverWindow(
   now: Date,
   windowDays: number,
 ): number | null {
-  if (timeline.length === 0) {
+  if (timeline.length < 2) {
     return null;
   }
   const current = timeline[timeline.length - 1];
   const cutoff = now.getTime() - windowDays * MS_PER_DAY;
-  let baseline: AxisTimelinePoint | null = null;
+  let baseline = timeline[0];
   for (const point of timeline) {
     if (point.date.getTime() <= cutoff) {
       baseline = point;
     } else {
       break;
     }
-  }
-  if (!baseline) {
-    return null;
   }
   return roundToOneDecimal(current.score - baseline.score);
 }
