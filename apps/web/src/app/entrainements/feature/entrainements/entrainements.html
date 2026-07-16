@@ -126,16 +126,11 @@
           </span>
         </div>
         <div class="duo__bilan-bar-block">
-          <div class="duo__bilan-bar">
-            <span
-              class="duo__bilan-fill"
-              [style.width.%]="bilan.barWidth"
-            ></span>
-            <span
-              class="duo__bilan-marker"
-              [style.left.%]="bilan.markerLeft"
-            ></span>
-          </div>
+          <ui-threshold-bar
+            class="duo__bilan-bar"
+            [value]="bilan.barWidth"
+            [threshold]="bilan.markerLeft"
+          />
           <span class="duo__bilan-caption"
             >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
             <span class="duo__bilan-threshold t-mono"

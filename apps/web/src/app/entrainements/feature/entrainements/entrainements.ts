@@ -41,6 +41,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { BAND_COLOR_VARS, BAND_LABELS } from '../../../shared/ui/score-rating';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
+import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
@@ -86,7 +87,7 @@ interface LastSimulationView {
 @Component({
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button, Icon, RouterLink, SectorChip],
+  imports: [BoltIcon, Button, Icon, RouterLink, SectorChip, ThresholdBar],
   providers: [TrainingsOverviewFacade],
   templateUrl: './entrainements.html',
   styleUrl: './entrainements.css',

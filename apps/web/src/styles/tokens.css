@@ -80,6 +80,8 @@
 
   --surface-hover: #fafbfc;
 
+  --relief-shine: rgba(255, 255, 255, 0.32);
+
   --font-display: 'Baloo 2', sans-serif;
   --font-ui: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;

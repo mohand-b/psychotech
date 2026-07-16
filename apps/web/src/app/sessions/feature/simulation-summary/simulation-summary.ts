@@ -24,6 +24,7 @@ import {
   BAND_LABELS,
 } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisRadar, AxisRadarEntry } from '../../ui/axis-radar/axis-radar';
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
@@ -40,7 +41,14 @@ function frenchDecimal(value: number): string {
 @Component({
   selector: 'app-simulation-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, Button, Icon, SimulationAxisDetail, ThresholdGauge],
+  imports: [
+    AxisRadar,
+    Button,
+    Icon,
+    SimulationAxisDetail,
+    ThresholdBar,
+    ThresholdGauge,
+  ],
   templateUrl: './simulation-summary.html',
   styleUrl: './simulation-summary.css',
 })

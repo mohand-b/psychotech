@@ -32,16 +32,10 @@
         </div>
 
         <div class="bilan__bar-block">
-          <div class="bilan__bar">
-            <span
-              class="bilan__bar-fill"
-              [style.width.%]="s.globalScore"
-            ></span>
-            <span
-              class="bilan__bar-marker"
-              [style.left.%]="s.admissibilityThreshold"
-            ></span>
-          </div>
+          <ui-threshold-bar
+            [value]="s.globalScore"
+            [threshold]="s.admissibilityThreshold"
+          />
           <div class="bilan__bar-captions">
             <span class="bilan__bar-threshold">
               <span class="bilan__bar-threshold-label--desktop"

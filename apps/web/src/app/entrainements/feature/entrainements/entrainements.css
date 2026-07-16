@@ -351,28 +351,8 @@
 }
 
 .duo__bilan-bar {
-  position: relative;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--surface-muted);
-}
-
-.duo__bilan-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--brand);
-}
-
-.duo__bilan-marker {
-  position: absolute;
-  top: -3px;
-  width: 2px;
-  height: 14px;
-  background: var(--ink);
-  border-radius: 1px;
+  --threshold-bar-height: 8px;
+  --threshold-bar-overhang: 3px;
 }
 
 .duo__bilan-caption {
