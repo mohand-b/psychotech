@@ -153,16 +153,12 @@ export function scoreReactivitySession(
       : ((anticipationCount + omissionCount + wrongCommandCount) /
           sequence.length) *
         100;
+  const responseQuality =
+    REACTIVITY_SPEED_WEIGHT * speed +
+    REACTIVITY_STABILITY_WEIGHT * stability +
+    REACTIVITY_ACCURACY_WEIGHT * 100;
   const score = Math.round(
-    Math.min(
-      100,
-      Math.max(
-        0,
-        REACTIVITY_SPEED_WEIGHT * speed +
-          REACTIVITY_STABILITY_WEIGHT * stability +
-          REACTIVITY_ACCURACY_WEIGHT * (100 - errorRate),
-      ),
-    ),
+    Math.min(100, Math.max(0, (responseQuality * (100 - errorRate)) / 100)),
   );
 
   const validPoints = points.filter(

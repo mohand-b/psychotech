@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ReactivityStimulusAnswerDto } from '../../dtos/session';
 import { generateReactivitySession } from './generate-reactivity-session';
 import {
+  REACTIVITY_COMMAND_BY_TYPE,
   ReactivityCommand,
   ReactivityStimulus,
   ReactivityStimulusType,
@@ -238,6 +239,21 @@ describe('scoreReactivitySession', () => {
       [],
     );
     expect(nothing.score).toBe(0);
+  });
+
+  it('collapses the score of fast responses when most stimuli go unhandled', () => {
+    const generated = generateReactivitySession('mostly-missed-seed');
+    const answered = generated.slice(0, Math.floor(generated.length / 5));
+    const scored = scoreReactivitySession(
+      generated,
+      answered.map(({ index, type }) =>
+        answer(index, REACTIVITY_COMMAND_BY_TYPE[type], 300),
+      ),
+      [],
+    );
+    const errorRate = (scored.omissionCount / generated.length) * 100;
+    expect(errorRate).toBeGreaterThan(75);
+    expect(scored.score).toBeLessThanOrEqual(Math.round(100 - errorRate));
   });
 
   it('smooths the trend with a centered window of five valid points', () => {
