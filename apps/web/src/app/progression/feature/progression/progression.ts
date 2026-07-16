@@ -23,6 +23,7 @@ import {
 import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
 import { ProgressionFacade } from '../../data-access/progression.facade';
@@ -78,7 +79,7 @@ function relativeDayLabel(iso: string): string {
 @Component({
   selector: 'app-progression',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, EvolutionChart, Icon],
+  imports: [AxisRadar, EvolutionChart, Icon, SectorChip],
   providers: [ProgressionFacade],
   templateUrl: './progression.html',
   styleUrl: './progression.css',
@@ -92,7 +93,7 @@ export class Progression {
 
   protected readonly chevronIcon = ChevronRight;
 
-  private readonly sector =
+  protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
 
   constructor() {

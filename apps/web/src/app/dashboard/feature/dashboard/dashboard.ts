@@ -36,6 +36,7 @@ import {
   BAND_LABELS,
 } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
@@ -78,7 +79,7 @@ function formatScore(value: number): string {
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, BoltIcon, Icon, ThresholdBar],
+  imports: [AxisRadar, BoltIcon, Icon, SectorChip, ThresholdBar],
   providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -104,9 +105,7 @@ export class Dashboard {
   protected readonly radarMode = signal<RadarMode>('derniere');
 
   constructor() {
-    this.overviewFacade.load(
-      this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
-    );
+    this.overviewFacade.load(this.sector());
     this.sessionHistoryFacade.refreshCurrent();
   }
 
@@ -119,11 +118,12 @@ export class Dashboard {
   private readonly current = this.sessionHistoryFacade.current;
   private readonly energy = this.energyFacade.state;
 
+  protected readonly sector = computed(
+    () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
+  );
+
   protected readonly sectorPresentation = computed(
-    () =>
-      SECTOR_PRESENTATION[
-        this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY
-      ],
+    () => SECTOR_PRESENTATION[this.sector()],
   );
 
   protected readonly isNew = computed(() => {

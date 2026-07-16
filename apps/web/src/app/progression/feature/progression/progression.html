@@ -1,12 +1,15 @@
 <div class="prog">
   <div class="prog__head">
-    <h1 class="prog__title">Progression</h1>
-    <span class="prog__subtitle">
-      Votre préparation {{ sectorLabel
-      }}@if (subtitleDate(); as date) {
-        depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span
-        >}.
-    </span>
+    <div class="prog__head-copy">
+      <h1 class="prog__title">Progression</h1>
+      <span class="prog__subtitle">
+        Votre préparation {{ sectorLabel
+        }}@if (subtitleDate(); as date) {
+          depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span
+          >}.
+      </span>
+    </div>
+    <ui-sector-chip class="prog__sector" [sector]="sector" />
   </div>
 
   @if (loaded()) {

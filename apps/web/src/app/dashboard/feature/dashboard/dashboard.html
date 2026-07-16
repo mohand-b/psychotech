@@ -4,17 +4,7 @@
       <h1 class="home__title">{{ greeting() }}</h1>
       <p class="home__subtitle">{{ subtitle() }}</p>
     </div>
-    <span class="home__sector">
-      <span class="home__sector-kicker">Secteur</span>
-      <span class="home__sector-value">
-        <ui-icon
-          class="home__sector-icon"
-          [img]="sectorPresentation().icon"
-          [size]="14"
-        />
-        {{ sectorPresentation().label }}
-      </span>
-    </span>
+    <ui-sector-chip class="home__sector" [sector]="sector()" />
   </div>
 
   @if (overviewLoaded()) {

@@ -9,6 +9,13 @@
 
 .prog__head {
   display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.prog__head-copy {
+  display: flex;
   flex-direction: column;
   gap: 4px;
 }
@@ -356,6 +363,10 @@
 
   .prog__subtitle-date {
     font-size: 12.5px;
+  }
+
+  .prog__sector {
+    display: none;
   }
 
   .prog__card {
