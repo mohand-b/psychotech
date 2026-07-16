@@ -1,4 +1,10 @@
 import { registerAs } from '@nestjs/config';
+import {
+  readBoolean,
+  readNumber,
+  readOptional,
+  readRequired,
+} from './environment.readers';
 
 const DEFAULT_ACCESS_TTL_SECONDS = 900;
 const DEFAULT_REFRESH_TTL_SECONDS = 604800;
@@ -34,39 +40,6 @@ export const authConfig = registerAs(
     },
   }),
 );
-
-function readRequired(key: string): string {
-  const value = process.env[key];
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-  return value;
-}
-
-function readOptional(key: string): string | undefined {
-  const value = process.env[key];
-  return value && value.trim().length > 0 ? value : undefined;
-}
-
-function readNumber(key: string, fallback: number): number {
-  const value = process.env[key];
-  if (!value) {
-    return fallback;
-  }
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`Environment variable ${key} must be a positive integer`);
-  }
-  return parsed;
-}
-
-function readBoolean(key: string, fallback: boolean): boolean {
-  const value = process.env[key];
-  if (value === undefined) {
-    return fallback;
-  }
-  return value === 'true';
-}
 
 function readSameSite(key: string, fallback: CookieSameSite): CookieSameSite {
   const value = process.env[key];

@@ -103,6 +103,7 @@ model User {
   locale           String   @default("fr")
   timezone         String   @default("Europe/Paris")
   currentSector    Sector   @default(RAILWAY)
+  stripeCustomerId String?  @unique
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -116,18 +117,22 @@ model User {
 }
 
 model Subscription {
-  id                     String             @id @default(uuid())
-  userId                 String             @unique
-  tier                   SubscriptionTier   @default(FREE)
-  status                 SubscriptionStatus @default(ACTIVE)
-  billingPeriod          BillingPeriod?
-  currentPeriodEnd       DateTime?
-  cancelAtPeriodEnd      Boolean            @default(false)
-  externalCustomerId     String?
-  externalSubscriptionId String?
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
-  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String             @id @default(uuid())
+  userId               String             @unique
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  billingPeriod        BillingPeriod?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  stripeSubscriptionId String?            @unique
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StripeEvent {
+  id          String   @id
+  processedAt DateTime @default(now())
 }
 
 model EnergyWallet {

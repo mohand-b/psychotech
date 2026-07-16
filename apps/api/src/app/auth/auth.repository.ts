@@ -8,6 +8,7 @@ import {
 import { Sector } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserWithSubscription } from '../users/users.repository';
 
 export interface CreateAccountData {
   email: string;
@@ -26,17 +27,24 @@ const INITIAL_ENERGY_CAPACITY = 5;
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
+  findByEmail(email: string): Promise<UserWithSubscription | null> {
+    return this.prisma.user.findUnique({
+      where: { email },
+      include: { subscription: true },
+    });
   }
 
-  findById(id: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+  findById(id: string): Promise<UserWithSubscription | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { subscription: true },
+    });
   }
 
-  createAccount(data: CreateAccountData): Promise<User> {
+  createAccount(data: CreateAccountData): Promise<UserWithSubscription> {
     return this.prisma.$transaction((tx) =>
       tx.user.create({
+        include: { subscription: true },
         data: {
           email: data.email,
           passwordHash: data.passwordHash,

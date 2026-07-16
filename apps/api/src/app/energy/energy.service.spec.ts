@@ -1,11 +1,14 @@
 import { ForbiddenException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   EnergyLedgerReason as DbEnergyLedgerReason,
   EnergyWallet,
+  Subscription,
   SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
 import { EnergyLedgerReason, SubscriptionTier } from '@psychotech/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { EnergyContext, EnergyRepository } from './energy.repository';
 import { EnergyService } from './energy.service';
 
@@ -21,10 +24,26 @@ function buildWallet(overrides: Partial<EnergyWallet> = {}): EnergyWallet {
   };
 }
 
+function buildSubscription(overrides: Partial<Subscription> = {}): Subscription {
+  return {
+    id: 'subscription-1',
+    userId: 'user-1',
+    tier: DbSubscriptionTier.ESSENTIAL,
+    status: 'ACTIVE',
+    billingPeriod: null,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    stripeSubscriptionId: null,
+    createdAt: new Date('2026-06-13T08:00:00Z'),
+    updatedAt: new Date('2026-06-13T08:00:00Z'),
+    ...overrides,
+  };
+}
+
 function buildContext(overrides: Partial<EnergyContext> = {}): EnergyContext {
   return {
     wallet: buildWallet(),
-    tier: DbSubscriptionTier.ESSENTIAL,
+    subscription: buildSubscription(),
     timezone: 'UTC',
     ...overrides,
   };
@@ -36,7 +55,14 @@ const repository = {
   spend: vi.fn(),
 };
 
-const service = new EnergyService(repository as unknown as EnergyRepository);
+const tierResolution = new TierResolutionService({
+  getOrThrow: () => ({ enabled: true }),
+} as unknown as ConfigService);
+
+const service = new EnergyService(
+  repository as unknown as EnergyRepository,
+  tierResolution,
+);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -72,7 +98,7 @@ describe('EnergyService.spend', () => {
     repository.findEnergyContext.mockResolvedValue(
       buildContext({
         wallet: buildWallet({ balance: 5 }),
-        tier: DbSubscriptionTier.UNLIMITED,
+        subscription: buildSubscription({ tier: DbSubscriptionTier.UNLIMITED }),
       }),
     );
 
@@ -85,7 +111,10 @@ describe('EnergyService.spend', () => {
 
   it('does not debit a zero-cost tutorial', async () => {
     repository.findEnergyContext.mockResolvedValue(
-      buildContext({ tier: DbSubscriptionTier.FREE, wallet: buildWallet({ balance: 5 }) }),
+      buildContext({
+        subscription: buildSubscription({ tier: DbSubscriptionTier.FREE }),
+        wallet: buildWallet({ balance: 5 }),
+      }),
     );
 
     await service.spend('user-1', 0, EnergyLedgerReason.SESSION_SPENT);

@@ -3,13 +3,13 @@ import {
   EnergyLedgerReason,
   EnergyWallet,
   Prisma,
-  SubscriptionTier,
+  Subscription,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface EnergyContext {
   wallet: EnergyWallet;
-  tier: SubscriptionTier;
+  subscription: Subscription | null;
   timezone: string;
 }
 
@@ -85,7 +85,7 @@ export class EnergyRepository {
     }
     return {
       wallet: user.energyWallet,
-      tier: user.subscription?.tier ?? SubscriptionTier.FREE,
+      subscription: user.subscription,
       timezone: user.timezone,
     };
   }

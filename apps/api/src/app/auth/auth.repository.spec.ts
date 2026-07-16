@@ -38,6 +38,7 @@ describe('AuthRepository.createAccount', () => {
 
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(tx.user.create).toHaveBeenCalledWith({
+      include: { subscription: true },
       data: {
         email: 'alice@example.com',
         passwordHash: 'hashed-password',

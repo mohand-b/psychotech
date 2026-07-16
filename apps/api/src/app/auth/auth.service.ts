@@ -5,10 +5,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { LoginDto, RegisterDto, UserProfileDto } from '@psychotech/shared';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { toUserProfileDto } from '../users/users.mappers';
-import { UsersRepository } from '../users/users.repository';
+import {
+  UsersRepository,
+  UserWithSubscription,
+} from '../users/users.repository';
 import { AuthTokens } from './auth.cookie.service';
 import { AuthRepository } from './auth.repository';
 import { PasswordHasher } from './password.service';
@@ -30,6 +33,7 @@ export class AuthService {
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
     private readonly usersRepository: UsersRepository,
+    private readonly tierResolution: TierResolutionService,
   ) {}
 
   async register(input: RegisterDto): Promise<AuthResult> {
@@ -97,7 +101,7 @@ export class AuthService {
     }
   }
 
-  private async issueSession(user: User): Promise<AuthResult> {
+  private async issueSession(user: UserWithSubscription): Promise<AuthResult> {
     const payload: AccessTokenPayload = { sub: user.id, email: user.email };
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAccessToken(payload),
@@ -106,7 +110,10 @@ export class AuthService {
     const refreshTokenHash = await this.passwordHasher.hash(refreshToken);
     await this.repository.updateRefreshTokenHash(user.id, refreshTokenHash);
     return {
-      user: toUserProfileDto(user),
+      user: toUserProfileDto(
+        user,
+        this.tierResolution.resolve(user.subscription),
+      ),
       tokens: { accessToken, refreshToken },
       csrfToken: randomBytes(CSRF_TOKEN_BYTES).toString('hex'),
     };

@@ -1,8 +1,12 @@
-import { User } from '@prisma/client';
-import { Sector, UserProfileDto } from '@psychotech/shared';
+import { Sector, SubscriptionTier, UserProfileDto } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
+import { toSubscriptionDto } from '../subscriptions/subscription.mappers';
+import { UserWithSubscription } from './users.repository';
 
-export function toUserProfileDto(user: User): UserProfileDto {
+export function toUserProfileDto(
+  user: UserWithSubscription,
+  effectiveTier: SubscriptionTier,
+): UserProfileDto {
   return {
     id: user.id,
     email: user.email,
@@ -11,6 +15,10 @@ export function toUserProfileDto(user: User): UserProfileDto {
     locale: user.locale,
     timezone: user.timezone,
     currentSector: mapEnumValue(Sector, user.currentSector),
+    tier: effectiveTier,
+    subscription: user.subscription
+      ? toSubscriptionDto(user.subscription)
+      : null,
     createdAt: user.createdAt.toISOString(),
   };
 }

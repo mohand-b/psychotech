@@ -13,13 +13,23 @@ const REQUIRED_ENVIRONMENT_VARIABLES = [
 
 const DEVELOPMENT_REQUIRED_ENVIRONMENT_VARIABLES = ['CORS_ORIGIN'] as const;
 
+const PRODUCTION_REQUIRED_ENVIRONMENT_VARIABLES = [
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_PRICE_ESSENTIAL',
+  'STRIPE_PRICE_UNLIMITED',
+] as const;
+
 export function validateEnvironment(
   environment: Record<string, unknown>,
 ): Record<string, unknown> {
   const nodeEnvironment = readNodeEnvironment(environment);
   const required: readonly string[] =
     nodeEnvironment === 'production'
-      ? REQUIRED_ENVIRONMENT_VARIABLES
+      ? [
+          ...REQUIRED_ENVIRONMENT_VARIABLES,
+          ...PRODUCTION_REQUIRED_ENVIRONMENT_VARIABLES,
+        ]
       : [
           ...REQUIRED_ENVIRONMENT_VARIABLES,
           ...DEVELOPMENT_REQUIRED_ENVIRONMENT_VARIABLES,

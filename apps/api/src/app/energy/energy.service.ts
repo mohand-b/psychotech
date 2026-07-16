@@ -9,12 +9,13 @@ import {
   EnergyStateDto,
   SubscriptionTier,
 } from '@psychotech/shared';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import {
   buildEnergyState,
   canAfford,
   isDailyResetDue,
 } from './energy.logic';
-import { toDbReason, toSharedTier } from './energy.mappers';
+import { toDbReason } from './energy.mappers';
 import { EnergyRepository } from './energy.repository';
 
 interface FreshWallet {
@@ -26,7 +27,10 @@ interface FreshWallet {
 
 @Injectable()
 export class EnergyService {
-  constructor(private readonly repository: EnergyRepository) {}
+  constructor(
+    private readonly repository: EnergyRepository,
+    private readonly tierResolution: TierResolutionService,
+  ) {}
 
   async getState(userId: string): Promise<EnergyStateDto> {
     const now = new Date();
@@ -74,7 +78,7 @@ export class EnergyService {
     if (!context) {
       throw new NotFoundException('Energy wallet not found');
     }
-    const tier = toSharedTier(context.tier);
+    const tier = this.tierResolution.resolve(context.subscription);
     let balance = context.wallet.balance;
     if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
       const reset = await this.repository.resetWithin(
@@ -109,7 +113,7 @@ export class EnergyService {
     if (!context) {
       throw new NotFoundException('Energy wallet not found');
     }
-    const tier = toSharedTier(context.tier);
+    const tier = this.tierResolution.resolve(context.subscription);
     if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
       const reset = await this.repository.applyDailyReset(
         userId,
