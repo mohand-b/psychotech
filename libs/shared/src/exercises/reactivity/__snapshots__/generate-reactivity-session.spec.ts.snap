@@ -3,7 +3,7 @@
 exports[`generateReactivitySession > matches the reference snapshot for a fixed seed 1`] = `
 [
   {
-    "appearAtMs": 1701,
+    "appearAtMs": 1885,
     "index": 0,
     "position": {
       "fx": -0.368,
@@ -12,7 +12,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 3110,
+    "appearAtMs": 3546,
     "index": 1,
     "position": {
       "fx": 0.141,
@@ -21,7 +21,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 4613,
+    "appearAtMs": 5279,
     "index": 2,
     "position": {
       "fx": -0.523,
@@ -30,7 +30,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 7054,
+    "appearAtMs": 7734,
     "index": 3,
     "position": {
       "fx": 0.088,
@@ -39,7 +39,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 8825,
+    "appearAtMs": 9673,
     "index": 4,
     "position": {
       "fx": 0.001,
@@ -48,7 +48,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 10383,
+    "appearAtMs": 11449,
     "index": 5,
     "position": {
       "fx": -0.69,
@@ -57,7 +57,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 12767,
+    "appearAtMs": 13860,
     "index": 6,
     "position": {
       "fx": -0.866,
@@ -66,7 +66,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 14371,
+    "appearAtMs": 15671,
     "index": 7,
     "position": {
       "fx": 0.593,
@@ -75,7 +75,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 15774,
+    "appearAtMs": 17327,
     "index": 8,
     "position": {
       "fx": -0.047,
@@ -84,7 +84,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 18055,
+    "appearAtMs": 19658,
     "index": 9,
     "position": {
       "fx": -0.679,
@@ -93,7 +93,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 20031,
+    "appearAtMs": 21755,
     "index": 10,
     "position": {
       "fx": 0.647,
@@ -102,7 +102,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 21960,
+    "appearAtMs": 23815,
     "index": 11,
     "position": {
       "fx": -0.348,
@@ -111,7 +111,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 23703,
+    "appearAtMs": 25733,
     "index": 12,
     "position": {
       "fx": 0.069,
@@ -120,7 +120,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 25890,
+    "appearAtMs": 27992,
     "index": 13,
     "position": {
       "fx": -0.985,
@@ -129,7 +129,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 28223,
+    "appearAtMs": 30363,
     "index": 14,
     "position": {
       "fx": 0.803,
@@ -138,7 +138,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 29946,
+    "appearAtMs": 32265,
     "index": 15,
     "position": {
       "fx": 0.111,
@@ -147,7 +147,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 32384,
+    "appearAtMs": 34717,
     "index": 16,
     "position": {
       "fx": 0.943,
@@ -156,7 +156,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 33688,
+    "appearAtMs": 36297,
     "index": 17,
     "position": {
       "fx": 0.214,
@@ -165,7 +165,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 35159,
+    "appearAtMs": 38005,
     "index": 18,
     "position": {
       "fx": 0.233,
@@ -174,7 +174,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 37612,
+    "appearAtMs": 40469,
     "index": 19,
     "position": {
       "fx": -0.26,
@@ -183,7 +183,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 38924,
+    "appearAtMs": 42055,
     "index": 20,
     "position": {
       "fx": 0.882,
@@ -192,7 +192,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 41173,
+    "appearAtMs": 44362,
     "index": 21,
     "position": {
       "fx": -0.09,
@@ -201,7 +201,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 43168,
+    "appearAtMs": 46474,
     "index": 22,
     "position": {
       "fx": 0.422,
@@ -210,7 +210,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 45481,
+    "appearAtMs": 48830,
     "index": 23,
     "position": {
       "fx": -0.275,
@@ -219,7 +219,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 47205,
+    "appearAtMs": 50733,
     "index": 24,
     "position": {
       "fx": -0.79,
@@ -228,7 +228,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 48456,
+    "appearAtMs": 52272,
     "index": 25,
     "position": {
       "fx": -0.954,
@@ -237,7 +237,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 50344,
+    "appearAtMs": 54301,
     "index": 26,
     "position": {
       "fx": -0.326,
@@ -246,7 +246,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 52388,
+    "appearAtMs": 56450,
     "index": 27,
     "position": {
       "fx": 0.273,
@@ -255,7 +255,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 53617,
+    "appearAtMs": 57972,
     "index": 28,
     "position": {
       "fx": -0.695,
@@ -264,7 +264,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 54839,
+    "appearAtMs": 59489,
     "index": 29,
     "position": {
       "fx": 0.088,
@@ -273,16 +273,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 57234,
+    "appearAtMs": 61908,
     "index": 30,
     "position": {
       "fx": -0.838,
       "fy": -0.47,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 58907,
+    "appearAtMs": 63772,
     "index": 31,
     "position": {
       "fx": 0.033,
@@ -291,16 +291,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 60188,
+    "appearAtMs": 65334,
     "index": 32,
     "position": {
       "fx": -0.656,
       "fy": 0.513,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 62013,
+    "appearAtMs": 67315,
     "index": 33,
     "position": {
       "fx": 0.151,
@@ -309,7 +309,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 64486,
+    "appearAtMs": 69795,
     "index": 34,
     "position": {
       "fx": 0.978,
@@ -318,25 +318,25 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 66765,
+    "appearAtMs": 72125,
     "index": 35,
     "position": {
       "fx": -0.446,
       "fy": 0.618,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
-    "appearAtMs": 68941,
+    "appearAtMs": 74376,
     "index": 36,
     "position": {
       "fx": 0.852,
       "fy": 0.375,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
-    "appearAtMs": 70190,
+    "appearAtMs": 75914,
     "index": 37,
     "position": {
       "fx": 0.866,
@@ -345,7 +345,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 71617,
+    "appearAtMs": 77589,
     "index": 38,
     "position": {
       "fx": -0.883,
@@ -354,7 +354,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 73190,
+    "appearAtMs": 79376,
     "index": 39,
     "position": {
       "fx": 0.373,
@@ -363,7 +363,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 75590,
+    "appearAtMs": 81799,
     "index": 40,
     "position": {
       "fx": 0.974,
@@ -372,7 +372,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 77680,
+    "appearAtMs": 83983,
     "index": 41,
     "position": {
       "fx": -0.731,
@@ -381,7 +381,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 79421,
+    "appearAtMs": 85899,
     "index": 42,
     "position": {
       "fx": 0.472,
@@ -390,7 +390,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 81411,
+    "appearAtMs": 88006,
     "index": 43,
     "position": {
       "fx": -0.226,
@@ -399,7 +399,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 83806,
+    "appearAtMs": 90425,
     "index": 44,
     "position": {
       "fx": 0.632,
@@ -408,7 +408,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 85177,
+    "appearAtMs": 92056,
     "index": 45,
     "position": {
       "fx": 0.71,
@@ -417,7 +417,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 86984,
+    "appearAtMs": 94023,
     "index": 46,
     "position": {
       "fx": 0.176,
@@ -426,7 +426,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 88715,
+    "appearAtMs": 95932,
     "index": 47,
     "position": {
       "fx": 0.656,
@@ -435,7 +435,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 90554,
+    "appearAtMs": 97923,
     "index": 48,
     "position": {
       "fx": 0.433,
@@ -444,7 +444,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 91875,
+    "appearAtMs": 99516,
     "index": 49,
     "position": {
       "fx": 0.882,
@@ -453,7 +453,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 93435,
+    "appearAtMs": 101293,
     "index": 50,
     "position": {
       "fx": -0.476,
@@ -462,7 +462,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 95382,
+    "appearAtMs": 103368,
     "index": 51,
     "position": {
       "fx": -0.206,
@@ -471,7 +471,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 97265,
+    "appearAtMs": 105394,
     "index": 52,
     "position": {
       "fx": 0.058,
@@ -480,7 +480,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 98565,
+    "appearAtMs": 106971,
     "index": 53,
     "position": {
       "fx": 0.351,
@@ -489,7 +489,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 100410,
+    "appearAtMs": 108967,
     "index": 54,
     "position": {
       "fx": -0.931,
@@ -498,7 +498,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 102514,
+    "appearAtMs": 111163,
     "index": 55,
     "position": {
       "fx": -0.248,
@@ -507,7 +507,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 104235,
+    "appearAtMs": 113064,
     "index": 56,
     "position": {
       "fx": -0.304,
@@ -516,7 +516,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 106126,
+    "appearAtMs": 115095,
     "index": 57,
     "position": {
       "fx": -0.591,
@@ -525,7 +525,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 108306,
+    "appearAtMs": 117349,
     "index": 58,
     "position": {
       "fx": 0.134,
@@ -534,7 +534,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 109717,
+    "appearAtMs": 119011,
     "index": 59,
     "position": {
       "fx": 1,
@@ -543,7 +543,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 111326,
+    "appearAtMs": 120826,
     "index": 60,
     "position": {
       "fx": 0.318,
@@ -552,7 +552,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 113599,
+    "appearAtMs": 123151,
     "index": 61,
     "position": {
       "fx": 0.378,
@@ -561,16 +561,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 116040,
+    "appearAtMs": 125606,
     "index": 62,
     "position": {
       "fx": 0.006,
       "fy": 0.554,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
-    "appearAtMs": 117812,
+    "appearAtMs": 127546,
     "index": 63,
     "position": {
       "fx": -0.557,
@@ -579,16 +579,16 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 119637,
+    "appearAtMs": 129527,
     "index": 64,
     "position": {
       "fx": 0.022,
       "fy": 0.996,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
-    "appearAtMs": 121248,
+    "appearAtMs": 131343,
     "index": 65,
     "position": {
       "fx": -0.934,
@@ -597,7 +597,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 123035,
+    "appearAtMs": 133294,
     "index": 66,
     "position": {
       "fx": -0.595,
@@ -606,7 +606,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 125520,
+    "appearAtMs": 135783,
     "index": 67,
     "position": {
       "fx": 0.203,
@@ -615,7 +615,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 127907,
+    "appearAtMs": 138197,
     "index": 68,
     "position": {
       "fx": 0.011,
@@ -624,7 +624,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 129181,
+    "appearAtMs": 139754,
     "index": 69,
     "position": {
       "fx": -0.901,
@@ -633,7 +633,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 131256,
+    "appearAtMs": 141927,
     "index": 70,
     "position": {
       "fx": 0.927,
@@ -642,7 +642,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 133229,
+    "appearAtMs": 144021,
     "index": 71,
     "position": {
       "fx": -0.131,
@@ -651,7 +651,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 134961,
+    "appearAtMs": 145930,
     "index": 72,
     "position": {
       "fx": -0.362,
@@ -660,7 +660,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 137205,
+    "appearAtMs": 148233,
     "index": 73,
     "position": {
       "fx": 0.898,
@@ -669,7 +669,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 139539,
+    "appearAtMs": 150605,
     "index": 74,
     "position": {
       "fx": 0.333,
@@ -678,7 +678,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 141121,
+    "appearAtMs": 152399,
     "index": 75,
     "position": {
       "fx": -0.773,
@@ -687,7 +687,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 143398,
+    "appearAtMs": 154728,
     "index": 76,
     "position": {
       "fx": -0.673,
@@ -696,7 +696,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 144724,
+    "appearAtMs": 156325,
     "index": 77,
     "position": {
       "fx": -0.837,
@@ -705,7 +705,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 146435,
+    "appearAtMs": 158218,
     "index": 78,
     "position": {
       "fx": -0.149,
@@ -714,7 +714,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 147887,
+    "appearAtMs": 159911,
     "index": 79,
     "position": {
       "fx": -0.085,
@@ -723,7 +723,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 149730,
+    "appearAtMs": 161906,
     "index": 80,
     "position": {
       "fx": 0.022,
@@ -732,7 +732,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 151064,
+    "appearAtMs": 163509,
     "index": 81,
     "position": {
       "fx": -0.978,
@@ -741,7 +741,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 152319,
+    "appearAtMs": 165051,
     "index": 82,
     "position": {
       "fx": -0.825,
@@ -750,7 +750,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 153943,
+    "appearAtMs": 166877,
     "index": 83,
     "position": {
       "fx": 0.836,
@@ -759,7 +759,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "YELLOW",
   },
   {
-    "appearAtMs": 155872,
+    "appearAtMs": 168938,
     "index": 84,
     "position": {
       "fx": -0.586,
@@ -768,7 +768,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 157508,
+    "appearAtMs": 170773,
     "index": 85,
     "position": {
       "fx": -0.758,
@@ -777,7 +777,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 158834,
+    "appearAtMs": 172370,
     "index": 86,
     "position": {
       "fx": 0.301,
@@ -786,7 +786,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "RED",
   },
   {
-    "appearAtMs": 160800,
+    "appearAtMs": 174459,
     "index": 87,
     "position": {
       "fx": -0.844,
@@ -795,85 +795,13 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
     "type": "BLUE",
   },
   {
-    "appearAtMs": 162717,
+    "appearAtMs": 176510,
     "index": 88,
     "position": {
       "fx": -0.134,
       "fy": -0.849,
     },
     "type": "RED",
-  },
-  {
-    "appearAtMs": 164729,
-    "index": 89,
-    "position": {
-      "fx": 0.849,
-      "fy": -0.934,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 167223,
-    "index": 90,
-    "position": {
-      "fx": 0.826,
-      "fy": 0.549,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 168475,
-    "index": 91,
-    "position": {
-      "fx": 0.33,
-      "fy": -0.825,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 170885,
-    "index": 92,
-    "position": {
-      "fx": 0.199,
-      "fy": 0.516,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 173374,
-    "index": 93,
-    "position": {
-      "fx": -0.613,
-      "fy": 0.414,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 174706,
-    "index": 94,
-    "position": {
-      "fx": 0.657,
-      "fy": 0.01,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 176138,
-    "index": 95,
-    "position": {
-      "fx": 0.676,
-      "fy": -0.917,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 178351,
-    "index": 96,
-    "position": {
-      "fx": -0.513,
-      "fy": -0.164,
-    },
-    "type": "BLUE",
   },
 ]
 `;

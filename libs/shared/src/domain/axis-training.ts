@@ -51,7 +51,7 @@ export interface VisualDiscriminationTraining extends BaseAxisTraining {
   identicalMax?: number;
 }
 
-export const REACTIVITY_ISI_MIN_MS = 1200;
+export const REACTIVITY_ISI_MIN_MS = 1500;
 export const REACTIVITY_ISI_MAX_MS = 2500;
 
 export interface ReactivityTraining extends BaseAxisTraining {

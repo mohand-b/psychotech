@@ -283,7 +283,7 @@ describe('scoreReactivitySession', () => {
     const generated = generateReactivitySession('isi-count-seed');
     const scored = scoreReactivitySession(generated, [], []);
     expect(scored.omissionCount).toBe(generated.length);
-    expect(generated.length).toBeGreaterThanOrEqual(88);
+    expect(generated.length).toBeGreaterThanOrEqual(80);
     expect(scored.score).toBe(0);
   });
 });
