@@ -6,6 +6,7 @@ import {
   RecommendationPriority as DbRecommendationPriority,
   ScoreBand as DbScoreBand,
   Sector as DbSector,
+  Subscription,
   SessionMode as DbSessionMode,
   SessionStatus as DbSessionStatus,
 } from '@prisma/client';
@@ -166,6 +167,10 @@ export class SessionsRepository {
       where: { id: sessionId, userId },
       include: SESSION_INCLUDE,
     });
+  }
+
+  findUserSubscription(userId: string): Promise<Subscription | null> {
+    return this.prisma.subscription.findUnique({ where: { userId } });
   }
 
   async findSectorConfig(sector: Sector): Promise<SectorConfigData | null> {

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -27,6 +28,7 @@ import {
   ReactivityStimulusAnswerDto,
   ReactivityWaitPressDto,
   SECTOR_LABELS,
+  SUBSCRIPTION_REQUIRED_ERROR_CODE,
   ScoreBand,
   Sector,
   SessionDto,
@@ -36,6 +38,7 @@ import {
   SessionStatus,
   SimulationObservableDto,
   SimulationSummaryDto,
+  SubscriptionTier,
   TargetedAxisResultDto,
   analyzeDiscrimination,
   analyzeLogic,
@@ -66,6 +69,7 @@ import { mapEnumValue } from '../common/enum.util';
 import { energyCost } from '../energy/energy.logic';
 import { AxisScore } from '../scoring/scoring.logic';
 import { ScoringService } from '../scoring/scoring.service';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
 import { StartSessionRequest } from './dto/start-session.request';
@@ -90,11 +94,15 @@ export class SessionsService {
     private readonly repository: SessionsRepository,
     private readonly scoringService: ScoringService,
     private readonly badgesService: BadgesService,
+    private readonly tierResolution: TierResolutionService,
   ) {}
 
   async start(userId: string, request: StartSessionRequest): Promise<SessionDto> {
     const axes = resolveSessionAxes(request.mode, request.axis);
     const cost = energyCost(request.mode);
+    if (request.mode !== SessionMode.TUTORIAL) {
+      await this.assertSubscribed(userId);
+    }
     const enabledOptions = request.options?.enabledOptions ?? [];
     if (enabledOptions.length > 0) {
       if (request.mode !== SessionMode.TARGETED) {
@@ -129,6 +137,17 @@ export class SessionsService {
       axes,
     });
     return toSessionDto(session);
+  }
+
+  private async assertSubscribed(userId: string): Promise<void> {
+    const subscription = await this.repository.findUserSubscription(userId);
+    if (this.tierResolution.resolve(subscription) === SubscriptionTier.FREE) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: SUBSCRIPTION_REQUIRED_ERROR_CODE,
+        message: 'A paid subscription is required to start this session',
+      });
+    }
   }
 
   async completeAxis(

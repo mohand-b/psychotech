@@ -1,8 +1,10 @@
 ﻿import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
@@ -18,6 +20,7 @@ import {
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgesService } from '../badges/badges.service';
 import { ScoringService } from '../scoring/scoring.service';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { SessionWithRelations } from './sessions.mappers';
 import { SessionsRepository } from './sessions.repository';
 import { SessionsService } from './sessions.service';
@@ -99,6 +102,7 @@ function walk(
 
 const repository = {
   createSession: vi.fn(),
+  findUserSubscription: vi.fn(),
   findUserSession: vi.fn(),
   findSectorConfig: vi.fn(),
   findStreakContext: vi.fn(),
@@ -115,10 +119,15 @@ const repository = {
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
 const badgesService = { evaluateAndUnlockWithin: vi.fn() };
 
+const tierResolution = new TierResolutionService({
+  getOrThrow: () => ({ enabled: true }),
+} as unknown as ConfigService);
+
 const service = new SessionsService(
   repository as unknown as SessionsRepository,
   scoringService as unknown as ScoringService,
   badgesService as unknown as BadgesService,
+  tierResolution,
 );
 
 const SECTOR_CONFIG = {
@@ -131,6 +140,69 @@ const SECTOR_CONFIG = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  repository.findUserSubscription.mockResolvedValue({
+    tier: 'ESSENTIAL',
+    status: 'ACTIVE',
+  });
+});
+
+describe('SessionsService.start subscription gate', () => {
+  it('rejects a targeted session without a paid subscription', async () => {
+    repository.findUserSubscription.mockResolvedValue(null);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.LOGIC,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects a full session without a paid subscription', async () => {
+    repository.findUserSubscription.mockResolvedValue(null);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.FULL,
+        sector: Sector.RAILWAY,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects again once the subscription is canceled by webhook', async () => {
+    repository.findUserSubscription.mockResolvedValue({
+      tier: 'ESSENTIAL',
+      status: 'CANCELED',
+    });
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.LOGIC,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('keeps tutorials open without any subscription', async () => {
+    repository.findUserSubscription.mockResolvedValue(null);
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TUTORIAL', energyCost: 0 }),
+    );
+
+    await service.start('user-1', {
+      mode: SessionMode.TUTORIAL,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+    });
+
+    expect(repository.findUserSubscription).not.toHaveBeenCalled();
+    expect(repository.createSession).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('SessionsService.start', () => {
