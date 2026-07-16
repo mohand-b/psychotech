@@ -292,7 +292,7 @@ describe('Dashboard', () => {
     const cta = fixture.nativeElement.querySelector(
       '.home__cta-outline',
     ) as HTMLButtonElement;
-    expect(cta.textContent).toContain('Travailler la Mémoire');
+    expect(cta.textContent).toContain('Travailler cet axe');
     cta.click();
     expect(navigate).toHaveBeenCalledWith(['/entrainements/cible', 'memoire']);
   });
