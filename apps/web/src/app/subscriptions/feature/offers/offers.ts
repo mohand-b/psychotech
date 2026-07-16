@@ -1,17 +1,22 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
-import { SubscriptionTier } from '@psychotech/shared';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PaidTier, SubscriptionTier } from '@psychotech/shared';
 import { ArrowRight, Check, Minus } from 'lucide-angular';
+import { catchError, of, switchMap, take, takeWhile, timer } from 'rxjs';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 
 interface CompareCell {
   kind: 'check' | 'dash' | 'mono';
@@ -25,9 +30,14 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
+type CheckoutBanner = 'activating' | 'activated' | 'timeout' | 'cancelled';
+
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
 const mono = (value: string): CompareCell => ({ kind: 'mono', value });
+
+const ACTIVATION_POLL_INTERVAL_MS = 2000;
+const ACTIVATION_POLL_MAX_ATTEMPTS = 15;
 
 @Component({
   selector: 'app-offers',
@@ -39,9 +49,13 @@ const mono = (value: string): CompareCell => ({ kind: 'mono', value });
 export class Offers {
   private readonly coreFacade = inject(CoreFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly choosing = signal<SubscriptionTier | null>(null);
+  protected readonly redirecting = signal<PaidTier | 'portal' | null>(null);
+  protected readonly banner = signal<CheckoutBanner | null>(null);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -49,6 +63,24 @@ export class Offers {
 
   protected readonly tiers = SubscriptionTier;
   protected readonly tier = this.coreFacade.tier;
+  protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
+
+  constructor() {
+    const checkout = this.route.snapshot.queryParamMap.get('checkout');
+    if (checkout === 'success') {
+      this.banner.set('activating');
+      this.pollActivation();
+      this.clearCheckoutParam();
+    } else if (checkout === 'cancelled') {
+      this.banner.set('cancelled');
+      this.clearCheckoutParam();
+    } else {
+      this.subscriptionsFacade
+        .refreshTier()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
+    }
+  }
 
   protected readonly isFreeCurrent = computed(
     () => this.tier() === SubscriptionTier.FREE,
@@ -111,14 +143,64 @@ export class Offers {
     },
   ];
 
-  protected choosePlan(tier: SubscriptionTier): void {
-    if (this.choosing() !== null) {
+  protected choosePlan(plan: PaidTier): void {
+    if (this.redirecting() !== null) {
       return;
     }
-    this.choosing.set(tier);
-    this.subscriptionsFacade.choosePlan(tier).subscribe({
-      next: () => this.router.navigate(['/entrainements']),
-      error: () => this.choosing.set(null),
+    if (this.isFreeCurrent()) {
+      this.redirecting.set(plan);
+      this.subscriptionsFacade.startCheckout(plan).subscribe({
+        next: ({ url }) => this.document.location.assign(url),
+        error: () => this.redirecting.set(null),
+      });
+      return;
+    }
+    this.openPortal();
+  }
+
+  protected openPortal(): void {
+    if (this.redirecting() !== null) {
+      return;
+    }
+    this.redirecting.set('portal');
+    this.subscriptionsFacade.openPortal().subscribe({
+      next: ({ url }) => this.document.location.assign(url),
+      error: () => this.redirecting.set(null),
+    });
+  }
+
+  private pollActivation(): void {
+    timer(0, ACTIVATION_POLL_INTERVAL_MS)
+      .pipe(
+        take(ACTIVATION_POLL_MAX_ATTEMPTS),
+        switchMap(() =>
+          this.subscriptionsFacade
+            .refreshTier()
+            .pipe(catchError(() => of(SubscriptionTier.FREE))),
+        ),
+        takeWhile((tier) => tier === SubscriptionTier.FREE, true),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (tier) => {
+          if (tier !== SubscriptionTier.FREE) {
+            this.banner.set('activated');
+          }
+        },
+        complete: () => {
+          if (this.banner() === 'activating') {
+            this.banner.set('timeout');
+          }
+        },
+      });
+  }
+
+  private clearCheckoutParam(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { checkout: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 }

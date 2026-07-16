@@ -1,5 +1,20 @@
 <section class="page-shell offers">
   <div class="offers__intro">
+    @if (banner(); as state) {
+    <div
+      class="offers__banner"
+      [class.offers__banner--success]="state === 'activated'"
+    >
+      @switch (state) { @case ('activating') {
+      <span class="offers__banner-spinner"></span>
+      Paiement confirmé. Activation de votre formule en cours… } @case
+      ('activated') { Votre formule est active. Bon entraînement. } @case
+      ('timeout') { L'activation prend un peu plus de temps que prévu.
+      Rechargez cette page dans quelques instants. } @case ('cancelled') {
+      Paiement annulé. Aucune modification n'a été apportée à votre formule. }
+      }
+    </div>
+    }
     <div class="offers__head">
       <h1 class="offers__title">Choisissez votre rythme de préparation</h1>
       <p class="offers__subtitle offers__subtitle--desktop">
@@ -68,10 +83,10 @@
           appearance="outlined"
           color="brand"
           [block]="true"
-          (click)="choosePlan(tiers.FREE)"
-          [loading]="choosing() === tiers.FREE"
+          (click)="openPortal()"
+          [loading]="redirecting() === 'portal'"
         >
-          Passer en Découverte
+          Gérer mon abonnement
         </ui-button>
         }
       </section>
@@ -83,7 +98,7 @@
         <div class="offd__card-head">
           <span class="offd__plan">Essentiel</span>
           <span class="offd__price-row">
-            <span class="offd__price">8,99&nbsp;€</span>
+            <span class="offd__price">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>
             <span class="offd__price-period">/mois</span>
           </span>
           <span class="offd__card-desc"
@@ -132,17 +147,28 @@
           </span>
         </div>
         @if (isEssentialCurrent()) {
-        <span class="offers__current-pill">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
+        <div class="offers__current-actions">
+          <span class="offers__current-pill">
+            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+            Formule actuelle
+          </span>
+          <ui-button
+            appearance="outlined"
+            color="brand"
+            [block]="true"
+            (click)="openPortal()"
+            [loading]="redirecting() === 'portal'"
+          >
+            Gérer mon abonnement
+          </ui-button>
+        </div>
         } @else {
         <ui-button
           appearance="outlined"
           color="brand"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="choosing() === tiers.ESSENTIAL"
+          [loading]="redirecting() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -154,7 +180,7 @@
         <div class="offd__card-head">
           <span class="offd__plan offd__plan--featured">Illimité</span>
           <span class="offd__price-row">
-            <span class="offd__price">14,99&nbsp;€</span>
+            <span class="offd__price">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span>
             <span class="offd__price-period">/mois</span>
           </span>
           <span class="offd__card-desc"
@@ -218,17 +244,27 @@
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-        <span class="offers__current-pill offers__current-pill--featured">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
+        <div class="offers__current-actions">
+          <span class="offers__current-pill offers__current-pill--featured">
+            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+            Formule actuelle
+          </span>
+          <ui-button
+            color="brand"
+            [block]="true"
+            (click)="openPortal()"
+            [loading]="redirecting() === 'portal'"
+          >
+            Gérer mon abonnement
+          </ui-button>
+        </div>
         } @else {
         <ui-button
           color="brand"
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="choosing() === tiers.UNLIMITED"
+          [loading]="redirecting() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -242,7 +278,7 @@
         <div class="offm__card-head">
           <span class="offd__plan offd__plan--featured">Illimité</span>
           <span class="offm__price-row">
-            <span class="offm__price">14,99&nbsp;€</span>
+            <span class="offm__price">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span>
             <span class="offm__price-period">/mois</span>
           </span>
         </div>
@@ -276,10 +312,21 @@
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-        <span class="offers__current-pill offers__current-pill--featured">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
+        <div class="offers__current-actions">
+          <span class="offers__current-pill offers__current-pill--featured">
+            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+            Formule actuelle
+          </span>
+          <ui-button
+            color="brand"
+            size="lg"
+            [block]="true"
+            (click)="openPortal()"
+            [loading]="redirecting() === 'portal'"
+          >
+            Gérer mon abonnement
+          </ui-button>
+        </div>
         } @else {
         <ui-button
           color="brand"
@@ -287,7 +334,7 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="choosing() === tiers.UNLIMITED"
+          [loading]="redirecting() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -301,7 +348,7 @@
         <div class="offm__card-head">
           <span class="offd__plan">Essentiel</span>
           <span class="offm__price-row">
-            <span class="offm__price">8,99&nbsp;€</span>
+            <span class="offm__price">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>
             <span class="offm__price-period">/mois</span>
           </span>
         </div>
@@ -338,10 +385,22 @@
           </span>
         </div>
         @if (isEssentialCurrent()) {
-        <span class="offers__current-pill">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
+        <div class="offers__current-actions">
+          <span class="offers__current-pill">
+            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
+            Formule actuelle
+          </span>
+          <ui-button
+            appearance="outlined"
+            color="brand"
+            size="lg"
+            [block]="true"
+            (click)="openPortal()"
+            [loading]="redirecting() === 'portal'"
+          >
+            Gérer mon abonnement
+          </ui-button>
+        </div>
         } @else {
         <ui-button
           appearance="outlined"
@@ -349,7 +408,7 @@
           size="lg"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="choosing() === tiers.ESSENTIAL"
+          [loading]="redirecting() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -399,10 +458,10 @@
           color="brand"
           size="lg"
           [block]="true"
-          (click)="choosePlan(tiers.FREE)"
-          [loading]="choosing() === tiers.FREE"
+          (click)="openPortal()"
+          [loading]="redirecting() === 'portal'"
         >
-          Commencer
+          Gérer mon abonnement
         </ui-button>
         }
       </section>

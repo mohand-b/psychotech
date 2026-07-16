@@ -267,7 +267,7 @@ describe('Entrainements', () => {
         element
           .querySelector('.duo__offer ui-button')
           ?.getAttribute('routerlink'),
-      ).toBe('/offres');
+      ).toBe('/abonnements');
     });
 
     it('locks both pitches symmetrically and disables the panel toggle', async () => {

@@ -31,6 +31,8 @@ const USER: UserProfileDto = {
   locale: 'fr-FR',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
+  tier: SubscriptionTier.ESSENTIAL,
+  subscription: null,
   createdAt: '2026-06-01T00:00:00.000Z',
 };
 

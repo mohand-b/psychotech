@@ -2,7 +2,11 @@ import { Route } from '@angular/router';
 
 export const subscriptionsRoutes: Route[] = [
   {
-    path: 'offres',
+    path: 'abonnements',
     loadComponent: () => import('./offers/offers').then((m) => m.Offers),
+  },
+  {
+    path: 'offres',
+    redirectTo: 'abonnements',
   },
 ];

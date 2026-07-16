@@ -208,7 +208,7 @@ export class TutorialEnd {
   );
 
   protected readonly primaryLink = computed(() =>
-    this.isFree() ? ['/offres'] : this.targetedLink,
+    this.isFree() ? ['/abonnements'] : this.targetedLink,
   );
 
   protected readonly metricRows = computed<TutorialMetricRow[]>(() => {

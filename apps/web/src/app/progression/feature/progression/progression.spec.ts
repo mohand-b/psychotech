@@ -9,6 +9,7 @@ import {
   Sector,
   SectorReferentialDto,
   SessionMode,
+  SubscriptionTier,
   UserProfileDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -24,6 +25,8 @@ const USER: UserProfileDto = {
   locale: 'fr-FR',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
+  tier: SubscriptionTier.ESSENTIAL,
+  subscription: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 };
 

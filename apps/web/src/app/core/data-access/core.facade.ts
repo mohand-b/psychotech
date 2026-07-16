@@ -7,7 +7,7 @@ import {
   isDevMode,
 } from '@angular/core';
 import { SubscriptionTier } from '@psychotech/shared';
-import { EnergyFacade } from '../../energy/data-access/energy.facade';
+import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { CoreStore } from './core.store';
 
 const DEV_TIER_STORAGE_KEY = 'psychotech.dev.tier';
@@ -19,13 +19,13 @@ interface DevTierWindow extends Window {
 @Injectable({ providedIn: 'root' })
 export class CoreFacade {
   private readonly store = inject(CoreStore);
-  private readonly energyFacade = inject(EnergyFacade);
+  private readonly authFacade = inject(AuthFacade);
   private readonly document = inject(DOCUMENT);
 
   readonly tier: Signal<SubscriptionTier> = computed(
     () =>
       this.store.tierOverride() ??
-      this.energyFacade.state()?.tier ??
+      this.authFacade.currentUser()?.tier ??
       SubscriptionTier.FREE,
   );
 

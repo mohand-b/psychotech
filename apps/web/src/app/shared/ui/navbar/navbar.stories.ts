@@ -21,6 +21,8 @@ const mockUser: UserProfileDto = {
   locale: 'fr',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
+  tier: SubscriptionTier.ESSENTIAL,
+  subscription: null,
   createdAt: '2026-06-27T08:00:00.000Z',
 };
 

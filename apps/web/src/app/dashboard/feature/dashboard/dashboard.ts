@@ -392,7 +392,7 @@ export class Dashboard {
   }
 
   protected openOffers(): void {
-    this.router.navigate(['/offres']);
+    this.router.navigate(['/abonnements']);
   }
 
   protected workWeakAxis(): void {

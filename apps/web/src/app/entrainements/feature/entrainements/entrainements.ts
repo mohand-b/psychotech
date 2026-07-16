@@ -43,6 +43,7 @@ import { BAND_COLOR_VARS, BAND_LABELS } from '../../../shared/ui/score-rating';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
   AXIS_OVERVIEW_COPY,
@@ -143,6 +144,8 @@ export class Entrainements {
   protected readonly animationsReady = signal(false);
 
   protected readonly tier = this.coreFacade.tier;
+  protected readonly tiers = SubscriptionTier;
+  protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
   protected readonly isFree = computed(
     () => this.tier() === SubscriptionTier.FREE,
   );

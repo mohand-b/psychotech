@@ -98,13 +98,16 @@
         color="brand"
         size="md"
         [iconEnd]="arrowRightIcon"
-        routerLink="/offres"
+        routerLink="/abonnements"
       >
         Voir les offres
       </ui-button>
       <span class="duo__offer-prices"
-        >Essentiel <span class="t-mono">8,99&nbsp;€</span>/mois · Illimité
-        <span class="t-mono">14,99&nbsp;€</span>/mois</span
+        >Essentiel
+        <span class="t-mono">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>/mois ·
+        Illimité
+        <span class="t-mono">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span
+        >/mois</span
       >
     </div>
     } @else {
@@ -375,14 +378,17 @@
           color="brand"
           size="lg"
           [block]="true"
-          routerLink="/offres"
+          routerLink="/abonnements"
           [iconEnd]="arrowRightIcon"
         >
           Voir les offres
         </ui-button>
         <span class="duo__offer-prices trainm__offer-prices"
-          >Essentiel <span class="t-mono">8,99&nbsp;€</span>/mois · Illimité
-          <span class="t-mono">14,99&nbsp;€</span>/mois</span
+          >Essentiel
+          <span class="t-mono">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>/mois
+          · Illimité
+          <span class="t-mono">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span
+          >/mois</span
         >
       </div>
       } @else {
