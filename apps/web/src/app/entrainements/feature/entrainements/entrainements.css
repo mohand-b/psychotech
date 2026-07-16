@@ -134,10 +134,10 @@
   position: absolute;
   inset: -1px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid var(--brand);
+  border: 1px solid var(--brand);
   opacity: 0;
   pointer-events: none;
-  animation: duo-hint-pulse 1.6s ease-out infinite;
+  animation: duo-hint-pulse 3s ease-out infinite;
 }
 
 .duo__hint--cible::after {
@@ -153,9 +153,10 @@
     transform: scale(1);
     opacity: 0;
   }
-  25% {
+  12% {
     opacity: 0.5;
   }
+  50%,
   100% {
     transform: scale(1.6);
     opacity: 0;
