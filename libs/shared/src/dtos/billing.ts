@@ -2,13 +2,27 @@ import { SubscriptionTier } from '../enums';
 
 export type PaidTier = Exclude<SubscriptionTier, SubscriptionTier.FREE>;
 
-export interface CreateCheckoutSessionDto {
+export interface CreateSubscriptionDto {
   plan: PaidTier;
   promotionCode?: string;
 }
 
 export interface BillingRedirectDto {
   url: string;
+}
+
+export interface BillingConfigDto {
+  publishableKey: string;
+}
+
+export enum PaymentIntentKind {
+  PAYMENT = 'PAYMENT',
+  SETUP = 'SETUP',
+}
+
+export interface SubscriptionPaymentDto {
+  clientSecret: string;
+  kind: PaymentIntentKind;
 }
 
 export enum PromotionDuration {
