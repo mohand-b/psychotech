@@ -13,6 +13,8 @@ import {
   ChangePlanPreviewDto,
   PaidTier,
   PaymentIntentKind,
+  PaymentMethodOverviewDto,
+  PaymentMethodSummaryDto,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -122,7 +124,7 @@ export class BillingService {
     }
     const targetPrice = priceForPlan(plan, this.catalog());
     const isUpgrade = plan === SubscriptionTier.UNLIMITED;
-    const [preview, price] = await Promise.all([
+    const [preview, price, currentPrice, card] = await Promise.all([
       stripe.invoices.createPreview({
         subscription: current.id,
         subscription_details: {
@@ -131,17 +133,109 @@ export class BillingService {
         },
       }),
       stripe.prices.retrieve(targetPrice),
+      stripe.prices.retrieve(item.price.id),
+      this.findDefaultCard(stripe, userId, current),
     ]);
     const monthlyAmount = price.unit_amount ?? 0;
+    const adjustments = preview.lines.data.filter((line) => {
+      const subscriptionDetails = line.parent?.subscription_item_details;
+      if (subscriptionDetails) {
+        return subscriptionDetails.proration;
+      }
+      return line.parent?.invoice_item_details !== undefined;
+    });
+    const prorationCharge = adjustments
+      .filter((line) => line.amount > 0)
+      .reduce((sum, line) => sum + line.amount, 0);
+    const prorationCredit = Math.abs(
+      adjustments
+        .filter((line) => line.amount < 0)
+        .reduce((sum, line) => sum + line.amount, 0),
+    );
     return {
       currentPlan: currentTier as PaidTier,
       targetPlan: plan,
       monthlyAmount,
+      currentMonthlyAmount: currentPrice.unit_amount ?? 0,
       prorationAmount: Math.max(0, preview.total - monthlyAmount),
+      prorationCharge,
+      prorationCredit,
       nextInvoiceTotal: preview.total,
       nextInvoiceDate: item.current_period_end
         ? new Date(item.current_period_end * 1000).toISOString()
         : null,
+      periodStart: item.current_period_start
+        ? new Date(item.current_period_start * 1000).toISOString()
+        : null,
+      card,
+    };
+  }
+
+  async getPaymentMethodOverview(
+    userId: string,
+  ): Promise<PaymentMethodOverviewDto> {
+    const stripe = this.requireStripe();
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (!row?.stripeSubscriptionId) {
+      throw new ForbiddenException('No subscription for this user');
+    }
+    const current = await stripe.subscriptions.retrieve(
+      row.stripeSubscriptionId,
+    );
+    const card = await this.findDefaultCard(stripe, userId, current);
+    let nextInvoiceAmount: number | null = null;
+    if (current.status === 'active' || current.status === 'past_due') {
+      try {
+        const upcoming = await stripe.invoices.createPreview({
+          subscription: current.id,
+        });
+        nextInvoiceAmount = upcoming.total;
+      } catch {
+        nextInvoiceAmount = null;
+      }
+    }
+    const periodEnd = current.items.data[0]?.current_period_end;
+    return {
+      card,
+      nextInvoiceAmount,
+      nextInvoiceDate: periodEnd
+        ? new Date(periodEnd * 1000).toISOString()
+        : null,
+    };
+  }
+
+  private async findDefaultCard(
+    stripe: Stripe,
+    userId: string,
+    subscription: Stripe.Subscription,
+  ): Promise<PaymentMethodSummaryDto | null> {
+    const user = await this.repository.findUserById(userId);
+    if (!user?.stripeCustomerId) {
+      return null;
+    }
+    let paymentMethod =
+      typeof subscription.default_payment_method === 'string'
+        ? await stripe.paymentMethods.retrieve(
+            subscription.default_payment_method,
+          )
+        : subscription.default_payment_method;
+    if (!paymentMethod) {
+      const customer = await stripe.customers.retrieve(user.stripeCustomerId, {
+        expand: ['invoice_settings.default_payment_method'],
+      });
+      if (!customer.deleted) {
+        const fallback = customer.invoice_settings.default_payment_method;
+        paymentMethod = typeof fallback === 'string' ? null : fallback;
+      }
+    }
+    if (!paymentMethod?.card) {
+      return null;
+    }
+    return {
+      brand: paymentMethod.card.brand,
+      last4: paymentMethod.card.last4,
+      expMonth: paymentMethod.card.exp_month,
+      expYear: paymentMethod.card.exp_year,
     };
   }
 

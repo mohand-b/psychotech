@@ -13,6 +13,7 @@ import { Request } from 'express';
 import {
   BillingConfigDto,
   ChangePlanPreviewDto,
+  PaymentMethodOverviewDto,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -71,6 +72,13 @@ export class BillingController {
   @Post('subscription/resume')
   resumeSubscription(@CurrentUser() userId: string): Promise<SubscriptionDto> {
     return this.billingService.resumeSubscription(userId);
+  }
+
+  @Get('payment-method')
+  getPaymentMethodOverview(
+    @CurrentUser() userId: string,
+  ): Promise<PaymentMethodOverviewDto> {
+    return this.billingService.getPaymentMethodOverview(userId);
   }
 
   @Post('payment-method/intent')

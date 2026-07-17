@@ -66,6 +66,7 @@ const retrieveStripeSubscription = vi.fn();
 const updateStripeSubscription = vi.fn();
 const createSetupIntent = vi.fn();
 const updateStripeCustomer = vi.fn();
+const retrieveStripeCustomer = vi.fn();
 const createInvoicePreview = vi.fn();
 const retrieveStripePrice = vi.fn();
 const stripe = {
@@ -78,7 +79,7 @@ const stripe = {
     update: updateStripeSubscription,
   },
   setupIntents: { create: createSetupIntent },
-  customers: { update: updateStripeCustomer },
+  customers: { update: updateStripeCustomer, retrieve: retrieveStripeCustomer },
   invoices: { createPreview: createInvoicePreview },
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
@@ -121,6 +122,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   repository.registerEvent.mockResolvedValue(true);
   listStripeSubscriptions.mockResolvedValue({ data: [] });
+  retrieveStripeCustomer.mockResolvedValue({
+    deleted: false,
+    invoice_settings: { default_payment_method: null },
+  });
 });
 
 describe('BillingService.findPromotionCode', () => {
@@ -377,7 +382,25 @@ describe('BillingService.previewPlanChange', () => {
     retrieveStripeSubscription.mockResolvedValue(
       buildStripeSubscription({ status: 'active' }),
     );
-    createInvoicePreview.mockResolvedValue({ total: 1909 });
+    createInvoicePreview.mockResolvedValue({
+      total: 1909,
+      lines: {
+        data: [
+          {
+            amount: 1499,
+            parent: { subscription_item_details: { proration: false } },
+          },
+          {
+            amount: 810,
+            parent: { subscription_item_details: { proration: true } },
+          },
+          {
+            amount: -400,
+            parent: { subscription_item_details: { proration: true } },
+          },
+        ],
+      },
+    });
     retrieveStripePrice.mockResolvedValue({ unit_amount: 1499 });
 
     const preview = await service.previewPlanChange(
@@ -385,13 +408,16 @@ describe('BillingService.previewPlanChange', () => {
       SubscriptionTier.UNLIMITED,
     );
 
-    expect(preview).toEqual({
+    expect(preview).toMatchObject({
       currentPlan: SubscriptionTier.ESSENTIAL,
       targetPlan: SubscriptionTier.UNLIMITED,
       monthlyAmount: 1499,
       prorationAmount: 410,
+      prorationCharge: 810,
+      prorationCredit: 400,
       nextInvoiceTotal: 1909,
       nextInvoiceDate: new Date(1_800_000_000 * 1000).toISOString(),
+      card: null,
     });
     expect(createInvoicePreview).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -415,7 +441,10 @@ describe('BillingService.previewPlanChange', () => {
         },
       }),
     );
-    createInvoicePreview.mockResolvedValue({ total: 899 });
+    createInvoicePreview.mockResolvedValue({
+      total: 899,
+      lines: { data: [] },
+    });
     retrieveStripePrice.mockResolvedValue({ unit_amount: 899 });
 
     const preview = await service.previewPlanChange(
