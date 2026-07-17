@@ -16,6 +16,7 @@ const configService = {
   getOrThrow: () => ({
     enabled: true,
     secretKey: 'sk_test_x',
+    publishableKey: 'pk_test_x',
     webhookSecret: WEBHOOK_SECRET,
     priceEssential: 'price_essential',
     priceUnlimited: 'price_unlimited',
@@ -29,6 +30,7 @@ function buildStripeSubscription(
     id: 'sub_1',
     customer: 'cus_1',
     status: 'active',
+    metadata: {},
     cancel_at_period_end: false,
     items: {
       data: [
@@ -53,12 +55,17 @@ const repository = {
 
 const constructEvent = vi.fn();
 const listPromotionCodes = vi.fn();
-const createCheckoutSession = vi.fn();
+const createStripeSubscription = vi.fn();
+const listStripeSubscriptions = vi.fn();
+const cancelStripeSubscription = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
-  subscriptions: { retrieve: vi.fn() },
+  subscriptions: {
+    create: createStripeSubscription,
+    list: listStripeSubscriptions,
+    cancel: cancelStripeSubscription,
+  },
   promotionCodes: { list: listPromotionCodes },
-  checkout: { sessions: { create: createCheckoutSession } },
 } as unknown as Stripe;
 
 function buildStripePromotion(overrides: Record<string, unknown> = {}) {
@@ -97,6 +104,7 @@ const SIGNATURE = 't=1,v1=abc';
 beforeEach(() => {
   vi.clearAllMocks();
   repository.registerEvent.mockResolvedValue(true);
+  listStripeSubscriptions.mockResolvedValue({ data: [] });
 });
 
 describe('BillingService.findPromotionCode', () => {
@@ -120,52 +128,104 @@ describe('BillingService.findPromotionCode', () => {
   });
 });
 
-describe('BillingService.createCheckoutSession promotion', () => {
-  it('rejects an unknown promotion code before creating the session', async () => {
-    repository.findUserById.mockResolvedValue({
-      id: 'user-1',
-      email: 'a@b.c',
-      firstName: 'A',
-      lastName: 'B',
-      stripeCustomerId: 'cus_1',
+describe('BillingService.createSubscription', () => {
+  const user = {
+    id: 'user-1',
+    email: 'a@b.c',
+    firstName: 'A',
+    lastName: 'B',
+    stripeCustomerId: 'cus_1',
+  };
+
+  it('creates an incomplete subscription and returns the payment secret', async () => {
+    repository.findUserById.mockResolvedValue(user);
+    createStripeSubscription.mockResolvedValue({
+      id: 'sub_1',
+      pending_setup_intent: null,
+      latest_invoice: {
+        confirmation_secret: { client_secret: 'pi_secret_1' },
+      },
     });
-    listPromotionCodes.mockResolvedValue({ data: [] });
 
-    await expect(
-      service.createCheckoutSession(
-        'user-1',
-        SubscriptionTier.ESSENTIAL,
-        'http://localhost:4200',
-        'NOPE',
-      ),
-    ).rejects.toBeInstanceOf(BadRequestException);
-    expect(createCheckoutSession).not.toHaveBeenCalled();
-  });
-
-  it('passes the promotion discount to the checkout session', async () => {
-    repository.findUserById.mockResolvedValue({
-      id: 'user-1',
-      email: 'a@b.c',
-      firstName: 'A',
-      lastName: 'B',
-      stripeCustomerId: 'cus_1',
-    });
-    listPromotionCodes.mockResolvedValue({ data: [buildStripePromotion()] });
-    createCheckoutSession.mockResolvedValue({ url: 'https://stripe.test/s' });
-
-    const redirect = await service.createCheckoutSession(
+    const payment = await service.createSubscription(
       'user-1',
       SubscriptionTier.ESSENTIAL,
-      'http://localhost:4200',
+    );
+
+    expect(payment).toEqual({
+      clientSecret: 'pi_secret_1',
+      kind: 'PAYMENT',
+    });
+    expect(createStripeSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: 'cus_1',
+        payment_behavior: 'default_incomplete',
+        items: [{ price: 'price_essential' }],
+        metadata: { userId: 'user-1' },
+      }),
+    );
+  });
+
+  it('returns the setup secret when the first invoice is fully discounted', async () => {
+    repository.findUserById.mockResolvedValue(user);
+    listPromotionCodes.mockResolvedValue({ data: [buildStripePromotion()] });
+    createStripeSubscription.mockResolvedValue({
+      id: 'sub_1',
+      pending_setup_intent: { client_secret: 'seti_secret_1' },
+      latest_invoice: null,
+    });
+
+    const payment = await service.createSubscription(
+      'user-1',
+      SubscriptionTier.UNLIMITED,
       'PSYCHO20',
     );
 
-    expect(redirect).toEqual({ url: 'https://stripe.test/s' });
-    expect(createCheckoutSession).toHaveBeenCalledWith(
+    expect(payment).toEqual({
+      clientSecret: 'seti_secret_1',
+      kind: 'SETUP',
+    });
+    expect(createStripeSubscription).toHaveBeenCalledWith(
       expect.objectContaining({
         discounts: [{ promotion_code: 'promo_1' }],
       }),
     );
+  });
+
+  it('cancels previous incomplete subscriptions before creating a new one', async () => {
+    repository.findUserById.mockResolvedValue(user);
+    listStripeSubscriptions.mockResolvedValue({
+      data: [{ id: 'sub_old' }],
+    });
+    createStripeSubscription.mockResolvedValue({
+      id: 'sub_1',
+      pending_setup_intent: null,
+      latest_invoice: {
+        confirmation_secret: { client_secret: 'pi_secret_1' },
+      },
+    });
+
+    await service.createSubscription('user-1', SubscriptionTier.ESSENTIAL);
+
+    expect(cancelStripeSubscription).toHaveBeenCalledWith('sub_old');
+  });
+
+  it('rejects an unknown promotion code before creating the subscription', async () => {
+    repository.findUserById.mockResolvedValue(user);
+    listPromotionCodes.mockResolvedValue({ data: [] });
+
+    await expect(
+      service.createSubscription('user-1', SubscriptionTier.ESSENTIAL, 'NOPE'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(createStripeSubscription).not.toHaveBeenCalled();
+  });
+});
+
+describe('BillingService.getBillingConfig', () => {
+  it('returns the publishable key', () => {
+    expect(service.getBillingConfig()).toEqual({
+      publishableKey: 'pk_test_x',
+    });
   });
 });
 
@@ -237,12 +297,12 @@ describe('BillingService.handleWebhook subscription upsert', () => {
     );
   });
 
-  it('resolves the user through the checkout client reference', async () => {
-    stubEvent('checkout.session.completed', {
-      mode: 'subscription',
-      subscription: buildStripeSubscription(),
-      client_reference_id: 'user-42',
-    });
+  it('resolves the user through the subscription metadata', async () => {
+    stubEvent(
+      'customer.subscription.updated',
+      buildStripeSubscription({ metadata: { userId: 'user-42' } }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue(null);
 
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 

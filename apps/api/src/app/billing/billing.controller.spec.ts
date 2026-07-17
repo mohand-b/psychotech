@@ -22,11 +22,11 @@ describe('BillingController.handleWebhook guards', () => {
     ).toBe(true);
   });
 
-  it('keeps checkout and portal behind the auth guard', () => {
+  it('keeps subscription and portal behind the auth guard', () => {
     expect(
       Reflect.getMetadata(
         IS_PUBLIC_KEY,
-        BillingController.prototype.createCheckoutSession,
+        BillingController.prototype.createSubscription,
       ),
     ).toBeUndefined();
     expect(

@@ -10,12 +10,17 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { BillingRedirectDto, PromotionCodeDto } from '@psychotech/shared';
+import {
+  BillingConfigDto,
+  BillingRedirectDto,
+  PromotionCodeDto,
+  SubscriptionPaymentDto,
+} from '@psychotech/shared';
 import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CurrentUser } from '../common/current-user.decorator';
 import { BillingService } from './billing.service';
-import { CreateCheckoutSessionRequest } from './dto/create-checkout-session.request';
+import { CreateSubscriptionRequest } from './dto/create-subscription.request';
 
 const STRIPE_SIGNATURE_HEADER = 'stripe-signature';
 
@@ -29,23 +34,21 @@ function resolveOrigin(request: Request): string {
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
 
-  @Post('checkout')
-  createCheckoutSession(
-    @CurrentUser() userId: string,
-    @Body() body: CreateCheckoutSessionRequest,
-    @Req() request: Request,
-  ): Promise<BillingRedirectDto> {
-    return this.billingService.createCheckoutSession(
-      userId,
-      body.plan,
-      resolveOrigin(request),
-      body.promotionCode,
-    );
+  @Get('config')
+  getBillingConfig(): BillingConfigDto {
+    return this.billingService.getBillingConfig();
   }
 
-  @Get('promotion-codes/:code')
-  findPromotionCode(@Param('code') code: string): Promise<PromotionCodeDto> {
-    return this.billingService.findPromotionCode(code);
+  @Post('subscription')
+  createSubscription(
+    @CurrentUser() userId: string,
+    @Body() body: CreateSubscriptionRequest,
+  ): Promise<SubscriptionPaymentDto> {
+    return this.billingService.createSubscription(
+      userId,
+      body.plan,
+      body.promotionCode,
+    );
   }
 
   @Post('portal')
@@ -57,6 +60,11 @@ export class BillingController {
       userId,
       resolveOrigin(request),
     );
+  }
+
+  @Get('promotion-codes/:code')
+  findPromotionCode(@Param('code') code: string): Promise<PromotionCodeDto> {
+    return this.billingService.findPromotionCode(code);
   }
 
   @Public()

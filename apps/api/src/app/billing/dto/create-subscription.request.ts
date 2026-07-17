@@ -1,7 +1,7 @@
-import { CreateCheckoutSessionDto, PaidTier, SubscriptionTier } from '@psychotech/shared';
+import { CreateSubscriptionDto, PaidTier, SubscriptionTier } from '@psychotech/shared';
 import { IsIn, IsOptional, IsString, Length } from 'class-validator';
 
-export class CreateCheckoutSessionRequest implements CreateCheckoutSessionDto {
+export class CreateSubscriptionRequest implements CreateSubscriptionDto {
   @IsIn([SubscriptionTier.ESSENTIAL, SubscriptionTier.UNLIMITED])
   plan!: PaidTier;
 

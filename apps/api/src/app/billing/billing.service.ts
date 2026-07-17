@@ -9,9 +9,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import {
+  BillingConfigDto,
   BillingRedirectDto,
   PaidTier,
+  PaymentIntentKind,
   PromotionCodeDto,
+  SubscriptionPaymentDto,
 } from '@psychotech/shared';
 import { BillingConfig } from '../config/billing.config';
 import {
@@ -43,19 +46,29 @@ export class BillingService {
     this.config = configService.getOrThrow<BillingConfig>('billing');
   }
 
-  async createCheckoutSession(
+  getBillingConfig(): BillingConfigDto {
+    this.requireStripe();
+    if (!this.config.publishableKey) {
+      throw new ServiceUnavailableException(
+        'Stripe publishable key is not configured',
+      );
+    }
+    return { publishableKey: this.config.publishableKey };
+  }
+
+  async createSubscription(
     userId: string,
     plan: PaidTier,
-    origin: string,
     promotionCode?: string,
-  ): Promise<BillingRedirectDto> {
+  ): Promise<SubscriptionPaymentDto> {
     const stripe = this.requireStripe();
     const customerId = await this.ensureCustomer(stripe, userId);
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+    await this.cancelIncompleteSubscriptions(stripe, customerId);
+    const subscription = await stripe.subscriptions.create({
       customer: customerId,
-      client_reference_id: userId,
-      line_items: [{ price: priceForPlan(plan, this.catalog()), quantity: 1 }],
+      items: [{ price: priceForPlan(plan, this.catalog()) }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
       discounts: promotionCode
         ? [
             {
@@ -65,13 +78,47 @@ export class BillingService {
             },
           ]
         : undefined,
-      success_url: `${origin}/abonnements?checkout=success`,
-      cancel_url: `${origin}/abonnements?checkout=cancelled`,
+      metadata: { userId },
+      expand: ['latest_invoice.confirmation_secret', 'pending_setup_intent'],
     });
-    if (!session.url) {
-      throw new ServiceUnavailableException('Stripe returned no checkout URL');
+    const setupIntent = subscription.pending_setup_intent;
+    if (
+      setupIntent &&
+      typeof setupIntent === 'object' &&
+      setupIntent.client_secret
+    ) {
+      return {
+        clientSecret: setupIntent.client_secret,
+        kind: PaymentIntentKind.SETUP,
+      };
     }
-    return { url: session.url };
+    const invoice = subscription.latest_invoice;
+    const clientSecret =
+      invoice && typeof invoice === 'object'
+        ? (invoice.confirmation_secret?.client_secret ?? null)
+        : null;
+    if (!clientSecret) {
+      throw new ServiceUnavailableException(
+        'Stripe returned no payment client secret',
+      );
+    }
+    return { clientSecret, kind: PaymentIntentKind.PAYMENT };
+  }
+
+  private async cancelIncompleteSubscriptions(
+    stripe: Stripe,
+    customerId: string,
+  ): Promise<void> {
+    const incomplete = await stripe.subscriptions.list({
+      customer: customerId,
+      status: 'incomplete',
+      limit: 20,
+    });
+    await Promise.all(
+      incomplete.data.map((subscription) =>
+        stripe.subscriptions.cancel(subscription.id),
+      ),
+    );
   }
 
   async findPromotionCode(code: string): Promise<PromotionCodeDto> {
@@ -159,10 +206,6 @@ export class BillingService {
     if (!(await this.repository.registerEvent(event.id))) {
       return;
     }
-    if (event.type === 'checkout.session.completed') {
-      await this.onCheckoutCompleted(stripe, event.data.object);
-      return;
-    }
     if (
       (HANDLED_SUBSCRIPTION_EVENTS as readonly string[]).includes(event.type)
     ) {
@@ -170,33 +213,15 @@ export class BillingService {
     }
   }
 
-  private async onCheckoutCompleted(
-    stripe: Stripe,
-    session: Stripe.Checkout.Session,
-  ): Promise<void> {
-    if (session.mode !== 'subscription' || !session.subscription) {
-      return;
-    }
-    const subscription =
-      typeof session.subscription === 'string'
-        ? await stripe.subscriptions.retrieve(session.subscription)
-        : session.subscription;
-    await this.applySubscription(
-      subscription,
-      session.client_reference_id ?? undefined,
-    );
-  }
-
   private async applySubscription(
     subscription: Stripe.Subscription,
-    knownUserId?: string,
   ): Promise<void> {
     const customerId =
       typeof subscription.customer === 'string'
         ? subscription.customer
         : subscription.customer.id;
     const userId =
-      knownUserId ??
+      subscription.metadata?.['userId'] ??
       (await this.repository.findUserIdByStripeCustomerId(customerId));
     if (!userId) {
       return;
