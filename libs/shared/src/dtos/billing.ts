@@ -7,6 +7,10 @@ export interface CreateSubscriptionDto {
   promotionCode?: string;
 }
 
+export interface ChangeSubscriptionPlanDto {
+  plan: PaidTier;
+}
+
 export interface BillingRedirectDto {
   url: string;
 }
