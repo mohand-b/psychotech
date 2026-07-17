@@ -11,10 +11,6 @@ export interface ChangeSubscriptionPlanDto {
   plan: PaidTier;
 }
 
-export interface BillingRedirectDto {
-  url: string;
-}
-
 export interface BillingConfigDto {
   publishableKey: string;
 }
