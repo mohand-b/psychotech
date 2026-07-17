@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   SubscriptionStatus as DbSubscriptionStatus,
@@ -58,12 +62,16 @@ const listPromotionCodes = vi.fn();
 const createStripeSubscription = vi.fn();
 const listStripeSubscriptions = vi.fn();
 const cancelStripeSubscription = vi.fn();
+const retrieveStripeSubscription = vi.fn();
+const updateStripeSubscription = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
     create: createStripeSubscription,
     list: listStripeSubscriptions,
     cancel: cancelStripeSubscription,
+    retrieve: retrieveStripeSubscription,
+    update: updateStripeSubscription,
   },
   promotionCodes: { list: listPromotionCodes },
 } as unknown as Stripe;
@@ -218,6 +226,101 @@ describe('BillingService.createSubscription', () => {
       service.createSubscription('user-1', SubscriptionTier.ESSENTIAL, 'NOPE'),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(createStripeSubscription).not.toHaveBeenCalled();
+  });
+});
+
+describe('BillingService.changeSubscriptionPlan', () => {
+  const dbRow = {
+    id: 'row-1',
+    userId: 'user-1',
+    tier: DbSubscriptionTier.ESSENTIAL,
+    status: DbSubscriptionStatus.ACTIVE,
+    billingPeriod: 'MONTHLY',
+    currentPeriodEnd: new Date('2026-08-17T00:00:00Z'),
+    cancelAtPeriodEnd: false,
+    stripeSubscriptionId: 'sub_1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  it('upgrades immediately with prorations', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_essential' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    updateStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED);
+
+    expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
+      items: [{ id: 'si_1', price: 'price_unlimited' }],
+      proration_behavior: 'create_prorations',
+    });
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ tier: DbSubscriptionTier.UNLIMITED }),
+    );
+  });
+
+  it('downgrades without prorations', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    updateStripeSubscription.mockResolvedValue(buildStripeSubscription({}));
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.changeSubscriptionPlan('user-1', SubscriptionTier.ESSENTIAL);
+
+    expect(updateStripeSubscription).toHaveBeenCalledWith(
+      'sub_1',
+      expect.objectContaining({ proration_behavior: 'none' }),
+    );
+  });
+
+  it('does not call stripe update when the plan is unchanged', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ status: 'active' }),
+    );
+
+    await service.changeSubscriptionPlan('user-1', SubscriptionTier.ESSENTIAL);
+
+    expect(updateStripeSubscription).not.toHaveBeenCalled();
+  });
+
+  it('refuses without a stripe subscription', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue({
+      ...dbRow,
+      stripeSubscriptionId: null,
+    });
+
+    await expect(
+      service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });
 

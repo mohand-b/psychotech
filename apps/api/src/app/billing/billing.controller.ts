@@ -14,12 +14,14 @@ import {
   BillingConfigDto,
   BillingRedirectDto,
   PromotionCodeDto,
+  SubscriptionDto,
   SubscriptionPaymentDto,
 } from '@psychotech/shared';
 import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CurrentUser } from '../common/current-user.decorator';
 import { BillingService } from './billing.service';
+import { ChangeSubscriptionPlanRequest } from './dto/change-subscription-plan.request';
 import { CreateSubscriptionRequest } from './dto/create-subscription.request';
 
 const STRIPE_SIGNATURE_HEADER = 'stripe-signature';
@@ -49,6 +51,14 @@ export class BillingController {
       body.plan,
       body.promotionCode,
     );
+  }
+
+  @Post('subscription/change')
+  changeSubscriptionPlan(
+    @CurrentUser() userId: string,
+    @Body() body: ChangeSubscriptionPlanRequest,
+  ): Promise<SubscriptionDto> {
+    return this.billingService.changeSubscriptionPlan(userId, body.plan);
   }
 
   @Post('portal')

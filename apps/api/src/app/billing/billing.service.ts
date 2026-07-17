@@ -14,8 +14,11 @@ import {
   PaidTier,
   PaymentIntentKind,
   PromotionCodeDto,
+  SubscriptionDto,
   SubscriptionPaymentDto,
+  SubscriptionTier,
 } from '@psychotech/shared';
+import { toSubscriptionDto } from '../subscriptions/subscription.mappers';
 import { BillingConfig } from '../config/billing.config';
 import {
   mapStripeSubscriptionStatus,
@@ -103,6 +106,38 @@ export class BillingService {
       );
     }
     return { clientSecret, kind: PaymentIntentKind.PAYMENT };
+  }
+
+  async changeSubscriptionPlan(
+    userId: string,
+    plan: PaidTier,
+  ): Promise<SubscriptionDto> {
+    const stripe = this.requireStripe();
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (!row?.stripeSubscriptionId) {
+      throw new ForbiddenException('No subscription to change for this user');
+    }
+    const current = await stripe.subscriptions.retrieve(
+      row.stripeSubscriptionId,
+    );
+    if (current.status !== 'active' && current.status !== 'past_due') {
+      throw new ForbiddenException('The subscription cannot be changed');
+    }
+    const targetPrice = priceForPlan(plan, this.catalog());
+    const item = current.items.data[0];
+    if (item.price.id !== targetPrice) {
+      const isUpgrade = plan === SubscriptionTier.UNLIMITED;
+      const updated = await stripe.subscriptions.update(current.id, {
+        items: [{ id: item.id, price: targetPrice }],
+        proration_behavior: isUpgrade ? 'create_prorations' : 'none',
+      });
+      await this.applySubscription(updated);
+    }
+    const fresh = await this.repository.findSubscriptionByUserId(userId);
+    if (!fresh) {
+      throw new NotFoundException('Subscription not found');
+    }
+    return toSubscriptionDto(fresh);
   }
 
   private async cancelIncompleteSubscriptions(
