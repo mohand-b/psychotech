@@ -30,7 +30,7 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
-type OffersBanner = 'cancelScheduled' | 'resumed' | 'cardUpdated';
+type OffersBanner = 'cardUpdated';
 
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
@@ -175,7 +175,7 @@ export class Offers {
       next: () => {
         this.managing.set(false);
         this.pendingCancel.set(false);
-        this.banner.set('cancelScheduled');
+        this.router.navigate(['/abonnement-resilie']);
       },
       error: () => {
         this.managing.set(false);
@@ -189,11 +189,16 @@ export class Offers {
       return;
     }
     this.managing.set(true);
+    const tier = this.tier();
+    const slug =
+      tier === SubscriptionTier.FREE
+        ? PLAN_SLUGS[SubscriptionTier.ESSENTIAL]
+        : PLAN_SLUGS[tier as PaidTier];
     this.subscriptionsFacade.resumeSubscription().subscribe({
-      next: () => {
-        this.managing.set(false);
-        this.banner.set('resumed');
-      },
+      next: () =>
+        this.router.navigate(['/abonnement-confirme'], {
+          queryParams: { offre: slug, mode: 'reprise' },
+        }),
       error: () => this.managing.set(false),
     });
   }

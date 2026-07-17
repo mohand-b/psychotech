@@ -1,0 +1,80 @@
+<div class="cancel">
+  <div class="cancel__panel">
+    <span class="cancel__badge">
+      <ui-icon [img]="badgeIcon" [size]="28" />
+    </span>
+
+    <div class="cancel__head">
+      <h1 class="cancel__title">Votre abonnement est résilié</h1>
+      <p class="cancel__subtitle">
+        Vous conservez tous vos avantages jusqu'à la fin de la période déjà
+        payée. Une confirmation vient de vous être envoyée par email.
+      </p>
+    </div>
+
+    <div class="cancel__card">
+      <div class="cancel__row">
+        <span class="cancel__row-label">Offre résiliée</span>
+        <span class="cancel__row-plan">
+          <ui-bolt class="cancel__row-bolt" [size]="13" />
+          {{ planLabel() }}
+        </span>
+      </div>
+      <span class="cancel__divider"></span>
+      <div class="cancel__row">
+        <span class="cancel__row-label">Accès conservé jusqu'au</span>
+        <span class="t-mono cancel__row-value">{{
+          endDateLabel() ?? '—'
+        }}</span>
+      </div>
+      <span class="cancel__divider"></span>
+      <div class="cancel__row">
+        <span class="cancel__row-label">Prochain prélèvement</span>
+        <span class="cancel__row-value cancel__row-value--muted">Aucun</span>
+      </div>
+    </div>
+
+    <span class="cancel__info">
+      @if (endDateLabel(); as endDate) {
+        À partir du {{ endDate }}, votre compte passe en offre
+        Découverte&nbsp;: le mode découverte des axes reste en libre accès et
+        vos résultats sont conservés.
+      } @else {
+        À la fin de la période, votre compte passe en offre Découverte&nbsp;:
+        le mode découverte des axes reste en libre accès et vos résultats sont
+        conservés.
+      }
+    </span>
+
+    <div class="cancel__actions">
+      <ui-button
+        color="brand"
+        size="lg"
+        [block]="true"
+        relief="mobile"
+        [iconEnd]="arrowIcon"
+        routerLink="/dashboard"
+      >
+        Revenir à l'accueil
+      </ui-button>
+      <ui-button
+        appearance="outlined"
+        color="neutral"
+        [block]="true"
+        [loading]="resuming()"
+        (click)="resume()"
+      >
+        Réactiver mon abonnement
+      </ui-button>
+    </div>
+
+    <span class="cancel__note">
+      @if (endDateLabel(); as endDate) {
+        Vous pouvez réactiver votre abonnement à tout moment, sans frais
+        supplémentaires avant le {{ endDate }}.
+      } @else {
+        Vous pouvez réactiver votre abonnement à tout moment.
+      }
+    </span>
+  </div>
+</div>

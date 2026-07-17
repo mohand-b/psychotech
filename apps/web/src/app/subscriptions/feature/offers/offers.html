@@ -1,15 +1,11 @@
 <section class="page-shell offers">
   <div class="offers__intro">
     @if (banner(); as state) {
-    <div
-      class="offers__banner"
-      [class.offers__banner--success]="state !== 'cancelScheduled'"
-    >
-      @switch (state) { @case ('cancelScheduled') { Résiliation enregistrée. Vous gardez
-      l'accès jusqu'à la fin de la période en cours. } @case ('resumed') {
-      Votre abonnement reprend normalement. } @case ('cardUpdated') { Votre
-      carte a été mise à jour. } }
+    @if (state === 'cardUpdated') {
+    <div class="offers__banner offers__banner--success">
+      Votre carte a été mise à jour.
     </div>
+    }
     }
     <div class="offers__head">
       <h1 class="offers__title">Choisissez votre rythme de préparation</h1>

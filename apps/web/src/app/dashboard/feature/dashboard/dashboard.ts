@@ -163,7 +163,7 @@ export class Dashboard {
       return 'Vous avez une simulation en cours : reprenez là où vous vous êtes arrêté.';
     }
     if (this.free()) {
-      return 'Découvrez les épreuves avec les tutoriels en libre accès.';
+      return 'Découvrez les épreuves avec le mode découverte, en libre accès.';
     }
     if (this.unlimited()) {
       return 'Énergie illimitée : simulation complète ou axe ciblé, à vous de choisir.';
@@ -175,7 +175,7 @@ export class Dashboard {
 
   protected readonly energyLabel = computed(() => {
     if (this.free()) {
-      return 'Tutoriels en libre accès';
+      return 'Mode découverte en libre accès';
     }
     if (this.unlimited()) {
       return 'Énergie illimitée';
@@ -199,7 +199,7 @@ export class Dashboard {
 
   protected readonly trainSub = computed(() => {
     if (this.free()) {
-      return 'Les tutoriels de chaque axe sont en libre accès pour découvrir les épreuves.';
+      return 'Le mode découverte de chaque axe est en libre accès pour découvrir les épreuves.';
     }
     if (this.unlimited()) {
       return 'Votre énergie est illimitée : enchaînez les séances autant que vous le souhaitez.';
@@ -208,7 +208,7 @@ export class Dashboard {
       return 'Votre énergie du jour est pleine. Une séance suffit pour progresser, même courte.';
     }
     if (this.balance() === 0) {
-      return 'Votre énergie du jour est épuisée. Elle se recharge à minuit ; les tutoriels restent en libre accès.';
+      return 'Votre énergie du jour est épuisée. Elle se recharge à minuit ; le mode découverte reste en libre accès.';
     }
     const balance = this.balance();
     return `Il vous reste ${balance} énergie${balance > 1 ? 's' : ''} aujourd'hui. Une séance suffit pour progresser, même courte.`;
@@ -267,7 +267,7 @@ export class Dashboard {
   protected readonly planDesc = computed(() => {
     const tier = this.tier();
     return tier === SubscriptionTier.FREE
-      ? 'Tutoriels de chaque axe, en libre accès'
+      ? 'Mode découverte de chaque axe, en libre accès'
       : tier === SubscriptionTier.UNLIMITED
         ? 'Énergie illimitée, sans quota journalier'
         : '5 énergies par jour, rechargées à minuit';

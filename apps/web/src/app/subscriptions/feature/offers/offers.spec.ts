@@ -139,13 +139,21 @@ describe('Offers', () => {
     cancelButton().click();
     fixture.detectChanges();
     expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
-    expect(element.querySelector('.offers__banner')?.textContent).toContain(
-      'Résiliation enregistrée.',
-    );
   });
 
-  it('offers to resume a subscription scheduled for cancellation', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
+  it('lands on the cancellation page after cancelling', async () => {
+    const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL);
+    const element: HTMLElement = fixture.nativeElement;
+    const cancelButton = () =>
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[1];
+    cancelButton().click();
+    fixture.detectChanges();
+    cancelButton().click();
+    expect(navigate).toHaveBeenCalledWith(['/abonnement-resilie']);
+  });
+
+  it('resumes a scheduled cancellation and lands on the confirmation page', async () => {
+    const { fixture, subscriptionsFacade, navigate } = await setup(
       SubscriptionTier.UNLIMITED,
       { subscription: { cancelAtPeriodEnd: true } },
     );
@@ -158,6 +166,9 @@ describe('Offers', () => {
     ).find((button) => button.textContent?.includes('Reprendre'));
     resumeButton?.click();
     expect(subscriptionsFacade.resumeSubscription).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(['/abonnement-confirme'], {
+      queryParams: { offre: 'illimite', mode: 'reprise' },
+    });
   });
 
   it('shows the card update banner when returning from the card page', async () => {

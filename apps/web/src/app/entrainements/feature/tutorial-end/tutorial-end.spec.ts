@@ -82,7 +82,7 @@ describe('TutorialEnd', () => {
     const fixture = await setup(SubscriptionTier.FREE);
     const element: HTMLElement = fixture.nativeElement;
     const text = element.textContent ?? '';
-    expect(text).toContain('Tutoriel terminé');
+    expect(text).toContain('Découverte terminée');
     expect(text).toContain('Bonnes réponses');
     expect(text).toContain('Aperçu réduit, sans notation ni analyse.');
     expect(text).not.toContain('/100');
@@ -92,14 +92,14 @@ describe('TutorialEnd', () => {
     const fixture = await setup(SubscriptionTier.FREE);
     const labels = buttonLabels(fixture.nativeElement);
     expect(labels).toContain('Découvrir les offres');
-    expect(labels).toContain('Essayer un autre tutoriel');
+    expect(labels).toContain('Découvrir un autre axe');
   });
 
   it('offers the targeted training to paying users', async () => {
     const fixture = await setup(SubscriptionTier.ESSENTIAL);
     const labels = buttonLabels(fixture.nativeElement);
     expect(labels).toContain('Entraînement ciblé');
-    expect(labels).toContain('Essayer un autre tutoriel');
+    expect(labels).toContain('Découvrir un autre axe');
     expect(labels).not.toContain('Découvrir les offres');
   });
 });

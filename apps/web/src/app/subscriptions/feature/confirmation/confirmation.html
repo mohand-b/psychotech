@@ -9,6 +9,9 @@
       <p class="confirm__subtitle">
         @if (isPlanChange) {
           Votre changement d'offre est pris en compte immédiatement.
+        } @else if (isResume) {
+          Votre abonnement reprend : votre offre reste active sans
+          interruption.
         } @else {
           Votre abonnement est actif. Un reçu vient de vous être envoyé par
           email.
