@@ -22,7 +22,7 @@ describe('BillingController.handleWebhook guards', () => {
     ).toBe(true);
   });
 
-  it('keeps subscription and portal behind the auth guard', () => {
+  it('keeps subscription management behind the auth guard', () => {
     expect(
       Reflect.getMetadata(
         IS_PUBLIC_KEY,
@@ -32,7 +32,13 @@ describe('BillingController.handleWebhook guards', () => {
     expect(
       Reflect.getMetadata(
         IS_PUBLIC_KEY,
-        BillingController.prototype.createPortalSession,
+        BillingController.prototype.cancelSubscription,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        BillingController.prototype.createPaymentMethodSetup,
       ),
     ).toBeUndefined();
   });

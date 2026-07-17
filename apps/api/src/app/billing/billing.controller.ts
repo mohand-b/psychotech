@@ -12,7 +12,6 @@ import {
 import { Request } from 'express';
 import {
   BillingConfigDto,
-  BillingRedirectDto,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -25,12 +24,6 @@ import { ChangeSubscriptionPlanRequest } from './dto/change-subscription-plan.re
 import { CreateSubscriptionRequest } from './dto/create-subscription.request';
 
 const STRIPE_SIGNATURE_HEADER = 'stripe-signature';
-
-function resolveOrigin(request: Request): string {
-  return (
-    request.headers.origin ?? `${request.protocol}://${request.get('host')}`
-  );
-}
 
 @Controller('billing')
 export class BillingController {
@@ -61,15 +54,21 @@ export class BillingController {
     return this.billingService.changeSubscriptionPlan(userId, body.plan);
   }
 
-  @Post('portal')
-  createPortalSession(
+  @Post('subscription/cancel')
+  cancelSubscription(@CurrentUser() userId: string): Promise<SubscriptionDto> {
+    return this.billingService.cancelSubscription(userId);
+  }
+
+  @Post('subscription/resume')
+  resumeSubscription(@CurrentUser() userId: string): Promise<SubscriptionDto> {
+    return this.billingService.resumeSubscription(userId);
+  }
+
+  @Post('payment-method/intent')
+  createPaymentMethodSetup(
     @CurrentUser() userId: string,
-    @Req() request: Request,
-  ): Promise<BillingRedirectDto> {
-    return this.billingService.createPortalSession(
-      userId,
-      resolveOrigin(request),
-    );
+  ): Promise<SubscriptionPaymentDto> {
+    return this.billingService.createPaymentMethodSetup(userId);
   }
 
   @Get('promotion-codes/:code')

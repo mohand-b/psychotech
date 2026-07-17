@@ -64,6 +64,8 @@ const listStripeSubscriptions = vi.fn();
 const cancelStripeSubscription = vi.fn();
 const retrieveStripeSubscription = vi.fn();
 const updateStripeSubscription = vi.fn();
+const createSetupIntent = vi.fn();
+const updateStripeCustomer = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -73,6 +75,8 @@ const stripe = {
     retrieve: retrieveStripeSubscription,
     update: updateStripeSubscription,
   },
+  setupIntents: { create: createSetupIntent },
+  customers: { update: updateStripeCustomer },
   promotionCodes: { list: listPromotionCodes },
 } as unknown as Stripe;
 
@@ -321,6 +325,121 @@ describe('BillingService.changeSubscriptionPlan', () => {
     await expect(
       service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+});
+
+describe('BillingService cancel and resume', () => {
+  const dbRow = {
+    id: 'row-1',
+    userId: 'user-1',
+    tier: DbSubscriptionTier.ESSENTIAL,
+    status: DbSubscriptionStatus.ACTIVE,
+    billingPeriod: 'MONTHLY',
+    currentPeriodEnd: new Date('2026-08-17T00:00:00Z'),
+    cancelAtPeriodEnd: false,
+    stripeSubscriptionId: 'sub_1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  it('schedules the cancellation at period end', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    updateStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ cancel_at_period_end: true }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.cancelSubscription('user-1');
+
+    expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
+      cancel_at_period_end: true,
+    });
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ cancelAtPeriodEnd: true }),
+    );
+  });
+
+  it('resumes a scheduled cancellation', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue({
+      ...dbRow,
+      cancelAtPeriodEnd: true,
+    });
+    updateStripeSubscription.mockResolvedValue(buildStripeSubscription({}));
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.resumeSubscription('user-1');
+
+    expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
+      cancel_at_period_end: false,
+    });
+  });
+
+  it('refuses without a stripe subscription', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(null);
+
+    await expect(service.cancelSubscription('user-1')).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+  });
+});
+
+describe('BillingService.createPaymentMethodSetup', () => {
+  it('creates a setup intent for the customer', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      email: 'a@b.c',
+      firstName: 'A',
+      lastName: 'B',
+      stripeCustomerId: 'cus_1',
+    });
+    createSetupIntent.mockResolvedValue({ client_secret: 'seti_secret' });
+
+    const payment = await service.createPaymentMethodSetup('user-1');
+
+    expect(payment).toEqual({ clientSecret: 'seti_secret', kind: 'SETUP' });
+    expect(createSetupIntent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: 'cus_1',
+        metadata: { userId: 'user-1', purpose: 'payment_method_update' },
+      }),
+    );
+  });
+});
+
+describe('BillingService.handleWebhook payment method update', () => {
+  it('sets the new card as default on the customer and the subscription', async () => {
+    stubEvent('setup_intent.succeeded', {
+      customer: 'cus_1',
+      payment_method: 'pm_new',
+      metadata: { userId: 'user-1', purpose: 'payment_method_update' },
+    });
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+    repository.findSubscriptionByUserId.mockResolvedValue({
+      stripeSubscriptionId: 'sub_1',
+      status: DbSubscriptionStatus.ACTIVE,
+    });
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(updateStripeCustomer).toHaveBeenCalledWith('cus_1', {
+      invoice_settings: { default_payment_method: 'pm_new' },
+    });
+    expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
+      default_payment_method: 'pm_new',
+    });
+  });
+
+  it('ignores setup intents without the update purpose', async () => {
+    stubEvent('setup_intent.succeeded', {
+      customer: 'cus_1',
+      payment_method: 'pm_new',
+      metadata: {},
+    });
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(updateStripeCustomer).not.toHaveBeenCalled();
   });
 });
 

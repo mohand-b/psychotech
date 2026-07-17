@@ -10,7 +10,6 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import {
   BillingConfigDto,
-  BillingRedirectDto,
   PaidTier,
   PaymentIntentKind,
   PromotionCodeDto,
@@ -36,10 +35,11 @@ const HANDLED_SUBSCRIPTION_EVENTS = [
   'customer.subscription.deleted',
 ] as const;
 
+const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
+
 @Injectable()
 export class BillingService {
   private readonly config: BillingConfig;
-  private portalConfigurationId: string | null = null;
 
   constructor(
     @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
@@ -200,24 +200,54 @@ export class BillingService {
     return promotion.promotion.coupon as Stripe.Coupon;
   }
 
-  async createPortalSession(
+  async cancelSubscription(userId: string): Promise<SubscriptionDto> {
+    return this.updateCancelAtPeriodEnd(userId, true);
+  }
+
+  async resumeSubscription(userId: string): Promise<SubscriptionDto> {
+    return this.updateCancelAtPeriodEnd(userId, false);
+  }
+
+  private async updateCancelAtPeriodEnd(
     userId: string,
-    origin: string,
-  ): Promise<BillingRedirectDto> {
+    cancelAtPeriodEnd: boolean,
+  ): Promise<SubscriptionDto> {
     const stripe = this.requireStripe();
-    const user = await this.repository.findUserById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (!row?.stripeSubscriptionId) {
+      throw new ForbiddenException('No subscription for this user');
     }
-    if (!user.stripeCustomerId) {
-      throw new ForbiddenException('No billing account for this user');
+    const updated = await stripe.subscriptions.update(
+      row.stripeSubscriptionId,
+      { cancel_at_period_end: cancelAtPeriodEnd },
+    );
+    await this.applySubscription(updated);
+    const fresh = await this.repository.findSubscriptionByUserId(userId);
+    if (!fresh) {
+      throw new NotFoundException('Subscription not found');
     }
-    const session = await stripe.billingPortal.sessions.create({
-      customer: user.stripeCustomerId,
-      configuration: await this.ensurePortalConfiguration(stripe),
-      return_url: `${origin}/abonnements`,
+    return toSubscriptionDto(fresh);
+  }
+
+  async createPaymentMethodSetup(
+    userId: string,
+  ): Promise<SubscriptionPaymentDto> {
+    const stripe = this.requireStripe();
+    const customerId = await this.ensureCustomer(stripe, userId);
+    const intent = await stripe.setupIntents.create({
+      customer: customerId,
+      usage: 'off_session',
+      metadata: { userId, purpose: PAYMENT_METHOD_UPDATE_PURPOSE },
     });
-    return { url: session.url };
+    if (!intent.client_secret) {
+      throw new ServiceUnavailableException(
+        'Stripe returned no setup client secret',
+      );
+    }
+    return {
+      clientSecret: intent.client_secret,
+      kind: PaymentIntentKind.SETUP,
+    };
   }
 
   async handleWebhook(
@@ -241,10 +271,50 @@ export class BillingService {
     if (!(await this.repository.registerEvent(event.id))) {
       return;
     }
+    if (event.type === 'setup_intent.succeeded') {
+      await this.applyPaymentMethodUpdate(stripe, event.data.object);
+      return;
+    }
     if (
       (HANDLED_SUBSCRIPTION_EVENTS as readonly string[]).includes(event.type)
     ) {
       await this.applySubscription(event.data.object as Stripe.Subscription);
+    }
+  }
+
+  private async applyPaymentMethodUpdate(
+    stripe: Stripe,
+    setupIntent: Stripe.SetupIntent,
+  ): Promise<void> {
+    if (
+      setupIntent.metadata?.['purpose'] !== PAYMENT_METHOD_UPDATE_PURPOSE ||
+      !setupIntent.customer ||
+      !setupIntent.payment_method
+    ) {
+      return;
+    }
+    const customerId =
+      typeof setupIntent.customer === 'string'
+        ? setupIntent.customer
+        : setupIntent.customer.id;
+    const paymentMethodId =
+      typeof setupIntent.payment_method === 'string'
+        ? setupIntent.payment_method
+        : setupIntent.payment_method.id;
+    await stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: paymentMethodId },
+    });
+    const userId = await this.repository.findUserIdByStripeCustomerId(
+      customerId,
+    );
+    if (!userId) {
+      return;
+    }
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (row?.stripeSubscriptionId && row.status !== 'CANCELED') {
+      await stripe.subscriptions.update(row.stripeSubscriptionId, {
+        default_payment_method: paymentMethodId,
+      });
     }
   }
 
@@ -295,52 +365,6 @@ export class BillingService {
     });
     await this.repository.saveStripeCustomerId(userId, customer.id);
     return customer.id;
-  }
-
-  private async ensurePortalConfiguration(stripe: Stripe): Promise<string> {
-    if (this.portalConfigurationId) {
-      return this.portalConfigurationId;
-    }
-    const existing = await stripe.billingPortal.configurations.list({
-      active: true,
-      limit: 1,
-    });
-    if (existing.data.length > 0) {
-      this.portalConfigurationId = existing.data[0].id;
-      return this.portalConfigurationId;
-    }
-    const catalog = this.catalog();
-    const [essential, unlimited] = await Promise.all([
-      stripe.prices.retrieve(catalog.priceEssential),
-      stripe.prices.retrieve(catalog.priceUnlimited),
-    ]);
-    const created = await stripe.billingPortal.configurations.create({
-      features: {
-        invoice_history: { enabled: true },
-        payment_method_update: { enabled: true },
-        subscription_cancel: { enabled: true, mode: 'at_period_end' },
-        subscription_update: {
-          enabled: true,
-          default_allowed_updates: ['price'],
-          products: [
-            {
-              product: this.productId(essential),
-              prices: [essential.id],
-            },
-            {
-              product: this.productId(unlimited),
-              prices: [unlimited.id],
-            },
-          ],
-        },
-      },
-    });
-    this.portalConfigurationId = created.id;
-    return this.portalConfigurationId;
-  }
-
-  private productId(price: Stripe.Price): string {
-    return typeof price.product === 'string' ? price.product : price.product.id;
   }
 
   private catalog(): PriceCatalog {
