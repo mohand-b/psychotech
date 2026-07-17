@@ -82,6 +82,13 @@ export class SubscriptionConfirmation {
     () => SUBSCRIPTION_MONTHLY_PRICES[this.plan],
   );
 
+  protected readonly isDeferredChange = computed(
+    () =>
+      this.isPlanChange &&
+      this.plan === SubscriptionTier.ESSENTIAL &&
+      this.authFacade.currentUser()?.tier === SubscriptionTier.UNLIMITED,
+  );
+
   protected readonly nextBillingLabel = computed(() => {
     const subscription = this.authFacade.currentUser()?.subscription;
     return subscription?.currentPeriodEnd && !subscription.cancelAtPeriodEnd

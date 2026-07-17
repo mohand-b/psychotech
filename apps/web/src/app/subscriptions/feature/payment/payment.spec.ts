@@ -37,7 +37,11 @@ const RAIL1MOIS: PromotionCodeDto = {
   durationInMonths: null,
 };
 
-async function setup(slug: string, tier = SubscriptionTier.FREE) {
+async function setup(
+  slug: string,
+  tier = SubscriptionTier.FREE,
+  subscription: { cancelAtPeriodEnd: boolean } | null = null,
+) {
   const subscriptionsFacade = {
     getBillingConfig: vi
       .fn()
@@ -84,7 +88,9 @@ async function setup(slug: string, tier = SubscriptionTier.FREE) {
       { provide: CoreFacade, useValue: { tier: signal(tier) } },
       {
         provide: AuthFacade,
-        useValue: { currentUser: signal({ email: 'alice@example.com' }) },
+        useValue: {
+          currentUser: signal({ email: 'alice@example.com', subscription }),
+        },
       },
       { provide: SubscriptionsFacade, useValue: subscriptionsFacade },
       {
@@ -189,6 +195,18 @@ describe('Payment', () => {
     expect(text(fixture, '.chg__pm-last4')).toContain('4242');
     expect(text(fixture, '.pay__cta')).toBe('Confirmer et payer 4,10 €');
     expect(stripePayment.mount).not.toHaveBeenCalled();
+  });
+
+  it('announces that a scheduled cancellation is lifted by the change', async () => {
+    const { fixture } = await setup('illimite', SubscriptionTier.ESSENTIAL, {
+      cancelAtPeriodEnd: true,
+    });
+    const notes = texts(fixture, '.chg__effect');
+    expect(
+      notes.some((note) =>
+        note.includes('Votre résiliation programmée est annulée'),
+      ),
+    ).toBe(true);
   });
 
   it('confirms the plan change and lands on the confirmation page', async () => {

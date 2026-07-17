@@ -57,6 +57,13 @@
           <ui-icon [img]="clockIcon" [size]="13" />
           {{ effectNote() }}
         </span>
+        @if (liftsCancellation()) {
+          <span class="chg__effect">
+            <ui-icon [img]="resumeIcon" [size]="13" />
+            Votre résiliation programmée est annulée : votre abonnement
+            continue sur l'offre {{ presentation().label }}.
+          </span>
+        }
       </section>
 
       <section class="pay__card chg__section">

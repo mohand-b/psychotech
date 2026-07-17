@@ -24,6 +24,7 @@ import {
   CircleAlert,
   Clock,
   Lock,
+  RotateCcw,
   ShieldCheck,
   Tag,
   X,
@@ -101,6 +102,7 @@ export class Payment {
   protected readonly errorIcon = CircleAlert;
   protected readonly arrowIcon = ArrowRight;
   protected readonly clockIcon = Clock;
+  protected readonly resumeIcon = RotateCcw;
 
   protected readonly plan: PaidTier;
   protected readonly mode: 'checkout' | 'change';
@@ -272,6 +274,12 @@ export class Payment {
     return current ? PLAN_PRESENTATION[current].label : '';
   });
 
+  protected readonly liftsCancellation = computed(
+    () =>
+      this.mode === 'change' &&
+      this.authFacade.currentUser()?.subscription?.cancelAtPeriodEnd === true,
+  );
+
   protected readonly changeSubtitle = computed(() =>
     this.isUpgrade()
       ? 'Vous payez uniquement la différence entre votre offre actuelle et la nouvelle.'
@@ -281,7 +289,7 @@ export class Payment {
   protected readonly effectNote = computed(() =>
     this.isUpgrade()
       ? `Effet immédiat : l'${PLAN_PRESENTATION[this.plan].label} est actif dès la confirmation.`
-      : `Effet immédiat sur l'offre, nouveau tarif à partir du ${this.nextInvoiceDateLabel()}.`,
+      : `L'${this.currentPlanLabel()} reste actif jusqu'au ${this.nextInvoiceDateLabel()}, puis l'${PLAN_PRESENTATION[this.plan].label} prend le relais.`,
   );
 
   protected readonly changeCard = computed(

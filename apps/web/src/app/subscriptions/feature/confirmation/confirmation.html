@@ -7,7 +7,11 @@
     <div class="confirm__head">
       <h1 class="confirm__title">Bienvenue dans l'offre {{ planLabel() }}</h1>
       <p class="confirm__subtitle">
-        @if (isPlanChange) {
+        @if (isDeferredChange()) {
+          Votre changement d'offre est enregistré : il prend effet le
+          {{ nextBillingLabel() ?? 'jour du prochain prélèvement' }}, à la fin
+          de la période déjà payée.
+        } @else if (isPlanChange) {
           Votre changement d'offre est pris en compte immédiatement.
         } @else if (isResume) {
           Votre abonnement reprend : votre offre reste active sans
