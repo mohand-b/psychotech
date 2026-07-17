@@ -12,6 +12,7 @@ import {
 import { Request } from 'express';
 import {
   BillingConfigDto,
+  ChangePlanPreviewDto,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -44,6 +45,14 @@ export class BillingController {
       body.plan,
       body.promotionCode,
     );
+  }
+
+  @Post('subscription/change/preview')
+  previewPlanChange(
+    @CurrentUser() userId: string,
+    @Body() body: ChangeSubscriptionPlanRequest,
+  ): Promise<ChangePlanPreviewDto> {
+    return this.billingService.previewPlanChange(userId, body.plan);
   }
 
   @Post('subscription/change')

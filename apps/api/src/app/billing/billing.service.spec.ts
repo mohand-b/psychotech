@@ -66,6 +66,8 @@ const retrieveStripeSubscription = vi.fn();
 const updateStripeSubscription = vi.fn();
 const createSetupIntent = vi.fn();
 const updateStripeCustomer = vi.fn();
+const createInvoicePreview = vi.fn();
+const retrieveStripePrice = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -77,6 +79,8 @@ const stripe = {
   },
   setupIntents: { create: createSetupIntent },
   customers: { update: updateStripeCustomer },
+  invoices: { createPreview: createInvoicePreview },
+  prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
 } as unknown as Stripe;
 
@@ -325,6 +329,94 @@ describe('BillingService.changeSubscriptionPlan', () => {
     await expect(
       service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED),
     ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+});
+
+describe('BillingService.previewPlanChange', () => {
+  const dbRow = {
+    id: 'row-1',
+    userId: 'user-1',
+    tier: DbSubscriptionTier.ESSENTIAL,
+    status: DbSubscriptionStatus.ACTIVE,
+    billingPeriod: 'MONTHLY',
+    currentPeriodEnd: new Date('2026-08-17T00:00:00Z'),
+    cancelAtPeriodEnd: false,
+    stripeSubscriptionId: 'sub_1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  it('previews an upgrade with the prorated difference', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ status: 'active' }),
+    );
+    createInvoicePreview.mockResolvedValue({ total: 1909 });
+    retrieveStripePrice.mockResolvedValue({ unit_amount: 1499 });
+
+    const preview = await service.previewPlanChange(
+      'user-1',
+      SubscriptionTier.UNLIMITED,
+    );
+
+    expect(preview).toEqual({
+      currentPlan: SubscriptionTier.ESSENTIAL,
+      targetPlan: SubscriptionTier.UNLIMITED,
+      monthlyAmount: 1499,
+      prorationAmount: 410,
+      nextInvoiceTotal: 1909,
+      nextInvoiceDate: new Date(1_800_000_000 * 1000).toISOString(),
+    });
+    expect(createInvoicePreview).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subscription: 'sub_1',
+        subscription_details: expect.objectContaining({
+          proration_behavior: 'create_prorations',
+        }),
+      }),
+    );
+  });
+
+  it('previews a downgrade without proration', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    createInvoicePreview.mockResolvedValue({ total: 899 });
+    retrieveStripePrice.mockResolvedValue({ unit_amount: 899 });
+
+    const preview = await service.previewPlanChange(
+      'user-1',
+      SubscriptionTier.ESSENTIAL,
+    );
+
+    expect(preview.prorationAmount).toBe(0);
+    expect(preview.nextInvoiceTotal).toBe(899);
+    expect(createInvoicePreview).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subscription_details: expect.objectContaining({
+          proration_behavior: 'none',
+        }),
+      }),
+    );
+  });
+
+  it('rejects a preview for the current plan', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ status: 'active' }),
+    );
+
+    await expect(
+      service.previewPlanChange('user-1', SubscriptionTier.ESSENTIAL),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
 

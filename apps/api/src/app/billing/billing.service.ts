@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import {
   BillingConfigDto,
+  ChangePlanPreviewDto,
   PaidTier,
   PaymentIntentKind,
   PromotionCodeDto,
@@ -108,11 +109,46 @@ export class BillingService {
     return { clientSecret, kind: PaymentIntentKind.PAYMENT };
   }
 
-  async changeSubscriptionPlan(
+  async previewPlanChange(
     userId: string,
     plan: PaidTier,
-  ): Promise<SubscriptionDto> {
+  ): Promise<ChangePlanPreviewDto> {
     const stripe = this.requireStripe();
+    const current = await this.requireChangeableSubscription(stripe, userId);
+    const item = current.items.data[0];
+    const currentTier = tierForPrice(item.price.id, this.catalog());
+    if (!currentTier || currentTier === plan) {
+      throw new BadRequestException('The subscription is already on this plan');
+    }
+    const targetPrice = priceForPlan(plan, this.catalog());
+    const isUpgrade = plan === SubscriptionTier.UNLIMITED;
+    const [preview, price] = await Promise.all([
+      stripe.invoices.createPreview({
+        subscription: current.id,
+        subscription_details: {
+          items: [{ id: item.id, price: targetPrice }],
+          proration_behavior: isUpgrade ? 'create_prorations' : 'none',
+        },
+      }),
+      stripe.prices.retrieve(targetPrice),
+    ]);
+    const monthlyAmount = price.unit_amount ?? 0;
+    return {
+      currentPlan: currentTier as PaidTier,
+      targetPlan: plan,
+      monthlyAmount,
+      prorationAmount: Math.max(0, preview.total - monthlyAmount),
+      nextInvoiceTotal: preview.total,
+      nextInvoiceDate: item.current_period_end
+        ? new Date(item.current_period_end * 1000).toISOString()
+        : null,
+    };
+  }
+
+  private async requireChangeableSubscription(
+    stripe: Stripe,
+    userId: string,
+  ): Promise<Stripe.Subscription> {
     const row = await this.repository.findSubscriptionByUserId(userId);
     if (!row?.stripeSubscriptionId) {
       throw new ForbiddenException('No subscription to change for this user');
@@ -123,6 +159,15 @@ export class BillingService {
     if (current.status !== 'active' && current.status !== 'past_due') {
       throw new ForbiddenException('The subscription cannot be changed');
     }
+    return current;
+  }
+
+  async changeSubscriptionPlan(
+    userId: string,
+    plan: PaidTier,
+  ): Promise<SubscriptionDto> {
+    const stripe = this.requireStripe();
+    const current = await this.requireChangeableSubscription(stripe, userId);
     const targetPrice = priceForPlan(plan, this.catalog());
     const item = current.items.data[0];
     if (item.price.id !== targetPrice) {
