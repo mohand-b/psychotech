@@ -174,8 +174,11 @@ describe('Payment', () => {
         value.includes('+4,10 €'),
       ),
     ).toBe(true);
-    expect(text(fixture, '.pay__total-amount')).toBe('19,09 €');
-    expect(text(fixture, '.pay__total-due')).toContain('17 août 2026');
+    expect(text(fixture, '.pay__total-due')).toBe("À payer aujourd'hui");
+    expect(text(fixture, '.pay__total-amount')).toBe('4,10 €');
+    expect(text(fixture, '.pay__cta')).toBe(
+      "Payer 4,10 € et changer d'offre",
+    );
     expect(stripePayment.mount).not.toHaveBeenCalled();
   });
 

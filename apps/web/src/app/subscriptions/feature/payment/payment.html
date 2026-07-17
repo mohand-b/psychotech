@@ -39,36 +39,57 @@
               >{{ changeMonthlyLabel() }}&nbsp;€</span
             >
           </div>
-          @if (hasProration()) {
+          @if (isUpgrade()) {
+            @if (hasProration()) {
+              <div class="pay__total-row">
+                <span class="pay__total-label"
+                  >Différence des jours restants</span
+                >
+                <span class="t-mono pay__total-value"
+                  >+{{ prorationLabel() }}&nbsp;€</span
+                >
+              </div>
+            }
+            <span class="pay__total-divider"></span>
             <div class="pay__total-row">
-              <span class="pay__total-label">Ajustements au prorata</span>
-              <span class="t-mono pay__total-value"
-                >+{{ prorationLabel() }}&nbsp;€</span
+              <span class="pay__total-due">À payer aujourd'hui</span>
+              <span class="t-mono pay__total-amount"
+                >{{ prorationLabel() }}&nbsp;€</span
               >
             </div>
-          }
-          <span class="pay__total-divider"></span>
-          <div class="pay__total-row">
-            <span class="pay__total-due"
-              >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
-                <span class="t-mono">{{ date }}</span
-                >}</span
+            <div class="pay__total-row">
+              <span class="pay__total-label"
+                >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
+                  <span class="t-mono">{{ date }}</span
+                  >}</span
+              >
+              <span class="t-mono pay__total-value"
+                >{{ changeMonthlyLabel() }}&nbsp;€</span
+              >
+            </div>
+            <span class="pay__note"
+              >La différence est débitée immédiatement sur votre carte
+              enregistrée. Ensuite, votre facture mensuelle habituelle
+              reprend.</span
             >
-            <span class="t-mono pay__total-amount"
-              >{{ nextInvoiceLabel() }}&nbsp;€</span
-            >
-          </div>
-          <span class="pay__note">
-            @if (isUpgrade()) {
-              Aucun débit aujourd'hui : la différence pour les jours restants
-              est ajoutée à votre prochaine facture, réglée avec votre carte
-              enregistrée.
-            } @else {
-              Aucun débit ni remboursement aujourd'hui : le nouveau tarif
+          } @else {
+            <span class="pay__total-divider"></span>
+            <div class="pay__total-row">
+              <span class="pay__total-due"
+                >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
+                  <span class="t-mono">{{ date }}</span
+                  >}</span
+              >
+              <span class="t-mono pay__total-amount"
+                >{{ nextInvoiceLabel() }}&nbsp;€</span
+              >
+            </div>
+            <span class="pay__note"
+              >Aucun débit ni remboursement aujourd'hui : le nouveau tarif
               s'applique à partir de votre prochaine facture@if
-              (hasProration()) {, ajustements antérieurs inclus}.
-            }
-          </span>
+              (hasProration()) {, ajustements antérieurs inclus}.</span
+            >
+          }
         </div>
       }
     </section>
@@ -92,10 +113,11 @@
       } @else {
         <span class="pay__stripe-text">
           @if (isUpgrade()) {
-            Votre offre passe à {{ presentation().label }} immédiatement. Vous
-            ne payez que la différence des jours restants
-            (+{{ prorationLabel() }}&nbsp;€), ajoutée à votre prochaine facture
-            du {{ nextInvoiceDateLabel() }}.
+            Votre offre passe à {{ presentation().label }} immédiatement. Seule
+            la différence des jours restants
+            ({{ prorationLabel() }}&nbsp;€) est débitée maintenant sur votre
+            carte enregistrée. En cas de refus de paiement, vous restez sur
+            votre offre actuelle.
           } @else {
             Votre offre passe à {{ presentation().label }} immédiatement, sans
             débit aujourd'hui. Votre prochaine facture du
@@ -107,7 +129,12 @@
         @if (changeError()) {
           <span class="pay__promo-error">
             <ui-icon [img]="errorIcon" [size]="13" />
-            Le changement d'offre n'a pas abouti. Réessayez dans un instant.
+            @if (isUpgrade()) {
+              Le paiement de la différence a été refusé. Vérifiez votre moyen
+              de paiement — votre offre actuelle est conservée.
+            } @else {
+              Le changement d'offre n'a pas abouti. Réessayez dans un instant.
+            }
           </span>
         }
 
@@ -120,7 +147,7 @@
           [loading]="changing()"
           (click)="confirmChange()"
         >
-          Confirmer le changement d'offre
+          {{ changeCtaLabel() }}
         </ui-button>
       }
 

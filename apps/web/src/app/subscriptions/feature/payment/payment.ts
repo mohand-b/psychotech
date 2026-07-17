@@ -241,6 +241,12 @@ export class Payment {
     return current ? PLAN_PRESENTATION[current].label : '';
   });
 
+  protected readonly changeCtaLabel = computed(() =>
+    this.isUpgrade() && this.hasProration()
+      ? `Payer ${this.prorationLabel()} € et changer d'offre`
+      : "Confirmer le changement d'offre",
+  );
+
   private loadChangePreview(): void {
     this.subscriptionsFacade
       .previewPlanChange(this.plan)
