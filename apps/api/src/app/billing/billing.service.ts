@@ -223,7 +223,7 @@ export class BillingService {
       const customer = await stripe.customers.retrieve(user.stripeCustomerId, {
         expand: ['invoice_settings.default_payment_method'],
       });
-      if (!customer.deleted) {
+      if ('invoice_settings' in customer) {
         const fallback = customer.invoice_settings.default_payment_method;
         paymentMethod = typeof fallback === 'string' ? null : fallback;
       }
