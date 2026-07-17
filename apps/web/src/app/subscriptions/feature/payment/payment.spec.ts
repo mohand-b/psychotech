@@ -46,6 +46,17 @@ async function setup(slug: string, tier = SubscriptionTier.FREE) {
       of({ clientSecret: 'pi_secret', kind: PaymentIntentKind.PAYMENT }),
     ),
     validatePromotionCode: vi.fn(),
+    previewPlanChange: vi.fn().mockReturnValue(
+      of({
+        currentPlan: SubscriptionTier.ESSENTIAL,
+        targetPlan: SubscriptionTier.UNLIMITED,
+        monthlyAmount: 1499,
+        prorationAmount: 410,
+        nextInvoiceTotal: 1909,
+        nextInvoiceDate: '2026-08-17T00:00:00.000Z',
+      }),
+    ),
+    changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
   };
   const stripePayment = {
     init: vi.fn().mockResolvedValue(undefined),
@@ -99,6 +110,15 @@ function text(fixture: { nativeElement: HTMLElement }, selector: string) {
   );
 }
 
+function texts(
+  fixture: { nativeElement: HTMLElement },
+  selector: string,
+): string[] {
+  return Array.from(fixture.nativeElement.querySelectorAll(selector)).map(
+    (node) => node.textContent?.replace(/[ ]/g, ' ').trim() ?? '',
+  );
+}
+
 function applyCode(
   fixture: { nativeElement: HTMLElement; detectChanges(): void },
   code: string,
@@ -137,9 +157,45 @@ describe('Payment', () => {
     expect(navigate).toHaveBeenCalledWith(['/abonnements']);
   });
 
-  it('redirects an already subscribed user to the offers page', async () => {
+  it('redirects a user already on the requested plan to the offers page', async () => {
     const { navigate } = await setup('essentiel', SubscriptionTier.ESSENTIAL);
     expect(navigate).toHaveBeenCalledWith(['/abonnements']);
+  });
+
+  it('shows the prorated change summary for a subscribed user', async () => {
+    const { fixture, stripePayment } = await setup(
+      'illimite',
+      SubscriptionTier.ESSENTIAL,
+    );
+    expect(text(fixture, '.pay__title')).toBe("Changer d'offre");
+    expect(text(fixture, '.pay__offer-amount')).toBe('14,99 €');
+    expect(
+      texts(fixture, '.pay__total-value').some((value) =>
+        value.includes('+4,10 €'),
+      ),
+    ).toBe(true);
+    expect(text(fixture, '.pay__total-amount')).toBe('19,09 €');
+    expect(text(fixture, '.pay__total-due')).toContain('17 août 2026');
+    expect(stripePayment.mount).not.toHaveBeenCalled();
+  });
+
+  it('confirms the plan change and lands on the confirmation page', async () => {
+    const { fixture, subscriptionsFacade, navigate } = await setup(
+      'illimite',
+      SubscriptionTier.ESSENTIAL,
+    );
+
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('.pay__cta button')
+      ?.click();
+    await fixture.whenStable();
+
+    expect(subscriptionsFacade.changePlan).toHaveBeenCalledWith(
+      SubscriptionTier.UNLIMITED,
+    );
+    expect(navigate).toHaveBeenCalledWith(['/abonnement-confirme'], {
+      queryParams: { offre: 'illimite', mode: 'changement' },
+    });
   });
 
   it('applies a percent promotion and updates the element amount', async () => {

@@ -30,11 +30,7 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
-type OffersBanner =
-  | 'planChanged'
-  | 'cancelScheduled'
-  | 'resumed'
-  | 'cardUpdated';
+type OffersBanner = 'cancelScheduled' | 'resumed' | 'cardUpdated';
 
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
@@ -63,8 +59,6 @@ export class Offers {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly changingPlan = signal(false);
-  protected readonly pendingPlanChange = signal<PaidTier | null>(null);
   protected readonly managing = signal(false);
   protected readonly pendingCancel = signal(false);
   protected readonly banner = signal<OffersBanner | null>(null);
@@ -162,45 +156,18 @@ export class Offers {
   ];
 
   protected choosePlan(plan: PaidTier): void {
-    if (this.changingPlan() || this.managing()) {
+    if (this.managing() || plan === this.tier()) {
       return;
     }
-    if (this.isFreeCurrent()) {
-      this.router.navigate(['/paiement', PLAN_SLUGS[plan]]);
-      return;
-    }
-    if (this.pendingPlanChange() !== plan) {
-      this.pendingPlanChange.set(plan);
-      this.pendingCancel.set(false);
-      return;
-    }
-    this.changingPlan.set(true);
-    this.subscriptionsFacade.changePlan(plan).subscribe({
-      next: () => {
-        this.changingPlan.set(false);
-        this.pendingPlanChange.set(null);
-        this.banner.set('planChanged');
-      },
-      error: () => {
-        this.changingPlan.set(false);
-        this.pendingPlanChange.set(null);
-      },
-    });
-  }
-
-  protected planChangeLabel(plan: PaidTier, defaultLabel: string): string {
-    return this.pendingPlanChange() === plan
-      ? 'Confirmer le changement'
-      : defaultLabel;
+    this.router.navigate(['/paiement', PLAN_SLUGS[plan]]);
   }
 
   protected cancelSubscription(): void {
-    if (this.managing() || this.changingPlan()) {
+    if (this.managing()) {
       return;
     }
     if (!this.pendingCancel()) {
       this.pendingCancel.set(true);
-      this.pendingPlanChange.set(null);
       return;
     }
     this.managing.set(true);
@@ -218,7 +185,7 @@ export class Offers {
   }
 
   protected resumeSubscription(): void {
-    if (this.managing() || this.changingPlan()) {
+    if (this.managing()) {
       return;
     }
     this.managing.set(true);

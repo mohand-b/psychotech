@@ -5,8 +5,7 @@
       class="offers__banner"
       [class.offers__banner--success]="state !== 'cancelScheduled'"
     >
-      @switch (state) { @case ('planChanged') { Votre formule a été mise à
-      jour. } @case ('cancelScheduled') { Résiliation enregistrée. Vous gardez
+      @switch (state) { @case ('cancelScheduled') { Résiliation enregistrée. Vous gardez
       l'accès jusqu'à la fin de la période en cours. } @case ('resumed') {
       Votre abonnement reprend normalement. } @case ('cardUpdated') { Votre
       carte a été mise à jour. } }
@@ -179,9 +178,8 @@
           color="brand"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="changingPlan() && pendingPlanChange() === tiers.ESSENTIAL"
         >
-          {{ planChangeLabel(tiers.ESSENTIAL, 'Choisir Essentiel') }}
+          Choisir Essentiel
         </ui-button>
         }
       </section>
@@ -300,9 +298,8 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="changingPlan() && pendingPlanChange() === tiers.UNLIMITED"
         >
-          {{ planChangeLabel(tiers.UNLIMITED, "Passer à l'Illimité") }}
+          Passer à l'Illimité
         </ui-button>
         }
       </section>
@@ -398,9 +395,8 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="changingPlan() && pendingPlanChange() === tiers.UNLIMITED"
         >
-          {{ planChangeLabel(tiers.UNLIMITED, "Passer à l'Illimité") }}
+          Passer à l'Illimité
         </ui-button>
         }
       </section>
@@ -499,9 +495,8 @@
           size="lg"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="changingPlan() && pendingPlanChange() === tiers.ESSENTIAL"
         >
-          {{ planChangeLabel(tiers.ESSENTIAL, 'Choisir Essentiel') }}
+          Choisir Essentiel
         </ui-button>
         }
       </section>

@@ -7,8 +7,12 @@
     <div class="confirm__head">
       <h1 class="confirm__title">Bienvenue dans l'offre {{ planLabel() }}</h1>
       <p class="confirm__subtitle">
-        Votre abonnement est actif. Un reçu vient de vous être envoyé par
-        email.
+        @if (isPlanChange) {
+          Votre changement d'offre est pris en compte immédiatement.
+        } @else {
+          Votre abonnement est actif. Un reçu vient de vous être envoyé par
+          email.
+        }
       </p>
     </div>
 

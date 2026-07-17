@@ -1,3 +1,144 @@
+@if (mode === 'change') {
+  <div class="pay pay--change">
+    <section class="pay__summary">
+      <div class="pay__head">
+        <h1 class="pay__title">Changer d'offre</h1>
+        <span class="pay__subtitle"
+          >{{ currentPlanLabel() }} vers {{ presentation().label }} — effet
+          immédiat.</span
+        >
+      </div>
+
+      <div class="pay__card pay__offer">
+        <div class="pay__card-head">
+          <span class="t-label">Votre nouvelle offre</span>
+          <a class="pay__edit" routerLink="/abonnements">Modifier</a>
+        </div>
+        <div class="pay__offer-row">
+          <span class="pay__offer-icon">
+            <ui-icon [img]="boltIcon" [size]="19" />
+          </span>
+          <span class="pay__offer-copy">
+            <span class="pay__offer-name">{{ presentation().label }}</span>
+            <span class="pay__offer-desc">{{ presentation().description }}</span>
+          </span>
+          <span class="pay__offer-price">
+            <span class="t-mono pay__offer-amount"
+              >{{ changeMonthlyLabel() }}&nbsp;€</span
+            >
+            <span class="pay__offer-period">/mois</span>
+          </span>
+        </div>
+      </div>
+
+      @if (changePreview()) {
+        <div class="pay__card pay__total">
+          <div class="pay__total-row">
+            <span class="pay__total-label">Nouvel abonnement mensuel</span>
+            <span class="t-mono pay__total-value"
+              >{{ changeMonthlyLabel() }}&nbsp;€</span
+            >
+          </div>
+          @if (isUpgrade()) {
+            <div class="pay__total-row">
+              <span class="pay__total-label"
+                >Différence au prorata (jours restants)</span
+              >
+              <span class="t-mono pay__total-value"
+                >+{{ prorationLabel() }}&nbsp;€</span
+              >
+            </div>
+          }
+          <span class="pay__total-divider"></span>
+          <div class="pay__total-row">
+            <span class="pay__total-due"
+              >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
+                <span class="t-mono">{{ date }}</span
+                >}</span
+            >
+            <span class="t-mono pay__total-amount"
+              >{{ nextInvoiceLabel() }}&nbsp;€</span
+            >
+          </div>
+          <span class="pay__note">
+            @if (isUpgrade()) {
+              Aucun débit aujourd'hui : la différence pour les jours restants
+              est ajoutée à votre prochaine facture, réglée avec votre carte
+              enregistrée.
+            } @else {
+              Aucun débit ni remboursement aujourd'hui : vous conservez votre
+              offre actuelle déjà réglée jusqu'à l'échéance, puis la facture
+              passe au nouveau tarif.
+            }
+          </span>
+        </div>
+      }
+    </section>
+
+    <section class="pay__card pay__stripe">
+      <div class="pay__card-head">
+        <span class="pay__stripe-title">Confirmation</span>
+        <span class="pay__stripe-brand">
+          Propulsé par
+          <span class="pay__stripe-wordmark">Stripe</span>
+        </span>
+      </div>
+
+      @if (changePreviewFailed()) {
+        <span class="pay__promo-error">
+          <ui-icon [img]="errorIcon" [size]="13" />
+          Impossible de préparer le changement d'offre. Rechargez la page.
+        </span>
+      } @else if (!changePreview()) {
+        <div class="pay__element-skeleton"></div>
+      } @else {
+        <span class="pay__stripe-text">
+          @if (isUpgrade()) {
+            Votre offre passe à {{ presentation().label }} immédiatement. Vous
+            ne payez que la différence des jours restants
+            (+{{ prorationLabel() }}&nbsp;€), ajoutée à votre prochaine facture
+            du {{ nextInvoiceDateLabel() }}.
+          } @else {
+            Votre offre passe à {{ presentation().label }} immédiatement, sans
+            débit aujourd'hui. À partir du {{ nextInvoiceDateLabel() }}, votre
+            facture sera de {{ changeMonthlyLabel() }}&nbsp;€/mois.
+          }
+        </span>
+
+        @if (changeError()) {
+          <span class="pay__promo-error">
+            <ui-icon [img]="errorIcon" [size]="13" />
+            Le changement d'offre n'a pas abouti. Réessayez dans un instant.
+          </span>
+        }
+
+        <ui-button
+          class="pay__cta"
+          color="brand"
+          size="lg"
+          [block]="true"
+          relief="mobile"
+          [loading]="changing()"
+          (click)="confirmChange()"
+        >
+          Confirmer le changement d'offre
+        </ui-button>
+      }
+
+      <div class="pay__stripe-notes">
+        <span class="pay__stripe-note">
+          <ui-icon class="pay__stripe-shield" [img]="shieldIcon" [size]="13" />
+          Aucune nouvelle saisie de carte : votre moyen de paiement enregistré
+          est utilisé.
+        </span>
+        <span class="pay__stripe-note pay__stripe-note--muted"
+          >Annulable à tout moment depuis votre compte, effet en fin de
+          période.</span
+        >
+      </div>
+    </section>
+  </div>
+} @else {
 <div class="pay">
   <section class="pay__summary">
     <div class="pay__head">
@@ -171,3 +312,4 @@
     </div>
   </section>
 </div>
+}

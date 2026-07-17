@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  ChangePlanPreviewDto,
   PaidTier,
   PromotionCodeDto,
   PromotionDuration,
@@ -83,19 +84,28 @@ export class Payment {
   protected readonly errorIcon = CircleAlert;
 
   protected readonly plan: PaidTier;
+  protected readonly mode: 'checkout' | 'change';
 
   private readonly paymentElementHost =
     viewChild<ElementRef<HTMLElement>>('paymentElement');
 
   constructor() {
     const plan = planFromSlug(this.route.snapshot.paramMap.get('plan'));
-    if (!plan || this.coreFacade.tier() !== SubscriptionTier.FREE) {
+    const tier = this.coreFacade.tier();
+    if (!plan || plan === tier) {
       this.plan = plan ?? SubscriptionTier.ESSENTIAL;
+      this.mode = 'checkout';
       this.router.navigate(['/abonnements']);
       return;
     }
     this.plan = plan;
-    afterNextRender(() => void this.setupPaymentElement());
+    if (tier === SubscriptionTier.FREE) {
+      this.mode = 'checkout';
+      afterNextRender(() => void this.setupPaymentElement());
+      return;
+    }
+    this.mode = 'change';
+    this.loadChangePreview();
   }
 
   protected readonly presentation = computed(
@@ -104,6 +114,11 @@ export class Payment {
   protected readonly email = computed(
     () => this.authFacade.currentUser()?.email ?? '',
   );
+
+  protected readonly changePreview = signal<ChangePlanPreviewDto | null>(null);
+  protected readonly changePreviewFailed = signal(false);
+  protected readonly changing = signal(false);
+  protected readonly changeError = signal(false);
 
   protected readonly code = signal('');
   protected readonly codeError = signal(false);
@@ -201,6 +216,55 @@ export class Payment {
     }
     return null;
   });
+
+  protected readonly isUpgrade = computed(
+    () => (this.changePreview()?.prorationAmount ?? 0) > 0,
+  );
+  protected readonly changeMonthlyLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.monthlyAmount ?? 0) / 100),
+  );
+  protected readonly prorationLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.prorationAmount ?? 0) / 100),
+  );
+  protected readonly nextInvoiceLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.nextInvoiceTotal ?? 0) / 100),
+  );
+  protected readonly nextInvoiceDateLabel = computed(() => {
+    const iso = this.changePreview()?.nextInvoiceDate;
+    return iso ? formatDayMonthYear(new Date(iso)) : null;
+  });
+  protected readonly currentPlanLabel = computed(() => {
+    const current = this.changePreview()?.currentPlan;
+    return current ? PLAN_PRESENTATION[current].label : '';
+  });
+
+  private loadChangePreview(): void {
+    this.subscriptionsFacade
+      .previewPlanChange(this.plan)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (preview) => this.changePreview.set(preview),
+        error: () => this.changePreviewFailed.set(true),
+      });
+  }
+
+  protected confirmChange(): void {
+    if (this.changing() || !this.changePreview()) {
+      return;
+    }
+    this.changing.set(true);
+    this.changeError.set(false);
+    this.subscriptionsFacade.changePlan(this.plan).subscribe({
+      next: () =>
+        this.router.navigate(['/abonnement-confirme'], {
+          queryParams: { offre: PLAN_SLUGS[this.plan], mode: 'changement' },
+        }),
+      error: () => {
+        this.changing.set(false);
+        this.changeError.set(true);
+      },
+    });
+  }
 
   private async setupPaymentElement(): Promise<void> {
     const host = this.paymentElementHost()?.nativeElement;

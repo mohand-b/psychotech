@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
+  ChangePlanPreviewDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
   PaidTier,
@@ -28,6 +29,14 @@ export class SubscriptionsApi {
     const body: CreateSubscriptionDto = { plan, promotionCode };
     return this.http.post<SubscriptionPaymentDto>(
       `${this.baseUrl}/billing/subscription`,
+      body,
+    );
+  }
+
+  previewPlanChange(plan: PaidTier): Observable<ChangePlanPreviewDto> {
+    const body: ChangeSubscriptionPlanDto = { plan };
+    return this.http.post<ChangePlanPreviewDto>(
+      `${this.baseUrl}/billing/subscription/change/preview`,
       body,
     );
   }

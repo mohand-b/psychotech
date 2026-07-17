@@ -112,29 +112,13 @@ describe('Offers', () => {
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
-  it('changes the plan in-app after an inline confirmation', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
-      SubscriptionTier.ESSENTIAL,
-    );
-    const element: HTMLElement = fixture.nativeElement;
-    const unlimitedButton = () =>
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[2];
-
-    unlimitedButton().click();
-    fixture.detectChanges();
-    expect(subscriptionsFacade.changePlan).not.toHaveBeenCalled();
-    expect(unlimitedButton().textContent?.trim()).toBe(
-      'Confirmer le changement',
-    );
-
-    unlimitedButton().click();
-    fixture.detectChanges();
-    expect(subscriptionsFacade.changePlan).toHaveBeenCalledWith(
-      SubscriptionTier.UNLIMITED,
-    );
-    expect(element.querySelector('.offers__banner')?.textContent).toContain(
-      'Votre formule a été mise à jour.',
-    );
+  it('sends a subscribed user picking another plan to the change page', async () => {
+    const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL);
+    const buttons = (
+      fixture.nativeElement as HTMLElement
+    ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
+    buttons[2].click();
+    expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
   it('cancels the subscription in-app after an inline confirmation', async () => {

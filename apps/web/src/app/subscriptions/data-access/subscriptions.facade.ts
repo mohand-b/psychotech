@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
+  ChangePlanPreviewDto,
   PaidTier,
   PromotionCodeDto,
   SubscriptionPaymentDto,
@@ -24,6 +25,10 @@ export class SubscriptionsFacade {
     promotionCode?: string,
   ): Observable<SubscriptionPaymentDto> {
     return this.api.createSubscription(plan, promotionCode);
+  }
+
+  previewPlanChange(plan: PaidTier): Observable<ChangePlanPreviewDto> {
+    return this.api.previewPlanChange(plan);
   }
 
   changePlan(plan: PaidTier): Observable<SubscriptionTier> {

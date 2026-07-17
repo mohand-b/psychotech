@@ -52,8 +52,11 @@ export class SubscriptionConfirmation {
   protected readonly arrowIcon = ArrowRight;
 
   protected readonly plan: PaidTier;
+  protected readonly isPlanChange: boolean;
 
   constructor() {
+    this.isPlanChange =
+      this.route.snapshot.queryParamMap.get('mode') === 'changement';
     const fromQuery = planFromSlug(
       this.route.snapshot.queryParamMap.get('offre'),
     );
