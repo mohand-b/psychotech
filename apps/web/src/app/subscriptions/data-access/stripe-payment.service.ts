@@ -25,7 +25,12 @@ export class StripePaymentService {
     this.stripe ??= await loadStripe(publishableKey);
   }
 
-  mount(container: HTMLElement, amountCents: number): void {
+  mount(
+    container: HTMLElement,
+    amountCents: number,
+    onReady: () => void,
+    onLoadError: (message: string | null) => void,
+  ): void {
     const stripe = this.requireStripe();
     this.elements = stripe.elements({
       ...this.intentOptions(amountCents),
@@ -33,7 +38,12 @@ export class StripePaymentService {
       fonts: [{ cssSrc: INTER_FONT_CSS }],
       locale: 'fr',
     });
-    this.elements.create('payment', { layout: 'tabs' }).mount(container);
+    const paymentElement = this.elements.create('payment', { layout: 'tabs' });
+    paymentElement.on('ready', () => onReady());
+    paymentElement.on('loaderror', (event) =>
+      onLoadError(event.error?.message ?? null),
+    );
+    paymentElement.mount(container);
   }
 
   updateAmount(amountCents: number): void {

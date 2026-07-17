@@ -212,8 +212,12 @@ export class Payment {
         this.subscriptionsFacade.getBillingConfig(),
       );
       await this.stripePayment.init(publishableKey);
-      this.stripePayment.mount(host, this.totalCents());
-      this.elementReady.set(true);
+      this.stripePayment.mount(
+        host,
+        this.totalCents(),
+        () => this.elementReady.set(true),
+        () => this.elementFailed.set(true),
+      );
     } catch {
       this.elementFailed.set(true);
     }

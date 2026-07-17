@@ -49,7 +49,9 @@ async function setup(slug: string, tier = SubscriptionTier.FREE) {
   };
   const stripePayment = {
     init: vi.fn().mockResolvedValue(undefined),
-    mount: vi.fn(),
+    mount: vi.fn(
+      (_host: HTMLElement, _amount: number, onReady: () => void) => onReady(),
+    ),
     updateAmount: vi.fn(),
     submit: vi.fn().mockResolvedValue({ errorMessage: null }),
     confirm: vi.fn().mockResolvedValue({ errorMessage: null }),
@@ -125,6 +127,8 @@ describe('Payment', () => {
     expect(stripePayment.mount).toHaveBeenCalledWith(
       expect.any(HTMLElement),
       899,
+      expect.any(Function),
+      expect.any(Function),
     );
   });
 
