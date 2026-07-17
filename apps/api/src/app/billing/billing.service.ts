@@ -8,13 +8,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { BillingRedirectDto, PaidTier } from '@psychotech/shared';
+import {
+  BillingRedirectDto,
+  PaidTier,
+  PromotionCodeDto,
+} from '@psychotech/shared';
 import { BillingConfig } from '../config/billing.config';
 import {
   mapStripeSubscriptionStatus,
   PriceCatalog,
   priceForPlan,
   tierForPrice,
+  toPromotionCodeDto,
 } from './billing.logic';
 import { BillingRepository } from './billing.repository';
 import { STRIPE_CLIENT } from './stripe.client';
@@ -42,6 +47,7 @@ export class BillingService {
     userId: string,
     plan: PaidTier,
     origin: string,
+    promotionCode?: string,
   ): Promise<BillingRedirectDto> {
     const stripe = this.requireStripe();
     const customerId = await this.ensureCustomer(stripe, userId);
@@ -50,6 +56,15 @@ export class BillingService {
       customer: customerId,
       client_reference_id: userId,
       line_items: [{ price: priceForPlan(plan, this.catalog()), quantity: 1 }],
+      discounts: promotionCode
+        ? [
+            {
+              promotion_code: (
+                await this.requirePromotionCode(stripe, promotionCode)
+              ).id,
+            },
+          ]
+        : undefined,
       success_url: `${origin}/abonnements?checkout=success`,
       cancel_url: `${origin}/abonnements?checkout=cancelled`,
     });
@@ -57,6 +72,50 @@ export class BillingService {
       throw new ServiceUnavailableException('Stripe returned no checkout URL');
     }
     return { url: session.url };
+  }
+
+  async findPromotionCode(code: string): Promise<PromotionCodeDto> {
+    const stripe = this.requireStripe();
+    const promotion = await this.lookupPromotionCode(stripe, code);
+    if (!promotion) {
+      throw new NotFoundException('Unknown or expired promotion code');
+    }
+    return toPromotionCodeDto(promotion.code, this.couponOf(promotion));
+  }
+
+  private async requirePromotionCode(
+    stripe: Stripe,
+    code: string,
+  ): Promise<Stripe.PromotionCode> {
+    const promotion = await this.lookupPromotionCode(stripe, code);
+    if (!promotion) {
+      throw new BadRequestException('Unknown or expired promotion code');
+    }
+    return promotion;
+  }
+
+  private async lookupPromotionCode(
+    stripe: Stripe,
+    code: string,
+  ): Promise<Stripe.PromotionCode | null> {
+    const list = await stripe.promotionCodes.list({
+      code,
+      active: true,
+      limit: 1,
+      expand: ['data.promotion.coupon'],
+    });
+    const promotion = list.data[0];
+    if (!promotion || !promotion.active) {
+      return null;
+    }
+    const coupon = promotion.promotion.coupon;
+    return typeof coupon === 'object' && coupon !== null && coupon.valid
+      ? promotion
+      : null;
+  }
+
+  private couponOf(promotion: Stripe.PromotionCode): Stripe.Coupon {
+    return promotion.promotion.coupon as Stripe.Coupon;
   }
 
   async createPortalSession(

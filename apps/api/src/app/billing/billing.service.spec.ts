@@ -1,9 +1,10 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   SubscriptionStatus as DbSubscriptionStatus,
   SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
+import { SubscriptionTier } from '@psychotech/shared';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BillingRepository } from './billing.repository';
@@ -51,10 +52,34 @@ const repository = {
 };
 
 const constructEvent = vi.fn();
+const listPromotionCodes = vi.fn();
+const createCheckoutSession = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: { retrieve: vi.fn() },
+  promotionCodes: { list: listPromotionCodes },
+  checkout: { sessions: { create: createCheckoutSession } },
 } as unknown as Stripe;
+
+function buildStripePromotion(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'promo_1',
+    code: 'PSYCHO20',
+    active: true,
+    promotion: {
+      type: 'coupon',
+      coupon: {
+        valid: true,
+        percent_off: 20,
+        amount_off: null,
+        currency: null,
+        duration: 'repeating',
+        duration_in_months: 12,
+      },
+    },
+    ...overrides,
+  };
+}
 
 const service = new BillingService(
   stripe,
@@ -72,6 +97,76 @@ const SIGNATURE = 't=1,v1=abc';
 beforeEach(() => {
   vi.clearAllMocks();
   repository.registerEvent.mockResolvedValue(true);
+});
+
+describe('BillingService.findPromotionCode', () => {
+  it('returns the mapped promotion for an active code', async () => {
+    listPromotionCodes.mockResolvedValue({ data: [buildStripePromotion()] });
+
+    const promotion = await service.findPromotionCode('PSYCHO20');
+
+    expect(promotion).toMatchObject({ code: 'PSYCHO20', percentOff: 20 });
+    expect(listPromotionCodes).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'PSYCHO20', active: true }),
+    );
+  });
+
+  it('rejects an unknown code with a not found error', async () => {
+    listPromotionCodes.mockResolvedValue({ data: [] });
+
+    await expect(service.findPromotionCode('NOPE')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+});
+
+describe('BillingService.createCheckoutSession promotion', () => {
+  it('rejects an unknown promotion code before creating the session', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      email: 'a@b.c',
+      firstName: 'A',
+      lastName: 'B',
+      stripeCustomerId: 'cus_1',
+    });
+    listPromotionCodes.mockResolvedValue({ data: [] });
+
+    await expect(
+      service.createCheckoutSession(
+        'user-1',
+        SubscriptionTier.ESSENTIAL,
+        'http://localhost:4200',
+        'NOPE',
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(createCheckoutSession).not.toHaveBeenCalled();
+  });
+
+  it('passes the promotion discount to the checkout session', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      email: 'a@b.c',
+      firstName: 'A',
+      lastName: 'B',
+      stripeCustomerId: 'cus_1',
+    });
+    listPromotionCodes.mockResolvedValue({ data: [buildStripePromotion()] });
+    createCheckoutSession.mockResolvedValue({ url: 'https://stripe.test/s' });
+
+    const redirect = await service.createCheckoutSession(
+      'user-1',
+      SubscriptionTier.ESSENTIAL,
+      'http://localhost:4200',
+      'PSYCHO20',
+    );
+
+    expect(redirect).toEqual({ url: 'https://stripe.test/s' });
+    expect(createCheckoutSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        discounts: [{ promotion_code: 'promo_1' }],
+      }),
+    );
+  });
 });
 
 describe('BillingService.handleWebhook signature', () => {

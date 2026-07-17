@@ -1,14 +1,16 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   RawBodyRequest,
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { BillingRedirectDto } from '@psychotech/shared';
+import { BillingRedirectDto, PromotionCodeDto } from '@psychotech/shared';
 import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CurrentUser } from '../common/current-user.decorator';
@@ -37,7 +39,13 @@ export class BillingController {
       userId,
       body.plan,
       resolveOrigin(request),
+      body.promotionCode,
     );
+  }
+
+  @Get('promotion-codes/:code')
+  findPromotionCode(@Param('code') code: string): Promise<PromotionCodeDto> {
+    return this.billingService.findPromotionCode(code);
   }
 
   @Post('portal')

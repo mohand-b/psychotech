@@ -2,7 +2,12 @@ import {
   SubscriptionStatus as DbSubscriptionStatus,
   SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
-import { PaidTier, SubscriptionTier } from '@psychotech/shared';
+import {
+  PaidTier,
+  PromotionCodeDto,
+  PromotionDuration,
+  SubscriptionTier,
+} from '@psychotech/shared';
 
 export interface PriceCatalog {
   priceEssential: string;
@@ -43,4 +48,35 @@ export function priceForPlan(plan: PaidTier, catalog: PriceCatalog): string {
   return plan === SubscriptionTier.ESSENTIAL
     ? catalog.priceEssential
     : catalog.priceUnlimited;
+}
+
+export interface PromotionCoupon {
+  percent_off: number | null;
+  amount_off: number | null;
+  currency: string | null;
+  duration: 'once' | 'repeating' | 'forever';
+  duration_in_months: number | null;
+}
+
+const PROMOTION_DURATION_BY_STRIPE: Record<
+  PromotionCoupon['duration'],
+  PromotionDuration
+> = {
+  once: PromotionDuration.ONCE,
+  repeating: PromotionDuration.REPEATING,
+  forever: PromotionDuration.FOREVER,
+};
+
+export function toPromotionCodeDto(
+  code: string,
+  coupon: PromotionCoupon,
+): PromotionCodeDto {
+  return {
+    code,
+    percentOff: coupon.percent_off,
+    amountOff: coupon.amount_off,
+    currency: coupon.currency,
+    duration: PROMOTION_DURATION_BY_STRIPE[coupon.duration],
+    durationInMonths: coupon.duration_in_months,
+  };
 }
