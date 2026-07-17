@@ -14,6 +14,7 @@ import { ArrowRight, Check, Minus } from 'lucide-angular';
 import { catchError, of, switchMap, take, takeWhile, timer } from 'rxjs';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
+import { PLAN_SLUGS } from '../../plan-slug';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
@@ -54,7 +55,7 @@ export class Offers {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly redirecting = signal<PaidTier | 'portal' | null>(null);
+  protected readonly redirecting = signal(false);
   protected readonly banner = signal<CheckoutBanner | null>(null);
 
   protected readonly checkIcon = Check;
@@ -144,28 +145,24 @@ export class Offers {
   ];
 
   protected choosePlan(plan: PaidTier): void {
-    if (this.redirecting() !== null) {
+    if (this.redirecting()) {
       return;
     }
     if (this.isFreeCurrent()) {
-      this.redirecting.set(plan);
-      this.subscriptionsFacade.startCheckout(plan).subscribe({
-        next: ({ url }) => this.document.location.assign(url),
-        error: () => this.redirecting.set(null),
-      });
+      this.router.navigate(['/paiement', PLAN_SLUGS[plan]]);
       return;
     }
     this.openPortal();
   }
 
   protected openPortal(): void {
-    if (this.redirecting() !== null) {
+    if (this.redirecting()) {
       return;
     }
-    this.redirecting.set('portal');
+    this.redirecting.set(true);
     this.subscriptionsFacade.openPortal().subscribe({
       next: ({ url }) => this.document.location.assign(url),
-      error: () => this.redirecting.set(null),
+      error: () => this.redirecting.set(false),
     });
   }
 

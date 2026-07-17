@@ -1,0 +1,146 @@
+<div class="pay">
+  <section class="pay__summary">
+    <div class="pay__head">
+      <h1 class="pay__title">Finaliser votre abonnement</h1>
+      <span class="pay__subtitle">Sans engagement — annulable à tout moment.</span>
+    </div>
+
+    <div class="pay__card pay__offer">
+      <div class="pay__card-head">
+        <span class="t-label">Votre offre</span>
+        <a class="pay__edit" routerLink="/abonnements">Modifier</a>
+      </div>
+      <div class="pay__offer-row">
+        <span class="pay__offer-icon">
+          <ui-icon [img]="boltIcon" [size]="19" />
+        </span>
+        <span class="pay__offer-copy">
+          <span class="pay__offer-name">{{ presentation().label }}</span>
+          <span class="pay__offer-desc">{{ presentation().description }}</span>
+        </span>
+        <span class="pay__offer-price">
+          <span class="t-mono pay__offer-amount">{{ priceLabel() }}&nbsp;€</span>
+          <span class="pay__offer-period">/mois</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="pay__card pay__promo">
+      <span class="t-label">Code promotionnel</span>
+      @if (promotion(); as applied) {
+        <div class="pay__promo-applied">
+          <ui-icon class="pay__promo-tag" [img]="tagIcon" [size]="15" />
+          <span class="pay__promo-copy">
+            <span class="t-mono pay__promo-code">{{ applied.code }}</span>
+            <span class="pay__promo-label">{{ promotionLabel() }}</span>
+          </span>
+          <button
+            class="pay__promo-remove"
+            type="button"
+            title="Retirer le code"
+            (click)="removeCode()"
+          >
+            <ui-icon [img]="removeIcon" [size]="14" />
+          </button>
+        </div>
+      } @else {
+        <div class="pay__promo-form">
+          <div class="pay__promo-row">
+            <input
+              class="pay__promo-input t-mono"
+              [class.pay__promo-input--error]="codeError()"
+              type="text"
+              placeholder="Ex. PSYCHO20"
+              [value]="code()"
+              (input)="onCodeInput($any($event.target).value)"
+              (keydown.enter)="applyCode()"
+            />
+            <button
+              class="pay__promo-apply"
+              type="button"
+              [disabled]="applying()"
+              (click)="applyCode()"
+            >
+              Appliquer
+            </button>
+          </div>
+          @if (codeError()) {
+            <span class="pay__promo-error">
+              <ui-icon [img]="errorIcon" [size]="13" />
+              Ce code n'est pas valide ou a expiré.
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="pay__card pay__total">
+      <div class="pay__total-row">
+        <span class="pay__total-label">Abonnement mensuel</span>
+        <span class="t-mono pay__total-value">{{ priceLabel() }}&nbsp;€</span>
+      </div>
+      @if (showDiscountRow()) {
+        <div class="pay__total-row pay__total-row--discount">
+          <span class="pay__total-label">Réduction {{ promotion()?.code }}</span>
+          <span class="t-mono pay__total-value">{{ discountLabel() }}&nbsp;€</span>
+        </div>
+      }
+      <span class="pay__total-divider"></span>
+      <div class="pay__total-row">
+        <span class="pay__total-due">À payer aujourd'hui</span>
+        <span class="t-mono pay__total-amount">{{ totalLabel() }}&nbsp;€</span>
+      </div>
+      @if (nextNote(); as note) {
+        <span class="pay__note">{{ note }}</span>
+      }
+      <span class="pay__note pay__note--muted"
+        >Prélèvement mensuel automatique — annulable à tout moment.</span
+      >
+    </div>
+  </section>
+
+  <section class="pay__card pay__stripe">
+    <div class="pay__card-head">
+      <span class="pay__stripe-title">Paiement sécurisé</span>
+      <span class="pay__stripe-brand">
+        Propulsé par
+        <span class="pay__stripe-wordmark">Stripe</span>
+      </span>
+    </div>
+
+    <div class="pay__stripe-field">
+      <span class="t-label">Email de facturation</span>
+      <span class="pay__stripe-email t-mono">{{ email() }}</span>
+    </div>
+
+    <span class="pay__stripe-text"
+      >Vous saisirez votre carte bancaire sur la page de paiement sécurisée de
+      Stripe, puis reviendrez automatiquement sur PsychoTech.</span
+    >
+
+    <ui-button
+      class="pay__cta"
+      color="brand"
+      size="lg"
+      [block]="true"
+      relief="mobile"
+      [icon]="lockIcon"
+      [loading]="redirecting()"
+      (click)="pay()"
+    >
+      Continuer vers Stripe
+    </ui-button>
+
+    <div class="pay__stripe-notes">
+      <span class="pay__stripe-note">
+        <ui-icon class="pay__stripe-shield" [img]="shieldIcon" [size]="13" />
+        Vos coordonnées bancaires sont chiffrées et traitées par Stripe —
+        PsychoTech n'y a jamais accès.
+      </span>
+      <span class="pay__stripe-note pay__stripe-note--muted"
+        >Prélèvement mensuel automatique. Annulable à tout moment depuis votre
+        compte, effet en fin de période.</span
+      >
+    </div>
+  </section>
+</div>

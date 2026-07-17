@@ -94,17 +94,16 @@ describe('Offers', () => {
     expect(prices).toContain('14,99 €');
   });
 
-  it('starts a stripe checkout for a free user picking a paid plan', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
+  it('sends a free user picking a paid plan to the payment page', async () => {
+    const { fixture, subscriptionsFacade, navigate } = await setup(
       SubscriptionTier.FREE,
     );
     const buttons = (
       fixture.nativeElement as HTMLElement
     ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
     buttons[1].click();
-    expect(subscriptionsFacade.startCheckout).toHaveBeenCalledWith(
-      SubscriptionTier.UNLIMITED,
-    );
+    expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
+    expect(subscriptionsFacade.startCheckout).not.toHaveBeenCalled();
     expect(subscriptionsFacade.openPortal).not.toHaveBeenCalled();
   });
 

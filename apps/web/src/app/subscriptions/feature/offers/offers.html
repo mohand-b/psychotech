@@ -84,7 +84,7 @@
           color="brand"
           [block]="true"
           (click)="openPortal()"
-          [loading]="redirecting() === 'portal'"
+          [loading]="redirecting()"
         >
           Gérer mon abonnement
         </ui-button>
@@ -157,7 +157,7 @@
             color="brand"
             [block]="true"
             (click)="openPortal()"
-            [loading]="redirecting() === 'portal'"
+            [loading]="redirecting()"
           >
             Gérer mon abonnement
           </ui-button>
@@ -168,7 +168,6 @@
           color="brand"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="redirecting() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -253,7 +252,7 @@
             color="brand"
             [block]="true"
             (click)="openPortal()"
-            [loading]="redirecting() === 'portal'"
+            [loading]="redirecting()"
           >
             Gérer mon abonnement
           </ui-button>
@@ -264,7 +263,6 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="redirecting() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -322,7 +320,7 @@
             size="lg"
             [block]="true"
             (click)="openPortal()"
-            [loading]="redirecting() === 'portal'"
+            [loading]="redirecting()"
           >
             Gérer mon abonnement
           </ui-button>
@@ -334,7 +332,6 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
-          [loading]="redirecting() === tiers.UNLIMITED"
         >
           Passer à l'Illimité
         </ui-button>
@@ -396,7 +393,7 @@
             size="lg"
             [block]="true"
             (click)="openPortal()"
-            [loading]="redirecting() === 'portal'"
+            [loading]="redirecting()"
           >
             Gérer mon abonnement
           </ui-button>
@@ -408,7 +405,6 @@
           size="lg"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
-          [loading]="redirecting() === tiers.ESSENTIAL"
         >
           Choisir Essentiel
         </ui-button>
@@ -459,7 +455,7 @@
           size="lg"
           [block]="true"
           (click)="openPortal()"
-          [loading]="redirecting() === 'portal'"
+          [loading]="redirecting()"
         >
           Gérer mon abonnement
         </ui-button>
