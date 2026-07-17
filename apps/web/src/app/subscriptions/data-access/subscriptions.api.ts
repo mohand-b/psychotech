@@ -50,6 +50,13 @@ export class SubscriptionsApi {
     );
   }
 
+  cancelPlanChange(): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/change/cancel`,
+      {},
+    );
+  }
+
   cancelSubscription(): Observable<SubscriptionDto> {
     return this.http.post<SubscriptionDto>(
       `${this.baseUrl}/billing/subscription/cancel`,

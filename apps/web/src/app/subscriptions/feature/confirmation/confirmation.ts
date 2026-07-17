@@ -16,12 +16,8 @@ import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
+import { PLAN_LABELS } from '../../plan-labels';
 import { planFromSlug } from '../../plan-slug';
-
-const PLAN_LABELS: Record<PaidTier, string> = {
-  [SubscriptionTier.ESSENTIAL]: 'Essentiel',
-  [SubscriptionTier.UNLIMITED]: 'Illimité',
-};
 
 const ACTIVATION_POLL_INTERVAL_MS = 2000;
 const ACTIVATION_POLL_MAX_ATTEMPTS = 15;

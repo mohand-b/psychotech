@@ -10,6 +10,7 @@ import {
   PaymentIntentKind,
   PromotionCodeDto,
   PromotionDuration,
+  SubscriptionDto,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { of, throwError } from 'rxjs';
@@ -40,7 +41,7 @@ const RAIL1MOIS: PromotionCodeDto = {
 async function setup(
   slug: string,
   tier = SubscriptionTier.FREE,
-  subscription: { cancelAtPeriodEnd: boolean } | null = null,
+  subscription: Partial<SubscriptionDto> | null = null,
 ) {
   const subscriptionsFacade = {
     getBillingConfig: vi
@@ -195,6 +196,16 @@ describe('Payment', () => {
     expect(text(fixture, '.chg__pm-last4')).toContain('4242');
     expect(text(fixture, '.pay__cta')).toBe('Confirmer et payer 4,10 €');
     expect(stripePayment.mount).not.toHaveBeenCalled();
+  });
+
+  it('redirects when the requested change is already scheduled', async () => {
+    const { navigate, subscriptionsFacade } = await setup(
+      'essentiel',
+      SubscriptionTier.UNLIMITED,
+      { pendingTier: SubscriptionTier.ESSENTIAL },
+    );
+    expect(navigate).toHaveBeenCalledWith(['/abonnements']);
+    expect(subscriptionsFacade.previewPlanChange).not.toHaveBeenCalled();
   });
 
   it('announces that a scheduled cancellation is lifted by the change', async () => {

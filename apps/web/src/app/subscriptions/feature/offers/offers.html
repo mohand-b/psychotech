@@ -139,6 +139,21 @@
             Reprendre mon abonnement
           </ui-button>
           } @else {
+          @if (pendingChange(); as pending) {
+          <span class="offers__cancel-note"
+            >Votre offre passe à l'{{ pending.label }} le
+            <span class="t-mono">{{ pending.date }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            [block]="true"
+            (click)="cancelPlanChange()"
+            [loading]="managing()"
+          >
+            Annuler le changement d'offre
+          </ui-button>
+          }
           <ui-button
             appearance="outlined"
             color="brand"
@@ -158,6 +173,12 @@
           </ui-button>
           }
         </div>
+        } @else if (pendingChange(); as pending) {
+        <span class="offers__cancel-note"
+          >Votre offre passe à l'{{ pending.label }} le
+          <span class="t-mono">{{ pending.date }}</span
+          >.</span
+        >
         } @else {
         <ui-button
           appearance="outlined"
@@ -255,6 +276,21 @@
             Reprendre mon abonnement
           </ui-button>
           } @else {
+          @if (pendingChange(); as pending) {
+          <span class="offers__cancel-note"
+            >Votre offre passe à l'{{ pending.label }} le
+            <span class="t-mono">{{ pending.date }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            [block]="true"
+            (click)="cancelPlanChange()"
+            [loading]="managing()"
+          >
+            Annuler le changement d'offre
+          </ui-button>
+          }
           <ui-button
             appearance="outlined"
             color="brand"
@@ -345,6 +381,23 @@
             Reprendre mon abonnement
           </ui-button>
           } @else {
+          @if (pendingChange(); as pending) {
+          <span class="offers__cancel-note"
+            >Votre offre passe à l'{{ pending.label }} le
+            <span class="t-mono">{{ pending.date }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            size="lg"
+            [block]="true"
+            relief="mobile"
+            (click)="cancelPlanChange()"
+            [loading]="managing()"
+          >
+            Annuler le changement d'offre
+          </ui-button>
+          }
           <ui-button
             appearance="outlined"
             color="brand"
@@ -441,6 +494,23 @@
             Reprendre mon abonnement
           </ui-button>
           } @else {
+          @if (pendingChange(); as pending) {
+          <span class="offers__cancel-note"
+            >Votre offre passe à l'{{ pending.label }} le
+            <span class="t-mono">{{ pending.date }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            size="lg"
+            [block]="true"
+            relief="mobile"
+            (click)="cancelPlanChange()"
+            [loading]="managing()"
+          >
+            Annuler le changement d'offre
+          </ui-button>
+          }
           <ui-button
             appearance="outlined"
             color="brand"
@@ -462,6 +532,12 @@
           </ui-button>
           }
         </div>
+        } @else if (pendingChange(); as pending) {
+        <span class="offers__cancel-note"
+          >Votre offre passe à l'{{ pending.label }} le
+          <span class="t-mono">{{ pending.date }}</span
+          >.</span
+        >
         } @else {
         <ui-button
           appearance="outlined"

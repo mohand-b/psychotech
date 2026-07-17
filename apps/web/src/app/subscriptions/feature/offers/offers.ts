@@ -13,6 +13,7 @@ import { ArrowRight, Check, Minus } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
+import { PLAN_LABELS } from '../../plan-labels';
 import { PLAN_SLUGS } from '../../plan-slug';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -104,6 +105,17 @@ export class Offers {
       : null;
   });
 
+  protected readonly pendingChange = computed(() => {
+    const subscription = this.authFacade.currentUser()?.subscription;
+    return subscription?.pendingTier && subscription.currentPeriodEnd
+      ? {
+          tier: subscription.pendingTier,
+          label: PLAN_LABELS[subscription.pendingTier],
+          date: formatDayMonthYear(subscription.currentPeriodEnd),
+        }
+      : null;
+  });
+
   protected readonly unlimitedBadge = computed(() =>
     this.isUnlimitedCurrent()
       ? 'Votre formule actuelle'
@@ -156,10 +168,25 @@ export class Offers {
   ];
 
   protected choosePlan(plan: PaidTier): void {
-    if (this.managing() || plan === this.tier()) {
+    if (
+      this.managing() ||
+      plan === this.tier() ||
+      plan === this.pendingChange()?.tier
+    ) {
       return;
     }
     this.router.navigate(['/paiement', PLAN_SLUGS[plan]]);
+  }
+
+  protected cancelPlanChange(): void {
+    if (this.managing()) {
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.cancelPlanChange().subscribe({
+      next: () => this.managing.set(false),
+      error: () => this.managing.set(false),
+    });
   }
 
   protected cancelSubscription(): void {

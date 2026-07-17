@@ -38,6 +38,13 @@ export class SubscriptionsFacade {
       .pipe(switchMap(() => this.refreshTier()));
   }
 
+  cancelPlanChange(): Observable<void> {
+    return this.api.cancelPlanChange().pipe(
+      switchMap(() => this.refreshTier()),
+      map(() => undefined),
+    );
+  }
+
   cancelSubscription(): Observable<void> {
     return this.api.cancelSubscription().pipe(
       switchMap(() => this.refreshTier()),

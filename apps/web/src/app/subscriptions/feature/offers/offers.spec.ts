@@ -34,6 +34,7 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
     cancelSubscription: vi.fn().mockReturnValue(of(undefined)),
     resumeSubscription: vi.fn().mockReturnValue(of(undefined)),
+    cancelPlanChange: vi.fn().mockReturnValue(of(undefined)),
     refreshTier: vi.fn().mockReturnValue(of(tier)),
   };
   await TestBed.configureTestingModule({
@@ -169,6 +170,29 @@ describe('Offers', () => {
     expect(navigate).toHaveBeenCalledWith(['/abonnement-confirme'], {
       queryParams: { offre: 'illimite', mode: 'reprise' },
     });
+  });
+
+  it('shows the scheduled plan change instead of the choose button and cancels it', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.UNLIMITED,
+      { subscription: { pendingTier: SubscriptionTier.ESSENTIAL } },
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    const notes = texts(element, '.offers__cancel-note');
+    expect(
+      notes.some((note) =>
+        note.includes("Votre offre passe à l'Essentiel le"),
+      ),
+    ).toBe(true);
+    const buttons = texts(element, '.offd ui-button button');
+    expect(buttons).not.toContain('Choisir Essentiel');
+    const cancelChangeButton = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button'),
+    ).find((button) =>
+      button.textContent?.includes('Annuler le changement'),
+    );
+    cancelChangeButton?.click();
+    expect(subscriptionsFacade.cancelPlanChange).toHaveBeenCalledTimes(1);
   });
 
   it('shows the card update banner when returning from the card page', async () => {

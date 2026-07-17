@@ -126,6 +126,12 @@ export class Payment {
       return;
     }
     this.mode = 'change';
+    if (
+      this.authFacade.currentUser()?.subscription?.pendingTier === plan
+    ) {
+      this.router.navigate(['/abonnements']);
+      return;
+    }
     this.loadChangePreview();
   }
 
