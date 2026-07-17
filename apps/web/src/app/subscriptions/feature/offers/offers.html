@@ -65,12 +65,6 @@
             Score non enregistré dans la progression
           </span>
         </div>
-        @if (isFreeCurrent()) {
-        <span class="offers__current-pill">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
-        }
       </section>
 
       <section class="offd__card">
@@ -130,10 +124,6 @@
         </div>
         @if (isEssentialCurrent()) {
         <div class="offers__current-actions">
-          <span class="offers__current-pill">
-            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-            Formule actuelle
-          </span>
           @if (subscriptionEndsAt(); as endsAt) {
           <span class="offers__cancel-note"
             >Votre abonnement prend fin le
@@ -250,10 +240,6 @@
         </div>
         @if (isUnlimitedCurrent()) {
         <div class="offers__current-actions">
-          <span class="offers__current-pill offers__current-pill--featured">
-            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-            Formule actuelle
-          </span>
           @if (subscriptionEndsAt(); as endsAt) {
           <span class="offers__cancel-note"
             >Votre abonnement prend fin le
@@ -342,10 +328,6 @@
         </div>
         @if (isUnlimitedCurrent()) {
         <div class="offers__current-actions">
-          <span class="offers__current-pill offers__current-pill--featured">
-            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-            Formule actuelle
-          </span>
           @if (subscriptionEndsAt(); as endsAt) {
           <span class="offers__cancel-note"
             >Votre abonnement prend fin le
@@ -442,10 +424,6 @@
         </div>
         @if (isEssentialCurrent()) {
         <div class="offers__current-actions">
-          <span class="offers__current-pill">
-            <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-            Formule actuelle
-          </span>
           @if (subscriptionEndsAt(); as endsAt) {
           <span class="offers__cancel-note"
             >Votre abonnement prend fin le
@@ -529,12 +507,6 @@
             Score non enregistré dans la progression
           </span>
         </div>
-        @if (isFreeCurrent()) {
-        <span class="offers__current-pill">
-          <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
-          Formule actuelle
-        </span>
-        }
       </section>
     </div>
   </div>

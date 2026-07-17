@@ -172,26 +172,6 @@
   margin-top: 2px;
 }
 
-.offers__current-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: var(--bg);
-  color: var(--label);
-  font: 600 14px/20px var(--font-ui);
-  border: 1px solid var(--border);
-  padding: 11px 16px;
-  border-radius: var(--radius-button);
-}
-
-.offers__current-pill--featured {
-  background: var(--brand-pastel);
-  color: var(--brand-hover);
-  border-color: var(--brand-pastel-bd);
-  padding: 12px 16px;
-}
-
 .offm {
   display: none;
   flex-direction: column;
