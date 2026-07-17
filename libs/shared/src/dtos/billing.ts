@@ -11,12 +11,30 @@ export interface ChangeSubscriptionPlanDto {
   plan: PaidTier;
 }
 
+export interface PaymentMethodSummaryDto {
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
+
 export interface ChangePlanPreviewDto {
   currentPlan: PaidTier;
   targetPlan: PaidTier;
   monthlyAmount: number;
+  currentMonthlyAmount: number;
   prorationAmount: number;
+  prorationCharge: number;
+  prorationCredit: number;
   nextInvoiceTotal: number;
+  nextInvoiceDate: string | null;
+  periodStart: string | null;
+  card: PaymentMethodSummaryDto | null;
+}
+
+export interface PaymentMethodOverviewDto {
+  card: PaymentMethodSummaryDto | null;
+  nextInvoiceAmount: number | null;
   nextInvoiceDate: string | null;
 }
 
