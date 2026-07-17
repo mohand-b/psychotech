@@ -36,6 +36,7 @@ function buildStripeSubscription(
     status: 'active',
     metadata: {},
     cancel_at_period_end: false,
+    schedule: null,
     items: {
       data: [
         {
@@ -69,6 +70,9 @@ const updateStripeCustomer = vi.fn();
 const retrieveStripeCustomer = vi.fn();
 const createInvoicePreview = vi.fn();
 const retrieveStripePrice = vi.fn();
+const createStripeSchedule = vi.fn();
+const updateStripeSchedule = vi.fn();
+const releaseStripeSchedule = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -77,6 +81,11 @@ const stripe = {
     cancel: cancelStripeSubscription,
     retrieve: retrieveStripeSubscription,
     update: updateStripeSubscription,
+  },
+  subscriptionSchedules: {
+    create: createStripeSchedule,
+    update: updateStripeSchedule,
+    release: releaseStripeSchedule,
   },
   setupIntents: { create: createSetupIntent },
   customers: { update: updateStripeCustomer, retrieve: retrieveStripeCustomer },
@@ -285,6 +294,7 @@ describe('BillingService.changeSubscriptionPlan', () => {
       items: [{ id: 'si_1', price: 'price_unlimited' }],
       proration_behavior: 'always_invoice',
       payment_behavior: 'error_if_incomplete',
+      cancel_at_period_end: false,
     });
     expect(repository.upsertSubscription).toHaveBeenCalledWith(
       'user-1',
@@ -309,7 +319,7 @@ describe('BillingService.changeSubscriptionPlan', () => {
       message: 'Your card was declined.',
     } as never);
     declined.statusCode = 402;
-    updateStripeSubscription.mockRejectedValue(declined);
+    updateStripeSubscription.mockRejectedValueOnce(declined);
 
     await expect(
       service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED),
@@ -317,11 +327,48 @@ describe('BillingService.changeSubscriptionPlan', () => {
     expect(repository.upsertSubscription).not.toHaveBeenCalled();
   });
 
-  it('downgrades without prorations', async () => {
+  it('schedules the downgrade for the end of the paid period', async () => {
+    const unlimited = buildStripeSubscription({
+      status: 'active',
+      items: {
+        data: [
+          { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+        ],
+      },
+    });
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(unlimited);
+    createStripeSchedule.mockResolvedValue({
+      id: 'sched_1',
+      phases: [{ start_date: 1_797_000_000 }],
+    });
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.changeSubscriptionPlan('user-1', SubscriptionTier.ESSENTIAL);
+
+    expect(updateStripeSubscription).not.toHaveBeenCalled();
+    expect(createStripeSchedule).toHaveBeenCalledWith({
+      from_subscription: 'sub_1',
+    });
+    expect(updateStripeSchedule).toHaveBeenCalledWith('sched_1', {
+      end_behavior: 'release',
+      phases: [
+        {
+          items: [{ price: 'price_unlimited', quantity: 1 }],
+          start_date: 1_797_000_000,
+          end_date: 1_800_000_000,
+        },
+        { items: [{ price: 'price_essential', quantity: 1 }] },
+      ],
+    });
+  });
+
+  it('lifts a scheduled cancellation before scheduling the downgrade', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
     retrieveStripeSubscription.mockResolvedValue(
       buildStripeSubscription({
         status: 'active',
+        cancel_at_period_end: true,
         items: {
           data: [
             { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
@@ -329,15 +376,47 @@ describe('BillingService.changeSubscriptionPlan', () => {
         },
       }),
     );
-    updateStripeSubscription.mockResolvedValue(buildStripeSubscription({}));
+    createStripeSchedule.mockResolvedValue({
+      id: 'sched_1',
+      phases: [{ start_date: 1_797_000_000 }],
+    });
     repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
 
     await service.changeSubscriptionPlan('user-1', SubscriptionTier.ESSENTIAL);
 
-    expect(updateStripeSubscription).toHaveBeenCalledWith(
-      'sub_1',
-      expect.objectContaining({ proration_behavior: 'none' }),
+    expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
+      cancel_at_period_end: false,
+    });
+    expect(createStripeSchedule).toHaveBeenCalled();
+  });
+
+  it('releases an existing schedule before applying a new change', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        schedule: 'sched_old',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_essential' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
     );
+    updateStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED);
+
+    expect(releaseStripeSchedule).toHaveBeenCalledWith('sched_old');
   });
 
   it('does not call stripe update when the plan is unchanged', async () => {
@@ -424,6 +503,7 @@ describe('BillingService.previewPlanChange', () => {
         subscription: 'sub_1',
         subscription_details: expect.objectContaining({
           proration_behavior: 'create_prorations',
+          cancel_at_period_end: false,
         }),
       }),
     );
@@ -458,6 +538,7 @@ describe('BillingService.previewPlanChange', () => {
       expect.objectContaining({
         subscription_details: expect.objectContaining({
           proration_behavior: 'none',
+          cancel_at_period_end: false,
         }),
       }),
     );
@@ -491,6 +572,7 @@ describe('BillingService cancel and resume', () => {
 
   it('schedules the cancellation at period end', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(buildStripeSubscription());
     updateStripeSubscription.mockResolvedValue(
       buildStripeSubscription({ cancel_at_period_end: true }),
     );
@@ -507,11 +589,29 @@ describe('BillingService cancel and resume', () => {
     );
   });
 
+  it('releases a pending downgrade schedule when cancelling', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ schedule: 'sched_1' }),
+    );
+    updateStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ cancel_at_period_end: true }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.cancelSubscription('user-1');
+
+    expect(releaseStripeSchedule).toHaveBeenCalledWith('sched_1');
+  });
+
   it('resumes a scheduled cancellation', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue({
       ...dbRow,
       cancelAtPeriodEnd: true,
     });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ cancel_at_period_end: true }),
+    );
     updateStripeSubscription.mockResolvedValue(buildStripeSubscription({}));
     repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
 

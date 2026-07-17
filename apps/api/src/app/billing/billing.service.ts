@@ -130,6 +130,7 @@ export class BillingService {
         subscription_details: {
           items: [{ id: item.id, price: targetPrice }],
           proration_behavior: isUpgrade ? 'create_prorations' : 'none',
+          cancel_at_period_end: false,
         },
       }),
       stripe.prices.retrieve(targetPrice),
@@ -263,27 +264,12 @@ export class BillingService {
     const stripe = this.requireStripe();
     const current = await this.requireChangeableSubscription(stripe, userId);
     const targetPrice = priceForPlan(plan, this.catalog());
-    const item = current.items.data[0];
-    if (item.price.id !== targetPrice) {
-      const isUpgrade = plan === SubscriptionTier.UNLIMITED;
-      let updated: Stripe.Subscription;
-      try {
-        updated = await stripe.subscriptions.update(current.id, {
-          items: [{ id: item.id, price: targetPrice }],
-          proration_behavior: isUpgrade ? 'always_invoice' : 'none',
-          payment_behavior: isUpgrade ? 'error_if_incomplete' : undefined,
-        });
-      } catch (error) {
-        if (
-          error instanceof Stripe.errors.StripeError &&
-          error.statusCode === 402
-        ) {
-          throw new BadRequestException(
-            'The prorated payment for the upgrade was declined',
-          );
-        }
-        throw error;
-      }
+    if (current.items.data[0].price.id !== targetPrice) {
+      await this.releaseSchedule(stripe, current);
+      const updated =
+        plan === SubscriptionTier.UNLIMITED
+          ? await this.upgradeImmediately(stripe, current, targetPrice)
+          : await this.scheduleDowngrade(stripe, current, targetPrice);
       await this.applySubscription(updated);
     }
     const fresh = await this.repository.findSubscriptionByUserId(userId);
@@ -291,6 +277,71 @@ export class BillingService {
       throw new NotFoundException('Subscription not found');
     }
     return toSubscriptionDto(fresh);
+  }
+
+  private async upgradeImmediately(
+    stripe: Stripe,
+    current: Stripe.Subscription,
+    targetPrice: string,
+  ): Promise<Stripe.Subscription> {
+    const item = current.items.data[0];
+    try {
+      return await stripe.subscriptions.update(current.id, {
+        items: [{ id: item.id, price: targetPrice }],
+        proration_behavior: 'always_invoice',
+        payment_behavior: 'error_if_incomplete',
+        cancel_at_period_end: false,
+      });
+    } catch (error) {
+      if (
+        error instanceof Stripe.errors.StripeError &&
+        error.statusCode === 402
+      ) {
+        throw new BadRequestException(
+          'The prorated payment for the upgrade was declined',
+        );
+      }
+      throw error;
+    }
+  }
+
+  private async scheduleDowngrade(
+    stripe: Stripe,
+    current: Stripe.Subscription,
+    targetPrice: string,
+  ): Promise<Stripe.Subscription> {
+    if (current.cancel_at_period_end) {
+      await stripe.subscriptions.update(current.id, {
+        cancel_at_period_end: false,
+      });
+    }
+    const item = current.items.data[0];
+    const schedule = await stripe.subscriptionSchedules.create({
+      from_subscription: current.id,
+    });
+    await stripe.subscriptionSchedules.update(schedule.id, {
+      end_behavior: 'release',
+      phases: [
+        {
+          items: [{ price: item.price.id, quantity: 1 }],
+          start_date: schedule.phases[0].start_date,
+          end_date: item.current_period_end,
+        },
+        { items: [{ price: targetPrice, quantity: 1 }] },
+      ],
+    });
+    return stripe.subscriptions.retrieve(current.id);
+  }
+
+  private async releaseSchedule(
+    stripe: Stripe,
+    subscription: Stripe.Subscription,
+  ): Promise<void> {
+    const schedule = subscription.schedule;
+    const scheduleId = typeof schedule === 'string' ? schedule : schedule?.id;
+    if (scheduleId) {
+      await stripe.subscriptionSchedules.release(scheduleId);
+    }
   }
 
   private async cancelIncompleteSubscriptions(
@@ -370,6 +421,10 @@ export class BillingService {
     if (!row?.stripeSubscriptionId) {
       throw new ForbiddenException('No subscription for this user');
     }
+    const current = await stripe.subscriptions.retrieve(
+      row.stripeSubscriptionId,
+    );
+    await this.releaseSchedule(stripe, current);
     const updated = await stripe.subscriptions.update(
       row.stripeSubscriptionId,
       { cancel_at_period_end: cancelAtPeriodEnd },
