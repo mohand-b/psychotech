@@ -320,9 +320,52 @@
   color: var(--text-secondary);
 }
 
-.pay__stripe-text {
-  font: 400 13.5px/1.6 var(--font-ui);
-  color: var(--text-secondary);
+.pay__holder-input {
+  height: 48px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  font: 400 14.5px/1.4 var(--font-ui);
+  color: var(--ink);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.pay__holder-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.pay__element-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pay__element-skeleton {
+  height: 220px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(
+    100deg,
+    var(--bg) 40%,
+    var(--surface-hover) 50%,
+    var(--bg) 60%
+  );
+  background-size: 200% 100%;
+  animation: pay-skeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes pay-skeleton {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
 }
 
 .pay__stripe-notes {

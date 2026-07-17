@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  BillingConfigDto,
   BillingRedirectDto,
   PaidTier,
   PromotionCodeDto,
+  SubscriptionPaymentDto,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { Observable, map } from 'rxjs';
@@ -14,11 +16,15 @@ export class SubscriptionsFacade {
   private readonly api = inject(SubscriptionsApi);
   private readonly authFacade = inject(AuthFacade);
 
-  startCheckout(
+  getBillingConfig(): Observable<BillingConfigDto> {
+    return this.api.getBillingConfig();
+  }
+
+  createSubscription(
     plan: PaidTier,
     promotionCode?: string,
-  ): Observable<BillingRedirectDto> {
-    return this.api.createCheckoutSession(plan, promotionCode);
+  ): Observable<SubscriptionPaymentDto> {
+    return this.api.createSubscription(plan, promotionCode);
   }
 
   openPortal(): Observable<BillingRedirectDto> {

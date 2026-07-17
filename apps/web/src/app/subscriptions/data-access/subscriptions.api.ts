@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  BillingConfigDto,
   BillingRedirectDto,
-  CreateCheckoutSessionDto,
+  CreateSubscriptionDto,
   PaidTier,
   PromotionCodeDto,
+  SubscriptionPaymentDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -14,13 +16,17 @@ export class SubscriptionsApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  createCheckoutSession(
+  getBillingConfig(): Observable<BillingConfigDto> {
+    return this.http.get<BillingConfigDto>(`${this.baseUrl}/billing/config`);
+  }
+
+  createSubscription(
     plan: PaidTier,
     promotionCode?: string,
-  ): Observable<BillingRedirectDto> {
-    const body: CreateCheckoutSessionDto = { plan, promotionCode };
-    return this.http.post<BillingRedirectDto>(
-      `${this.baseUrl}/billing/checkout`,
+  ): Observable<SubscriptionPaymentDto> {
+    const body: CreateSubscriptionDto = { plan, promotionCode };
+    return this.http.post<SubscriptionPaymentDto>(
+      `${this.baseUrl}/billing/subscription`,
       body,
     );
   }

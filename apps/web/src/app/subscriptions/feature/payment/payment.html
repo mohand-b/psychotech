@@ -101,7 +101,7 @@
 
   <section class="pay__card pay__stripe">
     <div class="pay__card-head">
-      <span class="pay__stripe-title">Paiement sécurisé</span>
+      <span class="pay__stripe-title">Coordonnées de paiement</span>
       <span class="pay__stripe-brand">
         Propulsé par
         <span class="pay__stripe-wordmark">Stripe</span>
@@ -113,10 +113,36 @@
       <span class="pay__stripe-email t-mono">{{ email() }}</span>
     </div>
 
-    <span class="pay__stripe-text"
-      >Vous saisirez votre carte bancaire sur la page de paiement sécurisée de
-      Stripe, puis reviendrez automatiquement sur PsychoTech.</span
-    >
+    <div class="pay__stripe-field">
+      <span class="t-label">Titulaire de la carte</span>
+      <input
+        class="pay__holder-input"
+        type="text"
+        autocomplete="cc-name"
+        placeholder="Prénom Nom"
+        [value]="holderName()"
+        (input)="onHolderNameInput($any($event.target).value)"
+      />
+    </div>
+
+    <div class="pay__element-zone">
+      @if (elementFailed()) {
+        <span class="pay__promo-error">
+          <ui-icon [img]="errorIcon" [size]="13" />
+          Le module de paiement n'a pas pu être chargé. Rechargez la page.
+        </span>
+      } @else if (!elementReady()) {
+        <div class="pay__element-skeleton"></div>
+      }
+      <div class="pay__element" #paymentElement></div>
+    </div>
+
+    @if (paymentError(); as message) {
+      <span class="pay__promo-error">
+        <ui-icon [img]="errorIcon" [size]="13" />
+        {{ message }}
+      </span>
+    }
 
     <ui-button
       class="pay__cta"
@@ -125,10 +151,11 @@
       [block]="true"
       relief="mobile"
       [icon]="lockIcon"
-      [loading]="redirecting()"
+      [loading]="paying()"
+      [disabled]="!elementReady()"
       (click)="pay()"
     >
-      Continuer vers Stripe
+      {{ payLabel() }}
     </ui-button>
 
     <div class="pay__stripe-notes">
