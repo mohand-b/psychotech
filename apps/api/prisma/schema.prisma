@@ -124,6 +124,7 @@ model Subscription {
   billingPeriod        BillingPeriod?
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean            @default(false)
+  pendingTier          SubscriptionTier?
   stripeSubscriptionId String?            @unique
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt

@@ -73,6 +73,7 @@ const retrieveStripePrice = vi.fn();
 const createStripeSchedule = vi.fn();
 const updateStripeSchedule = vi.fn();
 const releaseStripeSchedule = vi.fn();
+const retrieveStripeSchedule = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -86,6 +87,7 @@ const stripe = {
     create: createStripeSchedule,
     update: updateStripeSchedule,
     release: releaseStripeSchedule,
+    retrieve: retrieveStripeSchedule,
   },
   setupIntents: { create: createSetupIntent },
   customers: { update: updateStripeCustomer, retrieve: retrieveStripeCustomer },
@@ -337,10 +339,24 @@ describe('BillingService.changeSubscriptionPlan', () => {
       },
     });
     repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
-    retrieveStripeSubscription.mockResolvedValue(unlimited);
+    retrieveStripeSubscription
+      .mockResolvedValueOnce(unlimited)
+      .mockResolvedValueOnce(
+        buildStripeSubscription({
+          status: 'active',
+          schedule: 'sched_1',
+          items: unlimited.items,
+        }),
+      );
     createStripeSchedule.mockResolvedValue({
       id: 'sched_1',
       phases: [{ start_date: 1_797_000_000 }],
+    });
+    retrieveStripeSchedule.mockResolvedValue({
+      phases: [
+        { items: [{ price: 'price_unlimited' }] },
+        { items: [{ price: 'price_essential' }] },
+      ],
     });
     repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
 
@@ -361,6 +377,31 @@ describe('BillingService.changeSubscriptionPlan', () => {
         { items: [{ price: 'price_essential', quantity: 1 }] },
       ],
     });
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        tier: DbSubscriptionTier.UNLIMITED,
+        pendingTier: DbSubscriptionTier.ESSENTIAL,
+      }),
+    );
+  });
+
+  it('cancels a scheduled plan change by releasing the schedule', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription
+      .mockResolvedValueOnce(
+        buildStripeSubscription({ status: 'active', schedule: 'sched_1' }),
+      )
+      .mockResolvedValueOnce(buildStripeSubscription({ status: 'active' }));
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.cancelPlanChange('user-1');
+
+    expect(releaseStripeSchedule).toHaveBeenCalledWith('sched_1');
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ pendingTier: null }),
+    );
   });
 
   it('lifts a scheduled cancellation before scheduling the downgrade', async () => {
@@ -553,6 +594,29 @@ describe('BillingService.previewPlanChange', () => {
     await expect(
       service.previewPlanChange('user-1', SubscriptionTier.ESSENTIAL),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects a preview for an already scheduled plan change', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue({
+      ...dbRow,
+      tier: DbSubscriptionTier.UNLIMITED,
+      pendingTier: DbSubscriptionTier.ESSENTIAL,
+    });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_unlimited' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+
+    await expect(
+      service.previewPlanChange('user-1', SubscriptionTier.ESSENTIAL),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(createInvoicePreview).not.toHaveBeenCalled();
   });
 });
 
@@ -748,6 +812,7 @@ describe('BillingService.handleWebhook subscription upsert', () => {
       status: DbSubscriptionStatus.ACTIVE,
       currentPeriodEnd: new Date(1_800_000_000 * 1000),
       cancelAtPeriodEnd: false,
+      pendingTier: null,
     });
   });
 

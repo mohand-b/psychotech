@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SubscriptionTier as DbSubscriptionTier } from '@prisma/client';
 import Stripe from 'stripe';
 import {
   BillingConfigDto,
@@ -121,6 +122,10 @@ export class BillingService {
     const currentTier = tierForPrice(item.price.id, this.catalog());
     if (!currentTier || currentTier === plan) {
       throw new BadRequestException('The subscription is already on this plan');
+    }
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (row?.pendingTier === plan) {
+      throw new BadRequestException('This plan change is already scheduled');
     }
     const targetPrice = priceForPlan(plan, this.catalog());
     const isUpgrade = plan === SubscriptionTier.UNLIMITED;
@@ -344,6 +349,19 @@ export class BillingService {
     }
   }
 
+  async cancelPlanChange(userId: string): Promise<SubscriptionDto> {
+    const stripe = this.requireStripe();
+    const current = await this.requireChangeableSubscription(stripe, userId);
+    await this.releaseSchedule(stripe, current);
+    const updated = await stripe.subscriptions.retrieve(current.id);
+    await this.applySubscription(updated);
+    const fresh = await this.repository.findSubscriptionByUserId(userId);
+    if (!fresh) {
+      throw new NotFoundException('Subscription not found');
+    }
+    return toSubscriptionDto(fresh);
+  }
+
   private async cancelIncompleteSubscriptions(
     stripe: Stripe,
     customerId: string,
@@ -552,7 +570,33 @@ export class BillingService {
         ? new Date(item.current_period_end * 1000)
         : null,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      pendingTier: await this.resolvePendingTier(subscription, tier),
     });
+  }
+
+  private async resolvePendingTier(
+    subscription: Stripe.Subscription,
+    currentTier: DbSubscriptionTier,
+  ): Promise<DbSubscriptionTier | null> {
+    const schedule = subscription.schedule;
+    const scheduleId = typeof schedule === 'string' ? schedule : schedule?.id;
+    if (!scheduleId) {
+      return null;
+    }
+    const stripe = this.requireStripe();
+    let phases: Stripe.SubscriptionSchedule.Phase[];
+    try {
+      phases = (await stripe.subscriptionSchedules.retrieve(scheduleId)).phases;
+    } catch {
+      return null;
+    }
+    const lastPhase = phases[phases.length - 1];
+    const price = lastPhase?.items[0]?.price;
+    const priceId = typeof price === 'string' ? price : price?.id;
+    const targetTier = priceId
+      ? tierForPrice(priceId, this.catalog())
+      : null;
+    return targetTier && targetTier !== currentTier ? targetTier : null;
   }
 
   private async ensureCustomer(

@@ -64,6 +64,11 @@ export class BillingController {
     return this.billingService.changeSubscriptionPlan(userId, body.plan);
   }
 
+  @Post('subscription/change/cancel')
+  cancelPlanChange(@CurrentUser() userId: string): Promise<SubscriptionDto> {
+    return this.billingService.cancelPlanChange(userId);
+  }
+
   @Post('subscription/cancel')
   cancelSubscription(@CurrentUser() userId: string): Promise<SubscriptionDto> {
     return this.billingService.cancelSubscription(userId);

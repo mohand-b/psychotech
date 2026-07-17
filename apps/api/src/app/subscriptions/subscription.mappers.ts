@@ -8,6 +8,9 @@ import {
 import { mapEnumValue } from '../common/enum.util';
 
 export function toSubscriptionDto(subscription: Subscription): SubscriptionDto {
+  const pendingTier = subscription.pendingTier
+    ? mapEnumValue(SubscriptionTier, subscription.pendingTier)
+    : null;
   return {
     tier: mapEnumValue(SubscriptionTier, subscription.tier),
     status: mapEnumValue(SubscriptionStatus, subscription.status),
@@ -16,5 +19,6 @@ export function toSubscriptionDto(subscription: Subscription): SubscriptionDto {
       : null,
     currentPeriodEnd: subscription.currentPeriodEnd?.toISOString() ?? null,
     cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+    pendingTier: pendingTier === SubscriptionTier.FREE ? null : pendingTier,
   };
 }

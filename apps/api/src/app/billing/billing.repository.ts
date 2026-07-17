@@ -15,6 +15,7 @@ export interface SubscriptionUpsert {
   status: SubscriptionStatus;
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
+  pendingTier: SubscriptionTier | null;
 }
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
