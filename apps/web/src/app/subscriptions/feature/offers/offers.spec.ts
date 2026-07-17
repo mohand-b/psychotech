@@ -6,41 +6,52 @@ import {
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
-import { SubscriptionTier } from '@psychotech/shared';
-import { EMPTY, of } from 'rxjs';
+import { SubscriptionDto, SubscriptionTier } from '@psychotech/shared';
+import { of } from 'rxjs';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Offers } from './offers';
 
 interface SetupOptions {
-  checkout?: string;
-  refreshedTier?: SubscriptionTier;
+  carte?: string;
+  subscription?: Partial<SubscriptionDto>;
 }
 
 async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
-  const coreFacade = {
-    tier: signal(tier),
-  };
+  const subscription =
+    tier === SubscriptionTier.FREE
+      ? null
+      : {
+          tier,
+          status: 'ACTIVE',
+          billingPeriod: 'MONTHLY',
+          currentPeriodEnd: '2026-08-17T00:00:00.000Z',
+          cancelAtPeriodEnd: false,
+          ...options.subscription,
+        };
   const subscriptionsFacade = {
-    startCheckout: vi.fn().mockReturnValue(EMPTY),
-    openPortal: vi.fn().mockReturnValue(EMPTY),
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
-    refreshTier: vi
-      .fn()
-      .mockReturnValue(of(options.refreshedTier ?? tier)),
+    cancelSubscription: vi.fn().mockReturnValue(of(undefined)),
+    resumeSubscription: vi.fn().mockReturnValue(of(undefined)),
+    refreshTier: vi.fn().mockReturnValue(of(tier)),
   };
   await TestBed.configureTestingModule({
     imports: [Offers],
     providers: [
       provideRouter([]),
-      { provide: CoreFacade, useValue: coreFacade },
+      { provide: CoreFacade, useValue: { tier: signal(tier) } },
+      {
+        provide: AuthFacade,
+        useValue: { currentUser: signal({ subscription }) },
+      },
       { provide: SubscriptionsFacade, useValue: subscriptionsFacade },
       {
         provide: ActivatedRoute,
         useValue: {
           snapshot: {
             queryParamMap: convertToParamMap(
-              options.checkout ? { checkout: options.checkout } : {},
+              options.carte ? { carte: options.carte } : {},
             ),
           },
         },
@@ -51,28 +62,25 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(Offers);
   fixture.detectChanges();
-  return { fixture, coreFacade, subscriptionsFacade, navigate };
+  return { fixture, subscriptionsFacade, navigate };
 }
 
 function texts(element: HTMLElement, selector: string): string[] {
   return Array.from(element.querySelectorAll(selector)).map(
-    (node) => node.textContent?.trim() ?? '',
+    (node) => node.textContent?.replace(/ /g, ' ').trim() ?? '',
   );
 }
 
 describe('Offers', () => {
-  it('marks the essential card as current and offers the portal', async () => {
+  it('marks the essential card as current with in-app management actions', async () => {
     const { fixture } = await setup(SubscriptionTier.ESSENTIAL);
     const element: HTMLElement = fixture.nativeElement;
     expect(texts(element, '.offd__current-badge')).toContain(
       'Votre formule actuelle',
     );
-    expect(
-      texts(element, '.offd__card--featured .offd__featured-badge')[0],
-    ).toBe('Recommandé pour la préparation intensive');
     expect(texts(element, '.offd ui-button button')).toEqual([
-      'Gérer mon abonnement',
-      'Gérer mon abonnement',
+      'Mettre à jour ma carte',
+      'Résilier mon abonnement',
       "Passer à l'Illimité",
     ]);
   });
@@ -91,33 +99,17 @@ describe('Offers', () => {
   it('renders the centralized monthly prices', async () => {
     const { fixture } = await setup(SubscriptionTier.FREE);
     const prices = texts(fixture.nativeElement, '.offd__price');
-    expect(prices).toContain('8,99 €');
-    expect(prices).toContain('14,99 €');
+    expect(prices).toContain('8,99 €');
+    expect(prices).toContain('14,99 €');
   });
 
   it('sends a free user picking a paid plan to the payment page', async () => {
-    const { fixture, subscriptionsFacade, navigate } = await setup(
-      SubscriptionTier.FREE,
-    );
+    const { fixture, navigate } = await setup(SubscriptionTier.FREE);
     const buttons = (
       fixture.nativeElement as HTMLElement
     ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
     buttons[1].click();
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
-    expect(subscriptionsFacade.startCheckout).not.toHaveBeenCalled();
-    expect(subscriptionsFacade.openPortal).not.toHaveBeenCalled();
-  });
-
-  it('opens the customer portal from the manage buttons', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
-      SubscriptionTier.ESSENTIAL,
-    );
-    const buttons = (
-      fixture.nativeElement as HTMLElement
-    ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
-    buttons[0].click();
-    expect(subscriptionsFacade.openPortal).toHaveBeenCalledTimes(1);
-    expect(subscriptionsFacade.changePlan).not.toHaveBeenCalled();
   });
 
   it('changes the plan in-app after an inline confirmation', async () => {
@@ -140,41 +132,59 @@ describe('Offers', () => {
     expect(subscriptionsFacade.changePlan).toHaveBeenCalledWith(
       SubscriptionTier.UNLIMITED,
     );
-    expect(subscriptionsFacade.openPortal).not.toHaveBeenCalled();
-    expect(
-      element.querySelector('.offers__banner')?.textContent,
-    ).toContain('Votre formule a été mise à jour.');
-  });
-
-  it('shows the activation banner then confirms once the tier is granted', async () => {
-    vi.useFakeTimers();
-    try {
-      const { fixture } = await setup(SubscriptionTier.FREE, {
-        checkout: 'success',
-        refreshedTier: SubscriptionTier.ESSENTIAL,
-      });
-      vi.advanceTimersByTime(0);
-      fixture.detectChanges();
-      expect(
-        (fixture.nativeElement as HTMLElement).querySelector(
-          '.offers__banner',
-        )?.textContent,
-      ).toContain('Votre formule est active');
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('shows a neutral banner on a cancelled checkout', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
-      SubscriptionTier.FREE,
-      { checkout: 'cancelled' },
+    expect(element.querySelector('.offers__banner')?.textContent).toContain(
+      'Votre formule a été mise à jour.',
     );
+  });
+
+  it('cancels the subscription in-app after an inline confirmation', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.ESSENTIAL,
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    const cancelButton = () =>
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[1];
+
+    cancelButton().click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
+    expect(cancelButton().textContent?.trim()).toBe(
+      'Confirmer la résiliation',
+    );
+
+    cancelButton().click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
+    expect(element.querySelector('.offers__banner')?.textContent).toContain(
+      'Résiliation enregistrée.',
+    );
+  });
+
+  it('offers to resume a subscription scheduled for cancellation', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.UNLIMITED,
+      { subscription: { cancelAtPeriodEnd: true } },
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    expect(texts(element, '.offers__cancel-note')[0]).toContain(
+      'prend fin le',
+    );
+    const resumeButton = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button'),
+    ).find((button) => button.textContent?.includes('Reprendre'));
+    resumeButton?.click();
+    expect(subscriptionsFacade.resumeSubscription).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the card update banner when returning from the card page', async () => {
+    const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL, {
+      carte: 'maj',
+    });
     expect(
       (fixture.nativeElement as HTMLElement).querySelector('.offers__banner')
         ?.textContent,
-    ).toContain('Paiement annulé');
-    expect(subscriptionsFacade.refreshTier).not.toHaveBeenCalled();
+    ).toContain('Votre carte a été mise à jour.');
+    expect(navigate).toHaveBeenCalled();
   });
 
   it('renders the seven comparison rows', async () => {

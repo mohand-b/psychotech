@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,10 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PaidTier, SubscriptionTier } from '@psychotech/shared';
 import { ArrowRight, Check, Minus } from 'lucide-angular';
-import { catchError, of, switchMap, take, takeWhile, timer } from 'rxjs';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS } from '../../plan-slug';
@@ -31,39 +30,44 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
-type CheckoutBanner =
-  | 'activating'
-  | 'activated'
-  | 'timeout'
-  | 'cancelled'
-  | 'planChanged';
+type OffersBanner =
+  | 'planChanged'
+  | 'cancelScheduled'
+  | 'resumed'
+  | 'cardUpdated';
 
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
 const mono = (value: string): CompareCell => ({ kind: 'mono', value });
 
-const ACTIVATION_POLL_INTERVAL_MS = 2000;
-const ACTIVATION_POLL_MAX_ATTEMPTS = 15;
+function formatDayMonthYear(iso: string): string {
+  return new Date(iso).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 @Component({
   selector: 'app-offers',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon],
+  imports: [Button, Icon, RouterLink],
   templateUrl: './offers.html',
   styleUrl: './offers.css',
 })
 export class Offers {
   private readonly coreFacade = inject(CoreFacade);
+  private readonly authFacade = inject(AuthFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly redirecting = signal(false);
   protected readonly changingPlan = signal(false);
   protected readonly pendingPlanChange = signal<PaidTier | null>(null);
-  protected readonly banner = signal<CheckoutBanner | null>(null);
+  protected readonly managing = signal(false);
+  protected readonly pendingCancel = signal(false);
+  protected readonly banner = signal<OffersBanner | null>(null);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -74,20 +78,19 @@ export class Offers {
   protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
 
   constructor() {
-    const checkout = this.route.snapshot.queryParamMap.get('checkout');
-    if (checkout === 'success') {
-      this.banner.set('activating');
-      this.pollActivation();
-      this.clearCheckoutParam();
-    } else if (checkout === 'cancelled') {
-      this.banner.set('cancelled');
-      this.clearCheckoutParam();
-    } else {
-      this.subscriptionsFacade
-        .refreshTier()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+    if (this.route.snapshot.queryParamMap.get('carte') === 'maj') {
+      this.banner.set('cardUpdated');
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { carte: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     }
+    this.subscriptionsFacade
+      .refreshTier()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   protected readonly isFreeCurrent = computed(
@@ -99,6 +102,13 @@ export class Offers {
   protected readonly isUnlimitedCurrent = computed(
     () => this.tier() === SubscriptionTier.UNLIMITED,
   );
+
+  protected readonly subscriptionEndsAt = computed(() => {
+    const subscription = this.authFacade.currentUser()?.subscription;
+    return subscription?.cancelAtPeriodEnd && subscription.currentPeriodEnd
+      ? formatDayMonthYear(subscription.currentPeriodEnd)
+      : null;
+  });
 
   protected readonly unlimitedBadge = computed(() =>
     this.isUnlimitedCurrent()
@@ -152,7 +162,7 @@ export class Offers {
   ];
 
   protected choosePlan(plan: PaidTier): void {
-    if (this.redirecting() || this.changingPlan()) {
+    if (this.changingPlan() || this.managing()) {
       return;
     }
     if (this.isFreeCurrent()) {
@@ -161,6 +171,7 @@ export class Offers {
     }
     if (this.pendingPlanChange() !== plan) {
       this.pendingPlanChange.set(plan);
+      this.pendingCancel.set(false);
       return;
     }
     this.changingPlan.set(true);
@@ -183,49 +194,46 @@ export class Offers {
       : defaultLabel;
   }
 
-  protected openPortal(): void {
-    if (this.redirecting()) {
+  protected cancelSubscription(): void {
+    if (this.managing() || this.changingPlan()) {
       return;
     }
-    this.redirecting.set(true);
-    this.subscriptionsFacade.openPortal().subscribe({
-      next: ({ url }) => this.document.location.assign(url),
-      error: () => this.redirecting.set(false),
+    if (!this.pendingCancel()) {
+      this.pendingCancel.set(true);
+      this.pendingPlanChange.set(null);
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.cancelSubscription().subscribe({
+      next: () => {
+        this.managing.set(false);
+        this.pendingCancel.set(false);
+        this.banner.set('cancelScheduled');
+      },
+      error: () => {
+        this.managing.set(false);
+        this.pendingCancel.set(false);
+      },
     });
   }
 
-  private pollActivation(): void {
-    timer(0, ACTIVATION_POLL_INTERVAL_MS)
-      .pipe(
-        take(ACTIVATION_POLL_MAX_ATTEMPTS),
-        switchMap(() =>
-          this.subscriptionsFacade
-            .refreshTier()
-            .pipe(catchError(() => of(SubscriptionTier.FREE))),
-        ),
-        takeWhile((tier) => tier === SubscriptionTier.FREE, true),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (tier) => {
-          if (tier !== SubscriptionTier.FREE) {
-            this.banner.set('activated');
-          }
-        },
-        complete: () => {
-          if (this.banner() === 'activating') {
-            this.banner.set('timeout');
-          }
-        },
-      });
+  protected resumeSubscription(): void {
+    if (this.managing() || this.changingPlan()) {
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.resumeSubscription().subscribe({
+      next: () => {
+        this.managing.set(false);
+        this.banner.set('resumed');
+      },
+      error: () => this.managing.set(false),
+    });
   }
 
-  private clearCheckoutParam(): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { checkout: null },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+  protected cancelLabel(): string {
+    return this.pendingCancel()
+      ? 'Confirmer la résiliation'
+      : 'Résilier mon abonnement';
   }
 }

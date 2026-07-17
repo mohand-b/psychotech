@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
-  BillingRedirectDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
   PaidTier,
@@ -41,9 +40,23 @@ export class SubscriptionsApi {
     );
   }
 
-  createPortalSession(): Observable<BillingRedirectDto> {
-    return this.http.post<BillingRedirectDto>(
-      `${this.baseUrl}/billing/portal`,
+  cancelSubscription(): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/cancel`,
+      {},
+    );
+  }
+
+  resumeSubscription(): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/resume`,
+      {},
+    );
+  }
+
+  createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {
+    return this.http.post<SubscriptionPaymentDto>(
+      `${this.baseUrl}/billing/payment-method/intent`,
       {},
     );
   }

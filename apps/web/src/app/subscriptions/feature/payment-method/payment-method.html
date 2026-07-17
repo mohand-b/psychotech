@@ -1,0 +1,49 @@
+<div class="pm">
+  <section class="pm__card">
+    <div class="pm__head">
+      <h1 class="pm__title">Mettre à jour votre carte</h1>
+      <span class="pm__subtitle"
+        >La nouvelle carte servira pour les prochains prélèvements de votre
+        abonnement.</span
+      >
+    </div>
+
+    <div class="pm__element-zone">
+      @if (elementFailed()) {
+        <span class="pm__error">
+          <ui-icon [img]="errorIcon" [size]="13" />
+          Le module de paiement n'a pas pu être chargé. Rechargez la page.
+        </span>
+      } @else if (!elementReady()) {
+        <div class="pm__element-skeleton"></div>
+      }
+      <div #paymentElement></div>
+    </div>
+
+    @if (saveError(); as message) {
+      <span class="pm__error">
+        <ui-icon [img]="errorIcon" [size]="13" />
+        {{ message }}
+      </span>
+    }
+
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      relief="mobile"
+      [icon]="lockIcon"
+      [loading]="saving()"
+      [disabled]="!elementReady()"
+      (click)="save()"
+    >
+      Enregistrer cette carte
+    </ui-button>
+
+    <span class="pm__note">
+      <ui-icon class="pm__shield" [img]="shieldIcon" [size]="13" />
+      Vos coordonnées bancaires sont chiffrées et traitées par Stripe —
+      PsychoTech n'y a jamais accès.
+    </span>
+  </section>
+</div>

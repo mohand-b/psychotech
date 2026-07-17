@@ -534,3 +534,9 @@
   flex-direction: column;
   gap: 10px;
 }
+
+.offers__cancel-note {
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--warning-text);
+  text-align: center;
+}

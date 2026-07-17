@@ -1,0 +1,67 @@
+<div class="confirm">
+  <div class="confirm__panel">
+    <span class="confirm__badge">
+      <ui-icon [img]="checkIcon" [size]="30" [strokeWidth]="2.5" />
+    </span>
+
+    <div class="confirm__head">
+      <h1 class="confirm__title">Bienvenue dans l'offre {{ planLabel() }}</h1>
+      <p class="confirm__subtitle">
+        Votre abonnement est actif. Un reçu vient de vous être envoyé par
+        email.
+      </p>
+    </div>
+
+    <div class="confirm__card">
+      <div class="confirm__row">
+        <span class="confirm__row-label">Offre</span>
+        <span class="confirm__row-plan">
+          <ui-bolt class="confirm__row-bolt" [size]="13" />
+          {{ planLabel() }}
+        </span>
+      </div>
+      <span class="confirm__divider"></span>
+      <div class="confirm__row">
+        <span class="confirm__row-label">Montant</span>
+        <span class="t-mono confirm__row-value"
+          >{{ priceLabel() }}&nbsp;€<span class="confirm__row-unit"
+            >/mois</span
+          ></span
+        >
+      </div>
+      <span class="confirm__divider"></span>
+      <div class="confirm__row">
+        <span class="confirm__row-label">Prochain prélèvement</span>
+        <span class="t-mono confirm__row-value">{{
+          nextBillingLabel() ?? '—'
+        }}</span>
+      </div>
+    </div>
+
+    <div class="confirm__actions">
+      <ui-button
+        color="brand"
+        size="lg"
+        [block]="true"
+        relief="mobile"
+        [iconEnd]="arrowIcon"
+        routerLink="/entrainements"
+      >
+        Commencer à m'entraîner
+      </ui-button>
+      <ui-button
+        appearance="outlined"
+        color="neutral"
+        [block]="true"
+        routerLink="/dashboard"
+      >
+        Revenir à l'accueil
+      </ui-button>
+    </div>
+
+    <span class="confirm__note"
+      >Annulable à tout moment depuis votre compte — effet en fin de période
+      payée.</span
+    >
+  </div>
+</div>

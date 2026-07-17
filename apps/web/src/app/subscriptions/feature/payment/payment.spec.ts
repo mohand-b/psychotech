@@ -183,8 +183,8 @@ describe('Payment', () => {
     );
   });
 
-  it('confirms the payment on the page and lands on the success banner', async () => {
-    const { fixture, subscriptionsFacade, stripePayment, navigateByUrl } =
+  it('confirms the payment on the page and lands on the confirmation page', async () => {
+    const { fixture, subscriptionsFacade, stripePayment, navigate } =
       await setup('illimite');
     subscriptionsFacade.validatePromotionCode.mockReturnValue(of(PSYCHO20));
     applyCode(fixture, 'PSYCHO20');
@@ -202,13 +202,13 @@ describe('Payment', () => {
     expect(stripePayment.confirm).toHaveBeenCalledWith(
       PaymentIntentKind.PAYMENT,
       'pi_secret',
-      expect.stringContaining('/abonnements?checkout=success'),
+      expect.stringContaining('/abonnement-confirme?offre=illimite'),
       '',
       'alice@example.com',
     );
-    expect(navigateByUrl).toHaveBeenCalledWith(
-      '/abonnements?checkout=success',
-    );
+    expect(navigate).toHaveBeenCalledWith(['/abonnement-confirme'], {
+      queryParams: { offre: 'illimite' },
+    });
   });
 
   it('surfaces a failed confirmation without leaving the page', async () => {

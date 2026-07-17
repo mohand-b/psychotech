@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
-  BillingRedirectDto,
   PaidTier,
   PromotionCodeDto,
   SubscriptionPaymentDto,
@@ -33,8 +32,22 @@ export class SubscriptionsFacade {
       .pipe(switchMap(() => this.refreshTier()));
   }
 
-  openPortal(): Observable<BillingRedirectDto> {
-    return this.api.createPortalSession();
+  cancelSubscription(): Observable<void> {
+    return this.api.cancelSubscription().pipe(
+      switchMap(() => this.refreshTier()),
+      map(() => undefined),
+    );
+  }
+
+  resumeSubscription(): Observable<void> {
+    return this.api.resumeSubscription().pipe(
+      switchMap(() => this.refreshTier()),
+      map(() => undefined),
+    );
+  }
+
+  createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {
+    return this.api.createPaymentMethodSetup();
   }
 
   validatePromotionCode(code: string): Observable<PromotionCodeDto> {

@@ -3,18 +3,13 @@
     @if (banner(); as state) {
     <div
       class="offers__banner"
-      [class.offers__banner--success]="
-        state === 'activated' || state === 'planChanged'
-      "
+      [class.offers__banner--success]="state !== 'cancelScheduled'"
     >
-      @switch (state) { @case ('activating') {
-      <span class="offers__banner-spinner"></span>
-      Paiement confirmé. Activation de votre formule en cours… } @case
-      ('activated') { Votre formule est active. Bon entraînement. } @case
-      ('timeout') { L'activation prend un peu plus de temps que prévu.
-      Rechargez cette page dans quelques instants. } @case ('cancelled') {
-      Paiement annulé. Aucune modification n'a été apportée à votre formule. }
-      @case ('planChanged') { Votre formule a été mise à jour. } }
+      @switch (state) { @case ('planChanged') { Votre formule a été mise à
+      jour. } @case ('cancelScheduled') { Résiliation enregistrée. Vous gardez
+      l'accès jusqu'à la fin de la période en cours. } @case ('resumed') {
+      Votre abonnement reprend normalement. } @case ('cardUpdated') { Votre
+      carte a été mise à jour. } }
     </div>
     }
     <div class="offers__head">
@@ -80,16 +75,6 @@
           <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
           Formule actuelle
         </span>
-        } @else {
-        <ui-button
-          appearance="outlined"
-          color="brand"
-          [block]="true"
-          (click)="openPortal()"
-          [loading]="redirecting()"
-        >
-          Gérer mon abonnement
-        </ui-button>
         }
       </section>
 
@@ -154,15 +139,39 @@
             <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
             Formule actuelle
           </span>
+          @if (subscriptionEndsAt(); as endsAt) {
+          <span class="offers__cancel-note"
+            >Votre abonnement prend fin le
+            <span class="t-mono">{{ endsAt }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            [block]="true"
+            (click)="resumeSubscription()"
+            [loading]="managing()"
+          >
+            Reprendre mon abonnement
+          </ui-button>
+          } @else {
           <ui-button
             appearance="outlined"
             color="brand"
             [block]="true"
-            (click)="openPortal()"
-            [loading]="redirecting()"
+            routerLink="/paiement/carte"
           >
-            Gérer mon abonnement
+            Mettre à jour ma carte
           </ui-button>
+          <ui-button
+            appearance="ghost"
+            color="neutral"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ cancelLabel() }}
+          </ui-button>
+          }
         </div>
         } @else {
         <ui-button
@@ -251,14 +260,39 @@
             <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
             Formule actuelle
           </span>
+          @if (subscriptionEndsAt(); as endsAt) {
+          <span class="offers__cancel-note"
+            >Votre abonnement prend fin le
+            <span class="t-mono">{{ endsAt }}</span
+            >.</span
+          >
           <ui-button
             color="brand"
             [block]="true"
-            (click)="openPortal()"
-            [loading]="redirecting()"
+            (click)="resumeSubscription()"
+            [loading]="managing()"
           >
-            Gérer mon abonnement
+            Reprendre mon abonnement
           </ui-button>
+          } @else {
+          <ui-button
+            appearance="outlined"
+            color="brand"
+            [block]="true"
+            routerLink="/paiement/carte"
+          >
+            Mettre à jour ma carte
+          </ui-button>
+          <ui-button
+            appearance="ghost"
+            color="neutral"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ cancelLabel() }}
+          </ui-button>
+          }
         </div>
         } @else {
         <ui-button
@@ -319,15 +353,43 @@
             <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
             Formule actuelle
           </span>
+          @if (subscriptionEndsAt(); as endsAt) {
+          <span class="offers__cancel-note"
+            >Votre abonnement prend fin le
+            <span class="t-mono">{{ endsAt }}</span
+            >.</span
+          >
           <ui-button
             color="brand"
             size="lg"
             [block]="true"
-            (click)="openPortal()"
-            [loading]="redirecting()"
+            relief="mobile"
+            (click)="resumeSubscription()"
+            [loading]="managing()"
           >
-            Gérer mon abonnement
+            Reprendre mon abonnement
           </ui-button>
+          } @else {
+          <ui-button
+            appearance="outlined"
+            color="brand"
+            size="lg"
+            [block]="true"
+            routerLink="/paiement/carte"
+          >
+            Mettre à jour ma carte
+          </ui-button>
+          <ui-button
+            appearance="ghost"
+            color="neutral"
+            size="lg"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ cancelLabel() }}
+          </ui-button>
+          }
         </div>
         } @else {
         <ui-button
@@ -392,16 +454,43 @@
             <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
             Formule actuelle
           </span>
+          @if (subscriptionEndsAt(); as endsAt) {
+          <span class="offers__cancel-note"
+            >Votre abonnement prend fin le
+            <span class="t-mono">{{ endsAt }}</span
+            >.</span
+          >
+          <ui-button
+            color="brand"
+            size="lg"
+            [block]="true"
+            relief="mobile"
+            (click)="resumeSubscription()"
+            [loading]="managing()"
+          >
+            Reprendre mon abonnement
+          </ui-button>
+          } @else {
           <ui-button
             appearance="outlined"
             color="brand"
             size="lg"
             [block]="true"
-            (click)="openPortal()"
-            [loading]="redirecting()"
+            routerLink="/paiement/carte"
           >
-            Gérer mon abonnement
+            Mettre à jour ma carte
           </ui-button>
+          <ui-button
+            appearance="ghost"
+            color="neutral"
+            size="lg"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ cancelLabel() }}
+          </ui-button>
+          }
         </div>
         } @else {
         <ui-button
@@ -454,17 +543,6 @@
           <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.5" />
           Formule actuelle
         </span>
-        } @else {
-        <ui-button
-          appearance="outlined"
-          color="brand"
-          size="lg"
-          [block]="true"
-          (click)="openPortal()"
-          [loading]="redirecting()"
-        >
-          Gérer mon abonnement
-        </ui-button>
         }
       </section>
     </div>

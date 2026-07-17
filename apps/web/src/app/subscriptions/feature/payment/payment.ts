@@ -30,7 +30,7 @@ import {
 } from '../../../shared/util/subscription-prices';
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
-import { planFromSlug } from '../../plan-slug';
+import { PLAN_SLUGS, planFromSlug } from '../../plan-slug';
 
 const PLAN_PRESENTATION: Record<
   PaidTier,
@@ -280,7 +280,7 @@ export class Payment {
       const confirmation = await this.stripePayment.confirm(
         payment.kind,
         payment.clientSecret,
-        `${this.document.location.origin}/abonnements?checkout=success`,
+        `${this.document.location.origin}/abonnement-confirme?offre=${PLAN_SLUGS[this.plan]}`,
         this.holderName().trim(),
         this.email(),
       );
@@ -288,7 +288,9 @@ export class Payment {
         this.paymentError.set(confirmation.errorMessage);
         return;
       }
-      this.router.navigateByUrl('/abonnements?checkout=success');
+      this.router.navigate(['/abonnement-confirme'], {
+        queryParams: { offre: PLAN_SLUGS[this.plan] },
+      });
     } catch {
       this.paymentError.set(PAYMENT_FAILED_MESSAGE);
     } finally {
