@@ -172,10 +172,24 @@ export class BillingService {
     const item = current.items.data[0];
     if (item.price.id !== targetPrice) {
       const isUpgrade = plan === SubscriptionTier.UNLIMITED;
-      const updated = await stripe.subscriptions.update(current.id, {
-        items: [{ id: item.id, price: targetPrice }],
-        proration_behavior: isUpgrade ? 'create_prorations' : 'none',
-      });
+      let updated: Stripe.Subscription;
+      try {
+        updated = await stripe.subscriptions.update(current.id, {
+          items: [{ id: item.id, price: targetPrice }],
+          proration_behavior: isUpgrade ? 'always_invoice' : 'none',
+          payment_behavior: isUpgrade ? 'error_if_incomplete' : undefined,
+        });
+      } catch (error) {
+        if (
+          error instanceof Stripe.errors.StripeError &&
+          error.statusCode === 402
+        ) {
+          throw new BadRequestException(
+            'The prorated payment for the upgrade was declined',
+          );
+        }
+        throw error;
+      }
       await this.applySubscription(updated);
     }
     const fresh = await this.repository.findSubscriptionByUserId(userId);

@@ -278,12 +278,38 @@ describe('BillingService.changeSubscriptionPlan', () => {
 
     expect(updateStripeSubscription).toHaveBeenCalledWith('sub_1', {
       items: [{ id: 'si_1', price: 'price_unlimited' }],
-      proration_behavior: 'create_prorations',
+      proration_behavior: 'always_invoice',
+      payment_behavior: 'error_if_incomplete',
     });
     expect(repository.upsertSubscription).toHaveBeenCalledWith(
       'user-1',
       expect.objectContaining({ tier: DbSubscriptionTier.UNLIMITED }),
     );
+  });
+
+  it('rejects the upgrade when the immediate proration payment is declined', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(dbRow);
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        status: 'active',
+        items: {
+          data: [
+            { id: 'si_1', price: { id: 'price_essential' }, current_period_end: 1_800_000_000 },
+          ],
+        },
+      }),
+    );
+    const declined = new Stripe.errors.StripeCardError({
+      type: 'card_error',
+      message: 'Your card was declined.',
+    } as never);
+    declined.statusCode = 402;
+    updateStripeSubscription.mockRejectedValue(declined);
+
+    await expect(
+      service.changeSubscriptionPlan('user-1', SubscriptionTier.UNLIMITED),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.upsertSubscription).not.toHaveBeenCalled();
   });
 
   it('downgrades without prorations', async () => {
