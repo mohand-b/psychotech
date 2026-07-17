@@ -218,6 +218,9 @@ export class Payment {
   });
 
   protected readonly isUpgrade = computed(
+    () => this.plan === SubscriptionTier.UNLIMITED,
+  );
+  protected readonly hasProration = computed(
     () => (this.changePreview()?.prorationAmount ?? 0) > 0,
   );
   protected readonly changeMonthlyLabel = computed(() =>

@@ -39,11 +39,9 @@
               >{{ changeMonthlyLabel() }}&nbsp;€</span
             >
           </div>
-          @if (isUpgrade()) {
+          @if (hasProration()) {
             <div class="pay__total-row">
-              <span class="pay__total-label"
-                >Différence au prorata (jours restants)</span
-              >
+              <span class="pay__total-label">Ajustements au prorata</span>
               <span class="t-mono pay__total-value"
                 >+{{ prorationLabel() }}&nbsp;€</span
               >
@@ -66,9 +64,9 @@
               est ajoutée à votre prochaine facture, réglée avec votre carte
               enregistrée.
             } @else {
-              Aucun débit ni remboursement aujourd'hui : vous conservez votre
-              offre actuelle déjà réglée jusqu'à l'échéance, puis la facture
-              passe au nouveau tarif.
+              Aucun débit ni remboursement aujourd'hui : le nouveau tarif
+              s'applique à partir de votre prochaine facture@if
+              (hasProration()) {, ajustements antérieurs inclus}.
             }
           </span>
         </div>
@@ -100,8 +98,9 @@
             du {{ nextInvoiceDateLabel() }}.
           } @else {
             Votre offre passe à {{ presentation().label }} immédiatement, sans
-            débit aujourd'hui. À partir du {{ nextInvoiceDateLabel() }}, votre
-            facture sera de {{ changeMonthlyLabel() }}&nbsp;€/mois.
+            débit aujourd'hui. Votre prochaine facture du
+            {{ nextInvoiceDateLabel() }} sera de
+            {{ nextInvoiceLabel() }}&nbsp;€.
           }
         </span>
 
