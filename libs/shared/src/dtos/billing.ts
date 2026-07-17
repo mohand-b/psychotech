@@ -11,6 +11,15 @@ export interface ChangeSubscriptionPlanDto {
   plan: PaidTier;
 }
 
+export interface ChangePlanPreviewDto {
+  currentPlan: PaidTier;
+  targetPlan: PaidTier;
+  monthlyAmount: number;
+  prorationAmount: number;
+  nextInvoiceTotal: number;
+  nextInvoiceDate: string | null;
+}
+
 export interface BillingConfigDto {
   publishableKey: string;
 }
