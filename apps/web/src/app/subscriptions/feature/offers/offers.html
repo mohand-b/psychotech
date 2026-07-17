@@ -3,7 +3,9 @@
     @if (banner(); as state) {
     <div
       class="offers__banner"
-      [class.offers__banner--success]="state === 'activated'"
+      [class.offers__banner--success]="
+        state === 'activated' || state === 'planChanged'
+      "
     >
       @switch (state) { @case ('activating') {
       <span class="offers__banner-spinner"></span>
@@ -12,7 +14,7 @@
       ('timeout') { L'activation prend un peu plus de temps que prévu.
       Rechargez cette page dans quelques instants. } @case ('cancelled') {
       Paiement annulé. Aucune modification n'a été apportée à votre formule. }
-      }
+      @case ('planChanged') { Votre formule a été mise à jour. } }
     </div>
     }
     <div class="offers__head">
@@ -168,8 +170,9 @@
           color="brand"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
+          [loading]="changingPlan() && pendingPlanChange() === tiers.ESSENTIAL"
         >
-          Choisir Essentiel
+          {{ planChangeLabel(tiers.ESSENTIAL, 'Choisir Essentiel') }}
         </ui-button>
         }
       </section>
@@ -263,8 +266,9 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
+          [loading]="changingPlan() && pendingPlanChange() === tiers.UNLIMITED"
         >
-          Passer à l'Illimité
+          {{ planChangeLabel(tiers.UNLIMITED, "Passer à l'Illimité") }}
         </ui-button>
         }
       </section>
@@ -332,8 +336,9 @@
           [block]="true"
           [iconEnd]="arrowIcon"
           (click)="choosePlan(tiers.UNLIMITED)"
+          [loading]="changingPlan() && pendingPlanChange() === tiers.UNLIMITED"
         >
-          Passer à l'Illimité
+          {{ planChangeLabel(tiers.UNLIMITED, "Passer à l'Illimité") }}
         </ui-button>
         }
       </section>
@@ -405,8 +410,9 @@
           size="lg"
           [block]="true"
           (click)="choosePlan(tiers.ESSENTIAL)"
+          [loading]="changingPlan() && pendingPlanChange() === tiers.ESSENTIAL"
         >
-          Choisir Essentiel
+          {{ planChangeLabel(tiers.ESSENTIAL, 'Choisir Essentiel') }}
         </ui-button>
         }
       </section>

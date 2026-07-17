@@ -31,7 +31,12 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
-type CheckoutBanner = 'activating' | 'activated' | 'timeout' | 'cancelled';
+type CheckoutBanner =
+  | 'activating'
+  | 'activated'
+  | 'timeout'
+  | 'cancelled'
+  | 'planChanged';
 
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
@@ -56,6 +61,8 @@ export class Offers {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly redirecting = signal(false);
+  protected readonly changingPlan = signal(false);
+  protected readonly pendingPlanChange = signal<PaidTier | null>(null);
   protected readonly banner = signal<CheckoutBanner | null>(null);
 
   protected readonly checkIcon = Check;
@@ -145,14 +152,35 @@ export class Offers {
   ];
 
   protected choosePlan(plan: PaidTier): void {
-    if (this.redirecting()) {
+    if (this.redirecting() || this.changingPlan()) {
       return;
     }
     if (this.isFreeCurrent()) {
       this.router.navigate(['/paiement', PLAN_SLUGS[plan]]);
       return;
     }
-    this.openPortal();
+    if (this.pendingPlanChange() !== plan) {
+      this.pendingPlanChange.set(plan);
+      return;
+    }
+    this.changingPlan.set(true);
+    this.subscriptionsFacade.changePlan(plan).subscribe({
+      next: () => {
+        this.changingPlan.set(false);
+        this.pendingPlanChange.set(null);
+        this.banner.set('planChanged');
+      },
+      error: () => {
+        this.changingPlan.set(false);
+        this.pendingPlanChange.set(null);
+      },
+    });
+  }
+
+  protected planChangeLabel(plan: PaidTier, defaultLabel: string): string {
+    return this.pendingPlanChange() === plan
+      ? 'Confirmer le changement'
+      : defaultLabel;
   }
 
   protected openPortal(): void {

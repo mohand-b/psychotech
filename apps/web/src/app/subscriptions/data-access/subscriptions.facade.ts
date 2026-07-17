@@ -7,7 +7,7 @@ import {
   SubscriptionPaymentDto,
   SubscriptionTier,
 } from '@psychotech/shared';
-import { Observable, map } from 'rxjs';
+import { Observable, map, switchMap } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { SubscriptionsApi } from './subscriptions.api';
 
@@ -25,6 +25,12 @@ export class SubscriptionsFacade {
     promotionCode?: string,
   ): Observable<SubscriptionPaymentDto> {
     return this.api.createSubscription(plan, promotionCode);
+  }
+
+  changePlan(plan: PaidTier): Observable<SubscriptionTier> {
+    return this.api
+      .changeSubscriptionPlan(plan)
+      .pipe(switchMap(() => this.refreshTier()));
   }
 
   openPortal(): Observable<BillingRedirectDto> {

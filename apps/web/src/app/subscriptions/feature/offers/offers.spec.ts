@@ -24,6 +24,7 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
   const subscriptionsFacade = {
     startCheckout: vi.fn().mockReturnValue(EMPTY),
     openPortal: vi.fn().mockReturnValue(EMPTY),
+    changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
     refreshTier: vi
       .fn()
       .mockReturnValue(of(options.refreshedTier ?? tier)),
@@ -107,16 +108,42 @@ describe('Offers', () => {
     expect(subscriptionsFacade.openPortal).not.toHaveBeenCalled();
   });
 
-  it('routes a subscribed user through the customer portal', async () => {
+  it('opens the customer portal from the manage buttons', async () => {
     const { fixture, subscriptionsFacade } = await setup(
       SubscriptionTier.ESSENTIAL,
     );
     const buttons = (
       fixture.nativeElement as HTMLElement
     ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
-    buttons[2].click();
+    buttons[0].click();
     expect(subscriptionsFacade.openPortal).toHaveBeenCalledTimes(1);
-    expect(subscriptionsFacade.startCheckout).not.toHaveBeenCalled();
+    expect(subscriptionsFacade.changePlan).not.toHaveBeenCalled();
+  });
+
+  it('changes the plan in-app after an inline confirmation', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.ESSENTIAL,
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    const unlimitedButton = () =>
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[2];
+
+    unlimitedButton().click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.changePlan).not.toHaveBeenCalled();
+    expect(unlimitedButton().textContent?.trim()).toBe(
+      'Confirmer le changement',
+    );
+
+    unlimitedButton().click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.changePlan).toHaveBeenCalledWith(
+      SubscriptionTier.UNLIMITED,
+    );
+    expect(subscriptionsFacade.openPortal).not.toHaveBeenCalled();
+    expect(
+      element.querySelector('.offers__banner')?.textContent,
+    ).toContain('Votre formule a été mise à jour.');
   });
 
   it('shows the activation banner then confirms once the tier is granted', async () => {

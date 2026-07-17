@@ -3,9 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
   BillingRedirectDto,
+  ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
   PaidTier,
   PromotionCodeDto,
+  SubscriptionDto,
   SubscriptionPaymentDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
@@ -27,6 +29,14 @@ export class SubscriptionsApi {
     const body: CreateSubscriptionDto = { plan, promotionCode };
     return this.http.post<SubscriptionPaymentDto>(
       `${this.baseUrl}/billing/subscription`,
+      body,
+    );
+  }
+
+  changeSubscriptionPlan(plan: PaidTier): Observable<SubscriptionDto> {
+    const body: ChangeSubscriptionPlanDto = { plan };
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/change`,
       body,
     );
   }
