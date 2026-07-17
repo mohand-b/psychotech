@@ -233,3 +233,22 @@
     display: none;
   }
 }
+
+.focused-header__secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 13px/1.4 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.focused-header__secure-icon {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+@media (max-width: 767px) {
+  .focused-header__secure-text {
+    display: none;
+  }
+}

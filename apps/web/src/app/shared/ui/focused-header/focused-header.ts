@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
-import { ArrowLeft, BookOpen, Timer, X } from 'lucide-angular';
+import { ArrowLeft, BookOpen, ShieldCheck, Timer, X } from 'lucide-angular';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisChip } from '../axis-chip/axis-chip';
@@ -77,6 +77,16 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
         }
 
         <div class="focused-header__actions">
+          @if (securityBadge()) {
+            <span class="focused-header__secure">
+              <ui-icon
+                class="focused-header__secure-icon"
+                [img]="secureIcon"
+                [size]="14"
+              />
+              <span class="focused-header__secure-text">Paiement sécurisé</span>
+            </span>
+          }
           @if (showEnergy()) {
             <ui-energy-chip [state]="energy()" [tier]="tier()" />
             @if (duration() || closeLink()) {
@@ -131,9 +141,11 @@ export class FocusedHeader {
   readonly duration = input<string | null>(null);
   readonly timerSeverity = input<TimerSeverity>('normal');
   readonly showEnergy = input(true);
+  readonly securityBadge = input(false);
   readonly closeLink = input<string | null>(null);
   readonly closeRequested = output<void>();
 
+  protected readonly secureIcon = ShieldCheck;
   protected readonly backIcon = ArrowLeft;
   protected readonly discoveryIcon = BookOpen;
   protected readonly timerIcon = Timer;
