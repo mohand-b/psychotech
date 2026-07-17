@@ -3,6 +3,7 @@ import {
   BillingConfigDto,
   ChangePlanPreviewDto,
   PaidTier,
+  PaymentMethodOverviewDto,
   PromotionCodeDto,
   SubscriptionPaymentDto,
   SubscriptionTier,
@@ -49,6 +50,10 @@ export class SubscriptionsFacade {
       switchMap(() => this.refreshTier()),
       map(() => undefined),
     );
+  }
+
+  getPaymentMethodOverview(): Observable<PaymentMethodOverviewDto> {
+    return this.api.getPaymentMethodOverview();
   }
 
   createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {

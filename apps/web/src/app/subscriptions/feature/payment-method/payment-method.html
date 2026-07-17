@@ -1,11 +1,45 @@
 <div class="pm">
-  <section class="pm__card">
-    <div class="pm__head">
-      <h1 class="pm__title">Mettre à jour votre carte</h1>
-      <span class="pm__subtitle"
-        >La nouvelle carte servira pour les prochains prélèvements de votre
-        abonnement.</span
-      >
+  <div class="pm__head">
+    <h1 class="pm__title">Moyen de paiement</h1>
+    <span class="pm__subtitle"
+      >La nouvelle carte remplace l'actuelle pour vos prochains prélèvements.
+      Aucun débit aujourd'hui.</span
+    >
+  </div>
+
+  @if (currentCard(); as card) {
+    <section class="pm__card pm__current">
+      <span class="t-label">Carte actuelle</span>
+      <div class="pm__current-row">
+        <span class="pm__badge">{{ cardBrandLabel() }}</span>
+        <span class="pm__current-copy">
+          <span class="t-mono pm__last4">•••• {{ card.last4 }}</span>
+          <span class="pm__exp">Expire {{ cardExpiryLabel() }}</span>
+        </span>
+        <span class="pm__active">
+          <span class="pm__active-dot"></span>
+          Active
+        </span>
+      </div>
+      @if (nextInvoiceAmountLabel(); as amount) {
+        <span class="pm__next"
+          >Prochain prélèvement&nbsp;:
+          <span class="t-mono pm__next-strong">{{ amount }}&nbsp;€</span>
+          @if (nextInvoiceDateLabel(); as date) {
+            le <span class="t-mono pm__next-strong">{{ date }}</span>
+          }</span
+        >
+      }
+    </section>
+  }
+
+  <section class="pm__card pm__panel">
+    <div class="pm__panel-head">
+      <span class="pm__panel-title">Nouvelle carte</span>
+      <span class="pm__stripe-brand">
+        Propulsé par
+        <span class="pm__stripe-wordmark">Stripe</span>
+      </span>
     </div>
 
     <div class="pm__element-zone">
@@ -32,18 +66,22 @@
       size="lg"
       [block]="true"
       relief="mobile"
-      [icon]="lockIcon"
+      [icon]="cardIcon"
       [loading]="saving()"
       [disabled]="!elementReady()"
       (click)="save()"
     >
-      Enregistrer cette carte
+      Remplacer la carte
     </ui-button>
 
     <span class="pm__note">
       <ui-icon class="pm__shield" [img]="shieldIcon" [size]="13" />
-      Vos coordonnées bancaires sont chiffrées et traitées par Stripe —
+      Vos coordonnées bancaires sont chiffrées et traitées par Stripe,
       PsychoTech n'y a jamais accès.
     </span>
   </section>
+
+  <span class="pm__footnote"
+    >L'ancienne carte est retirée dès que la nouvelle est validée.</span
+  >
 </div>

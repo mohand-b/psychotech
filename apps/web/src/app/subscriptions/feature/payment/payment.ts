@@ -19,10 +19,20 @@ import {
   PromotionDuration,
   SubscriptionTier,
 } from '@psychotech/shared';
-import { CircleAlert, Lock, ShieldCheck, Tag, X, Zap } from 'lucide-angular';
+import {
+  ArrowRight,
+  CircleAlert,
+  Clock,
+  Lock,
+  ShieldCheck,
+  Tag,
+  X,
+  Zap,
+} from 'lucide-angular';
 import { finalize, firstValueFrom } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
+import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import {
@@ -58,10 +68,17 @@ function formatDayMonthYear(date: Date): string {
   });
 }
 
+function formatDayShortMonth(iso: string): string {
+  return new Date(iso).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
 @Component({
   selector: 'app-payment',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, RouterLink],
+  imports: [BoltIcon, Button, Icon, RouterLink],
   providers: [StripePaymentService],
   templateUrl: './payment.html',
   styleUrl: './payment.css',
@@ -82,6 +99,8 @@ export class Payment {
   protected readonly tagIcon = Tag;
   protected readonly removeIcon = X;
   protected readonly errorIcon = CircleAlert;
+  protected readonly arrowIcon = ArrowRight;
+  protected readonly clockIcon = Clock;
 
   protected readonly plan: PaidTier;
   protected readonly mode: 'checkout' | 'change';
@@ -220,31 +239,73 @@ export class Payment {
   protected readonly isUpgrade = computed(
     () => this.plan === SubscriptionTier.UNLIMITED,
   );
-  protected readonly hasProration = computed(
-    () => (this.changePreview()?.prorationAmount ?? 0) > 0,
-  );
   protected readonly changeMonthlyLabel = computed(() =>
     formatEuroAmount((this.changePreview()?.monthlyAmount ?? 0) / 100),
+  );
+  protected readonly currentMonthlyLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.currentMonthlyAmount ?? 0) / 100),
   );
   protected readonly prorationLabel = computed(() =>
     formatEuroAmount((this.changePreview()?.prorationAmount ?? 0) / 100),
   );
-  protected readonly nextInvoiceLabel = computed(() =>
-    formatEuroAmount((this.changePreview()?.nextInvoiceTotal ?? 0) / 100),
+  protected readonly prorationChargeLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.prorationCharge ?? 0) / 100),
+  );
+  protected readonly prorationCreditLabel = computed(() =>
+    formatEuroAmount((this.changePreview()?.prorationCredit ?? 0) / 100),
+  );
+  protected readonly hasProrationCredit = computed(
+    () => (this.changePreview()?.prorationCredit ?? 0) > 0,
   );
   protected readonly nextInvoiceDateLabel = computed(() => {
     const iso = this.changePreview()?.nextInvoiceDate;
     return iso ? formatDayMonthYear(new Date(iso)) : null;
+  });
+  protected readonly periodLabel = computed(() => {
+    const preview = this.changePreview();
+    return preview?.periodStart && preview.nextInvoiceDate
+      ? `${formatDayShortMonth(preview.periodStart)} → ${formatDayShortMonth(preview.nextInvoiceDate)}`
+      : null;
   });
   protected readonly currentPlanLabel = computed(() => {
     const current = this.changePreview()?.currentPlan;
     return current ? PLAN_PRESENTATION[current].label : '';
   });
 
+  protected readonly changeSubtitle = computed(() =>
+    this.isUpgrade()
+      ? 'Vous payez uniquement la différence entre votre offre actuelle et la nouvelle.'
+      : "Aucun paiement aujourd'hui : le changement de tarif prend effet à votre prochaine facture.",
+  );
+
+  protected readonly effectNote = computed(() =>
+    this.isUpgrade()
+      ? `Effet immédiat : l'${PLAN_PRESENTATION[this.plan].label} est actif dès la confirmation.`
+      : `Effet immédiat sur l'offre, nouveau tarif à partir du ${this.nextInvoiceDateLabel()}.`,
+  );
+
+  protected readonly changeCard = computed(
+    () => this.changePreview()?.card ?? null,
+  );
+  protected readonly cardBrandLabel = computed(() =>
+    (this.changeCard()?.brand ?? '').toUpperCase(),
+  );
+  protected readonly cardExpiryLabel = computed(() => {
+    const card = this.changeCard();
+    return card
+      ? `${String(card.expMonth).padStart(2, '0')}/${String(card.expYear).slice(-2)}`
+      : '';
+  });
+  protected readonly debitNote = computed(() =>
+    this.isUpgrade()
+      ? `Débit de ${this.prorationLabel()} € aujourd'hui`
+      : `Prochain prélèvement : ${this.changeMonthlyLabel()} € le ${this.nextInvoiceDateLabel()}`,
+  );
+
   protected readonly changeCtaLabel = computed(() =>
-    this.isUpgrade() && this.hasProration()
-      ? `Payer ${this.prorationLabel()} € et changer d'offre`
-      : "Confirmer le changement d'offre",
+    this.isUpgrade()
+      ? `Confirmer et payer ${this.prorationLabel()} €`
+      : `Confirmer le passage à l'${PLAN_PRESENTATION[this.plan].label}`,
   );
 
   private loadChangePreview(): void {

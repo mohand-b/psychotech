@@ -51,9 +51,14 @@ async function setup(slug: string, tier = SubscriptionTier.FREE) {
         currentPlan: SubscriptionTier.ESSENTIAL,
         targetPlan: SubscriptionTier.UNLIMITED,
         monthlyAmount: 1499,
+        currentMonthlyAmount: 899,
         prorationAmount: 410,
+        prorationCharge: 810,
+        prorationCredit: 400,
         nextInvoiceTotal: 1909,
         nextInvoiceDate: '2026-08-17T00:00:00.000Z',
+        periodStart: '2026-07-17T00:00:00.000Z',
+        card: { brand: 'visa', last4: '4242', expMonth: 8, expYear: 2028 },
       }),
     ),
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
@@ -168,17 +173,21 @@ describe('Payment', () => {
       SubscriptionTier.ESSENTIAL,
     );
     expect(text(fixture, '.pay__title')).toBe("Changer d'offre");
-    expect(text(fixture, '.pay__offer-amount')).toBe('14,99 €');
+    expect(texts(fixture, '.chg__box-amount')).toEqual(['8,99 €', '14,99 €']);
     expect(
       texts(fixture, '.pay__total-value').some((value) =>
-        value.includes('+4,10 €'),
+        value.includes('8,10 €'),
+      ),
+    ).toBe(true);
+    expect(
+      texts(fixture, '.pay__total-value').some((value) =>
+        value.includes('−4,00 €'),
       ),
     ).toBe(true);
     expect(text(fixture, '.pay__total-due')).toBe("À payer aujourd'hui");
     expect(text(fixture, '.pay__total-amount')).toBe('4,10 €');
-    expect(text(fixture, '.pay__cta')).toBe(
-      "Payer 4,10 € et changer d'offre",
-    );
+    expect(text(fixture, '.chg__pm-last4')).toContain('4242');
+    expect(text(fixture, '.pay__cta')).toBe('Confirmer et payer 4,10 €');
     expect(stripePayment.mount).not.toHaveBeenCalled();
   });
 

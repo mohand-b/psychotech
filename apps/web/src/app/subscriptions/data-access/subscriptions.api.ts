@@ -6,6 +6,7 @@ import {
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
   PaidTier,
+  PaymentMethodOverviewDto,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -60,6 +61,12 @@ export class SubscriptionsApi {
     return this.http.post<SubscriptionDto>(
       `${this.baseUrl}/billing/subscription/resume`,
       {},
+    );
+  }
+
+  getPaymentMethodOverview(): Observable<PaymentMethodOverviewDto> {
+    return this.http.get<PaymentMethodOverviewDto>(
+      `${this.baseUrl}/billing/payment-method`,
     );
   }
 

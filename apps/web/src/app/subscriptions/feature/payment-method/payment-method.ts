@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   afterNextRender,
   computed,
@@ -9,19 +10,28 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { SubscriptionTier } from '@psychotech/shared';
-import { CircleAlert, Lock, ShieldCheck } from 'lucide-angular';
+import { PaymentMethodOverviewDto, SubscriptionTier } from '@psychotech/shared';
+import { CircleAlert, CreditCard, ShieldCheck } from 'lucide-angular';
 import { firstValueFrom } from 'rxjs';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
 const CARD_UPDATE_FAILED_MESSAGE =
   "L'enregistrement de la carte n'a pas abouti. Vérifiez vos informations et réessayez.";
+
+function formatDayMonthYear(iso: string): string {
+  return new Date(iso).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 @Component({
   selector: 'app-payment-method',
@@ -33,13 +43,13 @@ const CARD_UPDATE_FAILED_MESSAGE =
 })
 export class PaymentMethod {
   private readonly coreFacade = inject(CoreFacade);
-  private readonly authFacade = inject(AuthFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly stripePayment = inject(StripePaymentService);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly lockIcon = Lock;
+  protected readonly cardIcon = CreditCard;
   protected readonly shieldIcon = ShieldCheck;
   protected readonly errorIcon = CircleAlert;
 
@@ -47,6 +57,7 @@ export class PaymentMethod {
   protected readonly saveError = signal<string | null>(null);
   protected readonly elementReady = signal(false);
   protected readonly elementFailed = signal(false);
+  protected readonly overview = signal<PaymentMethodOverviewDto | null>(null);
 
   private readonly paymentElementHost =
     viewChild<ElementRef<HTMLElement>>('paymentElement');
@@ -56,12 +67,38 @@ export class PaymentMethod {
       this.router.navigate(['/abonnements']);
       return;
     }
+    this.subscriptionsFacade
+      .getPaymentMethodOverview()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (overview) => this.overview.set(overview),
+        error: () => this.overview.set(null),
+      });
     afterNextRender(() => void this.setupPaymentElement());
   }
 
-  protected readonly email = computed(
-    () => this.authFacade.currentUser()?.email ?? '',
+  protected readonly currentCard = computed(
+    () => this.overview()?.card ?? null,
   );
+  protected readonly cardBrandLabel = computed(() =>
+    (this.currentCard()?.brand ?? '').toUpperCase(),
+  );
+  protected readonly cardExpiryLabel = computed(() => {
+    const card = this.currentCard();
+    return card
+      ? `${String(card.expMonth).padStart(2, '0')}/${String(card.expYear).slice(-2)}`
+      : '';
+  });
+  protected readonly nextInvoiceAmountLabel = computed(() => {
+    const amount = this.overview()?.nextInvoiceAmount;
+    return amount === null || amount === undefined
+      ? null
+      : formatEuroAmount(amount / 100);
+  });
+  protected readonly nextInvoiceDateLabel = computed(() => {
+    const iso = this.overview()?.nextInvoiceDate;
+    return iso ? formatDayMonthYear(iso) : null;
+  });
 
   private async setupPaymentElement(): Promise<void> {
     const host = this.paymentElementHost()?.nativeElement;
@@ -103,7 +140,7 @@ export class PaymentMethod {
         setup.clientSecret,
         `${this.document.location.origin}/abonnements?carte=maj`,
         '',
-        this.email(),
+        '',
       );
       if (confirmation.errorMessage) {
         this.saveError.set(confirmation.errorMessage);

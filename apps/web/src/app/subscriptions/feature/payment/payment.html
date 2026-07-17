@@ -1,168 +1,190 @@
 @if (mode === 'change') {
-  <div class="pay pay--change">
-    <section class="pay__summary">
-      <div class="pay__head">
-        <h1 class="pay__title">Changer d'offre</h1>
-        <span class="pay__subtitle"
-          >{{ currentPlanLabel() }} vers {{ presentation().label }} — effet
-          immédiat.</span
-        >
-      </div>
+  <div class="chg">
+    <div class="pay__head">
+      <h1 class="pay__title">Changer d'offre</h1>
+      <span class="pay__subtitle">{{ changeSubtitle() }}</span>
+    </div>
 
-      <div class="pay__card pay__offer">
-        <div class="pay__card-head">
-          <span class="t-label">Votre nouvelle offre</span>
-          <a class="pay__edit" routerLink="/abonnements">Modifier</a>
-        </div>
-        <div class="pay__offer-row">
-          <span class="pay__offer-icon">
-            <ui-icon [img]="boltIcon" [size]="19" />
-          </span>
-          <span class="pay__offer-copy">
-            <span class="pay__offer-name">{{ presentation().label }}</span>
-            <span class="pay__offer-desc">{{ presentation().description }}</span>
-          </span>
-          <span class="pay__offer-price">
-            <span class="t-mono pay__offer-amount"
-              >{{ changeMonthlyLabel() }}&nbsp;€</span
-            >
-            <span class="pay__offer-period">/mois</span>
-          </span>
-        </div>
-      </div>
-
-      @if (changePreview()) {
-        <div class="pay__card pay__total">
-          <div class="pay__total-row">
-            <span class="pay__total-label">Nouvel abonnement mensuel</span>
-            <span class="t-mono pay__total-value"
-              >{{ changeMonthlyLabel() }}&nbsp;€</span
-            >
-          </div>
-          @if (isUpgrade()) {
-            @if (hasProration()) {
-              <div class="pay__total-row">
-                <span class="pay__total-label"
-                  >Différence des jours restants</span
-                >
-                <span class="t-mono pay__total-value"
-                  >+{{ prorationLabel() }}&nbsp;€</span
-                >
-              </div>
-            }
-            <span class="pay__total-divider"></span>
-            <div class="pay__total-row">
-              <span class="pay__total-due">À payer aujourd'hui</span>
-              <span class="t-mono pay__total-amount"
-                >{{ prorationLabel() }}&nbsp;€</span
-              >
-            </div>
-            <div class="pay__total-row">
-              <span class="pay__total-label"
-                >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
-                  <span class="t-mono">{{ date }}</span
-                  >}</span
-              >
-              <span class="t-mono pay__total-value"
-                >{{ changeMonthlyLabel() }}&nbsp;€</span
-              >
-            </div>
-            <span class="pay__note"
-              >La différence est débitée immédiatement sur votre carte
-              enregistrée. Ensuite, votre facture mensuelle habituelle
-              reprend.</span
-            >
-          } @else {
-            <span class="pay__total-divider"></span>
-            <div class="pay__total-row">
-              <span class="pay__total-due"
-                >Prochaine facture@if (nextInvoiceDateLabel(); as date) {, le
-                  <span class="t-mono">{{ date }}</span
-                  >}</span
-              >
-              <span class="t-mono pay__total-amount"
-                >{{ nextInvoiceLabel() }}&nbsp;€</span
-              >
-            </div>
-            <span class="pay__note"
-              >Aucun débit ni remboursement aujourd'hui : le nouveau tarif
-              s'applique à partir de votre prochaine facture@if
-              (hasProration()) {, ajustements antérieurs inclus}.</span
-            >
-          }
-        </div>
-      }
-    </section>
-
-    <section class="pay__card pay__stripe">
-      <div class="pay__card-head">
-        <span class="pay__stripe-title">Confirmation</span>
-        <span class="pay__stripe-brand">
-          Propulsé par
-          <span class="pay__stripe-wordmark">Stripe</span>
-        </span>
-      </div>
-
-      @if (changePreviewFailed()) {
+    @if (changePreviewFailed()) {
+      <div class="pay__card">
         <span class="pay__promo-error">
           <ui-icon [img]="errorIcon" [size]="13" />
           Impossible de préparer le changement d'offre. Rechargez la page.
         </span>
-      } @else if (!changePreview()) {
-        <div class="pay__element-skeleton"></div>
-      } @else {
-        <span class="pay__stripe-text">
+      </div>
+    } @else if (!changePreview()) {
+      <div class="pay__element-skeleton"></div>
+    } @else {
+      <section class="pay__card chg__section">
+        <span class="t-label">Votre changement</span>
+        <div class="chg__compare">
+          <div class="chg__box">
+            <span class="chg__box-kicker">Offre actuelle</span>
+            <span class="chg__box-name chg__box-name--muted">
+              <ui-icon [img]="boltIcon" [size]="16" />
+              {{ currentPlanLabel() }}
+            </span>
+            <span class="chg__box-price">
+              <span class="t-mono chg__box-amount chg__box-amount--muted"
+                >{{ currentMonthlyLabel() }}&nbsp;€</span
+              >
+              <span class="chg__box-period">/mois</span>
+            </span>
+          </div>
+          <span class="chg__arrow">
+            <ui-icon [img]="arrowIcon" [size]="15" [strokeWidth]="2.2" />
+          </span>
+          <div class="chg__box chg__box--target">
+            <span class="chg__box-kicker chg__box-kicker--target"
+              >Nouvelle offre</span
+            >
+            <span class="chg__box-name">
+              <ui-bolt class="chg__box-bolt" [size]="16" />
+              {{ presentation().label }}
+            </span>
+            <span class="chg__box-price">
+              <span class="t-mono chg__box-amount"
+                >{{ changeMonthlyLabel() }}&nbsp;€</span
+              >
+              <span class="chg__box-period">/mois</span>
+            </span>
+          </div>
+        </div>
+        <span
+          class="chg__effect"
+          [class.chg__effect--up]="isUpgrade()"
+        >
+          <ui-icon [img]="clockIcon" [size]="13" />
+          {{ effectNote() }}
+        </span>
+      </section>
+
+      <section class="pay__card chg__section">
+        <div class="pay__card-head">
+          <span class="t-label">Détail du calcul</span>
+          @if (periodLabel(); as period) {
+            <span class="t-mono chg__period">Période&nbsp;: {{ period }}</span>
+          }
+        </div>
+        @if (isUpgrade()) {
+          <div class="pay__total-row">
+            <span class="pay__total-label"
+              >Offre {{ presentation().label }} (jours restants)</span
+            >
+            <span class="t-mono pay__total-value"
+              >{{ prorationChargeLabel() }}&nbsp;€</span
+            >
+          </div>
+          @if (hasProrationCredit()) {
+            <div class="pay__total-row pay__total-row--discount">
+              <span class="pay__total-label"
+                >{{ currentPlanLabel() }} déjà réglé, déduit</span
+              >
+              <span class="t-mono pay__total-value"
+                >−{{ prorationCreditLabel() }}&nbsp;€</span
+              >
+            </div>
+          }
+          <span class="pay__total-divider"></span>
+          <div class="pay__total-row">
+            <span class="pay__total-due">À payer aujourd'hui</span>
+            <span class="t-mono pay__total-amount"
+              >{{ prorationLabel() }}&nbsp;€</span
+            >
+          </div>
+          <span class="pay__note"
+            >Puis
+            <span class="t-mono">{{ changeMonthlyLabel() }}&nbsp;€</span>/mois à
+            partir du {{ nextInvoiceDateLabel() }}. Vous payez uniquement la
+            différence entre les deux offres.</span
+          >
+        } @else {
+          <div class="pay__total-row">
+            <span class="pay__total-label"
+              >Vous conservez l'{{ currentPlanLabel() }} jusqu'au</span
+            >
+            <span class="t-mono pay__total-value">{{
+              nextInvoiceDateLabel()
+            }}</span>
+          </div>
+          <div class="pay__total-row">
+            <span class="pay__total-label"
+              >Le tarif {{ presentation().label }} prend effet le</span
+            >
+            <span class="t-mono pay__total-value">{{
+              nextInvoiceDateLabel()
+            }}</span>
+          </div>
+          <span class="pay__total-divider"></span>
+          <div class="pay__total-row">
+            <span class="pay__total-due">À payer aujourd'hui</span>
+            <span class="t-mono pay__total-amount">0,00&nbsp;€</span>
+          </div>
+          <span class="pay__note"
+            >Puis
+            <span class="t-mono">{{ changeMonthlyLabel() }}&nbsp;€</span>/mois à
+            partir du {{ nextInvoiceDateLabel() }}. La période
+            {{ currentPlanLabel() }} déjà payée va à son terme.</span
+          >
+        }
+      </section>
+
+      @if (changeCard(); as card) {
+        <section class="pay__card chg__section">
+          <div class="pay__card-head">
+            <span class="t-label">Moyen de paiement</span>
+            <a class="pay__edit" routerLink="/paiement/carte">Modifier</a>
+          </div>
+          <div class="chg__pm">
+            <span class="chg__pm-badge">{{ cardBrandLabel() }}</span>
+            <span class="chg__pm-copy">
+              <span class="t-mono chg__pm-last4">•••• {{ card.last4 }}</span>
+              <span class="chg__pm-exp">Expire {{ cardExpiryLabel() }}</span>
+            </span>
+            <span class="chg__pm-note">{{ debitNote() }}</span>
+          </div>
+        </section>
+      }
+
+      @if (changeError()) {
+        <span class="pay__promo-error">
+          <ui-icon [img]="errorIcon" [size]="13" />
           @if (isUpgrade()) {
-            Votre offre passe à {{ presentation().label }} immédiatement. Seule
-            la différence des jours restants
-            ({{ prorationLabel() }}&nbsp;€) est débitée maintenant sur votre
-            carte enregistrée. En cas de refus de paiement, vous restez sur
-            votre offre actuelle.
+            Le paiement de la différence a été refusé. Vérifiez votre moyen de
+            paiement — votre offre actuelle est conservée.
           } @else {
-            Votre offre passe à {{ presentation().label }} immédiatement, sans
-            débit aujourd'hui. Votre prochaine facture du
-            {{ nextInvoiceDateLabel() }} sera de
-            {{ nextInvoiceLabel() }}&nbsp;€.
+            Le changement d'offre n'a pas abouti. Réessayez dans un instant.
           }
         </span>
+      }
 
-        @if (changeError()) {
-          <span class="pay__promo-error">
-            <ui-icon [img]="errorIcon" [size]="13" />
-            @if (isUpgrade()) {
-              Le paiement de la différence a été refusé. Vérifiez votre moyen
-              de paiement — votre offre actuelle est conservée.
-            } @else {
-              Le changement d'offre n'a pas abouti. Réessayez dans un instant.
-            }
-          </span>
-        }
-
+      <div class="chg__actions">
         <ui-button
           class="pay__cta"
           color="brand"
           size="lg"
           [block]="true"
           relief="mobile"
+          [icon]="isUpgrade() ? lockIcon : null"
           [loading]="changing()"
           (click)="confirmChange()"
         >
           {{ changeCtaLabel() }}
         </ui-button>
-      }
-
-      <div class="pay__stripe-notes">
-        <span class="pay__stripe-note">
-          <ui-icon class="pay__stripe-shield" [img]="shieldIcon" [size]="13" />
-          Aucune nouvelle saisie de carte : votre moyen de paiement enregistré
-          est utilisé.
-        </span>
-        <span class="pay__stripe-note pay__stripe-note--muted"
-          >Annulable à tout moment depuis votre compte, effet en fin de
-          période.</span
+        <ui-button
+          appearance="outlined"
+          color="neutral"
+          [block]="true"
+          routerLink="/abonnements"
         >
+          Conserver mon offre actuelle
+        </ui-button>
       </div>
-    </section>
+
+      <span class="chg__footnote"
+        >Sans engagement, annulable à tout moment depuis votre compte.</span
+      >
+    }
   </div>
 } @else {
 <div class="pay">
