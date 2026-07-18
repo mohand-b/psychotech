@@ -1,7 +1,9 @@
 import {
   MatrixCellSpec,
+  MatrixCompositionVariant,
   MatrixLayerKind,
   MatrixLevel,
+  MatrixRegister,
   MatrixStructure,
 } from './matrix-cell';
 
@@ -12,6 +14,10 @@ export enum MatrixProposalKind {
   GRID_DUPLICATE = 'GRID_DUPLICATE',
   WRONG_STEP = 'WRONG_STEP',
   WRONG_AXIS = 'WRONG_AXIS',
+  MISSING_ELEMENT = 'MISSING_ELEMENT',
+  EXTRA_ELEMENT = 'EXTRA_ELEMENT',
+  FIRST_CELL_ONLY = 'FIRST_CELL_ONLY',
+  WRONG_LAYER_REMOVED = 'WRONG_LAYER_REMOVED',
 }
 
 export interface MatrixProposal {
@@ -34,10 +40,16 @@ export type MatrixRuleSpec =
   | {
       structure: MatrixStructure.DISTRIBUTION;
       latinLayers: readonly MatrixLayerKind[];
+    }
+  | {
+      structure: MatrixStructure.COMPOSITION;
+      variant: MatrixCompositionVariant;
     };
 
 export interface MatrixItem {
   structure: MatrixStructure;
+  variant: MatrixCompositionVariant | null;
+  register: MatrixRegister;
   level: MatrixLevel;
   seed: string;
   cells: readonly MatrixCellSpec[];
