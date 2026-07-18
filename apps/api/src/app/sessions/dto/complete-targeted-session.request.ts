@@ -4,6 +4,7 @@ import {
   ControlModality,
   DiscriminationAnswer,
   DiscriminationTrialAnswerDto,
+  DominoFace,
   LogicItemAnswerDto,
   MemorySequenceAnswerDto,
   MotricityCourseTrajectoryDto,
@@ -37,6 +38,18 @@ export class LogicItemAnswerRequest implements LogicItemAnswerDto {
   @IsInt()
   @Min(0)
   answerIndex!: number | null;
+
+  @ValidateIf((answer: LogicItemAnswerRequest) => answer.dominoTop != null)
+  @IsInt()
+  @Min(0)
+  @Max(6)
+  dominoTop?: DominoFace | null;
+
+  @ValidateIf((answer: LogicItemAnswerRequest) => answer.dominoBottom != null)
+  @IsInt()
+  @Min(0)
+  @Max(6)
+  dominoBottom?: DominoFace | null;
 
   @IsInt()
   @Min(0)

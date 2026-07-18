@@ -166,6 +166,8 @@ model Session {
   sector           Sector
   status           SessionStatus   @default(IN_PROGRESS)
   seed             String
+  contentVersion   Int             @default(1)
+  logicFamily      String?
   helpEnabled      Boolean         @default(false)
   trainingOptions  String[]        @default([])
   energyCost       Int

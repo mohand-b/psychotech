@@ -13,6 +13,7 @@ import {
   ScoreBand,
   Sector,
   SessionMode,
+  LogicFamilyFilter,
   TrainingOptionId,
   generateMotricityCourses,
   scoreMotricitySession,
@@ -35,6 +36,8 @@ function buildSession(
     sector: 'RAILWAY',
     status: 'IN_PROGRESS',
     seed: 'seed',
+    contentVersion: 1,
+    logicFamily: null,
     helpEnabled: false,
     trainingOptions: [],
     energyCost: 5,
@@ -340,6 +343,54 @@ describe('SessionsService.start', () => {
     expect(repository.createSession).not.toHaveBeenCalled();
   });
 
+  it('persists the logic family filter and the content version for a targeted logic session', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', energyCost: 1 }),
+    );
+
+    await service.start('user-1', {
+      mode: SessionMode.TARGETED,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+      options: { enabledOptions: [], logicFamily: LogicFamilyFilter.DOMINO },
+    });
+
+    expect(repository.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contentVersion: 2,
+        logicFamily: LogicFamilyFilter.DOMINO,
+      }),
+    );
+  });
+
+  it('rejects the family filter in a full simulation', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.FULL,
+        sector: Sector.RAILWAY,
+        options: { enabledOptions: [], logicFamily: LogicFamilyFilter.MATRIX },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
+  it('rejects the family filter on a non-logic targeted axis', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.MEMORY,
+        options: { enabledOptions: [], logicFamily: LogicFamilyFilter.NUMERIC },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
   it('rejects an inactive sector before creating anything', async () => {
     repository.findSectorConfig.mockResolvedValue({ ...SECTOR_CONFIG, isActive: false });
 
@@ -383,9 +434,34 @@ describe('SessionsService.completeAxis (targeted)', () => {
         sessionId,
         axis: AxisType.LOGIC,
         rawResult: { axis: AxisType.LOGIC, items: answers(40) },
+        excludeFromBest: false,
       }),
     );
     expect(result.status).toBe('COMPLETED');
+  });
+
+  it('excludes a family-filtered session from the axis best', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        energyCost: 1,
+        contentVersion: 2,
+        logicFamily: LogicFamilyFilter.DOMINO,
+        axisResults: [buildAxis()],
+      }),
+    );
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
+      axis: AxisType.LOGIC,
+      items: answers(40),
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({ excludeFromBest: true }),
+    );
   });
 
   it('rejects a session that is already completed', async () => {

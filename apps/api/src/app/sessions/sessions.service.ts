@@ -16,6 +16,8 @@ import {
   CurrentSessionDto,
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
+  LOGIC_CONTENT_VERSION_V2,
+  LogicFamilyFilter,
   LogicItemAnswerDto,
   LogicRawResultDto,
   MOTRICITY_COURSE_COUNT,
@@ -51,12 +53,14 @@ import {
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLogicSession,
+  generateLogicV2Session,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
   motricityCourseFinished,
   scoreDiscriminationSession,
   scoreLogicSession,
+  scoreLogicV2Session,
   scoreMemorySession,
   scoreMotricitySession,
   scoreReactivitySession,
@@ -87,6 +91,12 @@ import {
   SessionWithRelations,
 } from './sessions.mappers';
 import { AxisBestInput, SessionsRepository } from './sessions.repository';
+
+interface LogicContentContext {
+  seed: string;
+  contentVersion: number;
+  logicFamily: LogicFamilyFilter | null;
+}
 
 @Injectable()
 export class SessionsService {
@@ -121,6 +131,15 @@ export class SessionsService {
         );
       }
     }
+    const logicFamily = request.options?.logicFamily ?? null;
+    if (
+      logicFamily !== null &&
+      (request.mode !== SessionMode.TARGETED || request.axis !== AxisType.LOGIC)
+    ) {
+      throw new BadRequestException(
+        'The family filter is only available for targeted logic sessions',
+      );
+    }
     const config = await this.repository.findSectorConfig(request.sector);
     if (!config || !config.isActive) {
       throw new BadRequestException('The requested sector is not available');
@@ -130,6 +149,8 @@ export class SessionsService {
       mode: request.mode,
       sector: request.sector,
       seed: randomUUID(),
+      contentVersion: LOGIC_CONTENT_VERSION_V2,
+      logicFamily,
       helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
       trainingOptions: enabledOptions,
       energyCost: cost,
@@ -176,7 +197,7 @@ export class SessionsService {
       throw new BadRequestException('The axis is not part of this session');
     }
     const { rawResult, score } = this.scoreRawAnswers(
-      session.seed,
+      this.logicContentContext(session),
       axis,
       request,
     );
@@ -186,6 +207,7 @@ export class SessionsService {
       axis,
       rawResult,
       score,
+      excludeFromBest: session.logicFamily != null,
       controlModality: request.controlModality ?? null,
       startedAt: target.startedAt ?? session.startedAt,
       completedAt: new Date(),
@@ -209,7 +231,7 @@ export class SessionsService {
       );
     }
     const { rawResult, score } = this.scoreRawAnswers(
-      session.seed,
+      this.logicContentContext(session),
       axis,
       request,
     );
@@ -233,14 +255,29 @@ export class SessionsService {
     return toSessionDto(updated);
   }
 
+  private logicContentContext(session: {
+    seed: string;
+    contentVersion: number;
+    logicFamily: string | null;
+  }): LogicContentContext {
+    return {
+      seed: session.seed,
+      contentVersion: session.contentVersion,
+      logicFamily: session.logicFamily
+        ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+        : null,
+    };
+  }
+
   private scoreRawAnswers(
-    seed: string,
+    context: LogicContentContext,
     axis: AxisType,
     request: CompleteTargetedSessionRequest,
   ): {
     rawResult: AxisRawResultDto;
     score: { normalizedScore: number; band: ScoreBand };
   } {
+    const seed = context.seed;
     if (axis === AxisType.MOTOR_SKILLS) {
       return this.scoreMotricityTrajectories(
         seed,
@@ -265,7 +302,7 @@ export class SessionsService {
     }
     const score =
       rawResult.axis === AxisType.LOGIC
-        ? this.scoreLogicAnswers(seed, rawResult.items)
+        ? this.scoreLogicAnswers(context, rawResult.items)
         : rawResult.axis === AxisType.MEMORY
           ? this.scoreMemoryAnswers(seed, rawResult.sequences)
           : rawResult.axis === AxisType.VISUAL_DISCRIMINATION
@@ -279,10 +316,16 @@ export class SessionsService {
   }
 
   private scoreLogicAnswers(
-    seed: string,
+    context: LogicContentContext,
     items: LogicItemAnswerDto[],
   ): { normalizedScore: number; band: ScoreBand } {
-    const scored = scoreLogicSession(generateLogicSession(seed), items);
+    const scored =
+      context.contentVersion >= LOGIC_CONTENT_VERSION_V2
+        ? scoreLogicV2Session(
+            generateLogicV2Session(context.seed, context.logicFamily),
+            items,
+          )
+        : scoreLogicSession(generateLogicSession(context.seed), items);
     return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
 
@@ -333,10 +376,21 @@ export class SessionsService {
     }
     return {
       axis: AxisType.LOGIC,
-      items: items.map(({ index, answerIndex, timeMs, helpUsed, visited }) => ({
-        index,
-        answerIndex,
-        timeMs,
+      items: items.map(
+        ({
+          index,
+          answerIndex,
+          dominoTop,
+          dominoBottom,
+          timeMs,
+          helpUsed,
+          visited,
+        }) => ({
+          index,
+          answerIndex,
+          ...(dominoTop != null ? { dominoTop } : {}),
+          ...(dominoBottom != null ? { dominoBottom } : {}),
+          timeMs,
         helpUsed,
         visited,
       })),
@@ -626,7 +680,11 @@ export class SessionsService {
           throw new ConflictException('Session is not completed');
         }
         const isCritical = criticalByAxis.get(axis) ?? false;
-        const analysis = this.axisAnalysis(axis, session.seed, result.metrics);
+        const analysis = this.axisAnalysis(
+          axis,
+          this.logicContentContext(session),
+          result.metrics,
+        );
         findingsByAxis.push({ axis, findings: analysis.findings });
         return {
           axis,
@@ -692,15 +750,32 @@ export class SessionsService {
 
   private axisAnalysis(
     axis: AxisType,
-    seed: string,
+    context: LogicContentContext,
     metrics: unknown,
   ): { observables: SimulationObservableDto[]; findings: AxisFinding[] } {
+    const seed = context.seed;
     if (axis === AxisType.LOGIC) {
-      const items = generateLogicSession(seed);
       const responses = this.logicItemsFromMetrics(metrics);
-      const scored = scoreLogicSession(items, responses);
+      const isV2 = context.contentVersion >= LOGIC_CONTENT_VERSION_V2;
+      const v2Items = isV2
+        ? generateLogicV2Session(seed, context.logicFamily)
+        : null;
+      const items = v2Items
+        ? v2Items.map((item) => ({
+            index: item.index,
+            ruleId: item.rule.id,
+            difficulty: item.difficulty,
+            sequence: [],
+            choices: [],
+            answerIndex: 0,
+            points: item.points,
+          }))
+        : generateLogicSession(seed);
+      const scored = v2Items
+        ? scoreLogicV2Session(v2Items, responses)
+        : scoreLogicSession(items, responses);
       const answered = scored.correctCount + scored.wrongCount;
-      const total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
+      const total = items.length;
       return {
         observables: [
           { label: null, value: `${answered}/${total}`, caption: 'items' },
@@ -874,7 +949,7 @@ export class SessionsService {
         }
         const computed = this.scoreAxisFromMetrics(
           axis,
-          row.session.seed,
+          this.logicContentContext(row.session),
           row.metrics,
         );
         await this.repository.persistAxisScore(
@@ -920,6 +995,7 @@ export class SessionsService {
       others.length > 0 ? others[others.length - 1].score : null;
     const othersBest =
       others.length > 0 ? Math.max(...others.map(({ score }) => score)) : null;
+    const excludedFromBest = session.logicFamily != null;
     const base = {
       sessionId,
       sector: mapEnumValue(Sector, session.sector),
@@ -933,17 +1009,26 @@ export class SessionsService {
         session.completedAt ??
         session.startedAt
       ).toISOString(),
-      bestScore:
-        othersBest === null ? entry.score : Math.max(othersBest, entry.score),
-      isNewBest: othersBest !== null && entry.score > othersBest,
-      isEqualBest: othersBest !== null && entry.score === othersBest,
-      previousScore,
+      bestScore: excludedFromBest
+        ? entry.score
+        : othersBest === null
+          ? entry.score
+          : Math.max(othersBest, entry.score),
+      isNewBest:
+        !excludedFromBest && othersBest !== null && entry.score > othersBest,
+      isEqualBest:
+        !excludedFromBest && othersBest !== null && entry.score === othersBest,
+      previousScore: excludedFromBest ? null : previousScore,
     };
     if (axis === AxisType.LOGIC) {
       return {
         ...base,
         axis: AxisType.LOGIC,
         items: this.logicItemsFromMetrics(axisRow.metrics),
+        contentVersion: session.contentVersion,
+        logicFamily: session.logicFamily
+          ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+          : null,
       };
     }
     if (axis === AxisType.MEMORY) {
@@ -1013,11 +1098,12 @@ export class SessionsService {
       | AxisType.MEMORY
       | AxisType.VISUAL_DISCRIMINATION
       | AxisType.REACTIVITY,
-    seed: string,
+    context: LogicContentContext,
     metrics: unknown,
   ): { normalizedScore: number; band: ScoreBand } {
+    const seed = context.seed;
     if (axis === AxisType.LOGIC) {
-      return this.scoreLogicAnswers(seed, this.logicItemsFromMetrics(metrics));
+      return this.scoreLogicAnswers(context, this.logicItemsFromMetrics(metrics));
     }
     if (axis === AxisType.MEMORY) {
       return this.scoreMemoryAnswers(

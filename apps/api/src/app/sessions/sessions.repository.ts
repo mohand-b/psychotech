@@ -38,6 +38,8 @@ export interface CreateSessionParams {
   mode: SessionMode;
   sector: Sector;
   seed: string;
+  contentVersion: number;
+  logicFamily: string | null;
   helpEnabled: boolean;
   trainingOptions: string[];
   energyCost: number;
@@ -97,6 +99,7 @@ export interface CompleteTargetedSessionParams {
   axis: AxisType;
   rawResult: AxisRawResultDto;
   score: { normalizedScore: number; band: ScoreBand } | null;
+  excludeFromBest: boolean;
   controlModality: ControlModality | null;
   startedAt: Date;
   completedAt: Date;
@@ -137,6 +140,8 @@ export class SessionsRepository {
           mode: mapEnumValue(DbSessionMode, params.mode),
           sector: mapEnumValue(DbSector, params.sector),
           seed: params.seed,
+          contentVersion: params.contentVersion,
+          logicFamily: params.logicFamily,
           helpEnabled: params.helpEnabled,
           trainingOptions: params.trainingOptions,
           energyCost: params.energyCost,
@@ -338,7 +343,7 @@ export class SessionsRepository {
       where: { id: params.sessionId },
       include: SESSION_INCLUDE,
     });
-    if (params.score) {
+    if (params.score && !params.excludeFromBest) {
       const axisRow = session.axisResults.find(
         (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
       );
@@ -365,6 +370,7 @@ export class SessionsRepository {
           userId,
           mode: DbSessionMode.TARGETED,
           status: DbSessionStatus.COMPLETED,
+          logicFamily: null,
         },
       },
       include: { session: true },

@@ -1,5 +1,6 @@
 import {
   AxisType,
+  LogicFamilyFilter,
   Sector,
   SessionMode,
   StartSessionDto,
@@ -13,6 +14,10 @@ export class TargetedSessionOptionsRequest implements TargetedSessionOptionsDto 
   @IsArray()
   @IsEnum(TrainingOptionId, { each: true })
   enabledOptions!: TrainingOptionId[];
+
+  @IsOptional()
+  @IsEnum(LogicFamilyFilter)
+  logicFamily?: LogicFamilyFilter | null;
 }
 
 export class StartSessionRequest implements StartSessionDto {

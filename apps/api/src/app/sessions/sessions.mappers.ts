@@ -7,6 +7,7 @@ import {
   BadgeDto,
   ControlModality,
   CurrentSessionDto,
+  LogicFamilyFilter,
   RecommendationDto,
   RecommendationPriority,
   ScoreBand,
@@ -42,8 +43,15 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
     sector: mapEnumValue(Sector, session.sector),
     status,
     seed: session.seed,
+    contentVersion: session.contentVersion,
+    logicFamily: session.logicFamily
+      ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+      : null,
     options: {
       enabledOptions: session.trainingOptions as TrainingOptionId[],
+      logicFamily: session.logicFamily
+        ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+        : null,
     },
     energyCost: session.energyCost,
     currentAxisIndex: session.currentAxisIndex,
@@ -117,6 +125,9 @@ export function toSessionHistoryItemDto(
         : mapEnumValue(AxisType, targetedAxis.axis),
     sector: mapEnumValue(Sector, session.sector),
     status,
+    logicFamily: session.logicFamily
+      ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+      : null,
     finishedAt: finishedAt.toISOString(),
     durationSec: activePlayDurationSec(axisResults),
     score,
