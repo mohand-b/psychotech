@@ -80,13 +80,8 @@ export function generateLogicV2Session(
             rule: {
               id: rule.id,
               userText: resolveLogicRuleHint({
-                index,
                 ruleId: rule.id,
-                difficulty: level,
                 sequence: puzzle.terms,
-                choices,
-                answerIndex,
-                points: level,
               }),
             },
           });
