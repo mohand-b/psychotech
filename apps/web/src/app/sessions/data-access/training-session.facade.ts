@@ -117,13 +117,17 @@ export class TrainingSessionFacade {
     return {};
   }
 
+  protected logicV2ItemsFor(session: SessionDto): LogicV2Item[] {
+    return generateLogicV2Session(session.seed, session.logicFamily);
+  }
+
   readonly logicItems: Signal<LogicV2Item[]> = computed(() => {
     const session = this.store.session();
     if (!session || this.axis() !== AxisType.LOGIC) {
       return [];
     }
     return session.contentVersion >= LOGIC_CONTENT_VERSION_V2
-      ? generateLogicV2Session(session.seed, session.logicFamily)
+      ? this.logicV2ItemsFor(session)
       : logicV1ToV2Items(
           generateLogicSession(
             session.seed,

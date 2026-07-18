@@ -14,12 +14,12 @@ import {
   SubscriptionTier,
   TUTORIAL_SEED,
   generateDiscriminationSession,
-  generateLogicSession,
+  generateLogicV2Tutorial,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
   scoreDiscriminationSession,
-  scoreLogicSession,
+  scoreLogicV2Session,
   scoreMemorySession,
   scoreMotricityCourse,
   scoreReactivitySession,
@@ -55,8 +55,8 @@ function formatSeconds(ms: number | null): string {
 function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
   switch (result.axis) {
     case AxisType.LOGIC: {
-      const scored = scoreLogicSession(
-        generateLogicSession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.LOGIC]),
+      const scored = scoreLogicV2Session(
+        generateLogicV2Tutorial(TUTORIAL_SEED),
         result.items,
       );
       return [

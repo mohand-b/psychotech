@@ -19,6 +19,11 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
 import { TrainingSessionStore } from '../../../sessions/data-access/training-session.store';
+import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
+import {
+  TUTORIAL_SESSION_ID,
+  tutorialSessionProviders,
+} from '../../data-access/tutorial-session.facade';
 import { LogicPlay } from './logic-play';
 
 const SESSION_ID = 'session-logic-v2';
@@ -294,5 +299,99 @@ describe('LogicPlay (contenu v2)', () => {
     expect(items[0]).toMatchObject({ index: 0, answerIndex: null });
     expect(items[5].dominoTop).toBeUndefined();
     expect(result.navigate).toHaveBeenCalled();
+  });
+});
+
+async function setupTutorial(): Promise<Setup> {
+  TestBed.resetTestingModule();
+  const completeTargeted = vi.fn();
+  await TestBed.configureTestingModule({
+    imports: [LogicPlay],
+    providers: [
+      provideRouter([]),
+      {
+        provide: SessionsApi,
+        useValue: { start: vi.fn(), get: vi.fn(), completeTargeted },
+      },
+      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: AuthFacade,
+        useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
+      },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          snapshot: {
+            paramMap: convertToParamMap({ sessionId: TUTORIAL_SESSION_ID }),
+          },
+        },
+      },
+      ...tutorialSessionProviders(AxisType.LOGIC),
+    ],
+  }).compileComponents();
+  const router = TestBed.inject(Router);
+  const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+  const fixture = TestBed.createComponent(LogicPlay);
+  fixture.detectChanges();
+  const element: HTMLElement = fixture.nativeElement;
+  (element.querySelector('.countdown__skip') as HTMLButtonElement).click();
+  fixture.detectChanges();
+  return { fixture, element, completeTargeted, navigate };
+}
+
+describe('LogicPlay (tutoriel mixte)', () => {
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  afterEach(() => {
+    TestBed.inject(TutorialRunFacade).clear();
+    TestBed.resetTestingModule();
+  });
+
+  it('renders five mixed items covering the three families', async () => {
+    const result = await setupTutorial();
+    expect(result.element.querySelectorAll('.band__seg')).toHaveLength(5);
+    expect(result.element.querySelectorAll('.band__group')).toHaveLength(4);
+
+    expect(result.element.querySelector('ui-logic-sequence')).not.toBeNull();
+
+    goToItem(result, 2);
+    expect(result.element.querySelector('ui-logic-domino')).not.toBeNull();
+
+    goToItem(result, 3);
+    expect(result.element.querySelector('ui-logic-matrix')).not.toBeNull();
+
+    goToItem(result, 4);
+    expect(result.element.querySelector('ui-logic-matrix')).not.toBeNull();
+  });
+
+  it('plays through the five items and records the local run', async () => {
+    const result = await setupTutorial();
+    pressKey(result.fixture, '1');
+    pressKey(result.fixture, 'Enter');
+    pressKey(result.fixture, '2');
+    pressKey(result.fixture, 'Enter');
+    pressKey(result.fixture, '3');
+    pressKey(result.fixture, '4');
+    pressKey(result.fixture, 'Enter');
+    pressKey(result.fixture, 'a');
+    pressKey(result.fixture, 'Enter');
+    pressKey(result.fixture, 'b');
+    pressKey(result.fixture, 'Enter');
+
+    expect(result.completeTargeted).not.toHaveBeenCalled();
+    const run = TestBed.inject(TutorialRunFacade).result();
+    expect(run?.axis).toBe(AxisType.LOGIC);
+    if (run?.axis === AxisType.LOGIC) {
+      expect(run.items).toHaveLength(5);
+      expect(run.items[2]).toMatchObject({ dominoTop: 3, dominoBottom: 4 });
+      expect(run.items[3]).toMatchObject({ answerIndex: 0 });
+    }
+    expect(result.navigate).toHaveBeenCalledWith([
+      '/entrainements/tutoriel',
+      'logique',
+      'fin',
+    ]);
   });
 });

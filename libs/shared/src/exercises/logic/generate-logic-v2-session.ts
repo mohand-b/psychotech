@@ -48,6 +48,77 @@ function itemsPerLevel(filter: LogicFamilyFilter | null): number {
   }
 }
 
+interface LogicV2TutorialSlot {
+  family: LogicFamily;
+  level: LogicDifficulty;
+}
+
+const LOGIC_V2_TUTORIAL_SLOTS: readonly LogicV2TutorialSlot[] = [
+  { family: LogicFamily.NUMERIC, level: 1 },
+  { family: LogicFamily.NUMERIC, level: 2 },
+  { family: LogicFamily.DOMINO, level: 1 },
+  { family: LogicFamily.MATRIX_I, level: 1 },
+  { family: LogicFamily.MATRIX_II, level: 1 },
+];
+
+export function generateLogicV2Tutorial(seed: string): LogicV2Item[] {
+  const numericRng = createSeededRng(`${seed}::logic-v2-tutorial::numeric`);
+  return LOGIC_V2_TUTORIAL_SLOTS.map((slot, index) => {
+    const itemSeed = `${seed}::logic-v2-tutorial::${slot.family}::${index}`;
+    if (slot.family === LogicFamily.NUMERIC) {
+      const pool = LOGIC_RULES.filter(
+        (rule) => rule.difficulty === slot.level,
+      );
+      const rule = numericRng.pick(pool);
+      const puzzle = rule.generate(numericRng);
+      const { choices, answerIndex } = buildLogicChoices(numericRng, puzzle);
+      return {
+        index,
+        family: LogicFamily.NUMERIC,
+        difficulty: slot.level,
+        points: slot.level,
+        sequence: puzzle.terms,
+        choices,
+        answerIndex,
+        rule: {
+          id: rule.id,
+          userText: resolveLogicRuleHint({
+            ruleId: rule.id,
+            sequence: puzzle.terms,
+          }),
+        },
+      };
+    }
+    if (slot.family === LogicFamily.DOMINO) {
+      const domino = generateDominoItem({ level: 1, seed: itemSeed });
+      return {
+        index,
+        family: LogicFamily.DOMINO,
+        difficulty: slot.level,
+        points: slot.level,
+        domino,
+        rule: { ...domino.rule },
+      };
+    }
+    const catalogId =
+      slot.family === LogicFamily.MATRIX_I
+        ? MATRIX_I_CATALOG_BY_LEVEL[slot.level]
+        : MATRIX_II_CATALOG_BY_LEVEL[slot.level];
+    const matrix = generateMatrixItemFromCatalog(catalogId, itemSeed);
+    return {
+      index,
+      family: slot.family,
+      difficulty: slot.level,
+      points: slot.level,
+      matrix,
+      answerIndex: matrix.proposals.findIndex(
+        (proposal) => proposal.kind === MatrixProposalKind.CORRECT,
+      ),
+      rule: { ...matrix.rule },
+    };
+  });
+}
+
 export function generateLogicV2Session(
   seed: string,
   familyFilter: LogicFamilyFilter | null = null,

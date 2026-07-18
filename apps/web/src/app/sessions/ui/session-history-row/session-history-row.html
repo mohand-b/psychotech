@@ -10,7 +10,12 @@
     }
   </span>
   <span class="row__heading flex flex-col">
-    <span class="row__title">{{ view().title }}</span>
+    <span class="row__title-line flex items-center gap-2">
+      <span class="row__title">{{ view().title }}</span>
+      @if (view().familyLabel; as family) {
+        <span class="row__family">{{ family }}</span>
+      }
+    </span>
     <span class="row__subtitle">{{ view().subtitle }}</span>
   </span>
   <span class="row__date t-mono">{{ view().dateLabel }}</span>
@@ -45,7 +50,12 @@
     </span>
   }
   <span class="rowm__text flex flex-col">
-    <span class="rowm__title">{{ view().mobileTitle }}</span>
+    <span class="rowm__title-line flex items-center gap-1.5">
+      <span class="rowm__title">{{ view().mobileTitle }}</span>
+      @if (view().familyLabel; as family) {
+        <span class="row__family">{{ family }}</span>
+      }
+    </span>
     <span class="rowm__meta t-mono">
       {{ view().dateLabel }} · {{ view().durationLabel }}
     </span>

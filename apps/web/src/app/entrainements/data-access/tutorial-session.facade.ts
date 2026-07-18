@@ -5,8 +5,9 @@ import {
   AxisTraining,
   AxisType,
   DiscriminationTrialAnswerDto,
-  LOGIC_CONTENT_VERSION_V1,
+  LOGIC_CONTENT_VERSION_V2,
   LogicItemAnswerDto,
+  LogicV2Item,
   MOTRICITY_TUTORIAL_START_WIDTH,
   MemorySequenceAnswerDto,
   MotricityCourseTrajectoryDto,
@@ -20,6 +21,7 @@ import {
   SessionStatus,
   TUTORIAL_SEED,
   TargetedAxisResultDto,
+  generateLogicV2Tutorial,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
@@ -75,6 +77,10 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
 
   protected override trainingFor(axis: AxisType): AxisTraining | undefined {
     return AXIS_TUTORIAL[axis as RailwayPlayableAxis];
+  }
+
+  protected override logicV2ItemsFor(session: SessionDto): LogicV2Item[] {
+    return generateLogicV2Tutorial(session.seed);
   }
 
   protected override motricityGeneration(): MotricityGenerationOptions {
@@ -169,7 +175,7 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
       sector: this.auth.currentUser()?.currentSector ?? Sector.RAILWAY,
       status: SessionStatus.IN_PROGRESS,
       seed: TUTORIAL_SEED,
-      contentVersion: LOGIC_CONTENT_VERSION_V1,
+      contentVersion: LOGIC_CONTENT_VERSION_V2,
       logicFamily: null,
       options: { enabledOptions: [] },
       energyCost: 0,

@@ -36,6 +36,16 @@
   color: var(--text-secondary);
 }
 
+.row__family {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-muted);
+  font: 500 11px/14px var(--font-ui);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
 .row__date,
 .row__duration {
   font-size: 13px;

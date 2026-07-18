@@ -6,6 +6,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import {
   AxisType,
+  LogicFamily,
   Sector,
   SessionDto,
   SessionMode,
@@ -119,6 +120,17 @@ describe('TutorialSessionFacade', () => {
     expect(api.start).not.toHaveBeenCalled();
     expect(api.get).not.toHaveBeenCalled();
     expect(api.completeTargeted).not.toHaveBeenCalled();
+  });
+
+  it('serves the mixed logic tutorial with its five-family composition', () => {
+    setup(AxisType.LOGIC);
+    expect(facade.logicItems().map((item) => item.family)).toEqual([
+      LogicFamily.NUMERIC,
+      LogicFamily.NUMERIC,
+      LogicFamily.DOMINO,
+      LogicFamily.MATRIX_I,
+      LogicFamily.MATRIX_II,
+    ]);
   });
 
   it('serves the reduced deterministic content per axis', () => {

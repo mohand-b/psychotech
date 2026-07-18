@@ -6,6 +6,7 @@ import {
   LOGIC_V2_MAX_POINTS,
   LOGIC_V2_SESSION_SIZE,
   generateLogicV2Session,
+  generateLogicV2Tutorial,
 } from './generate-logic-v2-session';
 import { LogicV2Item } from './logic-v2-item';
 import {
@@ -163,6 +164,27 @@ describe('generateLogicV2Session — filtre familles', () => {
       ).toHaveLength(4);
     }
     expect(items.reduce((sum, item) => sum + item.points, 0)).toBe(120);
+  });
+});
+
+describe('generateLogicV2Tutorial — composition mixte', () => {
+  it('produit 5 items : 2 suites, 1 domino, 1 matrice I, 1 matrice II', () => {
+    const items = generateLogicV2Tutorial('tutoriel');
+    expect(items.map((item) => item.family)).toEqual([
+      LogicFamily.NUMERIC,
+      LogicFamily.NUMERIC,
+      LogicFamily.DOMINO,
+      LogicFamily.MATRIX_I,
+      LogicFamily.MATRIX_II,
+    ]);
+    expect(items.map((item) => item.difficulty)).toEqual([1, 2, 1, 1, 1]);
+    expect(items.map((item) => item.index)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('est strictement déterministe', () => {
+    expect(generateLogicV2Tutorial('tutoriel')).toEqual(
+      generateLogicV2Tutorial('tutoriel'),
+    );
   });
 });
 
