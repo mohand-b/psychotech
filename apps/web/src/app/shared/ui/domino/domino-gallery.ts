@@ -17,7 +17,7 @@ interface GalleryRow {
   item: DominoItem | null;
 }
 
-const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4, 5];
+const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4];
 
 @Component({
   selector: 'app-domino-gallery',

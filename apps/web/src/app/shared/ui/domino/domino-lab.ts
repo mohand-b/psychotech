@@ -19,7 +19,7 @@ import {
   DominoSequence,
 } from './domino-sequence';
 
-const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4, 5];
+const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4];
 
 function randomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
