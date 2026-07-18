@@ -12,6 +12,7 @@ import {
   MatrixRegister,
   MatrixStructure,
   generateMatrixItem,
+  isMatrixRegisterSupported,
 } from '@psychotech/shared';
 import { MatrixChoiceAnnotation, MatrixChoices } from './matrix-choices';
 import { MatrixGrid } from './matrix-grid';
@@ -136,6 +137,7 @@ function randomSeed(): string {
               type="button"
               class="lab__chip"
               [class.lab__chip--active]="register() === option"
+              [disabled]="!registerSupported(option)"
               (click)="setRegister(option)"
             >
               {{ registerLabels[option] }}
@@ -237,6 +239,10 @@ function randomSeed(): string {
       background: var(--brand-pastel);
       border-color: var(--brand);
       color: var(--brand-hover);
+    }
+    .lab__chip:disabled {
+      color: var(--text-disabled);
+      cursor: not-allowed;
     }
     .lab__board {
       display: flex;
@@ -347,6 +353,15 @@ export class MatrixLab {
   protected setLevel(level: MatrixLevel): void {
     this.level.set(level);
     this.selected.set(null);
+  }
+
+  protected registerSupported(register: MatrixRegister): boolean {
+    return isMatrixRegisterSupported(
+      this.structure(),
+      this.structure() === MatrixStructure.COMPOSITION ? this.variant() : null,
+      this.level(),
+      register,
+    );
   }
 
   protected copySeed(): void {
