@@ -1,5 +1,6 @@
 import {
   AxisType,
+  LOGIC_FAMILY_FILTER_LABELS,
   SessionHistoryItemDto,
   SessionMode,
   SessionStatus,
@@ -29,6 +30,7 @@ export interface SessionRowView {
   title: string;
   subtitle: string;
   mobileTitle: string;
+  familyLabel: string | null;
   axisCount: number | null;
   dateLabel: string;
   durationLabel: string;
@@ -120,6 +122,9 @@ export function buildSessionRowView(
     title: isFull ? 'Simulation complète' : 'Entraînement ciblé',
     subtitle: sectorLabel,
     mobileTitle: isFull ? 'Simulation complète' : `Ciblé · ${axisLabel}`,
+    familyLabel: item.logicFamily
+      ? LOGIC_FAMILY_FILTER_LABELS[item.logicFamily]
+      : null,
     axisCount: isFull ? item.axisTotal : null,
     dateLabel: formatSessionDate(item.finishedAt, now),
     durationLabel: formatSessionDuration(item.durationSec),

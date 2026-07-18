@@ -31,6 +31,7 @@ export class ResultSummary {
   readonly isEqualBest = input.required<boolean>();
   readonly sector = input.required<Sector>();
   readonly completedAt = input.required<string>();
+  readonly recordVisible = input(true);
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],

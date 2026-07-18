@@ -21,7 +21,7 @@ export interface ResultMetricRow {
   selector: 'ui-result-metrics',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="t-label">Métriques</span>
+    <span class="t-label">{{ heading() }}</span>
     <ul class="metrics">
       @for (row of rows(); track row.label) {
         <li class="metrics__row">
@@ -162,4 +162,5 @@ export interface ResultMetricRow {
 })
 export class ResultMetrics {
   readonly rows = input.required<ResultMetricRow[]>();
+  readonly heading = input('Métriques');
 }

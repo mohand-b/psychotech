@@ -10,6 +10,8 @@ import {
   AXIS_TUTORIAL,
   AxisTimerModel,
   AxisType,
+  LOGIC_FAMILY_FILTER_LABELS,
+  LogicFamilyFilter,
   RailwayPlayableAxis,
   TrainingOptionId,
   trainingOptionsForAxis,
@@ -24,6 +26,24 @@ interface SummaryTile {
   value: string;
   label: string;
 }
+
+interface FamilyChoice {
+  value: LogicFamilyFilter | null;
+  label: string;
+}
+
+const LOGIC_FAMILY_CHOICES: FamilyChoice[] = [
+  { value: null, label: 'Tous les blocs' },
+  ...(Object.values(LogicFamilyFilter) as LogicFamilyFilter[]).map(
+    (value) => ({ value, label: LOGIC_FAMILY_FILTER_LABELS[value] }),
+  ),
+];
+
+const LOGIC_FAMILY_VOLUME_LABELS: Record<LogicFamilyFilter, string> = {
+  [LogicFamilyFilter.NUMERIC]: 'items · Suites numériques',
+  [LogicFamilyFilter.DOMINO]: 'items · Dominos',
+  [LogicFamilyFilter.MATRIX]: 'items · Matrices (20 + 20)',
+};
 
 @Component({
   selector: 'ui-axis-briefing',
@@ -119,7 +139,10 @@ interface SummaryTile {
           </div>
         </article>
 
-        @if (showOptions() && trainingOptions().length > 0) {
+        @if (
+          showOptions() &&
+          (trainingOptions().length > 0 || showFamilySelector())
+        ) {
           <article class="axis-briefing__card">
             <span class="axis-briefing__label">Options d'entraînement</span>
             @for (option of trainingOptions(); track option.id) {
@@ -139,6 +162,36 @@ interface SummaryTile {
                 />
               </div>
             }
+            @if (showFamilySelector()) {
+              <div class="axis-briefing__families">
+                <div class="axis-briefing__option-copy">
+                  <span class="axis-briefing__option-title">Familles</span>
+                  <span class="axis-briefing__option-detail"
+                    >Blocs d'items travaillés pendant la session</span
+                  >
+                </div>
+                <div
+                  class="axis-briefing__family-chips"
+                  role="radiogroup"
+                  aria-label="Familles"
+                >
+                  @for (choice of familyChoices; track choice.label) {
+                    <button
+                      type="button"
+                      role="radio"
+                      class="axis-briefing__family-chip"
+                      [class.axis-briefing__family-chip--active]="
+                        logicFamily() === choice.value
+                      "
+                      [attr.aria-checked]="logicFamily() === choice.value"
+                      (click)="logicFamily.set(choice.value)"
+                    >
+                      {{ choice.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
           </article>
         }
       </div>
@@ -153,9 +206,16 @@ export class AxisBriefing {
   readonly tutorial = input(false);
   readonly positionLabel = input<string | null>(null);
   readonly enabledOptions = model<TrainingOptionId[]>([]);
+  readonly logicFamily = model<LogicFamilyFilter | null>(null);
 
   protected readonly trainingOptions = computed(() =>
     trainingOptionsForAxis(this.axis()),
+  );
+
+  protected readonly familyChoices = LOGIC_FAMILY_CHOICES;
+
+  protected readonly showFamilySelector = computed(
+    () => !this.tutorial() && this.axis() === AxisType.LOGIC,
   );
 
   protected isOptionEnabled(id: TrainingOptionId): boolean {
@@ -188,13 +248,19 @@ export class AxisBriefing {
   protected readonly volume = computed<SummaryTile>(() => {
     const training = this.training();
     switch (training.axis) {
-      case AxisType.LOGIC:
-        return this.tutorial()
-          ? { value: `${training.exerciseCount}`, label: 'items' }
-          : {
-              value: `${training.exerciseCount}`,
-              label: 'items · 4 familles',
-            };
+      case AxisType.LOGIC: {
+        if (this.tutorial()) {
+          return { value: `${training.exerciseCount}`, label: 'items' };
+        }
+        const family = this.logicFamily();
+        return {
+          value: `${training.exerciseCount}`,
+          label:
+            family === null
+              ? 'items · 4 familles'
+              : LOGIC_FAMILY_VOLUME_LABELS[family],
+        };
+      }
       case AxisType.MEMORY:
         return { value: `${training.exerciseCount}`, label: 'séquences' };
       case AxisType.VISUAL_DISCRIMINATION:

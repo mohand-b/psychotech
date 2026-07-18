@@ -9,21 +9,28 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisFinding,
   AxisType,
-  LogicItem,
+  LOGIC_CONTENT_VERSION_V2,
+  LOGIC_FAMILY_LABELS,
   LogicSessionScore,
+  LogicV2Item,
   TargetedLogicResultDto,
   analyzeLogic,
-  generateLogicSession,
+  computeLogicFamilyBreakdown,
   getAxisRecommendations,
-  scoreLogicSession,
+  scoreLogicV2Session,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { formatDuration } from '../../../shared/ui/format-duration';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
   buildLogicChartEntries,
   buildLogicMetricRows,
 } from '../../ui/axis-result-content';
+import {
+  logicAnalyzerItems,
+  logicItemsForResult,
+} from '../../ui/logic-result-items';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
@@ -77,15 +84,15 @@ export class LogicResult {
     });
   }
 
-  private readonly items = computed<LogicItem[] | null>(() => {
+  private readonly items = computed<LogicV2Item[] | null>(() => {
     const result = this.result();
-    return result ? generateLogicSession(result.seed) : null;
+    return result ? logicItemsForResult(result) : null;
   });
 
   protected readonly scored = computed<LogicSessionScore | null>(() => {
     const result = this.result();
     const items = this.items();
-    return result && items ? scoreLogicSession(items, result.items) : null;
+    return result && items ? scoreLogicV2Session(items, result.items) : null;
   });
 
   protected readonly recommendations = computed<AxisFinding[]>(() => {
@@ -93,14 +100,38 @@ export class LogicResult {
     const items = this.items();
     const scored = this.scored();
     return result && items && scored
-      ? getAxisRecommendations(analyzeLogic(items, scored, result.items))
+      ? getAxisRecommendations(
+          analyzeLogic(logicAnalyzerItems(items), scored, result.items),
+        )
       : [];
   });
+
+  protected readonly recordVisible = computed(
+    () => (this.result()?.logicFamily ?? null) === null,
+  );
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const result = this.result();
     const scored = this.scored();
     return result && scored ? buildLogicMetricRows(scored, result) : [];
+  });
+
+  protected readonly familyRows = computed<ResultMetricRow[]>(() => {
+    const result = this.result();
+    const items = this.items();
+    if (
+      !result ||
+      !items ||
+      result.contentVersion < LOGIC_CONTENT_VERSION_V2
+    ) {
+      return [];
+    }
+    return computeLogicFamilyBreakdown(items, result.items).map((entry) => ({
+      label: LOGIC_FAMILY_LABELS[entry.family],
+      sublabel: `temps cumulé ${formatDuration(Math.round(entry.timeMs / 1000))}`,
+      value: `${entry.errors}`,
+      suffix: entry.errors > 1 ? ' erreurs' : ' erreur',
+    }));
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {

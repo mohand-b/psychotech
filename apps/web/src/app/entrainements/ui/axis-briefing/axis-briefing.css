@@ -157,6 +157,49 @@
   color: var(--text-secondary);
 }
 
+.axis-briefing__families {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.axis-briefing__family-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.axis-briefing__family-chip {
+  padding: 0.4375rem 0.875rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  font: 500 0.8125rem/1.125rem var(--font-ui);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.1s ease,
+    background 0.1s ease,
+    color 0.1s ease;
+}
+
+.axis-briefing__family-chip:hover {
+  border-color: var(--border-hover);
+  color: var(--ink);
+}
+
+.axis-briefing__family-chip:focus-visible {
+  outline: 2px solid var(--axis-plain);
+  outline-offset: 2px;
+}
+
+.axis-briefing__family-chip--active {
+  background: var(--axis-pastel);
+  border-color: var(--axis-plain);
+  color: var(--axis-plain);
+  font-weight: 600;
+}
+
 @media (max-width: 767px) {
   .axis-briefing {
     gap: 0.75rem;
@@ -250,6 +293,11 @@
   .axis-briefing__metric-label {
     font-size: 0.8125rem;
     line-height: 1.125rem;
+  }
+
+  .axis-briefing__family-chip {
+    flex: 1 1 auto;
+    min-height: 2.75rem;
   }
 }
 

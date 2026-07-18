@@ -10,11 +10,17 @@
     [isEqualBest]="r.isEqualBest"
     [sector]="r.sector"
     [completedAt]="r.completedAt"
+    [recordVisible]="recordVisible()"
   />
 
   @if (scored()) {
   <ui-result-panel>
-    <ui-result-metrics panelStart [rows]="metricRows()" />
+    <div panelStart class="flex flex-col gap-6">
+      <ui-result-metrics [rows]="metricRows()" />
+      @if (familyRows().length > 0) {
+      <ui-result-metrics heading="Par famille" [rows]="familyRows()" />
+      }
+    </div>
     <ui-result-timing
       panelEnd
       heading="Gestion du temps"

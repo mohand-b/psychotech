@@ -18,17 +18,104 @@
       [style.color]="badge().colorVar"
       >{{ badge().label }}</span
     >
-    <span class="corr__count t-mono">{{ currentIndex() + 1 }}/{{ total }}</span>
+    <span class="corr__count t-mono"
+      >{{ currentIndex() + 1 }}/{{ total() }}</span
+    >
   </header>
 
-  <ui-logic-sequence #sequence [terms]="item.sequence" [hint]="hint()" />
+  @switch (item.family) { @case (families.NUMERIC) { @if (numericItem(); as
+  numeric) {
+  <ui-logic-sequence #sequence [terms]="numeric.sequence" [hint]="hint()" />
 
   <ui-logic-choices
     [review]="true"
-    [choices]="item.choices"
-    [correctIndex]="item.answerIndex"
+    [choices]="numeric.choices"
+    [correctIndex]="numeric.answerIndex"
     [userAnswerIndex]="userAnswerIndex()"
   />
+  } } @case (families.DOMINO) { @if (dominoItem(); as domino) {
+  <div class="corr-dom">
+    <div class="corr-dom__seq">
+      @for (tile of domino.domino.tiles; track $index) {
+      <span class="corr-dom__step">
+        <span class="corr-dom__tile">
+          <span class="corr-dom__half"
+            ><ui-domino-pips [value]="tile.top"
+          /></span>
+          <span class="corr-dom__split"></span>
+          <span class="corr-dom__half"
+            ><ui-domino-pips [value]="tile.bottom"
+          /></span>
+        </span>
+        <ui-icon class="corr-dom__chevron" [img]="chevronIcon" [size]="13" />
+      </span>
+      }
+      <span class="corr-dom__answer">
+        <span class="corr-dom__tile corr-dom__tile--correct">
+          <span class="corr-dom__half"
+            ><ui-domino-pips [value]="domino.domino.answer.top"
+          /></span>
+          <span class="corr-dom__split"></span>
+          <span class="corr-dom__half"
+            ><ui-domino-pips [value]="domino.domino.answer.bottom"
+          /></span>
+        </span>
+        <span class="corr-dom__caption corr-dom__caption--correct"
+          >Bonne réponse</span
+        >
+      </span>
+      @if (dominoUserAnswer(); as user) {
+      <span class="corr-dom__answer">
+        <span class="corr-dom__tile corr-dom__tile--user">
+          <span
+            class="corr-dom__half"
+            [class.corr-dom__half--correct]="user.topCorrect"
+            [class.corr-dom__half--wrong]="!user.topCorrect"
+            ><ui-domino-pips [value]="user.top"
+          /></span>
+          <span class="corr-dom__split"></span>
+          <span
+            class="corr-dom__half"
+            [class.corr-dom__half--correct]="user.bottomCorrect"
+            [class.corr-dom__half--wrong]="!user.bottomCorrect"
+            ><ui-domino-pips [value]="user.bottom"
+          /></span>
+        </span>
+        <span class="corr-dom__caption corr-dom__caption--wrong"
+          >Votre réponse</span
+        >
+      </span>
+      }
+    </div>
+    <p class="corr__rule">{{ item.rule.userText }}</p>
+  </div>
+  } } @default { @if (matrixItem(); as matrix) {
+  <div class="corr-mx">
+    <div class="corr-mx__grid">
+      @for (cell of matrixGridCells(); track $index) {
+      <span class="corr-mx__cell"><ui-matrix-cell [cell]="cell" [size]="62" /></span>
+      }
+      <span class="corr-mx__cell corr-mx__cell--missing">
+        <span class="corr-mx__question t-mono" aria-label="Case à trouver"
+          >?</span
+        >
+      </span>
+    </div>
+    <div class="corr-mx__props">
+      @for (proposal of matrix.matrix.proposals; track $index) {
+      <span
+        class="corr-mx__prop"
+        [class.corr-mx__prop--correct]="$index === matrix.answerIndex"
+        [class.corr-mx__prop--wrong]="isWrongMatrixChoice($index)"
+      >
+        <ui-matrix-cell [cell]="proposal.cell" [size]="46" />
+        <span class="corr-mx__key t-mono">{{ letters[$index] }}</span>
+      </span>
+      }
+    </div>
+    <p class="corr__rule">{{ item.rule.userText }}</p>
+  </div>
+  } } }
 
   <span class="corr__time"
     >Votre temps :

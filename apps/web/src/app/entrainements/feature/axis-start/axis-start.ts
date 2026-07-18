@@ -6,7 +6,13 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AxisType, Sector, TrainingOptionId } from '@psychotech/shared';
+import {
+  AxisType,
+  LogicFamilyFilter,
+  Sector,
+  TargetedSessionOptionsDto,
+  TrainingOptionId,
+} from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -34,6 +40,7 @@ export class AxisStart {
 
   protected readonly starting = signal(false);
   protected readonly enabledOptions = signal<TrainingOptionId[]>([]);
+  protected readonly logicFamily = signal<LogicFamilyFilter | null>(null);
   protected readonly energyCost = TARGETED_AXIS_ENERGY_COST;
 
   protected readonly axis =
@@ -62,13 +69,23 @@ export class AxisStart {
         null),
   );
 
+  private targetedOptions(): TargetedSessionOptionsDto {
+    const options: TargetedSessionOptionsDto = {
+      enabledOptions: this.enabledOptions(),
+    };
+    if (!this.tutorial && this.axis === AxisType.LOGIC) {
+      options.logicFamily = this.logicFamily();
+    }
+    return options;
+  }
+
   protected start(): void {
     if (this.starting()) {
       return;
     }
     this.starting.set(true);
     this.trainingSessionFacade
-      .startTargeted(this.axis, { enabledOptions: this.enabledOptions() })
+      .startTargeted(this.axis, this.targetedOptions())
       .subscribe({
         next: (session) =>
           this.router.navigate([

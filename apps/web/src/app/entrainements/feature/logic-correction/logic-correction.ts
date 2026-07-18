@@ -8,24 +8,29 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   AxisType,
+  DominoFace,
+  LogicFamily,
   LogicItemStatus,
   TargetedLogicResultDto,
-  generateLogicSession,
-  resolveLogicRuleHint,
-  scoreLogicSession,
+  scoreLogicV2Session,
 } from '@psychotech/shared';
+import { ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { MatrixCell } from '../../../shared/ui/matrix/matrix-cell';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
+import { DominoPips } from '../../ui/domino-pips/domino-pips';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
+import { MATRIX_PROPOSAL_LETTERS } from '../../ui/logic-matrix/logic-matrix';
 import {
   LOGIC_STATUS_COLORS,
   LOGIC_STATUS_LABELS,
 } from '../../ui/logic-status';
+import { logicItemsForResult } from '../../ui/logic-result-items';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,
@@ -60,10 +65,24 @@ const LEGEND_STATUSES: LogicItemStatus[] = [
   'UNREACHED',
 ];
 
+interface DominoUserAnswer {
+  top: DominoFace;
+  bottom: DominoFace;
+  topCorrect: boolean;
+  bottomCorrect: boolean;
+}
+
 @Component({
   selector: 'app-logic-correction',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CorrectionShell, LogicChoices, LogicSequence],
+  imports: [
+    CorrectionShell,
+    DominoPips,
+    Icon,
+    LogicChoices,
+    LogicSequence,
+    MatrixCell,
+  ],
   templateUrl: './logic-correction.html',
   styleUrl: './logic-correction.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -78,7 +97,9 @@ export class LogicCorrection {
   private readonly fromSimulation =
     this.route.snapshot.data['simulation'] === true;
   protected readonly axis = AxisType.LOGIC;
-  protected readonly total = AXIS_TRAINING[AxisType.LOGIC].exerciseCount;
+  protected readonly families = LogicFamily;
+  protected readonly letters = MATRIX_PROPOSAL_LETTERS;
+  protected readonly chevronIcon = ArrowRight;
 
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
   protected readonly currentIndex = signal(0);
@@ -98,12 +119,16 @@ export class LogicCorrection {
 
   protected readonly items = computed(() => {
     const result = this.result();
-    return result ? generateLogicSession(result.seed) : [];
+    return result ? logicItemsForResult(result) : [];
   });
+
+  protected readonly total = computed(() => this.items().length);
 
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
     const result = this.result();
-    return result ? scoreLogicSession(this.items(), result.items).statuses : [];
+    return result
+      ? scoreLogicV2Session(this.items(), result.items).statuses
+      : [];
   });
 
   protected readonly dots = computed<StatusBandEntry[]>(() =>
@@ -131,6 +156,55 @@ export class LogicCorrection {
     () => this.items()[this.currentIndex()] ?? null,
   );
 
+  protected readonly numericItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.NUMERIC ? item : null;
+  });
+
+  protected readonly dominoItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.DOMINO ? item : null;
+  });
+
+  protected readonly matrixItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.MATRIX_I ||
+      item?.family === LogicFamily.MATRIX_II
+      ? item
+      : null;
+  });
+
+  protected readonly matrixGridCells = computed(
+    () => this.matrixItem()?.matrix.cells.slice(0, 8) ?? [],
+  );
+
+  protected readonly dominoUserAnswer = computed<DominoUserAnswer | null>(
+    () => {
+      const item = this.dominoItem();
+      const response = this.responseByIndex().get(this.currentIndex());
+      if (
+        !item ||
+        response?.dominoTop === null ||
+        response?.dominoTop === undefined ||
+        response.dominoBottom === null ||
+        response.dominoBottom === undefined
+      ) {
+        return null;
+      }
+      const answer = item.domino.answer;
+      const topCorrect = response.dominoTop === answer.top;
+      const bottomCorrect = response.dominoBottom === answer.bottom;
+      return topCorrect && bottomCorrect
+        ? null
+        : {
+            top: response.dominoTop,
+            bottom: response.dominoBottom,
+            topCorrect,
+            bottomCorrect,
+          };
+    },
+  );
+
   protected readonly currentStatus = computed<LogicItemStatus>(
     () => this.statuses()[this.currentIndex()] ?? 'UNREACHED',
   );
@@ -139,14 +213,22 @@ export class LogicCorrection {
     () => STATUS_BADGES[this.currentStatus()],
   );
 
-  protected readonly hint = computed(() => {
-    const item = this.currentItem();
-    return item ? resolveLogicRuleHint(item) : '';
-  });
+  protected readonly hint = computed(
+    () => this.currentItem()?.rule.userText ?? '',
+  );
 
   protected readonly userAnswerIndex = computed(
     () => this.responseByIndex().get(this.currentIndex())?.answerIndex ?? null,
   );
+
+  protected isWrongMatrixChoice(index: number): boolean {
+    const item = this.matrixItem();
+    return (
+      item !== null &&
+      this.userAnswerIndex() === index &&
+      item.answerIndex !== index
+    );
+  }
 
   protected readonly timeLabel = computed(() => {
     if (this.currentStatus() === 'UNREACHED') {
