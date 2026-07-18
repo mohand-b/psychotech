@@ -223,6 +223,7 @@ export interface SessionHistoryItemDto {
   axis: AxisType | null;
   sector: Sector;
   status: SessionStatus;
+  logicFamily: LogicFamilyFilter | null;
   finishedAt: string;
   durationSec: number;
   score: number | null;
