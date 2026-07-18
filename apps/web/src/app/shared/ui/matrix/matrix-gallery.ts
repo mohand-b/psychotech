@@ -5,57 +5,18 @@ import {
   input,
 } from '@angular/core';
 import {
-  MatrixCompositionVariant,
+  MATRIX_CATALOG,
   MatrixItem,
-  MatrixLevel,
-  MatrixRegister,
-  MatrixStructure,
-  generateMatrixItem,
+  generateMatrixItemFromCatalog,
 } from '@psychotech/shared';
 import { MatrixGrid } from './matrix-grid';
 
-interface GalleryEntry {
+interface GalleryRow {
   label: string;
-  item: MatrixItem | null;
+  items: (MatrixItem | null)[];
 }
 
-interface GallerySection {
-  title: string;
-  entries: GalleryEntry[];
-}
-
-interface GalleryStructureCase {
-  label: string;
-  structure: MatrixStructure;
-  variant?: MatrixCompositionVariant;
-}
-
-const LEVELS: readonly MatrixLevel[] = [1, 2, 3, 4, 5];
-
-const STRUCTURE_CASES: readonly GalleryStructureCase[] = [
-  { label: 'Croisées', structure: MatrixStructure.CROSSED },
-  { label: 'Distribution', structure: MatrixStructure.DISTRIBUTION },
-  {
-    label: 'Addition',
-    structure: MatrixStructure.COMPOSITION,
-    variant: MatrixCompositionVariant.ADDITION,
-  },
-  {
-    label: 'Soustraction',
-    structure: MatrixStructure.COMPOSITION,
-    variant: MatrixCompositionVariant.SOUSTRACTION,
-  },
-  {
-    label: 'Emboîtement',
-    structure: MatrixStructure.COMPOSITION,
-    variant: MatrixCompositionVariant.EMBOITEMENT,
-  },
-];
-
-const REGISTER_TITLES: Record<MatrixRegister, string> = {
-  [MatrixRegister.FIGURES]: 'Registre figures',
-  [MatrixRegister.TRAITS]: 'Registre traits',
-};
+const SEED_SUFFIXES = ['', '-b', '-c'];
 
 @Component({
   selector: 'app-matrix-gallery',
@@ -63,24 +24,20 @@ const REGISTER_TITLES: Record<MatrixRegister, string> = {
   imports: [MatrixGrid],
   template: `
     <div class="gallery">
-      @for (section of sections(); track section.title) {
-        <div class="section">
-          <h3 class="section__title">{{ section.title }}</h3>
-          <div class="section__grid">
-            @for (entry of section.entries; track entry.label) {
-              <div class="tile">
-                <span class="tile__label">{{ entry.label }}</span>
-                @if (entry.item; as item) {
-                  <ui-matrix-grid
-                    [cells]="item.cells"
-                    [showAnswer]="true"
-                    [cellSize]="46"
-                  />
-                  <span class="tile__rule">{{ item.rule.userText }}</span>
-                } @else {
-                  <span class="tile__error">Génération impossible</span>
-                }
-              </div>
+      @for (row of rows(); track row.label) {
+        <div class="row">
+          <span class="row__label">{{ row.label }}</span>
+          <div class="row__grids">
+            @for (item of row.items; track $index) {
+              @if (item) {
+                <ui-matrix-grid
+                  [cells]="item.cells"
+                  [showAnswer]="true"
+                  [cellSize]="46"
+                />
+              } @else {
+                <span class="row__error">Génération impossible</span>
+              }
             }
           </div>
         </div>
@@ -91,25 +48,10 @@ const REGISTER_TITLES: Record<MatrixRegister, string> = {
     .gallery {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
       max-width: 1240px;
     }
-    .section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .section__title {
-      margin: 0;
-      font: 700 15px/20px var(--font-ui);
-      color: var(--ink);
-    }
-    .section__grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .tile {
+    .row {
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -117,15 +59,16 @@ const REGISTER_TITLES: Record<MatrixRegister, string> = {
       background: var(--bg);
       border-radius: 10px;
     }
-    .tile__label {
-      font: 700 12px/16px var(--font-ui);
+    .row__label {
+      font: 700 13px/18px var(--font-ui);
       color: var(--ink);
     }
-    .tile__rule {
-      font: 400 11px/15px var(--font-ui);
-      color: var(--text-secondary);
+    .row__grids {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-    .tile__error {
+    .row__error {
       font: 600 12px/16px var(--font-ui);
       color: var(--danger-text);
     }
@@ -134,29 +77,19 @@ const REGISTER_TITLES: Record<MatrixRegister, string> = {
 export class MatrixGallery {
   readonly seed = input('galerie');
 
-  protected readonly sections = computed<GallerySection[]>(() =>
-    Object.values(MatrixRegister).map((register) => ({
-      title: REGISTER_TITLES[register],
-      entries: STRUCTURE_CASES.flatMap((structureCase) =>
-        LEVELS.map((level) => {
-          let item: MatrixItem | null;
-          try {
-            item = generateMatrixItem({
-              structure: structureCase.structure,
-              variant: structureCase.variant,
-              register,
-              level,
-              seed: this.seed(),
-            });
-          } catch {
-            item = null;
-          }
-          return {
-            label: `${structureCase.label} — N${level}`,
-            item,
-          };
-        }),
-      ),
+  protected readonly rows = computed<GalleryRow[]>(() =>
+    MATRIX_CATALOG.map((entry) => ({
+      label: entry.label,
+      items: SEED_SUFFIXES.map((suffix) => {
+        try {
+          return generateMatrixItemFromCatalog(
+            entry.id,
+            `${this.seed()}${suffix}`,
+          );
+        } catch {
+          return null;
+        }
+      }),
     })),
   );
 }

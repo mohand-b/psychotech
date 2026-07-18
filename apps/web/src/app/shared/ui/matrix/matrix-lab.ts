@@ -5,14 +5,11 @@ import {
   signal,
 } from '@angular/core';
 import {
-  MatrixCompositionVariant,
+  MATRIX_CATALOG,
   MatrixItem,
-  MatrixLevel,
   MatrixProposalKind,
   MatrixRegister,
-  MatrixStructure,
-  generateMatrixItem,
-  isMatrixRegisterSupported,
+  generateMatrixItemFromCatalog,
 } from '@psychotech/shared';
 import { MatrixChoiceAnnotation, MatrixChoices } from './matrix-choices';
 import { MatrixGrid } from './matrix-grid';
@@ -30,24 +27,10 @@ const PROPOSAL_KIND_LABELS: Record<MatrixProposalKind, string> = {
   [MatrixProposalKind.WRONG_LAYER_REMOVED]: 'Mauvaise couche retirée',
 };
 
-const STRUCTURE_LABELS: Record<MatrixStructure, string> = {
-  [MatrixStructure.CROSSED]: 'Croisées',
-  [MatrixStructure.DISTRIBUTION]: 'Distribution',
-  [MatrixStructure.COMPOSITION]: 'Composition',
-};
-
-const VARIANT_LABELS: Record<MatrixCompositionVariant, string> = {
-  [MatrixCompositionVariant.ADDITION]: 'Addition',
-  [MatrixCompositionVariant.SOUSTRACTION]: 'Soustraction',
-  [MatrixCompositionVariant.EMBOITEMENT]: 'Emboîtement',
-};
-
 const REGISTER_LABELS: Record<MatrixRegister, string> = {
-  [MatrixRegister.FIGURES]: 'Figures',
-  [MatrixRegister.TRAITS]: 'Traits',
+  [MatrixRegister.FIGURES]: 'figures',
+  [MatrixRegister.TRAITS]: 'traits',
 };
-
-const LEVELS: readonly MatrixLevel[] = [1, 2, 3, 4, 5];
 
 function randomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -85,65 +68,16 @@ function randomSeed(): string {
       </div>
 
       <div class="lab__controls">
-        <div class="lab__group">
-          @for (option of structures; track option) {
-            <button
-              type="button"
-              class="lab__chip"
-              [class.lab__chip--active]="structure() === option"
-              (click)="setStructure(option)"
-            >
-              {{ structureLabels[option] }}
-            </button>
-          }
-        </div>
-        @if (structure() === compositionStructure) {
-          <div class="lab__group">
-            @for (option of variants; track option) {
-              <button
-                type="button"
-                class="lab__chip"
-                [class.lab__chip--active]="variant() === option"
-                (click)="setVariant(option)"
-              >
-                {{ variantLabels[option] }}
-              </button>
-            }
-          </div>
-        }
-        <div class="lab__group">
-          @for (option of levels; track option) {
-            <button
-              type="button"
-              class="lab__chip"
-              [class.lab__chip--active]="level() === option"
-              (click)="setLevel(option)"
-            >
-              N{{ option }}
-            </button>
-          }
-        </div>
-        <div class="lab__group">
+        @for (entry of catalog; track entry.id) {
           <button
             type="button"
             class="lab__chip"
-            [class.lab__chip--active]="register() === null"
-            (click)="setRegister(null)"
+            [class.lab__chip--active]="catalogId() === entry.id"
+            (click)="setCatalogId(entry.id)"
           >
-            Registre aléatoire
+            {{ entry.label }}
           </button>
-          @for (option of registerOptions; track option) {
-            <button
-              type="button"
-              class="lab__chip"
-              [class.lab__chip--active]="register() === option"
-              [disabled]="!registerSupported(option)"
-              (click)="setRegister(option)"
-            >
-              {{ registerLabels[option] }}
-            </button>
-          }
-        </div>
+        }
       </div>
 
       @if (item(); as current) {
@@ -161,13 +95,13 @@ function randomSeed(): string {
           <p class="lab__rule-text">{{ current.rule.userText }}</p>
           <span class="t-mono lab__rule-id"
             >{{ current.rule.id }} · registre
-            {{ registerLabels[current.register].toLowerCase() }} · seed
+            {{ registerLabels[current.register] }} · seed
             {{ current.seed }}</span
           >
         </div>
       } @else {
         <p class="lab__error">
-          Génération impossible pour cette combinaison — à consigner.
+          Génération impossible pour ce type — à consigner.
         </p>
       }
     </div>
@@ -180,7 +114,7 @@ function randomSeed(): string {
       padding: 20px;
       background: var(--bg);
       border-radius: 12px;
-      max-width: 820px;
+      max-width: 860px;
     }
     .lab__controls {
       display: flex;
@@ -222,10 +156,6 @@ function randomSeed(): string {
       background: var(--card);
       color: var(--ink);
     }
-    .lab__group {
-      display: flex;
-      gap: 6px;
-    }
     .lab__chip {
       padding: 8px 12px;
       background: var(--card);
@@ -239,10 +169,6 @@ function randomSeed(): string {
       background: var(--brand-pastel);
       border-color: var(--brand);
       color: var(--brand-hover);
-    }
-    .lab__chip:disabled {
-      color: var(--text-disabled);
-      cursor: not-allowed;
     }
     .lab__board {
       display: flex;
@@ -275,39 +201,17 @@ function randomSeed(): string {
   `,
 })
 export class MatrixLab {
-  protected readonly structures = Object.values(MatrixStructure);
-  protected readonly variants = Object.values(MatrixCompositionVariant);
-  protected readonly registerOptions = Object.values(MatrixRegister);
-  protected readonly structureLabels = STRUCTURE_LABELS;
-  protected readonly variantLabels = VARIANT_LABELS;
+  protected readonly catalog = MATRIX_CATALOG;
   protected readonly registerLabels = REGISTER_LABELS;
-  protected readonly levels = LEVELS;
-  protected readonly compositionStructure = MatrixStructure.COMPOSITION;
 
-  protected readonly structure = signal<MatrixStructure>(
-    MatrixStructure.CROSSED,
-  );
-  protected readonly variant = signal<MatrixCompositionVariant>(
-    MatrixCompositionVariant.ADDITION,
-  );
-  protected readonly register = signal<MatrixRegister | null>(null);
-  protected readonly level = signal<MatrixLevel>(1);
+  protected readonly catalogId = signal(MATRIX_CATALOG[0].id);
   protected readonly seed = signal(randomSeed());
   protected readonly revealed = signal(false);
   protected readonly selected = signal<number | null>(null);
 
   protected readonly item = computed<MatrixItem | null>(() => {
     try {
-      return generateMatrixItem({
-        structure: this.structure(),
-        level: this.level(),
-        seed: this.seed(),
-        register: this.register() ?? undefined,
-        variant:
-          this.structure() === MatrixStructure.COMPOSITION
-            ? this.variant()
-            : undefined,
-      });
+      return generateMatrixItemFromCatalog(this.catalogId(), this.seed());
     } catch {
       return null;
     }
@@ -335,33 +239,9 @@ export class MatrixLab {
     this.selected.set(null);
   }
 
-  protected setStructure(structure: MatrixStructure): void {
-    this.structure.set(structure);
+  protected setCatalogId(catalogId: string): void {
+    this.catalogId.set(catalogId);
     this.selected.set(null);
-  }
-
-  protected setVariant(variant: MatrixCompositionVariant): void {
-    this.variant.set(variant);
-    this.selected.set(null);
-  }
-
-  protected setRegister(register: MatrixRegister | null): void {
-    this.register.set(register);
-    this.selected.set(null);
-  }
-
-  protected setLevel(level: MatrixLevel): void {
-    this.level.set(level);
-    this.selected.set(null);
-  }
-
-  protected registerSupported(register: MatrixRegister): boolean {
-    return isMatrixRegisterSupported(
-      this.structure(),
-      this.structure() === MatrixStructure.COMPOSITION ? this.variant() : null,
-      this.level(),
-      register,
-    );
   }
 
   protected copySeed(): void {
