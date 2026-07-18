@@ -1,0 +1,127 @@
+<div class="dom">
+  <div class="dom__seq">
+    @for (tile of tiles(); track $index) {
+      <span class="dom__step">
+        <span class="dom__tile">
+          <span class="dom__half"><ui-domino-pips [value]="tile.top" /></span>
+          <span class="dom__split"></span>
+          <span class="dom__half"
+            ><ui-domino-pips [value]="tile.bottom"
+          /></span>
+        </span>
+        <ui-icon class="dom__chevron" [img]="chevronIcon" [size]="13" />
+      </span>
+    }
+
+    <span class="dom__answer">
+      <span class="dom__answer-tile">
+        <button
+          type="button"
+          class="dom__face dom__face--top"
+          [class.dom__face--active]="activeFace() === 'top'"
+          [class.dom__face--filled]="top() !== null"
+          [attr.aria-pressed]="activeFace() === 'top'"
+          aria-label="Face du haut"
+          title="Face du haut"
+          (click)="pickFace('top')"
+        >
+          @if (top(); as value) {
+            <ui-domino-pips [value]="value" />
+          } @else if (top() === 0) {
+            <ui-domino-pips [value]="0" />
+          } @else {
+            <span class="dom__face-question t-mono">?</span>
+          }
+        </button>
+        <button
+          type="button"
+          class="dom__face dom__face--bottom"
+          [class.dom__face--active]="activeFace() === 'bottom'"
+          [class.dom__face--filled]="bottom() !== null"
+          [attr.aria-pressed]="activeFace() === 'bottom'"
+          aria-label="Face du bas"
+          title="Face du bas"
+          (click)="pickFace('bottom')"
+        >
+          @if (bottom(); as value) {
+            <ui-domino-pips [value]="value" />
+          } @else if (bottom() === 0) {
+            <ui-domino-pips [value]="0" />
+          } @else {
+            <span class="dom__face-question t-mono">?</span>
+          }
+        </button>
+      </span>
+      @if (hint(); as hintText) {
+        <ui-rule-hint
+          #ruleHint
+          [hint]="hintText"
+          [used]="hintUsed()"
+          (opened)="hintOpened.emit()"
+        />
+      }
+    </span>
+  </div>
+
+  <div class="dom__entry">
+    <div class="dom__entry-row">
+      <div class="dom__chips">
+        <button
+          type="button"
+          class="dom__chip"
+          [class.dom__chip--active]="activeFace() === 'top'"
+          title="Saisir la face du haut"
+          (click)="pickFace('top')"
+        >
+          <span class="dom__chip-label">Haut</span>
+          <span
+            class="dom__chip-value t-mono"
+            [class.dom__chip-value--empty]="top() === null"
+            >{{ top() ?? '?' }}</span
+          >
+        </button>
+        <button
+          type="button"
+          class="dom__chip"
+          [class.dom__chip--active]="activeFace() === 'bottom'"
+          title="Saisir la face du bas"
+          (click)="pickFace('bottom')"
+        >
+          <span class="dom__chip-label">Bas</span>
+          <span
+            class="dom__chip-value t-mono"
+            [class.dom__chip-value--empty]="bottom() === null"
+            >{{ bottom() ?? '?' }}</span
+          >
+        </button>
+      </div>
+      <span class="dom__divider" aria-hidden="true"></span>
+      <div class="dom__pad">
+        @for (digit of digits; track digit) {
+          <button
+            type="button"
+            class="dom__key t-mono"
+            [disabled]="disabled()"
+            (click)="pressDigit(digit)"
+          >
+            {{ digit }}
+          </button>
+        }
+      </div>
+      <button
+        type="button"
+        class="dom__erase"
+        title="Effacer la réponse"
+        aria-label="Effacer la réponse"
+        [disabled]="disabled()"
+        (click)="clear()"
+      >
+        <ui-icon [img]="eraseIcon" [size]="18" />
+      </button>
+    </div>
+    <span class="dom__help"
+      >Tapez 0 à 6 pour chaque face, la première frappe remplit la face du
+      haut</span
+    >
+  </div>
+</div>

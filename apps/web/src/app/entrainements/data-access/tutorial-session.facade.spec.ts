@@ -31,6 +31,8 @@ function buildSuspendedSession(): SessionDto {
     sector: Sector.RAILWAY,
     status: SessionStatus.IN_PROGRESS,
     seed: 'seed-reelle',
+    contentVersion: 1,
+    logicFamily: null,
     options: { enabledOptions: [] },
     energyCost: 5,
     currentAxisIndex: 1,

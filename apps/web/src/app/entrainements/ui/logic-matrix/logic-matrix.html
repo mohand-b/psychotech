@@ -1,0 +1,65 @@
+<div class="mx">
+  <div class="mx__hero">
+    <span class="mx__anchor">
+      <div class="mx__grid">
+        @for (cell of visibleCells(); track $index) {
+          <span class="mx__cell">
+            <ui-matrix-cell class="mx__figure" [cell]="cell" [size]="72" />
+            <ui-matrix-cell
+              class="mx__figure--compact"
+              [cell]="cell"
+              [size]="62"
+            />
+          </span>
+        }
+        <span class="mx__cell mx__cell--missing">
+          <span class="mx__slot">
+            <span class="mx__question t-mono" aria-label="Case à trouver"
+              >?</span
+            >
+          </span>
+        </span>
+      </div>
+      @if (hint(); as hintText) {
+        <ui-rule-hint
+          class="mx__hint"
+          #ruleHint
+          [hint]="hintText"
+          [used]="hintUsed()"
+          (opened)="hintOpened.emit()"
+        />
+      }
+    </span>
+  </div>
+
+  <div class="mx__choices">
+    <div class="mx__props">
+      @for (proposal of matrix().proposals; track $index) {
+        <button
+          type="button"
+          class="mx__prop"
+          [class.mx__prop--selected]="selectedIndex() === $index"
+          [attr.aria-pressed]="selectedIndex() === $index"
+          [attr.aria-label]="'Proposition ' + letters[$index]"
+          [disabled]="disabled()"
+          (click)="choose($index)"
+        >
+          <span class="mx__thumb">
+            <ui-matrix-cell
+              class="mx__figure"
+              [cell]="proposal.cell"
+              [size]="58"
+            />
+            <ui-matrix-cell
+              class="mx__figure--compact"
+              [cell]="proposal.cell"
+              [size]="42"
+            />
+          </span>
+          <span class="mx__key t-mono">{{ letters[$index] }}</span>
+        </button>
+      }
+    </div>
+    <span class="mx__help">A-F ou 1-6 pour répondre</span>
+  </div>
+</div>

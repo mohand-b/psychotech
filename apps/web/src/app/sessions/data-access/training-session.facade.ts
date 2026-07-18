@@ -7,8 +7,9 @@ import {
   ControlModality,
   DiscriminationTrial,
   DiscriminationTrialAnswerDto,
-  LogicItem,
+  LOGIC_CONTENT_VERSION_V2,
   LogicItemAnswerDto,
+  LogicV2Item,
   MemorySequence,
   MemorySequenceAnswerDto,
   MotricityCourse,
@@ -28,9 +29,12 @@ import {
   MotricityGenerationOptions,
   generateDiscriminationSession,
   generateLogicSession,
+  generateLogicV2Session,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
+  logicV1ToV2Items,
+  resolveLogicRuleHint,
 } from '@psychotech/shared';
 import {
   Observable,
@@ -113,11 +117,20 @@ export class TrainingSessionFacade {
     return {};
   }
 
-  readonly logicItems: Signal<LogicItem[]> = computed(() => {
+  readonly logicItems: Signal<LogicV2Item[]> = computed(() => {
     const session = this.store.session();
-    return session && this.axis() === AxisType.LOGIC
-      ? generateLogicSession(session.seed, this.trainingConfig(AxisType.LOGIC))
-      : [];
+    if (!session || this.axis() !== AxisType.LOGIC) {
+      return [];
+    }
+    return session.contentVersion >= LOGIC_CONTENT_VERSION_V2
+      ? generateLogicV2Session(session.seed, session.logicFamily)
+      : logicV1ToV2Items(
+          generateLogicSession(
+            session.seed,
+            this.trainingConfig(AxisType.LOGIC),
+          ),
+          resolveLogicRuleHint,
+        );
   });
 
   readonly memorySequences: Signal<MemorySequence[]> = computed(() => {

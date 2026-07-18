@@ -10,10 +10,12 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
+  DominoFace,
+  LogicFamily,
+  LogicItemAnswerDto,
   SessionDto,
   SessionMode,
   SessionStatus,
-  resolveLogicRuleHint,
 } from '@psychotech/shared';
 import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -28,10 +30,33 @@ import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import {
   ItemNavBand,
+  ItemNavSegment,
   ItemNavState,
 } from '../../ui/item-nav-band/item-nav-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
+import {
+  DominoAnswerFace,
+  LogicDomino,
+} from '../../ui/logic-domino/logic-domino';
+import {
+  LogicMatrix,
+  MATRIX_PROPOSAL_LETTERS,
+} from '../../ui/logic-matrix/logic-matrix';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
+
+interface DominoAnswer {
+  top: DominoFace | null;
+  bottom: DominoFace | null;
+}
+
+const EMPTY_DOMINO_ANSWER: DominoAnswer = { top: null, bottom: null };
+
+const SEGMENT_LABELS: Record<LogicFamily, string> = {
+  [LogicFamily.NUMERIC]: 'Suites numériques',
+  [LogicFamily.DOMINO]: 'Dominos',
+  [LogicFamily.MATRIX_I]: 'Matrices I',
+  [LogicFamily.MATRIX_II]: 'Matrices II',
+};
 
 @Component({
   selector: 'app-logic-play',
@@ -42,6 +67,8 @@ import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
     ExitConfirm,
     ItemNavBand,
     LogicChoices,
+    LogicDomino,
+    LogicMatrix,
     LogicSequence,
   ],
   templateUrl: './logic-play.html',
@@ -61,6 +88,7 @@ export class LogicPlay {
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly choiceLetters = ['A', 'B', 'C', 'D'];
+  protected readonly families = LogicFamily;
 
   protected readonly items = this.facade.logicItems;
   protected readonly remainingSec = this.facade.remainingSec;
@@ -72,6 +100,8 @@ export class LogicPlay {
   protected readonly countingDown = signal(true);
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
+  protected readonly dominoAnswers = signal<Record<number, DominoAnswer>>({});
+  protected readonly activeFace = signal<DominoAnswerFace>('top');
   protected readonly submitting = signal(false);
   protected readonly confirmingExit = signal(false);
   protected readonly sessionMode = computed(
@@ -81,6 +111,8 @@ export class LogicPlay {
   private readonly helpUsed = signal<ReadonlySet<number>>(new Set());
   private readonly visited = signal<ReadonlySet<number>>(new Set([0]));
   private readonly sequence = viewChild<LogicSequence>('sequence');
+  private readonly dominoBoard = viewChild<LogicDomino>('dominoBoard');
+  private readonly matrixBoard = viewChild<LogicMatrix>('matrixBoard');
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
@@ -90,22 +122,49 @@ export class LogicPlay {
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
   );
-  protected readonly currentHint = computed(() => {
+  protected readonly numericItem = computed(() => {
     const item = this.currentItem();
-    return item ? resolveLogicRuleHint(item) : '';
+    return item?.family === LogicFamily.NUMERIC ? item : null;
   });
+  protected readonly dominoItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.DOMINO ? item : null;
+  });
+  protected readonly matrixItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.MATRIX_I ||
+      item?.family === LogicFamily.MATRIX_II
+      ? item
+      : null;
+  });
+  protected readonly currentDominoAnswer = computed(
+    () => this.dominoAnswers()[this.currentIndex()] ?? EMPTY_DOMINO_ANSWER,
+  );
+  protected readonly currentHint = computed(
+    () => this.currentItem()?.rule.userText ?? '',
+  );
   protected readonly currentHelpUsed = computed(() =>
     this.helpUsed().has(this.currentIndex()),
   );
   protected readonly locked = computed(
     () => this.facade.isExpired() || this.submitting(),
   );
+  protected readonly segments = computed<ItemNavSegment[] | null>(() => {
+    const groups: ItemNavSegment[] = [];
+    let lastFamily: LogicFamily | null = null;
+    for (const item of this.items()) {
+      if (item.family !== lastFamily) {
+        groups.push({ label: SEGMENT_LABELS[item.family] });
+        lastFamily = item.family;
+      }
+    }
+    return groups.length > 1 ? groups : null;
+  });
   protected readonly itemStates = computed<ItemNavState[]>(() => {
-    const answers = this.answers();
     const visited = this.visited();
     const current = this.currentIndex();
     return this.items().map((_, index) =>
-      answers[index] !== undefined
+      this.answeredAt(index)
         ? 'answered'
         : visited.has(index) && index !== current
           ? 'skipped'
@@ -113,21 +172,21 @@ export class LogicPlay {
     );
   });
   protected readonly unansweredCount = computed(
-    () => this.items().length - Object.keys(this.answers()).length,
+    () =>
+      this.items().filter((_, index) => !this.answeredAt(index)).length,
   );
-  protected readonly currentAnswered = computed(
-    () => this.answers()[this.currentIndex()] !== undefined,
+  protected readonly currentAnswered = computed(() =>
+    this.answeredAt(this.currentIndex()),
   );
   protected readonly isLastItem = computed(
     () => this.currentIndex() === this.items().length - 1,
   );
   protected readonly nextUnansweredIndex = computed(() => {
-    const answers = this.answers();
     const total = this.items().length;
     const current = this.currentIndex();
     for (let offset = 1; offset < total; offset += 1) {
       const index = (current + offset) % total;
-      if (answers[index] === undefined) {
+      if (!this.answeredAt(index)) {
         return index;
       }
     }
@@ -163,6 +222,20 @@ export class LogicPlay {
     });
   }
 
+  private answeredAt(index: number): boolean {
+    const item = this.items()[index];
+    if (!item) {
+      return false;
+    }
+    if (item.family === LogicFamily.DOMINO) {
+      const answer = this.dominoAnswers()[index];
+      return (
+        answer !== undefined && answer.top !== null && answer.bottom !== null
+      );
+    }
+    return this.answers()[index] !== undefined;
+  }
+
   protected finish(): void {
     if (this.locked() || !this.loaded()) {
       return;
@@ -182,13 +255,24 @@ export class LogicPlay {
     this.submitting.set(true);
     this.confirmingExit.set(false);
     this.commitTime();
-    const payload = this.items().map((_, index) => ({
-      index,
-      answerIndex: this.answers()[index] ?? null,
-      timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
-      helpUsed: this.helpUsed().has(index),
-      visited: this.visited().has(index) || this.answers()[index] !== undefined,
-    }));
+    const payload: LogicItemAnswerDto[] = this.items().map((item, index) => {
+      const base = {
+        index,
+        timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
+        helpUsed: this.helpUsed().has(index),
+        visited: this.visited().has(index) || this.answeredAt(index),
+      };
+      if (item.family === LogicFamily.DOMINO) {
+        const answer = this.dominoAnswers()[index];
+        return {
+          ...base,
+          answerIndex: null,
+          dominoTop: answer?.top ?? null,
+          dominoBottom: answer?.bottom ?? null,
+        };
+      }
+      return { ...base, answerIndex: this.answers()[index] ?? null };
+    });
     this.facade.completeTargeted(payload).subscribe({
       next: (session) =>
         this.router.navigate(afterAxisSubmitRoute(session, this.axis)),
@@ -207,6 +291,58 @@ export class LogicPlay {
     this.answers.update((answers) => ({ ...answers, [index]: choiceIndex }));
   }
 
+  protected selectFace(face: DominoAnswerFace): void {
+    if (this.locked() || !this.loaded()) {
+      return;
+    }
+    this.activeFace.set(face);
+  }
+
+  protected enterDominoDigit(digit: DominoFace): void {
+    if (this.locked() || !this.loaded() || !this.dominoItem()) {
+      return;
+    }
+    const index = this.currentIndex();
+    const face = this.activeFace();
+    this.dominoAnswers.update((answers) => ({
+      ...answers,
+      [index]: {
+        ...(answers[index] ?? EMPTY_DOMINO_ANSWER),
+        [face]: digit,
+      },
+    }));
+    this.activeFace.set('bottom');
+  }
+
+  protected eraseDominoDigit(): void {
+    if (this.locked() || !this.loaded() || !this.dominoItem()) {
+      return;
+    }
+    const index = this.currentIndex();
+    const answer = this.dominoAnswers()[index] ?? EMPTY_DOMINO_ANSWER;
+    const face: DominoAnswerFace =
+      this.activeFace() === 'bottom' && answer.bottom === null
+        ? 'top'
+        : this.activeFace();
+    this.dominoAnswers.update((answers) => ({
+      ...answers,
+      [index]: { ...(answers[index] ?? EMPTY_DOMINO_ANSWER), [face]: null },
+    }));
+    this.activeFace.set(face);
+  }
+
+  protected clearDominoAnswer(): void {
+    if (this.locked() || !this.loaded() || !this.dominoItem()) {
+      return;
+    }
+    const index = this.currentIndex();
+    this.dominoAnswers.update((answers) => ({
+      ...answers,
+      [index]: { ...EMPTY_DOMINO_ANSWER },
+    }));
+    this.activeFace.set('top');
+  }
+
   protected goTo(index: number): void {
     if (
       !this.loaded() ||
@@ -218,9 +354,10 @@ export class LogicPlay {
       return;
     }
     this.commitTime();
-    this.sequence()?.close();
+    this.closeHint();
     this.visited.update((visited) => new Set(visited).add(index));
     this.currentIndex.set(index);
+    this.activeFace.set('top');
   }
 
   protected markHelpUsed(): void {
@@ -250,13 +387,34 @@ export class LogicPlay {
     this.goTo(this.currentIndex() + 1);
   }
 
+  private hintOpenNow(): boolean {
+    return (
+      (this.sequence()?.hintOpen() ||
+        this.dominoBoard()?.hintOpen() ||
+        this.matrixBoard()?.hintOpen()) ??
+      false
+    );
+  }
+
+  private toggleHint(): void {
+    this.sequence()?.toggle();
+    this.dominoBoard()?.toggleHint();
+    this.matrixBoard()?.toggleHint();
+  }
+
+  private closeHint(returnFocus = false): void {
+    this.sequence()?.close(returnFocus);
+    this.dominoBoard()?.closeHint(returnFocus);
+    this.matrixBoard()?.closeHint(returnFocus);
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
     if (!this.loaded() || this.submitting() || this.countingDown()) {
       return;
     }
     if (event.key === 'Escape') {
-      if (this.sequence()?.hintOpen()) {
-        this.sequence()?.close(true);
+      if (this.hintOpenNow()) {
+        this.closeHint(true);
       } else {
         this.confirmingExit.set(false);
       }
@@ -268,7 +426,7 @@ export class LogicPlay {
     if (event.key === 'h' || event.key === 'H') {
       event.preventDefault();
       if (this.helpEnabled()) {
-        this.sequence()?.toggle();
+        this.toggleHint();
       }
       return;
     }
@@ -287,14 +445,36 @@ export class LogicPlay {
       this.confirmNext();
       return;
     }
-    const choiceCount = this.currentItem()?.choices.length ?? 0;
+    const item = this.currentItem();
+    if (!item || event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+    if (item.family === LogicFamily.DOMINO) {
+      if (event.key === 'Backspace') {
+        event.preventDefault();
+        this.eraseDominoDigit();
+        return;
+      }
+      if (/^[0-6]$/.test(event.key)) {
+        event.preventDefault();
+        this.enterDominoDigit(Number(event.key) as DominoFace);
+      }
+      return;
+    }
+    const isNumeric = item.family === LogicFamily.NUMERIC;
+    const choiceCount = isNumeric
+      ? item.choices.length
+      : item.matrix.proposals.length;
     const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();
       this.select(digit - 1);
       return;
     }
-    const letterIndex = this.choiceLetters.indexOf(event.key.toUpperCase());
+    const letters = isNumeric
+      ? this.choiceLetters
+      : MATRIX_PROPOSAL_LETTERS;
+    const letterIndex = letters.indexOf(event.key.toUpperCase());
     if (letterIndex !== -1 && letterIndex < choiceCount) {
       event.preventDefault();
       this.select(letterIndex);

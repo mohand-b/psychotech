@@ -148,6 +148,8 @@ const LOGIC_DETAIL: TargetedLogicResultDto = {
   previousScore: null,
   axis: AxisType.LOGIC,
   items: [],
+  contentVersion: 1,
+  logicFamily: null,
 };
 
 async function setup(summary: SimulationSummaryDto) {

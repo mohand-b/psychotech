@@ -23,6 +23,8 @@ function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
     sector: Sector.RAILWAY,
     status: SessionStatus.IN_PROGRESS,
     seed: 'seed',
+    contentVersion: 1,
+    logicFamily: null,
     options: { enabledOptions: [] },
     energyCost: 5,
     currentAxisIndex: 0,

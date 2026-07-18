@@ -1,0 +1,33 @@
+<span class="hint">
+  <button
+    #bulb
+    type="button"
+    class="hint__bulb"
+    [class.hint__bulb--used]="used()"
+    [attr.aria-expanded]="hintOpen()"
+    [attr.title]="used() ? 'Règle affichée' : 'Voir la règle'"
+    aria-label="Voir la règle de l'item"
+    (click)="toggle()"
+  >
+    <ui-icon [img]="bulbIcon" [size]="16" />
+  </button>
+
+  @if (hintOpen()) {
+    <span class="hint__veil" aria-hidden="true" (click)="close()"></span>
+    <div class="hint__pop" role="dialog" aria-label="Règle de l'item">
+      <span class="hint__handle" aria-hidden="true"></span>
+      <div class="hint__line">
+        <ui-icon class="hint__pop-bulb" [img]="bulbIcon" [size]="14" />
+        <span class="hint__text">{{ hint() }}</span>
+        <button
+          type="button"
+          class="hint__close"
+          aria-label="Fermer l'aide"
+          (click)="close(true)"
+        >
+          <ui-icon [img]="closeIcon" [size]="12" />
+        </button>
+      </div>
+    </div>
+  }
+</span>

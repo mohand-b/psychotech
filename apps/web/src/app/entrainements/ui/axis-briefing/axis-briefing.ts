@@ -189,7 +189,12 @@ export class AxisBriefing {
     const training = this.training();
     switch (training.axis) {
       case AxisType.LOGIC:
-        return { value: `${training.exerciseCount}`, label: 'items' };
+        return this.tutorial()
+          ? { value: `${training.exerciseCount}`, label: 'items' }
+          : {
+              value: `${training.exerciseCount}`,
+              label: 'items · 4 familles',
+            };
       case AxisType.MEMORY:
         return { value: `${training.exerciseCount}`, label: 'séquences' };
       case AxisType.VISUAL_DISCRIMINATION:

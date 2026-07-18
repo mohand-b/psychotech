@@ -13,6 +13,17 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 
 export type ItemNavState = 'answered' | 'skipped' | 'pending';
 
+export interface ItemNavSegment {
+  label: string;
+}
+
+interface RenderedSegment {
+  label: string;
+  start: number;
+  end: number;
+  states: ItemNavState[];
+}
+
 @Component({
   selector: 'ui-item-nav-band',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,25 +35,60 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
           >{{ currentIndex() + 1 }}/{{ states().length }}</strong
         ></span
       >
-      <nav class="band__items" aria-label="Navigation des items">
-        @for (state of states(); track $index) {
-          <button
-            type="button"
-            class="band__item"
-            [class.band__item--answered]="state === 'answered'"
-            [class.band__item--skipped]="state === 'skipped'"
-            [class.band__item--current]="$index === currentIndex()"
-            [attr.aria-current]="$index === currentIndex() ? 'true' : null"
-            [attr.aria-label]="ariaLabel($index, state)"
-            (click)="navigate.emit($index)"
-          >
-            <span class="band__dot"></span>
-            <span class="band__tip t-mono" aria-hidden="true"
-              >{{ $index + 1 }}/{{ states().length }}</span
+      @if (renderedSegments(); as groups) {
+        <nav
+          class="band__items band__items--segmented"
+          aria-label="Navigation des items"
+        >
+          @for (group of groups; track group.label) {
+            <div
+              class="band__group"
+              [class.band__group--active]="
+                currentIndex() >= group.start && currentIndex() <= group.end
+              "
+              [attr.title]="groupTitle(group)"
             >
-          </button>
-        }
-      </nav>
+              @for (state of group.states; track $index) {
+                <button
+                  type="button"
+                  class="band__seg"
+                  [class.band__seg--answered]="state === 'answered'"
+                  [class.band__seg--skipped]="state === 'skipped'"
+                  [class.band__seg--current]="
+                    group.start + $index === currentIndex()
+                  "
+                  [attr.aria-current]="
+                    group.start + $index === currentIndex() ? 'true' : null
+                  "
+                  [attr.title]="'Item ' + (group.start + $index + 1)"
+                  [attr.aria-label]="ariaLabel(group.start + $index, state)"
+                  (click)="navigate.emit(group.start + $index)"
+                ></button>
+              }
+            </div>
+          }
+        </nav>
+      } @else {
+        <nav class="band__items" aria-label="Navigation des items">
+          @for (state of states(); track $index) {
+            <button
+              type="button"
+              class="band__item"
+              [class.band__item--answered]="state === 'answered'"
+              [class.band__item--skipped]="state === 'skipped'"
+              [class.band__item--current]="$index === currentIndex()"
+              [attr.aria-current]="$index === currentIndex() ? 'true' : null"
+              [attr.aria-label]="ariaLabel($index, state)"
+              (click)="navigate.emit($index)"
+            >
+              <span class="band__dot"></span>
+              <span class="band__tip t-mono" aria-hidden="true"
+                >{{ $index + 1 }}/{{ states().length }}</span
+              >
+            </button>
+          }
+        </nav>
+      }
       <span class="band__remaining t-mono"
         >{{ remainingCount() }} restants</span
       >
@@ -57,10 +103,32 @@ export class ItemNavBand {
   readonly currentIndex = input.required<number>();
   readonly axis = input.required<AxisType>();
   readonly remainingCount = input.required<number>();
+  readonly segments = input<ItemNavSegment[] | null>(null);
   readonly navigate = output<number>();
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
+  );
+
+  protected readonly renderedSegments = computed<RenderedSegment[] | null>(
+    () => {
+      const segments = this.segments();
+      const states = this.states();
+      if (!segments || segments.length === 0 || states.length === 0) {
+        return null;
+      }
+      const size = Math.ceil(states.length / segments.length);
+      return segments.map((segment, position) => {
+        const start = position * size;
+        const groupStates = states.slice(start, start + size);
+        return {
+          label: segment.label,
+          start,
+          end: start + groupStates.length - 1,
+          states: groupStates,
+        };
+      });
+    },
   );
 
   constructor() {
@@ -76,6 +144,10 @@ export class ItemNavBand {
           }),
       );
     });
+  }
+
+  protected groupTitle(group: RenderedSegment): string {
+    return `${group.label} · items ${group.start + 1} à ${group.end + 1}`;
   }
 
   protected ariaLabel(index: number, state: ItemNavState): string {
