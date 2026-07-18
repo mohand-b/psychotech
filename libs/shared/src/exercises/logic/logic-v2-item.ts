@@ -38,3 +38,29 @@ export type LogicV2Item =
   | NumericLogicV2Item
   | DominoLogicV2Item
   | MatrixLogicV2Item;
+
+export interface LogicV1ItemShape {
+  index: number;
+  ruleId: string;
+  difficulty: LogicDifficulty;
+  sequence: string[];
+  choices: string[];
+  answerIndex: number;
+  points: number;
+}
+
+export function logicV1ToV2Items(
+  items: LogicV1ItemShape[],
+  hintFor: (item: LogicV1ItemShape) => string,
+): NumericLogicV2Item[] {
+  return items.map((item) => ({
+    index: item.index,
+    family: LogicFamily.NUMERIC,
+    difficulty: item.difficulty,
+    points: item.points,
+    sequence: item.sequence,
+    choices: item.choices,
+    answerIndex: item.answerIndex,
+    rule: { id: item.ruleId, userText: hintFor(item) },
+  }));
+}
