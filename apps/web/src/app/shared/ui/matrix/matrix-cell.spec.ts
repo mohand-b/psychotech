@@ -2,16 +2,23 @@ import { TestBed } from '@angular/core/testing';
 import {
   MATRIX_COUNT_SCALE,
   MATRIX_DECORS,
+  MATRIX_FIGURE_ELEMENTS,
   MATRIX_FILL_SCALE,
   MATRIX_ROTATION_SCALE,
   MATRIX_SIZE_SCALE,
+  MATRIX_STROKE_COUNT_SCALE,
+  MATRIX_STROKE_ELEMENTS,
+  MATRIX_STROKE_TYPES,
   MATRIX_SYMBOLS,
   MatrixCellSpec,
   MatrixContainer,
   MatrixDecor,
+  MatrixRegister,
   MatrixStructure,
   MatrixSymbol,
+  createCompositionCell,
   createDefaultMatrixCell,
+  createDefaultStrokeCell,
   generateMatrixItem,
 } from '@psychotech/shared';
 import { MatrixCell } from './matrix-cell';
@@ -81,6 +88,54 @@ describe('MatrixCell', () => {
         }
       }
     }
+  });
+
+  it('rend chaque famille de traits avec chaque nombre', async () => {
+    for (const strokeAType of MATRIX_STROKE_TYPES) {
+      for (const count of MATRIX_STROKE_COUNT_SCALE) {
+        const strokeBType = MATRIX_STROKE_TYPES.find(
+          (candidate) => candidate !== strokeAType,
+        );
+        const element = await renderCell({
+          ...createDefaultStrokeCell(
+            strokeAType,
+            strokeBType ?? strokeAType,
+          ),
+          strokeACount: count,
+        });
+        expect(element.querySelectorAll('path.stroke-path').length).toBe(
+          count + 1,
+        );
+      }
+    }
+  });
+
+  it('rend chaque élément de composition dans les deux registres', async () => {
+    for (const [register, palette] of [
+      [MatrixRegister.FIGURES, MATRIX_FIGURE_ELEMENTS],
+      [MatrixRegister.TRAITS, MATRIX_STROKE_ELEMENTS],
+    ] as const) {
+      for (const atom of palette) {
+        const element = await renderCell(
+          createCompositionCell(register, [atom], false),
+        );
+        expect(element.querySelectorAll('path.stroke-path')).toHaveLength(1);
+      }
+    }
+  });
+
+  it('rend une pile emboîtée avec une échelle par profondeur', async () => {
+    const element = await renderCell(
+      createCompositionCell(
+        MatrixRegister.FIGURES,
+        MATRIX_FIGURE_ELEMENTS.slice(0, 4),
+        true,
+      ),
+    );
+    const paths = element.querySelectorAll('path.stroke-path');
+    expect(paths).toHaveLength(4);
+    expect(paths[0].getAttribute('transform')).toBeNull();
+    expect(paths[1].getAttribute('transform')).toContain('scale(0.78)');
   });
 
   it('rend une grille générée avec la neuvième case en mystère', () => {

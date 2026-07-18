@@ -5,8 +5,10 @@ import {
   input,
 } from '@angular/core';
 import {
+  MatrixCompositionVariant,
   MatrixItem,
   MatrixLevel,
+  MatrixRegister,
   MatrixStructure,
   generateMatrixItem,
 } from '@psychotech/shared';
@@ -17,11 +19,42 @@ interface GalleryEntry {
   item: MatrixItem | null;
 }
 
+interface GallerySection {
+  title: string;
+  entries: GalleryEntry[];
+}
+
+interface GalleryStructureCase {
+  label: string;
+  structure: MatrixStructure;
+  variant?: MatrixCompositionVariant;
+}
+
 const LEVELS: readonly MatrixLevel[] = [1, 2, 3, 4, 5];
 
-const STRUCTURE_LABELS: Record<MatrixStructure, string> = {
-  [MatrixStructure.CROSSED]: 'Croisées',
-  [MatrixStructure.DISTRIBUTION]: 'Distribution',
+const STRUCTURE_CASES: readonly GalleryStructureCase[] = [
+  { label: 'Croisées', structure: MatrixStructure.CROSSED },
+  { label: 'Distribution', structure: MatrixStructure.DISTRIBUTION },
+  {
+    label: 'Addition',
+    structure: MatrixStructure.COMPOSITION,
+    variant: MatrixCompositionVariant.ADDITION,
+  },
+  {
+    label: 'Soustraction',
+    structure: MatrixStructure.COMPOSITION,
+    variant: MatrixCompositionVariant.SOUSTRACTION,
+  },
+  {
+    label: 'Emboîtement',
+    structure: MatrixStructure.COMPOSITION,
+    variant: MatrixCompositionVariant.EMBOITEMENT,
+  },
+];
+
+const REGISTER_TITLES: Record<MatrixRegister, string> = {
+  [MatrixRegister.FIGURES]: 'Registre figures',
+  [MatrixRegister.TRAITS]: 'Registre traits',
 };
 
 @Component({
@@ -30,29 +63,51 @@ const STRUCTURE_LABELS: Record<MatrixStructure, string> = {
   imports: [MatrixGrid],
   template: `
     <div class="gallery">
-      @for (entry of entries(); track entry.label) {
-        <div class="tile">
-          <span class="tile__label">{{ entry.label }}</span>
-          @if (entry.item; as item) {
-            <ui-matrix-grid
-              [cells]="item.cells"
-              [showAnswer]="true"
-              [cellSize]="46"
-            />
-            <span class="tile__rule">{{ item.rule.userText }}</span>
-          } @else {
-            <span class="tile__error">Génération impossible</span>
-          }
+      @for (section of sections(); track section.title) {
+        <div class="section">
+          <h3 class="section__title">{{ section.title }}</h3>
+          <div class="section__grid">
+            @for (entry of section.entries; track entry.label) {
+              <div class="tile">
+                <span class="tile__label">{{ entry.label }}</span>
+                @if (entry.item; as item) {
+                  <ui-matrix-grid
+                    [cells]="item.cells"
+                    [showAnswer]="true"
+                    [cellSize]="46"
+                  />
+                  <span class="tile__rule">{{ item.rule.userText }}</span>
+                } @else {
+                  <span class="tile__error">Génération impossible</span>
+                }
+              </div>
+            }
+          </div>
         </div>
       }
     </div>
   `,
   styles: `
     .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1240px;
+    }
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .section__title {
+      margin: 0;
+      font: 700 15px/20px var(--font-ui);
+      color: var(--ink);
+    }
+    .section__grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
-      max-width: 1240px;
     }
     .tile {
       display: flex;
@@ -79,24 +134,29 @@ const STRUCTURE_LABELS: Record<MatrixStructure, string> = {
 export class MatrixGallery {
   readonly seed = input('galerie');
 
-  protected readonly entries = computed<GalleryEntry[]>(() =>
-    Object.values(MatrixStructure).flatMap((structure) =>
-      LEVELS.map((level) => {
-        let item: MatrixItem | null;
-        try {
-          item = generateMatrixItem({
-            structure,
-            level,
-            seed: this.seed(),
-          });
-        } catch {
-          item = null;
-        }
-        return {
-          label: `${STRUCTURE_LABELS[structure]} — N${level}`,
-          item,
-        };
-      }),
-    ),
+  protected readonly sections = computed<GallerySection[]>(() =>
+    Object.values(MatrixRegister).map((register) => ({
+      title: REGISTER_TITLES[register],
+      entries: STRUCTURE_CASES.flatMap((structureCase) =>
+        LEVELS.map((level) => {
+          let item: MatrixItem | null;
+          try {
+            item = generateMatrixItem({
+              structure: structureCase.structure,
+              variant: structureCase.variant,
+              register,
+              level,
+              seed: this.seed(),
+            });
+          } catch {
+            item = null;
+          }
+          return {
+            label: `${structureCase.label} — N${level}`,
+            item,
+          };
+        }),
+      ),
+    })),
   );
 }

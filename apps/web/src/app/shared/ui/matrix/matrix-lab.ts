@@ -5,9 +5,11 @@ import {
   signal,
 } from '@angular/core';
 import {
+  MatrixCompositionVariant,
   MatrixItem,
   MatrixLevel,
   MatrixProposalKind,
+  MatrixRegister,
   MatrixStructure,
   generateMatrixItem,
 } from '@psychotech/shared';
@@ -21,11 +23,27 @@ const PROPOSAL_KIND_LABELS: Record<MatrixProposalKind, string> = {
   [MatrixProposalKind.GRID_DUPLICATE]: 'Case déjà présente dans la grille',
   [MatrixProposalKind.WRONG_STEP]: 'Progression au mauvais pas',
   [MatrixProposalKind.WRONG_AXIS]: 'Règle lue sur le mauvais axe',
+  [MatrixProposalKind.MISSING_ELEMENT]: 'Superposition avec un élément manquant',
+  [MatrixProposalKind.EXTRA_ELEMENT]: 'Élément parasite',
+  [MatrixProposalKind.FIRST_CELL_ONLY]: 'Première case seule',
+  [MatrixProposalKind.WRONG_LAYER_REMOVED]: 'Mauvaise couche retirée',
 };
 
 const STRUCTURE_LABELS: Record<MatrixStructure, string> = {
   [MatrixStructure.CROSSED]: 'Croisées',
   [MatrixStructure.DISTRIBUTION]: 'Distribution',
+  [MatrixStructure.COMPOSITION]: 'Composition',
+};
+
+const VARIANT_LABELS: Record<MatrixCompositionVariant, string> = {
+  [MatrixCompositionVariant.ADDITION]: 'Addition',
+  [MatrixCompositionVariant.SOUSTRACTION]: 'Soustraction',
+  [MatrixCompositionVariant.EMBOITEMENT]: 'Emboîtement',
+};
+
+const REGISTER_LABELS: Record<MatrixRegister, string> = {
+  [MatrixRegister.FIGURES]: 'Figures',
+  [MatrixRegister.TRAITS]: 'Traits',
 };
 
 const LEVELS: readonly MatrixLevel[] = [1, 2, 3, 4, 5];
@@ -55,6 +73,17 @@ function randomSeed(): string {
         <button type="button" class="lab__chip" (click)="copySeed()">
           Copier la seed
         </button>
+        <button
+          type="button"
+          class="lab__chip lab__chip--reveal"
+          [class.lab__chip--active]="revealed()"
+          (click)="revealed.set(!revealed())"
+        >
+          Révéler
+        </button>
+      </div>
+
+      <div class="lab__controls">
         <div class="lab__group">
           @for (option of structures; track option) {
             <button
@@ -67,6 +96,20 @@ function randomSeed(): string {
             </button>
           }
         </div>
+        @if (structure() === compositionStructure) {
+          <div class="lab__group">
+            @for (option of variants; track option) {
+              <button
+                type="button"
+                class="lab__chip"
+                [class.lab__chip--active]="variant() === option"
+                (click)="setVariant(option)"
+              >
+                {{ variantLabels[option] }}
+              </button>
+            }
+          </div>
+        }
         <div class="lab__group">
           @for (option of levels; track option) {
             <button
@@ -79,14 +122,26 @@ function randomSeed(): string {
             </button>
           }
         </div>
-        <button
-          type="button"
-          class="lab__chip lab__chip--reveal"
-          [class.lab__chip--active]="revealed()"
-          (click)="revealed.set(!revealed())"
-        >
-          Révéler
-        </button>
+        <div class="lab__group">
+          <button
+            type="button"
+            class="lab__chip"
+            [class.lab__chip--active]="register() === null"
+            (click)="setRegister(null)"
+          >
+            Registre aléatoire
+          </button>
+          @for (option of registerOptions; track option) {
+            <button
+              type="button"
+              class="lab__chip"
+              [class.lab__chip--active]="register() === option"
+              (click)="setRegister(option)"
+            >
+              {{ registerLabels[option] }}
+            </button>
+          }
+        </div>
       </div>
 
       @if (item(); as current) {
@@ -103,7 +158,9 @@ function randomSeed(): string {
           <span class="lab__field-label">Règle</span>
           <p class="lab__rule-text">{{ current.rule.userText }}</p>
           <span class="t-mono lab__rule-id"
-            >{{ current.rule.id }} · seed {{ current.seed }}</span
+            >{{ current.rule.id }} · registre
+            {{ registerLabels[current.register].toLowerCase() }} · seed
+            {{ current.seed }}</span
           >
         </div>
       } @else {
@@ -117,11 +174,11 @@ function randomSeed(): string {
     .lab {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
       padding: 20px;
       background: var(--bg);
       border-radius: 12px;
-      max-width: 780px;
+      max-width: 820px;
     }
     .lab__controls {
       display: flex;
@@ -213,12 +270,21 @@ function randomSeed(): string {
 })
 export class MatrixLab {
   protected readonly structures = Object.values(MatrixStructure);
+  protected readonly variants = Object.values(MatrixCompositionVariant);
+  protected readonly registerOptions = Object.values(MatrixRegister);
   protected readonly structureLabels = STRUCTURE_LABELS;
+  protected readonly variantLabels = VARIANT_LABELS;
+  protected readonly registerLabels = REGISTER_LABELS;
   protected readonly levels = LEVELS;
+  protected readonly compositionStructure = MatrixStructure.COMPOSITION;
 
   protected readonly structure = signal<MatrixStructure>(
     MatrixStructure.CROSSED,
   );
+  protected readonly variant = signal<MatrixCompositionVariant>(
+    MatrixCompositionVariant.ADDITION,
+  );
+  protected readonly register = signal<MatrixRegister | null>(null);
   protected readonly level = signal<MatrixLevel>(1);
   protected readonly seed = signal(randomSeed());
   protected readonly revealed = signal(false);
@@ -230,6 +296,11 @@ export class MatrixLab {
         structure: this.structure(),
         level: this.level(),
         seed: this.seed(),
+        register: this.register() ?? undefined,
+        variant:
+          this.structure() === MatrixStructure.COMPOSITION
+            ? this.variant()
+            : undefined,
       });
     } catch {
       return null;
@@ -260,6 +331,16 @@ export class MatrixLab {
 
   protected setStructure(structure: MatrixStructure): void {
     this.structure.set(structure);
+    this.selected.set(null);
+  }
+
+  protected setVariant(variant: MatrixCompositionVariant): void {
+    this.variant.set(variant);
+    this.selected.set(null);
+  }
+
+  protected setRegister(register: MatrixRegister | null): void {
+    this.register.set(register);
     this.selected.set(null);
   }
 

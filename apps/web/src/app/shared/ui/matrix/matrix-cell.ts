@@ -5,11 +5,17 @@ import {
   input,
 } from '@angular/core';
 import {
+  MatrixCellKind,
   MatrixCellSpec,
   MatrixContainer,
   MatrixDecor,
+  MatrixElementId,
   MatrixFill,
+  MatrixLayeredCell,
+  MatrixRegister,
   MatrixSize,
+  MatrixStrokeCount,
+  MatrixStrokeType,
   MatrixSymbol,
 } from '@psychotech/shared';
 
@@ -24,7 +30,13 @@ interface RenderedGlyph {
   cy: number;
   radius: number;
   points: string;
-  transform: string;
+  transform: string | null;
+}
+
+interface RenderedPath {
+  d: string;
+  filled: boolean;
+  transform: string | null;
 }
 
 const GLYPH_BASE_RADIUS = 20;
@@ -54,6 +66,48 @@ const SLOT_LAYOUTS: Record<number, GlyphSlot[]> = {
   ],
 };
 
+const STROKE_POSITIONS: Record<MatrixStrokeCount, number[]> = {
+  1: [50],
+  2: [38, 62],
+  3: [28, 50, 72],
+};
+
+const ELEMENT_PATHS: Record<MatrixElementId, { d: string; filled: boolean }> = {
+  [MatrixElementId.RING]: {
+    d: 'M 14 50 A 36 36 0 1 0 86 50 A 36 36 0 1 0 14 50',
+    filled: false,
+  },
+  [MatrixElementId.FRAME]: { d: 'M 18 18 H 82 V 82 H 18 Z', filled: false },
+  [MatrixElementId.LOZENGE]: {
+    d: 'M 50 10 L 90 50 L 50 90 L 10 50 Z',
+    filled: false,
+  },
+  [MatrixElementId.DELTA]: { d: 'M 50 14 L 86 78 L 14 78 Z', filled: false },
+  [MatrixElementId.SALTIRE]: {
+    d: 'M 26 26 L 74 74 M 74 26 L 26 74',
+    filled: false,
+  },
+  [MatrixElementId.UPRIGHT_CROSS]: {
+    d: 'M 50 22 V 78 M 22 50 H 78',
+    filled: false,
+  },
+  [MatrixElementId.PELLET]: {
+    d: 'M 42 50 A 8 8 0 1 0 58 50 A 8 8 0 1 0 42 50',
+    filled: true,
+  },
+  [MatrixElementId.ARC_UP]: { d: 'M 22 62 Q 50 22 78 62', filled: false },
+  [MatrixElementId.ARC_DOWN]: { d: 'M 22 38 Q 50 78 78 38', filled: false },
+  [MatrixElementId.BAR_HORIZONTAL]: { d: 'M 18 50 H 82', filled: false },
+  [MatrixElementId.BAR_VERTICAL]: { d: 'M 50 18 V 82', filled: false },
+  [MatrixElementId.BAR_OBLIQUE]: { d: 'M 26 74 L 74 26', filled: false },
+  [MatrixElementId.BAR_OBLIQUE_BACK]: {
+    d: 'M 26 26 L 74 74',
+    filled: false,
+  },
+};
+
+const NESTED_SCALES = [1, 0.78, 0.58, 0.4, 0.26];
+
 function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
@@ -63,9 +117,7 @@ function polygonPoints(
   cx: number,
   cy: number,
 ): string {
-  return offsets
-    .map(([x, y]) => `${round(cx + x)},${round(cy + y)}`)
-    .join(' ');
+  return offsets.map(([x, y]) => `${round(cx + x)},${round(cy + y)}`).join(' ');
 }
 
 function plusOffsets(radius: number): (readonly [number, number])[] {
@@ -133,6 +185,39 @@ function symbolOffsets(
   }
 }
 
+function strokeFamilyPaths(
+  type: MatrixStrokeType,
+  count: MatrixStrokeCount,
+): RenderedPath[] {
+  const positions = STROKE_POSITIONS[count];
+  switch (type) {
+    case MatrixStrokeType.HORIZONTAL:
+      return positions.map((y) => ({
+        d: `M 16 ${y} H 84`,
+        filled: false,
+        transform: null,
+      }));
+    case MatrixStrokeType.VERTICAL:
+      return positions.map((x) => ({
+        d: `M ${x} 16 V 84`,
+        filled: false,
+        transform: null,
+      }));
+    case MatrixStrokeType.OBLIQUE:
+      return positions.map((x) => ({
+        d: `M ${x} 18 V 82`,
+        filled: false,
+        transform: 'rotate(45 50 50)',
+      }));
+    case MatrixStrokeType.ARC:
+      return positions.map((y) => ({
+        d: `M 20 ${y + 10} Q 50 ${y - 18} 80 ${y + 10}`,
+        filled: false,
+        transform: null,
+      }));
+  }
+}
+
 let nextHatchId = 0;
 
 @Component({
@@ -157,60 +242,82 @@ let nextHatchId = 0;
         </pattern>
       </defs>
 
-      @switch (cell().decor) {
-        @case (decors.STRIPES) {
-          <g class="decor">
-            <line x1="0" y1="50" x2="50" y2="0" />
-            <line x1="0" y1="100" x2="100" y2="0" />
-            <line x1="50" y1="100" x2="100" y2="50" />
-          </g>
-        }
-        @case (decors.CORNER_DOTS) {
-          <g>
-            <circle cx="9" cy="9" r="3.4" fill="currentColor" />
-            <circle cx="91" cy="9" r="3.4" fill="currentColor" />
-            <circle cx="9" cy="91" r="3.4" fill="currentColor" />
-            <circle cx="91" cy="91" r="3.4" fill="currentColor" />
-          </g>
-        }
-        @case (decors.DIAMOND_DOTS) {
-          <g>
-            <circle cx="50" cy="7" r="3.4" fill="currentColor" />
-            <circle cx="93" cy="50" r="3.4" fill="currentColor" />
-            <circle cx="50" cy="93" r="3.4" fill="currentColor" />
-            <circle cx="7" cy="50" r="3.4" fill="currentColor" />
-          </g>
-        }
-      }
-
-      @switch (cell().container) {
-        @case (containers.CIRCLE) {
-          <circle cx="50" cy="50" r="42" class="stroke-only" />
-        }
-        @case (containers.SQUARE) {
-          <rect x="9" y="9" width="82" height="82" rx="2" class="stroke-only" />
-        }
-        @case (containers.DOUBLE_SQUARE) {
-          <rect x="6" y="6" width="88" height="88" rx="2" class="stroke-only" />
-          <rect x="14" y="14" width="72" height="72" rx="1.5" class="stroke-only" />
-        }
-      }
-
-      @for (glyph of glyphs(); track $index) {
-        @if (cell().symbol === symbols.DOT) {
-          <circle
-            [attr.cx]="glyph.cx"
-            [attr.cy]="glyph.cy"
-            [attr.r]="glyph.radius * 0.78"
-            [attr.fill]="fillValue()"
-            class="glyph"
-          />
+      @if (layered(); as cell) {
+        @if (cell.register === registers.TRAITS) {
+          @for (path of strokePaths(); track $index) {
+            <path
+              [attr.d]="path.d"
+              [attr.transform]="path.transform"
+              fill="none"
+              class="stroke-path"
+            />
+          }
         } @else {
-          <polygon
-            [attr.points]="glyph.points"
-            [attr.transform]="glyph.transform"
-            [attr.fill]="fillValue()"
-            class="glyph"
+          @switch (cell.decor) {
+            @case (decors.STRIPES) {
+              <g class="decor">
+                <line x1="0" y1="50" x2="50" y2="0" />
+                <line x1="0" y1="100" x2="100" y2="0" />
+                <line x1="50" y1="100" x2="100" y2="50" />
+              </g>
+            }
+            @case (decors.CORNER_DOTS) {
+              <g>
+                <circle cx="9" cy="9" r="3.4" fill="currentColor" />
+                <circle cx="91" cy="9" r="3.4" fill="currentColor" />
+                <circle cx="9" cy="91" r="3.4" fill="currentColor" />
+                <circle cx="91" cy="91" r="3.4" fill="currentColor" />
+              </g>
+            }
+            @case (decors.DIAMOND_DOTS) {
+              <g>
+                <circle cx="50" cy="7" r="3.4" fill="currentColor" />
+                <circle cx="93" cy="50" r="3.4" fill="currentColor" />
+                <circle cx="50" cy="93" r="3.4" fill="currentColor" />
+                <circle cx="7" cy="50" r="3.4" fill="currentColor" />
+              </g>
+            }
+          }
+
+          @switch (cell.container) {
+            @case (containers.CIRCLE) {
+              <circle cx="50" cy="50" r="42" class="stroke-only" />
+            }
+            @case (containers.SQUARE) {
+              <rect x="9" y="9" width="82" height="82" rx="2" class="stroke-only" />
+            }
+            @case (containers.DOUBLE_SQUARE) {
+              <rect x="6" y="6" width="88" height="88" rx="2" class="stroke-only" />
+              <rect x="14" y="14" width="72" height="72" rx="1.5" class="stroke-only" />
+            }
+          }
+
+          @for (glyph of glyphs(); track $index) {
+            @if (cell.symbol === symbols.DOT) {
+              <circle
+                [attr.cx]="glyph.cx"
+                [attr.cy]="glyph.cy"
+                [attr.r]="glyph.radius * 0.78"
+                [attr.fill]="fillValue()"
+                class="glyph"
+              />
+            } @else {
+              <polygon
+                [attr.points]="glyph.points"
+                [attr.transform]="glyph.transform"
+                [attr.fill]="fillValue()"
+                class="glyph"
+              />
+            }
+          }
+        }
+      } @else {
+        @for (piece of compositionPieces(); track $index) {
+          <path
+            [attr.d]="piece.d"
+            [attr.transform]="piece.transform"
+            [attr.fill]="piece.filled ? 'currentColor' : 'none'"
+            class="stroke-path"
           />
         }
       }
@@ -239,6 +346,12 @@ let nextHatchId = 0;
       stroke-width: 2.6;
       stroke-linejoin: round;
     }
+    .stroke-path {
+      stroke: currentColor;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
   `,
 })
 export class MatrixCell {
@@ -248,10 +361,20 @@ export class MatrixCell {
   protected readonly symbols = MatrixSymbol;
   protected readonly containers = MatrixContainer;
   protected readonly decors = MatrixDecor;
+  protected readonly registers = MatrixRegister;
   protected readonly hatchId = `mx-hatch-${(nextHatchId += 1)}`;
 
+  protected readonly layered = computed<MatrixLayeredCell | null>(() => {
+    const cell = this.cell();
+    return cell.kind === MatrixCellKind.LAYERED ? cell : null;
+  });
+
   protected readonly fillValue = computed(() => {
-    switch (this.cell().fill) {
+    const cell = this.layered();
+    if (!cell) {
+      return 'none';
+    }
+    switch (cell.fill) {
       case MatrixFill.OUTLINE:
         return 'none';
       case MatrixFill.SOLID:
@@ -262,7 +385,10 @@ export class MatrixCell {
   });
 
   protected readonly glyphs = computed<RenderedGlyph[]>(() => {
-    const cell = this.cell();
+    const cell = this.layered();
+    if (!cell || cell.register !== MatrixRegister.FIGURES) {
+      return [];
+    }
     const slots = SLOT_LAYOUTS[cell.count];
     const baseRadius = GLYPH_BASE_RADIUS * SIZE_SCALES[cell.size];
     return slots.map((slot) => {
@@ -279,9 +405,39 @@ export class MatrixCell {
           slot.cy,
         ),
         transform:
-          rotation === 0
-            ? ''
-            : `rotate(${rotation} ${slot.cx} ${slot.cy})`,
+          rotation === 0 ? null : `rotate(${rotation} ${slot.cx} ${slot.cy})`,
+      };
+    });
+  });
+
+  protected readonly strokePaths = computed<RenderedPath[]>(() => {
+    const cell = this.layered();
+    if (!cell || cell.register !== MatrixRegister.TRAITS) {
+      return [];
+    }
+    return [
+      ...strokeFamilyPaths(cell.strokeAType, cell.strokeACount),
+      ...strokeFamilyPaths(cell.strokeBType, cell.strokeBCount),
+    ];
+  });
+
+  protected readonly compositionPieces = computed<RenderedPath[]>(() => {
+    const cell = this.cell();
+    if (cell.kind !== MatrixCellKind.COMPOSITION) {
+      return [];
+    }
+    return cell.elements.map((element, index) => {
+      const geometry = ELEMENT_PATHS[element];
+      const scale = cell.nested
+        ? NESTED_SCALES[Math.min(index, NESTED_SCALES.length - 1)]
+        : 1;
+      return {
+        d: geometry.d,
+        filled: geometry.filled,
+        transform:
+          scale === 1
+            ? null
+            : `translate(50 50) scale(${scale}) translate(-50 -50)`,
       };
     });
   });
