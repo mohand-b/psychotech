@@ -973,7 +973,7 @@ export class SessionsService {
       (candidate) => candidate.sessionId === sessionId,
     );
     if (!entry) {
-      if (mode !== SessionMode.FULL || axisRow.normalizedScore === null) {
+      if (axisRow.normalizedScore === null) {
         throw new BadRequestException(
           'The session has no result for this axis',
         );
