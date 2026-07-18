@@ -5,6 +5,7 @@ import {
   MATRIX_FIGURE_ELEMENTS,
   MATRIX_FILL_SCALE,
   MATRIX_MIN_PERCEPTUAL_DISTANCE,
+  MATRIX_NESTABLE_ELEMENTS,
   MATRIX_SIZE_SCALE,
   MATRIX_STROKE_COUNT_SCALE,
   MATRIX_STROKE_ELEMENTS,
@@ -211,7 +212,7 @@ function distributionLayers(
         return [
           MatrixLayerKind.SYMBOL,
           MatrixLayerKind.CONTAINER,
-          rng.pick([MatrixLayerKind.FILL, MatrixLayerKind.DECOR]),
+          MatrixLayerKind.FILL,
         ];
       case 5:
         return [
@@ -227,13 +228,7 @@ function distributionLayers(
       return [MatrixLayerKind.STROKE_A_COUNT, MatrixLayerKind.STROKE_B_COUNT];
     case 3:
       return [MatrixLayerKind.STROKE_A_COUNT, MatrixLayerKind.STROKE_B_TYPE];
-    case 4:
-      return [
-        MatrixLayerKind.STROKE_A_COUNT,
-        MatrixLayerKind.STROKE_B_COUNT,
-        MatrixLayerKind.STROKE_A_TYPE,
-      ];
-    case 5:
+    default:
       return [MatrixLayerKind.STROKE_A_TYPE, MatrixLayerKind.STROKE_A_COUNT];
   }
 }
@@ -280,7 +275,10 @@ function layeredDefaults(
       MatrixStrokeType.HORIZONTAL,
     );
   }
-  const [typeA, typeB] = rng.shuffle(MATRIX_STROKE_TYPES);
+  const [typeA, typeB] = rng.shuffle([
+    MatrixStrokeType.HORIZONTAL,
+    MatrixStrokeType.VERTICAL,
+  ]);
   return createDefaultStrokeCell(typeA, typeB);
 }
 
@@ -381,15 +379,26 @@ interface CompositionPlan {
   cells: MatrixCompositionCell[];
 }
 
-const COMPOSITION_SET_SIZES: Record<
-  MatrixLevel,
-  { first: number; second: number; overlap: number }
-> = {
-  1: { first: 2, second: 2, overlap: 0 },
-  2: { first: 2, second: 2, overlap: 1 },
-  3: { first: 3, second: 2, overlap: 1 },
-  4: { first: 3, second: 3, overlap: 1 },
+interface CompositionSetSizes {
+  first: number;
+  second: number;
+  overlap: number;
+}
+
+const ADDITION_SET_SIZES: Record<MatrixLevel, CompositionSetSizes> = {
+  1: { first: 2, second: 1, overlap: 0 },
+  2: { first: 2, second: 2, overlap: 0 },
+  3: { first: 2, second: 2, overlap: 1 },
+  4: { first: 3, second: 2, overlap: 1 },
   5: { first: 3, second: 3, overlap: 2 },
+};
+
+const SOUSTRACTION_SET_SIZES: Record<MatrixLevel, CompositionSetSizes> = {
+  1: { first: 2, second: 2, overlap: 1 },
+  2: { first: 3, second: 2, overlap: 1 },
+  3: { first: 3, second: 3, overlap: 1 },
+  4: { first: 3, second: 3, overlap: 2 },
+  5: { first: 4, second: 3, overlap: 2 },
 };
 
 function compositionPalette(register: MatrixRegister): readonly MatrixElementId[] {
@@ -409,7 +418,7 @@ function buildCompositionPlan(
   if (variant === MatrixCompositionVariant.EMBOITEMENT) {
     const depth = level <= 3 ? 4 : 5;
     for (let row = 0; row < 3; row += 1) {
-      const pile = rng.shuffle(palette).slice(0, depth);
+      const pile = rng.shuffle(MATRIX_NESTABLE_ELEMENTS).slice(0, depth);
       cells.push(
         createCompositionCell(register, pile, true),
         createCompositionCell(register, pile.slice(0, -1), true),
@@ -417,11 +426,11 @@ function buildCompositionPlan(
       );
     }
   } else {
-    const sizes = COMPOSITION_SET_SIZES[level];
-    const overlap =
-      variant === MatrixCompositionVariant.SOUSTRACTION
-        ? Math.max(1, sizes.overlap)
-        : sizes.overlap;
+    const sizes =
+      variant === MatrixCompositionVariant.ADDITION
+        ? ADDITION_SET_SIZES[level]
+        : SOUSTRACTION_SET_SIZES[level];
+    const overlap = sizes.overlap;
     for (let row = 0; row < 3; row += 1) {
       const drawn = rng
         .shuffle(palette)
@@ -766,8 +775,12 @@ function buildCompositionProposals(
     return null;
   }
 
+  const parasitePool =
+    variant === MatrixCompositionVariant.EMBOITEMENT
+      ? MATRIX_NESTABLE_ELEMENTS
+      : compositionPalette(register);
   const unused = rng
-    .shuffle(compositionPalette(register))
+    .shuffle(parasitePool)
     .filter((atom) => !answer.elements.includes(atom));
   let extra: MatrixCompositionCell[];
   if (variant === MatrixCompositionVariant.ADDITION) {
@@ -900,6 +913,21 @@ function correctIsUniqueMedoid(item: MatrixItem): boolean {
   );
 }
 
+export function isMatrixRegisterSupported(
+  structure: MatrixStructure,
+  variant: MatrixCompositionVariant | null,
+  level: MatrixLevel,
+  register: MatrixRegister,
+): boolean {
+  if (register === MatrixRegister.FIGURES) {
+    return true;
+  }
+  if (variant === MatrixCompositionVariant.EMBOITEMENT) {
+    return false;
+  }
+  return !(structure === MatrixStructure.DISTRIBUTION && level === 5);
+}
+
 export function generateMatrixItem(
   options: GenerateMatrixItemOptions,
 ): MatrixItem {
@@ -909,13 +937,6 @@ export function generateMatrixItem(
     const rng = createSeededRng(
       `${seed}::matrix::${structure}::${level}::${attempt}`,
     );
-    const register =
-      options.register ??
-      (rng.next() < 0.5 ? MatrixRegister.FIGURES : MatrixRegister.TRAITS);
-    let cells: readonly MatrixCellSpec[];
-    let ruleSpec: MatrixRuleSpec;
-    let activeLayers: readonly MatrixLayerKind[];
-    let proposals: MatrixProposal[] | null;
     let variant: MatrixCompositionVariant | null = null;
     if (structure === MatrixStructure.COMPOSITION) {
       variant =
@@ -925,6 +946,23 @@ export function generateMatrixItem(
           MatrixCompositionVariant.SOUSTRACTION,
           MatrixCompositionVariant.EMBOITEMENT,
         ]);
+    }
+    const requestedRegister =
+      options.register ??
+      (rng.next() < 0.5 ? MatrixRegister.FIGURES : MatrixRegister.TRAITS);
+    const register = isMatrixRegisterSupported(
+      structure,
+      variant,
+      level,
+      requestedRegister,
+    )
+      ? requestedRegister
+      : MatrixRegister.FIGURES;
+    let cells: readonly MatrixCellSpec[];
+    let ruleSpec: MatrixRuleSpec;
+    let activeLayers: readonly MatrixLayerKind[];
+    let proposals: MatrixProposal[] | null;
+    if (structure === MatrixStructure.COMPOSITION && variant) {
       const plan = buildCompositionPlan(register, variant, level, rng);
       cells = plan.cells;
       ruleSpec = plan.ruleSpec;

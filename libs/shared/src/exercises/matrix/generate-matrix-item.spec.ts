@@ -15,7 +15,10 @@ import {
   matrixLayerScale,
   matrixPerceptualDistance,
 } from './matrix-cell';
-import { generateMatrixItem } from './generate-matrix-item';
+import {
+  generateMatrixItem,
+  isMatrixRegisterSupported,
+} from './generate-matrix-item';
 import { MatrixItem, MatrixProposalKind } from './matrix-item';
 import {
   buildMatrixRule,
@@ -128,11 +131,21 @@ describe('generateMatrixItem — propriétés sur 500 tirages (5 structures × 2
     });
   });
 
-  it('respecte le registre forcé et expose registre et variante en métadonnées', () => {
+  it('respecte le registre forcé ou le rabat sur figures quand il est non supporté', () => {
     forEachGeneratedItem((item) => {
       expect(REGISTERS).toContain(item.register);
       for (const cell of item.cells) {
         expect(cell.register).toBe(item.register);
+      }
+      if (
+        !isMatrixRegisterSupported(
+          item.structure,
+          item.variant,
+          item.level,
+          MatrixRegister.TRAITS,
+        )
+      ) {
+        expect(item.register).toBe(MatrixRegister.FIGURES);
       }
       if (item.structure === MatrixStructure.COMPOSITION) {
         expect(item.variant).not.toBeNull();
@@ -221,6 +234,14 @@ describe('generateMatrixItem — propriétés sur 500 tirages (5 structures × 2
       for (const cell of cells) {
         expect(cell.kind).toBe(MatrixCellKind.COMPOSITION);
         expect(cell.elements.length).toBeGreaterThan(0);
+        if (item.ruleSpec.variant !== MatrixCompositionVariant.EMBOITEMENT) {
+          expect(cell.elements.length).toBeLessThanOrEqual(5);
+        }
+      }
+      if (item.ruleSpec.variant === MatrixCompositionVariant.ADDITION) {
+        for (const cell of cells) {
+          expect(cell.elements.length).toBeLessThanOrEqual(4);
+        }
       }
       for (let row = 0; row < 3; row += 1) {
         const first = cells[row * 3];

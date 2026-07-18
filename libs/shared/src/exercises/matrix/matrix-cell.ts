@@ -146,6 +146,14 @@ export const MATRIX_STROKE_ELEMENTS: readonly MatrixElementId[] = [
   MatrixElementId.BAR_OBLIQUE_BACK,
 ];
 
+export const MATRIX_NESTABLE_ELEMENTS: readonly MatrixElementId[] = [
+  MatrixElementId.RING,
+  MatrixElementId.FRAME,
+  MatrixElementId.LOZENGE,
+  MatrixElementId.DELTA,
+  MatrixElementId.PELLET,
+];
+
 export interface MatrixCompositionCell {
   kind: MatrixCellKind.COMPOSITION;
   register: MatrixRegister;
