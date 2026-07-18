@@ -34,7 +34,7 @@
 
   <div class="mx__choices">
     <div class="mx__props">
-      @for (proposal of matrix().proposals; track $index) {
+      @for (proposal of item().proposals; track $index) {
         <button
           type="button"
           class="mx__prop"
@@ -60,6 +60,6 @@
         </button>
       }
     </div>
-    <span class="mx__help">A-F ou 1-6 pour répondre</span>
+    <span class="mx__help">A-D ou 1-4 pour répondre</span>
   </div>
 </div>

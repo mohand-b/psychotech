@@ -144,7 +144,7 @@
 
       <ui-logic-matrix
         #matrixBoard
-        [matrix]="matrix.matrix"
+        [item]="matrix"
         [selectedIndex]="answers()[currentIndex()]"
         [disabled]="locked()"
         [hint]="helpEnabled() ? currentHint() : null"

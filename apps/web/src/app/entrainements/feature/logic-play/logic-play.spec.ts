@@ -229,12 +229,12 @@ describe('LogicPlay (contenu v2)', () => {
     expect(chipValues).toEqual(['?', '?']);
   });
 
-  it('offers 6 matrix proposals selectable by click and keyboard', async () => {
+  it('offers 4 matrix proposals selectable by click and keyboard', async () => {
     const result = await setup();
     goToItem(result, 20);
     const proposals =
       result.element.querySelectorAll<HTMLButtonElement>('.mx__prop');
-    expect(proposals).toHaveLength(6);
+    expect(proposals).toHaveLength(4);
 
     proposals[2].click();
     result.fixture.detectChanges();
@@ -242,9 +242,9 @@ describe('LogicPlay (contenu v2)', () => {
       result.element.querySelectorAll('.mx__prop')[2].classList,
     ).toContain('mx__prop--selected');
 
-    pressKey(result.fixture, 'f');
+    pressKey(result.fixture, 'd');
     expect(
-      result.element.querySelectorAll('.mx__prop')[5].classList,
+      result.element.querySelectorAll('.mx__prop')[3].classList,
     ).toContain('mx__prop--selected');
 
     pressKey(result.fixture, '1');

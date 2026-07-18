@@ -87,7 +87,6 @@ export class LogicPlay {
   protected readonly axis = AxisType.LOGIC;
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
-  protected readonly choiceLetters = ['A', 'B', 'C', 'D'];
   protected readonly families = LogicFamily;
 
   protected readonly items = this.facade.logicItems;
@@ -461,20 +460,19 @@ export class LogicPlay {
       }
       return;
     }
-    const isNumeric = item.family === LogicFamily.NUMERIC;
-    const choiceCount = isNumeric
-      ? item.choices.length
-      : item.matrix.proposals.length;
+    const choiceCount =
+      item.family === LogicFamily.NUMERIC
+        ? item.choices.length
+        : item.proposals.length;
     const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();
       this.select(digit - 1);
       return;
     }
-    const letters = isNumeric
-      ? this.choiceLetters
-      : MATRIX_PROPOSAL_LETTERS;
-    const letterIndex = letters.indexOf(event.key.toUpperCase());
+    const letterIndex = MATRIX_PROPOSAL_LETTERS.indexOf(
+      event.key.toUpperCase(),
+    );
     if (letterIndex !== -1 && letterIndex < choiceCount) {
       event.preventDefault();
       this.select(letterIndex);

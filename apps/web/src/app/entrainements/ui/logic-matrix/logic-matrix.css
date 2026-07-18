@@ -76,7 +76,7 @@
 
 .mx__props {
   display: grid;
-  grid-template-columns: repeat(3, 118px);
+  grid-template-columns: repeat(4, 118px);
   gap: 12px;
 }
 
