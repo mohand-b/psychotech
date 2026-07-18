@@ -2,12 +2,14 @@ import {
   AxisProgressStatus,
   AxisType,
   ControlModality,
+  LogicFamilyFilter,
   RecommendationPriority,
   ScoreBand,
   Sector,
   SessionMode,
   SessionStatus,
 } from '../enums';
+import { DominoFace } from '../exercises/domino/domino-item';
 import {
   AxisMetrics,
   MotorSkillsCourseRecap,
@@ -19,6 +21,7 @@ import { BadgeDto } from './badge';
 
 export interface TargetedSessionOptionsDto {
   enabledOptions: TrainingOptionId[];
+  logicFamily?: LogicFamilyFilter | null;
 }
 
 export interface StartSessionDto {
@@ -31,6 +34,8 @@ export interface StartSessionDto {
 export interface LogicItemAnswerDto {
   index: number;
   answerIndex: number | null;
+  dominoTop?: DominoFace | null;
+  dominoBottom?: DominoFace | null;
   timeMs: number;
   helpUsed: boolean;
   visited: boolean;
@@ -136,6 +141,8 @@ interface TargetedAxisResultBaseDto {
 export interface TargetedLogicResultDto extends TargetedAxisResultBaseDto {
   axis: AxisType.LOGIC;
   items: LogicItemAnswerDto[];
+  contentVersion: number;
+  logicFamily: LogicFamilyFilter | null;
 }
 
 export interface TargetedMemoryResultDto extends TargetedAxisResultBaseDto {
@@ -192,6 +199,8 @@ export interface SessionDto {
   sector: Sector;
   status: SessionStatus;
   seed: string;
+  contentVersion: number;
+  logicFamily: LogicFamilyFilter | null;
   options: TargetedSessionOptionsDto;
   energyCost: number;
   currentAxisIndex: number;

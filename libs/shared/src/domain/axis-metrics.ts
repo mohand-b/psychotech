@@ -1,9 +1,16 @@
-import { AxisType, ControlModality } from '../enums';
+import { AxisType, ControlModality, LogicFamily } from '../enums';
+
+export interface LogicFamilyMetricsEntry {
+  family: LogicFamily;
+  errors: number;
+  timeMs: number;
+}
 
 export interface LogicMetrics {
   axis: AxisType.LOGIC;
   pointsEarned: number;
   itemsProcessed: number;
+  familyBreakdown?: LogicFamilyMetricsEntry[];
 }
 
 export interface MemoryMetrics {

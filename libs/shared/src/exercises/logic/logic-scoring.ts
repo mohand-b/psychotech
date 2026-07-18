@@ -36,20 +36,15 @@ function statusFor(
   return response.visited ? 'SKIPPED' : 'UNREACHED';
 }
 
-export function scoreLogicSession(
-  items: LogicItem[],
-  responses: LogicItemAnswerDto[],
+export function computeLogicScore(
+  statuses: LogicItemStatus[],
+  points: number[],
+  answerTimesMs: number[],
 ): LogicSessionScore {
-  const responseByIndex = new Map(
-    responses.map((response) => [response.index, response]),
-  );
-  const statuses = items.map((item) =>
-    statusFor(item, responseByIndex.get(item.index)),
-  );
-  const totalPoints = items.reduce((sum, item) => sum + item.points, 0);
-  const earnedPoints = items.reduce(
-    (sum, item, position) =>
-      statuses[position] === 'CORRECT' ? sum + item.points : sum,
+  const totalPoints = points.reduce((sum, value) => sum + value, 0);
+  const earnedPoints = points.reduce(
+    (sum, value, position) =>
+      statuses[position] === 'CORRECT' ? sum + value : sum,
     0,
   );
   const counts = {
@@ -60,9 +55,9 @@ export function scoreLogicSession(
   };
   const precision = totalPoints === 0 ? 0 : (earnedPoints / totalPoints) * 100;
   const coverage =
-    items.length === 0
+    statuses.length === 0
       ? 0
-      : ((items.length - counts.unreachedCount) / items.length) * 100;
+      : ((statuses.length - counts.unreachedCount) / statuses.length) * 100;
   const score = Math.round(
     Math.min(
       100,
@@ -72,17 +67,34 @@ export function scoreLogicSession(
       ),
     ),
   );
+  const avgAnswerTimeMs =
+    answerTimesMs.length === 0
+      ? null
+      : Math.round(
+          answerTimesMs.reduce((sum, timeMs) => sum + timeMs, 0) /
+            answerTimesMs.length,
+        );
+  return { score, precision, coverage, ...counts, statuses, avgAnswerTimeMs };
+}
+
+export function scoreLogicSession(
+  items: LogicItem[],
+  responses: LogicItemAnswerDto[],
+): LogicSessionScore {
+  const responseByIndex = new Map(
+    responses.map((response) => [response.index, response]),
+  );
+  const statuses = items.map((item) =>
+    statusFor(item, responseByIndex.get(item.index)),
+  );
   const answerTimes = responses
     .filter((response) => response.answerIndex !== null)
     .map((response) => response.timeMs);
-  const avgAnswerTimeMs =
-    answerTimes.length === 0
-      ? null
-      : Math.round(
-          answerTimes.reduce((sum, timeMs) => sum + timeMs, 0) /
-            answerTimes.length,
-        );
-  return { score, precision, coverage, ...counts, statuses, avgAnswerTimeMs };
+  return computeLogicScore(
+    statuses,
+    items.map((item) => item.points),
+    answerTimes,
+  );
 }
 
 export function avisFromScore(score: number): ScoreBand {
