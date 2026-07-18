@@ -12,8 +12,8 @@ import {
 } from './domino-rules';
 import { generateDominoItem } from './generate-domino-item';
 
-const LEVELS: DominoLevel[] = [1, 2, 3, 4, 5];
-const SEEDS_PER_LEVEL = 100;
+const LEVELS: DominoLevel[] = [1, 2, 3, 4];
+const SEEDS_PER_LEVEL = 125;
 
 function forEachGeneratedItem(check: (item: DominoItem) => void): void {
   for (const level of LEVELS) {
@@ -23,7 +23,7 @@ function forEachGeneratedItem(check: (item: DominoItem) => void): void {
   }
 }
 
-describe('generateDominoItem — propriétés sur 500 tirages (5 niveaux × 100 seeds)', () => {
+describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 seeds)', () => {
   it('produit une suite de 5 à 7 dominos aux faces 0-6, réponse comprise', () => {
     forEachGeneratedItem((item) => {
       expect(item.length).toBeGreaterThanOrEqual(5);
@@ -104,6 +104,7 @@ describe('generateDominoItem — propriétés sur 500 tirages (5 niveaux × 100 
             expect(kinds).toContain('CONSTANT');
             expect(kinds).toContain('STEP');
           }
+          expect(item.hasWrap).toBe(false);
           break;
         }
         case 2: {
@@ -129,18 +130,15 @@ describe('generateDominoItem — propriétés sur 500 tirages (5 niveaux × 100 
           }
           break;
         }
-        case 4:
-          expect(item.ruleSpec.pattern).toBe(DominoPattern.CROSS);
-          break;
-        case 5: {
-          const isInterleaved =
-            item.ruleSpec.pattern === DominoPattern.INTERLEAVED;
-          const isGrowing =
-            item.ruleSpec.pattern === DominoPattern.HALVES &&
-            [item.ruleSpec.top.kind, item.ruleSpec.bottom.kind].includes(
-              'GROWING_STEP',
-            );
-          expect(isInterleaved || isGrowing).toBe(true);
+        case 4: {
+          expect(item.ruleSpec.pattern).toBe(DominoPattern.HALVES);
+          if (item.ruleSpec.pattern === DominoPattern.HALVES) {
+            expect(
+              [item.ruleSpec.top.kind, item.ruleSpec.bottom.kind].includes(
+                'GROWING_STEP',
+              ),
+            ).toBe(true);
+          }
           break;
         }
       }

@@ -1,6 +1,6 @@
 export type DominoFace = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export type DominoLevel = 1 | 2 | 3 | 4 | 5;
+export type DominoLevel = 1 | 2 | 3 | 4;
 
 export interface DominoTile {
   top: DominoFace;

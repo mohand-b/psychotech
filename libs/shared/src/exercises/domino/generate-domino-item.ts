@@ -58,20 +58,34 @@ function orientedHalves(
   return rng.next() < 0.5 ? { top: main, bottom: other } : { top: other, bottom: main };
 }
 
+function wrapFreeStart(
+  step: 1 | -1,
+  length: number,
+  rng: SeededRng,
+): DominoFace {
+  const span = length - 1;
+  return (
+    step === 1 ? rng.nextInt(0, 6 - span) : rng.nextInt(span, 6)
+  ) as DominoFace;
+}
+
 function buildSpec(
   level: DominoLevel,
   rng: SeededRng,
-): { spec: DominoRuleSpec; length: number } {
+): { spec: DominoRuleSpec; length: number; stepStart: DominoFace | null } {
   switch (level) {
     case 1: {
+      const length = rng.nextInt(5, 7);
+      const step = rng.pick([1, -1] as const);
       const halves = orientedHalves(
-        { kind: 'STEP', step: rng.pick([1, 2]) },
+        { kind: 'STEP', step },
         { kind: 'CONSTANT', value: randomFace(rng) },
         rng,
       );
       return {
         spec: { pattern: DominoPattern.HALVES, ...halves },
-        length: rng.nextInt(5, 7),
+        length,
+        stepStart: wrapFreeStart(step, length, rng),
       };
     }
     case 2:
@@ -82,6 +96,7 @@ function buildSpec(
           bottom: { kind: 'STEP', step: rng.pick(ALL_STEPS) },
         },
         length: rng.nextInt(5, 7),
+        stepStart: null,
       };
     case 3: {
       const alternating: DominoHalfRule =
@@ -92,38 +107,10 @@ function buildSpec(
       return {
         spec: { pattern: DominoPattern.HALVES, ...halves },
         length: rng.nextInt(6, 7),
+        stepStart: null,
       };
     }
-    case 4:
-      return {
-        spec: {
-          pattern: DominoPattern.CROSS,
-          offset: rng.nextInt(-2, 2),
-          bottom: { kind: 'STEP', step: rng.pick(ALL_STEPS) },
-        },
-        length: rng.nextInt(5, 7),
-      };
-    case 5: {
-      if (rng.next() < 0.5) {
-        const even = {
-          topStep: rng.pick(ALL_STEPS),
-          bottomStep: rng.pick(ALL_STEPS),
-        };
-        let odd = {
-          topStep: rng.pick(ALL_STEPS),
-          bottomStep: rng.pick(ALL_STEPS),
-        };
-        if (odd.topStep === even.topStep && odd.bottomStep === even.bottomStep) {
-          odd = {
-            topStep: rng.pick(ALL_STEPS.filter((s) => s !== even.topStep)),
-            bottomStep: odd.bottomStep,
-          };
-        }
-        return {
-          spec: { pattern: DominoPattern.INTERLEAVED, even, odd },
-          length: 7,
-        };
-      }
+    case 4: {
       const halves = orientedHalves(
         { kind: 'GROWING_STEP', direction: rng.next() < 0.5 ? 1 : -1 },
         secondaryHalf(rng),
@@ -132,6 +119,7 @@ function buildSpec(
       return {
         spec: { pattern: DominoPattern.HALVES, ...halves },
         length: rng.nextInt(6, 7),
+        stepStart: null,
       };
     }
   }
@@ -213,13 +201,20 @@ export function generateDominoItem(
   const { level, seed } = options;
   for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
     const rng = createSeededRng(`${seed}::domino::${level}::${attempt}`);
-    const { spec, length } = buildSpec(level, rng);
+    const { spec, length, stepStart } = buildSpec(level, rng);
     const starts: DominoSequenceStarts = {
       top: randomFace(rng),
       bottom: randomFace(rng),
       oddTop: randomFace(rng),
       oddBottom: randomFace(rng),
     };
+    if (stepStart !== null && spec.pattern === DominoPattern.HALVES) {
+      if (spec.top.kind === 'STEP') {
+        starts.top = stepStart;
+      } else {
+        starts.bottom = stepStart;
+      }
+    }
     const { tiles } = buildDominoSequence(spec, starts, length);
     const visibleTiles = tiles.slice(0, -1);
     const answer = tiles[tiles.length - 1];
@@ -242,6 +237,9 @@ export function generateDominoItem(
     }
     const wrapIndices = dominoWrapIndices(spec, tiles);
     const visibleWrap = wrapIndices.some((index) => index <= visibleTiles.length - 1);
+    if (level === 1 && wrapIndices.length > 0) {
+      continue;
+    }
     if (level === 2 && !visibleWrap) {
       continue;
     }
