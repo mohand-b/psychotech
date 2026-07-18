@@ -1,6 +1,6 @@
 import { LogicFamily } from '../../enums';
 import { DominoItem } from '../domino';
-import { MatrixItem } from '../matrix';
+import { MatrixItem, MatrixProposal } from '../matrix';
 import { LogicDifficulty } from './logic-item';
 
 export interface LogicV2Rule {
@@ -31,6 +31,7 @@ export interface DominoLogicV2Item extends LogicV2ItemBase {
 export interface MatrixLogicV2Item extends LogicV2ItemBase {
   family: LogicFamily.MATRIX_I | LogicFamily.MATRIX_II;
   matrix: MatrixItem;
+  proposals: readonly MatrixProposal[];
   answerIndex: number;
 }
 

@@ -11,12 +11,13 @@ import { logicFamiliesForFilter } from './logic-family';
 import { LogicDifficulty } from './logic-item';
 import { resolveLogicRuleHint } from './logic-rule-hints';
 import { LOGIC_RULES } from './logic-rules';
-import { LogicV2Item } from './logic-v2-item';
+import { LogicV2Item, MatrixLogicV2Item } from './logic-v2-item';
 
 export const LOGIC_V2_LEVELS: readonly LogicDifficulty[] = [1, 2, 3, 4, 5];
 export const LOGIC_V2_BLOCK_SIZE = 10;
 export const LOGIC_V2_SESSION_SIZE = 40;
 export const LOGIC_V2_MAX_POINTS = 120;
+export const LOGIC_MATRIX_CHOICE_COUNT = 4;
 
 const DOMINO_MAX_LEVEL: DominoLevel = 4;
 
@@ -46,6 +47,43 @@ function itemsPerLevel(filter: LogicFamilyFilter | null): number {
     default:
       return 2;
   }
+}
+
+function buildMatrixLogicV2Item(
+  family: LogicFamily.MATRIX_I | LogicFamily.MATRIX_II,
+  level: LogicDifficulty,
+  index: number,
+  itemSeed: string,
+): MatrixLogicV2Item {
+  const catalogId =
+    family === LogicFamily.MATRIX_I
+      ? MATRIX_I_CATALOG_BY_LEVEL[level]
+      : MATRIX_II_CATALOG_BY_LEVEL[level];
+  const matrix = generateMatrixItemFromCatalog(catalogId, itemSeed);
+  const choicesRng = createSeededRng(`${itemSeed}::choices`);
+  const correct = matrix.proposals.filter(
+    (proposal) => proposal.kind === MatrixProposalKind.CORRECT,
+  );
+  const distractors = choicesRng
+    .shuffle(
+      matrix.proposals.filter(
+        (proposal) => proposal.kind !== MatrixProposalKind.CORRECT,
+      ),
+    )
+    .slice(0, LOGIC_MATRIX_CHOICE_COUNT - correct.length);
+  const proposals = choicesRng.shuffle([...correct, ...distractors]);
+  return {
+    index,
+    family,
+    difficulty: level,
+    points: level,
+    matrix,
+    proposals,
+    answerIndex: proposals.findIndex(
+      (proposal) => proposal.kind === MatrixProposalKind.CORRECT,
+    ),
+    rule: { ...matrix.rule },
+  };
 }
 
 interface LogicV2TutorialSlot {
@@ -100,22 +138,7 @@ export function generateLogicV2Tutorial(seed: string): LogicV2Item[] {
         rule: { ...domino.rule },
       };
     }
-    const catalogId =
-      slot.family === LogicFamily.MATRIX_I
-        ? MATRIX_I_CATALOG_BY_LEVEL[slot.level]
-        : MATRIX_II_CATALOG_BY_LEVEL[slot.level];
-    const matrix = generateMatrixItemFromCatalog(catalogId, itemSeed);
-    return {
-      index,
-      family: slot.family,
-      difficulty: slot.level,
-      points: slot.level,
-      matrix,
-      answerIndex: matrix.proposals.findIndex(
-        (proposal) => proposal.kind === MatrixProposalKind.CORRECT,
-      ),
-      rule: { ...matrix.rule },
-    };
+    return buildMatrixLogicV2Item(slot.family, slot.level, index, itemSeed);
   });
 }
 
@@ -173,22 +196,7 @@ export function generateLogicV2Session(
           });
           continue;
         }
-        const catalogId =
-          family === LogicFamily.MATRIX_I
-            ? MATRIX_I_CATALOG_BY_LEVEL[level]
-            : MATRIX_II_CATALOG_BY_LEVEL[level];
-        const matrix = generateMatrixItemFromCatalog(catalogId, itemSeed);
-        items.push({
-          index,
-          family,
-          difficulty: level,
-          points: level,
-          matrix,
-          answerIndex: matrix.proposals.findIndex(
-            (proposal) => proposal.kind === MatrixProposalKind.CORRECT,
-          ),
-          rule: { ...matrix.rule },
-        });
+        items.push(buildMatrixLogicV2Item(family, level, index, itemSeed));
       }
     }
   }

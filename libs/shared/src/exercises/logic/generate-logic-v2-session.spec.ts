@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { LogicFamily, LogicFamilyFilter } from '../../enums';
-import { MatrixRegister } from '../matrix';
+import { MatrixProposalKind, MatrixRegister } from '../matrix';
 import { LogicItemAnswerDto } from '../../dtos/session';
 import {
+  LOGIC_MATRIX_CHOICE_COUNT,
   LOGIC_V2_MAX_POINTS,
   LOGIC_V2_SESSION_SIZE,
   generateLogicV2Session,
@@ -38,13 +39,36 @@ function answerFor(
       ...overrides,
     };
   }
+  const choiceCount =
+    item.family === LogicFamily.NUMERIC
+      ? item.choices.length
+      : item.proposals.length;
   return {
     ...base,
     answerIndex: correct
       ? item.answerIndex
-      : (item.answerIndex + 1) % item.choices?.length ?? 0,
+      : (item.answerIndex + 1) % choiceCount,
     ...overrides,
   };
+}
+
+function expectFourProposalsWithSingleCorrect(items: LogicV2Item[]): number {
+  let matrixCount = 0;
+  for (const item of items) {
+    if (
+      item.family !== LogicFamily.MATRIX_I &&
+      item.family !== LogicFamily.MATRIX_II
+    ) {
+      continue;
+    }
+    matrixCount += 1;
+    expect(item.proposals).toHaveLength(LOGIC_MATRIX_CHOICE_COUNT);
+    const correctPositions = item.proposals.flatMap((proposal, position) =>
+      proposal.kind === MatrixProposalKind.CORRECT ? [position] : [],
+    );
+    expect(correctPositions).toEqual([item.answerIndex]);
+  }
+  return matrixCount;
 }
 
 describe('generateLogicV2Session — composition standard', () => {
@@ -118,6 +142,10 @@ describe('generateLogicV2Session — composition standard', () => {
     }
   });
 
+  it('réduit chaque matrice à 4 propositions dont une seule CORRECT à answerIndex', () => {
+    expect(expectFourProposalsWithSingleCorrect(items)).toBe(20);
+  });
+
   it('est strictement déterministe', () => {
     expect(generateLogicV2Session('compo-standard')).toEqual(items);
   });
@@ -179,6 +207,12 @@ describe('generateLogicV2Tutorial — composition mixte', () => {
     ]);
     expect(items.map((item) => item.difficulty)).toEqual([1, 2, 1, 1, 1]);
     expect(items.map((item) => item.index)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('réduit les matrices du tutoriel à 4 propositions dont une seule CORRECT', () => {
+    expect(
+      expectFourProposalsWithSingleCorrect(generateLogicV2Tutorial('tutoriel')),
+    ).toBe(2);
   });
 
   it('est strictement déterministe', () => {
