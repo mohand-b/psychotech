@@ -20,7 +20,7 @@ export const AXIS_TUTORIAL: {
     difficultyLevels: 5,
     briefing: {
       consigne:
-        'Complétez chaque suite logique en choisissant la bonne réponse. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
+        'Résolvez chaque item : suite, triangle, domino ou matrice, par choix de réponse ou saisie directe. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
       objectif: "Découvrir l'épreuve de raisonnement logique.",
     },
   },

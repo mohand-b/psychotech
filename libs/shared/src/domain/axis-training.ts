@@ -100,7 +100,7 @@ export const AXIS_TRAINING: {
     difficultyLevels: 5,
     briefing: {
       consigne:
-        'Complétez chaque suite logique en choisissant la bonne réponse. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
+        'Résolvez chaque item : suites, triangles, dominos et matrices, par choix de réponse ou saisie directe. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
       objectif: 'Raisonnement logique et gestion de votre temps.',
     },
   },

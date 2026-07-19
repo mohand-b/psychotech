@@ -5,14 +5,14 @@ export const LOGIC_CONTENT_VERSION_V3 = 3;
 export const LOGIC_CONTENT_VERSION_V2 = 2;
 
 export const LOGIC_FAMILY_LABELS: Record<LogicFamily, string> = {
-  [LogicFamily.NUMERIC]: 'Suites numériques',
+  [LogicFamily.NUMERIC]: 'Numérique',
   [LogicFamily.DOMINO]: 'Dominos',
   [LogicFamily.MATRIX_I]: 'Matrices — lecture',
   [LogicFamily.MATRIX_II]: 'Matrices — déduction',
 };
 
 export const LOGIC_FAMILY_FILTER_LABELS: Record<LogicFamilyFilter, string> = {
-  [LogicFamilyFilter.NUMERIC]: 'Suites numériques',
+  [LogicFamilyFilter.NUMERIC]: 'Numérique (suites + triangles)',
   [LogicFamilyFilter.DOMINO]: 'Dominos',
   [LogicFamilyFilter.MATRIX]: 'Matrices',
 };
