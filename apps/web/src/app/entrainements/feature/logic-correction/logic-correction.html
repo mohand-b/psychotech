@@ -23,7 +23,7 @@
     >
   </header>
 
-  @switch (item.family) { @case (families.NUMERIC) { @if (numericItem(); as
+  @switch (item.family) { @case (families.NUMERIC) { @if (sequenceItem(); as
   numeric) {
   <ui-logic-sequence #sequence [terms]="numeric.sequence" [hint]="hint()" />
 
@@ -33,6 +33,51 @@
     [correctIndex]="numeric.answerIndex"
     [userAnswerIndex]="userAnswerIndex()"
   />
+  } @if (triangleItem(); as triangle) {
+  <div class="corr-tri">
+    <div class="corr-tri__seq">
+      <ui-triangle-series
+        [triangles]="triangle.triangle.triangles"
+        [missing]="triangle.triangle.missing"
+        [answerValue]="null"
+        [tileSize]="88"
+      />
+      @if (triangleCorrectView(); as correct) {
+      <span class="corr-tri__answer">
+        <span class="corr-tri__tile corr-tri__tile--correct">
+          <ui-triangle-tile
+            [top]="correct.top"
+            [left]="correct.left"
+            [right]="correct.right"
+            [center]="correct.center"
+            [size]="88"
+            [accentSlot]="triangle.triangle.missing.slot"
+          />
+        </span>
+        <span class="corr-tri__caption corr-tri__caption--correct"
+          >Bonne réponse</span
+        >
+      </span>
+      } @if (triangleUserView(); as user) {
+      <span class="corr-tri__answer">
+        <span class="corr-tri__tile corr-tri__tile--wrong">
+          <ui-triangle-tile
+            [top]="user.top"
+            [left]="user.left"
+            [right]="user.right"
+            [center]="user.center"
+            [size]="88"
+            [accentSlot]="triangle.triangle.missing.slot"
+          />
+        </span>
+        <span class="corr-tri__caption corr-tri__caption--wrong"
+          >Votre réponse</span
+        >
+      </span>
+      }
+    </div>
+    <p class="corr__rule">{{ item.rule.userText }}</p>
+  </div>
   } } @case (families.DOMINO) { @if (dominoItem(); as domino) {
   <div class="corr-dom">
     <div class="corr-dom__seq">

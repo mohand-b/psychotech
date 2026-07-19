@@ -2,6 +2,7 @@ import {
   LOGIC_CONTENT_VERSION_V2,
   LogicFamily,
   LogicItem,
+  LogicNumericStructure,
   LogicV2Item,
   TargetedLogicResultDto,
   generateLogicSession,
@@ -14,13 +15,18 @@ export function logicItemsForResult(
   result: TargetedLogicResultDto,
 ): LogicV2Item[] {
   return result.contentVersion >= LOGIC_CONTENT_VERSION_V2
-    ? generateLogicV2Session(result.seed, result.logicFamily)
+    ? generateLogicV2Session(
+        result.seed,
+        result.logicFamily,
+        result.contentVersion,
+      )
     : logicV1ToV2Items(generateLogicSession(result.seed), resolveLogicRuleHint);
 }
 
 export function logicAnalyzerItems(items: LogicV2Item[]): LogicItem[] {
   return items.map((item) =>
-    item.family === LogicFamily.NUMERIC
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.SEQUENCE
       ? {
           index: item.index,
           ruleId: item.rule.id,

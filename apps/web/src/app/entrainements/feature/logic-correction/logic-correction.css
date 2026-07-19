@@ -128,6 +128,59 @@
   color: var(--danger-text);
 }
 
+.corr-tri {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.corr-tri__seq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.corr-tri__answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.corr-tri__tile {
+  display: inline-flex;
+  padding: 6px 8px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.corr-tri__tile--correct {
+  border-color: var(--secondary);
+  background: var(--secondary-pastel);
+  --triangle-accent: var(--secondary-label);
+}
+
+.corr-tri__tile--wrong {
+  border-color: var(--danger);
+  background: var(--danger-pastel);
+  --triangle-accent: var(--danger-text);
+}
+
+.corr-tri__caption {
+  font: 600 11px/14px var(--font-ui);
+}
+
+.corr-tri__caption--correct {
+  color: var(--secondary-label);
+}
+
+.corr-tri__caption--wrong {
+  color: var(--danger-text);
+}
+
 .corr-mx {
   display: flex;
   flex-direction: column;
@@ -221,5 +274,14 @@
   .corr-mx__cell {
     width: 58px;
     height: 58px;
+  }
+
+  .corr-tri__seq {
+    gap: 10px;
+  }
+
+  .corr-tri__seq ui-triangle-series,
+  .corr-tri__answer {
+    --triangle-tile-width: 68px;
   }
 }

@@ -12,6 +12,7 @@ import {
   DominoFace,
   LogicFamily,
   LogicItemStatus,
+  LogicNumericStructure,
   TargetedLogicResultDto,
   scoreLogicV2Session,
 } from '@psychotech/shared';
@@ -19,6 +20,12 @@ import { ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { MatrixCell } from '../../../shared/ui/matrix/matrix-cell';
+import {
+  TriangleDisplayValues,
+  TriangleSeries,
+  triangleDisplayValues,
+} from '../../../shared/ui/triangle/triangle-series';
+import { TriangleTile } from '../../../shared/ui/triangle/triangle-tile';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
@@ -82,6 +89,8 @@ interface DominoUserAnswer {
     LogicChoices,
     LogicSequence,
     MatrixCell,
+    TriangleSeries,
+    TriangleTile,
   ],
   templateUrl: './logic-correction.html',
   styleUrl: './logic-correction.css',
@@ -156,10 +165,57 @@ export class LogicCorrection {
     () => this.items()[this.currentIndex()] ?? null,
   );
 
-  protected readonly numericItem = computed(() => {
+  protected readonly sequenceItem = computed(() => {
     const item = this.currentItem();
-    return item?.family === LogicFamily.NUMERIC ? item : null;
+    return item?.family === LogicFamily.NUMERIC &&
+      item.structure === LogicNumericStructure.SEQUENCE
+      ? item
+      : null;
   });
+
+  protected readonly triangleItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.NUMERIC &&
+      item.structure === LogicNumericStructure.TRIANGLE
+      ? item
+      : null;
+  });
+
+  protected readonly triangleCorrectView =
+    computed<TriangleDisplayValues | null>(() => {
+      const item = this.triangleItem();
+      if (!item) {
+        return null;
+      }
+      const missing = item.triangle.missing;
+      return triangleDisplayValues(
+        item.triangle.triangles[missing.triangleIndex],
+        missing.slot,
+        item.answer,
+      );
+    });
+
+  protected readonly triangleUserView =
+    computed<TriangleDisplayValues | null>(() => {
+      const item = this.triangleItem();
+      const value = this.responseByIndex().get(
+        this.currentIndex(),
+      )?.numericValue;
+      if (
+        !item ||
+        value === null ||
+        value === undefined ||
+        value === item.answer
+      ) {
+        return null;
+      }
+      const missing = item.triangle.missing;
+      return triangleDisplayValues(
+        item.triangle.triangles[missing.triangleIndex],
+        missing.slot,
+        value,
+      );
+    });
 
   protected readonly dominoItem = computed(() => {
     const item = this.currentItem();

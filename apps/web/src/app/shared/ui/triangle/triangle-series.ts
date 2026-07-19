@@ -11,14 +11,14 @@ import {
 } from '@psychotech/shared';
 import { TriangleTile } from './triangle-tile';
 
-interface TriangleDisplayValues {
+export interface TriangleDisplayValues {
   top: number | null;
   left: number | null;
   right: number | null;
   center: number | null;
 }
 
-function withMissingSlot(
+export function triangleDisplayValues(
   values: TriangleValues,
   slot: TriangleSlot,
   answerValue: number | null,
@@ -45,6 +45,9 @@ function withMissingSlot(
             [right]="view.right"
             [center]="view.center"
             [size]="tileSize()"
+            [accentSlot]="
+              $index === missing().triangleIndex ? missing().slot : null
+            "
           />
           @if (annotations(); as notes) {
             <span class="series__note t-mono">{{ notes[$index] }}</span>
@@ -57,6 +60,7 @@ function withMissingSlot(
     .series {
       display: flex;
       align-items: flex-start;
+      justify-content: center;
       gap: 16px;
       flex-wrap: wrap;
     }
@@ -84,7 +88,7 @@ export class TriangleSeries {
     const missing = this.missing();
     return this.triangles().map((triangle, index) =>
       index === missing.triangleIndex
-        ? withMissingSlot(triangle, missing.slot, this.answerValue())
+        ? triangleDisplayValues(triangle, missing.slot, this.answerValue())
         : triangle,
     );
   });

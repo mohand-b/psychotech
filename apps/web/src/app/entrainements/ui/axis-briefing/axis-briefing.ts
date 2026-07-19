@@ -40,7 +40,7 @@ const LOGIC_FAMILY_CHOICES: FamilyChoice[] = [
 ];
 
 const LOGIC_FAMILY_VOLUME_LABELS: Record<LogicFamilyFilter, string> = {
-  [LogicFamilyFilter.NUMERIC]: 'items · Suites numériques',
+  [LogicFamilyFilter.NUMERIC]: 'items · Numérique (suites + triangles)',
   [LogicFamilyFilter.DOMINO]: 'items · Dominos',
   [LogicFamilyFilter.MATRIX]: 'items · Matrices (20 + 20)',
 };

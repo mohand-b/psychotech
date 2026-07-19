@@ -118,7 +118,11 @@ export class TrainingSessionFacade {
   }
 
   protected logicV2ItemsFor(session: SessionDto): LogicV2Item[] {
-    return generateLogicV2Session(session.seed, session.logicFamily);
+    return generateLogicV2Session(
+      session.seed,
+      session.logicFamily,
+      session.contentVersion,
+    );
   }
 
   readonly logicItems: Signal<LogicV2Item[]> = computed(() => {

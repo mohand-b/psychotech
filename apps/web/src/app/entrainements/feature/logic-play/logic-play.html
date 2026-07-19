@@ -36,7 +36,9 @@
   >
     <article
       class="play__card"
-      [class.play__card--domino]="dominoItem() !== null"
+      [class.play__card--domino]="
+        dominoItem() !== null || triangleItem() !== null
+      "
       [class.play__card--matrix]="matrixItem() !== null"
     >
       @switch (item.family) { @case (families.DOMINO) { @if (dominoItem(); as
@@ -86,7 +88,44 @@
         (cleared)="clearDominoAnswer()"
         (hintOpened)="markHelpUsed()"
       />
-      } } @case (families.NUMERIC) { @if (numericItem(); as numeric) {
+      } } @case (families.NUMERIC) { @switch (numericStructure()) { @case
+      (structures.TRIANGLE) { @if (triangleItem(); as triangle) {
+      <header class="play__fam-head">
+        <div class="play__fam-lead">
+          <span class="play__fam-badge">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3.5 21 20H3Z"></path>
+            </svg>
+            Triangles
+          </span>
+          <span class="play__fam-consigne">Trouvez la valeur manquante</span>
+        </div>
+        <span class="play__card-count t-mono"
+          >{{ currentIndex() + 1 }}/{{ items().length }}</span
+        >
+      </header>
+
+      <ui-logic-triangle
+        #triangleBoard
+        [item]="triangle.triangle"
+        [value]="currentNumericValue()"
+        [disabled]="locked()"
+        [hint]="helpEnabled() ? currentHint() : null"
+        [hintUsed]="currentHelpUsed()"
+        (valueChange)="setNumericAnswer($event)"
+        (hintOpened)="markHelpUsed()"
+      />
+      } } @default { @if (sequenceItem(); as numeric) {
       <header class="play__card-head">
         <span class="t-label">Complétez la suite</span>
         <span class="play__card-count t-mono"
@@ -110,7 +149,7 @@
       />
 
       <span class="play__card-hint">A–D ou 1–4 pour répondre</span>
-      } } @default { @if (matrixItem(); as matrix) {
+      } } } } @default { @if (matrixItem(); as matrix) {
       <header class="play__fam-head">
         <div class="play__fam-lead">
           <span class="play__fam-badge">

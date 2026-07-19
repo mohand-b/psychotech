@@ -13,6 +13,8 @@ import {
   DominoFace,
   LogicFamily,
   LogicItemAnswerDto,
+  LogicNumericStructure,
+  LogicV2Item,
   SessionDto,
   SessionMode,
   SessionStatus,
@@ -43,6 +45,11 @@ import {
   MATRIX_PROPOSAL_LETTERS,
 } from '../../ui/logic-matrix/logic-matrix';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
+import { LogicTriangle } from '../../ui/logic-triangle/logic-triangle';
+import {
+  appendTriangleInputDigit,
+  eraseTriangleInputDigit,
+} from '../../../shared/ui/triangle/triangle-input';
 
 interface DominoAnswer {
   top: DominoFace | null;
@@ -51,8 +58,15 @@ interface DominoAnswer {
 
 const EMPTY_DOMINO_ANSWER: DominoAnswer = { top: null, bottom: null };
 
+function isTriangleItem(item: LogicV2Item | null): boolean {
+  return (
+    item?.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE
+  );
+}
+
 const SEGMENT_LABELS: Record<LogicFamily, string> = {
-  [LogicFamily.NUMERIC]: 'Suites numériques',
+  [LogicFamily.NUMERIC]: 'Numérique',
   [LogicFamily.DOMINO]: 'Dominos',
   [LogicFamily.MATRIX_I]: 'Matrices I',
   [LogicFamily.MATRIX_II]: 'Matrices II',
@@ -70,6 +84,7 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
     LogicDomino,
     LogicMatrix,
     LogicSequence,
+    LogicTriangle,
   ],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
@@ -88,6 +103,7 @@ export class LogicPlay {
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly families = LogicFamily;
+  protected readonly structures = LogicNumericStructure;
 
   protected readonly items = this.facade.logicItems;
   protected readonly remainingSec = this.facade.remainingSec;
@@ -99,6 +115,9 @@ export class LogicPlay {
   protected readonly countingDown = signal(true);
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
+  protected readonly numericAnswers = signal<Record<number, number | null>>(
+    {},
+  );
   protected readonly dominoAnswers = signal<Record<number, DominoAnswer>>({});
   protected readonly activeFace = signal<DominoAnswerFace>('top');
   protected readonly submitting = signal(false);
@@ -112,6 +131,7 @@ export class LogicPlay {
   private readonly sequence = viewChild<LogicSequence>('sequence');
   private readonly dominoBoard = viewChild<LogicDomino>('dominoBoard');
   private readonly matrixBoard = viewChild<LogicMatrix>('matrixBoard');
+  private readonly triangleBoard = viewChild<LogicTriangle>('triangleBoard');
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
@@ -121,9 +141,23 @@ export class LogicPlay {
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
   );
-  protected readonly numericItem = computed(() => {
+  protected readonly numericStructure = computed(() => {
     const item = this.currentItem();
-    return item?.family === LogicFamily.NUMERIC ? item : null;
+    return item?.family === LogicFamily.NUMERIC ? item.structure : null;
+  });
+  protected readonly sequenceItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.NUMERIC &&
+      item.structure === LogicNumericStructure.SEQUENCE
+      ? item
+      : null;
+  });
+  protected readonly triangleItem = computed(() => {
+    const item = this.currentItem();
+    return item?.family === LogicFamily.NUMERIC &&
+      item.structure === LogicNumericStructure.TRIANGLE
+      ? item
+      : null;
   });
   protected readonly dominoItem = computed(() => {
     const item = this.currentItem();
@@ -138,6 +172,9 @@ export class LogicPlay {
   });
   protected readonly currentDominoAnswer = computed(
     () => this.dominoAnswers()[this.currentIndex()] ?? EMPTY_DOMINO_ANSWER,
+  );
+  protected readonly currentNumericValue = computed(
+    () => this.numericAnswers()[this.currentIndex()] ?? null,
   );
   protected readonly currentHint = computed(
     () => this.currentItem()?.rule.userText ?? '',
@@ -232,6 +269,9 @@ export class LogicPlay {
         answer !== undefined && answer.top !== null && answer.bottom !== null
       );
     }
+    if (isTriangleItem(item)) {
+      return (this.numericAnswers()[index] ?? null) !== null;
+    }
     return this.answers()[index] !== undefined;
   }
 
@@ -270,6 +310,13 @@ export class LogicPlay {
           dominoBottom: answer?.bottom ?? null,
         };
       }
+      if (isTriangleItem(item)) {
+        return {
+          ...base,
+          answerIndex: null,
+          numericValue: this.numericAnswers()[index] ?? null,
+        };
+      }
       return { ...base, answerIndex: this.answers()[index] ?? null };
     });
     this.facade.completeTargeted(payload).subscribe({
@@ -288,6 +335,24 @@ export class LogicPlay {
     }
     const index = this.currentIndex();
     this.answers.update((answers) => ({ ...answers, [index]: choiceIndex }));
+  }
+
+  protected setNumericAnswer(value: number | null): void {
+    if (this.locked() || !this.loaded() || !this.triangleItem()) {
+      return;
+    }
+    const index = this.currentIndex();
+    this.numericAnswers.update((answers) => ({ ...answers, [index]: value }));
+  }
+
+  private enterNumericDigit(digit: number): void {
+    this.setNumericAnswer(
+      appendTriangleInputDigit(this.currentNumericValue(), digit),
+    );
+  }
+
+  private eraseNumericDigit(): void {
+    this.setNumericAnswer(eraseTriangleInputDigit(this.currentNumericValue()));
   }
 
   protected selectFace(face: DominoAnswerFace): void {
@@ -390,7 +455,8 @@ export class LogicPlay {
     return (
       (this.sequence()?.hintOpen() ||
         this.dominoBoard()?.hintOpen() ||
-        this.matrixBoard()?.hintOpen()) ??
+        this.matrixBoard()?.hintOpen() ||
+        this.triangleBoard()?.hintOpen()) ??
       false
     );
   }
@@ -399,12 +465,14 @@ export class LogicPlay {
     this.sequence()?.toggle();
     this.dominoBoard()?.toggleHint();
     this.matrixBoard()?.toggleHint();
+    this.triangleBoard()?.toggleHint();
   }
 
   private closeHint(returnFocus = false): void {
     this.sequence()?.close(returnFocus);
     this.dominoBoard()?.closeHint(returnFocus);
     this.matrixBoard()?.closeHint(returnFocus);
+    this.triangleBoard()?.closeHint(returnFocus);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
@@ -460,10 +528,22 @@ export class LogicPlay {
       }
       return;
     }
+    if (this.triangleItem()) {
+      if (event.key === 'Backspace') {
+        event.preventDefault();
+        this.eraseNumericDigit();
+        return;
+      }
+      if (/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+        this.enterNumericDigit(Number(event.key));
+      }
+      return;
+    }
+    const sequence = this.sequenceItem();
+    const matrix = this.matrixItem();
     const choiceCount =
-      item.family === LogicFamily.NUMERIC
-        ? item.choices.length
-        : item.proposals.length;
+      sequence?.choices.length ?? matrix?.proposals.length ?? 0;
     const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();

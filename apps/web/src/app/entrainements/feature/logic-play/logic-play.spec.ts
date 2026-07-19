@@ -9,10 +9,16 @@ import {
   AxisType,
   CompleteTargetedSessionDto,
   LOGIC_CONTENT_VERSION_V2,
+  LOGIC_CONTENT_VERSION_V3,
+  LogicFamily,
+  LogicNumericStructure,
   Sector,
   SessionDto,
   SessionMode,
   SessionStatus,
+  TrainingOptionId,
+  TriangleSlot,
+  generateLogicV2Session,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -73,9 +79,9 @@ interface Setup {
   navigate: ReturnType<typeof vi.spyOn>;
 }
 
-async function setup(): Promise<Setup> {
+async function setup(overrides: Partial<SessionDto> = {}): Promise<Setup> {
   const completeTargeted = vi.fn(() =>
-    of(buildSession({ status: SessionStatus.COMPLETED })),
+    of(buildSession({ ...overrides, status: SessionStatus.COMPLETED })),
   );
   await TestBed.configureTestingModule({
     imports: [LogicPlay],
@@ -98,7 +104,7 @@ async function setup(): Promise<Setup> {
       },
     ],
   }).compileComponents();
-  TestBed.inject(TrainingSessionStore).setSession(buildSession());
+  TestBed.inject(TrainingSessionStore).setSession(buildSession(overrides));
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(LogicPlay);
@@ -145,9 +151,7 @@ describe('LogicPlay (contenu v2)', () => {
     groups.forEach((group) => {
       expect(group.querySelectorAll('.band__seg')).toHaveLength(10);
     });
-    expect(groups[0].getAttribute('title')).toBe(
-      'Suites numériques · items 1 à 10',
-    );
+    expect(groups[0].getAttribute('title')).toBe('Numérique · items 1 à 10');
     expect(groups[1].getAttribute('title')).toBe('Dominos · items 11 à 20');
     expect(groups[2].getAttribute('title')).toBe('Matrices I · items 21 à 30');
     expect(groups[3].getAttribute('title')).toBe('Matrices II · items 31 à 40');
@@ -302,6 +306,187 @@ describe('LogicPlay (contenu v2)', () => {
   });
 });
 
+const SLOT_ATTRIBUTES: Record<TriangleSlot, string> = {
+  [TriangleSlot.TOP]: 'top',
+  [TriangleSlot.LEFT]: 'left',
+  [TriangleSlot.RIGHT]: 'right',
+  [TriangleSlot.CENTER]: 'center',
+};
+
+const V3_OVERRIDES: Partial<SessionDto> = {
+  contentVersion: LOGIC_CONTENT_VERSION_V3,
+};
+
+const v3BlockOne = generateLogicV2Session(
+  'seed-logic-v2',
+  null,
+  LOGIC_CONTENT_VERSION_V3,
+).slice(0, 10);
+
+const v3Triangles = v3BlockOne.flatMap((item, index) =>
+  item.family === LogicFamily.NUMERIC &&
+  item.structure === LogicNumericStructure.TRIANGLE
+    ? [{ item, index }]
+    : [],
+);
+
+const v3SequenceIndex = v3BlockOne.findIndex(
+  (item) =>
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.SEQUENCE,
+);
+
+function padField(element: HTMLElement): HTMLInputElement {
+  return element.querySelector('.pad__field') as HTMLInputElement;
+}
+
+describe('LogicPlay (triangles v3)', () => {
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  afterEach(() => {
+    TestBed.inject(TrainingSessionStore).setSession(null);
+    TestBed.resetTestingModule();
+  });
+
+  it('alternates sequences and triangles inside the first block', async () => {
+    expect(v3BlockOne.every((item) => item.family === LogicFamily.NUMERIC)).toBe(
+      true,
+    );
+    expect(v3Triangles).toHaveLength(5);
+    expect(v3SequenceIndex).not.toBe(-1);
+
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, v3SequenceIndex);
+    expect(result.element.querySelector('ui-logic-sequence')).not.toBeNull();
+
+    goToItem(result, v3Triangles[0].index);
+    expect(result.element.querySelector('ui-logic-triangle')).not.toBeNull();
+    expect(result.element.textContent).toContain('Trouvez la valeur manquante');
+    expect(result.element.textContent).toContain('Triangles');
+  });
+
+  it('renders the missing slot at the center and at a vertex', async () => {
+    const centerEntry = v3Triangles.find(
+      (entry) => entry.item.triangle.missing.slot === TriangleSlot.CENTER,
+    );
+    const vertexEntry = v3Triangles.find(
+      (entry) => entry.item.triangle.missing.slot !== TriangleSlot.CENTER,
+    );
+    expect(centerEntry).toBeDefined();
+    expect(vertexEntry).toBeDefined();
+
+    const result = await setup(V3_OVERRIDES);
+    for (const entry of [centerEntry, vertexEntry]) {
+      if (!entry) {
+        continue;
+      }
+      goToItem(result, entry.index);
+      const attribute = SLOT_ATTRIBUTES[entry.item.triangle.missing.slot];
+      const unknowns = result.element.querySelectorAll(
+        `ui-logic-triangle .value--unknown`,
+      );
+      expect(unknowns).toHaveLength(1);
+      expect(unknowns[0].getAttribute('data-slot')).toBe(attribute);
+      expect(unknowns[0].textContent?.trim()).toBe('?');
+    }
+  });
+
+  it('builds multi-digit answers from the keyboard and erases with backspace', async () => {
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, v3Triangles[0].index);
+    expect(nextButton(result.element).disabled).toBe(true);
+
+    pressKey(result.fixture, '1');
+    expect(padField(result.element).value).toBe('1');
+    expect(nextButton(result.element).disabled).toBe(false);
+
+    pressKey(result.fixture, '2');
+    expect(padField(result.element).value).toBe('12');
+
+    pressKey(result.fixture, 'Backspace');
+    expect(padField(result.element).value).toBe('1');
+
+    pressKey(result.fixture, 'Backspace');
+    expect(padField(result.element).value).toBe('');
+    expect(nextButton(result.element).disabled).toBe(true);
+  });
+
+  it('accepts pad clicks and clears the value', async () => {
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, v3Triangles[0].index);
+    const keys =
+      result.element.querySelectorAll<HTMLButtonElement>('.pad__key');
+    expect(keys).toHaveLength(10);
+
+    keys[6].click();
+    result.fixture.detectChanges();
+    expect(padField(result.element).value).toBe('7');
+    expect(nextButton(result.element).disabled).toBe(false);
+
+    (
+      result.element.querySelector('.pad__clear') as HTMLButtonElement
+    ).click();
+    result.fixture.detectChanges();
+    expect(padField(result.element).value).toBe('');
+  });
+
+  it('submits the triangle value as numericValue in the payload', async () => {
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, v3Triangles[0].index);
+    pressKey(result.fixture, '7');
+
+    goToItem(result, 39);
+    pressKey(result.fixture, '1');
+    pressKey(result.fixture, 'Enter');
+
+    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    const [, , body] = result.completeTargeted.mock.calls[0] as [
+      string,
+      AxisType,
+      CompleteTargetedSessionDto,
+    ];
+    const items = body.items ?? [];
+    expect(items[v3Triangles[0].index]).toMatchObject({
+      index: v3Triangles[0].index,
+      answerIndex: null,
+      numericValue: 7,
+    });
+    expect(items[v3SequenceIndex].numericValue).toBeUndefined();
+  });
+
+  it('opens the rule hint on a triangle and marks the help as used', async () => {
+    const result = await setup({
+      ...V3_OVERRIDES,
+      options: { enabledOptions: [TrainingOptionId.LOGIC_HELP] },
+    });
+    goToItem(result, v3Triangles[0].index);
+
+    pressKey(result.fixture, 'h');
+    const pop = result.element.querySelector('.hint__pop');
+    expect(pop?.textContent).toContain(
+      v3Triangles[0].item.rule.userText,
+    );
+
+    pressKey(result.fixture, 'Escape');
+    expect(result.element.querySelector('.hint__pop')).toBeNull();
+    expect(
+      result.element.querySelector('.hint__bulb')?.classList,
+    ).toContain('hint__bulb--used');
+
+    goToItem(result, 39);
+    pressKey(result.fixture, '1');
+    pressKey(result.fixture, 'Enter');
+    const [, , body] = result.completeTargeted.mock.calls[0] as [
+      string,
+      AxisType,
+      CompleteTargetedSessionDto,
+    ];
+    expect((body.items ?? [])[v3Triangles[0].index].helpUsed).toBe(true);
+  });
+});
+
 async function setupTutorial(): Promise<Setup> {
   TestBed.resetTestingModule();
   const completeTargeted = vi.fn();
@@ -349,12 +534,16 @@ describe('LogicPlay (tutoriel mixte)', () => {
     TestBed.resetTestingModule();
   });
 
-  it('renders five mixed items covering the three families', async () => {
+  it('renders five mixed items covering the four boards', async () => {
     const result = await setupTutorial();
     expect(result.element.querySelectorAll('.band__seg')).toHaveLength(5);
     expect(result.element.querySelectorAll('.band__group')).toHaveLength(4);
 
     expect(result.element.querySelector('ui-logic-sequence')).not.toBeNull();
+
+    goToItem(result, 1);
+    expect(result.element.querySelector('ui-logic-triangle')).not.toBeNull();
+    expect(result.element.textContent).toContain('Trouvez la valeur manquante');
 
     goToItem(result, 2);
     expect(result.element.querySelector('ui-logic-domino')).not.toBeNull();
@@ -385,6 +574,7 @@ describe('LogicPlay (tutoriel mixte)', () => {
     expect(run?.axis).toBe(AxisType.LOGIC);
     if (run?.axis === AxisType.LOGIC) {
       expect(run.items).toHaveLength(5);
+      expect(run.items[1]).toMatchObject({ answerIndex: null, numericValue: 2 });
       expect(run.items[2]).toMatchObject({ dominoTop: 3, dominoBottom: 4 });
       expect(run.items[3]).toMatchObject({ answerIndex: 0 });
     }

@@ -1,0 +1,29 @@
+<div class="tri">
+  <div class="tri__board">
+    <ui-triangle-series
+      [triangles]="item().triangles"
+      [missing]="item().missing"
+      [answerValue]="value()"
+    />
+    @if (hint(); as hintText) {
+      <ui-rule-hint
+        #ruleHint
+        [hint]="hintText"
+        [used]="hintUsed()"
+        (opened)="hintOpened.emit()"
+      />
+    }
+  </div>
+
+  <div class="tri__entry">
+    <ui-triangle-input
+      [value]="value()"
+      [disabled]="disabled()"
+      (valueChange)="onValueChange($event)"
+    />
+    <span class="tri__help"
+      >Tapez le nombre manquant — chiffres au clavier, Retour arrière pour
+      corriger</span
+    >
+  </div>
+</div>

@@ -3,23 +3,21 @@ import {
   Component,
   input,
 } from '@angular/core';
+import { TriangleSlot } from '@psychotech/shared';
 
 @Component({
   selector: 'ui-triangle-tile',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[style.--triangle-tile-default]': 'size() + "px"' },
   template: `
-    <svg
-      [attr.width]="size()"
-      [attr.height]="size() * (112 / 120)"
-      viewBox="0 0 120 112"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 120 112" aria-hidden="true">
       <polygon points="60,24 26,90 94,90" class="frame" />
       <text
         x="60"
         y="11"
         class="value value--vertex"
         [class.value--unknown]="top() === null"
+        [class.value--accent]="accentSlot() === slots.TOP"
         data-slot="top"
       >
         {{ top() ?? '?' }}
@@ -29,6 +27,7 @@ import {
         y="100"
         class="value value--vertex"
         [class.value--unknown]="left() === null"
+        [class.value--accent]="accentSlot() === slots.LEFT"
         data-slot="left"
       >
         {{ left() ?? '?' }}
@@ -38,6 +37,7 @@ import {
         y="100"
         class="value value--vertex"
         [class.value--unknown]="right() === null"
+        [class.value--accent]="accentSlot() === slots.RIGHT"
         data-slot="right"
       >
         {{ right() ?? '?' }}
@@ -47,6 +47,7 @@ import {
         y="72"
         class="value value--center"
         [class.value--unknown]="center() === null"
+        [class.value--accent]="accentSlot() === slots.CENTER"
         data-slot="center"
       >
         {{ center() ?? '?' }}
@@ -60,6 +61,9 @@ import {
     }
     svg {
       display: block;
+      width: var(--triangle-tile-width, var(--triangle-tile-default));
+      aspect-ratio: 120 / 112;
+      height: auto;
     }
     .frame {
       fill: var(--card);
@@ -76,8 +80,9 @@ import {
     .value--center {
       font-size: 12px;
     }
-    .value--unknown {
-      fill: var(--axis-logic);
+    .value--unknown,
+    .value--accent {
+      fill: var(--triangle-accent, var(--axis-logic));
     }
   `,
 })
@@ -87,4 +92,7 @@ export class TriangleTile {
   readonly right = input.required<number | null>();
   readonly center = input.required<number | null>();
   readonly size = input(100);
+  readonly accentSlot = input<TriangleSlot | null>(null);
+
+  protected readonly slots = TriangleSlot;
 }
