@@ -127,7 +127,7 @@ describe('AxisStart - option Familles', () => {
     const chips = familyChips(result.element);
     expect(chips.map((chip) => chip.textContent?.trim())).toEqual([
       'Tous les blocs',
-      'Suites numériques',
+      'Numérique (suites + triangles)',
       'Dominos',
       'Matrices',
     ]);

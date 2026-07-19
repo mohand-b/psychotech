@@ -103,7 +103,7 @@ describe('LogicResult (contenu v2)', () => {
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('Par famille');
     expect(text).toContain('Dominos');
-    expect(text).not.toContain('Suites numériques');
+    expect(text).not.toContain('Numérique');
     expect(text).not.toContain('Matrices');
   });
 
@@ -112,7 +112,7 @@ describe('LogicResult (contenu v2)', () => {
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('Meilleur score sur cet axe');
     expect(text).toContain('Par famille');
-    expect(text).toContain('Suites numériques');
+    expect(text).toContain('Numérique');
     expect(text).toContain('Dominos');
     expect(text).toContain('Matrices — lecture');
     expect(text).toContain('Matrices — déduction');
