@@ -243,7 +243,7 @@ describe('generateLogicV2Session — filtre familles', () => {
 });
 
 describe('generateLogicV2Tutorial — composition mixte', () => {
-  it('produit 5 items : 2 suites, 1 domino, 1 matrice I, 1 matrice II', () => {
+  it('produit 5 items : 1 suite, 1 triangle, 1 domino, 1 matrice I, 1 matrice II', () => {
     const items = generateLogicV2Tutorial('tutoriel');
     expect(items.map((item) => item.family)).toEqual([
       LogicFamily.NUMERIC,
@@ -252,7 +252,15 @@ describe('generateLogicV2Tutorial — composition mixte', () => {
       LogicFamily.MATRIX_I,
       LogicFamily.MATRIX_II,
     ]);
-    expect(items.map((item) => item.difficulty)).toEqual([1, 2, 1, 1, 1]);
+    expect(
+      items
+        .slice(0, 2)
+        .map((item) => (item as { structure: LogicNumericStructure }).structure),
+    ).toEqual([
+      LogicNumericStructure.SEQUENCE,
+      LogicNumericStructure.TRIANGLE,
+    ]);
+    expect(items.map((item) => item.difficulty)).toEqual([1, 1, 1, 1, 1]);
     expect(items.map((item) => item.index)).toEqual([0, 1, 2, 3, 4]);
   });
 

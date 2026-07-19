@@ -130,12 +130,21 @@ function buildMatrixLogicV2Item(
 
 interface LogicV2TutorialSlot {
   family: LogicFamily;
+  structure?: LogicNumericStructure;
   level: LogicDifficulty;
 }
 
 const LOGIC_V2_TUTORIAL_SLOTS: readonly LogicV2TutorialSlot[] = [
-  { family: LogicFamily.NUMERIC, level: 1 },
-  { family: LogicFamily.NUMERIC, level: 2 },
+  {
+    family: LogicFamily.NUMERIC,
+    structure: LogicNumericStructure.SEQUENCE,
+    level: 1,
+  },
+  {
+    family: LogicFamily.NUMERIC,
+    structure: LogicNumericStructure.TRIANGLE,
+    level: 1,
+  },
   { family: LogicFamily.DOMINO, level: 1 },
   { family: LogicFamily.MATRIX_I, level: 1 },
   { family: LogicFamily.MATRIX_II, level: 1 },
@@ -145,6 +154,12 @@ export function generateLogicV2Tutorial(seed: string): LogicV2Item[] {
   const numericRng = createSeededRng(`${seed}::logic-v2-tutorial::numeric`);
   return LOGIC_V2_TUTORIAL_SLOTS.map((slot, index) => {
     const itemSeed = `${seed}::logic-v2-tutorial::${slot.family}::${index}`;
+    if (
+      slot.family === LogicFamily.NUMERIC &&
+      slot.structure === LogicNumericStructure.TRIANGLE
+    ) {
+      return buildTriangleLogicV2Item(slot.level, index, itemSeed);
+    }
     if (slot.family === LogicFamily.NUMERIC) {
       const pool = LOGIC_RULES.filter(
         (rule) => rule.difficulty === slot.level,
