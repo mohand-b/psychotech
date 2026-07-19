@@ -10,14 +10,14 @@ import {
   template: `
     <svg
       [attr.width]="size()"
-      [attr.height]="size() * (88 / 100)"
-      viewBox="0 0 100 88"
+      [attr.height]="size() * (112 / 120)"
+      viewBox="0 0 120 112"
       aria-hidden="true"
     >
-      <polygon points="50,6 9,77 91,77" class="frame" />
+      <polygon points="60,24 26,90 94,90" class="frame" />
       <text
-        x="50"
-        y="26"
+        x="60"
+        y="11"
         class="value value--vertex"
         [class.value--unknown]="top() === null"
         data-slot="top"
@@ -25,8 +25,8 @@ import {
         {{ top() ?? '?' }}
       </text>
       <text
-        x="23"
-        y="70"
+        x="15"
+        y="100"
         class="value value--vertex"
         [class.value--unknown]="left() === null"
         data-slot="left"
@@ -34,8 +34,8 @@ import {
         {{ left() ?? '?' }}
       </text>
       <text
-        x="77"
-        y="70"
+        x="105"
+        y="100"
         class="value value--vertex"
         [class.value--unknown]="right() === null"
         data-slot="right"
@@ -43,8 +43,8 @@ import {
         {{ right() ?? '?' }}
       </text>
       <text
-        x="50"
-        y="58"
+        x="60"
+        y="72"
         class="value value--center"
         [class.value--unknown]="center() === null"
         data-slot="center"
