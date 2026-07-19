@@ -208,5 +208,12 @@ describe('formulations utilisateur', () => {
         5,
       ),
     ).toBe('4 + 2 + 6 − 5 = 7');
+    expect(
+      formatTriangleReading(
+        'center-sum-minus-previous',
+        { top: 4, left: 2, right: 6, center: 7 },
+        null,
+      ),
+    ).toBe('centre de départ : 7');
   });
 });

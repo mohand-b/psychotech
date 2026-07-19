@@ -104,6 +104,9 @@ export function formatTriangleReading(
   previousCenter: number | null,
 ): string {
   const { top, left, right, center } = values;
+  if (trianglePatternById(patternId).usesPreviousCenter && previousCenter === null) {
+    return `centre de départ : ${center}`;
+  }
   switch (patternId) {
     case 'center-sum':
       return `${top} + ${left} + ${right} = ${center}`;
