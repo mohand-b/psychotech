@@ -9,7 +9,8 @@ import {
   generateLogicV2Session,
   generateLogicV2Tutorial,
 } from './generate-logic-v2-session';
-import { LogicV2Item } from './logic-v2-item';
+import { LogicNumericStructure, LogicV2Item } from './logic-v2-item';
+import { LOGIC_CONTENT_VERSION_V2 } from './logic-family';
 import {
   computeLogicFamilyBreakdown,
   scoreLogicV2Session,
@@ -36,6 +37,16 @@ function answerFor(
         ? item.domino.answer.top
         : ((item.domino.answer.top + 1) % 7 as LogicItemAnswerDto['dominoTop']),
       dominoBottom: item.domino.answer.bottom,
+      ...overrides,
+    };
+  }
+  if (
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE
+  ) {
+    return {
+      ...base,
+      numericValue: correct ? item.answer : item.answer + 1,
       ...overrides,
     };
   }
@@ -146,6 +157,34 @@ describe('generateLogicV2Session — composition standard', () => {
     expect(expectFourProposalsWithSingleCorrect(items)).toBe(20);
   });
 
+  it('équilibre le bloc numérique : 1 suite + 1 triangle par niveau', () => {
+    const numeric = items.filter((item) => item.family === LogicFamily.NUMERIC);
+    expect(numeric).toHaveLength(10);
+    for (let level = 1; level <= 5; level += 1) {
+      const ofLevel = numeric.filter((item) => item.difficulty === level);
+      const structures = ofLevel.map(
+        (item) => (item as { structure: LogicNumericStructure }).structure,
+      );
+      expect(structures.sort()).toEqual([
+        LogicNumericStructure.SEQUENCE,
+        LogicNumericStructure.TRIANGLE,
+      ]);
+    }
+  });
+
+  it('conserve la composition v2 sans triangles et les autres blocs à seed égale', () => {
+    const v2 = generateLogicV2Session('compo-standard', null, LOGIC_CONTENT_VERSION_V2);
+    const v2Numeric = v2.filter((item) => item.family === LogicFamily.NUMERIC);
+    expect(
+      v2Numeric.every(
+        (item) =>
+          (item as { structure: LogicNumericStructure }).structure ===
+          LogicNumericStructure.SEQUENCE,
+      ),
+    ).toBe(true);
+    expect(v2.slice(10)).toEqual(items.slice(10));
+  });
+
   it('est strictement déterministe', () => {
     expect(generateLogicV2Session('compo-standard')).toEqual(items);
   });
@@ -159,7 +198,15 @@ describe('generateLogicV2Session — filtre familles', () => {
       true,
     );
     for (let level = 1; level <= 5; level += 1) {
-      expect(items.filter((item) => item.difficulty === level)).toHaveLength(8);
+      const ofLevel = items.filter((item) => item.difficulty === level);
+      expect(ofLevel).toHaveLength(8);
+      expect(
+        ofLevel.filter(
+          (item) =>
+            (item as { structure: LogicNumericStructure }).structure ===
+            LogicNumericStructure.TRIANGLE,
+        ),
+      ).toHaveLength(4);
     }
     expect(items.reduce((sum, item) => sum + item.points, 0)).toBe(120);
   });
@@ -242,6 +289,23 @@ describe('scoreLogicV2Session — correction des trois formats', () => {
     const scored = scoreLogicV2Session(items, responses);
     expect(scored.wrongCount).toBe(3);
     expect(scored.correctCount).toBe(0);
+  });
+
+  it('corrige la saisie triangle : valeur juste, fausse, absente', () => {
+    const triangle = items.find(
+      (item) =>
+        item.family === LogicFamily.NUMERIC &&
+        (item as { structure: LogicNumericStructure }).structure ===
+          LogicNumericStructure.TRIANGLE,
+    ) as LogicV2Item;
+    const right = scoreLogicV2Session(items, [answerFor(triangle, true)]);
+    expect(right.correctCount).toBe(1);
+    const wrong = scoreLogicV2Session(items, [answerFor(triangle, false)]);
+    expect(wrong.wrongCount).toBe(1);
+    const empty = scoreLogicV2Session(items, [
+      { index: triangle.index, answerIndex: null, numericValue: null, timeMs: 500, helpUsed: false, visited: true },
+    ]);
+    expect(empty.skippedCount).toBe(1);
   });
 
   it('traite une saisie domino partielle comme un item passé', () => {

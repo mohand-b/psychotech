@@ -36,6 +36,7 @@ export interface LogicItemAnswerDto {
   answerIndex: number | null;
   dominoTop?: DominoFace | null;
   dominoBottom?: DominoFace | null;
+  numericValue?: number | null;
   timeMs: number;
   helpUsed: boolean;
   visited: boolean;

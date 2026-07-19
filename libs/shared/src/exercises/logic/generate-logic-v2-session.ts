@@ -5,13 +5,22 @@ import {
 import { generateDominoItem } from '../domino';
 import { DominoLevel } from '../domino/domino-item';
 import { LogicFamily, LogicFamilyFilter } from '../../enums';
-import { createSeededRng } from '../rng';
+import { createSeededRng, SeededRng } from '../rng';
+import { generateTriangleItem } from '../triangle';
 import { buildLogicChoices } from './logic-choices';
-import { logicFamiliesForFilter } from './logic-family';
+import {
+  LOGIC_CONTENT_VERSION_V3,
+  logicFamiliesForFilter,
+} from './logic-family';
 import { LogicDifficulty } from './logic-item';
 import { resolveLogicRuleHint } from './logic-rule-hints';
 import { LOGIC_RULES } from './logic-rules';
-import { LogicV2Item, MatrixLogicV2Item } from './logic-v2-item';
+import {
+  LogicNumericStructure,
+  LogicV2Item,
+  MatrixLogicV2Item,
+  TriangleLogicV2Item,
+} from './logic-v2-item';
 
 export const LOGIC_V2_LEVELS: readonly LogicDifficulty[] = [1, 2, 3, 4, 5];
 export const LOGIC_V2_BLOCK_SIZE = 10;
@@ -47,6 +56,39 @@ function itemsPerLevel(filter: LogicFamilyFilter | null): number {
     default:
       return 2;
   }
+}
+
+function numericStructuresForLevel(
+  count: number,
+  contentVersion: number,
+  rng: SeededRng,
+): LogicNumericStructure[] {
+  if (contentVersion < LOGIC_CONTENT_VERSION_V3) {
+    return Array.from({ length: count }, () => LogicNumericStructure.SEQUENCE);
+  }
+  const half = count / 2;
+  return rng.shuffle([
+    ...Array.from({ length: half }, () => LogicNumericStructure.SEQUENCE),
+    ...Array.from({ length: half }, () => LogicNumericStructure.TRIANGLE),
+  ]);
+}
+
+function buildTriangleLogicV2Item(
+  level: LogicDifficulty,
+  index: number,
+  itemSeed: string,
+): TriangleLogicV2Item {
+  const triangle = generateTriangleItem({ level, seed: itemSeed });
+  return {
+    index,
+    family: LogicFamily.NUMERIC,
+    structure: LogicNumericStructure.TRIANGLE,
+    difficulty: level,
+    points: level,
+    triangle,
+    answer: triangle.answer,
+    rule: { ...triangle.rule },
+  };
 }
 
 function buildMatrixLogicV2Item(
@@ -113,6 +155,7 @@ export function generateLogicV2Tutorial(seed: string): LogicV2Item[] {
       return {
         index,
         family: LogicFamily.NUMERIC,
+        structure: LogicNumericStructure.SEQUENCE,
         difficulty: slot.level,
         points: slot.level,
         sequence: puzzle.terms,
@@ -145,6 +188,7 @@ export function generateLogicV2Tutorial(seed: string): LogicV2Item[] {
 export function generateLogicV2Session(
   seed: string,
   familyFilter: LogicFamilyFilter | null = null,
+  contentVersion: number = LOGIC_CONTENT_VERSION_V3,
 ): LogicV2Item[] {
   const families = logicFamiliesForFilter(familyFilter);
   const perLevel = itemsPerLevel(familyFilter);
@@ -152,10 +196,18 @@ export function generateLogicV2Session(
   const items: LogicV2Item[] = [];
   for (const family of families) {
     for (const level of LOGIC_V2_LEVELS) {
+      const structures =
+        family === LogicFamily.NUMERIC
+          ? numericStructuresForLevel(perLevel, contentVersion, numericRng)
+          : null;
       for (let position = 0; position < perLevel; position += 1) {
         const index = items.length;
         const itemSeed = `${seed}::logic-v2::${family}::${level}::${position}`;
         if (family === LogicFamily.NUMERIC) {
+          if (structures?.[position] === LogicNumericStructure.TRIANGLE) {
+            items.push(buildTriangleLogicV2Item(level, index, itemSeed));
+            continue;
+          }
           const pool = LOGIC_RULES.filter((rule) => rule.difficulty === level);
           const rule = numericRng.pick(pool);
           const puzzle = rule.generate(numericRng);
@@ -166,6 +218,7 @@ export function generateLogicV2Session(
           items.push({
             index,
             family,
+            structure: LogicNumericStructure.SEQUENCE,
             difficulty: level,
             points: level,
             sequence: puzzle.terms,

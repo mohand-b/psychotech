@@ -51,6 +51,12 @@ export class LogicItemAnswerRequest implements LogicItemAnswerDto {
   @Max(6)
   dominoBottom?: DominoFace | null;
 
+  @ValidateIf((answer: LogicItemAnswerRequest) => answer.numericValue != null)
+  @IsInt()
+  @Min(0)
+  @Max(999)
+  numericValue?: number | null;
+
   @IsInt()
   @Min(0)
   timeMs!: number;

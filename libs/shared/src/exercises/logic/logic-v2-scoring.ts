@@ -6,7 +6,14 @@ import {
   LogicSessionScore,
   computeLogicScore,
 } from './logic-scoring';
-import { LogicV2Item } from './logic-v2-item';
+import { LogicNumericStructure, LogicV2Item } from './logic-v2-item';
+
+function isTriangleItem(item: LogicV2Item): boolean {
+  return (
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE
+  );
+}
 
 export function logicV2AnswerGiven(
   item: LogicV2Item,
@@ -20,6 +27,9 @@ export function logicV2AnswerGiven(
       response.dominoBottom !== undefined
     );
   }
+  if (isTriangleItem(item)) {
+    return response.numericValue !== null && response.numericValue !== undefined;
+  }
   return response.answerIndex !== null;
 }
 
@@ -32,6 +42,12 @@ export function logicV2AnswerCorrect(
       response.dominoTop === item.domino.answer.top &&
       response.dominoBottom === item.domino.answer.bottom
     );
+  }
+  if (
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE
+  ) {
+    return response.numericValue === item.answer;
   }
   return response.answerIndex === item.answerIndex;
 }

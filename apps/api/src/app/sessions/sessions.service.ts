@@ -17,6 +17,7 @@ import {
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
   LOGIC_CONTENT_VERSION_V2,
+  LOGIC_CONTENT_VERSION_V3,
   LogicFamilyFilter,
   LogicItemAnswerDto,
   LogicRawResultDto,
@@ -149,7 +150,7 @@ export class SessionsService {
       mode: request.mode,
       sector: request.sector,
       seed: randomUUID(),
-      contentVersion: LOGIC_CONTENT_VERSION_V2,
+      contentVersion: LOGIC_CONTENT_VERSION_V3,
       logicFamily,
       helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
       trainingOptions: enabledOptions,
@@ -322,7 +323,11 @@ export class SessionsService {
     const scored =
       context.contentVersion >= LOGIC_CONTENT_VERSION_V2
         ? scoreLogicV2Session(
-            generateLogicV2Session(context.seed, context.logicFamily),
+            generateLogicV2Session(
+              context.seed,
+              context.logicFamily,
+              context.contentVersion,
+            ),
             items,
           )
         : scoreLogicSession(generateLogicSession(context.seed), items);
@@ -382,6 +387,7 @@ export class SessionsService {
           answerIndex,
           dominoTop,
           dominoBottom,
+          numericValue,
           timeMs,
           helpUsed,
           visited,
@@ -390,6 +396,7 @@ export class SessionsService {
           answerIndex,
           ...(dominoTop != null ? { dominoTop } : {}),
           ...(dominoBottom != null ? { dominoBottom } : {}),
+          ...(numericValue != null ? { numericValue } : {}),
           timeMs,
         helpUsed,
         visited,
@@ -758,7 +765,7 @@ export class SessionsService {
       const responses = this.logicItemsFromMetrics(metrics);
       const isV2 = context.contentVersion >= LOGIC_CONTENT_VERSION_V2;
       const v2Items = isV2
-        ? generateLogicV2Session(seed, context.logicFamily)
+        ? generateLogicV2Session(seed, context.logicFamily, context.contentVersion)
         : null;
       const items = v2Items
         ? v2Items.map((item) => ({

@@ -1,7 +1,13 @@
 import { LogicFamily } from '../../enums';
 import { DominoItem } from '../domino';
 import { MatrixItem, MatrixProposal } from '../matrix';
+import { TriangleItem } from '../triangle';
 import { LogicDifficulty } from './logic-item';
+
+export enum LogicNumericStructure {
+  SEQUENCE = 'SEQUENCE',
+  TRIANGLE = 'TRIANGLE',
+}
 
 export interface LogicV2Rule {
   id: string;
@@ -18,9 +24,17 @@ interface LogicV2ItemBase {
 
 export interface NumericLogicV2Item extends LogicV2ItemBase {
   family: LogicFamily.NUMERIC;
+  structure: LogicNumericStructure.SEQUENCE;
   sequence: string[];
   choices: string[];
   answerIndex: number;
+}
+
+export interface TriangleLogicV2Item extends LogicV2ItemBase {
+  family: LogicFamily.NUMERIC;
+  structure: LogicNumericStructure.TRIANGLE;
+  triangle: TriangleItem;
+  answer: number;
 }
 
 export interface DominoLogicV2Item extends LogicV2ItemBase {
@@ -37,6 +51,7 @@ export interface MatrixLogicV2Item extends LogicV2ItemBase {
 
 export type LogicV2Item =
   | NumericLogicV2Item
+  | TriangleLogicV2Item
   | DominoLogicV2Item
   | MatrixLogicV2Item;
 
@@ -57,6 +72,7 @@ export function logicV1ToV2Items(
   return items.map((item) => ({
     index: item.index,
     family: LogicFamily.NUMERIC,
+    structure: LogicNumericStructure.SEQUENCE,
     difficulty: item.difficulty,
     points: item.points,
     sequence: item.sequence,
