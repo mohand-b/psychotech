@@ -3,6 +3,7 @@ export * from './axis-findings';
 export * from './logic';
 export * from './matrix';
 export * from './domino';
+export * from './triangle';
 export * from './memory';
 export * from './discrimination';
 export * from './reactivity';
