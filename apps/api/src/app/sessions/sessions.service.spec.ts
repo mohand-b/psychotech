@@ -358,7 +358,7 @@ describe('SessionsService.start', () => {
 
     expect(repository.createSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentVersion: 2,
+        contentVersion: 3,
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
     );
