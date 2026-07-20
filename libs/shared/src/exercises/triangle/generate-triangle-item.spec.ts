@@ -11,6 +11,7 @@ import { TriangleItem, TriangleLevel, TriangleSlot } from './triangle-item';
 import {
   TRIANGLE_PATTERNS,
   formatTriangleReading,
+  resolveTriangleRuleDetail,
   trianglePatternById,
 } from './triangle-patterns';
 
@@ -215,5 +216,24 @@ describe('formulations utilisateur', () => {
         null,
       ),
     ).toBe('centre de départ : 7');
+  });
+
+  it('détaille le calcul du triangle à trou pour la correction', () => {
+    const item = generateTriangleItem({ level: 1, seed: 'detail' });
+    const detail = resolveTriangleRuleDetail(item);
+    expect(detail.startsWith('Le centre = la somme des trois sommets :')).toBe(
+      true,
+    );
+    expect(detail).toContain(`= ${triangleSlotValue(
+      item.triangles[item.missing.triangleIndex],
+      TriangleSlot.CENTER,
+    )}`);
+    expect(detail.endsWith('.')).toBe(true);
+
+    forEachGeneratedItem((generated) => {
+      const text = resolveTriangleRuleDetail(generated);
+      expect(text).toMatch(/ : .*\d.*\.$/);
+      expect(text).toContain('=');
+    });
   });
 });

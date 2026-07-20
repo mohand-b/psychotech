@@ -1,4 +1,4 @@
-import { TriangleValues } from './triangle-item';
+import { TriangleItem, TriangleSlot, TriangleValues } from './triangle-item';
 
 export interface TrianglePattern {
   id: string;
@@ -129,4 +129,22 @@ export function formatTriangleReading(
     default:
       throw new Error(`Unknown triangle pattern ${patternId}`);
   }
+}
+
+const TRIANGLE_SLOT_KEYS: Record<TriangleSlot, keyof TriangleValues> = {
+  [TriangleSlot.TOP]: 'top',
+  [TriangleSlot.LEFT]: 'left',
+  [TriangleSlot.RIGHT]: 'right',
+  [TriangleSlot.CENTER]: 'center',
+};
+
+export function resolveTriangleRuleDetail(item: TriangleItem): string {
+  const values = { ...item.triangles[item.missing.triangleIndex] };
+  values[TRIANGLE_SLOT_KEYS[item.missing.slot]] = item.answer;
+  const previousCenter =
+    item.missing.triangleIndex > 0
+      ? item.triangles[item.missing.triangleIndex - 1].center
+      : null;
+  const reading = formatTriangleReading(item.patternId, values, previousCenter);
+  return `${item.rule.userText.replace(/\.$/, '')} : ${reading}.`;
 }
