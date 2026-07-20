@@ -4,7 +4,6 @@ import {
   computed,
   inject,
   signal,
-  viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -15,6 +14,7 @@ import {
   LogicNumericStructure,
   TargetedLogicResultDto,
   resolveLogicRuleDetail,
+  resolveTriangleRuleDetail,
   scoreLogicV2Session,
 } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
@@ -114,7 +114,6 @@ export class LogicCorrection {
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
   protected readonly currentIndex = signal(0);
 
-  private readonly sequence = viewChild<LogicSequence>('sequence');
 
   constructor() {
     this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
@@ -281,6 +280,11 @@ export class LogicCorrection {
     return this.currentItem()?.rule.userText ?? '';
   });
 
+  protected readonly triangleRule = computed(() => {
+    const item = this.triangleItem();
+    return item ? resolveTriangleRuleDetail(item.triangle) : '';
+  });
+
   protected readonly userAnswerIndex = computed(
     () => this.responseByIndex().get(this.currentIndex())?.answerIndex ?? null,
   );
@@ -311,7 +315,6 @@ export class LogicCorrection {
     if (index < 0 || index >= this.items().length) {
       return;
     }
-    this.sequence()?.close();
     this.currentIndex.set(index);
   }
 
@@ -338,10 +341,6 @@ export class LogicCorrection {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.sequence()?.close(true);
-      return;
-    }
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
       this.previous();
@@ -350,11 +349,6 @@ export class LogicCorrection {
     if (event.key === 'ArrowRight') {
       event.preventDefault();
       this.next();
-      return;
-    }
-    if (event.key === 'h' || event.key === 'H') {
-      event.preventDefault();
-      this.sequence()?.toggle();
     }
   }
 }

@@ -25,7 +25,7 @@
 
   @switch (item.family) { @case (families.NUMERIC) { @if (sequenceItem(); as
   numeric) {
-  <ui-logic-sequence #sequence [terms]="numeric.sequence" [hint]="hint()" />
+  <ui-logic-sequence [terms]="numeric.sequence" />
 
   <ui-logic-choices
     [review]="true"
@@ -33,6 +33,7 @@
     [correctIndex]="numeric.answerIndex"
     [userAnswerIndex]="userAnswerIndex()"
   />
+  <p class="corr__rule">{{ hint() }}</p>
   } @if (triangleItem(); as triangle) {
   <div class="corr-tri">
     <div class="corr-tri__seq">
@@ -76,7 +77,7 @@
       </span>
       }
     </div>
-    <p class="corr__rule">{{ item.rule.userText }}</p>
+    <p class="corr__rule">{{ triangleRule() }}</p>
   </div>
   } } @case (families.DOMINO) { @if (dominoItem(); as domino) {
   <div class="corr-dom">
