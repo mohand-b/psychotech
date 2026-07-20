@@ -10,7 +10,12 @@ import {
   generateLogicTutorial,
 } from './generate-logic-session';
 import { LogicNumericStructure, LogicItem } from './logic-item';
-import { LOGIC_CONTENT_VERSION_V2 } from './logic-family';
+import {
+  LOGIC_CONTENT_VERSION_V2,
+  LOGIC_CONTENT_VERSION_V3,
+  LOGIC_CONTENT_VERSION_V4,
+} from './logic-family';
+import { TriangleSlot } from '../triangle';
 import {
   computeLogicFamilyBreakdown,
   scoreLogicSession,
@@ -347,5 +352,75 @@ describe('scoreLogicSession — correction des trois formats', () => {
       errors: 1,
       timeMs: 3000,
     });
+  });
+});
+
+describe('catalogue épuré en version de contenu 4', () => {
+  const AUDIT_SEEDS = Array.from({ length: 10 }, (_, i) => `v4-audit-${i}`);
+  const RETIRED = [
+    'squares-plus-constant',
+    'interleaved-sequences',
+    'second-order-differences',
+    'powers',
+    'multiply-by-rank',
+    'interleaved-double-fibonacci',
+  ];
+
+  function numericItemsOf(seed: string, contentVersion: number) {
+    return generateLogicSession(
+      seed,
+      LogicFamilyFilter.NUMERIC,
+      contentVersion,
+    );
+  }
+
+  it('exclut les règles retirées des suites en v4', () => {
+    for (const seed of AUDIT_SEEDS) {
+      for (const item of numericItemsOf(seed, LOGIC_CONTENT_VERSION_V4)) {
+        if (item.structure === LogicNumericStructure.SEQUENCE) {
+          expect(RETIRED).not.toContain(item.rule.id);
+        }
+      }
+    }
+  });
+
+  it('retire le sommet manquant et le second patron N5 des triangles en v4', () => {
+    for (const seed of AUDIT_SEEDS) {
+      for (const item of numericItemsOf(seed, LOGIC_CONTENT_VERSION_V4)) {
+        if (item.structure === LogicNumericStructure.TRIANGLE) {
+          expect(item.triangle.missing.slot).toBe(TriangleSlot.CENTER);
+          expect(item.triangle.patternId).not.toBe(
+            'center-previous-plus-top-minus-right',
+          );
+          if (item.difficulty === 4) {
+            expect(item.triangle.patternId).toMatch(/^center-.*times/);
+          }
+          if (item.difficulty === 5) {
+            expect(item.triangle.patternId).toBe('center-sum-minus-previous');
+          }
+        }
+      }
+    }
+  });
+
+  it('conserve le catalogue complet pour les versions 2 et 3 à seed égale', () => {
+    const v3Sequences = AUDIT_SEEDS.flatMap((seed) =>
+      numericItemsOf(seed, LOGIC_CONTENT_VERSION_V3).filter(
+        (item) => item.structure === LogicNumericStructure.SEQUENCE,
+      ),
+    );
+    expect(
+      v3Sequences.some((item) => RETIRED.includes(item.rule.id)),
+    ).toBe(true);
+    const v3Triangles = AUDIT_SEEDS.flatMap((seed) =>
+      numericItemsOf(seed, LOGIC_CONTENT_VERSION_V3).filter(
+        (item) => item.structure === LogicNumericStructure.TRIANGLE,
+      ),
+    );
+    expect(
+      v3Triangles.some(
+        (item) => item.triangle.missing.slot !== TriangleSlot.CENTER,
+      ),
+    ).toBe(true);
   });
 });

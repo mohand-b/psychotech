@@ -12,9 +12,12 @@ import {
   trianglePatternById,
 } from './triangle-patterns';
 
+export type TriangleCatalogRevision = 'FULL' | 'CURATED';
+
 export interface GenerateTriangleItemOptions {
   level: TriangleLevel;
   seed: string;
+  catalog?: TriangleCatalogRevision;
 }
 
 export const TRIANGLE_VERTEX_MIN = 1;
@@ -25,7 +28,22 @@ const MAX_GENERATION_ATTEMPTS = 80;
 const MAX_TRIANGLE_DRAWS = 40;
 const VERTEX_SLOTS = [TriangleSlot.TOP, TriangleSlot.LEFT, TriangleSlot.RIGHT];
 
-function patternsForLevel(level: TriangleLevel): TrianglePattern[] {
+const CURATED_LEVEL_FIVE_PATTERN_ID = 'center-sum-minus-previous';
+
+function patternsForLevel(
+  level: TriangleLevel,
+  catalog: TriangleCatalogRevision,
+): TrianglePattern[] {
+  if (catalog === 'CURATED') {
+    if (level === 4) {
+      return TRIANGLE_PATTERNS.filter((pattern) => pattern.level === 3);
+    }
+    if (level === 5) {
+      return TRIANGLE_PATTERNS.filter(
+        (pattern) => pattern.id === CURATED_LEVEL_FIVE_PATTERN_ID,
+      );
+    }
+  }
   const formulaLevel = level === 4 ? [1, 2, 3] : [level];
   return TRIANGLE_PATTERNS.filter((pattern) =>
     formulaLevel.includes(pattern.level),
@@ -202,7 +220,9 @@ export function generateTriangleItem(
   options: GenerateTriangleItemOptions,
 ): TriangleItem {
   const { level, seed } = options;
-  const pool = patternsForLevel(level);
+  const catalog = options.catalog ?? 'FULL';
+  const vertexMissing = level === 4 && catalog === 'FULL';
+  const pool = patternsForLevel(level, catalog);
   const length = level === 5 ? 4 : 3;
   for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
     const rng = createSeededRng(`${seed}::triangle::${level}::${attempt}`);
@@ -238,10 +258,7 @@ export function generateTriangleItem(
     }
     const missing: TriangleMissing = {
       triangleIndex: length - 1,
-      slot:
-        level === 4
-          ? rng.pick(VERTEX_SLOTS)
-          : TriangleSlot.CENTER,
+      slot: vertexMissing ? rng.pick(VERTEX_SLOTS) : TriangleSlot.CENTER,
     };
     const answer = triangleSlotValue(triangles[length - 1], missing.slot);
     if (!triangleSeriesConsistent(triangles, pattern.id)) {
@@ -275,12 +292,10 @@ export function generateTriangleItem(
       missing,
       answer,
       rule: {
-        id:
-          level === 4 ? `${pattern.id}-missing-vertex` : pattern.id,
-        userText:
-          level === 4
-            ? `${pattern.userText} Ici, le « ? » porte sur un sommet.`
-            : pattern.userText,
+        id: vertexMissing ? `${pattern.id}-missing-vertex` : pattern.id,
+        userText: vertexMissing
+          ? `${pattern.userText} Ici, le « ? » porte sur un sommet.`
+          : pattern.userText,
       },
       patternId: pattern.id,
       length,

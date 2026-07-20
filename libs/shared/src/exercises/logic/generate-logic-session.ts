@@ -10,6 +10,7 @@ import { generateTriangleItem } from '../triangle';
 import { buildLogicChoices } from './logic-choices';
 import {
   LOGIC_CONTENT_VERSION_V3,
+  LOGIC_CONTENT_VERSION_V4,
   logicFamiliesForFilter,
 } from './logic-family';
 import { LogicDifficulty } from './logic-rule-item';
@@ -58,6 +59,30 @@ function itemsPerLevel(filter: LogicFamilyFilter | null): number {
   }
 }
 
+const RETIRED_SEQUENCE_RULE_IDS = new Set([
+  'squares-plus-constant',
+  'interleaved-sequences',
+  'second-order-differences',
+  'powers',
+  'multiply-by-rank',
+  'interleaved-double-fibonacci',
+]);
+
+function sequenceRulePool(level: LogicDifficulty, contentVersion: number) {
+  return LOGIC_RULES.filter(
+    (rule) =>
+      rule.difficulty === level &&
+      (contentVersion < LOGIC_CONTENT_VERSION_V4 ||
+        !RETIRED_SEQUENCE_RULE_IDS.has(rule.id)),
+  );
+}
+
+function triangleCatalogFor(contentVersion: number) {
+  return contentVersion >= LOGIC_CONTENT_VERSION_V4
+    ? ('CURATED' as const)
+    : ('FULL' as const);
+}
+
 function numericStructuresForLevel(
   count: number,
   contentVersion: number,
@@ -77,8 +102,13 @@ function buildTriangleLogicItem(
   level: LogicDifficulty,
   index: number,
   itemSeed: string,
+  contentVersion: number,
 ): TriangleLogicItem {
-  const triangle = generateTriangleItem({ level, seed: itemSeed });
+  const triangle = generateTriangleItem({
+    level,
+    seed: itemSeed,
+    catalog: triangleCatalogFor(contentVersion),
+  });
   return {
     index,
     family: LogicFamily.NUMERIC,
@@ -158,12 +188,15 @@ export function generateLogicTutorial(seed: string): LogicItem[] {
       slot.family === LogicFamily.NUMERIC &&
       slot.structure === LogicNumericStructure.TRIANGLE
     ) {
-      return buildTriangleLogicItem(slot.level, index, itemSeed);
+      return buildTriangleLogicItem(
+        slot.level,
+        index,
+        itemSeed,
+        LOGIC_CONTENT_VERSION_V4,
+      );
     }
     if (slot.family === LogicFamily.NUMERIC) {
-      const pool = LOGIC_RULES.filter(
-        (rule) => rule.difficulty === slot.level,
-      );
+      const pool = sequenceRulePool(slot.level, LOGIC_CONTENT_VERSION_V4);
       const rule = numericRng.pick(pool);
       const puzzle = rule.generate(numericRng);
       const { choices, answerIndex } = buildLogicChoices(numericRng, puzzle);
@@ -203,7 +236,7 @@ export function generateLogicTutorial(seed: string): LogicItem[] {
 export function generateLogicSession(
   seed: string,
   familyFilter: LogicFamilyFilter | null = null,
-  contentVersion: number = LOGIC_CONTENT_VERSION_V3,
+  contentVersion: number = LOGIC_CONTENT_VERSION_V4,
 ): LogicItem[] {
   const families = logicFamiliesForFilter(familyFilter);
   const perLevel = itemsPerLevel(familyFilter);
@@ -220,10 +253,12 @@ export function generateLogicSession(
         const itemSeed = `${seed}::logic-v2::${family}::${level}::${position}`;
         if (family === LogicFamily.NUMERIC) {
           if (structures?.[position] === LogicNumericStructure.TRIANGLE) {
-            items.push(buildTriangleLogicItem(level, index, itemSeed));
+            items.push(
+              buildTriangleLogicItem(level, index, itemSeed, contentVersion),
+            );
             continue;
           }
-          const pool = LOGIC_RULES.filter((rule) => rule.difficulty === level);
+          const pool = sequenceRulePool(level, contentVersion);
           const rule = numericRng.pick(pool);
           const puzzle = rule.generate(numericRng);
           const { choices, answerIndex } = buildLogicChoices(
