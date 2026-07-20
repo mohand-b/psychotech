@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { LogicItemAnswerDto } from '../../dtos/session';
 import { ScoreBand } from '../../enums';
-import { generateLogicSession } from './generate-logic-session';
-import { LogicDifficulty, LogicItem } from './logic-item';
-import { avisFromScore, scoreLogicSession } from './logic-scoring';
+import { generateLegacyLogicSession } from './generate-legacy-logic-session';
+import { LogicDifficulty, LogicRuleItem } from './logic-rule-item';
+import { avisFromScore, scoreLegacyLogicSession } from './logic-scoring';
 
-function makeItem(index: number, difficulty: LogicDifficulty): LogicItem {
+function makeItem(index: number, difficulty: LogicDifficulty): LogicRuleItem {
   return {
     index,
     ruleId: 'arithmetic-constant-step',
@@ -26,11 +26,11 @@ function answer(
   return { index, answerIndex, timeMs, helpUsed: false, visited };
 }
 
-describe('scoreLogicSession', () => {
+describe('scoreLegacyLogicSession', () => {
   const items = [makeItem(0, 1), makeItem(1, 2), makeItem(2, 3), makeItem(3, 4)];
 
   it('classifies each item as correct, wrong, skipped or unreached', () => {
-    const scored = scoreLogicSession(items, [
+    const scored = scoreLegacyLogicSession(items, [
       answer(0, 0, 2000),
       answer(1, 2, 1000),
       answer(2, null, 4000),
@@ -43,7 +43,7 @@ describe('scoreLogicSession', () => {
   });
 
   it('treats an unvisited null answer as unreached, not skipped', () => {
-    const scored = scoreLogicSession(items, [
+    const scored = scoreLegacyLogicSession(items, [
       answer(0, 0, 2000),
       answer(1, null, 0, false),
     ]);
@@ -51,7 +51,7 @@ describe('scoreLogicSession', () => {
   });
 
   it('counts a given answer as reached even without the visited flag', () => {
-    const scored = scoreLogicSession(items, [
+    const scored = scoreLegacyLogicSession(items, [
       answer(0, 0, 2000, false),
       answer(1, 1, 1000, false),
     ]);
@@ -60,7 +60,7 @@ describe('scoreLogicSession', () => {
   });
 
   it('weights precision by item points and coverage by reached items', () => {
-    const scored = scoreLogicSession(items, [
+    const scored = scoreLegacyLogicSession(items, [
       answer(0, 0, 2000),
       answer(1, 2, 1000),
       answer(2, null, 4000),
@@ -71,7 +71,7 @@ describe('scoreLogicSession', () => {
   });
 
   it('averages answer time over given answers only', () => {
-    const scored = scoreLogicSession(items, [
+    const scored = scoreLegacyLogicSession(items, [
       answer(0, 0, 2000),
       answer(1, 2, 1000),
       answer(2, null, 4000),
@@ -80,28 +80,28 @@ describe('scoreLogicSession', () => {
   });
 
   it('returns a null average time when no answer was given', () => {
-    const scored = scoreLogicSession(items, [answer(0, null, 3000)]);
+    const scored = scoreLegacyLogicSession(items, [answer(0, null, 3000)]);
     expect(scored.avgAnswerTimeMs).toBeNull();
   });
 
   it('scores 100 when everything is correct and 0 when nothing was reached', () => {
     const allCorrect = items.map((item) => answer(item.index, item.answerIndex, 1000));
-    expect(scoreLogicSession(items, allCorrect).score).toBe(100);
-    const empty = scoreLogicSession(items, []);
+    expect(scoreLegacyLogicSession(items, allCorrect).score).toBe(100);
+    const empty = scoreLegacyLogicSession(items, []);
     expect(empty.score).toBe(0);
     expect(empty.precision).toBe(0);
     expect(empty.coverage).toBe(0);
   });
 
   it('applies the 120-point referential on a generated session', () => {
-    const generated = generateLogicSession('scoring-seed');
+    const generated = generateLegacyLogicSession('scoring-seed');
     expect(generated.reduce((sum, item) => sum + item.points, 0)).toBe(120);
     const responses = generated.map((item) =>
       item.difficulty === 1
         ? answer(item.index, item.answerIndex, 1000)
         : answer(item.index, null, 1000),
     );
-    const scored = scoreLogicSession(generated, responses);
+    const scored = scoreLegacyLogicSession(generated, responses);
     expect(scored.precision).toBeCloseTo((8 / 120) * 100, 5);
     expect(scored.coverage).toBe(100);
     expect(scored.score).toBe(21);

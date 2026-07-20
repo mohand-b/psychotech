@@ -2,7 +2,7 @@ import { LogicItemAnswerDto } from '../../dtos/session';
 import { RecommendationPriority } from '../../enums';
 import { AxisFinding, sortFindingsBySeverity } from '../axis-findings';
 import { formatFindingSeconds } from '../finding-format';
-import { LogicItem } from './logic-item';
+import { LogicRuleItem } from './logic-rule-item';
 import { resolveLogicRuleHint } from './logic-rule-hints';
 import { LogicSessionScore } from './logic-scoring';
 
@@ -17,13 +17,13 @@ export const LOGIC_END_MIN_MISSES = 3;
 export const LOGIC_SKIPPED_MIN = 2;
 
 function ruleFamilyErrors(
-  items: LogicItem[],
+  items: LogicRuleItem[],
   scored: LogicSessionScore,
 ): AxisFinding | null {
   if (scored.wrongCount < LOGIC_FAMILY_MIN_ERRORS) {
     return null;
   }
-  const wrongByRule = new Map<string, LogicItem[]>();
+  const wrongByRule = new Map<string, LogicRuleItem[]>();
   scored.statuses.forEach((status, position) => {
     const item = items[position];
     if (status !== 'WRONG' || !item) {
@@ -140,7 +140,7 @@ function endCollapse(scored: LogicSessionScore): AxisFinding | null {
 }
 
 export function analyzeLogic(
-  items: LogicItem[],
+  items: LogicRuleItem[],
   scored: LogicSessionScore,
   responses: LogicItemAnswerDto[],
 ): AxisFinding[] {

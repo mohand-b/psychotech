@@ -1,6 +1,6 @@
 import { LogicItemAnswerDto } from '../../dtos/session';
 import { ScoreBand } from '../../enums';
-import { LogicItem } from './logic-item';
+import { LogicRuleItem } from './logic-rule-item';
 
 export type LogicItemStatus = 'CORRECT' | 'WRONG' | 'SKIPPED' | 'UNREACHED';
 
@@ -24,7 +24,7 @@ export interface LogicSessionScore {
 }
 
 function statusFor(
-  item: LogicItem,
+  item: LogicRuleItem,
   response: LogicItemAnswerDto | undefined,
 ): LogicItemStatus {
   if (!response) {
@@ -77,8 +77,8 @@ export function computeLogicScore(
   return { score, precision, coverage, ...counts, statuses, avgAnswerTimeMs };
 }
 
-export function scoreLogicSession(
-  items: LogicItem[],
+export function scoreLegacyLogicSession(
+  items: LogicRuleItem[],
   responses: LogicItemAnswerDto[],
 ): LogicSessionScore {
   const responseByIndex = new Map(

@@ -1,235 +1,351 @@
 import { describe, expect, it } from 'vitest';
-import { createSeededRng } from '../rng';
-import { generateLogicSession } from './generate-logic-session';
-import { LogicItem } from './logic-item';
-import { digitSum, LOGIC_RULES, LogicPuzzle } from './logic-rules';
+import { LogicFamily, LogicFamilyFilter } from '../../enums';
+import { MatrixProposalKind, MatrixRegister } from '../matrix';
+import { LogicItemAnswerDto } from '../../dtos/session';
+import {
+  LOGIC_MATRIX_CHOICE_COUNT,
+  LOGIC_SESSION_MAX_POINTS,
+  LOGIC_SESSION_SIZE,
+  generateLogicSession,
+  generateLogicTutorial,
+} from './generate-logic-session';
+import { LogicNumericStructure, LogicItem } from './logic-item';
+import { LOGIC_CONTENT_VERSION_V2 } from './logic-family';
+import {
+  computeLogicFamilyBreakdown,
+  scoreLogicSession,
+} from './logic-session-scoring';
 
-const SAMPLE_SEEDS = ['seed-1', 'seed-2', 'seed-3', 'seed-4', 'seed-5'];
+const BLOCK_LEVELS = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
 
-function sampleItems(): LogicItem[] {
-  return SAMPLE_SEEDS.flatMap((seed) => generateLogicSession(seed));
-}
-
-function numericSeries(puzzle: LogicPuzzle): number[] {
-  return [...puzzle.terms, puzzle.answer].map(Number);
-}
-
-function continuedPuzzle(sequence: string[], answer: string): LogicPuzzle {
-  return { terms: sequence, answer, typicalErrors: [] };
-}
-
-function differences(values: number[]): number[] {
-  return values.slice(1).map((value, index) => value - values[index]);
-}
-
-function hasConstantDifference(values: number[]): boolean {
-  const steps = differences(values);
-  return steps.every((step) => step === steps[0]);
-}
-
-function hasConstantRatio(values: number[]): boolean {
-  const ratio = values[1] / values[0];
-  return values.slice(1).every((value, index) => value === values[index] * ratio);
-}
-
-function hasAlternatingDifferences(values: number[]): boolean {
-  const steps = differences(values);
-  return (
-    steps[0] !== steps[1] &&
-    steps.every((step, index) => step === steps[index % 2])
-  );
-}
-
-function hasConstantSecondDifference(values: number[]): boolean {
-  const secondSteps = differences(differences(values));
-  return secondSteps.length > 0 && secondSteps.every((step) => step === secondSteps[0]);
-}
-
-function splitInterleaved(values: number[]): [number[], number[]] {
-  const even = values.filter((_, index) => index % 2 === 0);
-  const odd = values.filter((_, index) => index % 2 === 1);
-  return [even, odd];
-}
-
-function isFibonacciLike(values: number[]): boolean {
-  return values
-    .slice(2)
-    .every((value, index) => value === values[index] + values[index + 1]);
-}
-
-function isConsecutiveCubes(values: number[]): boolean {
-  const firstRoot = Math.round(Math.cbrt(values[0]));
-  return values.every((value, index) => value === (firstRoot + index) ** 3);
-}
-
-function validatesAlternatingMultiplyAdd(values: number[]): boolean {
-  const ratio = values[1] / values[0];
-  const addend = values[2] - values[1];
-  if (!Number.isInteger(ratio) || ratio < 2 || addend < 2) {
-    return false;
+function answerFor(
+  item: LogicItem,
+  correct: boolean,
+  overrides: Partial<LogicItemAnswerDto> = {},
+): LogicItemAnswerDto {
+  const base = {
+    index: item.index,
+    answerIndex: null as number | null,
+    timeMs: 1000,
+    helpUsed: false,
+    visited: true,
+  };
+  if (item.family === LogicFamily.DOMINO) {
+    return {
+      ...base,
+      dominoTop: correct
+        ? item.domino.answer.top
+        : ((item.domino.answer.top + 1) % 7 as LogicItemAnswerDto['dominoTop']),
+      dominoBottom: item.domino.answer.bottom,
+      ...overrides,
+    };
   }
-  return values
-    .slice(1)
-    .every((value, index) =>
-      index % 2 === 0 ? value === values[index] * ratio : value === values[index] + addend,
-    );
+  if (
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE
+  ) {
+    return {
+      ...base,
+      numericValue: correct ? item.answer : item.answer + 1,
+      ...overrides,
+    };
+  }
+  const choiceCount =
+    item.family === LogicFamily.NUMERIC
+      ? item.choices.length
+      : item.proposals.length;
+  return {
+    ...base,
+    answerIndex: correct
+      ? item.answerIndex
+      : (item.answerIndex + 1) % choiceCount,
+    ...overrides,
+  };
 }
 
-const RULE_VALIDATORS: Record<string, (puzzle: LogicPuzzle) => boolean> = {
-  'arithmetic-constant-step': (puzzle) => hasConstantDifference(numericSeries(puzzle)),
-  'geometric-double-or-triple': (puzzle) => hasConstantRatio(numericSeries(puzzle)),
-  'alternating-two-steps': (puzzle) => hasAlternatingDifferences(numericSeries(puzzle)),
-  'alternating-add-subtract': (puzzle) => {
-    const series = numericSeries(puzzle);
-    const steps = differences(series);
-    return (
-      hasAlternatingDifferences(series) &&
-      steps[0] > 0 &&
-      steps[1] < 0 &&
-      series.every((value) => value >= 0)
+function expectFourProposalsWithSingleCorrect(items: LogicItem[]): number {
+  let matrixCount = 0;
+  for (const item of items) {
+    if (
+      item.family !== LogicFamily.MATRIX_I &&
+      item.family !== LogicFamily.MATRIX_II
+    ) {
+      continue;
+    }
+    matrixCount += 1;
+    expect(item.proposals).toHaveLength(LOGIC_MATRIX_CHOICE_COUNT);
+    const correctPositions = item.proposals.flatMap((proposal, position) =>
+      proposal.kind === MatrixProposalKind.CORRECT ? [position] : [],
     );
-  },
-  'geometric-fast-or-halving': (puzzle) => hasConstantRatio(numericSeries(puzzle)),
-  'increasing-step': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
-  'squares-plus-constant': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
-  'alternating-multiply-add': (puzzle) => validatesAlternatingMultiplyAdd(numericSeries(puzzle)),
-  'fibonacci-like': (puzzle) => isFibonacciLike(numericSeries(puzzle)),
-  'interleaved-sequences': (puzzle) =>
-    splitInterleaved(numericSeries(puzzle)).every(hasConstantDifference),
-  'second-order-differences': (puzzle) => hasConstantSecondDifference(numericSeries(puzzle)),
-  powers: (puzzle) =>
-    hasConstantRatio(numericSeries(puzzle)) || isConsecutiveCubes(numericSeries(puzzle)),
-  'multiply-by-rank': (puzzle) => {
-    const series = numericSeries(puzzle);
-    return series
-      .slice(1)
-      .every((value, index) => value === series[index] * (index + 2));
-  },
-  'add-digit-sum': (puzzle) => {
-    const series = numericSeries(puzzle);
-    return series
-      .slice(1)
-      .every((value, index) => value === series[index] + digitSum(series[index]));
-  },
-  'interleaved-double-fibonacci': (puzzle) => {
-    const [even, odd] = splitInterleaved(numericSeries(puzzle));
-    return hasConstantRatio(even) && isFibonacciLike(odd);
-  },
-};
+    expect(correctPositions).toEqual([item.answerIndex]);
+  }
+  return matrixCount;
+}
 
-describe('generateLogicSession', () => {
-  it('returns a strictly identical session for the same seed', () => {
-    const first = generateLogicSession('determinism-seed');
-    const second = generateLogicSession('determinism-seed');
-    expect(second).toEqual(first);
-    expect(JSON.stringify(second)).toBe(JSON.stringify(first));
-  });
+describe('generateLogicSession — composition standard', () => {
+  const items = generateLogicSession('compo-standard');
 
-  it('matches the reference snapshot for a fixed seed', () => {
-    expect(generateLogicSession('snapshot-seed')).toMatchSnapshot();
-  });
-
-  it('returns different sessions for different seeds', () => {
-    expect(generateLogicSession('seed-a')).not.toEqual(generateLogicSession('seed-b'));
-  });
-
-  it('produces 40 items, 8 per difficulty level, in increasing difficulty', () => {
-    for (const seed of SAMPLE_SEEDS) {
-      const items = generateLogicSession(seed);
-      expect(items).toHaveLength(40);
-      const byLevel = new Map<number, number>();
-      for (const item of items) {
-        byLevel.set(item.difficulty, (byLevel.get(item.difficulty) ?? 0) + 1);
-      }
-      expect([...byLevel.entries()].sort()).toEqual([
-        [1, 8],
-        [2, 8],
-        [3, 8],
-        [4, 8],
-        [5, 8],
-      ]);
-      const difficulties = items.map((item) => item.difficulty);
-      expect(difficulties).toEqual([...difficulties].sort((a, b) => a - b));
-      expect(items.map((item) => item.index)).toEqual(items.map((_, index) => index));
-    }
-  });
-
-  it('totals 120 points with points equal to difficulty', () => {
-    for (const seed of SAMPLE_SEEDS) {
-      const items = generateLogicSession(seed);
-      expect(items.every((item) => item.points === item.difficulty)).toBe(true);
-      expect(items.reduce((total, item) => total + item.points, 0)).toBe(120);
-    }
-  });
-
-  it('keeps the correct answer among exactly four unique choices on a 200-item sample', () => {
-    for (const item of sampleItems()) {
-      expect(item.choices.length).toBe(4);
-      expect(new Set(item.choices).size).toBe(item.choices.length);
-      expect(item.answerIndex).toBeGreaterThanOrEqual(0);
-      expect(item.answerIndex).toBeLessThan(item.choices.length);
-      const answer = item.choices[item.answerIndex];
-      const distractors = item.choices.filter((_, index) => index !== item.answerIndex);
-      expect(distractors).not.toContain(answer);
-    }
-  });
-
-  it('displays 5 or 6 number terms and never a negative value on a 200-item sample', () => {
-    for (const item of sampleItems()) {
-      expect(item.sequence.length).toBeGreaterThanOrEqual(5);
-      expect(item.sequence.length).toBeLessThanOrEqual(6);
-      for (const value of [...item.sequence, ...item.choices].map(Number)) {
-        expect(Number.isInteger(value)).toBe(true);
-        expect(value).toBeGreaterThanOrEqual(0);
-        expect(value).toBeLessThanOrEqual(99999);
-      }
-    }
-  });
-
-  it('recognizes the in-game reported sequence as a valid add-digit-sum progression', () => {
-    const validator = RULE_VALIDATORS['add-digit-sum'];
+  it('produit 4 blocs de 10 dans l’ordre fixe', () => {
+    expect(items).toHaveLength(LOGIC_SESSION_SIZE);
+    const families = items.map((item) => item.family);
+    expect(families.slice(0, 10).every((f) => f === LogicFamily.NUMERIC)).toBe(
+      true,
+    );
+    expect(families.slice(10, 20).every((f) => f === LogicFamily.DOMINO)).toBe(
+      true,
+    );
     expect(
-      validator(continuedPuzzle(['31', '35', '43', '50', '55'], '65')),
+      families.slice(20, 30).every((f) => f === LogicFamily.MATRIX_I),
     ).toBe(true);
     expect(
-      validator(continuedPuzzle(['31', '35', '43', '50', '55'], '60')),
-    ).toBe(false);
+      families.slice(30, 40).every((f) => f === LogicFamily.MATRIX_II),
+    ).toBe(true);
   });
 
-  it('keeps every item verifiable against its own rule, with a unique solution, across 100 sessions', () => {
-    for (let seedIndex = 0; seedIndex < 100; seedIndex += 1) {
-      for (const item of generateLogicSession(`integrity-${seedIndex}`)) {
-        const validator = RULE_VALIDATORS[item.ruleId];
-        expect(validator, `missing validator for rule ${item.ruleId}`).toBeDefined();
-        const answer = item.choices[item.answerIndex];
-        expect(
-          validator(continuedPuzzle(item.sequence, answer)),
-          `item ${item.index} (${item.ruleId}) of seed integrity-${seedIndex} breaks its rule: ${item.sequence.join(' → ')} → ${answer}`,
-        ).toBe(true);
-        for (const [choiceIndex, choice] of item.choices.entries()) {
-          if (choiceIndex === item.answerIndex) {
-            continue;
-          }
-          expect(
-            validator(continuedPuzzle(item.sequence, choice)),
-            `distractor ${choice} also satisfies rule ${item.ruleId} on ${item.sequence.join(' → ')}`,
-          ).toBe(false);
-        }
-      }
+  it('monte en difficulté dans chaque bloc, 2 items par niveau', () => {
+    for (let block = 0; block < 4; block += 1) {
+      const levels = items
+        .slice(block * 10, block * 10 + 10)
+        .map((item) => item.difficulty);
+      expect(levels).toEqual(BLOCK_LEVELS);
     }
   });
 
-  it('generates valid sequences whose answer satisfies each catalog rule', () => {
-    for (const rule of LOGIC_RULES) {
-      const validator = RULE_VALIDATORS[rule.id];
-      expect(validator, `missing validator for rule ${rule.id}`).toBeDefined();
-      const rng = createSeededRng(`rule-${rule.id}`);
-      for (let attempt = 0; attempt < 25; attempt += 1) {
-        const puzzle = rule.generate(rng);
-        expect(validator(puzzle), `rule ${rule.id} produced an invalid puzzle`).toBe(true);
-        expect(puzzle.terms.length).toBeGreaterThanOrEqual(5);
-        expect(puzzle.answer.length).toBeGreaterThan(0);
-      }
+  it('totalise 120 points, points = niveau', () => {
+    expect(items.every((item) => item.points === item.difficulty)).toBe(true);
+    expect(items.reduce((sum, item) => sum + item.points, 0)).toBe(
+      LOGIC_SESSION_MAX_POINTS,
+    );
+  });
+
+  it('respecte les pools de structures des blocs matrices et varie les registres', () => {
+    const blockOne = items.filter((item) => item.family === LogicFamily.MATRIX_I);
+    const blockTwo = items.filter(
+      (item) => item.family === LogicFamily.MATRIX_II,
+    );
+    for (const item of blockOne) {
+      expect(
+        item.rule.id.startsWith('crossed-') ||
+          item.rule.id === 'composition-addition',
+      ).toBe(true);
     }
+    for (const item of blockTwo) {
+      expect(
+        item.rule.id.startsWith('distribution-') ||
+          item.rule.id === 'composition-soustraction',
+      ).toBe(true);
+    }
+    const registers = new Set(
+      [...blockOne, ...blockTwo].map((item) =>
+        item.family === LogicFamily.NUMERIC || item.family === LogicFamily.DOMINO
+          ? null
+          : item.matrix.register,
+      ),
+    );
+    expect(registers.has(MatrixRegister.FIGURES)).toBe(true);
+    expect(registers.has(MatrixRegister.TRAITS)).toBe(true);
+  });
+
+  it('embarque une règle à deux registres sur chaque item', () => {
+    for (const item of items) {
+      expect(item.rule.id.length).toBeGreaterThan(0);
+      expect(item.rule.userText.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('réduit chaque matrice à 4 propositions dont une seule CORRECT à answerIndex', () => {
+    expect(expectFourProposalsWithSingleCorrect(items)).toBe(20);
+  });
+
+  it('équilibre le bloc numérique : 1 suite + 1 triangle par niveau', () => {
+    const numeric = items.filter((item) => item.family === LogicFamily.NUMERIC);
+    expect(numeric).toHaveLength(10);
+    for (let level = 1; level <= 5; level += 1) {
+      const ofLevel = numeric.filter((item) => item.difficulty === level);
+      const structures = ofLevel.map(
+        (item) => (item as { structure: LogicNumericStructure }).structure,
+      );
+      expect(structures.sort()).toEqual([
+        LogicNumericStructure.SEQUENCE,
+        LogicNumericStructure.TRIANGLE,
+      ]);
+    }
+  });
+
+  it('conserve la composition en version de contenu 2 sans triangles et les autres blocs à seed égale', () => {
+    const v2 = generateLogicSession('compo-standard', null, LOGIC_CONTENT_VERSION_V2);
+    const v2Numeric = v2.filter((item) => item.family === LogicFamily.NUMERIC);
+    expect(
+      v2Numeric.every(
+        (item) =>
+          (item as { structure: LogicNumericStructure }).structure ===
+          LogicNumericStructure.SEQUENCE,
+      ),
+    ).toBe(true);
+    expect(v2.slice(10)).toEqual(items.slice(10));
+  });
+
+  it('est strictement déterministe', () => {
+    expect(generateLogicSession('compo-standard')).toEqual(items);
+  });
+});
+
+describe('generateLogicSession — filtre familles', () => {
+  it('NUMERIQUES : 40 items de la famille, 8 par niveau, 120 points', () => {
+    const items = generateLogicSession('filtre', LogicFamilyFilter.NUMERIC);
+    expect(items).toHaveLength(40);
+    expect(items.every((item) => item.family === LogicFamily.NUMERIC)).toBe(
+      true,
+    );
+    for (let level = 1; level <= 5; level += 1) {
+      const ofLevel = items.filter((item) => item.difficulty === level);
+      expect(ofLevel).toHaveLength(8);
+      expect(
+        ofLevel.filter(
+          (item) =>
+            (item as { structure: LogicNumericStructure }).structure ===
+            LogicNumericStructure.TRIANGLE,
+        ),
+      ).toHaveLength(4);
+    }
+    expect(items.reduce((sum, item) => sum + item.points, 0)).toBe(120);
+  });
+
+  it('DOMINOS : 40 items de la famille, 8 par niveau', () => {
+    const items = generateLogicSession('filtre', LogicFamilyFilter.DOMINO);
+    expect(items).toHaveLength(40);
+    expect(items.every((item) => item.family === LogicFamily.DOMINO)).toBe(
+      true,
+    );
+    for (let level = 1; level <= 5; level += 1) {
+      expect(items.filter((item) => item.difficulty === level)).toHaveLength(8);
+    }
+  });
+
+  it('MATRICES : 20 par bloc, pools respectés, 120 points', () => {
+    const items = generateLogicSession('filtre', LogicFamilyFilter.MATRIX);
+    expect(items).toHaveLength(40);
+    expect(
+      items.slice(0, 20).every((item) => item.family === LogicFamily.MATRIX_I),
+    ).toBe(true);
+    expect(
+      items.slice(20).every((item) => item.family === LogicFamily.MATRIX_II),
+    ).toBe(true);
+    for (let level = 1; level <= 5; level += 1) {
+      expect(
+        items
+          .slice(0, 20)
+          .filter((item) => item.difficulty === level),
+      ).toHaveLength(4);
+    }
+    expect(items.reduce((sum, item) => sum + item.points, 0)).toBe(120);
+  });
+});
+
+describe('generateLogicTutorial — composition mixte', () => {
+  it('produit 5 items : 1 suite, 1 triangle, 1 domino, 1 matrice I, 1 matrice II', () => {
+    const items = generateLogicTutorial('tutoriel');
+    expect(items.map((item) => item.family)).toEqual([
+      LogicFamily.NUMERIC,
+      LogicFamily.NUMERIC,
+      LogicFamily.DOMINO,
+      LogicFamily.MATRIX_I,
+      LogicFamily.MATRIX_II,
+    ]);
+    expect(
+      items
+        .slice(0, 2)
+        .map((item) => (item as { structure: LogicNumericStructure }).structure),
+    ).toEqual([
+      LogicNumericStructure.SEQUENCE,
+      LogicNumericStructure.TRIANGLE,
+    ]);
+    expect(items.map((item) => item.difficulty)).toEqual([1, 1, 1, 1, 1]);
+    expect(items.map((item) => item.index)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('réduit les matrices du tutoriel à 4 propositions dont une seule CORRECT', () => {
+    expect(
+      expectFourProposalsWithSingleCorrect(generateLogicTutorial('tutoriel')),
+    ).toBe(2);
+  });
+
+  it('est strictement déterministe', () => {
+    expect(generateLogicTutorial('tutoriel')).toEqual(
+      generateLogicTutorial('tutoriel'),
+    );
+  });
+});
+
+describe('scoreLogicSession — correction des trois formats', () => {
+  const items = generateLogicSession('correction');
+
+  it('donne 100 quand toutes les réponses sont justes dans les trois formats', () => {
+    const responses = items.map((item) => answerFor(item, true));
+    const scored = scoreLogicSession(items, responses);
+    expect(scored.correctCount).toBe(40);
+    expect(scored.score).toBe(100);
+  });
+
+  it('compte faux un QCM erroné, un domino inexact et une matrice erronée', () => {
+    const numeric = items.find((item) => item.family === LogicFamily.NUMERIC);
+    const domino = items.find((item) => item.family === LogicFamily.DOMINO);
+    const matrix = items.find((item) => item.family === LogicFamily.MATRIX_I);
+    const responses = [numeric, domino, matrix].map((item) =>
+      answerFor(item as LogicItem, false),
+    );
+    const scored = scoreLogicSession(items, responses);
+    expect(scored.wrongCount).toBe(3);
+    expect(scored.correctCount).toBe(0);
+  });
+
+  it('corrige la saisie triangle : valeur juste, fausse, absente', () => {
+    const triangle = items.find(
+      (item) =>
+        item.family === LogicFamily.NUMERIC &&
+        (item as { structure: LogicNumericStructure }).structure ===
+          LogicNumericStructure.TRIANGLE,
+    ) as LogicItem;
+    const right = scoreLogicSession(items, [answerFor(triangle, true)]);
+    expect(right.correctCount).toBe(1);
+    const wrong = scoreLogicSession(items, [answerFor(triangle, false)]);
+    expect(wrong.wrongCount).toBe(1);
+    const empty = scoreLogicSession(items, [
+      { index: triangle.index, answerIndex: null, numericValue: null, timeMs: 500, helpUsed: false, visited: true },
+    ]);
+    expect(empty.skippedCount).toBe(1);
+  });
+
+  it('traite une saisie domino partielle comme un item passé', () => {
+    const domino = items.find((item) => item.family === LogicFamily.DOMINO);
+    const partial: LogicItemAnswerDto = {
+      index: (domino as LogicItem).index,
+      answerIndex: null,
+      dominoTop: 3,
+      dominoBottom: null,
+      timeMs: 800,
+      helpUsed: false,
+      visited: true,
+    };
+    const scored = scoreLogicSession(items, [partial]);
+    expect(scored.skippedCount).toBe(1);
+    expect(scored.wrongCount).toBe(0);
+  });
+
+  it('ventile erreurs et temps par famille', () => {
+    const numeric = items.filter((item) => item.family === LogicFamily.NUMERIC);
+    const responses = [
+      answerFor(numeric[0], false, { timeMs: 2000 }),
+      answerFor(numeric[1], true, { timeMs: 1000 }),
+    ];
+    const breakdown = computeLogicFamilyBreakdown(items, responses);
+    const numericEntry = breakdown.find(
+      (entry) => entry.family === LogicFamily.NUMERIC,
+    );
+    expect(numericEntry).toEqual({
+      family: LogicFamily.NUMERIC,
+      errors: 1,
+      timeMs: 3000,
+    });
   });
 });

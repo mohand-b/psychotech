@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`generateLogicSession > matches the reference snapshot for a fixed seed 1`] = `
+exports[`generateLegacyLogicSession > matches the reference snapshot for a fixed seed 1`] = `
 [
   {
     "answerIndex": 2,

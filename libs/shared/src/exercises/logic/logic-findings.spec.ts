@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { LogicItemAnswerDto } from '../../dtos/session';
 import { RecommendationPriority } from '../../enums';
 import { analyzeLogic } from './logic-findings';
-import { LogicItem } from './logic-item';
+import { LogicRuleItem } from './logic-rule-item';
 import { LogicItemStatus, LogicSessionScore } from './logic-scoring';
 
-function item(index: number, ruleId: string): LogicItem {
+function item(index: number, ruleId: string): LogicRuleItem {
   return {
     index,
     ruleId,

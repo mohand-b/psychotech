@@ -1,4 +1,4 @@
-import { LogicItem } from './logic-item';
+import { LogicRuleItem } from './logic-rule-item';
 import { digitSum } from './logic-rules';
 
 export type LogicRuleHint =
@@ -71,7 +71,7 @@ export const LOGIC_RULE_HINTS: Record<string, LogicRuleHint> = {
 };
 
 export function resolveLogicRuleHint(
-  item: Pick<LogicItem, 'ruleId' | 'sequence'>,
+  item: Pick<LogicRuleItem, 'ruleId' | 'sequence'>,
 ): string {
   const hint = LOGIC_RULE_HINTS[item.ruleId];
   if (hint.kind === 'static') {
@@ -83,7 +83,7 @@ export function resolveLogicRuleHint(
 }
 
 export function resolveLogicRuleDetail(
-  item: Pick<LogicItem, 'ruleId' | 'sequence'>,
+  item: Pick<LogicRuleItem, 'ruleId' | 'sequence'>,
 ): string {
   const n = item.sequence.map(Number);
   switch (item.ruleId) {

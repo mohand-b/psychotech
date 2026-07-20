@@ -1,6 +1,6 @@
 import { AxisType, MemoryPhase } from '../enums';
 import { generateDiscriminationSession } from '../exercises/discrimination';
-import { generateLogicSession } from '../exercises/logic';
+import { generateLegacyLogicSession } from '../exercises/logic';
 import { generateMemorySession } from '../exercises/memory';
 import { generateMotricityCourses } from '../exercises/motricity';
 import { generateReactivitySession } from '../exercises/reactivity';
@@ -18,9 +18,9 @@ const MOTRICITY_TUTORIAL_OPTIONS = {
 describe('AXIS_TUTORIAL', () => {
   it('generates the exact same tutorial items on every run', () => {
     expect(
-      generateLogicSession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.LOGIC]),
+      generateLegacyLogicSession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.LOGIC]),
     ).toEqual(
-      generateLogicSession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.LOGIC]),
+      generateLegacyLogicSession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.LOGIC]),
     );
     expect(
       generateMemorySession(TUTORIAL_SEED, AXIS_TUTORIAL[AxisType.MEMORY]),
@@ -58,7 +58,7 @@ describe('AXIS_TUTORIAL', () => {
 
   it('produces the reduced logic tutorial: 5 items in 60 seconds', () => {
     const config = AXIS_TUTORIAL[AxisType.LOGIC];
-    const items = generateLogicSession(TUTORIAL_SEED, config);
+    const items = generateLegacyLogicSession(TUTORIAL_SEED, config);
     expect(items).toHaveLength(5);
     expect(config.timer.durationSec).toBe(60);
   });

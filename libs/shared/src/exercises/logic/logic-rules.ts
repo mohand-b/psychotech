@@ -1,5 +1,5 @@
 import { SeededRng } from '../rng';
-import { LogicDifficulty } from './logic-item';
+import { LogicDifficulty } from './logic-rule-item';
 
 export interface LogicPuzzle {
   terms: string[];

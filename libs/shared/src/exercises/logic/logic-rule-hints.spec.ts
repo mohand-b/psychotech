@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateLogicSession } from './generate-logic-session';
+import { generateLegacyLogicSession } from './generate-legacy-logic-session';
 import {
   LOGIC_RULE_HINTS,
   LogicRuleHint,
@@ -60,7 +60,7 @@ describe('LOGIC_RULE_HINTS', () => {
 
   it('resolves a non-empty hint for every generated item', () => {
     for (const seed of ['hints-1', 'hints-2', 'hints-3']) {
-      for (const item of generateLogicSession(seed)) {
+      for (const item of generateLegacyLogicSession(seed)) {
         expect(resolveLogicRuleHint(item).length).toBeGreaterThan(0);
       }
     }
@@ -121,7 +121,7 @@ describe('resolveLogicRuleDetail', () => {
 
   it('resolves a numbered detail for every generated item', () => {
     for (const seed of ['details-1', 'details-2', 'details-3']) {
-      for (const item of generateLogicSession(seed)) {
+      for (const item of generateLegacyLogicSession(seed)) {
         const detail = resolveLogicRuleDetail(item);
         expect(detail.length).toBeGreaterThan(0);
         expect(detail).toMatch(/\d/);

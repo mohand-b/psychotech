@@ -6,17 +6,17 @@ import {
   LogicSessionScore,
   computeLogicScore,
 } from './logic-scoring';
-import { LogicNumericStructure, LogicV2Item } from './logic-v2-item';
+import { LogicNumericStructure, LogicItem } from './logic-item';
 
-function isTriangleItem(item: LogicV2Item): boolean {
+function isTriangleItem(item: LogicItem): boolean {
   return (
     item.family === LogicFamily.NUMERIC &&
     item.structure === LogicNumericStructure.TRIANGLE
   );
 }
 
-export function logicV2AnswerGiven(
-  item: LogicV2Item,
+export function logicAnswerGiven(
+  item: LogicItem,
   response: LogicItemAnswerDto,
 ): boolean {
   if (item.family === LogicFamily.DOMINO) {
@@ -33,8 +33,8 @@ export function logicV2AnswerGiven(
   return response.answerIndex !== null;
 }
 
-export function logicV2AnswerCorrect(
-  item: LogicV2Item,
+export function logicAnswerCorrect(
+  item: LogicItem,
   response: LogicItemAnswerDto,
 ): boolean {
   if (item.family === LogicFamily.DOMINO) {
@@ -52,33 +52,33 @@ export function logicV2AnswerCorrect(
   return response.answerIndex === item.answerIndex;
 }
 
-function statusForV2(
-  item: LogicV2Item,
+function statusFor(
+  item: LogicItem,
   response: LogicItemAnswerDto | undefined,
 ): LogicItemStatus {
   if (!response) {
     return 'UNREACHED';
   }
-  if (logicV2AnswerGiven(item, response)) {
-    return logicV2AnswerCorrect(item, response) ? 'CORRECT' : 'WRONG';
+  if (logicAnswerGiven(item, response)) {
+    return logicAnswerCorrect(item, response) ? 'CORRECT' : 'WRONG';
   }
   return response.visited ? 'SKIPPED' : 'UNREACHED';
 }
 
-export function scoreLogicV2Session(
-  items: LogicV2Item[],
+export function scoreLogicSession(
+  items: LogicItem[],
   responses: LogicItemAnswerDto[],
 ): LogicSessionScore {
   const responseByIndex = new Map(
     responses.map((response) => [response.index, response]),
   );
   const statuses = items.map((item) =>
-    statusForV2(item, responseByIndex.get(item.index)),
+    statusFor(item, responseByIndex.get(item.index)),
   );
   const answerTimes = items
     .map((item) => {
       const response = responseByIndex.get(item.index);
-      return response && logicV2AnswerGiven(item, response)
+      return response && logicAnswerGiven(item, response)
         ? response.timeMs
         : null;
     })
@@ -94,7 +94,7 @@ export const LOGIC_FAMILY_STRENGTH_MIN_PCT = 80;
 export const LOGIC_FAMILY_WEAKNESS_MAX_PCT = 30;
 
 export function computeLogicFamilyAggregates(
-  items: LogicV2Item[],
+  items: LogicItem[],
   responses: LogicItemAnswerDto[],
   familyFilter: LogicFamilyFilter | null,
 ): LogicFamilyResultDto[] {
@@ -116,9 +116,9 @@ export function computeLogicFamilyAggregates(
     const response = responseByIndex.get(item.index);
     if (response) {
       entry.timeMs += response.timeMs;
-      if (logicV2AnswerGiven(item, response)) {
+      if (logicAnswerGiven(item, response)) {
         entry.attempted += 1;
-        if (logicV2AnswerCorrect(item, response)) {
+        if (logicAnswerCorrect(item, response)) {
           entry.correct += 1;
         }
       }
@@ -159,7 +159,7 @@ export function computeLogicFamilyAggregates(
 }
 
 export function computeLogicFamilyBreakdown(
-  items: LogicV2Item[],
+  items: LogicItem[],
   responses: LogicItemAnswerDto[],
 ): LogicFamilyMetricsEntry[] {
   const responseByIndex = new Map(
@@ -176,8 +176,8 @@ export function computeLogicFamilyBreakdown(
     if (response) {
       entry.timeMs += response.timeMs;
       if (
-        logicV2AnswerGiven(item, response) &&
-        !logicV2AnswerCorrect(item, response)
+        logicAnswerGiven(item, response) &&
+        !logicAnswerCorrect(item, response)
       ) {
         entry.errors += 1;
       }

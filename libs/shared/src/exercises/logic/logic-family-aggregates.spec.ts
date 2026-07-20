@@ -3,18 +3,18 @@ import { LogicItemAnswerDto } from '../../dtos/session';
 import { LogicFamily, LogicFamilyFilter } from '../../enums';
 import { LOGIC_CONTENT_VERSION_V3 } from './logic-family';
 import {
-  LogicV2Item,
-  MatrixLogicV2Item,
-  NumericLogicV2Item,
-} from './logic-v2-item';
-import { generateLogicV2Session } from './generate-logic-v2-session';
+  LogicItem,
+  MatrixLogicItem,
+  NumericLogicItem,
+} from './logic-item';
+import { generateLogicSession } from './generate-logic-session';
 import {
   computeLogicFamilyAggregates,
-  logicV2AnswerCorrect,
-} from './logic-v2-scoring';
+  logicAnswerCorrect,
+} from './logic-session-scoring';
 
 function answerFor(
-  item: LogicV2Item,
+  item: LogicItem,
   index: number,
   outcome: 'correct' | 'wrong' | 'skipped',
 ): LogicItemAnswerDto {
@@ -42,11 +42,11 @@ function answerFor(
       numericValue: outcome === 'correct' ? item.answer : item.answer + 1,
     };
   }
-  const target = (item as NumericLogicV2Item | MatrixLogicV2Item).answerIndex;
+  const target = (item as NumericLogicItem | MatrixLogicItem).answerIndex;
   return { ...base, answerIndex: outcome === 'correct' ? target : (target + 1) % 2 };
 }
 
-const items = generateLogicV2Session(
+const items = generateLogicSession(
   'aggregates',
   null,
   LOGIC_CONTENT_VERSION_V3,
@@ -82,7 +82,7 @@ describe('computeLogicFamilyAggregates', () => {
     expect(domino.ratePct).toBe(50);
     const check = items
       .filter((item) => item.family === LogicFamily.DOMINO)
-      .filter((item) => logicV2AnswerCorrect(item, answers[item.index]));
+      .filter((item) => logicAnswerCorrect(item, answers[item.index]));
     expect(check).toHaveLength(5);
   });
 
@@ -167,7 +167,7 @@ describe('computeLogicFamilyAggregates', () => {
   });
 
   it('produit une seule famille X/40 en session filtrée mono-famille, sans extrême', () => {
-    const filtered = generateLogicV2Session(
+    const filtered = generateLogicSession(
       'aggregates-numeric',
       LogicFamilyFilter.NUMERIC,
       LOGIC_CONTENT_VERSION_V3,
@@ -186,7 +186,7 @@ describe('computeLogicFamilyAggregates', () => {
   });
 
   it('produit deux blocs X/20 en session filtrée Matrices, sans extrêmes', () => {
-    const filtered = generateLogicV2Session(
+    const filtered = generateLogicSession(
       'aggregates-matrix',
       LogicFamilyFilter.MATRIX,
       LOGIC_CONTENT_VERSION_V3,
