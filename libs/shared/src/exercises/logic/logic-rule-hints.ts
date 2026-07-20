@@ -84,79 +84,93 @@ export function resolveLogicRuleHint(
 
 export function resolveLogicRuleDetail(
   item: Pick<LogicRuleItem, 'ruleId' | 'sequence'>,
+  answer: string,
 ): string {
   const n = item.sequence.map(Number);
+  const last = n[n.length - 1];
+  const target = Number(answer);
+  const additiveStep = target - last;
+  const additiveReading =
+    additiveStep >= 0
+      ? `${last} + ${additiveStep} = ${target}`
+      : `${last} − ${-additiveStep} = ${target}`;
   switch (item.ruleId) {
     case 'arithmetic-constant-step': {
       const step = n[1] - n[0];
       return step >= 0
-        ? `La suite avance de ${step} en ${step}.`
-        : `La suite recule de ${-step} en ${-step}.`;
+        ? `La suite avance de ${step} en ${step} : ${additiveReading}.`
+        : `La suite recule de ${-step} en ${-step} : ${additiveReading}.`;
     }
     case 'geometric-double-or-triple': {
       const ratio = n[1] / n[0];
-      return `Chaque terme est multiplié par ${ratio} : ${n[0]} × ${ratio} = ${n[1]}, ${n[1]} × ${ratio} = ${n[2]}…`;
+      return `Chaque terme est multiplié par ${ratio} : ${last} × ${ratio} = ${target}.`;
     }
     case 'alternating-two-steps': {
       const stepA = n[1] - n[0];
       const stepB = n[2] - n[1];
-      return `Les écarts +${stepA} et +${stepB} s'alternent : +${stepA}, +${stepB}, +${stepA}…`;
+      return `Les écarts +${stepA} et +${stepB} s'alternent : ${additiveReading}.`;
     }
     case 'alternating-add-subtract': {
       const added = n[1] - n[0];
       const removed = n[1] - n[2];
-      return `On ajoute ${added}, puis on retire ${removed}, en alternance.`;
+      return `On ajoute ${added}, puis on retire ${removed}, en alternance : ${additiveReading}.`;
     }
     case 'geometric-fast-or-halving': {
       if (n[1] >= n[0]) {
         const ratio = n[1] / n[0];
-        return `Chaque terme est multiplié par ${ratio} : ${n[0]} × ${ratio} = ${n[1]}, ${n[1]} × ${ratio} = ${n[2]}…`;
+        return `Chaque terme est multiplié par ${ratio} : ${last} × ${ratio} = ${target}.`;
       }
       const divisor = n[0] / n[1];
-      return `Chaque terme est divisé par ${divisor} : ${n[0]} ÷ ${divisor} = ${n[1]}, ${n[1]} ÷ ${divisor} = ${n[2]}…`;
+      return `Chaque terme est divisé par ${divisor} : ${last} ÷ ${divisor} = ${target}.`;
     }
     case 'increasing-step':
     case 'second-order-differences': {
       const firstStep = n[1] - n[0];
       const increment = n[2] - n[1] - firstStep;
-      return `L'écart grandit de ${increment} à chaque étape : +${firstStep}, +${firstStep + increment}, +${firstStep + 2 * increment}…`;
+      return `L'écart grandit de ${increment} à chaque étape : ${additiveReading}.`;
     }
     case 'squares-plus-constant': {
       const root = (n[1] - n[0] - 1) / 2;
       const offset = n[0] - root * root;
+      const answerRoot = root + n.length;
       return offset === 0
-        ? `Les termes sont les carrés des positions : ${root}² = ${n[0]}, ${root + 1}² = ${n[1]}, ${root + 2}² = ${n[2]}…`
-        : `Chaque terme est un carré plus ${offset} : ${root}² + ${offset} = ${n[0]}, ${root + 1}² + ${offset} = ${n[1]}…`;
+        ? `Les termes sont les carrés des positions : ${answerRoot}² = ${target}.`
+        : `Chaque terme est un carré plus ${offset} : ${answerRoot}² + ${offset} = ${target}.`;
     }
     case 'alternating-multiply-add': {
       const ratio = n[1] / n[0];
       const addend = n[2] - n[1];
-      return `On multiplie par ${ratio}, puis on ajoute ${addend}, en alternance.`;
+      const reading =
+        target === last * ratio
+          ? `${last} × ${ratio} = ${target}`
+          : `${last} + ${addend} = ${target}`;
+      return `On multiplie par ${ratio}, puis on ajoute ${addend}, en alternance : ${reading}.`;
     }
     case 'fibonacci-like':
-      return `Chaque terme est la somme des deux précédents : ${n[0]} + ${n[1]} = ${n[2]}.`;
+      return `Chaque terme est la somme des deux précédents : ${n[n.length - 2]} + ${last} = ${target}.`;
     case 'interleaved-sequences': {
       const firstStep = n[2] - n[0];
       const secondStep = n[3] - n[1];
-      return `Deux suites s'alternent : l'une avance de ${firstStep} (${n[0]}, ${n[2]}, ${n[4]}…), l'autre de ${secondStep} (${n[1]}, ${n[3]}…).`;
+      const usedStep = n.length % 2 === 0 ? firstStep : secondStep;
+      return `Deux suites s'alternent, l'une avance de ${firstStep}, l'autre de ${secondStep} : ${n[n.length - 2]} + ${usedStep} = ${target}.`;
     }
     case 'powers': {
       const ratio = n[1] / n[0];
       if (n[2] / n[1] === ratio) {
-        return `Les termes sont les puissances de ${ratio} : ${n[0]}, ${n[1]}, ${n[2]}…`;
+        return `Les termes sont les puissances de ${ratio} : ${last} × ${ratio} = ${target}.`;
       }
       const root = Math.round(Math.cbrt(n[0]));
-      return `Les termes sont les cubes des positions : ${root}³ = ${n[0]}, ${root + 1}³ = ${n[1]}…`;
+      const answerRoot = root + n.length;
+      return `Les termes sont les cubes des positions : ${answerRoot}³ = ${target}.`;
     }
     case 'multiply-by-rank': {
-      const firstFactor = n[1] / n[0];
-      const secondFactor = n[2] / n[1];
-      return `Le multiplicateur augmente de 1 à chaque terme : ${n[0]} × ${firstFactor} = ${n[1]}, ${n[1]} × ${secondFactor} = ${n[2]}…`;
+      const factor = target / last;
+      return `Le multiplicateur augmente de 1 à chaque terme : ${last} × ${factor} = ${target}.`;
     }
     case 'add-digit-sum':
-      return `Chaque terme reçoit la somme de ses propres chiffres : ${n[0]} + ${digitSum(n[0])} = ${n[1]}.`;
+      return `Chaque terme reçoit la somme de ses propres chiffres : ${last} + ${digitSum(last)} = ${target}.`;
     case 'interleaved-double-fibonacci':
-      return `Deux suites s'alternent : l'une double à chaque fois (${n[0]}, ${n[2]}, ${n[4]}…), l'autre ajoute ses deux termes précédents (${n[1]}, ${n[3]}, ${n[5]}…).`;
+      return `Deux suites s'alternent, l'une double, l'autre ajoute ses deux termes précédents : ${n[n.length - 2]} × 2 = ${target}.`;
     default:
       return resolveLogicRuleHint(item);
   }

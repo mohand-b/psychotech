@@ -68,63 +68,85 @@ describe('LOGIC_RULE_HINTS', () => {
 });
 
 describe('resolveLogicRuleDetail', () => {
-  it('spells out the exact step of an arithmetic sequence', () => {
+  it("détaille la règle et le calcul de l'exercice pour une suite arithmétique", () => {
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'arithmetic-constant-step',
-        sequence: ['4', '6', '8', '10', '12'],
-      }),
-    ).toBe('La suite avance de 2 en 2.');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'arithmetic-constant-step',
+          sequence: ['4', '6', '8', '10', '12'],
+        },
+        '14',
+      ),
+    ).toBe('La suite avance de 2 en 2 : 12 + 2 = 14.');
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'arithmetic-constant-step',
-        sequence: ['59', '52', '45', '38', '31'],
-      }),
-    ).toBe('La suite recule de 7 en 7.');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'arithmetic-constant-step',
+          sequence: ['59', '52', '45', '38', '31'],
+        },
+        '24',
+      ),
+    ).toBe('La suite recule de 7 en 7 : 31 − 7 = 24.');
   });
 
-  it('spells out the factor of geometric sequences', () => {
+  it("détaille le facteur et le calcul des suites géométriques", () => {
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'geometric-double-or-triple',
-        sequence: ['3', '9', '27', '81', '243'],
-      }),
-    ).toBe('Chaque terme est multiplié par 3 : 3 × 3 = 9, 9 × 3 = 27…');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'geometric-double-or-triple',
+          sequence: ['3', '9', '27', '81', '243'],
+        },
+        '729',
+      ),
+    ).toBe('Chaque terme est multiplié par 3 : 243 × 3 = 729.');
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'geometric-fast-or-halving',
-        sequence: ['96', '48', '24', '12', '6'],
-      }),
-    ).toBe('Chaque terme est divisé par 2 : 96 ÷ 2 = 48, 48 ÷ 2 = 24…');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'geometric-fast-or-halving',
+          sequence: ['96', '48', '24', '12', '6'],
+        },
+        '3',
+      ),
+    ).toBe('Chaque terme est divisé par 2 : 6 ÷ 2 = 3.');
   });
 
-  it('spells out alternances, écarts croissants et sommes', () => {
+  it('détaille alternances, écarts croissants et sommes avec le calcul final', () => {
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'alternating-add-subtract',
-        sequence: ['10', '17', '13', '20', '16'],
-      }),
-    ).toBe('On ajoute 7, puis on retire 4, en alternance.');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'alternating-add-subtract',
+          sequence: ['10', '17', '13', '20', '16'],
+        },
+        '23',
+      ),
+    ).toBe('On ajoute 7, puis on retire 4, en alternance : 16 + 7 = 23.');
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'increasing-step',
-        sequence: ['5', '7', '10', '14', '19'],
-      }),
-    ).toBe("L'écart grandit de 1 à chaque étape : +2, +3, +4…");
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'increasing-step',
+          sequence: ['5', '7', '10', '14', '19'],
+        },
+        '25',
+      ),
+    ).toBe("L'écart grandit de 1 à chaque étape : 19 + 6 = 25.");
     expect(
-      resolveLogicRuleDetail({
-        ruleId: 'fibonacci-like',
-        sequence: ['2', '5', '7', '12', '19'],
-      }),
-    ).toBe('Chaque terme est la somme des deux précédents : 2 + 5 = 7.');
+      resolveLogicRuleDetail(
+        {
+          ruleId: 'fibonacci-like',
+          sequence: ['2', '5', '7', '12', '19'],
+        },
+        '31',
+      ),
+    ).toBe('Chaque terme est la somme des deux précédents : 12 + 19 = 31.');
   });
 
-  it('resolves a numbered detail for every generated item', () => {
+  it("conclut chaque détail par le calcul de la réponse de l'exercice", () => {
     for (const seed of ['details-1', 'details-2', 'details-3']) {
       for (const item of generateLegacyLogicSession(seed)) {
-        const detail = resolveLogicRuleDetail(item);
+        const answer = item.choices[item.answerIndex];
+        const detail = resolveLogicRuleDetail(item, answer);
         expect(detail.length).toBeGreaterThan(0);
-        expect(detail).toMatch(/\d/);
+        expect(detail).toContain(`= ${answer}.`);
       }
     }
   });
