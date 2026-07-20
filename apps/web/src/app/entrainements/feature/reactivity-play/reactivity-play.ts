@@ -23,14 +23,14 @@ import {
   SessionStatus,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { tap } from 'rxjs';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
-import {
-  afterAxisSubmitRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
+import { ResultWait } from '../../ui/result-wait/result-wait';
+import { simulationCurrentAxis } from '../../ui/session-flow';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
 
@@ -80,7 +80,8 @@ const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
 @Component({
   selector: 'app-reactivity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisCountdown, ExitConfirm],
+  imports: [AxisCountdown, ExitConfirm, ResultWait],
+  providers: [ResultWaitOrchestrator],
   templateUrl: './reactivity-play.html',
   styleUrl: './reactivity-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -90,6 +91,7 @@ export class ReactivityPlay {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly resultWait = inject(ResultWaitOrchestrator);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -440,16 +442,15 @@ export class ReactivityPlay {
     for (const stimulus of this.stimuli.slice(this.nextStimulusIndex)) {
       this.recordAnswer(stimulus.index, null, null);
     }
-    this.facade
-      .completeTargetedReactivity(this.answers, this.waitPresses, playedMs)
-      .subscribe({
-        next: (session) => {
-          this.facade.setEffectiveCountdown(null);
-          this.router.navigate(afterAxisSubmitRoute(session, this.axis));
-        },
-        error: () => {
-          this.hasSubmitted = false;
-        },
-      });
+    this.resultWait.submit({
+      axis: this.axis,
+      complete: () =>
+        this.facade
+          .completeTargetedReactivity(this.answers, this.waitPresses, playedMs)
+          .pipe(tap(() => this.facade.setEffectiveCountdown(null))),
+      onSilentFailure: () => {
+        this.hasSubmitted = false;
+      },
+    });
   }
 }

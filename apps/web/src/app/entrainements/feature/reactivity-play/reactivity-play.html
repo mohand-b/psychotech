@@ -146,5 +146,13 @@
       <span class="react__touch-dot react__touch-dot--square"></span>
     </button>
   </div>
+  } @if (resultWait.active()) {
+  <ui-result-wait
+    [axis]="axis"
+    [simulation]="resultWait.simulation()"
+    [failed]="resultWait.failed()"
+    [slow]="resultWait.slow()"
+    (retry)="resultWait.retry()"
+  />
   }
 </section>

@@ -16,6 +16,7 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
+  TargetedAxisResultDto,
   TrainingOptionId,
   TriangleSlot,
   generateLogicSession,
@@ -83,13 +84,21 @@ async function setup(overrides: Partial<SessionDto> = {}): Promise<Setup> {
   const completeTargeted = vi.fn(() =>
     of(buildSession({ ...overrides, status: SessionStatus.COMPLETED })),
   );
+  const targetedResult = vi.fn(() =>
+    of({ sessionId: SESSION_ID, axis: AxisType.LOGIC } as TargetedAxisResultDto),
+  );
   await TestBed.configureTestingModule({
     imports: [LogicPlay],
     providers: [
       provideRouter([]),
       {
         provide: SessionsApi,
-        useValue: { start: vi.fn(), get: vi.fn(), completeTargeted },
+        useValue: {
+          start: vi.fn(),
+          get: vi.fn(),
+          completeTargeted,
+          targetedResult,
+        },
       },
       { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
       {
@@ -361,7 +370,8 @@ describe('LogicPlay (contenu v2)', () => {
     expect(items[39]).toMatchObject({ index: 39, answerIndex: 0 });
     expect(items[0]).toMatchObject({ index: 0, answerIndex: null });
     expect(items[5].dominoTop).toBeUndefined();
-    expect(result.navigate).toHaveBeenCalled();
+    expect(result.navigate).not.toHaveBeenCalled();
+    expect(result.element.querySelector('ui-result-wait')).not.toBeNull();
   });
 
   it('lets the candidate finish from an unanswered last item', async () => {

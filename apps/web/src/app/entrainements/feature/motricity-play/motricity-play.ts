@@ -35,12 +35,11 @@ import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pair
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
-import {
-  afterAxisSubmitRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
+import { ResultWait } from '../../ui/result-wait/result-wait';
+import { simulationCurrentAxis } from '../../ui/session-flow';
 import {
   MotricityLiveState,
   advanceMotricityLive,
@@ -59,7 +58,15 @@ const BADGE_HEIGHT = 24;
 @Component({
   selector: 'app-motricity-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisCountdown, Button, Crank, ExitConfirm, GamepadPairing],
+  imports: [
+    AxisCountdown,
+    Button,
+    Crank,
+    ExitConfirm,
+    GamepadPairing,
+    ResultWait,
+  ],
+  providers: [ResultWaitOrchestrator],
   templateUrl: './motricity-play.html',
   styleUrl: './motricity-play.css',
   host: {
@@ -72,6 +79,7 @@ export class MotricityPlay {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly resultWait = inject(ResultWaitOrchestrator);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -560,14 +568,16 @@ export class MotricityPlay {
         ? ControlModality.TOUCH_JOYSTICKS
         : ControlModality.KEYBOARD;
     this.gamepad.sendPhase('FINISHED');
-    this.facade
-      .completeTargetedMotricity(this.trajectories, controlModality)
-      .subscribe({
-        next: (session) =>
-          this.router.navigate(afterAxisSubmitRoute(session, this.axis)),
-        error: () => {
-          this.hasSubmitted = false;
-        },
-      });
+    this.resultWait.submit({
+      axis: this.axis,
+      complete: () =>
+        this.facade.completeTargetedMotricity(
+          this.trajectories,
+          controlModality,
+        ),
+      onSilentFailure: () => {
+        this.hasSubmitted = false;
+      },
+    });
   }
 }

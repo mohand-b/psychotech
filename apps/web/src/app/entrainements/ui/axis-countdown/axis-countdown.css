@@ -1,20 +1,5 @@
-:host {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: block;
-}
-
 .countdown {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 24px;
-  height: 100vh;
-  height: 100dvh;
-  padding: calc(24px + var(--safe-top)) calc(24px + var(--safe-right))
-    calc(24px + var(--safe-bottom)) calc(24px + var(--safe-left));
   background: var(--axis-pastel);
 }
 
@@ -29,15 +14,6 @@
   background: var(--card);
   color: var(--axis-text);
   font: 600 13px/18px var(--font-ui);
-}
-
-.countdown__stage {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 13.75rem;
-  height: 13.75rem;
 }
 
 .countdown__ring {

@@ -98,5 +98,13 @@
     (continueRequested)="confirmingExit.set(false)"
     (quitRequested)="quit()"
   />
-  } }
+  } } @if (resultWait.active()) {
+  <ui-result-wait
+    [axis]="axis"
+    [simulation]="resultWait.simulation()"
+    [failed]="resultWait.failed()"
+    [slow]="resultWait.slow()"
+    (retry)="resultWait.retry()"
+  />
+  }
 </section>

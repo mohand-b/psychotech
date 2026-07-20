@@ -23,12 +23,11 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
-import {
-  afterAxisSubmitRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
+import { ResultWait } from '../../ui/result-wait/result-wait';
+import { simulationCurrentAxis } from '../../ui/session-flow';
 
 type MemoryStage =
   | 'PHASE_TRANSITION'
@@ -47,7 +46,8 @@ const RESTITUTION_TICK_MS = 200;
 @Component({
   selector: 'app-memory-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisCountdown, Button, ExitConfirm, Icon],
+  imports: [AxisCountdown, Button, ExitConfirm, Icon, ResultWait],
+  providers: [ResultWaitOrchestrator],
   templateUrl: './memory-play.html',
   styleUrl: './memory-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -57,6 +57,7 @@ export class MemoryPlay {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly resultWait = inject(ResultWaitOrchestrator);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -314,11 +315,10 @@ export class MemoryPlay {
     this.hasSubmitted = true;
     this.submitting.set(true);
     this.confirmingExit.set(false);
-    this.facade.completeTargetedMemory(this.results()).subscribe({
-      next: (session) => {
-        this.router.navigate(afterAxisSubmitRoute(session, this.axis));
-      },
-      error: () => {
+    this.resultWait.submit({
+      axis: this.axis,
+      complete: () => this.facade.completeTargetedMemory(this.results()),
+      onSilentFailure: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
       },

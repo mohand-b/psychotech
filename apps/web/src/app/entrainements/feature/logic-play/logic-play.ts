@@ -24,11 +24,10 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { axisButtonColor } from '../../ui/axis-button-color';
-import {
-  afterAxisSubmitRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
+import { simulationCurrentAxis } from '../../ui/session-flow';
+import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
+import { ResultWait } from '../../ui/result-wait/result-wait';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import {
   ItemNavBand,
@@ -87,7 +86,9 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
     LogicMatrix,
     LogicSequence,
     LogicTriangle,
+    ResultWait,
   ],
+  providers: [ResultWaitOrchestrator],
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
   host: {
@@ -98,6 +99,7 @@ export class LogicPlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly resultWait = inject(ResultWaitOrchestrator);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -332,10 +334,10 @@ export class LogicPlay {
       }
       return { ...base, answerIndex: this.answers()[index] ?? null };
     });
-    this.facade.completeTargeted(payload).subscribe({
-      next: (session) =>
-        this.router.navigate(afterAxisSubmitRoute(session, this.axis)),
-      error: () => {
+    this.resultWait.submit({
+      axis: this.axis,
+      complete: () => this.facade.completeTargeted(payload),
+      onSilentFailure: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
       },

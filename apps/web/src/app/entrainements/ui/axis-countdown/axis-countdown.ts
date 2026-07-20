@@ -22,7 +22,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
   imports: [Icon],
   template: `
     <div
-      class="countdown"
+      class="countdown overlay-screen"
       role="status"
       aria-label="Décompte avant le début de l'épreuve"
       [style.--axis-plain]="presentation().plainVar"
@@ -35,7 +35,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
         <span>{{ presentation().label }}</span>
       </span>
 
-      <div class="countdown__stage">
+      <div class="countdown__stage overlay-stage">
         @for (tick of ringKey(); track tick) {
           <svg class="countdown__ring" viewBox="0 0 120 120" aria-hidden="true">
             <circle class="countdown__ring-track" cx="60" cy="60" r="54" />
@@ -55,7 +55,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
       </button>
     </div>
   `,
-  styleUrl: './axis-countdown.css',
+  styleUrls: ['../session-overlay.css', './axis-countdown.css'],
 })
 export class AxisCountdown {
   private readonly destroyRef = inject(DestroyRef);

@@ -27,12 +27,11 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisButtonColor } from '../../ui/axis-button-color';
+import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
-import {
-  afterAxisSubmitRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
+import { ResultWait } from '../../ui/result-wait/result-wait';
+import { simulationCurrentAxis } from '../../ui/session-flow';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
@@ -40,7 +39,8 @@ const SEQUENCE_SIZE = 28;
 @Component({
   selector: 'app-discrimination-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisCountdown, ElementSequence, ExitConfirm, Icon],
+  imports: [AxisCountdown, ElementSequence, ExitConfirm, Icon, ResultWait],
+  providers: [ResultWaitOrchestrator],
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
   host: { '(document:keydown)': 'onKeydown($event)' },
@@ -49,6 +49,7 @@ export class DiscriminationPlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly resultWait = inject(ResultWaitOrchestrator);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -264,11 +265,10 @@ export class DiscriminationPlay {
     for (let index = recorded.length; index < this.total; index += 1) {
       answers.push({ index, answer: null, timeMs: 0 });
     }
-    this.facade.completeTargetedDiscrimination(answers).subscribe({
-      next: (session) => {
-        this.router.navigate(afterAxisSubmitRoute(session, this.axis));
-      },
-      error: () => {
+    this.resultWait.submit({
+      axis: this.axis,
+      complete: () => this.facade.completeTargetedDiscrimination(answers),
+      onSilentFailure: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);
       },
