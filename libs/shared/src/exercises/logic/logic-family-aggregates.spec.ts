@@ -135,6 +135,31 @@ describe('computeLogicFamilyAggregates', () => {
     expect(numeric?.marker).toBeNull();
   });
 
+  it('réserve la force aux taux de 80 au moins et marque toute famille sous 30', () => {
+    const answers = items.map((item, index) => {
+      if (item.family === LogicFamily.NUMERIC) {
+        return answerFor(item, index, index % 2 === 0 ? 'correct' : 'wrong');
+      }
+      if (item.family === LogicFamily.DOMINO) {
+        return answerFor(item, index, index % 5 === 0 ? 'correct' : 'wrong');
+      }
+      if (item.family === LogicFamily.MATRIX_I) {
+        return answerFor(item, index, index % 5 === 0 ? 'correct' : 'wrong');
+      }
+      return answerFor(item, index, 'wrong');
+    });
+    const aggregates = computeLogicFamilyAggregates(items, answers, null);
+    const byFamily = new Map(aggregates.map((entry) => [entry.family, entry]));
+    expect(byFamily.get(LogicFamily.NUMERIC)?.ratePct).toBe(50);
+    expect(byFamily.get(LogicFamily.NUMERIC)?.marker).toBeNull();
+    expect(byFamily.get(LogicFamily.DOMINO)?.marker).toBe('WEAKNESS');
+    expect(byFamily.get(LogicFamily.MATRIX_I)?.marker).toBe('WEAKNESS');
+    expect(byFamily.get(LogicFamily.MATRIX_II)?.marker).toBe('WEAKNESS');
+    expect(
+      aggregates.some((entry) => entry.marker === 'STRENGTH'),
+    ).toBe(false);
+  });
+
   it('ne désigne aucun extrême quand toutes les familles ont le même taux', () => {
     const answers = items.map((item, index) => answerFor(item, index, 'correct'));
     const aggregates = computeLogicFamilyAggregates(items, answers, null);

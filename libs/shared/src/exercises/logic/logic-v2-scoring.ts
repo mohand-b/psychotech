@@ -90,6 +90,9 @@ export function scoreLogicV2Session(
   );
 }
 
+export const LOGIC_FAMILY_STRENGTH_MIN_PCT = 80;
+export const LOGIC_FAMILY_WEAKNESS_MAX_PCT = 30;
+
 export function computeLogicFamilyAggregates(
   items: LogicV2Item[],
   responses: LogicItemAnswerDto[],
@@ -132,6 +135,11 @@ export function computeLogicFamilyAggregates(
   if (familyFilter !== null || aggregates.length < 2) {
     return aggregates;
   }
+  for (const entry of aggregates) {
+    if (entry.ratePct < LOGIC_FAMILY_WEAKNESS_MAX_PCT) {
+      entry.marker = 'WEAKNESS';
+    }
+  }
   const allSameRate = aggregates.every(
     (entry) => entry.ratePct === aggregates[0].ratePct,
   );
@@ -144,14 +152,9 @@ export function computeLogicFamilyAggregates(
       ? entry
       : best,
   );
-  const weakness = aggregates.reduce((worst, entry) =>
-    entry.ratePct < worst.ratePct ||
-    (entry.ratePct === worst.ratePct && entry.correct < worst.correct)
-      ? entry
-      : worst,
-  );
-  strength.marker = 'STRENGTH';
-  weakness.marker = 'WEAKNESS';
+  if (strength.ratePct >= LOGIC_FAMILY_STRENGTH_MIN_PCT) {
+    strength.marker = 'STRENGTH';
+  }
   return aggregates;
 }
 

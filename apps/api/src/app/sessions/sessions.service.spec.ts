@@ -1755,7 +1755,7 @@ describe('SessionsService.targetedResult', () => {
       result.axis === AxisType.LOGIC ? (result.families ?? []) : [];
     expect(families).toHaveLength(4);
     expect(families.every((family) => family.total === 10)).toBe(true);
-    expect(families.every((family) => family.marker === null)).toBe(true);
+    expect(families.every((family) => family.marker === 'WEAKNESS')).toBe(true);
   });
 
   it('omits the per-family aggregates for a pre-v2 logic session', async () => {
