@@ -53,16 +53,16 @@ import {
   buildSimulationSummary,
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
-  generateLogicSession,
+  generateLegacyLogicSession,
   computeLogicFamilyAggregates,
-  generateLogicV2Session,
+  generateLogicSession,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
   motricityCourseFinished,
   scoreDiscriminationSession,
+  scoreLegacyLogicSession,
   scoreLogicSession,
-  scoreLogicV2Session,
   scoreMemorySession,
   scoreMotricitySession,
   scoreReactivitySession,
@@ -323,15 +323,18 @@ export class SessionsService {
   ): { normalizedScore: number; band: ScoreBand } {
     const scored =
       context.contentVersion >= LOGIC_CONTENT_VERSION_V2
-        ? scoreLogicV2Session(
-            generateLogicV2Session(
+        ? scoreLogicSession(
+            generateLogicSession(
               context.seed,
               context.logicFamily,
               context.contentVersion,
             ),
             items,
           )
-        : scoreLogicSession(generateLogicSession(context.seed), items);
+        : scoreLegacyLogicSession(
+            generateLegacyLogicSession(context.seed),
+            items,
+          );
     return { normalizedScore: scored.score, band: avisFromScore(scored.score) };
   }
 
@@ -766,7 +769,7 @@ export class SessionsService {
       const responses = this.logicItemsFromMetrics(metrics);
       const isV2 = context.contentVersion >= LOGIC_CONTENT_VERSION_V2;
       const v2Items = isV2
-        ? generateLogicV2Session(seed, context.logicFamily, context.contentVersion)
+        ? generateLogicSession(seed, context.logicFamily, context.contentVersion)
         : null;
       const items = v2Items
         ? v2Items.map((item) => ({
@@ -778,10 +781,10 @@ export class SessionsService {
             answerIndex: 0,
             points: item.points,
           }))
-        : generateLogicSession(seed);
+        : generateLegacyLogicSession(seed);
       const scored = v2Items
-        ? scoreLogicV2Session(v2Items, responses)
-        : scoreLogicSession(items, responses);
+        ? scoreLogicSession(v2Items, responses)
+        : scoreLegacyLogicSession(items, responses);
       const answered = scored.correctCount + scored.wrongCount;
       const total = items.length;
       return {
@@ -1036,7 +1039,7 @@ export class SessionsService {
       const families =
         session.contentVersion >= LOGIC_CONTENT_VERSION_V2
           ? computeLogicFamilyAggregates(
-              generateLogicV2Session(
+              generateLogicSession(
                 session.seed,
                 logicFamily,
                 session.contentVersion,
