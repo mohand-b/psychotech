@@ -12,7 +12,7 @@ export const LOGIC_FAMILY_LABELS: Record<LogicFamily, string> = {
 };
 
 export const LOGIC_FAMILY_FILTER_LABELS: Record<LogicFamilyFilter, string> = {
-  [LogicFamilyFilter.NUMERIC]: 'Numérique (suites + triangles)',
+  [LogicFamilyFilter.NUMERIC]: 'Numérique',
   [LogicFamilyFilter.DOMINO]: 'Dominos',
   [LogicFamilyFilter.MATRIX]: 'Matrices',
 };
