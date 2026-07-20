@@ -24,6 +24,7 @@ export class RuleHint {
 
   readonly hint = input.required<string>();
   readonly used = input(false);
+  readonly popWidth = input(316);
   readonly opened = output<void>();
 
   protected readonly bulbIcon = Lightbulb;

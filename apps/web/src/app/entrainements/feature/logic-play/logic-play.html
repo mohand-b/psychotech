@@ -22,6 +22,7 @@
     [currentIndex]="currentIndex()"
     [axis]="axis"
     [remainingCount]="unansweredCount()"
+    [remainingSec]="remainingSec()"
     [segments]="segments()"
     (navigate)="goTo($event)"
   />
@@ -36,44 +37,12 @@
   >
     <article
       class="play__card"
-      [class.play__card--domino]="
+      [class.play__card--split]="
         dominoItem() !== null || triangleItem() !== null
       "
-      [class.play__card--matrix]="matrixItem() !== null"
     >
       @switch (item.family) { @case (families.DOMINO) { @if (dominoItem(); as
       domino) {
-      <header class="play__fam-head">
-        <div class="play__fam-lead">
-          <span class="play__fam-badge">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect x="8" y="2.5" width="8" height="19" rx="2.5"></rect>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-              <circle cx="12" cy="7.2" r="1.3" fill="currentColor" stroke="none"></circle>
-              <circle cx="10.4" cy="15.6" r="1.3" fill="currentColor" stroke="none"></circle>
-              <circle cx="13.6" cy="18.3" r="1.3" fill="currentColor" stroke="none"></circle>
-            </svg>
-            Dominos
-          </span>
-          <span class="play__fam-consigne"
-            >Déduisez le dernier domino et saisissez ses deux faces</span
-          >
-        </div>
-        <span class="play__card-count t-mono"
-          >{{ currentIndex() + 1 }}/{{ items().length }}</span
-        >
-      </header>
-
       <ui-logic-domino
         #dominoBoard
         [tiles]="domino.domino.tiles"
@@ -87,34 +56,17 @@
         (digitEntered)="enterDominoDigit($event)"
         (cleared)="clearDominoAnswer()"
         (hintOpened)="markHelpUsed()"
-      />
+      >
+        <ui-logic-item-head
+          icon="domino"
+          label="Dominos"
+          consigne="Déduisez le dernier domino et saisissez ses deux faces"
+          [current]="currentIndex() + 1"
+          [total]="items().length"
+        />
+      </ui-logic-domino>
       } } @case (families.NUMERIC) { @switch (numericStructure()) { @case
       (structures.TRIANGLE) { @if (triangleItem(); as triangle) {
-      <header class="play__fam-head">
-        <div class="play__fam-lead">
-          <span class="play__fam-badge">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 3.5 21 20H3Z"></path>
-            </svg>
-            Triangles
-          </span>
-          <span class="play__fam-consigne">Trouvez la valeur manquante</span>
-        </div>
-        <span class="play__card-count t-mono"
-          >{{ currentIndex() + 1 }}/{{ items().length }}</span
-        >
-      </header>
-
       <ui-logic-triangle
         #triangleBoard
         [item]="triangle.triangle"
@@ -124,62 +76,50 @@
         [hintUsed]="currentHelpUsed()"
         (valueChange)="setNumericAnswer($event)"
         (hintOpened)="markHelpUsed()"
-      />
+      >
+        <ui-logic-item-head
+          icon="series"
+          label="Triangles chiffrés"
+          consigne="Trouvez la valeur manquante"
+          [current]="currentIndex() + 1"
+          [total]="items().length"
+        />
+      </ui-logic-triangle>
       } } @default { @if (sequenceItem(); as numeric) {
-      <header class="play__card-head">
-        <span class="t-label">Complétez la suite</span>
-        <span class="play__card-count t-mono"
-          >{{ currentIndex() + 1 }}/{{ items().length }}</span
-        >
-      </header>
+      <ui-logic-item-head
+        icon="series"
+        label="Suites numériques"
+        consigne="Complétez la suite"
+        [current]="currentIndex() + 1"
+        [total]="items().length"
+      />
 
       <ui-logic-sequence
         #sequence
         [terms]="numeric.sequence"
+        [filledValue]="selectedSequenceValue()"
         [hint]="helpEnabled() ? currentHint() : null"
         [hintUsed]="currentHelpUsed()"
         (hintOpened)="markHelpUsed()"
       />
 
-      <ui-logic-choices
-        [choices]="numeric.choices"
-        [selectedIndex]="answers()[currentIndex()]"
-        [disabled]="locked()"
-        (chosen)="select($event)"
-      />
-
-      <span class="play__card-hint">A–D ou 1–4 pour répondre</span>
+      <div class="play__answer">
+        <ui-logic-choices
+          [choices]="numeric.choices"
+          [selectedIndex]="answers()[currentIndex()]"
+          [disabled]="locked()"
+          (chosen)="select($event)"
+        />
+        <span class="play__card-hint">A-D ou 1-4 pour répondre</span>
+      </div>
       } } } } @default { @if (matrixItem(); as matrix) {
-      <header class="play__fam-head">
-        <div class="play__fam-lead">
-          <span class="play__fam-badge">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-              <path d="M3 9h18"></path>
-              <path d="M3 15h18"></path>
-              <path d="M9 3v18"></path>
-              <path d="M15 3v18"></path>
-            </svg>
-            Matrices
-          </span>
-          <span class="play__fam-consigne"
-            >Choisissez la figure qui complète la grille</span
-          >
-        </div>
-        <span class="play__card-count t-mono"
-          >{{ currentIndex() + 1 }}/{{ items().length }}</span
-        >
-      </header>
+      <ui-logic-item-head
+        icon="matrix"
+        label="Matrices"
+        consigne="Choisissez la figure qui complète la grille"
+        [current]="currentIndex() + 1"
+        [total]="items().length"
+      />
 
       <ui-logic-matrix
         #matrixBoard
@@ -216,9 +156,19 @@
       />
       <div class="play__actions-end">
         <ui-button
+          class="play__skip"
           color="neutral"
           appearance="ghost"
           [iconEnd]="skipIcon"
+          [disabled]="locked() || nextUnansweredIndex() === -1"
+          (click)="skip()"
+        >
+          Passer
+        </ui-button>
+        <ui-button
+          class="play__skip-compact"
+          color="neutral"
+          appearance="outlined"
           [disabled]="locked() || nextUnansweredIndex() === -1"
           (click)="skip()"
         >
@@ -234,12 +184,21 @@
         >
           {{ isLastItem() ? 'Terminer' : 'Suivant' }}
         </ui-button>
+        <ui-button
+          class="play__next-compact"
+          color="brand"
+          [block]="true"
+          [showArrow]="!isLastItem()"
+          [disabled]="locked() || !currentAnswered()"
+          (click)="confirmNext()"
+        >
+          {{ isLastItem() ? 'Terminer' : 'Suivant' }}
+        </ui-button>
       </div>
     </div>
 
-    <p class="play__hint t-support">
-      « Suivant » valide votre réponse - « Passer » laisse l'item sans réponse
-      pour y revenir.
+    <p class="play__hint">
+      Navigation libre : « Passer » laisse l'item sans réponse.
     </p>
 
     @if (confirmingExit()) {

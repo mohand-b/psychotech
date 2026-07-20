@@ -28,13 +28,39 @@ interface RenderedSegment {
   selector: 'ui-item-nav-band',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="band" [style.--band-accent]="presentation().plainVar">
-      <span class="band__position"
-        >Item
-        <strong class="t-mono"
-          >{{ currentIndex() + 1 }}/{{ states().length }}</strong
-        ></span
-      >
+    <div
+      class="band"
+      [style.--band-accent]="presentation().plainVar"
+      [style.--band-pastel]="presentation().pastelVar"
+      [style.--band-pastel-bd]="presentation().pastelBorderVar"
+    >
+      <div class="band__meta">
+        <span class="band__position"
+          >Item
+          <strong class="t-mono"
+            >{{ currentIndex() + 1 }}/{{ states().length }}</strong
+          ></span
+        >
+        @if (clockLabel(); as clock) {
+          <span class="band__timer" title="Temps restant de l'exercice">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="band__timer-value t-mono">{{ clock }}</span>
+          </span>
+        }
+      </div>
       @if (renderedSegments(); as groups) {
         <nav
           class="band__items band__items--segmented"
@@ -104,11 +130,22 @@ export class ItemNavBand {
   readonly axis = input.required<AxisType>();
   readonly remainingCount = input.required<number>();
   readonly segments = input<ItemNavSegment[] | null>(null);
+  readonly remainingSec = input<number | null>(null);
   readonly navigate = output<number>();
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
   );
+
+  protected readonly clockLabel = computed<string | null>(() => {
+    const remaining = this.remainingSec();
+    if (remaining === null) {
+      return null;
+    }
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  });
 
   protected readonly renderedSegments = computed<RenderedSegment[] | null>(
     () => {

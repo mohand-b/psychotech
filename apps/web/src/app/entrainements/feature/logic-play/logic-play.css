@@ -24,86 +24,31 @@
 .play__content {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   flex: 1;
   gap: 24px;
   width: 100%;
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 24px;
+  padding: 40px 24px;
 }
 
 .play__card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 32px;
+  width: 720px;
+  max-width: 100%;
+  gap: 28px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 32px;
-}
-
-.play__card--domino {
-  align-items: stretch;
-  gap: 24px;
-  padding: 32px 40px 36px;
-}
-
-.play__card--matrix {
-  align-items: stretch;
-  gap: 26px;
   padding: 32px 40px 34px;
 }
 
-.play__card-head {
+.play__answer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.play__fam-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-}
-
-.play__fam-lead {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  min-width: 0;
-}
-
-.play__fam-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-  background: var(--axis-pastel);
-  border: 1px solid var(--axis-pastel-bd);
-  color: var(--axis-text);
-  font: 600 12px/16px var(--font-ui);
-  padding: 5px 10px;
-  border-radius: var(--radius-chip);
-}
-
-.play__fam-consigne {
-  font: 400 13px/18px var(--font-ui);
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.play__card-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--label);
 }
 
 .play__card-hint {
@@ -117,6 +62,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 720px;
+  max-width: 100%;
 }
 
 .play__actions-end {
@@ -125,7 +72,9 @@
   gap: 12px;
 }
 
-.play__previous-compact {
+.play__actions .play__previous-compact,
+.play__actions .play__skip-compact,
+.play__actions .play__next-compact {
   display: none;
 }
 
@@ -135,8 +84,9 @@
 
 .play__hint {
   margin: 0;
+  font: 400 13px/18px var(--font-ui);
+  color: var(--label);
   text-align: center;
-  color: var(--text-secondary);
 }
 
 @media (max-width: 767px) {
@@ -151,36 +101,27 @@
   }
 
   .play__content {
-    justify-content: center;
-    gap: 12px;
-    padding: 12px 12px 32px;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 12px 16px calc(88px + var(--safe-bottom));
   }
 
   .play__card {
+    width: 100%;
     gap: 18px;
-    padding: 18px 14px;
+    border-radius: var(--radius-card);
+    padding: 18px 16px;
   }
 
-  .play__card--domino,
-  .play__card--matrix {
-    gap: 16px;
-    padding: 20px 16px;
-  }
-
-  .play__fam-head {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    text-align: center;
-  }
-
-  .play__fam-head .play__card-count {
-    display: none;
-  }
-
-  .play__fam-consigne {
-    white-space: normal;
-    line-height: 1.5;
+  .play__card--split {
+    flex: 1;
+    gap: 14px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
   }
 
   .play__card-hint {
@@ -190,37 +131,41 @@
   .play__actions {
     position: fixed;
     inset: auto 0 0 0;
-    background: var(--card);
+    width: auto;
+    display: grid;
+    grid-template-columns: 48px 1fr 1fr;
+    gap: 10px;
+    background: var(--bg);
     border-top: 1px solid var(--border);
-    padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
+    padding: 12px calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
       calc(16px + var(--safe-left));
-    gap: 8px;
     z-index: 30;
   }
 
-  .play__actions-end {
-    flex: 1;
-    gap: 8px;
+  .play__actions ui-button {
+    height: 48px;
   }
 
-  .play__previous {
+  .play__actions-end {
+    display: contents;
+  }
+
+  .play__actions .play__previous,
+  .play__actions .play__skip,
+  .play__actions .play__next {
     display: none;
   }
 
-  .play__previous-compact {
+  .play__actions .play__previous-compact {
     display: inline-flex;
   }
 
-  .play__actions-end .play__next {
-    flex: 1;
-    width: 100%;
+  .play__actions .play__skip-compact,
+  .play__actions .play__next-compact {
+    display: flex;
   }
 
   .play__hint {
     display: none;
-  }
-
-  .play__content {
-    padding-bottom: calc(88px + var(--safe-bottom));
   }
 }

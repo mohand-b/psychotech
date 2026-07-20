@@ -36,7 +36,7 @@
 }
 
 .hint__bulb--used {
-  color: var(--axis-plain);
+  color: #6c9bee;
 }
 
 .hint__bulb--used svg {
@@ -52,12 +52,12 @@
   bottom: calc(100% + 12px);
   right: -9px;
   z-index: 30;
-  width: 316px;
+  width: var(--hint-pop-width, 316px);
   background: var(--axis-pastel);
-  border: 1px solid var(--axis-pastel-bd);
+  border: 1px solid #d3e3fc;
   border-radius: var(--radius-button);
   padding: 10px 10px 10px 13px;
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--ink) 10%, transparent);
+  box-shadow: 0 6px 16px rgba(20, 24, 40, 0.1);
 }
 
 .hint__pop::after {
@@ -68,8 +68,8 @@
   width: 10px;
   height: 10px;
   background: var(--axis-pastel);
-  border-right: 1px solid var(--axis-pastel-bd);
-  border-bottom: 1px solid var(--axis-pastel-bd);
+  border-right: 1px solid #d3e3fc;
+  border-bottom: 1px solid #d3e3fc;
   transform: rotate(45deg);
 }
 
@@ -116,8 +116,9 @@
 
 @media (max-width: 767px) {
   .hint__bulb {
-    width: 44px;
+    width: 38px;
     height: 44px;
+    border-radius: var(--radius-button);
   }
 
   .hint__veil {
@@ -125,7 +126,7 @@
     position: fixed;
     inset: 0;
     z-index: 39;
-    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    background: rgba(27, 33, 48, 0.18);
   }
 
   .hint__pop {
@@ -143,7 +144,7 @@
     border: 1px solid var(--border);
     border-bottom: none;
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
-    box-shadow: 0 -8px 24px color-mix(in srgb, var(--ink) 14%, transparent);
+    box-shadow: 0 -8px 24px rgba(20, 24, 40, 0.14);
     padding: 8px 10px calc(28px + var(--safe-bottom));
   }
 
@@ -156,7 +157,7 @@
     width: 36px;
     height: 4px;
     border-radius: 2px;
-    background: var(--border-hover);
+    background: #dce0e5;
   }
 
   .hint__line {

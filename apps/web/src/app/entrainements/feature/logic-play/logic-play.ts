@@ -36,6 +36,7 @@ import {
   ItemNavState,
 } from '../../ui/item-nav-band/item-nav-band';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
+import { LogicItemHead } from '../../ui/logic-item-head/logic-item-head';
 import {
   DominoAnswerFace,
   LogicDomino,
@@ -82,6 +83,7 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
     ItemNavBand,
     LogicChoices,
     LogicDomino,
+    LogicItemHead,
     LogicMatrix,
     LogicSequence,
     LogicTriangle,
@@ -176,6 +178,16 @@ export class LogicPlay {
   protected readonly currentNumericValue = computed(
     () => this.numericAnswers()[this.currentIndex()] ?? null,
   );
+  protected readonly selectedSequenceValue = computed<string | null>(() => {
+    const item = this.sequenceItem();
+    if (!item) {
+      return null;
+    }
+    const choiceIndex = this.answers()[this.currentIndex()];
+    return choiceIndex === undefined
+      ? null
+      : (item.choices[choiceIndex] ?? null);
+  });
   protected readonly currentHint = computed(
     () => this.currentItem()?.rule.userText ?? '',
   );
