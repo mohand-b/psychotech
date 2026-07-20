@@ -1641,11 +1641,13 @@ describe('SessionsService.targetedResult', () => {
     session: buildSession({ id: rowSessionId, completedAt }),
   });
 
-  it('evaluates the axis record against the whole history at consultation time', async () => {
+  it('references the best score reached before the session, ignoring later ones', async () => {
     repository.findUserSession.mockResolvedValue(resultSession());
     repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow('00000000-0000-0000-0000-000000000000', 52, new Date('2026-07-01T09:00:00Z')),
+      historyRow('00000000-0000-0000-0000-000000000001', 68, new Date('2026-07-02T09:00:00Z')),
       historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
-      historyRow(laterSessionId, 80, new Date('2026-07-08T18:00:00Z')),
+      historyRow(laterSessionId, 99, new Date('2026-07-08T18:00:00Z')),
     ]);
 
     const result = await service.targetedResult(
@@ -1654,10 +1656,30 @@ describe('SessionsService.targetedResult', () => {
       AxisType.LOGIC,
     );
 
-    expect(result.bestScore).toBe(80);
+    expect(result.previousBestScore).toBe(68);
+    expect(result.bestScore).toBe(76);
+    expect(result.isNewBest).toBe(true);
+    expect(result.isEqualBest).toBe(false);
+  });
+
+  it('tells the same story between the delta reference and the record mention', async () => {
+    repository.findUserSession.mockResolvedValue(resultSession());
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow('00000000-0000-0000-0000-000000000000', 99, new Date('2026-07-01T09:00:00Z')),
+      historyRow('00000000-0000-0000-0000-000000000001', 21, new Date('2026-07-03T09:00:00Z')),
+      historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.previousBestScore).toBe(99);
+    expect(result.bestScore).toBe(99);
     expect(result.isNewBest).toBe(false);
     expect(result.isEqualBest).toBe(false);
-    expect(result.previousScore).toBe(80);
   });
 
   it('serves the axis result of a completed full simulation without targeted history', async () => {
@@ -1690,10 +1712,10 @@ describe('SessionsService.targetedResult', () => {
     expect(result.score).toBe(76);
     expect(result.bestScore).toBe(76);
     expect(result.isNewBest).toBe(false);
-    expect(result.previousScore).toBeNull();
+    expect(result.previousBestScore).toBeNull();
   });
 
-  it('still reports the record when no other session has reached this score', async () => {
+  it('claims no record and no delta reference on the first session of the axis', async () => {
     repository.findUserSession.mockResolvedValue(resultSession());
     repository.findTargetedAxisHistory.mockResolvedValue([
       historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
@@ -1707,9 +1729,50 @@ describe('SessionsService.targetedResult', () => {
     );
 
     expect(result.bestScore).toBe(76);
-    expect(result.isNewBest).toBe(true);
+    expect(result.isNewBest).toBe(false);
     expect(result.isEqualBest).toBe(false);
-    expect(result.previousScore).toBe(60);
+    expect(result.previousBestScore).toBeNull();
+  });
+
+  it('exposes the per-family aggregates for a v2+ logic session', async () => {
+    const session = resultSession();
+    repository.findUserSession.mockResolvedValue({
+      ...session,
+      contentVersion: 3,
+    });
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.axis).toBe(AxisType.LOGIC);
+    const families =
+      result.axis === AxisType.LOGIC ? (result.families ?? []) : [];
+    expect(families).toHaveLength(4);
+    expect(families.every((family) => family.total === 10)).toBe(true);
+    expect(families.every((family) => family.marker === null)).toBe(true);
+  });
+
+  it('omits the per-family aggregates for a pre-v2 logic session', async () => {
+    repository.findUserSession.mockResolvedValue(resultSession());
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow(sessionId, 76, new Date('2026-07-04T10:05:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(
+      result.axis === AxisType.LOGIC ? result.families : undefined,
+    ).toBeUndefined();
   });
 });
 

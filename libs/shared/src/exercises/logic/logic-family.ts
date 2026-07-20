@@ -7,8 +7,8 @@ export const LOGIC_CONTENT_VERSION_V2 = 2;
 export const LOGIC_FAMILY_LABELS: Record<LogicFamily, string> = {
   [LogicFamily.NUMERIC]: 'Numérique',
   [LogicFamily.DOMINO]: 'Dominos',
-  [LogicFamily.MATRIX_I]: 'Matrices — lecture',
-  [LogicFamily.MATRIX_II]: 'Matrices — déduction',
+  [LogicFamily.MATRIX_I]: 'Matrices (lecture)',
+  [LogicFamily.MATRIX_II]: 'Matrices (déduction)',
 };
 
 export const LOGIC_FAMILY_FILTER_LABELS: Record<LogicFamilyFilter, string> = {

@@ -54,6 +54,7 @@ import {
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLogicSession,
+  computeLogicFamilyAggregates,
   generateLogicV2Session,
   generateMemorySession,
   generateMotricityCourses,
@@ -996,10 +997,10 @@ export class SessionsService {
       };
     }
     const others = scoredHistory.filter(
-      (candidate) => candidate.sessionId !== sessionId,
+      (candidate) =>
+        candidate.sessionId !== sessionId &&
+        candidate.completedAt < entry.completedAt,
     );
-    const previousScore =
-      others.length > 0 ? others[others.length - 1].score : null;
     const othersBest =
       others.length > 0 ? Math.max(...others.map(({ score }) => score)) : null;
     const excludedFromBest = session.logicFamily != null;
@@ -1025,17 +1026,32 @@ export class SessionsService {
         !excludedFromBest && othersBest !== null && entry.score > othersBest,
       isEqualBest:
         !excludedFromBest && othersBest !== null && entry.score === othersBest,
-      previousScore: excludedFromBest ? null : previousScore,
+      previousBestScore: excludedFromBest ? null : othersBest,
     };
     if (axis === AxisType.LOGIC) {
+      const answers = this.logicItemsFromMetrics(axisRow.metrics);
+      const logicFamily = session.logicFamily
+        ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
+        : null;
+      const families =
+        session.contentVersion >= LOGIC_CONTENT_VERSION_V2
+          ? computeLogicFamilyAggregates(
+              generateLogicV2Session(
+                session.seed,
+                logicFamily,
+                session.contentVersion,
+              ),
+              answers,
+              logicFamily,
+            )
+          : undefined;
       return {
         ...base,
         axis: AxisType.LOGIC,
-        items: this.logicItemsFromMetrics(axisRow.metrics),
+        items: answers,
         contentVersion: session.contentVersion,
-        logicFamily: session.logicFamily
-          ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
-          : null,
+        logicFamily,
+        ...(families ? { families } : {}),
       };
     }
     if (axis === AxisType.MEMORY) {

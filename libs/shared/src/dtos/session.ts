@@ -2,6 +2,7 @@ import {
   AxisProgressStatus,
   AxisType,
   ControlModality,
+  LogicFamily,
   LogicFamilyFilter,
   RecommendationPriority,
   ScoreBand,
@@ -136,7 +137,19 @@ interface TargetedAxisResultBaseDto {
   bestScore: number;
   isNewBest: boolean;
   isEqualBest: boolean;
-  previousScore: number | null;
+  previousBestScore: number | null;
+}
+
+export type LogicFamilyResultMarker = 'STRENGTH' | 'WEAKNESS';
+
+export interface LogicFamilyResultDto {
+  family: LogicFamily;
+  correct: number;
+  attempted: number;
+  total: number;
+  ratePct: number;
+  timeMs: number;
+  marker: LogicFamilyResultMarker | null;
 }
 
 export interface TargetedLogicResultDto extends TargetedAxisResultBaseDto {
@@ -144,6 +157,7 @@ export interface TargetedLogicResultDto extends TargetedAxisResultBaseDto {
   items: LogicItemAnswerDto[];
   contentVersion: number;
   logicFamily: LogicFamilyFilter | null;
+  families?: LogicFamilyResultDto[];
 }
 
 export interface TargetedMemoryResultDto extends TargetedAxisResultBaseDto {

@@ -1,6 +1,6 @@
 import { LogicFamilyMetricsEntry } from '../../domain/axis-metrics';
-import { LogicItemAnswerDto } from '../../dtos/session';
-import { LogicFamily } from '../../enums';
+import { LogicFamilyResultDto, LogicItemAnswerDto } from '../../dtos/session';
+import { LogicFamily, LogicFamilyFilter } from '../../enums';
 import {
   LogicItemStatus,
   LogicSessionScore,
@@ -88,6 +88,71 @@ export function scoreLogicV2Session(
     items.map((item) => item.points),
     answerTimes,
   );
+}
+
+export function computeLogicFamilyAggregates(
+  items: LogicV2Item[],
+  responses: LogicItemAnswerDto[],
+  familyFilter: LogicFamilyFilter | null,
+): LogicFamilyResultDto[] {
+  const responseByIndex = new Map(
+    responses.map((response) => [response.index, response]),
+  );
+  const byFamily = new Map<LogicFamily, LogicFamilyResultDto>();
+  for (const item of items) {
+    const entry = byFamily.get(item.family) ?? {
+      family: item.family,
+      correct: 0,
+      attempted: 0,
+      total: 0,
+      ratePct: 0,
+      timeMs: 0,
+      marker: null,
+    };
+    entry.total += 1;
+    const response = responseByIndex.get(item.index);
+    if (response) {
+      entry.timeMs += response.timeMs;
+      if (logicV2AnswerGiven(item, response)) {
+        entry.attempted += 1;
+        if (logicV2AnswerCorrect(item, response)) {
+          entry.correct += 1;
+        }
+      }
+    }
+    byFamily.set(item.family, entry);
+  }
+  const aggregates = [...byFamily.values()].map((entry) => ({
+    ...entry,
+    ratePct:
+      entry.attempted === 0
+        ? 0
+        : Math.round((entry.correct / entry.attempted) * 100),
+  }));
+  if (familyFilter !== null || aggregates.length < 2) {
+    return aggregates;
+  }
+  const allSameRate = aggregates.every(
+    (entry) => entry.ratePct === aggregates[0].ratePct,
+  );
+  if (allSameRate) {
+    return aggregates;
+  }
+  const strength = aggregates.reduce((best, entry) =>
+    entry.ratePct > best.ratePct ||
+    (entry.ratePct === best.ratePct && entry.correct > best.correct)
+      ? entry
+      : best,
+  );
+  const weakness = aggregates.reduce((worst, entry) =>
+    entry.ratePct < worst.ratePct ||
+    (entry.ratePct === worst.ratePct && entry.correct < worst.correct)
+      ? entry
+      : worst,
+  );
+  strength.marker = 'STRENGTH';
+  weakness.marker = 'WEAKNESS';
+  return aggregates;
 }
 
 export function computeLogicFamilyBreakdown(
