@@ -363,6 +363,47 @@ describe('LogicPlay (contenu v2)', () => {
     expect(items[5].dominoTop).toBeUndefined();
     expect(result.navigate).toHaveBeenCalled();
   });
+
+  it('lets the candidate finish from an unanswered last item', async () => {
+    const result = await setup();
+    expect(nextButton(result.element).disabled).toBe(true);
+
+    goToItem(result, 39);
+    const finish = nextButton(result.element);
+    expect(finish.textContent).toContain('Terminer');
+    expect(finish.disabled).toBe(false);
+
+    finish.click();
+    result.fixture.detectChanges();
+    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    const [, , body] = result.completeTargeted.mock.calls[0] as [
+      string,
+      AxisType,
+      CompleteTargetedSessionDto,
+    ];
+    expect((body.items ?? [])[39]).toMatchObject({
+      index: 39,
+      answerIndex: null,
+    });
+  });
+
+  it('shows the generic domino hint without the precise steps', async () => {
+    const result = await setup({
+      options: { enabledOptions: [TrainingOptionId.LOGIC_HELP] },
+    });
+    goToItem(result, 10);
+    pressKey(result.fixture, 'h');
+
+    const dominoItem = generateLogicV2Session(
+      'seed-logic-v2',
+      null,
+      LOGIC_CONTENT_VERSION_V2,
+    )[10];
+    const text =
+      result.element.querySelector('.hint__text')?.textContent?.trim();
+    expect(text).toBe(dominoItem.rule.hintText);
+    expect(text).not.toBe(dominoItem.rule.userText);
+  });
 });
 
 const SLOT_ATTRIBUTES: Record<TriangleSlot, string> = {

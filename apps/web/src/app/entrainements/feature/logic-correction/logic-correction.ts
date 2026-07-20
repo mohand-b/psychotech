@@ -14,6 +14,7 @@ import {
   LogicItemStatus,
   LogicNumericStructure,
   TargetedLogicResultDto,
+  resolveLogicRuleDetail,
   scoreLogicV2Session,
 } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
@@ -269,9 +270,16 @@ export class LogicCorrection {
     () => STATUS_BADGES[this.currentStatus()],
   );
 
-  protected readonly hint = computed(
-    () => this.currentItem()?.rule.userText ?? '',
-  );
+  protected readonly hint = computed(() => {
+    const sequence = this.sequenceItem();
+    if (sequence) {
+      return resolveLogicRuleDetail({
+        ruleId: sequence.rule.id,
+        sequence: sequence.sequence,
+      });
+    }
+    return this.currentItem()?.rule.userText ?? '';
+  });
 
   protected readonly userAnswerIndex = computed(
     () => this.responseByIndex().get(this.currentIndex())?.answerIndex ?? null,

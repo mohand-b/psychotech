@@ -188,9 +188,10 @@ export class LogicPlay {
       ? null
       : (item.choices[choiceIndex] ?? null);
   });
-  protected readonly currentHint = computed(
-    () => this.currentItem()?.rule.userText ?? '',
-  );
+  protected readonly currentHint = computed(() => {
+    const rule = this.currentItem()?.rule;
+    return rule ? (rule.hintText ?? rule.userText) : '';
+  });
   protected readonly currentHelpUsed = computed(() =>
     this.helpUsed().has(this.currentIndex()),
   );
@@ -453,7 +454,7 @@ export class LogicPlay {
   }
 
   protected confirmNext(): void {
-    if (this.locked() || !this.currentAnswered()) {
+    if (this.locked() || (!this.currentAnswered() && !this.isLastItem())) {
       return;
     }
     if (this.isLastItem()) {

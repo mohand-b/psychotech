@@ -179,7 +179,7 @@
           [color]="buttonColor"
           [block]="true"
           [showArrow]="!isLastItem()"
-          [disabled]="locked() || !currentAnswered()"
+          [disabled]="locked() || (!currentAnswered() && !isLastItem())"
           (click)="confirmNext()"
         >
           {{ isLastItem() ? 'Terminer' : 'Suivant' }}
@@ -189,7 +189,7 @@
           color="brand"
           [block]="true"
           [showArrow]="!isLastItem()"
-          [disabled]="locked() || !currentAnswered()"
+          [disabled]="locked() || (!currentAnswered() && !isLastItem())"
           (click)="confirmNext()"
         >
           {{ isLastItem() ? 'Terminer' : 'Suivant' }}
