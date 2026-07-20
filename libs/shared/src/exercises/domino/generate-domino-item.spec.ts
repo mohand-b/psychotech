@@ -234,4 +234,24 @@ describe('buildDominoRule — formulations utilisateur', () => {
     expect(rule.userText).toContain('rang impair');
     expect(rule.userText).toContain('+2 en haut');
   });
+
+  it('fournit une aide générique sans valeurs, la règle précise restant à part', () => {
+    const rule = buildDominoRule(
+      {
+        pattern: DominoPattern.HALVES,
+        top: { kind: 'STEP', step: 2 },
+        bottom: { kind: 'STEP', step: -1 },
+      },
+      true,
+    );
+    expect(rule.userText).toBe(
+      'La face du haut avance de 2 à chaque domino, celle du bas recule de 1 à chaque domino. Après le 6, on revient à 0.',
+    );
+    expect(rule.hintText).toBe(
+      "La face du haut avance d'un pas constant, celle du bas recule d'un pas constant. Après le 6, on revient à 0.",
+    );
+    expect(rule.hintText.replace('Après le 6, on revient à 0.', '')).not.toMatch(
+      /\d/,
+    );
+  });
 });

@@ -12,6 +12,7 @@ export enum LogicNumericStructure {
 export interface LogicV2Rule {
   id: string;
   userText: string;
+  hintText?: string;
 }
 
 interface LogicV2ItemBase {

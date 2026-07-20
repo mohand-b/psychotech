@@ -37,6 +37,7 @@ export type DominoRuleSpec =
 export interface DominoRule {
   id: string;
   userText: string;
+  hintText: string;
 }
 
 export interface DominoItem {

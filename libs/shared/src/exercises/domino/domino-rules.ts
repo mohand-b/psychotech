@@ -313,15 +313,36 @@ function halfId(rule: DominoHalfRule): string {
 
 const WRAP_CLAUSE = ' Après le 6, on revient à 0.';
 
+function halfHintClause(rule: DominoHalfRule): string {
+  switch (rule.kind) {
+    case 'CONSTANT':
+      return 'reste identique';
+    case 'STEP':
+      return rule.step > 0
+        ? "avance d'un pas constant"
+        : "recule d'un pas constant";
+    case 'ALTERNATING_VALUES':
+      return 'alterne entre deux valeurs';
+    case 'ALTERNATING_STEPS':
+      return 'alterne deux pas différents';
+    case 'GROWING_STEP':
+      return rule.direction > 0
+        ? "avance d'un pas qui grandit"
+        : "recule d'un pas qui grandit";
+  }
+}
+
 export function buildDominoRule(
   spec: DominoRuleSpec,
   hasWrap: boolean,
 ): DominoRule {
   let id: string;
   let userText: string;
+  let hintText: string;
   if (spec.pattern === DominoPattern.HALVES) {
     id = `halves-${halfId(spec.top)}-${halfId(spec.bottom)}`;
     userText = `La face du haut ${halfClause(spec.top)}, celle du bas ${halfClause(spec.bottom)}.`;
+    hintText = `La face du haut ${halfHintClause(spec.top)}, celle du bas ${halfHintClause(spec.bottom)}.`;
   } else if (spec.pattern === DominoPattern.CROSS) {
     const offsetClause =
       spec.offset === 0
@@ -331,9 +352,16 @@ export function buildDominoRule(
           : ` en retirant ${-spec.offset}`;
     id = `cross${formatStep(spec.offset)}-${halfId(spec.bottom)}`;
     userText = `Le haut de chaque domino reprend le bas du domino précédent${offsetClause}, et la face du bas ${halfClause(spec.bottom)}.`;
+    hintText = `Le haut de chaque domino se déduit du bas du domino précédent, et la face du bas ${halfHintClause(spec.bottom)}.`;
   } else {
     id = `interleaved-${formatStep(spec.even.topStep)}${formatStep(spec.even.bottomStep)}-${formatStep(spec.odd.topStep)}${formatStep(spec.odd.bottomStep)}`;
     userText = `Deux suites s'entrelacent : les dominos de rang impair avancent de ${formatStep(spec.even.topStep)} en haut et ${formatStep(spec.even.bottomStep)} en bas, ceux de rang pair de ${formatStep(spec.odd.topStep)} en haut et ${formatStep(spec.odd.bottomStep)} en bas.`;
+    hintText =
+      "Deux suites s'entrelacent : les dominos de rang impair et de rang pair suivent chacun leur progression.";
   }
-  return { id, userText: hasWrap ? `${userText}${WRAP_CLAUSE}` : userText };
+  return {
+    id,
+    userText: hasWrap ? `${userText}${WRAP_CLAUSE}` : userText,
+    hintText: hasWrap ? `${hintText}${WRAP_CLAUSE}` : hintText,
+  };
 }
