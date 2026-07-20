@@ -30,6 +30,9 @@ export interface TimeChartEntry {
             ></span>
             <span class="chart__tip">{{ tooltip(entry, $index) }}</span>
           </div>
+          @if (boundarySet().has($index)) {
+            <span class="chart__boundary" title="Changement de famille"></span>
+          }
         }
       </div>
       <div class="chart__scale t-mono">
@@ -66,6 +69,12 @@ export interface TimeChartEntry {
       display: block;
       width: 100%;
       border-radius: 2px 2px 0 0;
+    }
+    .chart__boundary {
+      flex: 0 0 auto;
+      width: 1px;
+      height: 100%;
+      background: var(--border);
     }
     .chart__bar--unreached {
       height: 4px !important;
@@ -111,6 +120,11 @@ export interface TimeChartEntry {
 export class TimeChart {
   readonly entries = input.required<TimeChartEntry[]>();
   readonly itemLabel = input('Item');
+  readonly boundariesAfter = input<number[]>([]);
+
+  protected readonly boundarySet = computed(
+    () => new Set(this.boundariesAfter()),
+  );
 
   private readonly maxTimeMs = computed(() =>
     Math.max(

@@ -6,6 +6,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   template: `
     <ng-content select="[panelStart]" />
     <ng-content select="[panelEnd]" />
+    <ng-content select="[panelFull]" />
   `,
   styles: `
     :host {

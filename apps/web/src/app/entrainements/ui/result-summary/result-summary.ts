@@ -25,7 +25,7 @@ export class ResultSummary {
   readonly axis = input.required<AxisType>();
   readonly score = input.required<number>();
   readonly band = input.required<ScoreBand>();
-  readonly previousScore = input.required<number | null>();
+  readonly previousBestScore = input.required<number | null>();
   readonly bestScore = input.required<number>();
   readonly isNewBest = input.required<boolean>();
   readonly isEqualBest = input.required<boolean>();
@@ -43,7 +43,7 @@ export class ResultSummary {
   });
 
   protected readonly delta = computed(() => {
-    const previous = this.previousScore();
+    const previous = this.previousBestScore();
     return previous === null ? null : this.score() - previous;
   });
 

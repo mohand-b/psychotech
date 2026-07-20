@@ -9,18 +9,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisFinding,
   AxisType,
-  LOGIC_CONTENT_VERSION_V2,
-  LOGIC_FAMILY_LABELS,
+  LogicFamilyResultDto,
   LogicSessionScore,
   LogicV2Item,
   TargetedLogicResultDto,
   analyzeLogic,
-  computeLogicFamilyBreakdown,
   getAxisRecommendations,
   scoreLogicV2Session,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
-import { formatDuration } from '../../../shared/ui/format-duration';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
@@ -32,6 +29,7 @@ import {
   logicItemsForResult,
 } from '../../ui/logic-result-items';
 import { ResultActions } from '../../ui/result-actions/result-actions';
+import { ResultFamilyBars } from '../../ui/result-family-bars/result-family-bars';
 import {
   ResultMetricRow,
   ResultMetrics,
@@ -48,6 +46,7 @@ import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ResultActions,
+    ResultFamilyBars,
     ResultMetrics,
     ResultPage,
     ResultPanel,
@@ -116,22 +115,19 @@ export class LogicResult {
     return result && scored ? buildLogicMetricRows(scored, result) : [];
   });
 
-  protected readonly familyRows = computed<ResultMetricRow[]>(() => {
-    const result = this.result();
+  protected readonly families = computed<LogicFamilyResultDto[]>(
+    () => this.result()?.families ?? [],
+  );
+
+  protected readonly familyBoundaries = computed<number[]>(() => {
     const items = this.items();
-    if (
-      !result ||
-      !items ||
-      result.contentVersion < LOGIC_CONTENT_VERSION_V2
-    ) {
+    if (!items) {
       return [];
     }
-    return computeLogicFamilyBreakdown(items, result.items).map((entry) => ({
-      label: LOGIC_FAMILY_LABELS[entry.family],
-      sublabel: `temps cumulé ${formatDuration(Math.round(entry.timeMs / 1000))}`,
-      value: `${entry.errors}`,
-      suffix: entry.errors > 1 ? ' erreurs' : ' erreur',
-    }));
+    return items
+      .slice(1)
+      .map((item, index) => (item.family !== items[index].family ? index : null))
+      .filter((index): index is number => index !== null);
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {

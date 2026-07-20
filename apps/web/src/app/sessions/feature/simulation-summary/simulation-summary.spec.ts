@@ -145,7 +145,7 @@ const LOGIC_DETAIL: TargetedLogicResultDto = {
   bestScore: 82,
   isNewBest: false,
   isEqualBest: false,
-  previousScore: null,
+  previousBestScore: null,
   axis: AxisType.LOGIC,
   items: [],
   contentVersion: 1,

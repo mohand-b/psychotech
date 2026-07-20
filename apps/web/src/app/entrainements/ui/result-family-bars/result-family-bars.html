@@ -1,0 +1,44 @@
+<span class="t-label bars__title">Par famille</span>
+<ul class="bars">
+  @for (row of rows(); track row.label) {
+  <li class="family">
+    <div class="family__top">
+      <div class="family__id">
+        <span class="family__name">{{ row.label }}</span>
+        @if (row.markerLabel; as markerLabel) {
+        <span
+          class="family__marker"
+          [class.family__marker--strength]="row.isStrength"
+          >{{ markerLabel }}</span
+        >
+        }
+      </div>
+      <div class="family__figures t-mono">
+        <span class="family__count">
+          <span class="family__correct">{{ row.correct }}</span
+          ><span class="family__total">/{{ row.total }}</span>
+        </span>
+        <span class="family__rate">
+          <span class="family__pct" [style.color]="row.rateColorVar">{{
+            row.ratePct
+          }}</span
+          ><span class="family__unit">%</span>
+        </span>
+        <span class="family__time">{{ row.time }}</span>
+      </div>
+    </div>
+    <div class="family__gauge">
+      <span
+        class="family__fill"
+        [style.width.%]="row.ratePct"
+        [style.background]="row.rateColorVar"
+      ></span>
+    </div>
+    <p class="family__invested">
+      Temps investi
+      <span class="family__invested-value t-mono">{{ row.time }}</span>
+    </p>
+  </li>
+  }
+</ul>
+<p class="bars__note">Jauge : taux de réussite sur les items tentés de la famille.</p>

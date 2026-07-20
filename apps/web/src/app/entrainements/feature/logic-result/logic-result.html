@@ -4,7 +4,7 @@
     [axis]="r.axis"
     [score]="r.score"
     [band]="r.band"
-    [previousScore]="r.previousScore"
+    [previousBestScore]="r.previousBestScore"
     [bestScore]="r.bestScore"
     [isNewBest]="r.isNewBest"
     [isEqualBest]="r.isEqualBest"
@@ -15,20 +15,21 @@
 
   @if (scored()) {
   <ui-result-panel>
-    <div panelStart class="flex flex-col gap-6">
-      <ui-result-metrics [rows]="metricRows()" />
-      @if (familyRows().length > 0) {
-      <ui-result-metrics heading="Par famille" [rows]="familyRows()" />
-      }
-    </div>
+    <ui-result-metrics panelStart [rows]="metricRows()" />
     <ui-result-timing
       panelEnd
       heading="Gestion du temps"
       note="Hauteur = temps passé sur l'item, dans l'ordre de la session."
       (review)="review()"
     >
-      <ui-time-chart [entries]="chartEntries()" />
+      <ui-time-chart
+        [entries]="chartEntries()"
+        [boundariesAfter]="familyBoundaries()"
+      />
     </ui-result-timing>
+    @if (families().length > 0) {
+    <ui-result-family-bars panelFull [families]="families()" />
+    }
   </ui-result-panel>
   } @if (recommendations().length > 0) {
   <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
