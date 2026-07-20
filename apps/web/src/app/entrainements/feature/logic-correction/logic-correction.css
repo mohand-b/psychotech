@@ -283,5 +283,6 @@
   .corr-tri__seq ui-triangle-series,
   .corr-tri__answer {
     --triangle-tile-width: 68px;
+    --triangle-value-fs: 11px;
   }
 }

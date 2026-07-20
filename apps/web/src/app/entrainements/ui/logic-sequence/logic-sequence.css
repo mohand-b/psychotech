@@ -1,11 +1,6 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.seq__hint-inline {
-  display: none;
+  display: block;
+  width: 100%;
 }
 
 .seq {
@@ -13,18 +8,26 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.seq__step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .seq__term {
-  font-size: 32px;
+  font-size: 27px;
   font-weight: 600;
   color: var(--ink);
 }
 
 .seq__arrow {
-  display: inline-flex;
-  color: var(--label);
+  width: 13px;
+  height: 13px;
+  color: var(--border-hover);
 }
 
 .seq__unknown {
@@ -32,162 +35,52 @@
   align-items: center;
   justify-content: center;
   width: 52px;
-  height: 52px;
+  height: 46px;
   border: 2px dashed var(--axis-pastel-bd);
-  border-radius: var(--radius-card);
-  background: var(--card);
-  color: var(--axis-text);
-  font-size: 28px;
+  border-radius: var(--radius-button);
+  background: #f8fbff;
+}
+
+.seq__unknown-value {
+  font-size: 19px;
   font-weight: 600;
-}
-
-.seq__end {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.seq__hint-anchor {
-  position: relative;
-  display: inline-flex;
-}
-
-.seq__bulb {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: var(--radius-chip);
-  background: transparent;
-  color: var(--label);
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.seq__bulb:hover {
-  background: var(--surface-muted);
-  color: var(--text-secondary);
-}
-
-.seq__bulb:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
-
-.seq__bulb--used {
   color: var(--axis-plain);
 }
 
-.seq__bulb--used svg {
-  fill: var(--axis-pastel-bd);
+.seq__unknown--filled {
+  border-style: solid;
+  background: var(--card);
 }
 
-.seq__hint-veil {
-  display: none;
-}
-
-.seq__hint-pop {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  background: var(--axis-pastel);
-  border: 1px solid var(--axis-pastel-bd);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  padding: 10px 12px;
-  color: var(--axis-text);
-  z-index: 20;
-}
-
-.seq__hint-pop::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background: var(--axis-pastel);
-  border-right: 1px solid var(--axis-pastel-bd);
-  border-bottom: 1px solid var(--axis-pastel-bd);
-  transform: translate(-50%, -55%) rotate(45deg);
-}
-
-.seq__hint-handle {
-  display: none;
-}
-
-.seq__hint-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.seq__hint-text {
-  font: 500 13px/18px var(--font-ui);
-  white-space: nowrap;
-}
-
-.seq__hint-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  border: none;
-  border-radius: var(--radius-chip);
-  background: transparent;
-  color: var(--axis-text);
-  cursor: pointer;
-}
-
-.seq__hint-close:hover {
-  background: var(--axis-pastel-bd);
+.seq__unknown--filled .seq__unknown-value {
+  color: var(--ink);
 }
 
 @media (max-width: 767px) {
   .seq {
-    gap: 8px;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .seq__step {
+    gap: 10px;
   }
 
   .seq__term {
-    font-size: 24px;
-  }
-
-  .seq__unknown {
-    width: 40px;
-    height: 40px;
     font-size: 22px;
   }
 
-  .seq__bulb {
-    width: 44px;
-    height: 44px;
+  .seq__arrow {
+    width: 11px;
+    height: 11px;
   }
 
-  .seq__hint-pop {
-    display: none;
+  .seq__unknown {
+    width: 46px;
+    height: 40px;
   }
 
-  .seq__hint-inline {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    background: var(--axis-pastel);
-    border: 1px solid var(--axis-pastel-bd);
-    border-radius: var(--radius-card);
-    padding: 10px 12px;
-    color: var(--axis-text);
-  }
-
-  .seq__hint-inline-text {
-    font: 500 13px/18px var(--font-ui);
+  .seq__unknown-value {
+    font-size: 17px;
   }
 }

@@ -39,9 +39,9 @@ const GRID_CELLS = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
     .pips {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      width: 32px;
-      height: 32px;
+      gap: var(--pips-gap, 2px);
+      width: var(--pips-size, 32px);
+      height: var(--pips-size, 32px);
     }
     .pips__cell {
       display: flex;
@@ -49,20 +49,20 @@ const GRID_CELLS = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
       justify-content: center;
     }
     .pips__dot {
-      width: 6px;
-      height: 6px;
+      width: var(--pips-dot, 6px);
+      height: var(--pips-dot, 6px);
       border-radius: var(--radius-pill);
       background: var(--ink);
     }
     @media (max-width: 767px) {
       .pips {
-        gap: 1px;
-        width: 27px;
-        height: 27px;
+        gap: var(--pips-gap, 1px);
+        width: var(--pips-size, 27px);
+        height: var(--pips-size, 27px);
       }
       .pips__dot {
-        width: 5px;
-        height: 5px;
+        width: var(--pips-dot, 5px);
+        height: var(--pips-dot, 5px);
       }
     }
   `,

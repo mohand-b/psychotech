@@ -6,7 +6,11 @@
 .tri {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 28px;
+}
+
+.tri__panel {
+  display: contents;
 }
 
 .tri__board {
@@ -16,19 +20,24 @@
   gap: 10px;
 }
 
+.tri__board ui-rule-hint {
+  flex-shrink: 0;
+}
+
+.tri ui-triangle-series {
+  --triangle-tile-width: 142px;
+  --triangle-value-fs: 16px;
+}
+
+.tri--four ui-triangle-series {
+  --triangle-tile-width: 122px;
+  --triangle-value-fs: 15px;
+}
+
 .tri__entry {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
-}
-
-ui-triangle-input {
-  --pad-align: center;
-  --pad-key-width: 42px;
-  --pad-key-height: 48px;
-  --pad-accent: var(--axis-plain);
-  --pad-accent-strong: var(--axis-text);
 }
 
 .tri__help {
@@ -37,26 +46,63 @@ ui-triangle-input {
   text-align: center;
 }
 
+.tri__help--mobile {
+  display: none;
+}
+
 @media (max-width: 767px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
   .tri {
+    flex: 1;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .tri__panel {
+    display: flex;
+    flex-direction: column;
     gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 18px 16px;
   }
 
   .tri__board {
     flex-wrap: wrap;
-    gap: 8px;
   }
 
-  ui-triangle-series {
-    --triangle-tile-width: 76px;
+  .tri ui-triangle-series {
+    --triangle-tile-width: 102px;
+    --triangle-value-fs: 12.5px;
   }
 
-  ui-triangle-input {
-    --pad-key-width: 44px;
-    --pad-key-height: 48px;
+  .tri--four ui-triangle-series {
+    --triangle-tile-width: 140px;
+    --triangle-value-fs: 14px;
   }
 
-  .tri__help {
+  .tri__entry {
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 10px;
+  }
+
+  .tri__help--desktop {
+    display: none;
+  }
+
+  .tri__help--mobile {
+    display: block;
     font-size: 11.5px;
   }
 }

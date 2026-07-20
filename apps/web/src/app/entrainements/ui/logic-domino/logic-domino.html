@@ -1,66 +1,69 @@
 <div class="dom">
-  <div class="dom__seq">
-    @for (tile of tiles(); track $index) {
-      <span class="dom__step">
-        <span class="dom__tile">
-          <span class="dom__half"><ui-domino-pips [value]="tile.top" /></span>
-          <span class="dom__split"></span>
-          <span class="dom__half"
-            ><ui-domino-pips [value]="tile.bottom"
-          /></span>
+  <div class="dom__panel">
+    <ng-content />
+    <div class="dom__seq">
+      @for (tile of tiles(); track $index) {
+        <span class="dom__step">
+          <span class="dom__tile">
+            <span class="dom__half"><ui-domino-pips [value]="tile.top" /></span>
+            <span class="dom__split"></span>
+            <span class="dom__half"
+              ><ui-domino-pips [value]="tile.bottom"
+            /></span>
+          </span>
+          <ui-icon class="dom__chevron" [img]="chevronIcon" [size]="13" />
         </span>
-        <ui-icon class="dom__chevron" [img]="chevronIcon" [size]="13" />
-      </span>
-    }
-
-    <span class="dom__answer">
-      <span class="dom__answer-tile">
-        <button
-          type="button"
-          class="dom__face dom__face--top"
-          [class.dom__face--active]="activeFace() === 'top'"
-          [class.dom__face--filled]="top() !== null"
-          [attr.aria-pressed]="activeFace() === 'top'"
-          aria-label="Face du haut"
-          title="Face du haut"
-          (click)="pickFace('top')"
-        >
-          @if (top(); as value) {
-            <ui-domino-pips [value]="value" />
-          } @else if (top() === 0) {
-            <ui-domino-pips [value]="0" />
-          } @else {
-            <span class="dom__face-question t-mono">?</span>
-          }
-        </button>
-        <button
-          type="button"
-          class="dom__face dom__face--bottom"
-          [class.dom__face--active]="activeFace() === 'bottom'"
-          [class.dom__face--filled]="bottom() !== null"
-          [attr.aria-pressed]="activeFace() === 'bottom'"
-          aria-label="Face du bas"
-          title="Face du bas"
-          (click)="pickFace('bottom')"
-        >
-          @if (bottom(); as value) {
-            <ui-domino-pips [value]="value" />
-          } @else if (bottom() === 0) {
-            <ui-domino-pips [value]="0" />
-          } @else {
-            <span class="dom__face-question t-mono">?</span>
-          }
-        </button>
-      </span>
-      @if (hint(); as hintText) {
-        <ui-rule-hint
-          #ruleHint
-          [hint]="hintText"
-          [used]="hintUsed()"
-          (opened)="hintOpened.emit()"
-        />
       }
-    </span>
+
+      <span class="dom__answer">
+        <span class="dom__answer-tile">
+          <button
+            type="button"
+            class="dom__face dom__face--top"
+            [class.dom__face--active]="activeFace() === 'top'"
+            [class.dom__face--filled]="top() !== null"
+            [attr.aria-pressed]="activeFace() === 'top'"
+            aria-label="Face du haut"
+            title="Face du haut"
+            (click)="pickFace('top')"
+          >
+            @if (top(); as value) {
+              <ui-domino-pips [value]="value" />
+            } @else if (top() === 0) {
+              <ui-domino-pips [value]="0" />
+            } @else {
+              <span class="dom__face-question t-mono">?</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="dom__face dom__face--bottom"
+            [class.dom__face--active]="activeFace() === 'bottom'"
+            [class.dom__face--filled]="bottom() !== null"
+            [attr.aria-pressed]="activeFace() === 'bottom'"
+            aria-label="Face du bas"
+            title="Face du bas"
+            (click)="pickFace('bottom')"
+          >
+            @if (bottom(); as value) {
+              <ui-domino-pips [value]="value" />
+            } @else if (bottom() === 0) {
+              <ui-domino-pips [value]="0" />
+            } @else {
+              <span class="dom__face-question t-mono">?</span>
+            }
+          </button>
+        </span>
+        @if (hint(); as hintText) {
+          <ui-rule-hint
+            #ruleHint
+            [hint]="hintText"
+            [used]="hintUsed()"
+            (opened)="hintOpened.emit()"
+          />
+        }
+      </span>
+    </div>
   </div>
 
   <div class="dom__entry">
@@ -119,9 +122,12 @@
         <ui-icon [img]="eraseIcon" [size]="18" />
       </button>
     </div>
-    <span class="dom__help"
+    <span class="dom__help dom__help--desktop"
       >Tapez 0 à 6 pour chaque face, la première frappe remplit la face du
       haut</span
+    >
+    <span class="dom__help dom__help--mobile"
+      >Saisissez chaque face de 0 à 6, le haut d'abord</span
     >
   </div>
 </div>

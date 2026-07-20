@@ -1,4 +1,4 @@
-<div class="choices">
+<div class="choices" [class.choices--review]="review()">
   @for (choice of choices(); track $index) {
   <button
     type="button"

@@ -70,10 +70,13 @@ describe('TriangleTile', () => {
     const element: HTMLElement = fixture.nativeElement;
     const keys = element.querySelectorAll<HTMLButtonElement>('.pad__key');
     expect(keys).toHaveLength(10);
-    keys[4].click();
+    keys[5].click();
     fixture.componentRef.setInput('value', 5);
     fixture.detectChanges();
-    keys[1].click();
+    keys[2].click();
+    fixture.componentRef.setInput('value', 52);
+    fixture.detectChanges();
+    keys[9].click();
     element.querySelector<HTMLButtonElement>('.pad__clear')?.click();
     expect(values).toEqual([5, 52, null]);
   });

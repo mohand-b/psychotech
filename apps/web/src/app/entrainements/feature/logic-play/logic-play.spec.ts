@@ -178,6 +178,65 @@ describe('LogicPlay (contenu v2)', () => {
     expect(result.element.querySelector('ui-logic-matrix')).not.toBeNull();
   });
 
+  it('renders the family badge on every item head', async () => {
+    const result = await setup();
+    const badgeText = () =>
+      result.element.querySelector('.head__badge')?.textContent?.trim();
+    expect(badgeText()).toBe('Suites numériques');
+
+    goToItem(result, 10);
+    expect(badgeText()).toBe('Dominos');
+
+    goToItem(result, 20);
+    expect(badgeText()).toBe('Matrices');
+
+    goToItem(result, 30);
+    expect(badgeText()).toBe('Matrices');
+  });
+
+  it('fills the sequence unknown case with the selected proposal', async () => {
+    const result = await setup();
+    const unknown = () => result.element.querySelector('.seq__unknown');
+    expect(unknown()?.classList).not.toContain('seq__unknown--filled');
+    expect(unknown()?.textContent?.trim()).toBe('?');
+
+    const choices =
+      result.element.querySelectorAll<HTMLButtonElement>('.choices__item');
+    const chosenValue = choices[1]
+      .querySelector('.choices__value')
+      ?.textContent?.trim();
+    choices[1].click();
+    result.fixture.detectChanges();
+
+    expect(unknown()?.classList).toContain('seq__unknown--filled');
+    expect(unknown()?.textContent?.trim()).toBe(chosenValue);
+  });
+
+  it('reflects domino answer states on each face of the answer tile', async () => {
+    const result = await setup();
+    goToItem(result, 10);
+    const face = (selector: string) =>
+      result.element.querySelector(selector) as HTMLButtonElement;
+    expect(face('.dom__face--top').classList).toContain('dom__face--active');
+    expect(face('.dom__face--top').classList).not.toContain(
+      'dom__face--filled',
+    );
+
+    pressKey(result.fixture, '4');
+    expect(face('.dom__face--top').classList).toContain('dom__face--filled');
+    expect(face('.dom__face--top').classList).not.toContain(
+      'dom__face--active',
+    );
+    expect(face('.dom__face--bottom').classList).toContain(
+      'dom__face--active',
+    );
+
+    pressKey(result.fixture, '2');
+    expect(face('.dom__face--bottom').classList).toContain(
+      'dom__face--filled',
+    );
+  });
+
   it('treats a domino item as answered only once both faces are set', async () => {
     const result = await setup();
     goToItem(result, 10);
@@ -336,8 +395,10 @@ const v3SequenceIndex = v3BlockOne.findIndex(
     item.structure === LogicNumericStructure.SEQUENCE,
 );
 
-function padField(element: HTMLElement): HTMLInputElement {
-  return element.querySelector('.pad__field') as HTMLInputElement;
+function padChipValue(element: HTMLElement): string {
+  return (
+    element.querySelector('.pad__chip-value')?.textContent?.trim() ?? ''
+  );
 }
 
 describe('LogicPlay (triangles v3)', () => {
@@ -364,7 +425,9 @@ describe('LogicPlay (triangles v3)', () => {
     goToItem(result, v3Triangles[0].index);
     expect(result.element.querySelector('ui-logic-triangle')).not.toBeNull();
     expect(result.element.textContent).toContain('Trouvez la valeur manquante');
-    expect(result.element.textContent).toContain('Triangles');
+    expect(
+      result.element.querySelector('.head__badge')?.textContent?.trim(),
+    ).toBe('Triangles chiffrés');
   });
 
   it('renders the missing slot at the center and at a vertex', async () => {
@@ -399,37 +462,59 @@ describe('LogicPlay (triangles v3)', () => {
     expect(nextButton(result.element).disabled).toBe(true);
 
     pressKey(result.fixture, '1');
-    expect(padField(result.element).value).toBe('1');
+    expect(padChipValue(result.element)).toBe('1');
     expect(nextButton(result.element).disabled).toBe(false);
 
     pressKey(result.fixture, '2');
-    expect(padField(result.element).value).toBe('12');
+    expect(padChipValue(result.element)).toBe('12');
 
     pressKey(result.fixture, 'Backspace');
-    expect(padField(result.element).value).toBe('1');
+    expect(padChipValue(result.element)).toBe('1');
 
     pressKey(result.fixture, 'Backspace');
-    expect(padField(result.element).value).toBe('');
+    expect(padChipValue(result.element)).toBe('?');
     expect(nextButton(result.element).disabled).toBe(true);
   });
 
-  it('accepts pad clicks and clears the value', async () => {
+  it('caps the answer at two digits from the keyboard', async () => {
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, v3Triangles[0].index);
+
+    pressKey(result.fixture, '1');
+    pressKey(result.fixture, '2');
+    pressKey(result.fixture, '3');
+    expect(padChipValue(result.element)).toBe('12');
+  });
+
+  it('accepts pad clicks, fills the chip and clears the value', async () => {
     const result = await setup(V3_OVERRIDES);
     goToItem(result, v3Triangles[0].index);
     const keys =
       result.element.querySelectorAll<HTMLButtonElement>('.pad__key');
     expect(keys).toHaveLength(10);
+    expect(
+      result.element.querySelector('.pad__chip-value')?.classList,
+    ).toContain('pad__chip-value--empty');
 
-    keys[6].click();
+    keys[7].click();
     result.fixture.detectChanges();
-    expect(padField(result.element).value).toBe('7');
+    expect(padChipValue(result.element)).toBe('7');
+    expect(
+      result.element.querySelector('.pad__chip-value')?.classList,
+    ).not.toContain('pad__chip-value--empty');
     expect(nextButton(result.element).disabled).toBe(false);
+
+    keys[8].click();
+    result.fixture.detectChanges();
+    keys[9].click();
+    result.fixture.detectChanges();
+    expect(padChipValue(result.element)).toBe('78');
 
     (
       result.element.querySelector('.pad__clear') as HTMLButtonElement
     ).click();
     result.fixture.detectChanges();
-    expect(padField(result.element).value).toBe('');
+    expect(padChipValue(result.element)).toBe('?');
   });
 
   it('submits the triangle value as numericValue in the payload', async () => {

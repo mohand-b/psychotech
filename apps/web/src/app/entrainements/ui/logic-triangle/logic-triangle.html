@@ -1,18 +1,23 @@
-<div class="tri">
-  <div class="tri__board">
-    <ui-triangle-series
-      [triangles]="item().triangles"
-      [missing]="item().missing"
-      [answerValue]="value()"
-    />
-    @if (hint(); as hintText) {
-      <ui-rule-hint
-        #ruleHint
-        [hint]="hintText"
-        [used]="hintUsed()"
-        (opened)="hintOpened.emit()"
+<div class="tri" [class.tri--four]="item().triangles.length === 4">
+  <div class="tri__panel">
+    <ng-content />
+    <div class="tri__board">
+      <ui-triangle-series
+        [triangles]="item().triangles"
+        [missing]="item().missing"
+        [answerValue]="value()"
+        [withArrows]="true"
       />
-    }
+      @if (hint(); as hintText) {
+        <ui-rule-hint
+          #ruleHint
+          [hint]="hintText"
+          [used]="hintUsed()"
+          [popWidth]="296"
+          (opened)="hintOpened.emit()"
+        />
+      }
+    </div>
   </div>
 
   <div class="tri__entry">
@@ -21,9 +26,11 @@
       [disabled]="disabled()"
       (valueChange)="onValueChange($event)"
     />
-    <span class="tri__help"
-      >Tapez le nombre manquant — chiffres au clavier, Retour arrière pour
-      corriger</span
+    <span class="tri__help tri__help--desktop"
+      >Tapez ou cliquez 0 à 9, la valeur peut avoir deux chiffres</span
+    >
+    <span class="tri__help tri__help--mobile"
+      >La valeur se remplit dans le triangle, modifiable à tout moment</span
     >
   </div>
 </div>

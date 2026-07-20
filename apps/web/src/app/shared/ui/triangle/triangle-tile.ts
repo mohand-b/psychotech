@@ -1,88 +1,115 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
 } from '@angular/core';
 import { TriangleSlot } from '@psychotech/shared';
+
+interface TriangleTileValueView {
+  slot: string;
+  value: number | null;
+  accent: boolean;
+  left: string;
+  top: string;
+}
+
+const SLOT_POSITIONS: Record<string, readonly [number, number]> = {
+  top: [66, 12],
+  left: [12, 144],
+  right: [120, 144],
+  center: [66, 94],
+};
+
+const SLOT_KEYS: Record<TriangleSlot, string> = {
+  [TriangleSlot.TOP]: 'top',
+  [TriangleSlot.LEFT]: 'left',
+  [TriangleSlot.RIGHT]: 'right',
+  [TriangleSlot.CENTER]: 'center',
+};
+
+function toPercent(value: number, extent: number): string {
+  return `${((value / extent) * 100).toFixed(1)}%`;
+}
 
 @Component({
   selector: 'ui-triangle-tile',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[style.--triangle-tile-default]': 'size() + "px"' },
   template: `
-    <svg viewBox="0 0 120 112" aria-hidden="true">
-      <polygon points="60,24 26,90 94,90" class="frame" />
-      <text
-        x="60"
-        y="11"
-        class="value value--vertex"
-        [class.value--unknown]="top() === null"
-        [class.value--accent]="accentSlot() === slots.TOP"
-        data-slot="top"
-      >
-        {{ top() ?? '?' }}
-      </text>
-      <text
-        x="15"
-        y="100"
-        class="value value--vertex"
-        [class.value--unknown]="left() === null"
-        [class.value--accent]="accentSlot() === slots.LEFT"
-        data-slot="left"
-      >
-        {{ left() ?? '?' }}
-      </text>
-      <text
-        x="105"
-        y="100"
-        class="value value--vertex"
-        [class.value--unknown]="right() === null"
-        [class.value--accent]="accentSlot() === slots.RIGHT"
-        data-slot="right"
-      >
-        {{ right() ?? '?' }}
-      </text>
-      <text
-        x="60"
-        y="72"
-        class="value value--center"
-        [class.value--unknown]="center() === null"
-        [class.value--accent]="accentSlot() === slots.CENTER"
-        data-slot="center"
-      >
-        {{ center() ?? '?' }}
-      </text>
-    </svg>
+    <span class="tile">
+      <svg viewBox="0 0 132 156" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          class="frame"
+          d="M61 38.6 L15 117.4 Q10 126 20 126 L112 126 Q122 126 117 117.4 L71 38.6 Q66 30 61 38.6 Z"
+        />
+      </svg>
+      @for (view of views(); track view.slot) {
+        <span
+          class="value"
+          [class.value--slot]="view.accent"
+          [class.value--unknown]="view.value === null"
+          [attr.data-slot]="view.slot"
+          [style.left]="view.left"
+          [style.top]="view.top"
+          >{{ view.value ?? '?' }}</span
+        >
+      }
+    </span>
   `,
   styles: `
     :host {
       display: inline-flex;
       color: var(--ink);
     }
+    .tile {
+      position: relative;
+      display: inline-block;
+      width: var(--triangle-tile-width, var(--triangle-tile-default));
+      aspect-ratio: 132 / 156;
+    }
     svg {
       display: block;
-      width: var(--triangle-tile-width, var(--triangle-tile-default));
-      aspect-ratio: 120 / 112;
-      height: auto;
+      width: 100%;
+      height: 100%;
     }
     .frame {
-      fill: var(--card);
+      fill: none;
       stroke: currentColor;
-      stroke-width: 2.2;
+      stroke-width: 2;
       stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
     }
     .value {
-      fill: currentColor;
-      font: 700 13px var(--font-mono);
-      text-anchor: middle;
-      dominant-baseline: middle;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font: 600 var(--triangle-value-fs, 15px) / 1 var(--font-mono);
+      color: currentColor;
     }
-    .value--center {
-      font-size: 12px;
+    .value--unknown {
+      color: var(--triangle-accent, var(--axis-logic));
     }
-    .value--unknown,
-    .value--accent {
-      fill: var(--triangle-accent, var(--axis-logic));
+    .value--slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 27px;
+      border: 2px solid var(--axis-logic-pastel-bd);
+      border-radius: var(--radius-badge);
+      background: var(--card);
+      color: var(--ink);
+    }
+    .value--slot.value--unknown {
+      border-style: dashed;
+      background: #f8fbff;
+      color: var(--triangle-accent, var(--axis-logic));
+    }
+    @media (max-width: 767px) {
+      .value--slot {
+        width: 30px;
+        height: 24px;
+      }
     }
   `,
 })
@@ -94,5 +121,21 @@ export class TriangleTile {
   readonly size = input(100);
   readonly accentSlot = input<TriangleSlot | null>(null);
 
-  protected readonly slots = TriangleSlot;
+  protected readonly views = computed<TriangleTileValueView[]>(() => {
+    const accent = this.accentSlot();
+    const accentKey = accent === null ? null : SLOT_KEYS[accent];
+    const values: Record<string, number | null> = {
+      top: this.top(),
+      left: this.left(),
+      right: this.right(),
+      center: this.center(),
+    };
+    return Object.entries(SLOT_POSITIONS).map(([slot, [x, y]]) => ({
+      slot,
+      value: values[slot],
+      accent: slot === accentKey,
+      left: toPercent(x, 132),
+      top: toPercent(y, 156),
+    }));
+  });
 }

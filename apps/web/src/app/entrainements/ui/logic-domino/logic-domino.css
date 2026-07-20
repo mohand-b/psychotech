@@ -6,7 +6,13 @@
 .dom {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 28px;
+}
+
+.dom__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .dom__seq {
@@ -27,8 +33,8 @@
   flex-direction: column;
   width: 52px;
   background: var(--card);
-  border: 1.5px solid var(--border-hover);
-  border-radius: 10px;
+  border: 1.5px solid #dce0e5;
+  border-radius: var(--radius-button);
 }
 
 .dom__half {
@@ -40,7 +46,7 @@
 
 .dom__split {
   height: 1.5px;
-  background: var(--border-hover);
+  background: #dce0e5;
   margin: 0 7px;
 }
 
@@ -94,8 +100,8 @@
 .dom__face--active {
   border-style: solid;
   border-color: var(--axis-plain);
-  background: color-mix(in srgb, var(--axis-plain) 4%, var(--card));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--axis-plain) 14%, transparent);
+  background: #f5f9ff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
   z-index: 2;
 }
 
@@ -177,7 +183,7 @@
 .dom__key {
   width: 42px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-button);
   background: var(--card);
   border: 1px solid var(--border);
   font-size: 17px;
@@ -190,8 +196,8 @@
 }
 
 .dom__key:hover {
-  border-color: color-mix(in srgb, var(--axis-plain) 45%, var(--card));
-  background: color-mix(in srgb, var(--axis-plain) 4%, var(--card));
+  border-color: #9dc2f9;
+  background: #f5f9ff;
 }
 
 .dom__key:focus-visible {
@@ -202,7 +208,7 @@
 .dom__erase {
   width: 42px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-button);
   border: none;
   background: transparent;
   color: var(--label);
@@ -226,9 +232,30 @@
   text-align: center;
 }
 
+.dom__help--mobile {
+  display: none;
+}
+
 @media (max-width: 767px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
   .dom {
+    flex: 1;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .dom__panel {
     gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 18px 16px;
   }
 
   .dom__seq {
@@ -264,6 +291,18 @@
   .dom__face {
     width: 54px;
     height: 44px;
+    --pips-size: 29px;
+    --pips-gap: 1px;
+    --pips-dot: 5.5px;
+  }
+
+  .dom__entry {
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 10px;
   }
 
   .dom__entry-row {
@@ -281,7 +320,12 @@
     flex: 1;
     min-height: 44px;
     justify-content: center;
-    border-radius: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-button);
+  }
+
+  .dom__chip-value {
+    font-size: 16px;
   }
 
   .dom__divider {
@@ -308,7 +352,12 @@
     min-height: 48px;
   }
 
-  .dom__help {
+  .dom__help--desktop {
+    display: none;
+  }
+
+  .dom__help--mobile {
+    display: block;
     font-size: 11.5px;
   }
 }
