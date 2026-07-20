@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   effect,
   inject,
   input,
@@ -33,6 +34,13 @@ export interface StatusBandEntry {
             [attr.aria-current]="$index === currentIndex() ? 'true' : null"
             (click)="navigate.emit($index)"
           ></button>
+          @if (boundarySet().has($index)) {
+            <span
+              class="band__sep"
+              title="Changement de famille"
+              aria-hidden="true"
+            ></span>
+          }
         }
       </div>
       <div class="band__legend">
@@ -84,6 +92,13 @@ export interface StatusBandEntry {
       padding: 0;
       cursor: pointer;
     }
+    .band__sep {
+      width: 1px;
+      height: 11px;
+      flex-shrink: 0;
+      background: var(--border-hover);
+      margin: 0 3px;
+    }
     .band__dot--current {
       box-shadow:
         0 0 0 2px var(--card),
@@ -132,7 +147,12 @@ export class CorrectionStatusBand {
   readonly dots = input.required<StatusBandEntry[]>();
   readonly legend = input.required<StatusBandEntry[]>();
   readonly currentIndex = input.required<number>();
+  readonly boundariesAfter = input<number[]>([]);
   readonly navigate = output<number>();
+
+  protected readonly boundarySet = computed(
+    () => new Set(this.boundariesAfter()),
+  );
 
   constructor() {
     effect(() => {

@@ -26,6 +26,7 @@ import {
 } from '../../ui/axis-result-content';
 import {
   logicAnalyzerItems,
+  logicFamilyBoundaries,
   logicItemsForResult,
 } from '../../ui/logic-result-items';
 import { ResultActions } from '../../ui/result-actions/result-actions';
@@ -119,16 +120,9 @@ export class LogicResult {
     () => this.result()?.families ?? [],
   );
 
-  protected readonly familyBoundaries = computed<number[]>(() => {
-    const items = this.items();
-    if (!items) {
-      return [];
-    }
-    return items
-      .slice(1)
-      .map((item, index) => (item.family !== items[index].family ? index : null))
-      .filter((index): index is number => index !== null);
-  });
+  protected readonly familyBoundaries = computed<number[]>(() =>
+    logicFamilyBoundaries(this.items() ?? []),
+  );
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
     const result = this.result();

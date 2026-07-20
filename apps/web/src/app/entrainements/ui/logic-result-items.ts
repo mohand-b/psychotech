@@ -26,6 +26,13 @@ export function logicItemsForResult(
       );
 }
 
+export function logicFamilyBoundaries(items: LogicItem[]): number[] {
+  return items
+    .slice(1)
+    .map((item, index) => (item.family !== items[index].family ? index : null))
+    .filter((index): index is number => index !== null);
+}
+
 export function logicAnalyzerItems(items: LogicItem[]): LogicRuleItem[] {
   return items.map((item) =>
     item.family === LogicFamily.NUMERIC &&

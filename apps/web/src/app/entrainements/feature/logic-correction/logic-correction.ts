@@ -38,7 +38,10 @@ import {
   LOGIC_STATUS_COLORS,
   LOGIC_STATUS_LABELS,
 } from '../../ui/logic-status';
-import { logicItemsForResult } from '../../ui/logic-result-items';
+import {
+  logicFamilyBoundaries,
+  logicItemsForResult,
+} from '../../ui/logic-result-items';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,
@@ -132,6 +135,10 @@ export class LogicCorrection {
   });
 
   protected readonly total = computed(() => this.items().length);
+
+  protected readonly familyBoundaries = computed<number[]>(() =>
+    logicFamilyBoundaries(this.items()),
+  );
 
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
     const result = this.result();
@@ -272,10 +279,10 @@ export class LogicCorrection {
   protected readonly hint = computed(() => {
     const sequence = this.sequenceItem();
     if (sequence) {
-      return resolveLogicRuleDetail({
-        ruleId: sequence.rule.id,
-        sequence: sequence.sequence,
-      });
+      return resolveLogicRuleDetail(
+        { ruleId: sequence.rule.id, sequence: sequence.sequence },
+        sequence.choices[sequence.answerIndex],
+      );
     }
     return this.currentItem()?.rule.userText ?? '';
   });

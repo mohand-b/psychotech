@@ -27,6 +27,7 @@ export class CorrectionShell {
   readonly dots = input.required<StatusBandEntry[]>();
   readonly legend = input.required<StatusBandEntry[]>();
   readonly currentIndex = input.required<number>();
+  readonly boundariesAfter = input<number[]>([]);
   readonly isFirst = input.required<boolean>();
   readonly isLast = input.required<boolean>();
   readonly navigate = output<number>();
