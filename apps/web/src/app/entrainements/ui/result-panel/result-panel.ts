@@ -12,7 +12,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     :host {
       display: grid;
       grid-template-columns: 22rem 1fr;
-      gap: 40px;
+      column-gap: 40px;
+      row-gap: 14px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius-panel);
