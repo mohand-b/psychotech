@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import {
   AXIS_TRAINING,
@@ -387,7 +388,23 @@ export class TrainingSessionFacade {
     }
     return this.api
       .completeTargeted(session.id, axis, { axis, items })
-      .pipe(tap((completed) => this.install(completed)));
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
+  }
+
+  private recoverAlreadySubmitted(
+    sessionId: string,
+  ): (source: Observable<SessionDto>) => Observable<SessionDto> {
+    return (source) =>
+      source.pipe(
+        catchError((error: unknown) =>
+          error instanceof HttpErrorResponse && error.status === 409
+            ? this.api.get(sessionId)
+            : throwError(() => error),
+        ),
+      );
   }
 
   completeTargetedMemory(
@@ -400,7 +417,10 @@ export class TrainingSessionFacade {
     }
     return this.api
       .completeTargeted(session.id, axis, { axis, sequences })
-      .pipe(tap((completed) => this.install(completed)));
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
   }
 
   completeTargetedDiscrimination(
@@ -413,7 +433,10 @@ export class TrainingSessionFacade {
     }
     return this.api
       .completeTargeted(session.id, axis, { axis, trials })
-      .pipe(tap((completed) => this.install(completed)));
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
   }
 
   completeTargetedMotricity(
@@ -427,7 +450,10 @@ export class TrainingSessionFacade {
     }
     return this.api
       .completeTargeted(session.id, axis, { axis, courses, controlModality })
-      .pipe(tap((completed) => this.install(completed)));
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
   }
 
   completeTargetedReactivity(
@@ -447,7 +473,10 @@ export class TrainingSessionFacade {
         waitPresses,
         playedMs,
       })
-      .pipe(tap((completed) => this.install(completed)));
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
   }
 
   clear(): void {
