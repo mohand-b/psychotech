@@ -9,7 +9,6 @@ import {
   AxisType,
   TargetedAxisResultDto,
   generateDiscriminationSession,
-  generateLogicSession,
   generateMemorySession,
   generateReactivitySession,
   scoreDiscriminationSession,
@@ -17,6 +16,7 @@ import {
   scoreMemorySession,
   scoreReactivitySession,
 } from '@psychotech/shared';
+import { logicItemsForResult } from '../../../entrainements/ui/logic-result-items';
 import {
   buildDiscriminationChartEntries,
   buildDiscriminationMetricRows,
@@ -101,7 +101,7 @@ export class SimulationAxisDetail {
   protected readonly logicScored = computed(() => {
     const detail = this.detail();
     return detail.axis === AxisType.LOGIC
-      ? scoreLogicSession(generateLogicSession(detail.seed), detail.items)
+      ? scoreLogicSession(logicItemsForResult(detail), detail.items)
       : null;
   });
 
