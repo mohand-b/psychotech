@@ -18,7 +18,7 @@ import {
   SessionStatus,
   TrainingOptionId,
   TriangleSlot,
-  generateLogicV2Session,
+  generateLogicSession,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -394,7 +394,7 @@ describe('LogicPlay (contenu v2)', () => {
     goToItem(result, 10);
     pressKey(result.fixture, 'h');
 
-    const dominoItem = generateLogicV2Session(
+    const dominoItem = generateLogicSession(
       'seed-logic-v2',
       null,
       LOGIC_CONTENT_VERSION_V2,
@@ -417,7 +417,7 @@ const V3_OVERRIDES: Partial<SessionDto> = {
   contentVersion: LOGIC_CONTENT_VERSION_V3,
 };
 
-const v3BlockOne = generateLogicV2Session(
+const v3BlockOne = generateLogicSession(
   'seed-logic-v2',
   null,
   LOGIC_CONTENT_VERSION_V3,

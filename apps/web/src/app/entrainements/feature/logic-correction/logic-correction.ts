@@ -15,7 +15,7 @@ import {
   TargetedLogicResultDto,
   resolveLogicRuleDetail,
   resolveTriangleRuleDetail,
-  scoreLogicV2Session,
+  scoreLogicSession,
 } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -136,7 +136,7 @@ export class LogicCorrection {
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
     const result = this.result();
     return result
-      ? scoreLogicV2Session(this.items(), result.items).statuses
+      ? scoreLogicSession(this.items(), result.items).statuses
       : [];
   });
 

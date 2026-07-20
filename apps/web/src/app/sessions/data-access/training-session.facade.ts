@@ -10,7 +10,7 @@ import {
   DiscriminationTrialAnswerDto,
   LOGIC_CONTENT_VERSION_V2,
   LogicItemAnswerDto,
-  LogicV2Item,
+  LogicItem,
   MemorySequence,
   MemorySequenceAnswerDto,
   MotricityCourse,
@@ -29,12 +29,12 @@ import {
   TrainingOptionId,
   MotricityGenerationOptions,
   generateDiscriminationSession,
+  generateLegacyLogicSession,
   generateLogicSession,
-  generateLogicV2Session,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
-  logicV1ToV2Items,
+  adaptLegacyLogicItems,
   resolveLogicRuleHint,
 } from '@psychotech/shared';
 import {
@@ -118,23 +118,23 @@ export class TrainingSessionFacade {
     return {};
   }
 
-  protected logicV2ItemsFor(session: SessionDto): LogicV2Item[] {
-    return generateLogicV2Session(
+  protected logicItemsFor(session: SessionDto): LogicItem[] {
+    return generateLogicSession(
       session.seed,
       session.logicFamily,
       session.contentVersion,
     );
   }
 
-  readonly logicItems: Signal<LogicV2Item[]> = computed(() => {
+  readonly logicItems: Signal<LogicItem[]> = computed(() => {
     const session = this.store.session();
     if (!session || this.axis() !== AxisType.LOGIC) {
       return [];
     }
     return session.contentVersion >= LOGIC_CONTENT_VERSION_V2
-      ? this.logicV2ItemsFor(session)
-      : logicV1ToV2Items(
-          generateLogicSession(
+      ? this.logicItemsFor(session)
+      : adaptLegacyLogicItems(
+          generateLegacyLogicSession(
             session.seed,
             this.trainingConfig(AxisType.LOGIC),
           ),

@@ -14,7 +14,7 @@ import {
   LogicFamily,
   LogicItemAnswerDto,
   LogicNumericStructure,
-  LogicV2Item,
+  LogicItem,
   SessionDto,
   SessionMode,
   SessionStatus,
@@ -59,7 +59,7 @@ interface DominoAnswer {
 
 const EMPTY_DOMINO_ANSWER: DominoAnswer = { top: null, bottom: null };
 
-function isTriangleItem(item: LogicV2Item | null): boolean {
+function isTriangleItem(item: LogicItem | null): boolean {
   return (
     item?.family === LogicFamily.NUMERIC &&
     item.structure === LogicNumericStructure.TRIANGLE

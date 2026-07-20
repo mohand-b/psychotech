@@ -6,7 +6,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { MatrixLogicV2Item } from '@psychotech/shared';
+import { MatrixLogicItem } from '@psychotech/shared';
 import { MatrixCell } from '../../../shared/ui/matrix/matrix-cell';
 import { RuleHint } from '../rule-hint/rule-hint';
 
@@ -20,7 +20,7 @@ export const MATRIX_PROPOSAL_LETTERS: readonly string[] = ['A', 'B', 'C', 'D'];
   styleUrl: './logic-matrix.css',
 })
 export class LogicMatrix {
-  readonly item = input.required<MatrixLogicV2Item>();
+  readonly item = input.required<MatrixLogicItem>();
   readonly selectedIndex = input<number | null>(null);
   readonly disabled = input(false);
   readonly hint = input<string | null>(null);

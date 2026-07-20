@@ -3,27 +3,30 @@ import {
   LogicFamily,
   LogicItem,
   LogicNumericStructure,
-  LogicV2Item,
+  LogicRuleItem,
   TargetedLogicResultDto,
+  adaptLegacyLogicItems,
+  generateLegacyLogicSession,
   generateLogicSession,
-  generateLogicV2Session,
-  logicV1ToV2Items,
   resolveLogicRuleHint,
 } from '@psychotech/shared';
 
 export function logicItemsForResult(
   result: TargetedLogicResultDto,
-): LogicV2Item[] {
+): LogicItem[] {
   return result.contentVersion >= LOGIC_CONTENT_VERSION_V2
-    ? generateLogicV2Session(
+    ? generateLogicSession(
         result.seed,
         result.logicFamily,
         result.contentVersion,
       )
-    : logicV1ToV2Items(generateLogicSession(result.seed), resolveLogicRuleHint);
+    : adaptLegacyLogicItems(
+        generateLegacyLogicSession(result.seed),
+        resolveLogicRuleHint,
+      );
 }
 
-export function logicAnalyzerItems(items: LogicV2Item[]): LogicItem[] {
+export function logicAnalyzerItems(items: LogicItem[]): LogicRuleItem[] {
   return items.map((item) =>
     item.family === LogicFamily.NUMERIC &&
     item.structure === LogicNumericStructure.SEQUENCE

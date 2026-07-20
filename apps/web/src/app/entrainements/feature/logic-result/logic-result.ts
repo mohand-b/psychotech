@@ -11,11 +11,11 @@ import {
   AxisType,
   LogicFamilyResultDto,
   LogicSessionScore,
-  LogicV2Item,
+  LogicItem,
   TargetedLogicResultDto,
   analyzeLogic,
   getAxisRecommendations,
-  scoreLogicV2Session,
+  scoreLogicSession,
 } from '@psychotech/shared';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -83,7 +83,7 @@ export class LogicResult {
     });
   }
 
-  private readonly items = computed<LogicV2Item[] | null>(() => {
+  private readonly items = computed<LogicItem[] | null>(() => {
     const result = this.result();
     return result ? logicItemsForResult(result) : null;
   });
@@ -91,7 +91,7 @@ export class LogicResult {
   protected readonly scored = computed<LogicSessionScore | null>(() => {
     const result = this.result();
     const items = this.items();
-    return result && items ? scoreLogicV2Session(items, result.items) : null;
+    return result && items ? scoreLogicSession(items, result.items) : null;
   });
 
   protected readonly recommendations = computed<AxisFinding[]>(() => {
