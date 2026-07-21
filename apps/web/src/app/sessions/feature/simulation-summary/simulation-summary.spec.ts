@@ -228,6 +228,7 @@ describe('SimulationSummary', () => {
     expect(gauges).toHaveLength(5);
     expect(gauges[0].querySelectorAll('.gauge__marker')).toHaveLength(0);
     expect(gauges[1].querySelectorAll('.gauge__marker')).toHaveLength(1);
+    expect(gauges[2].querySelectorAll('.gauge__marker')).toHaveLength(1);
     expect(gauges[3].querySelectorAll('.gauge__marker')).toHaveLength(1);
     expect(gauges[4].querySelectorAll('.gauge__marker')).toHaveLength(0);
   });
