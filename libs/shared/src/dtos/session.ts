@@ -138,6 +138,7 @@ interface TargetedAxisResultBaseDto {
   isNewBest: boolean;
   isEqualBest: boolean;
   previousBestScore: number | null;
+  untimed: boolean;
 }
 
 export type LogicFamilyResultMarker = 'STRENGTH' | 'WEAKNESS';
@@ -239,6 +240,7 @@ export interface SessionHistoryItemDto {
   sector: Sector;
   status: SessionStatus;
   logicFamily: LogicFamilyFilter | null;
+  untimed: boolean;
   finishedAt: string;
   durationSec: number;
   score: number | null;

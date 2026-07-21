@@ -67,6 +67,7 @@ function buildResult(
     isNewBest: false,
     isEqualBest: false,
     previousBestScore: 70,
+    untimed: false,
     items: [
       {
         index: 0,
@@ -137,6 +138,19 @@ function boundaryCount(fixture: ComponentFixture<LogicResult>): number {
 describe('LogicResult (contenu v2)', () => {
   it('never mentions the record for a family-filtered session', async () => {
     const fixture = await setup(buildResult());
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(text).not.toContain('Meilleur score');
+    expect(text).not.toContain('record');
+  });
+
+  it('never mentions the record for an untimed session', async () => {
+    const fixture = await setup(
+      buildResult({
+        logicFamily: null,
+        families: FULL_SESSION_FAMILIES,
+        untimed: true,
+      }),
+    );
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).not.toContain('Meilleur score');
     expect(text).not.toContain('record');

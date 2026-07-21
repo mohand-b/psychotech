@@ -19,6 +19,7 @@ import {
   ScoreBand,
   Sector,
   SessionMode,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
@@ -371,6 +372,7 @@ export class SessionsRepository {
           mode: DbSessionMode.TARGETED,
           status: DbSessionStatus.COMPLETED,
           logicFamily: null,
+          NOT: { trainingOptions: { has: TrainingOptionId.NO_TIMER } },
         },
       },
       include: { session: true },

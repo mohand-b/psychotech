@@ -24,6 +24,7 @@ function buildItem(
     sector: Sector.RAILWAY,
     status: SessionStatus.COMPLETED,
     logicFamily: null,
+    untimed: false,
     finishedAt: new Date(2026, 6, 8, 19, 42).toISOString(),
     durationSec: 240,
     score: 82,
@@ -65,5 +66,18 @@ describe('SessionHistoryRow - tag famille', () => {
     expect(
       (fixture.nativeElement as HTMLElement).querySelector('.row__family'),
     ).toBeNull();
+  });
+});
+
+describe('SessionHistoryRow - tag sans chrono', () => {
+  it('shows a chip when the session was played without timer', async () => {
+    const fixture = await setup(buildItem({ untimed: true }));
+    const chips = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.row__family'),
+    );
+    expect(chips.length).toBeGreaterThan(0);
+    chips.forEach((chip) =>
+      expect(chip.textContent?.trim()).toBe('Sans chrono'),
+    );
   });
 });

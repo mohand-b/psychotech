@@ -31,6 +31,7 @@ export interface SessionRowView {
   subtitle: string;
   mobileTitle: string;
   familyLabel: string | null;
+  untimed: boolean;
   axisCount: number | null;
   dateLabel: string;
   durationLabel: string;
@@ -125,6 +126,7 @@ export function buildSessionRowView(
     familyLabel: item.logicFamily
       ? LOGIC_FAMILY_FILTER_LABELS[item.logicFamily]
       : null,
+    untimed: item.untimed,
     axisCount: isFull ? item.axisTotal : null,
     dateLabel: formatSessionDate(item.finishedAt, now),
     durationLabel: formatSessionDuration(item.durationSec),

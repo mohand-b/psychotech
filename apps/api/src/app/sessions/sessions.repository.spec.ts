@@ -1,5 +1,10 @@
 ﻿import { SessionStatus as DbSessionStatus } from '@prisma/client';
-import { AxisType, Sector, SessionMode } from '@psychotech/shared';
+import {
+  AxisType,
+  Sector,
+  SessionMode,
+  TrainingOptionId,
+} from '@psychotech/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
 import { SessionsRepository } from './sessions.repository';
@@ -108,6 +113,34 @@ describe('SessionsRepository.createSession', () => {
 
     expect(tx.session.update).not.toHaveBeenCalled();
     expect(tx.session.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('SessionsRepository.findTargetedAxisHistory', () => {
+  it('excludes family-filtered and no-timer sessions from the record history', async () => {
+    const prisma = {
+      sessionAxis: { findMany: vi.fn().mockResolvedValue([]) },
+    };
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    await repository.findTargetedAxisHistory('user-1', AxisType.LOGIC);
+
+    expect(prisma.sessionAxis.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          axis: 'LOGIC',
+          session: {
+            userId: 'user-1',
+            mode: 'TARGETED',
+            status: DbSessionStatus.COMPLETED,
+            logicFamily: null,
+            NOT: { trainingOptions: { has: TrainingOptionId.NO_TIMER } },
+          },
+        },
+      }),
+    );
   });
 });
 

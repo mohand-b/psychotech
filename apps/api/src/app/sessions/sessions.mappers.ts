@@ -21,7 +21,7 @@ import {
   TrainingOptionId,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
-import { activePlayDurationSec } from './sessions.logic';
+import { activePlayDurationSec, sessionUntimed } from './sessions.logic';
 
 export const SESSION_INCLUDE = {
   axisResults: true,
@@ -128,6 +128,7 @@ export function toSessionHistoryItemDto(
     logicFamily: session.logicFamily
       ? mapEnumValue(LogicFamilyFilter, session.logicFamily)
       : null,
+    untimed: sessionUntimed(session),
     finishedAt: finishedAt.toISOString(),
     durationSec: activePlayDurationSec(axisResults),
     score,

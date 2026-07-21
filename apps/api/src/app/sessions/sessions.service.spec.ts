@@ -327,6 +327,19 @@ describe('SessionsService.start', () => {
     expect(repository.createSession).not.toHaveBeenCalled();
   });
 
+  it('rejects the no-timer option in a full simulation', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.FULL,
+        sector: Sector.RAILWAY,
+        options: { enabledOptions: [TrainingOptionId.NO_TIMER] },
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
   it('rejects a training option that does not belong to the targeted axis', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
 
@@ -447,6 +460,29 @@ describe('SessionsService.completeAxis (targeted)', () => {
         energyCost: 1,
         contentVersion: 2,
         logicFamily: LogicFamilyFilter.DOMINO,
+        axisResults: [buildAxis()],
+      }),
+    );
+    repository.completeTargetedSession.mockResolvedValue(
+      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+    );
+
+    await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
+      axis: AxisType.LOGIC,
+      items: answers(40),
+    });
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledWith(
+      expect.objectContaining({ excludeFromBest: true }),
+    );
+  });
+
+  it('excludes a no-timer session from the axis best', async () => {
+    repository.findUserSession.mockResolvedValue(
+      buildSession({
+        mode: 'TARGETED',
+        energyCost: 1,
+        trainingOptions: [TrainingOptionId.NO_TIMER],
         axisResults: [buildAxis()],
       }),
     );
@@ -1269,6 +1305,29 @@ describe('SessionsService.list', () => {
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
     expect(item.durationSec).toBe(180);
+    expect(item.untimed).toBe(false);
+  });
+
+  it('flags a no-timer targeted session in the history', async () => {
+    repository.listHistory.mockResolvedValue([
+      buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        trainingOptions: [TrainingOptionId.NO_TIMER],
+        completedAt: new Date('2026-07-01T10:04:00Z'),
+        axisResults: [
+          buildAxis({
+            normalizedScore: 82,
+            band: 'EXCELLENT',
+            completedAt: new Date('2026-07-01T10:04:00Z'),
+          }),
+        ],
+      }),
+    ]);
+
+    const page = await service.list('user-1', {});
+
+    expect(page.items[0].untimed).toBe(true);
   });
 });
 
@@ -1712,6 +1771,30 @@ describe('SessionsService.targetedResult', () => {
     expect(result.score).toBe(76);
     expect(result.bestScore).toBe(76);
     expect(result.isNewBest).toBe(false);
+    expect(result.previousBestScore).toBeNull();
+  });
+
+  it('serves an untimed session without any record, flagged for the front', async () => {
+    const session = resultSession();
+    repository.findUserSession.mockResolvedValue({
+      ...session,
+      trainingOptions: [TrainingOptionId.NO_TIMER],
+    });
+    repository.findTargetedAxisHistory.mockResolvedValue([
+      historyRow('00000000-0000-0000-0000-000000000001', 68, new Date('2026-07-02T09:00:00Z')),
+    ]);
+
+    const result = await service.targetedResult(
+      'user-1',
+      sessionId,
+      AxisType.LOGIC,
+    );
+
+    expect(result.untimed).toBe(true);
+    expect(result.score).toBe(76);
+    expect(result.bestScore).toBe(76);
+    expect(result.isNewBest).toBe(false);
+    expect(result.isEqualBest).toBe(false);
     expect(result.previousBestScore).toBeNull();
   });
 

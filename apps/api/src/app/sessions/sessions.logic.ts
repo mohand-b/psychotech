@@ -5,10 +5,17 @@ import {
   AxisType,
   FULL_SESSION_AXIS_ORDER,
   SessionMode,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util';
 
 export const SESSION_HISTORY_PAGE_SIZE = 10;
+
+export function sessionUntimed(session: {
+  trainingOptions: string[];
+}): boolean {
+  return session.trainingOptions.includes(TrainingOptionId.NO_TIMER);
+}
 
 export function finishedAxisCount(
   axisResults: { completedAt: Date | null; skipped: boolean }[],

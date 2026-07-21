@@ -84,6 +84,7 @@ import {
   axisContentFullyPlayed,
   computeStreakUpdate,
   resolveSessionAxes,
+  sessionUntimed,
 } from './sessions.logic';
 import {
   toCurrentSessionDto,
@@ -209,7 +210,7 @@ export class SessionsService {
       axis,
       rawResult,
       score,
-      excludeFromBest: session.logicFamily != null,
+      excludeFromBest: session.logicFamily != null || sessionUntimed(session),
       controlModality: request.controlModality ?? null,
       startedAt: target.startedAt ?? session.startedAt,
       completedAt: new Date(),
@@ -1006,7 +1007,8 @@ export class SessionsService {
     );
     const othersBest =
       others.length > 0 ? Math.max(...others.map(({ score }) => score)) : null;
-    const excludedFromBest = session.logicFamily != null;
+    const untimed = sessionUntimed(session);
+    const excludedFromBest = session.logicFamily != null || untimed;
     const base = {
       sessionId,
       sector: mapEnumValue(Sector, session.sector),
@@ -1030,6 +1032,7 @@ export class SessionsService {
       isEqualBest:
         !excludedFromBest && othersBest !== null && entry.score === othersBest,
       previousBestScore: excludedFromBest ? null : othersBest,
+      untimed,
     };
     if (axis === AxisType.LOGIC) {
       const answers = this.logicItemsFromMetrics(axisRow.metrics);

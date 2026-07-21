@@ -106,9 +106,10 @@ export class LogicResult {
       : [];
   });
 
-  protected readonly recordVisible = computed(
-    () => (this.result()?.logicFamily ?? null) === null,
-  );
+  protected readonly recordVisible = computed(() => {
+    const result = this.result();
+    return !result || (result.logicFamily === null && !result.untimed);
+  });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {
     const result = this.result();

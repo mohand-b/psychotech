@@ -15,6 +15,9 @@
       @if (view().familyLabel; as family) {
         <span class="row__family">{{ family }}</span>
       }
+      @if (view().untimed) {
+        <span class="row__family">Sans chrono</span>
+      }
     </span>
     <span class="row__subtitle">{{ view().subtitle }}</span>
   </span>
@@ -54,6 +57,9 @@
       <span class="rowm__title">{{ view().mobileTitle }}</span>
       @if (view().familyLabel; as family) {
         <span class="row__family">{{ family }}</span>
+      }
+      @if (view().untimed) {
+        <span class="row__family">Sans chrono</span>
       }
     </span>
     <span class="rowm__meta t-mono">

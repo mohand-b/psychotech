@@ -25,6 +25,7 @@ function item(
     sector: Sector.RAILWAY,
     status: SessionStatus.COMPLETED,
     logicFamily: null,
+    untimed: false,
     finishedAt: new Date(2026, 6, 8, 19, 42).toISOString(),
     durationSec: 240,
     score: 82,
