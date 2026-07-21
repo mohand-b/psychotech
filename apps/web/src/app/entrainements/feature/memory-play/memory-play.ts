@@ -206,16 +206,16 @@ export class MemoryPlay {
       this.validate();
       return;
     }
-    if (event.key === 'p' || event.key === 'P') {
+    if (event.key === ' ') {
       event.preventDefault();
       this.skipPosition();
       return;
     }
-    const digit = Number(event.key);
-    if (Number.isInteger(digit) && event.key.length === 1) {
-      event.preventDefault();
-      this.press(digit);
+    if (!/^[0-9]$/.test(event.key)) {
+      return;
     }
+    event.preventDefault();
+    this.press(Number(event.key));
   }
 
   private handleLoaded(session: SessionDto): void {

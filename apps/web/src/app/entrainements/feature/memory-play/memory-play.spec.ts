@@ -115,9 +115,11 @@ function reachRestitution(setupResult: Setup, length: number): void {
   advance(setupResult, PREPARATION_MS + length * ELEMENT_TOTAL_MS);
 }
 
-function pressKey(setupResult: Setup, key: string): void {
-  document.dispatchEvent(new KeyboardEvent('keydown', { key }));
+function pressKey(setupResult: Setup, key: string): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, cancelable: true });
+  document.dispatchEvent(event);
   setupResult.fixture.detectChanges();
+  return event;
 }
 
 function slots(element: HTMLElement): HTMLElement[] {
@@ -160,13 +162,14 @@ describe('MemoryPlay (passer un emplacement)', () => {
     expect(cells[1].textContent?.trim()).toBe('5');
   });
 
-  it('skips from the keyboard with the P key and disables the button once full', async () => {
+  it('skips from the keyboard with the space key, prevents scrolling and disables the button once full', async () => {
     const result = await setup();
     const length = TRAINING_SEQUENCES[0].length;
     reachRestitution(result, length);
 
     for (let position = 0; position < length; position += 1) {
-      pressKey(result, 'p');
+      const event = pressKey(result, ' ');
+      expect(event.defaultPrevented).toBe(true);
     }
     const cells = slots(result.element);
     expect(
@@ -177,8 +180,28 @@ describe('MemoryPlay (passer un emplacement)', () => {
         .disabled,
     ).toBe(true);
 
-    pressKey(result, 'P');
+    pressKey(result, ' ');
     expect(slots(result.element)).toHaveLength(length);
+  });
+
+  it('leaves the P key inert during restitution', async () => {
+    const result = await setup();
+    reachRestitution(result, TRAINING_SEQUENCES[0].length);
+
+    const lower = pressKey(result, 'p');
+    const upper = pressKey(result, 'P');
+
+    expect(lower.defaultPrevented).toBe(false);
+    expect(upper.defaultPrevented).toBe(false);
+    const cells = slots(result.element);
+    expect(
+      cells.some(
+        (cell) =>
+          cell.classList.contains('memo__slot--skipped') ||
+          cell.classList.contains('memo__slot--filled'),
+      ),
+    ).toBe(false);
+    expect(cells[0].classList).toContain('memo__slot--current');
   });
 
   it('submits null for skipped positions without shifting the other digits', async () => {
@@ -193,7 +216,7 @@ describe('MemoryPlay (passer un emplacement)', () => {
       reachRestitution(result, config.length);
       if (index === 0) {
         pressKey(result, '7');
-        pressKey(result, 'p');
+        pressKey(result, ' ');
         pressKey(result, '4');
         pressKey(result, '9');
       } else {
