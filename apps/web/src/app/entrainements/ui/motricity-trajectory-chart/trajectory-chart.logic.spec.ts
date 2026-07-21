@@ -184,6 +184,10 @@ describe('clampDeviation', () => {
     expect(clampDeviation(240)).toBe(TRAJECTORY_DISPLAY_CLAMP_PCT);
     expect(clampDeviation(85)).toBe(85);
   });
+
+  it('floors the displayed deviation at zero', () => {
+    expect(clampDeviation(-5)).toBe(0);
+  });
 });
 
 describe('insertBorderCrossings', () => {

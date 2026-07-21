@@ -24,7 +24,7 @@ export function clampDeviation(
   deviationPct: number,
   clampPct: number = TRAJECTORY_DISPLAY_CLAMP_PCT,
 ): number {
-  return Math.min(clampPct, deviationPct);
+  return Math.min(clampPct, Math.max(0, deviationPct));
 }
 
 export function bucketTimelinePoints(
