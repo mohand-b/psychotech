@@ -26,7 +26,7 @@ export class SessionHistoryFacade {
     this.store.startLoading(filter);
     this.api.history(historyQueryFor(filter)).subscribe({
       next: (page) => this.store.setPage(page),
-      error: () => this.store.setPage({ items: [], nextCursor: null }),
+      error: (err: unknown) => this.store.setError(err),
     });
   }
 

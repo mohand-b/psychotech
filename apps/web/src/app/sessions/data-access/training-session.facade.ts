@@ -311,7 +311,7 @@ export class TrainingSessionFacade {
   });
 
   readonly isExpired: Signal<boolean> = computed(
-    () => this.remainingSec() === 0,
+    () => this.remainingSec() !== null && this.remainingSec() === 0,
   );
 
   private readonly closeRequestCounter = signal(0);
@@ -351,7 +351,10 @@ export class TrainingSessionFacade {
       switchMap((session) =>
         this.energyFacade.load().pipe(
           map(() => session),
-          catchError(() => of(session)),
+          catchError((error: unknown) => {
+            console.error('Energy reload failed after session start', error);
+            return of(session);
+          }),
         ),
       ),
     );

@@ -18,6 +18,7 @@ interface SessionHistoryState {
   loading: boolean;
   loadingMore: boolean;
   current: CurrentSessionDto | null;
+  error: unknown;
 }
 
 const initialState: SessionHistoryState = {
@@ -27,6 +28,7 @@ const initialState: SessionHistoryState = {
   loading: false,
   loadingMore: false,
   current: null,
+  error: null,
 };
 
 export const SessionHistoryStore = signalStore(
@@ -46,7 +48,11 @@ export const SessionHistoryStore = signalStore(
         items: page.items,
         nextCursor: page.nextCursor,
         loading: false,
+        error: null,
       });
+    },
+    setError(error: unknown): void {
+      patchState(store, { loading: false, loadingMore: false, error });
     },
     startLoadingMore(): void {
       patchState(store, { loadingMore: true });

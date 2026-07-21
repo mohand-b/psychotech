@@ -97,6 +97,10 @@ export class GamepadFacade {
         this.openTransport(pairing.token);
         this.armExpiryTimer(pairing);
       },
+      error: (err: unknown) => {
+        console.error('[GamepadFacade] pairing failed', err);
+        this.stateSignal.set(GamepadConnectionState.DISCONNECTED);
+      },
     });
   }
 
