@@ -3,6 +3,7 @@ import {
   AxisType,
   LogicFamilyFilter,
   RailwayPlayableAxis,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { AxisBriefing } from './axis-briefing';
 import { AXIS_BRIEFING_CONTENT } from './axis-briefing-content';
@@ -15,6 +16,8 @@ interface RenderOptions {
   tutorial?: boolean;
   showOptions?: boolean;
   showPairing?: boolean;
+  logicFamily?: LogicFamilyFilter | null;
+  enabledOptions?: TrainingOptionId[];
 }
 
 function render(
@@ -26,6 +29,11 @@ function render(
   fixture.componentRef.setInput('tutorial', options.tutorial ?? false);
   fixture.componentRef.setInput('showOptions', options.showOptions ?? true);
   fixture.componentRef.setInput('showPairing', options.showPairing ?? false);
+  fixture.componentRef.setInput('logicFamily', options.logicFamily ?? null);
+  fixture.componentRef.setInput(
+    'enabledOptions',
+    options.enabledOptions ?? [],
+  );
   fixture.detectChanges();
   return fixture;
 }
@@ -189,6 +197,56 @@ describe('AxisBriefing (gabarit unifié)', () => {
     );
     expect(segments[2].getAttribute('aria-checked')).toBe('true');
     expect(segments[0].getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('reduces the logic commands and the summary to the selected family', () => {
+    const fixture = render(AxisType.LOGIC, {
+      logicFamily: LogicFamilyFilter.DOMINO,
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    const desktop = element.querySelector(
+      '.axis-briefing__rows.axis-briefing__platform--desktop',
+    ) as HTMLElement;
+    const mobile = element.querySelector(
+      '.axis-briefing__rows.axis-briefing__platform--mobile',
+    ) as HTMLElement;
+    expect(keycaps(desktop)).toEqual(['0-6', 'RETOUR', 'ENTRÉE']);
+    expect(keycaps(mobile)).toEqual(['0-6']);
+    expect(element.textContent).not.toContain('triangles chiffrés');
+    expect(element.textContent).toContain('dominos uniquement');
+    expect(element.textContent).not.toContain('familles d’items');
+    expect(texts(fixture, '.axis-briefing__step-text')[0]).toBe(
+      'Suites de dominos : trouvez la règle, complétez les deux faces manquantes, sous un chrono global.',
+    );
+
+    const matrices = render(AxisType.LOGIC, {
+      logicFamily: LogicFamilyFilter.MATRIX,
+    });
+    const matricesDesktop = matrices.nativeElement.querySelector(
+      '.axis-briefing__rows.axis-briefing__platform--desktop',
+    ) as HTMLElement;
+    expect(keycaps(matricesDesktop)).toEqual(['A-D', '1-4', 'ENTRÉE']);
+    expect(matrices.nativeElement.textContent).toContain(
+      'matrices uniquement',
+    );
+  });
+
+  it('reflects the no timer option in the first step and the summary', () => {
+    const fixture = render(AxisType.LOGIC, {
+      enabledOptions: [TrainingOptionId.NO_TIMER],
+    });
+    const element: HTMLElement = fixture.nativeElement;
+    expect(texts(fixture, '.axis-briefing__step-text')[0]).toBe(
+      'Suites numériques, dominos et matrices s’enchaînent par blocs, sans limite de temps.',
+    );
+    expect(element.textContent).toContain('temps libre');
+    expect(element.textContent).not.toContain('10:00');
+
+    const discovery = render(AxisType.LOGIC, {
+      tutorial: true,
+      enabledOptions: [TrainingOptionId.NO_TIMER],
+    });
+    expect(discovery.nativeElement.textContent).not.toContain('temps libre');
   });
 
   it('shows no family selector outside the logic axis nor on the discovery briefing', () => {

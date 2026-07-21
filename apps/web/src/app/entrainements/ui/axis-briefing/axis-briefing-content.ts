@@ -1,5 +1,6 @@
 import {
   AxisType,
+  LogicFamilyFilter,
   RailwayPlayableAxis,
 } from '@psychotech/shared';
 import {
@@ -13,6 +14,7 @@ import {
   LucideIconData,
   MousePointerClick,
   Pointer,
+  Puzzle,
   Repeat,
   RotateCw,
   ShieldCheck,
@@ -67,6 +69,155 @@ export interface AxisBriefingContent {
   discoverySummary: BriefingSummaryEntry[];
 }
 
+export type LogicBriefingFilterKey = 'ALL' | LogicFamilyFilter;
+
+const LOGIC_ROW_CHOICES: BriefingCommandRow = {
+  icon: Keyboard,
+  parts: [
+    { key: 'A-D' },
+    { text: 'ou' },
+    { key: '1-4' },
+    { text: 'pour les choix de réponse' },
+  ],
+};
+
+const LOGIC_ROW_DOMINO: BriefingCommandRow = {
+  icon: Keyboard,
+  parts: [{ key: '0-6' }, { text: 'pour chaque face de domino' }],
+};
+
+const LOGIC_ROW_TRIANGLE: BriefingCommandRow = {
+  icon: Keyboard,
+  parts: [{ key: '0-9' }, { text: 'pour les triangles chiffrés' }],
+};
+
+const LOGIC_ROW_ERASE_VALIDATE: BriefingCommandRow = {
+  icon: Keyboard,
+  parts: [
+    { key: 'RETOUR' },
+    { text: 'efface,' },
+    { key: 'ENTRÉE' },
+    { text: 'valide l’item' },
+  ],
+};
+
+const LOGIC_ROW_VALIDATE: BriefingCommandRow = {
+  icon: Keyboard,
+  parts: [{ key: 'ENTRÉE' }, { text: 'valide l’item' }],
+};
+
+export const LOGIC_STEP_INTROS: Record<LogicBriefingFilterKey, string> = {
+  ALL: 'Suites numériques, dominos et matrices s’enchaînent par blocs',
+  [LogicFamilyFilter.NUMERIC]:
+    'Suites numériques et triangles chiffrés : trouvez la règle, complétez la valeur manquante',
+  [LogicFamilyFilter.DOMINO]:
+    'Suites de dominos : trouvez la règle, complétez les deux faces manquantes',
+  [LogicFamilyFilter.MATRIX]:
+    'Matrices : repérez la logique de la grille, choisissez la bonne proposition',
+};
+
+export const LOGIC_STEP_TIMED_SUFFIX = ', sous un chrono global.';
+export const LOGIC_STEP_UNTIMED_SUFFIX = ', sans limite de temps.';
+
+export const LOGIC_DESKTOP_ROWS: Record<
+  LogicBriefingFilterKey,
+  BriefingCommandRow[]
+> = {
+  ALL: [
+    {
+      icon: MousePointerClick,
+      parts: [{ text: 'Clic sur les propositions et les pavés de saisie' }],
+    },
+    LOGIC_ROW_CHOICES,
+    LOGIC_ROW_DOMINO,
+    LOGIC_ROW_TRIANGLE,
+    LOGIC_ROW_ERASE_VALIDATE,
+  ],
+  [LogicFamilyFilter.NUMERIC]: [
+    {
+      icon: MousePointerClick,
+      parts: [{ text: 'Clic sur les propositions et les pavés de saisie' }],
+    },
+    LOGIC_ROW_CHOICES,
+    LOGIC_ROW_TRIANGLE,
+    LOGIC_ROW_ERASE_VALIDATE,
+  ],
+  [LogicFamilyFilter.DOMINO]: [
+    {
+      icon: MousePointerClick,
+      parts: [{ text: 'Clic sur le pavé de saisie des faces' }],
+    },
+    LOGIC_ROW_DOMINO,
+    LOGIC_ROW_ERASE_VALIDATE,
+  ],
+  [LogicFamilyFilter.MATRIX]: [
+    {
+      icon: MousePointerClick,
+      parts: [{ text: 'Clic sur les propositions' }],
+    },
+    LOGIC_ROW_CHOICES,
+    LOGIC_ROW_VALIDATE,
+  ],
+};
+
+export const LOGIC_MOBILE_ROWS: Record<
+  LogicBriefingFilterKey,
+  BriefingCommandRow[]
+> = {
+  ALL: [
+    {
+      icon: Pointer,
+      parts: [{ text: 'Touchez une proposition ou le pavé de saisie' }],
+    },
+    {
+      icon: Pointer,
+      parts: [
+        { button: '0-6' },
+        { text: 'faces de domino,' },
+        { button: '0-9' },
+        { text: 'triangles chiffrés' },
+      ],
+    },
+  ],
+  [LogicFamilyFilter.NUMERIC]: [
+    {
+      icon: Pointer,
+      parts: [{ text: 'Touchez une proposition ou le pavé de saisie' }],
+    },
+    {
+      icon: Pointer,
+      parts: [{ button: '0-9' }, { text: 'pour les triangles chiffrés' }],
+    },
+  ],
+  [LogicFamilyFilter.DOMINO]: [
+    {
+      icon: Pointer,
+      parts: [{ button: '0-6' }, { text: 'pour chaque face de domino' }],
+    },
+  ],
+  [LogicFamilyFilter.MATRIX]: [
+    {
+      icon: Pointer,
+      parts: [{ text: 'Touchez une proposition pour répondre' }],
+    },
+  ],
+};
+
+export const LOGIC_SUMMARY_FAMILY_ENTRIES: Record<
+  LogicBriefingFilterKey,
+  BriefingSummaryEntry
+> = {
+  ALL: { value: '4', label: 'familles d’items' },
+  [LogicFamilyFilter.NUMERIC]: { value: '', label: 'numérique uniquement' },
+  [LogicFamilyFilter.DOMINO]: { value: '', label: 'dominos uniquement' },
+  [LogicFamilyFilter.MATRIX]: { value: '', label: 'matrices uniquement' },
+};
+
+export const LOGIC_SUMMARY_UNTIMED_ENTRY: BriefingSummaryEntry = {
+  value: '',
+  label: 'temps libre',
+};
+
 export const AXIS_BRIEFING_CONTENT: Record<
   RailwayPlayableAxis,
   AxisBriefingContent
@@ -74,50 +225,14 @@ export const AXIS_BRIEFING_CONTENT: Record<
   [AxisType.LOGIC]: {
     tagline: 'Trouver la règle et l’appliquer, vite et juste.',
     steps: [
-      '40 items en 4 blocs : numérique, dominos et matrices, sous un chrono global.',
+      `${LOGIC_STEP_INTROS.ALL}${LOGIC_STEP_TIMED_SUFFIX}`,
       'Répondez, passez, revenez librement entre les items.',
       'À la fin, tout item sans réponse compte faux.',
     ],
-    desktopRows: [
-      {
-        icon: MousePointerClick,
-        parts: [{ text: 'Clic sur les propositions et les pavés de saisie' }],
-      },
-      {
-        icon: Keyboard,
-        parts: [
-          { key: 'A-D' },
-          { text: 'ou' },
-          { key: '1-4' },
-          { text: 'pour les choix de réponse' },
-        ],
-      },
-      {
-        icon: Keyboard,
-        parts: [{ key: '0-6' }, { text: 'pour chaque face de domino' }],
-      },
-      {
-        icon: Keyboard,
-        parts: [{ key: '0-9' }, { text: 'pour les triangles chiffrés' }],
-      },
-    ],
-    mobileRows: [
-      {
-        icon: Pointer,
-        parts: [{ text: 'Touchez une proposition ou le pavé de saisie' }],
-      },
-      {
-        icon: Pointer,
-        parts: [
-          { button: '0-6' },
-          { text: 'faces de domino,' },
-          { button: '0-9' },
-          { text: 'triangles chiffrés' },
-        ],
-      },
-    ],
+    desktopRows: LOGIC_DESKTOP_ROWS.ALL,
+    mobileRows: LOGIC_MOBILE_ROWS.ALL,
     evaluated: [
-      { icon: Target, label: 'Précision' },
+      { icon: Puzzle, label: 'Déduction de règles' },
       { icon: Timer, label: 'Gestion du temps' },
       { icon: Activity, label: 'Régularité par famille' },
     ],
@@ -129,7 +244,7 @@ export const AXIS_BRIEFING_CONTENT: Record<
     discoverySummary: [
       { value: '5', label: 'items' },
       { value: '2:30', label: 'temps global' },
-      { value: '1', label: 'famille (numérique)' },
+      { value: '4', label: 'familles d’items' },
     ],
   },
   [AxisType.MEMORY]: {
@@ -210,16 +325,16 @@ export const AXIS_BRIEFING_CONTENT: Record<
     ],
     desktopRows: [
       {
+        icon: MousePointerClick,
+        parts: [{ text: 'Clic sur les boutons Identique / Différent' }],
+      },
+      {
         icon: Keyboard,
         parts: [{ arrow: 'left' }, { text: 'répond Identique' }],
       },
       {
         icon: Keyboard,
         parts: [{ arrow: 'right' }, { text: 'répond Différent' }],
-      },
-      {
-        icon: MousePointerClick,
-        parts: [{ text: 'Ou clic sur les boutons Identique / Différent' }],
       },
     ],
     mobileRows: [
@@ -300,7 +415,7 @@ export const AXIS_BRIEFING_CONTENT: Record<
     tagline: 'Deux mains, un point, une trajectoire à tenir.',
     steps: [
       'Guidez le point dans le couloir, du départ à l’arrivée.',
-      'Une manivelle par direction : gauche = horizontal, droite = vertical.',
+      'Une manivelle par direction : celle de gauche = horizontal, celle de droite = vertical.',
       'Toucher les bords coûte des erreurs ; en sortir coûte davantage.',
     ],
     desktopRows: [

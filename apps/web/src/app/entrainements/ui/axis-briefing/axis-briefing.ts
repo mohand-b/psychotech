@@ -32,6 +32,14 @@ import { Toggle } from '../../../shared/ui/toggle/toggle';
 import {
   AXIS_BRIEFING_CONTENT,
   BriefingArrow,
+  LOGIC_DESKTOP_ROWS,
+  LOGIC_MOBILE_ROWS,
+  LOGIC_STEP_INTROS,
+  LOGIC_STEP_TIMED_SUFFIX,
+  LOGIC_STEP_UNTIMED_SUFFIX,
+  LOGIC_SUMMARY_FAMILY_ENTRIES,
+  LOGIC_SUMMARY_UNTIMED_ENTRY,
+  LogicBriefingFilterKey,
 } from './axis-briefing-content';
 
 interface FamilySegment {
@@ -93,7 +101,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
         <section class="axis-briefing__section">
           <span class="t-label">Comment ça se passe</span>
           <div class="axis-briefing__steps">
-            @for (step of content().steps; track $index) {
+            @for (step of steps(); track $index) {
               <div class="axis-briefing__step">
                 <span class="axis-briefing__step-number t-mono">{{
                   $index + 1
@@ -167,9 +175,9 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
               }
             </div>
           }
-          @if (content().desktopRows.length > 0) {
+          @if (desktopRows().length > 0) {
             <div class="axis-briefing__rows axis-briefing__platform--desktop">
-              @for (row of content().desktopRows; track $index) {
+              @for (row of desktopRows(); track $index) {
                 <div class="axis-briefing__row">
                   <span class="axis-briefing__row-icon">
                     <ui-icon [img]="row.icon" [size]="14" />
@@ -191,9 +199,9 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
               }
             </div>
           }
-          @if (content().mobileRows.length > 0) {
+          @if (mobileRows().length > 0) {
             <div class="axis-briefing__rows axis-briefing__platform--mobile">
-              @for (row of content().mobileRows; track $index) {
+              @for (row of mobileRows(); track $index) {
                 <div class="axis-briefing__row">
                   <span class="axis-briefing__row-icon">
                     <ui-icon [img]="row.icon" [size]="13" />
@@ -238,9 +246,11 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
           <span class="axis-briefing__summary">
             @for (entry of summary(); track entry.label; let last = $last) {
               <span class="axis-briefing__summary-entry">
-                <span class="axis-briefing__summary-value t-mono">{{
-                  entry.value
-                }}</span>
+                @if (entry.value) {
+                  <span class="axis-briefing__summary-value t-mono">{{
+                    entry.value
+                  }}</span>
+                }
                 <span class="axis-briefing__summary-label">{{
                   entry.label
                 }}</span>
@@ -350,11 +360,59 @@ export class AxisBriefing {
     () => AXIS_BRIEFING_CONTENT[this.axis() as RailwayPlayableAxis],
   );
 
-  protected readonly summary = computed(() =>
-    this.tutorial()
-      ? this.content().discoverySummary
-      : this.content().summary,
+  private readonly logicBriefing = computed(
+    () => this.axis() === AxisType.LOGIC && !this.tutorial(),
   );
+
+  private readonly logicFilterKey = computed<LogicBriefingFilterKey>(() =>
+    this.logicBriefing() ? (this.logicFamily() ?? 'ALL') : 'ALL',
+  );
+
+  private readonly logicUntimed = computed(
+    () =>
+      this.logicBriefing() &&
+      this.enabledOptions().includes(TrainingOptionId.NO_TIMER),
+  );
+
+  protected readonly steps = computed(() => {
+    if (!this.logicBriefing()) {
+      return this.content().steps;
+    }
+    const suffix = this.logicUntimed()
+      ? LOGIC_STEP_UNTIMED_SUFFIX
+      : LOGIC_STEP_TIMED_SUFFIX;
+    return [
+      `${LOGIC_STEP_INTROS[this.logicFilterKey()]}${suffix}`,
+      ...this.content().steps.slice(1),
+    ];
+  });
+
+  protected readonly desktopRows = computed(() =>
+    this.logicBriefing()
+      ? LOGIC_DESKTOP_ROWS[this.logicFilterKey()]
+      : this.content().desktopRows,
+  );
+
+  protected readonly mobileRows = computed(() =>
+    this.logicBriefing()
+      ? LOGIC_MOBILE_ROWS[this.logicFilterKey()]
+      : this.content().mobileRows,
+  );
+
+  protected readonly summary = computed(() => {
+    if (this.tutorial()) {
+      return this.content().discoverySummary;
+    }
+    if (!this.logicBriefing()) {
+      return this.content().summary;
+    }
+    const [items, time] = this.content().summary;
+    return [
+      items,
+      this.logicUntimed() ? LOGIC_SUMMARY_UNTIMED_ENTRY : time,
+      LOGIC_SUMMARY_FAMILY_ENTRIES[this.logicFilterKey()],
+    ];
+  });
 
   protected readonly trainingOptions = computed(() =>
     trainingOptionsForAxis(this.axis()),
