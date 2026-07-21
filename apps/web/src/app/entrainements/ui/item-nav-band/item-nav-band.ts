@@ -15,6 +15,7 @@ export type ItemNavState = 'answered' | 'skipped' | 'pending';
 
 export interface ItemNavSegment {
   label: string;
+  count: number;
 }
 
 interface RenderedSegment {
@@ -154,16 +155,17 @@ export class ItemNavBand {
       if (!segments || segments.length === 0 || states.length === 0) {
         return null;
       }
-      const size = Math.ceil(states.length / segments.length);
-      return segments.map((segment, position) => {
-        const start = position * size;
-        const groupStates = states.slice(start, start + size);
-        return {
+      let start = 0;
+      return segments.map((segment) => {
+        const groupStates = states.slice(start, start + segment.count);
+        const rendered = {
           label: segment.label,
           start,
           end: start + groupStates.length - 1,
           states: groupStates,
         };
+        start += segment.count;
+        return rendered;
       });
     },
   );

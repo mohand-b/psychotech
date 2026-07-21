@@ -45,6 +45,20 @@
   padding: 32px 40px 34px;
 }
 
+.play__rule {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 14px;
+}
+
+.play__rule-text {
+  font: 400 13.5px/19px var(--font-ui);
+  color: var(--text-secondary);
+}
+
 .play__answer {
   display: flex;
   flex-direction: column;

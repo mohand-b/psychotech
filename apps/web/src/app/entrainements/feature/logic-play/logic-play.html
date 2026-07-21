@@ -131,7 +131,12 @@
         (chosen)="select($event)"
         (hintOpened)="markHelpUsed()"
       />
-      } } }
+      } } } @if (tutorialMode) {
+      <p class="play__rule">
+        <span class="t-label">Règle</span>
+        <span class="play__rule-text">{{ currentHint() }}</span>
+      </p>
+      }
     </article>
 
     <div class="play__actions">

@@ -103,6 +103,8 @@ export class LogicPlay {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly tutorialMode =
+    this.route.snapshot.data?.['tutorial'] === true;
   protected readonly axis = AxisType.LOGIC;
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
   protected readonly buttonColor = axisButtonColor(this.axis);
@@ -205,8 +207,10 @@ export class LogicPlay {
     let lastFamily: LogicFamily | null = null;
     for (const item of this.items()) {
       if (item.family !== lastFamily) {
-        groups.push({ label: SEGMENT_LABELS[item.family] });
+        groups.push({ label: SEGMENT_LABELS[item.family], count: 1 });
         lastFamily = item.family;
+      } else {
+        groups[groups.length - 1].count += 1;
       }
     }
     return groups.length > 1 ? groups : null;
