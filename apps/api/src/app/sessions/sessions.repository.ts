@@ -311,8 +311,8 @@ export class SessionsRepository {
   async completeTargetedSession(
     params: CompleteTargetedSessionParams,
   ): Promise<SessionWithRelations> {
-    await this.prisma.$transaction([
-      this.prisma.sessionAxis.update({
+    return this.prisma.$transaction(async (tx) => {
+      await tx.sessionAxis.update({
         where: {
           sessionId_axis: {
             sessionId: params.sessionId,
@@ -327,8 +327,8 @@ export class SessionsRepository {
           startedAt: params.startedAt,
           completedAt: params.completedAt,
         },
-      }),
-      this.prisma.session.update({
+      });
+      await tx.session.update({
         where: { id: params.sessionId },
         data: {
           status: DbSessionStatus.COMPLETED,
@@ -338,26 +338,26 @@ export class SessionsRepository {
             ? mapEnumValue(DbControlModality, params.controlModality)
             : null,
         },
-      }),
-    ]);
-    const session = await this.prisma.session.findUniqueOrThrow({
-      where: { id: params.sessionId },
-      include: SESSION_INCLUDE,
-    });
-    if (params.score && !params.excludeFromBest) {
-      const axisRow = session.axisResults.find(
-        (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
-      );
-      if (axisRow) {
-        await this.upsertAxisBest(this.prisma, params.userId, params.completedAt, {
-          axis: params.axis,
-          score: params.score.normalizedScore,
-          band: params.score.band,
-          sessionAxisId: axisRow.id,
-        });
+      });
+      const session = await tx.session.findUniqueOrThrow({
+        where: { id: params.sessionId },
+        include: SESSION_INCLUDE,
+      });
+      if (params.score && !params.excludeFromBest) {
+        const axisRow = session.axisResults.find(
+          (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
+        );
+        if (axisRow) {
+          await this.upsertAxisBest(tx, params.userId, params.completedAt, {
+            axis: params.axis,
+            score: params.score.normalizedScore,
+            band: params.score.band,
+            sessionAxisId: axisRow.id,
+          });
+        }
       }
-    }
-    return session;
+      return session;
+    });
   }
 
   findTargetedAxisHistory(
@@ -412,7 +412,6 @@ export class SessionsRepository {
       where.mode = mapEnumValue(DbSessionMode, filter.mode);
     }
     if (filter.axis) {
-      where.mode = DbSessionMode.TARGETED;
       where.axisResults = {
         some: { axis: mapEnumValue(DbAxisType, filter.axis) },
       };

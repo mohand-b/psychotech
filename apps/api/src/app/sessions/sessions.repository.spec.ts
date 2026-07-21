@@ -145,7 +145,7 @@ describe('SessionsRepository.findTargetedAxisHistory', () => {
 });
 
 describe('SessionsRepository.listHistory', () => {
-  it('excludes unfinished sessions and restricts an axis filter to targeted sessions only', async () => {
+  it('excludes unfinished sessions and filters an axis through the axis results only', async () => {
     const { prisma } = buildPrismaMock([]);
     const repository = new SessionsRepository(
       prisma as unknown as PrismaService,
@@ -163,7 +163,6 @@ describe('SessionsRepository.listHistory', () => {
           status: {
             in: [DbSessionStatus.COMPLETED, DbSessionStatus.ABANDONED],
           },
-          mode: 'TARGETED',
           axisResults: { some: { axis: 'REACTIVITY' } },
         },
         take: 11,
