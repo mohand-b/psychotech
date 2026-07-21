@@ -55,21 +55,21 @@
 }
 
 .duo > .duo__pitch:first-child {
-  border-bottom: 3px solid var(--brand);
+  border-bottom: 3px solid var(--brand-pastel-bd);
   border-bottom-left-radius: var(--radius-panel);
 }
 
 .duo > .duo__pitch:last-child {
-  border-bottom: 3px solid var(--secondary-dark);
+  border-bottom: 3px solid var(--secondary-pastel-bd);
   border-bottom-right-radius: var(--radius-panel);
 }
 
 .duo__panel:has(.duo__panel-inner--sim) {
-  border-bottom: 3px solid var(--brand);
+  border-bottom: 3px solid var(--brand-pastel-bd);
 }
 
 .duo__panel:has(.duo__panel-inner--cible) {
-  border-bottom: 3px solid var(--secondary-dark);
+  border-bottom: 3px solid var(--secondary-pastel-bd);
 }
 
 .duo__pitch--closed {
@@ -332,7 +332,7 @@
 
 .duo__divider {
   width: 1px;
-  background: var(--border);
+  background: var(--divider-soft);
   flex-shrink: 0;
 }
 
