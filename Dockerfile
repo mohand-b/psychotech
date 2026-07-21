@@ -25,5 +25,6 @@ COPY --from=production-dependencies /app/package.json ./package.json
 COPY apps/api/prisma ./apps/api/prisma
 COPY --from=build /app/dist/apps/api ./dist/apps/api
 COPY --from=build /app/dist/apps/web ./dist/apps/web
+USER node
 EXPOSE 3000
 CMD ["sh", "-c", "npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma && exec node dist/apps/api/main.js"]
