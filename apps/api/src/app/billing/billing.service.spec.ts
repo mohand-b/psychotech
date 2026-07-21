@@ -101,16 +101,13 @@ function buildStripePromotion(overrides: Record<string, unknown> = {}) {
     id: 'promo_1',
     code: 'PSYCHO20',
     active: true,
-    promotion: {
-      type: 'coupon',
-      coupon: {
-        valid: true,
-        percent_off: 20,
-        amount_off: null,
-        currency: null,
-        duration: 'repeating',
-        duration_in_months: 12,
-      },
+    coupon: {
+      valid: true,
+      percent_off: 20,
+      amount_off: null,
+      currency: null,
+      duration: 'repeating',
+      duration_in_months: 12,
     },
     ...overrides,
   };

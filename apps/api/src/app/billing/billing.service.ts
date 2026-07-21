@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -43,6 +44,7 @@ const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
 
 @Injectable()
 export class BillingService {
+  private readonly logger = new Logger(BillingService.name);
   private readonly config: BillingConfig;
 
   constructor(
@@ -406,20 +408,20 @@ export class BillingService {
       code,
       active: true,
       limit: 1,
-      expand: ['data.promotion.coupon'],
+      expand: ['data.coupon'],
     });
     const promotion = list.data[0];
     if (!promotion || !promotion.active) {
       return null;
     }
-    const coupon = promotion.promotion.coupon;
+    const coupon = promotion.coupon;
     return typeof coupon === 'object' && coupon !== null && coupon.valid
       ? promotion
       : null;
   }
 
   private couponOf(promotion: Stripe.PromotionCode): Stripe.Coupon {
-    return promotion.promotion.coupon as Stripe.Coupon;
+    return promotion.coupon as Stripe.Coupon;
   }
 
   async cancelSubscription(userId: string): Promise<SubscriptionDto> {
@@ -587,7 +589,11 @@ export class BillingService {
     let phases: Stripe.SubscriptionSchedule.Phase[];
     try {
       phases = (await stripe.subscriptionSchedules.retrieve(scheduleId)).phases;
-    } catch {
+    } catch (error) {
+      this.logger.warn('Failed to retrieve subscription schedule', {
+        scheduleId,
+        error,
+      });
       return null;
     }
     const lastPhase = phases[phases.length - 1];
