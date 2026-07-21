@@ -96,9 +96,17 @@
     >
       {{ primaryLabel() }}
     </ui-button>
-    <a routerLink="/entrainements" class="te__secondary-link"
-      >Découvrir un autre axe</a
+    <ui-button
+      class="te__secondary-mobile"
+      appearance="ghost"
+      color="brand"
+      size="lg"
+      [relief]="'mobile'"
+      [block]="true"
+      routerLink="/entrainements"
     >
+      Découvrir un autre axe
+    </ui-button>
   </div>
 
   <span class="te__footnote"

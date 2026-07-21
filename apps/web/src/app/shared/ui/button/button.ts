@@ -212,6 +212,14 @@ export type ButtonSize = 'md' | 'lg';
       background: transparent;
       color: var(--text-disabled);
     }
+    .ui-button--ghost.ui-button--relief {
+      border-bottom: 3px solid var(--btn-outline-border);
+      padding-bottom: calc(var(--btn-pad-y) - 3px);
+    }
+    .ui-button--ghost.ui-button--relief:active:not(:disabled),
+    .ui-button--ghost.ui-button--relief:disabled {
+      border-bottom-color: transparent;
+    }
     .ui-button:disabled {
       background: var(--surface-muted);
       color: var(--text-disabled);
@@ -254,6 +262,14 @@ export type ButtonSize = 'md' | 'lg';
         border-bottom-width: 1px;
         padding-bottom: calc(var(--btn-pad-y) - 1px);
       }
+      .ui-button--ghost.ui-button--relief-mobile {
+        border-bottom: 3px solid var(--btn-outline-border);
+        padding-bottom: calc(var(--btn-pad-y) - 3px);
+      }
+      .ui-button--ghost.ui-button--relief-mobile:active:not(:disabled),
+      .ui-button--ghost.ui-button--relief-mobile:disabled {
+        border-bottom-color: transparent;
+      }
     }
     @keyframes ui-button-spin {
       to {
@@ -278,7 +294,7 @@ export class Button {
   protected readonly spinnerIcon = LoaderCircle;
 
   protected readonly classes = computed(() => {
-    const reliefValue = this.appearance() === 'ghost' ? false : this.relief();
+    const reliefValue = this.relief();
     const relief =
       reliefValue === 'mobile'
         ? ' ui-button--relief-mobile'
