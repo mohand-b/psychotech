@@ -44,6 +44,7 @@ export interface DominoItem {
   level: DominoLevel;
   seed: string;
   tiles: readonly DominoTile[];
+  visibleTiles: readonly DominoTile[];
   answer: DominoTile;
   rule: DominoRule;
   ruleSpec: DominoRuleSpec;

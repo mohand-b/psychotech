@@ -48,6 +48,39 @@ describe('generateTriangleItem — propriétés sur 500 tirages (5 niveaux × 10
     });
   });
 
+  it('tient ses bornes par régénération, jamais par bouclage modulaire', () => {
+    const coverage = { vertexAtMin: 0, vertexAtMax: 0, centerBeyondSums: 0 };
+    forEachGeneratedItem((item) => {
+      for (const triangle of item.triangles) {
+        const pattern = trianglePatternById(item.patternId);
+        const index = item.triangles.indexOf(triangle);
+        if (pattern.usesPreviousCenter && index === 0) {
+          continue;
+        }
+        if (index === item.missing.triangleIndex) {
+          continue;
+        }
+        const previousCenter =
+          index > 0 ? item.triangles[index - 1].center : null;
+        expect(pattern.compute(triangle, previousCenter)).toBe(triangle.center);
+        for (const vertex of [triangle.top, triangle.left, triangle.right]) {
+          if (vertex === TRIANGLE_VERTEX_MIN) {
+            coverage.vertexAtMin += 1;
+          }
+          if (vertex === TRIANGLE_VERTEX_MAX) {
+            coverage.vertexAtMax += 1;
+          }
+        }
+        if (triangle.center > 3 * TRIANGLE_VERTEX_MAX) {
+          coverage.centerBeyondSums += 1;
+        }
+      }
+    });
+    expect(coverage.vertexAtMin).toBeGreaterThan(0);
+    expect(coverage.vertexAtMax).toBeGreaterThan(0);
+    expect(coverage.centerBeyondSums).toBeGreaterThan(0);
+  });
+
   it('vérifie la réponse par évaluation de la relation sur toute la série', () => {
     forEachGeneratedItem((item) => {
       expect(triangleSeriesConsistent(item.triangles, item.patternId)).toBe(

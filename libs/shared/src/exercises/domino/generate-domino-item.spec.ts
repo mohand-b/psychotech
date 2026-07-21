@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  DominoFace,
+  DominoHalfRule,
   DominoItem,
   DominoLevel,
   DominoPattern,
+  DominoTile,
 } from './domino-item';
 import {
   buildDominoRule,
@@ -149,7 +152,10 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
     forEachGeneratedItem((item) => {
       const wrapIndices = dominoWrapIndices(item.ruleSpec, item.tiles);
       expect(item.hasWrap).toBe(wrapIndices.length > 0);
-      expect(item.rule.userText.includes('revient à 0')).toBe(item.hasWrap);
+      expect(
+        item.rule.userText.includes('revient à 0') ||
+          item.rule.userText.includes('repart de 6'),
+      ).toBe(item.hasWrap);
     });
   });
 
@@ -177,6 +183,177 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
   });
 });
 
+const BOUNDARY_DRAWS_PER_LEVEL = 750;
+
+function independentModulo(value: number): DominoFace {
+  return (((value % 7) + 7) % 7) as DominoFace;
+}
+
+function independentStepAt(
+  rule: DominoHalfRule,
+  transitionIndex: number,
+): number | null {
+  switch (rule.kind) {
+    case 'CONSTANT':
+    case 'ALTERNATING_VALUES':
+      return null;
+    case 'STEP':
+      return rule.step;
+    case 'ALTERNATING_STEPS':
+      return rule.steps[transitionIndex % 2];
+    case 'GROWING_STEP':
+      return (transitionIndex + 1) * rule.direction;
+  }
+}
+
+function independentNext(
+  rule: DominoHalfRule,
+  values: readonly DominoFace[],
+  index: number,
+): DominoFace {
+  switch (rule.kind) {
+    case 'CONSTANT':
+      return rule.value;
+    case 'ALTERNATING_VALUES':
+      return rule.values[index % 2];
+    default: {
+      const step = independentStepAt(rule, index - 1);
+      return independentModulo(values[index - 1] + (step ?? 0));
+    }
+  }
+}
+
+type WrapDirection = 'up' | 'down' | null;
+
+function wrapDirectionAt(
+  rule: DominoHalfRule,
+  values: readonly DominoFace[],
+  transitionIndex: number,
+): WrapDirection {
+  const step = independentStepAt(rule, transitionIndex);
+  if (step === null) {
+    return null;
+  }
+  const raw = values[transitionIndex] + step;
+  return raw > 6 ? 'up' : raw < 0 ? 'down' : null;
+}
+
+interface HalfView {
+  rule: DominoHalfRule;
+  values: DominoFace[];
+}
+
+function halvesOf(item: DominoItem): HalfView[] {
+  if (item.ruleSpec.pattern !== DominoPattern.HALVES) {
+    return [];
+  }
+  return [
+    { rule: item.ruleSpec.top, values: item.tiles.map((tile) => tile.top) },
+    {
+      rule: item.ruleSpec.bottom,
+      values: item.tiles.map((tile) => tile.bottom),
+    },
+  ];
+}
+
+function forEachBoundaryItem(check: (item: DominoItem) => void): void {
+  for (const level of LEVELS) {
+    for (let draw = 0; draw < BOUNDARY_DRAWS_PER_LEVEL; draw += 1) {
+      check(generateDominoItem({ level, seed: `frontiere-${draw}` }));
+    }
+  }
+}
+
+describe('generateDominoItem — frontières modulo 7 sur 3000 tirages', () => {
+  it('donne une réponse en vraie arithmétique modulaire, jamais en butée, frontières couvertes', () => {
+    const coverage = {
+      answerWrapDown: 0,
+      answerWrapUp: 0,
+      answerOnZeroAfterDescent: 0,
+      answerOnSixAfterAscent: 0,
+      alternatingWrap: 0,
+    };
+    forEachBoundaryItem((item) => {
+      const answerIndex = item.tiles.length - 1;
+      for (const { rule, values } of halvesOf(item)) {
+        const expected = independentNext(rule, values, answerIndex);
+        expect(values[answerIndex]).toBe(expected);
+        const direction = wrapDirectionAt(rule, values, answerIndex - 1);
+        if (direction === 'down') {
+          coverage.answerWrapDown += 1;
+        }
+        if (direction === 'up') {
+          coverage.answerWrapUp += 1;
+        }
+        const step = independentStepAt(rule, answerIndex - 1);
+        if (step !== null && step < 0 && values[answerIndex] === 0) {
+          coverage.answerOnZeroAfterDescent += 1;
+        }
+        if (step !== null && step > 0 && values[answerIndex] === 6) {
+          coverage.answerOnSixAfterAscent += 1;
+        }
+        if (rule.kind === 'ALTERNATING_STEPS' && direction !== null) {
+          coverage.alternatingWrap += 1;
+        }
+      }
+    });
+    expect(coverage.answerWrapDown).toBeGreaterThan(0);
+    expect(coverage.answerWrapUp).toBeGreaterThan(0);
+    expect(coverage.answerOnZeroAfterDescent).toBeGreaterThan(0);
+    expect(coverage.answerOnSixAfterAscent).toBeGreaterThan(0);
+    expect(coverage.alternatingWrap).toBeGreaterThan(0);
+  });
+
+  it('ne demande jamais un bouclage en réponse sans en avoir montré un sur la même face', () => {
+    forEachBoundaryItem((item) => {
+      const answerTransition = item.tiles.length - 2;
+      for (const { rule, values } of halvesOf(item)) {
+        if (wrapDirectionAt(rule, values, answerTransition) === null) {
+          continue;
+        }
+        let shown = false;
+        for (let index = 0; index < answerTransition; index += 1) {
+          if (wrapDirectionAt(rule, values, index) !== null) {
+            shown = true;
+            break;
+          }
+        }
+        expect(shown).toBe(true);
+      }
+    });
+  });
+
+  it('mentionne le bouclage selon sa direction, réponse comprise', () => {
+    forEachBoundaryItem((item) => {
+      let up = false;
+      let down = false;
+      for (const { rule, values } of halvesOf(item)) {
+        for (let index = 0; index < item.tiles.length - 1; index += 1) {
+          const direction = wrapDirectionAt(rule, values, index);
+          up = up || direction === 'up';
+          down = down || direction === 'down';
+        }
+      }
+      expect(item.rule.userText.includes('Après le 6, on revient à 0.')).toBe(
+        up,
+      );
+      expect(item.rule.userText.includes('Sous le 0, on repart de 6.')).toBe(
+        down,
+      );
+      expect(item.hasWrap).toBe(up || down);
+    });
+  });
+
+  it('expose les exemples visibles séparés de la réponse', () => {
+    forEachBoundaryItem((item) => {
+      expect(item.visibleTiles).toHaveLength(item.length - 1);
+      expect(item.visibleTiles).toEqual(item.tiles.slice(0, -1));
+      const withAnswer: DominoTile[] = [...item.visibleTiles, item.answer];
+      expect(withAnswer).toEqual(item.tiles);
+    });
+  });
+});
+
 describe('buildDominoRule — formulations utilisateur', () => {
   it('formule les deux moitiés indépendantes', () => {
     const rule = buildDominoRule(
@@ -185,11 +362,11 @@ describe('buildDominoRule — formulations utilisateur', () => {
         top: { kind: 'STEP', step: 2 },
         bottom: { kind: 'STEP', step: -1 },
       },
-      true,
+      { up: true, down: true },
     );
     expect(rule.id).toBe('halves-step+2-step-1');
     expect(rule.userText).toBe(
-      'La face du haut avance de 2 à chaque domino, celle du bas recule de 1 à chaque domino. Après le 6, on revient à 0.',
+      'La face du haut avance de 2 à chaque domino, celle du bas recule de 1 à chaque domino. Après le 6, on revient à 0. Sous le 0, on repart de 6.',
     );
   });
 
@@ -200,7 +377,7 @@ describe('buildDominoRule — formulations utilisateur', () => {
         top: { kind: 'CONSTANT', value: 3 },
         bottom: { kind: 'ALTERNATING_VALUES', values: [1, 4] },
       },
-      false,
+      { up: false, down: false },
     );
     expect(rule.userText).toBe(
       'La face du haut reste sur 3, celle du bas alterne entre 1 et 4.',
@@ -214,7 +391,7 @@ describe('buildDominoRule — formulations utilisateur', () => {
         offset: 1,
         bottom: { kind: 'STEP', step: 2 },
       },
-      false,
+      { up: false, down: false },
     );
     expect(rule.id).toBe('cross+1-step+2');
     expect(rule.userText).toBe(
@@ -229,7 +406,7 @@ describe('buildDominoRule — formulations utilisateur', () => {
         even: { topStep: 2, bottomStep: -1 },
         odd: { topStep: 1, bottomStep: 3 },
       },
-      false,
+      { up: false, down: false },
     );
     expect(rule.userText).toContain('rang impair');
     expect(rule.userText).toContain('+2 en haut');
@@ -242,7 +419,7 @@ describe('buildDominoRule — formulations utilisateur', () => {
         top: { kind: 'STEP', step: 2 },
         bottom: { kind: 'STEP', step: -1 },
       },
-      true,
+      { up: true, down: false },
     );
     expect(rule.userText).toBe(
       'La face du haut avance de 2 à chaque domino, celle du bas recule de 1 à chaque domino. Après le 6, on revient à 0.',

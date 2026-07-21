@@ -11,9 +11,18 @@ export function mod7(value: number): DominoFace {
   return (((value % 7) + 7) % 7) as DominoFace;
 }
 
-function wraps(previous: DominoFace, step: number): boolean {
+export type DominoWrapDirection = 'up' | 'down';
+
+function wrapDirection(
+  previous: DominoFace,
+  step: number,
+): DominoWrapDirection | null {
   const raw = previous + step;
-  return raw > 6 || raw < 0;
+  return raw > 6 ? 'up' : raw < 0 ? 'down' : null;
+}
+
+function wraps(previous: DominoFace, step: number): boolean {
+  return wrapDirection(previous, step) !== null;
 }
 
 interface HalfSequence {
@@ -248,29 +257,42 @@ export function dominoTransitionSteps(
   return transitions;
 }
 
+export interface DominoFaceWrapDirections {
+  top: DominoWrapDirection | null;
+  bottom: DominoWrapDirection | null;
+}
+
+export function dominoTransitionWraps(
+  spec: DominoRuleSpec,
+  tiles: readonly DominoTile[],
+): DominoFaceWrapDirections[] {
+  return dominoTransitionSteps(spec, tiles).map((steps, index) => {
+    const sourceTile =
+      spec.pattern === DominoPattern.INTERLEAVED ? tiles[index - 1] : tiles[index];
+    if (!sourceTile) {
+      return { top: null, bottom: null };
+    }
+    const topSource =
+      spec.pattern === DominoPattern.CROSS ? tiles[index].bottom : sourceTile.top;
+    return {
+      top: steps.top === null ? null : wrapDirection(topSource, steps.top),
+      bottom:
+        steps.bottom === null
+          ? null
+          : wrapDirection(sourceTile.bottom, steps.bottom),
+    };
+  });
+}
+
 export function dominoWrapIndices(
   spec: DominoRuleSpec,
   tiles: readonly DominoTile[],
 ): number[] {
-  const indices: number[] = [];
-  const transitions = dominoTransitionSteps(spec, tiles);
-  for (let index = 0; index < transitions.length; index += 1) {
-    const { top, bottom } = transitions[index];
-    const sourceTile =
-      spec.pattern === DominoPattern.INTERLEAVED ? tiles[index - 1] : tiles[index];
-    if (!sourceTile) {
-      continue;
-    }
-    const topSource =
-      spec.pattern === DominoPattern.CROSS ? tiles[index].bottom : sourceTile.top;
-    if (
-      (top !== null && wraps(topSource, top)) ||
-      (bottom !== null && wraps(sourceTile.bottom, bottom))
-    ) {
-      indices.push(index + 1);
-    }
-  }
-  return indices;
+  return dominoTransitionWraps(spec, tiles)
+    .map((wrap, index) =>
+      wrap.top !== null || wrap.bottom !== null ? index + 1 : null,
+    )
+    .filter((index): index is number => index !== null);
 }
 
 function formatStep(step: number): string {
@@ -311,7 +333,13 @@ function halfId(rule: DominoHalfRule): string {
   }
 }
 
-const WRAP_CLAUSE = ' Après le 6, on revient à 0.';
+const WRAP_UP_CLAUSE = ' Après le 6, on revient à 0.';
+const WRAP_DOWN_CLAUSE = ' Sous le 0, on repart de 6.';
+
+export interface DominoWrapMentions {
+  up: boolean;
+  down: boolean;
+}
 
 function halfHintClause(rule: DominoHalfRule): string {
   switch (rule.kind) {
@@ -334,7 +362,7 @@ function halfHintClause(rule: DominoHalfRule): string {
 
 export function buildDominoRule(
   spec: DominoRuleSpec,
-  hasWrap: boolean,
+  wrapMentions: DominoWrapMentions,
 ): DominoRule {
   let id: string;
   let userText: string;
@@ -359,9 +387,12 @@ export function buildDominoRule(
     hintText =
       "Deux suites s'entrelacent : les dominos de rang impair et de rang pair suivent chacun leur progression.";
   }
+  const wrapClause = `${wrapMentions.up ? WRAP_UP_CLAUSE : ''}${
+    wrapMentions.down ? WRAP_DOWN_CLAUSE : ''
+  }`;
   return {
     id,
-    userText: hasWrap ? `${userText}${WRAP_CLAUSE}` : userText,
-    hintText: hasWrap ? `${hintText}${WRAP_CLAUSE}` : hintText,
+    userText: `${userText}${wrapClause}`,
+    hintText: `${hintText}${wrapClause}`,
   };
 }

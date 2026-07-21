@@ -12,7 +12,7 @@ import {
   DominoSequenceStarts,
   buildDominoRule,
   buildDominoSequence,
-  dominoWrapIndices,
+  dominoTransitionWraps,
   evaluateDominoSequence,
   mod7,
   solveDominoAnswer,
@@ -23,7 +23,7 @@ export interface GenerateDominoItemOptions {
   seed: string;
 }
 
-const MAX_GENERATION_ATTEMPTS = 40;
+const MAX_GENERATION_ATTEMPTS = 80;
 
 const ALL_STEPS = [-3, -2, -1, 1, 2, 3];
 const SMALL_STEPS = [-2, -1, 1, 2];
@@ -235,25 +235,52 @@ export function generateDominoItem(
     if (shadowRuleContradicts(visibleTiles, answer)) {
       continue;
     }
-    const wrapIndices = dominoWrapIndices(spec, tiles);
-    const visibleWrap = wrapIndices.some((index) => index <= visibleTiles.length - 1);
-    if (level === 1 && wrapIndices.length > 0) {
+    const transitionWraps = dominoTransitionWraps(spec, tiles);
+    const answerWrap = transitionWraps[transitionWraps.length - 1];
+    const visibleWraps = transitionWraps.slice(0, -1);
+    const anyWrap = transitionWraps.some(
+      (wrap) => wrap.top !== null || wrap.bottom !== null,
+    );
+    const visibleWrap = visibleWraps.some(
+      (wrap) => wrap.top !== null || wrap.bottom !== null,
+    );
+    if (level === 1 && anyWrap) {
       continue;
     }
     if (level === 2 && !visibleWrap) {
       continue;
     }
-    const hasWrap = wrapIndices.length > 0;
+    if (
+      answerWrap.top !== null &&
+      !visibleWraps.some((wrap) => wrap.top !== null)
+    ) {
+      continue;
+    }
+    if (
+      answerWrap.bottom !== null &&
+      !visibleWraps.some((wrap) => wrap.bottom !== null)
+    ) {
+      continue;
+    }
+    const wrapMentions = {
+      up: transitionWraps.some(
+        (wrap) => wrap.top === 'up' || wrap.bottom === 'up',
+      ),
+      down: transitionWraps.some(
+        (wrap) => wrap.top === 'down' || wrap.bottom === 'down',
+      ),
+    };
     return {
       level,
       seed,
       tiles,
+      visibleTiles,
       answer,
-      rule: buildDominoRule(spec, hasWrap),
+      rule: buildDominoRule(spec, wrapMentions),
       ruleSpec: spec,
       pattern: spec.pattern,
       length,
-      hasWrap,
+      hasWrap: anyWrap,
     };
   }
   throw new Error(
