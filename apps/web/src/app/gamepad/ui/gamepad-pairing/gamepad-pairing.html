@@ -23,9 +23,14 @@
     <canvas #qrCanvas class="pairing__qr"></canvas>
     @if (pairing(); as pairingValue) {
       <p class="pairing__hint">
-        Scannez avec votre téléphone ou saisissez le code
+        Scannez le code avec votre téléphone : il devient vos deux manivelles.
+        Code manuel
         <strong class="t-mono">{{ formattedCode(pairingValue.code) }}</strong>
         sur la page /manette.
+      </p>
+      <p class="pairing__note">
+        L'épreuve se joue uniquement aux manivelles, comme la sélection
+        réelle.
       </p>
       <div class="pairing__status">
         <span class="pairing__dot pairing__dot--waiting"></span>

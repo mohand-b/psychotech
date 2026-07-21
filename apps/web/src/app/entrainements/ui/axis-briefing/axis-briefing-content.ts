@@ -307,36 +307,18 @@ export const AXIS_BRIEFING_CONTENT: Record<
       {
         icon: Smartphone,
         parts: [
-          {
-            text: 'Manette téléphone recommandée : une manivelle par direction',
-          },
-        ],
-      },
-      {
-        icon: Keyboard,
-        parts: [
-          { arrow: 'up' },
-          { arrow: 'down' },
-          { arrow: 'left' },
-          { arrow: 'right' },
-          { text: 'en secours, pour déplacer le point' },
+          { text: 'Votre téléphone sert de manette, appairage ci-dessous' },
         ],
       },
     ],
     mobileRows: [
       {
         icon: RotateCw,
-        parts: [
-          { button: 'Manivelle gauche' },
-          { text: 'déplace horizontalement' },
-        ],
+        parts: [{ text: 'Manivelle gauche : déplacement horizontal' }],
       },
       {
         icon: RotateCw,
-        parts: [
-          { button: 'Manivelle droite' },
-          { text: 'déplace verticalement' },
-        ],
+        parts: [{ text: 'Manivelle droite : déplacement vertical' }],
       },
     ],
     evaluated: [

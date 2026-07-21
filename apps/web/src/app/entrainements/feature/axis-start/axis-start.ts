@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
@@ -11,6 +12,8 @@ import {
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
+import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -23,14 +26,16 @@ const TARGETED_AXIS_ENERGY_COST = 1;
 @Component({
   selector: 'app-axis-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisBriefing, BoltIcon, Button],
+  imports: [AxisBriefing, BoltIcon, Button, GamepadPairing],
   templateUrl: './axis-start.html',
   styleUrl: './axis-start.css',
 })
 export class AxisStart {
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
+  private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly starting = signal(false);
   protected readonly enabledOptions = signal<TrainingOptionId[]>([]);
@@ -41,6 +46,13 @@ export class AxisStart {
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
+  protected readonly showPairing =
+    this.axis === AxisType.MOTOR_SKILLS && !this.tutorial;
+
+  protected readonly gamepadPairing = this.gamepad.pairing;
+  protected readonly gamepadConnected = this.gamepad.connected;
+  protected readonly gamepadLatency = this.gamepad.latency;
+  protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
 
   constructor() {
     if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
@@ -48,6 +60,22 @@ export class AxisStart {
         queryParams: { panel: 'cible' },
       });
     }
+    if (this.showPairing) {
+      this.destroyRef.onDestroy(() => {
+        if (!this.leavingTowardsPlay()) {
+          this.gamepad.disconnect();
+        }
+      });
+      if (!this.gamepad.connected()) {
+        this.gamepad.pairTutorial();
+      }
+    }
+  }
+
+  private leavingTowardsPlay(): boolean {
+    return this.router.url.includes(
+      `/entrainements/cible/${axisSlug(this.axis)}/session/`,
+    );
   }
 
   private targetedOptions(): TargetedSessionOptionsDto {

@@ -3,9 +3,21 @@
     [axis]="axis"
     [tutorial]="tutorial"
     [showOptions]="!tutorial"
+    [showPairing]="showPairing"
     [(enabledOptions)]="enabledOptions"
     [(logicFamily)]="logicFamily"
-  />
+  >
+    @if (showPairing) {
+    <div briefingPairing class="axis-start__pairing">
+      <ui-gamepad-pairing
+        [pairing]="gamepadPairing()"
+        [connected]="gamepadConnected()"
+        [latency]="gamepadLatency()"
+        [latencyGood]="gamepadLatencyGood()"
+      />
+    </div>
+    }
+  </ui-axis-briefing>
 
   <div class="axis-start__cta">
     <ui-button

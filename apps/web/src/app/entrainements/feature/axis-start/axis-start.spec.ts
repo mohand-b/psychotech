@@ -14,12 +14,25 @@ import {
   SessionStatus,
   StartSessionDto,
 } from '@psychotech/shared';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
+import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
 import { tutorialSessionProviders } from '../../data-access/tutorial-session.facade';
 import { AxisStart } from './axis-start';
+
+function gamepadFacadeStub() {
+  return {
+    pairing: signal(null),
+    connected: signal(false),
+    latency: signal(null),
+    latencyIsGood: signal(true),
+    pairTutorial: vi.fn(),
+    disconnect: vi.fn(),
+  };
+}
 
 function buildSession(): SessionDto {
   return {
@@ -62,15 +75,18 @@ interface Setup {
   fixture: ComponentFixture<AxisStart>;
   element: HTMLElement;
   start: ReturnType<typeof vi.fn>;
+  gamepad: ReturnType<typeof gamepadFacadeStub>;
 }
 
 async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
   TestBed.resetTestingModule();
   const start = vi.fn(() => of(buildSession()));
+  const gamepad = gamepadFacadeStub();
   await TestBed.configureTestingModule({
     imports: [AxisStart],
     providers: [
       provideRouter([]),
+      { provide: GamepadFacade, useValue: gamepad },
       { provide: SessionsApi, useValue: { start, get: vi.fn() } },
       { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
       {
@@ -93,7 +109,7 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(AxisStart);
   fixture.detectChanges();
-  return { fixture, element: fixture.nativeElement, start };
+  return { fixture, element: fixture.nativeElement, start, gamepad };
 }
 
 function familySegments(element: HTMLElement): HTMLButtonElement[] {
@@ -168,6 +184,21 @@ describe('AxisStart - option Familles', () => {
     expect(familySegments(result.element)).toHaveLength(0);
     clickStart(result);
     expect(result.start).not.toHaveBeenCalled();
+  });
+
+  it('pairs the phone gamepad from the motricity briefing, targeted only', async () => {
+    const targeted = await setup('motricite');
+    expect(targeted.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
+    expect(
+      targeted.element.querySelector('ui-gamepad-pairing'),
+    ).not.toBeNull();
+
+    const discovery = await setup('motricite', true);
+    expect(discovery.gamepad.pairTutorial).not.toHaveBeenCalled();
+    expect(discovery.element.querySelector('ui-gamepad-pairing')).toBeNull();
+
+    const other = await setup('logique');
+    expect(other.gamepad.pairTutorial).not.toHaveBeenCalled();
   });
 
   it('labels the discovery call to action without the word tutoriel', async () => {
