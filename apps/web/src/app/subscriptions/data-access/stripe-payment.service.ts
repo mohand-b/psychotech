@@ -50,7 +50,7 @@ export class StripePaymentService {
     this.elements?.update(this.intentOptions(amountCents));
   }
 
-  async submit(): Promise<PaymentConfirmation> {
+  async validateForm(): Promise<PaymentConfirmation> {
     const elements = this.requireElements();
     const { error } = await elements.submit();
     return { errorMessage: error?.message ?? null };

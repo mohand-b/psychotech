@@ -67,7 +67,7 @@ export class SubscriptionsFacade {
     return this.api.createPaymentMethodSetup();
   }
 
-  validatePromotionCode(code: string): Observable<PromotionCodeDto> {
+  getPromotionCode(code: string): Observable<PromotionCodeDto> {
     return this.api.getPromotionCode(code);
   }
 

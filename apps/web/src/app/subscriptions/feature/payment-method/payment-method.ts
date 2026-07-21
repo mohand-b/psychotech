@@ -128,7 +128,7 @@ export class PaymentMethod {
     this.saving.set(true);
     this.saveError.set(null);
     try {
-      const submitted = await this.stripePayment.submit();
+      const submitted = await this.stripePayment.validateForm();
       if (submitted.errorMessage) {
         return;
       }

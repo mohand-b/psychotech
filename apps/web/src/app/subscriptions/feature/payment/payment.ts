@@ -387,7 +387,7 @@ export class Payment {
     }
     this.applying.set(true);
     this.subscriptionsFacade
-      .validatePromotionCode(code)
+      .getPromotionCode(code)
       .pipe(
         finalize(() => this.applying.set(false)),
         takeUntilDestroyed(this.destroyRef),
@@ -415,7 +415,7 @@ export class Payment {
     this.paying.set(true);
     this.paymentError.set(null);
     try {
-      const submitted = await this.stripePayment.submit();
+      const submitted = await this.stripePayment.validateForm();
       if (submitted.errorMessage) {
         return;
       }

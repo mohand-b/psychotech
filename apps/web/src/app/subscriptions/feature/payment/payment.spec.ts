@@ -50,7 +50,7 @@ async function setup(
     createSubscription: vi.fn().mockReturnValue(
       of({ clientSecret: 'pi_secret', kind: PaymentIntentKind.PAYMENT }),
     ),
-    validatePromotionCode: vi.fn(),
+    getPromotionCode: vi.fn(),
     previewPlanChange: vi.fn().mockReturnValue(
       of({
         currentPlan: SubscriptionTier.ESSENTIAL,
@@ -74,7 +74,7 @@ async function setup(
       (_host: HTMLElement, _amount: number, onReady: () => void) => onReady(),
     ),
     updateAmount: vi.fn(),
-    submit: vi.fn().mockResolvedValue({ errorMessage: null }),
+    validateForm: vi.fn().mockResolvedValue({ errorMessage: null }),
     confirm: vi.fn().mockResolvedValue({ errorMessage: null }),
   };
   TestBed.overrideComponent(Payment, {
@@ -242,7 +242,7 @@ describe('Payment', () => {
   it('applies a percent promotion and updates the element amount', async () => {
     const { fixture, subscriptionsFacade, stripePayment } =
       await setup('illimite');
-    subscriptionsFacade.validatePromotionCode.mockReturnValue(of(PSYCHO20));
+    subscriptionsFacade.getPromotionCode.mockReturnValue(of(PSYCHO20));
 
     applyCode(fixture, 'PSYCHO20');
 
@@ -257,7 +257,7 @@ describe('Payment', () => {
   it('switches to a zero total for a free first month', async () => {
     const { fixture, subscriptionsFacade, stripePayment } =
       await setup('essentiel');
-    subscriptionsFacade.validatePromotionCode.mockReturnValue(of(RAIL1MOIS));
+    subscriptionsFacade.getPromotionCode.mockReturnValue(of(RAIL1MOIS));
 
     applyCode(fixture, 'RAIL1MOIS');
 
@@ -269,7 +269,7 @@ describe('Payment', () => {
 
   it('shows an error for an invalid code', async () => {
     const { fixture, subscriptionsFacade } = await setup('essentiel');
-    subscriptionsFacade.validatePromotionCode.mockReturnValue(
+    subscriptionsFacade.getPromotionCode.mockReturnValue(
       throwError(() => new Error('not found')),
     );
 
@@ -283,7 +283,7 @@ describe('Payment', () => {
   it('confirms the payment on the page and lands on the confirmation page', async () => {
     const { fixture, subscriptionsFacade, stripePayment, navigate } =
       await setup('illimite');
-    subscriptionsFacade.validatePromotionCode.mockReturnValue(of(PSYCHO20));
+    subscriptionsFacade.getPromotionCode.mockReturnValue(of(PSYCHO20));
     applyCode(fixture, 'PSYCHO20');
 
     (fixture.nativeElement as HTMLElement)
