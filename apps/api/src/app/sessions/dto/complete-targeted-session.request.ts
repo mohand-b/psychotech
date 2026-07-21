@@ -68,16 +68,19 @@ export class LogicItemAnswerRequest implements LogicItemAnswerDto {
   visited!: boolean;
 }
 
+const MEMORY_INPUT_ALLOWED_VALUES: readonly (number | null)[] = [
+  null,
+  ...Array.from({ length: 10 }, (_, digit) => digit),
+];
+
 export class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
   @IsInt()
   @Min(0)
   index!: number;
 
   @IsArray()
-  @IsInt({ each: true })
-  @Min(0, { each: true })
-  @Max(9, { each: true })
-  input!: number[];
+  @IsIn(MEMORY_INPUT_ALLOWED_VALUES, { each: true })
+  input!: (number | null)[];
 
   @IsInt()
   @Min(0)
