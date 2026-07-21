@@ -6,8 +6,11 @@ import {
   model,
 } from '@angular/core';
 import {
+  AXIS_COMMANDS,
   AXIS_TRAINING,
   AXIS_TUTORIAL,
+  AxisCommandInput,
+  AxisCommandLine,
   AxisTimerModel,
   AxisType,
   LOGIC_FAMILY_FILTER_LABELS,
@@ -16,7 +19,18 @@ import {
   TrainingOptionId,
   trainingOptionsForAxis,
 } from '@psychotech/shared';
-import { Clock, LayoutGrid, ListChecks, Target, Timer } from 'lucide-angular';
+import {
+  Clock,
+  Gamepad2,
+  Keyboard,
+  LayoutGrid,
+  ListChecks,
+  LucideIconData,
+  MousePointerClick,
+  Pointer,
+  Target,
+  Timer,
+} from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { formatDuration } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -43,6 +57,13 @@ const LOGIC_FAMILY_VOLUME_LABELS: Record<LogicFamilyFilter, string> = {
   [LogicFamilyFilter.NUMERIC]: 'items · Numérique (suites + triangles)',
   [LogicFamilyFilter.DOMINO]: 'items · Dominos',
   [LogicFamilyFilter.MATRIX]: 'items · Matrices (20 + 20)',
+};
+
+const COMMAND_INPUT_ICONS: Record<AxisCommandInput, LucideIconData> = {
+  [AxisCommandInput.POINTER]: MousePointerClick,
+  [AxisCommandInput.KEYBOARD]: Keyboard,
+  [AxisCommandInput.TOUCH]: Pointer,
+  [AxisCommandInput.PHONE_GAMEPAD]: Gamepad2,
 };
 
 @Component({
@@ -75,6 +96,24 @@ const LOGIC_FAMILY_VOLUME_LABELS: Record<LogicFamilyFilter, string> = {
         <article class="axis-briefing__card">
           <span class="axis-briefing__label">Objectif</span>
           <p class="axis-briefing__text">{{ training().briefing.objectif }}</p>
+        </article>
+
+        <article class="axis-briefing__card">
+          <span class="axis-briefing__label">Commandes</span>
+          <ul class="axis-briefing__commands">
+            @for (command of commands(); track command.text) {
+              <li class="axis-briefing__command">
+                <ui-icon
+                  class="axis-briefing__command-icon"
+                  [img]="commandIcon(command)"
+                  [size]="15"
+                />
+                <span class="axis-briefing__command-text">{{
+                  command.text
+                }}</span>
+              </li>
+            }
+          </ul>
         </article>
 
         <article class="axis-briefing__card axis-briefing__card--summary">
@@ -244,6 +283,14 @@ export class AxisBriefing {
       ? AXIS_TUTORIAL[this.axis() as RailwayPlayableAxis]
       : AXIS_TRAINING[this.axis() as RailwayPlayableAxis],
   );
+
+  protected readonly commands = computed(
+    () => AXIS_COMMANDS[this.axis() as RailwayPlayableAxis],
+  );
+
+  protected commandIcon(command: AxisCommandLine): LucideIconData {
+    return COMMAND_INPUT_ICONS[command.input];
+  }
 
   protected readonly volume = computed<SummaryTile>(() => {
     const training = this.training();
