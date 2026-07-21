@@ -4,9 +4,18 @@
 
 .axis-start__cta {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   width: 100%;
-  max-width: 36.5rem;
+  max-width: 48.75rem;
+}
+
+.axis-start__note {
+  margin: 0;
+  font: 400 0.78125rem/1.45 var(--font-ui);
+  color: var(--label);
+  text-align: center;
 }
 
 .axis-start__cta ui-button {

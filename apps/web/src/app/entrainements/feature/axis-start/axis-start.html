@@ -3,7 +3,6 @@
     [axis]="axis"
     [tutorial]="tutorial"
     [showOptions]="!tutorial"
-    [admissibilityThreshold]="admissibilityThreshold()"
     [(enabledOptions)]="enabledOptions"
     [(logicFamily)]="logicFamily"
   />
@@ -18,12 +17,17 @@
       (click)="start()"
     >
       <span class="axis-start__cta-content">
-        Commencer @if (!tutorial) {
+        @if (tutorial) { Commencer la découverte } @else { Commencer
         <span class="axis-start__cta-sep"></span>
         <ui-bolt [size]="14" />
         <span class="t-mono">{{ energyCost }}</span>
         }
       </span>
     </ui-button>
+    @if (tutorial) {
+    <p class="axis-start__note">
+      La découverte est toujours identique et ne consomme aucune énergie.
+    </p>
+    }
   </div>
 </section>

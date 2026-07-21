@@ -16,7 +16,6 @@ import {
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
 import { tutorialSessionProviders } from '../../data-access/tutorial-session.facade';
@@ -79,13 +78,6 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
       },
       {
-        provide: CatalogFacade,
-        useValue: {
-          loadSectorReferential: vi.fn(),
-          sectorReferential: () => null,
-        },
-      },
-      {
         provide: ActivatedRoute,
         useValue: {
           snapshot: {
@@ -104,9 +96,11 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
   return { fixture, element: fixture.nativeElement, start };
 }
 
-function familyChips(element: HTMLElement): HTMLButtonElement[] {
+function familySegments(element: HTMLElement): HTMLButtonElement[] {
   return Array.from(
-    element.querySelectorAll<HTMLButtonElement>('.axis-briefing__family-chip'),
+    element.querySelectorAll<HTMLButtonElement>(
+      '.axis-briefing__family-segment',
+    ),
   );
 }
 
@@ -124,22 +118,24 @@ function startPayload(start: ReturnType<typeof vi.fn>): StartSessionDto {
 describe('AxisStart - option Familles', () => {
   it('offers the four exclusive family choices for the logic axis', async () => {
     const result = await setup('logique');
-    const chips = familyChips(result.element);
-    expect(chips.map((chip) => chip.textContent?.trim())).toEqual([
+    const segments = familySegments(result.element);
+    expect(segments.map((segment) => segment.textContent?.trim())).toEqual([
       'Tous les blocs',
       'Numérique',
       'Dominos',
       'Matrices',
     ]);
-    expect(chips[0].getAttribute('aria-checked')).toBe('true');
-    expect(result.element.textContent).toContain('items · 4 familles');
+    expect(segments[0].getAttribute('aria-checked')).toBe('true');
+    expect(result.element.textContent).toContain('familles d’items');
   });
 
   it('sends the selected family in the session creation payload', async () => {
     const result = await setup('logique');
-    familyChips(result.element)[2].click();
+    familySegments(result.element)[2].click();
     result.fixture.detectChanges();
-    expect(result.element.textContent).toContain('items · Dominos');
+    expect(
+      familySegments(result.element)[2].getAttribute('aria-checked'),
+    ).toBe('true');
 
     clickStart(result);
 
@@ -160,17 +156,31 @@ describe('AxisStart - option Familles', () => {
 
   it('never sends a family for another axis', async () => {
     const result = await setup('memoire');
-    expect(familyChips(result.element)).toHaveLength(0);
+    expect(familySegments(result.element)).toHaveLength(0);
     clickStart(result);
     expect('logicFamily' in (startPayload(result.start).options ?? {})).toBe(
       false,
     );
   });
 
-  it('shows no selector and calls no api for the tutorial', async () => {
+  it('shows no selector and calls no api for the discovery mode', async () => {
     const result = await setup('logique', true);
-    expect(familyChips(result.element)).toHaveLength(0);
+    expect(familySegments(result.element)).toHaveLength(0);
     clickStart(result);
     expect(result.start).not.toHaveBeenCalled();
+  });
+
+  it('labels the discovery call to action without the word tutoriel', async () => {
+    const result = await setup('logique', true);
+    const button = result.element.querySelector(
+      'ui-button button',
+    ) as HTMLButtonElement;
+    expect(button.textContent).toContain('Commencer la découverte');
+    expect(result.element.textContent).toContain(
+      'La découverte est toujours identique et ne consomme aucune énergie.',
+    );
+    expect(result.element.textContent?.toLowerCase()).not.toContain(
+      'tutoriel',
+    );
   });
 });

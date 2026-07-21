@@ -6,6 +6,7 @@ async function setup(inputs: {
   score: number;
   previousBestScore: number | null;
   isNewBest?: boolean;
+  recordVisible?: boolean;
 }): Promise<ComponentFixture<ResultSummary>> {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -24,6 +25,7 @@ async function setup(inputs: {
   fixture.componentRef.setInput('isEqualBest', false);
   fixture.componentRef.setInput('sector', Sector.RAILWAY);
   fixture.componentRef.setInput('completedAt', '2026-07-16T10:00:00.000Z');
+  fixture.componentRef.setInput('recordVisible', inputs.recordVisible ?? true);
   fixture.detectChanges();
   return fixture;
 }
@@ -57,5 +59,19 @@ describe('ResultSummary', () => {
       isNewBest: true,
     });
     expect(deltaText(fixture)).toBeNull();
+  });
+
+  it('hides the best line and the delta when the record is not visible', async () => {
+    const fixture = await setup({
+      score: 78,
+      previousBestScore: 70,
+      isNewBest: true,
+      recordVisible: false,
+    });
+    expect(deltaText(fixture)).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.summary__best'),
+    ).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('record');
   });
 });

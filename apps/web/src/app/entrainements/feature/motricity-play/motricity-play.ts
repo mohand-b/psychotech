@@ -264,7 +264,9 @@ export class MotricityPlay {
       return;
     }
     this.loaded.set(true);
-    this.requestPairing();
+    if (!this.gamepad.connected()) {
+      this.requestPairing();
+    }
   }
 
   protected onCountdownFinished(): void {

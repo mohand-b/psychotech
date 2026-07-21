@@ -1,12 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SessionDto, SessionMode, SessionStatus } from '@psychotech/shared';
+import {
+  AxisType,
+  SessionDto,
+  SessionMode,
+  SessionStatus,
+} from '@psychotech/shared';
+import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
+import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -16,14 +24,16 @@ import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 @Component({
   selector: 'app-simulation-briefing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisBriefing, Button],
+  imports: [AxisBriefing, Button, GamepadPairing],
   templateUrl: './simulation-briefing.html',
   styleUrl: './simulation-briefing.css',
 })
 export class SimulationBriefing {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -39,8 +49,8 @@ export class SimulationBriefing {
     return `Axe ${session.currentAxisIndex + 1}/${session.axisResults.length}`;
   });
 
-  protected readonly admissibilityThreshold = computed(
-    () => this.facade.session()?.sectorThreshold ?? null,
+  protected readonly motricityAxis = computed(
+    () => this.axis() === AxisType.MOTOR_SKILLS,
   );
 
   protected readonly buttonColor = computed(() => {
@@ -48,7 +58,17 @@ export class SimulationBriefing {
     return axis ? axisButtonColor(axis) : 'brand';
   });
 
+  protected readonly gamepadPairing = this.gamepad.pairing;
+  protected readonly gamepadConnected = this.gamepad.connected;
+  protected readonly gamepadLatency = this.gamepad.latency;
+  protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
+
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (!this.leavingTowardsAxisPlay()) {
+        this.gamepad.disconnect();
+      }
+    });
     const active = this.facade.session();
     if (active?.id === this.sessionId) {
       this.handleLoaded(active);
@@ -73,6 +93,12 @@ export class SimulationBriefing {
     ]);
   }
 
+  private leavingTowardsAxisPlay(): boolean {
+    return this.router.url.startsWith(
+      `/entrainements/simulation/session/${this.sessionId}/axe/`,
+    );
+  }
+
   private handleLoaded(session: SessionDto): void {
     if (session.mode !== SessionMode.FULL) {
       this.router.navigate(['/entrainements']);
@@ -87,5 +113,8 @@ export class SimulationBriefing {
       return;
     }
     this.loaded.set(true);
+    if (this.motricityAxis() && !this.gamepad.connected()) {
+      this.gamepad.pair(this.sessionId);
+    }
   }
 }

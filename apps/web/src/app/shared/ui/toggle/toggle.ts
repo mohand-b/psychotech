@@ -30,17 +30,17 @@ import {
       display: inline-flex;
       align-items: center;
       flex-shrink: 0;
-      width: 44px;
-      height: 24px;
+      width: var(--toggle-w, 40px);
+      height: var(--toggle-h, 22px);
       padding: 2px;
       border: none;
-      border-radius: 12px;
+      border-radius: calc(var(--toggle-h, 22px) / 2);
       background: var(--border-hover);
       cursor: pointer;
       transition: background 0.15s ease;
     }
     .ui-toggle--on {
-      background: var(--brand);
+      background: var(--toggle-on, var(--brand));
     }
     .ui-toggle:disabled {
       background: var(--surface-muted);
@@ -51,15 +51,23 @@ import {
       box-shadow: var(--shadow-focus);
     }
     .ui-toggle__thumb {
-      width: 20px;
-      height: 20px;
+      width: calc(var(--toggle-h, 22px) - 4px);
+      height: calc(var(--toggle-h, 22px) - 4px);
       border-radius: var(--radius-pill);
       background: var(--card);
       box-shadow: var(--shadow-card);
       transition: transform 0.15s ease;
     }
     .ui-toggle--on .ui-toggle__thumb {
-      transform: translateX(20px);
+      transform: translateX(
+        calc(var(--toggle-w, 40px) - var(--toggle-h, 22px))
+      );
+    }
+    @media (max-width: 767px) {
+      .ui-toggle {
+        --toggle-w: 44px;
+        --toggle-h: 26px;
+      }
     }
     @media (pointer: coarse) {
       .ui-toggle {

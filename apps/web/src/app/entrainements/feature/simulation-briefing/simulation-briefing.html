@@ -2,10 +2,21 @@
   @if (loaded() && axis(); as currentAxis) {
   <ui-axis-briefing
     [axis]="currentAxis"
-    [admissibilityThreshold]="admissibilityThreshold()"
     [showOptions]="false"
     [positionLabel]="positionLabel()"
-  />
+    [showPairing]="motricityAxis()"
+  >
+    @if (motricityAxis()) {
+    <div briefingPairing class="sim-brief__pairing">
+      <ui-gamepad-pairing
+        [pairing]="gamepadPairing()"
+        [connected]="gamepadConnected()"
+        [latency]="gamepadLatency()"
+        [latencyGood]="gamepadLatencyGood()"
+      />
+    </div>
+    }
+  </ui-axis-briefing>
 
   <div class="sim-brief__footer">
     <div class="sim-brief__cta">
@@ -17,9 +28,10 @@
         [showArrow]="true"
         (click)="start()"
       >
-        Commencer
+        Commencer l'axe
       </ui-button>
     </div>
+    <p class="sim-brief__note">Le chronomètre démarre après le décompte.</p>
   </div>
   }
 </section>

@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -9,12 +8,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
   LogicFamilyFilter,
-  Sector,
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -32,8 +28,6 @@ const TARGETED_AXIS_ENERGY_COST = 1;
   styleUrl: './axis-start.css',
 })
 export class AxisStart {
-  private readonly authFacade = inject(AuthFacade);
-  private readonly catalogFacade = inject(CatalogFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -48,26 +42,13 @@ export class AxisStart {
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
 
-  private readonly sector =
-    this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-
   constructor() {
     if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
       this.router.navigate(['/entrainements'], {
         queryParams: { panel: 'cible' },
       });
     }
-    if (!this.tutorial) {
-      this.catalogFacade.loadSectorReferential(this.sector);
-    }
   }
-
-  protected readonly admissibilityThreshold = computed(() =>
-    this.tutorial
-      ? null
-      : (this.catalogFacade.sectorReferential()?.admissibilityThreshold ??
-        null),
-  );
 
   private targetedOptions(): TargetedSessionOptionsDto {
     const options: TargetedSessionOptionsDto = {
