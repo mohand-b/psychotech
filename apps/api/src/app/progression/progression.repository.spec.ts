@@ -35,7 +35,7 @@ describe('ProgressionRepository.countCompletedSessionsByMode', () => {
   });
 });
 
-describe('ProgressionRepository.getFirstSessionDate', () => {
+describe('ProgressionRepository.getFirstScoredSessionDate', () => {
   it('restricts the first date to completed full and targeted sessions', async () => {
     const prisma = {
       session: {
@@ -46,7 +46,7 @@ describe('ProgressionRepository.getFirstSessionDate', () => {
     };
     const repository = new ProgressionRepository(prisma as unknown as PrismaService);
 
-    const first = await repository.getFirstSessionDate('user-1');
+    const first = await repository.getFirstScoredSessionDate('user-1');
 
     expect(prisma.session.aggregate).toHaveBeenCalledWith({
       where: { userId: 'user-1', status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },

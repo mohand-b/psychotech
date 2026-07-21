@@ -52,7 +52,7 @@ export class ProgressionRepository {
     return { full: countFor('FULL'), targeted: countFor('TARGETED') };
   }
 
-  async getFirstSessionDate(userId: string): Promise<Date | null> {
+  async getFirstScoredSessionDate(userId: string): Promise<Date | null> {
     const aggregate = await this.prisma.session.aggregate({
       where: { userId, status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },
       _min: { startedAt: true },

@@ -7,7 +7,7 @@ function repositoryMock(overrides: Partial<Record<keyof ProgressionRepository, u
   return {
     getStreak: vi.fn().mockResolvedValue({ current: 3, longest: 7 }),
     countCompletedSessionsByMode: vi.fn().mockResolvedValue({ full: 8, targeted: 15 }),
-    getFirstSessionDate: vi.fn().mockResolvedValue(new Date('2026-04-14T09:00:00Z')),
+    getFirstScoredSessionDate: vi.fn().mockResolvedValue(new Date('2026-04-14T09:00:00Z')),
     getBestFullSession: vi.fn().mockResolvedValue({
       globalScore: 78.2,
       completedAt: new Date('2026-06-02T18:00:00Z'),
@@ -79,7 +79,7 @@ describe('ProgressionService.getProgression', () => {
       repositoryMock({
         getStreak: vi.fn().mockResolvedValue(null),
         countCompletedSessionsByMode: vi.fn().mockResolvedValue({ full: 0, targeted: 0 }),
-        getFirstSessionDate: vi.fn().mockResolvedValue(null),
+        getFirstScoredSessionDate: vi.fn().mockResolvedValue(null),
         getBestFullSession: vi.fn().mockResolvedValue(null),
         getEvolution: vi.fn().mockResolvedValue([]),
         getFirstFullSession: vi.fn().mockResolvedValue(null),

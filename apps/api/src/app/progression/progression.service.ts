@@ -34,7 +34,7 @@ export class ProgressionService {
     ] = await Promise.all([
       this.repository.getStreak(userId),
       this.repository.countCompletedSessionsByMode(userId),
-      this.repository.getFirstSessionDate(userId),
+      this.repository.getFirstScoredSessionDate(userId),
       this.repository.getBestFullSession(userId),
       this.repository.getEvolution(userId, PROGRESSION_EVOLUTION_LIMIT),
       this.repository.getFirstFullSession(userId),
