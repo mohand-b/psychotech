@@ -39,7 +39,7 @@ export class EnergyService {
   }
 
   async canAfford(userId: string, cost: number): Promise<boolean> {
-    const wallet = await this.ensureFreshWallet(userId, new Date());
+    const wallet = await this.peekWallet(userId, new Date());
     return canAfford({ tier: wallet.tier, balance: wallet.balance, cost });
   }
 
@@ -103,6 +103,25 @@ export class EnergyService {
       toDbReason(reason),
       sessionId,
     );
+  }
+
+  private async peekWallet(userId: string, now: Date): Promise<FreshWallet> {
+    const context = await this.repository.findEnergyContext(userId);
+    if (!context) {
+      throw new NotFoundException('Energy wallet not found');
+    }
+    const tier = this.tierResolution.resolve(context.subscription);
+    const resetDue = isDailyResetDue(
+      context.wallet.lastResetAt,
+      now,
+      context.timezone,
+    );
+    return {
+      balance: resetDue ? context.wallet.capacity : context.wallet.balance,
+      capacity: context.wallet.capacity,
+      tier,
+      timezone: context.timezone,
+    };
   }
 
   private async ensureFreshWallet(
