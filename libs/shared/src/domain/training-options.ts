@@ -28,7 +28,7 @@ export const AXIS_TRAINING_OPTIONS: Partial<
       id: TrainingOptionId.LOGIC_HELP,
       label: 'Aide pendant la session',
       description:
-        'Affichez la règle de la suite pendant un exercice - la règle, pas la réponse.',
+        "Affichez la règle d'un item pendant l'exercice : la règle, pas la réponse.",
     },
     NO_TIMER_OPTION,
   ],
@@ -38,7 +38,7 @@ export const AXIS_TRAINING_OPTIONS: Partial<
       id: TrainingOptionId.REACTIVITY_LIVE_METRICS,
       label: 'Métriques en direct',
       description:
-        "Affichez vos temps de réaction et vos erreurs pendant l'épreuve.",
+        "Votre temps de réaction moyen s'affiche pendant la session.",
     },
   ],
   [AxisType.MOTOR_SKILLS]: [

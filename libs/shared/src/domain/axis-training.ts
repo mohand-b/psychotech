@@ -1,10 +1,5 @@
 import { AxisTimerModel, AxisType, MemoryPhase } from '../enums';
 
-export interface AxisBriefing {
-  consigne: string;
-  objectif: string;
-}
-
 export interface GlobalAxisTimer {
   model: AxisTimerModel.GLOBAL;
   durationSec: number;
@@ -24,7 +19,6 @@ export interface MemorySequenceConfig {
 interface BaseAxisTraining {
   timer: AxisTimer;
   exerciseCount: number;
-  briefing: AxisBriefing;
 }
 
 export interface LogicTraining extends BaseAxisTraining {
@@ -98,11 +92,6 @@ export const AXIS_TRAINING: {
     timer: { model: AxisTimerModel.GLOBAL, durationSec: 600 },
     exerciseCount: 40,
     difficultyLevels: 5,
-    briefing: {
-      consigne:
-        'Résolvez chaque item : suites, triangles, dominos et matrices, par choix de réponse ou saisie directe. Vous pouvez passer un item et y revenir tant que le chrono tourne.',
-      objectif: 'Raisonnement logique et gestion de votre temps.',
-    },
   },
   [AxisType.MEMORY]: {
     axis: AxisType.MEMORY,
@@ -117,11 +106,6 @@ export const AXIS_TRAINING: {
       { phase: MemoryPhase.INVERSE, length: 4 },
       { phase: MemoryPhase.INVERSE, length: 5 },
     ],
-    briefing: {
-      consigne:
-        "Mémorisez la séquence affichée, puis restituez-la dans l'ordre, puis à l'envers. Chaque séquence est un peu plus longue.",
-      objectif: 'Mémoire de travail : retenir, puis manipuler.',
-    },
   },
   [AxisType.VISUAL_DISCRIMINATION]: {
     axis: AxisType.VISUAL_DISCRIMINATION,
@@ -130,11 +114,6 @@ export const AXIS_TRAINING: {
     increasingDifficulty: true,
     minSequenceLength: 5,
     maxSequenceLength: 8,
-    briefing: {
-      consigne:
-        "Comparez les deux suites et indiquez si elles sont identiques ou différentes. L'essai suivant s'enchaîne aussitôt.",
-      objectif: 'Comparaison visuelle rapide et fiable.',
-    },
   },
   [AxisType.REACTIVITY]: {
     axis: AxisType.REACTIVITY,
@@ -146,11 +125,6 @@ export const AXIS_TRAINING: {
     isiMaxMs: REACTIVITY_ISI_MAX_MS,
     responseWindowMs: 1500,
     anticipationThresholdMs: 150,
-    briefing: {
-      consigne:
-        "Trois signaux, trois commandes. L'épreuve commence avec un seul signal - les autres s'ajoutent en cours de route et seront annoncés. Réagissez le plus vite possible avec la bonne commande.",
-      objectif: 'Vitesse de réaction, régularité et précision des commandes.',
-    },
   },
   [AxisType.MOTOR_SKILLS]: {
     axis: AxisType.MOTOR_SKILLS,
@@ -159,10 +133,5 @@ export const AXIS_TRAINING: {
     secondsPerCourse: 90,
     pauseBetweenCoursesSec: 10,
     increasingDifficulty: true,
-    briefing: {
-      consigne:
-        "Pilotez le curseur à deux mains pour suivre au plus près le centre du couloir, jusqu'au bout des 3 parcours.",
-      objectif: 'Coordination des deux mains et précision du tracé.',
-    },
   },
 };

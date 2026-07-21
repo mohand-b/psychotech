@@ -1,6 +1,5 @@
 export * from './axis-metrics';
 export * from './billing-errors';
-export * from './axis-commands';
 export * from './axis-meta';
 export * from './axis-training';
 export * from './axis-tutorial';
