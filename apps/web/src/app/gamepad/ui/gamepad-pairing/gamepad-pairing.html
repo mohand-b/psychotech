@@ -1,3 +1,51 @@
+@if (variant() === 'briefing') {
+  <div class="pairing pairing--briefing">
+    @if (!connected()) {
+      <canvas #qrCanvas class="pairing__qr pairing__qr--briefing"></canvas>
+    } @else {
+      <span class="pairing__qr-placeholder">
+        <span class="pairing__dot pairing__dot--connected"></span>
+      </span>
+    }
+    <div class="pairing__copy">
+      <span class="t-label">Manette téléphone</span>
+      <p class="pairing__lead">
+        Scannez le code avec votre téléphone : il devient vos deux manivelles.
+      </p>
+      <p class="pairing__note">
+        L'épreuve se joue uniquement aux manivelles, comme la sélection
+        réelle.
+      </p>
+    </div>
+    <div class="pairing__aside">
+      @if (!connected() && pairing(); as pairingValue) {
+        <span class="pairing__aside-label">Code manuel</span>
+        <span class="pairing__code t-mono">{{
+          formattedCode(pairingValue.code)
+        }}</span>
+        <span class="pairing__status">
+          <span class="pairing__dot pairing__dot--waiting"></span>
+          <span class="pairing__status-label">En attente de connexion</span>
+        </span>
+      } @else if (connected()) {
+        <span class="pairing__status">
+          <span class="pairing__dot pairing__dot--connected"></span>
+          <span class="pairing__status-label">Manette connectée</span>
+        </span>
+        @if (latency(); as stats) {
+          <span class="pairing__aside-latency">
+            Latence
+            <strong
+              class="t-mono"
+              [class.pairing__latency--warn]="!latencyGood()"
+              >{{ latencyLabel(stats) }}</strong
+            >
+          </span>
+        }
+      }
+    </div>
+  </div>
+} @else {
 <div class="pairing">
   @if (connected()) {
     <div class="pairing__status">
@@ -39,3 +87,4 @@
     }
   }
 </div>
+}

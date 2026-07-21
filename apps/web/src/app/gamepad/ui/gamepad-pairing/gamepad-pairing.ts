@@ -23,6 +23,7 @@ export class GamepadPairing {
   readonly connected = input.required<boolean>();
   readonly latency = input.required<GamepadLatencyStats | null>();
   readonly latencyGood = input.required<boolean>();
+  readonly variant = input<'compact' | 'briefing'>('compact');
 
   private readonly qrCanvas =
     viewChild<ElementRef<HTMLCanvasElement>>('qrCanvas');

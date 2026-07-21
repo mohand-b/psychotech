@@ -9,6 +9,7 @@
     @if (motricityAxis()) {
     <div briefingPairing class="sim-brief__pairing">
       <ui-gamepad-pairing
+        variant="briefing"
         [pairing]="gamepadPairing()"
         [connected]="gamepadConnected()"
         [latency]="gamepadLatency()"

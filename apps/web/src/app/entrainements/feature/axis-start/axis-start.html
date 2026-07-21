@@ -10,6 +10,7 @@
     @if (showPairing) {
     <div briefingPairing class="axis-start__pairing">
       <ui-gamepad-pairing
+        variant="briefing"
         [pairing]="gamepadPairing()"
         [connected]="gamepadConnected()"
         [latency]="gamepadLatency()"
