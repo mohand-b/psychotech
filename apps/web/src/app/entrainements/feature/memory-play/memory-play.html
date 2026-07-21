@@ -103,7 +103,12 @@
         @for (element of sequence.elements; track $index) {
         <span
           class="memo__slot t-mono"
-          [class.memo__slot--filled]="$index < input().length"
+          [class.memo__slot--filled]="
+            $index < input().length && input()[$index] !== null
+          "
+          [class.memo__slot--skipped]="
+            $index < input().length && input()[$index] === null
+          "
           [class.memo__slot--current]="$index === input().length"
         >
           @if ($index < input().length) { {{ input()[$index] }} }
@@ -118,6 +123,15 @@
         {{ digit }}
       </button>
       }
+      <button
+        type="button"
+        class="memo__key memo__key--skip"
+        [disabled]="input().length >= sequence.length"
+        (click)="skipPosition()"
+      >
+        <ui-icon [img]="skipIcon" [size]="14" />
+        Passer
+      </button>
       <button
         type="button"
         class="memo__key memo__key--action"
@@ -163,7 +177,9 @@
       </ui-button>
     </div>
 
-    <p class="memo__mention">0–9 au clavier · Retour efface · Entrée valide</p>
+    <p class="memo__mention">
+      0-9 au clavier · P passe · Retour efface · Entrée valide
+    </p>
     } }
   </div>
 

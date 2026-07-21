@@ -17,7 +17,7 @@ import {
   SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
-import { Check, Delete, MoveRight, Undo2 } from 'lucide-angular';
+import { Check, Delete, MoveRight, SkipForward, Undo2 } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
@@ -77,7 +77,7 @@ export class MemoryPlay {
   protected readonly currentIndex = signal(0);
   protected readonly memorizeStep = signal(0);
   protected readonly digitVisible = signal(false);
-  protected readonly input = signal<number[]>([]);
+  protected readonly input = signal<(number | null)[]>([]);
   protected readonly submitting = signal(false);
   protected readonly confirmingExit = signal(false);
   protected readonly sessionMode = computed(
@@ -108,6 +108,7 @@ export class MemoryPlay {
   protected readonly reverseIcon = Undo2;
   protected readonly eraseIcon = Delete;
   protected readonly validateIcon = Check;
+  protected readonly skipIcon = SkipForward;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -144,6 +145,18 @@ export class MemoryPlay {
       return;
     }
     this.input.update((input) => [...input, digit]);
+  }
+
+  protected skipPosition(): void {
+    const sequence = this.currentSequence();
+    if (
+      this.stage() !== 'RESTITUTION' ||
+      !sequence ||
+      this.input().length >= sequence.length
+    ) {
+      return;
+    }
+    this.input.update((input) => [...input, null]);
   }
 
   protected erase(): void {
@@ -191,6 +204,11 @@ export class MemoryPlay {
     if (event.key === 'Enter') {
       event.preventDefault();
       this.validate();
+      return;
+    }
+    if (event.key === 'p' || event.key === 'P') {
+      event.preventDefault();
+      this.skipPosition();
       return;
     }
     const digit = Number(event.key);

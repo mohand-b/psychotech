@@ -288,6 +288,11 @@
   background: var(--axis-pastel);
 }
 
+.memo__slot--skipped {
+  border: 2px dashed var(--border);
+  background: var(--surface-muted);
+}
+
 .memo__pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -331,6 +336,21 @@
 
 .memo__key--zero {
   grid-column: 2;
+}
+
+.memo__key--skip {
+  grid-column: 1 / -1;
+  gap: 8px;
+  height: 40px;
+  background: transparent;
+  border-style: dashed;
+  font: 600 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.memo__key--skip:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
 }
 
 .memo__key--action {
