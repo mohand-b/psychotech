@@ -115,8 +115,8 @@ function cheatingTrajectory(course: MotricityCourse): MotricitySampleDto[] {
 }
 
 function insidePoint(course: MotricityCourse): MotricitySampleDto {
-  const first = course.segments[0];
-  return { t: 0, x: first.start.x + first.length / 2, y: first.start.y };
+  const position = centerlinePositionAtPct(course, 10);
+  return { t: 0, x: position.x, y: position.y };
 }
 
 describe('generateMotricityCourses', () => {
