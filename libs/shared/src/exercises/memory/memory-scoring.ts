@@ -35,11 +35,11 @@ export interface MemorySessionScore {
 
 function positionStatesFor(
   target: number[],
-  input: number[],
+  input: (number | null)[],
 ): MemoryPositionState[] {
   const states: MemoryPositionState[] = target.map((expected, position) => {
     const entered = input[position];
-    if (entered === undefined) {
+    if (entered === undefined || entered === null) {
       return 'EMPTY';
     }
     return entered === expected ? 'PLACED' : 'ABSENT';
@@ -55,6 +55,9 @@ function positionStatesFor(
       return;
     }
     const entered = input[position];
+    if (typeof entered !== 'number') {
+      return;
+    }
     const available = remaining.get(entered) ?? 0;
     if (available > 0) {
       states[position] = 'MISPLACED';

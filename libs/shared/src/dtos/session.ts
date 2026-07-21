@@ -50,7 +50,7 @@ export interface LogicRawResultDto {
 
 export interface MemorySequenceAnswerDto {
   index: number;
-  input: number[];
+  input: (number | null)[];
   timeMs: number;
   timedOut: boolean;
 }

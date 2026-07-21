@@ -14,7 +14,7 @@ function sequence(
 
 function restitution(
   index: number,
-  input: number[],
+  input: (number | null)[],
   timedOut = false,
 ): MemorySequenceAnswerDto {
   return { index, input, timeMs: 10_000, timedOut };
@@ -145,6 +145,60 @@ describe('scoreMemorySession', () => {
     const nothing = scoreMemorySession(sequences, []);
     expect(nothing.score).toBe(0);
     expect(nothing.restitutedPct).toBe(0);
+  });
+
+  it('treats a skipped position as empty without shifting the following digits', () => {
+    const scored = scoreMemorySession(
+      [NORMAL_TARGET_7149],
+      [restitution(0, [7, null, 4, 9])],
+    );
+    expect(scored.results[0].positionStates).toEqual([
+      'PLACED',
+      'EMPTY',
+      'PLACED',
+      'PLACED',
+    ]);
+    expect(scored.results[0].status).toBe('FAILED');
+    expect(scored.results[0].sequenceScore).toBeCloseTo(3 / 4, 10);
+  });
+
+  it('scores a skipped position above an intrusion and never as misplaced', () => {
+    const target = [sequence(0, MemoryPhase.NORMAL, [1, 2, 3])];
+    const withSkip = scoreMemorySession(target, [restitution(0, [1, null, 3])]);
+    const withIntrusion = scoreMemorySession(target, [
+      restitution(0, [1, 9, 3]),
+    ]);
+    expect(withSkip.results[0].positionStates).toEqual([
+      'PLACED',
+      'EMPTY',
+      'PLACED',
+    ]);
+    expect(withSkip.results[0].sequenceScore).toBeGreaterThan(
+      withIntrusion.results[0].sequenceScore,
+    );
+  });
+
+  it('excludes skipped positions from restituted and placed percentages', () => {
+    const scored = scoreMemorySession(
+      [NORMAL_TARGET_7149],
+      [restitution(0, [7, null, null, 9])],
+    );
+    expect(scored.restitutedPct).toBe(50);
+    expect(scored.placedPct).toBe(50);
+    expect(scored.misplacedCount).toBe(0);
+    expect(scored.absentCount).toBe(0);
+  });
+
+  it('keeps misplaced pairing intact around a skipped position', () => {
+    const scored = scoreMemorySession(
+      [sequence(0, MemoryPhase.NORMAL, [2, 2, 5])],
+      [restitution(0, [5, null, 2])],
+    );
+    expect(scored.results[0].positionStates).toEqual([
+      'MISPLACED',
+      'EMPTY',
+      'MISPLACED',
+    ]);
   });
 
   it('computes restituted and placed percentages over all positions', () => {
