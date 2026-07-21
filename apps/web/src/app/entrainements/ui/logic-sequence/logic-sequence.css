@@ -56,6 +56,15 @@
   color: var(--ink);
 }
 
+.seq__unknown--correct {
+  border-color: var(--secondary);
+  background: var(--secondary-pastel);
+}
+
+.seq__unknown--correct .seq__unknown-value {
+  color: var(--secondary-label);
+}
+
 @media (max-width: 767px) {
   .seq {
     gap: 10px;

@@ -30,7 +30,7 @@ const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4];
           <span class="row__label">{{ row.label }}</span>
           @if (row.item; as item) {
             <ui-domino-sequence
-              [tiles]="item.tiles.slice(0, -1)"
+              [tiles]="item.visibleTiles"
               [answerTop]="item.answer.top"
               [answerBottom]="item.answer.bottom"
               [annotations]="annotationsFor(item)"

@@ -36,7 +36,7 @@ describe('DominoTile', () => {
   it('rend une suite générée avec sa tuile réponse en mystère', () => {
     const item = generateDominoItem({ level: 3, seed: 'smoke' });
     const fixture = TestBed.createComponent(DominoSequence);
-    fixture.componentRef.setInput('tiles', item.tiles.slice(0, -1));
+    fixture.componentRef.setInput('tiles', item.visibleTiles);
     fixture.componentRef.setInput('answerTop', null);
     fixture.componentRef.setInput('answerBottom', null);
     fixture.detectChanges();

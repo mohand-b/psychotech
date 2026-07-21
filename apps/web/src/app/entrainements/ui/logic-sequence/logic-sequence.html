@@ -20,6 +20,9 @@
   <span
     class="seq__unknown"
     [class.seq__unknown--filled]="filledValue() !== null"
+    [class.seq__unknown--correct]="
+      filledValue() !== null && filledTone() === 'correct'
+    "
   >
     <span class="seq__unknown-value t-mono" aria-label="Terme à trouver"
       >{{ filledValue() ?? '?' }}</span

@@ -397,6 +397,26 @@ describe('LogicPlay (contenu v2)', () => {
     });
   });
 
+  it('shows only the visible examples ahead of the domino answer slot', async () => {
+    const result = await setup();
+    goToItem(result, 10);
+    const item = generateLogicSession(
+      'seed-logic-v2',
+      null,
+      LOGIC_CONTENT_VERSION_V2,
+    )[10];
+    expect(item.family).toBe(LogicFamily.DOMINO);
+    if (item.family !== LogicFamily.DOMINO) {
+      return;
+    }
+    expect(
+      result.element.querySelectorAll('.dom__seq .dom__tile'),
+    ).toHaveLength(item.domino.visibleTiles.length);
+    expect(
+      result.element.querySelectorAll('.dom__answer-tile'),
+    ).toHaveLength(1);
+  });
+
   it('shows the generic domino hint without the precise steps', async () => {
     const result = await setup({
       options: { enabledOptions: [TrainingOptionId.LOGIC_HELP] },

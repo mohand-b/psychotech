@@ -257,7 +257,7 @@ export class DominoLab {
   });
 
   protected readonly visibleTiles = computed(
-    () => this.item()?.tiles.slice(0, -1) ?? [],
+    () => this.item()?.visibleTiles ?? [],
   );
 
   protected readonly annotations = computed<DominoGapAnnotation[]>(() => {

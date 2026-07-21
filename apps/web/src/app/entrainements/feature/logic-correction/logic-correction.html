@@ -26,7 +26,11 @@
 
   @switch (item.family) { @case (families.NUMERIC) { @if (sequenceItem(); as
   numeric) {
-  <ui-logic-sequence [terms]="numeric.sequence" />
+  <ui-logic-sequence
+    [terms]="numeric.sequence"
+    [filledValue]="numeric.choices[numeric.answerIndex]"
+    filledTone="correct"
+  />
 
   <ui-logic-choices
     [review]="true"
@@ -41,26 +45,12 @@
       <ui-triangle-series
         [triangles]="triangle.triangle.triangles"
         [missing]="triangle.triangle.missing"
-        [answerValue]="null"
+        [answerValue]="triangle.triangle.answer"
         [tileSize]="88"
       />
-      @if (triangleCorrectView(); as correct) {
-      <span class="corr-tri__answer">
-        <span class="corr-tri__tile corr-tri__tile--correct">
-          <ui-triangle-tile
-            [top]="correct.top"
-            [left]="correct.left"
-            [right]="correct.right"
-            [center]="correct.center"
-            [size]="88"
-            [accentSlot]="triangle.triangle.missing.slot"
-          />
-        </span>
-        <span class="corr-tri__caption corr-tri__caption--correct"
-          >Bonne réponse</span
-        >
-      </span>
-      } @if (triangleUserView(); as user) {
+    </div>
+    @if (triangleUserView(); as user) {
+    <div class="corr-tri__user">
       <span class="corr-tri__answer">
         <span class="corr-tri__tile corr-tri__tile--wrong">
           <ui-triangle-tile
@@ -76,14 +66,14 @@
           >Votre réponse</span
         >
       </span>
-      }
     </div>
+    }
     <p class="corr__rule">{{ triangleRule() }}</p>
   </div>
   } } @case (families.DOMINO) { @if (dominoItem(); as domino) {
   <div class="corr-dom">
     <div class="corr-dom__seq">
-      @for (tile of domino.domino.tiles; track $index) {
+      @for (tile of domino.domino.visibleTiles; track $index) {
       <span class="corr-dom__step">
         <span class="corr-dom__tile">
           <span class="corr-dom__half"
@@ -111,7 +101,9 @@
           >Bonne réponse</span
         >
       </span>
-      @if (dominoUserAnswer(); as user) {
+    </div>
+    @if (dominoUserAnswer(); as user) {
+    <div class="corr-dom__user">
       <span class="corr-dom__answer">
         <span class="corr-dom__tile corr-dom__tile--user">
           <span
@@ -132,8 +124,8 @@
           >Votre réponse</span
         >
       </span>
-      }
     </div>
+    }
     <p class="corr__rule">{{ item.rule.userText }}</p>
   </div>
   } } @default { @if (matrixItem(); as matrix) {

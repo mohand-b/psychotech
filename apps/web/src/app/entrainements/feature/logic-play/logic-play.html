@@ -45,7 +45,7 @@
       domino) {
       <ui-logic-domino
         #dominoBoard
-        [tiles]="domino.domino.tiles"
+        [tiles]="domino.domino.visibleTiles"
         [top]="currentDominoAnswer().top"
         [bottom]="currentDominoAnswer().bottom"
         [activeFace]="activeFace()"

@@ -17,6 +17,7 @@ import { RuleHint } from '../rule-hint/rule-hint';
 export class LogicSequence {
   readonly terms = input.required<string[]>();
   readonly filledValue = input<string | null>(null);
+  readonly filledTone = input<'neutral' | 'correct'>('neutral');
   readonly hint = input<string | null>(null);
   readonly hintUsed = input(false);
   readonly hintOpened = output<void>();

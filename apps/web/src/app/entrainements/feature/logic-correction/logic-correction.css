@@ -95,6 +95,11 @@
   gap: 6px;
 }
 
+.corr-dom__user {
+  display: flex;
+  justify-content: center;
+}
+
 .corr-dom__tile--correct {
   border-color: var(--secondary);
   background: var(--secondary-pastel);
@@ -140,6 +145,12 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 16px;
+  --triangle-accent: var(--secondary-label);
+}
+
+.corr-tri__user {
+  display: flex;
+  justify-content: center;
 }
 
 .corr-tri__answer {

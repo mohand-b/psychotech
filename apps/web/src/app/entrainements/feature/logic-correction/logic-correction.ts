@@ -188,20 +188,6 @@ export class LogicCorrection {
       : null;
   });
 
-  protected readonly triangleCorrectView =
-    computed<TriangleDisplayValues | null>(() => {
-      const item = this.triangleItem();
-      if (!item) {
-        return null;
-      }
-      const missing = item.triangle.missing;
-      return triangleDisplayValues(
-        item.triangle.triangles[missing.triangleIndex],
-        missing.slot,
-        item.answer,
-      );
-    });
-
   protected readonly triangleUserView =
     computed<TriangleDisplayValues | null>(() => {
       const item = this.triangleItem();
