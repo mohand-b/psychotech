@@ -60,7 +60,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
               >
             }
             @if (axisChip(); as chip) {
-              <ui-axis-chip [axis]="chip" />
+              <ui-axis-chip [axis]="chip" [mobileIconOnly]="discoveryTag()" />
             }
           </nav>
         }

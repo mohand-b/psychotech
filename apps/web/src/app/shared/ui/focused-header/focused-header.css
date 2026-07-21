@@ -188,6 +188,11 @@
     display: none;
   }
 
+  .focused-header__inner:has(.focused-header__discovery)
+    .focused-header__title {
+    display: none;
+  }
+
   .focused-header__stepper--full {
     display: none;
   }
