@@ -24,7 +24,7 @@ export class CoreFacade {
 
   readonly tier: Signal<SubscriptionTier> = computed(
     () =>
-      this.store.tierOverride() ??
+      (isDevMode() ? this.store.tierOverride() : null) ??
       this.authFacade.currentUser()?.tier ??
       SubscriptionTier.FREE,
   );
@@ -37,6 +37,9 @@ export class CoreFacade {
   }
 
   setTierOverride(tier: SubscriptionTier | null): void {
+    if (!isDevMode()) {
+      return;
+    }
     this.store.setTierOverride(tier);
     const storage = this.document.defaultView?.localStorage;
     if (!storage) {

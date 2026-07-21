@@ -45,7 +45,9 @@ export class AuthFacade {
   }
 
   logout(): Observable<void> {
-    return this.api.logout().pipe(tap(() => this.store.setCurrentUser(null)));
+    return this.api
+      .logout()
+      .pipe(finalize(() => this.store.setCurrentUser(null)));
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {

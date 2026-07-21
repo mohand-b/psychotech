@@ -144,6 +144,9 @@ export class Register {
   });
 
   protected submitOnEnter(event: Event): void {
+    if (event instanceof KeyboardEvent && event.key !== 'Enter') {
+      return;
+    }
     if (event.target instanceof HTMLInputElement) {
       this.submit();
     }
@@ -151,6 +154,9 @@ export class Register {
 
   protected submit(): void {
     if (this.pending()) {
+      return;
+    }
+    if (!this.cgu()) {
       return;
     }
     this.submitted.set(true);
