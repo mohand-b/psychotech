@@ -78,3 +78,10 @@
 .crank--disabled .crank__hint {
   color: var(--text-disabled);
 }
+
+@media (orientation: landscape) {
+  .crank__surface {
+    width: min(176px, 42vh);
+    width: min(176px, 42dvh);
+  }
+}

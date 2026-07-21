@@ -88,9 +88,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  justify-content: safe center;
   gap: 16px;
   flex: 1;
+  min-height: 0;
   padding: 24px;
+  overflow-y: auto;
+  touch-action: pan-y;
 }
 
 .manette__panel {
@@ -217,17 +221,45 @@
 }
 
 @media (orientation: landscape) {
-  .manette__cranks {
-    justify-content: space-between;
-    padding: 0 calc(40px + var(--safe-right)) 0 calc(40px + var(--safe-left));
+  .manette {
+    display: grid;
+    grid-template-columns:
+      calc(20px + var(--safe-left)) auto 1fr auto calc(20px + var(--safe-right));
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      'header header header header header'
+      '. crank-left body crank-right .'
+      '. crank-left wakelock crank-right .';
+  }
+
+  .manette__header {
+    grid-area: header;
+    padding: calc(8px + var(--safe-top)) calc(20px + var(--safe-right)) 8px
+      calc(20px + var(--safe-left));
   }
 
   .manette__body {
-    padding: 12px 24px;
+    grid-area: body;
+    padding: 12px 16px;
+  }
+
+  .manette__cranks {
+    display: contents;
+  }
+
+  .manette__crank--left {
+    grid-area: crank-left;
+    align-self: center;
+  }
+
+  .manette__crank--right {
+    grid-area: crank-right;
+    align-self: center;
   }
 
   .manette__wakelock {
-    padding-bottom: 10px;
+    grid-area: wakelock;
+    padding: 0 16px calc(10px + var(--safe-bottom));
   }
 }
 
