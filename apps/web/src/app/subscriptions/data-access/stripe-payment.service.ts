@@ -30,6 +30,7 @@ export class StripePaymentService {
     amountCents: number,
     onReady: () => void,
     onLoadError: (message: string | null) => void,
+    onMethodChange?: (type: string) => void,
   ): void {
     const stripe = this.requireStripe();
     this.elements = stripe.elements({
@@ -43,6 +44,9 @@ export class StripePaymentService {
     paymentElement.on('loaderror', (event) =>
       onLoadError(event.error?.message ?? null),
     );
+    if (onMethodChange) {
+      paymentElement.on('change', (event) => onMethodChange(event.value.type));
+    }
     paymentElement.mount(container);
   }
 

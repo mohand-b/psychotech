@@ -68,14 +68,25 @@ async function setup(
     ),
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
   };
+  let methodChange: ((type: string) => void) | undefined;
   const stripePayment = {
     init: vi.fn().mockResolvedValue(undefined),
     mount: vi.fn(
-      (_host: HTMLElement, _amount: number, onReady: () => void) => onReady(),
+      (
+        _host: HTMLElement,
+        _amount: number,
+        onReady: () => void,
+        _onLoadError: (message: string | null) => void,
+        onMethodChange?: (type: string) => void,
+      ) => {
+        methodChange = onMethodChange;
+        onReady();
+      },
     ),
     updateAmount: vi.fn(),
     validateForm: vi.fn().mockResolvedValue({ errorMessage: null }),
     confirm: vi.fn().mockResolvedValue({ errorMessage: null }),
+    selectMethod: (type: string) => methodChange?.(type),
   };
   TestBed.overrideComponent(Payment, {
     set: {
@@ -161,7 +172,23 @@ describe('Payment', () => {
       899,
       expect.any(Function),
       expect.any(Function),
+      expect.any(Function),
     );
+  });
+
+  it('shows the cardholder field for the card method only', async () => {
+    const { fixture, stripePayment } = await setup('essentiel');
+    const holder = () =>
+      fixture.nativeElement.querySelector('.pay__holder-input');
+    expect(holder()).not.toBeNull();
+
+    stripePayment.selectMethod('klarna');
+    fixture.detectChanges();
+    expect(holder()).toBeNull();
+
+    stripePayment.selectMethod('card');
+    fixture.detectChanges();
+    expect(holder()).not.toBeNull();
   });
 
   it('redirects an unknown plan slug to the offers page', async () => {

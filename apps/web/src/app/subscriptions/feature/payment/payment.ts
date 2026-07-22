@@ -156,6 +156,10 @@ export class Payment {
   protected readonly paymentError = signal<string | null>(null);
   protected readonly elementReady = signal(false);
   protected readonly elementFailed = signal(false);
+  protected readonly selectedMethod = signal('card');
+  protected readonly cardSelected = computed(
+    () => this.selectedMethod() === 'card',
+  );
 
   private readonly price = computed(
     () => SUBSCRIPTION_MONTHLY_PRICE_EUR[this.plan],
@@ -365,6 +369,7 @@ export class Payment {
         this.totalCents(),
         () => this.elementReady.set(true),
         () => this.elementFailed.set(true),
+        (type) => this.selectedMethod.set(type),
       );
     } catch {
       this.elementFailed.set(true);

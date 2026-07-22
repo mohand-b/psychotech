@@ -309,17 +309,19 @@
       <span class="pay__stripe-email t-mono">{{ email() }}</span>
     </div>
 
-    <div class="pay__stripe-field">
-      <span class="t-label">Titulaire de la carte</span>
-      <input
-        class="pay__holder-input"
-        type="text"
-        autocomplete="cc-name"
-        placeholder="Prénom Nom"
-        [value]="holderName()"
-        (input)="onHolderNameInput($any($event.target).value)"
-      />
-    </div>
+    @if (cardSelected()) {
+      <div class="pay__stripe-field">
+        <span class="t-label">Titulaire de la carte</span>
+        <input
+          class="pay__holder-input"
+          type="text"
+          autocomplete="cc-name"
+          placeholder="Prénom Nom"
+          [value]="holderName()"
+          (input)="onHolderNameInput($any($event.target).value)"
+        />
+      </div>
+    }
 
     <div class="pay__element-zone">
       @if (elementFailed()) {
