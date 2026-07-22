@@ -66,6 +66,7 @@ const cancelStripeSubscription = vi.fn();
 const retrieveStripeSubscription = vi.fn();
 const updateStripeSubscription = vi.fn();
 const createSetupIntent = vi.fn();
+const createStripeCustomer = vi.fn();
 const updateStripeCustomer = vi.fn();
 const retrieveStripeCustomer = vi.fn();
 const createInvoicePreview = vi.fn();
@@ -90,7 +91,11 @@ const stripe = {
     retrieve: retrieveStripeSchedule,
   },
   setupIntents: { create: createSetupIntent },
-  customers: { update: updateStripeCustomer, retrieve: retrieveStripeCustomer },
+  customers: {
+    create: createStripeCustomer,
+    update: updateStripeCustomer,
+    retrieve: retrieveStripeCustomer,
+  },
   invoices: { createPreview: createInvoicePreview },
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
@@ -134,6 +139,7 @@ beforeEach(() => {
   repository.registerEvent.mockResolvedValue(true);
   listStripeSubscriptions.mockResolvedValue({ data: [] });
   retrieveStripeCustomer.mockResolvedValue({
+    id: 'cus_1',
     deleted: false,
     invoice_settings: { default_payment_method: null },
   });
@@ -195,6 +201,42 @@ describe('BillingService.createSubscription', () => {
         items: [{ price: 'price_essential' }],
         metadata: { userId: 'user-1' },
       }),
+    );
+  });
+
+  it('recreates the customer when the stored one is missing in this stripe environment', async () => {
+    repository.findUserById.mockResolvedValue(user);
+    retrieveStripeCustomer.mockRejectedValue(
+      new Stripe.errors.StripeInvalidRequestError({
+        message: "No such customer: 'cus_1'",
+        code: 'resource_missing',
+        type: 'invalid_request_error',
+      }),
+    );
+    createStripeCustomer.mockResolvedValue({ id: 'cus_new' });
+    createStripeSubscription.mockResolvedValue({
+      id: 'sub_1',
+      pending_setup_intent: null,
+      latest_invoice: {
+        confirmation_secret: { client_secret: 'pi_secret_1' },
+      },
+    });
+
+    const payment = await service.createSubscription(
+      'user-1',
+      SubscriptionTier.ESSENTIAL,
+    );
+
+    expect(payment).toEqual({ clientSecret: 'pi_secret_1', kind: 'PAYMENT' });
+    expect(createStripeCustomer).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'a@b.c', metadata: { userId: 'user-1' } }),
+    );
+    expect(repository.saveStripeCustomerId).toHaveBeenCalledWith(
+      'user-1',
+      'cus_new',
+    );
+    expect(createStripeSubscription).toHaveBeenCalledWith(
+      expect.objectContaining({ customer: 'cus_new' }),
     );
   });
 

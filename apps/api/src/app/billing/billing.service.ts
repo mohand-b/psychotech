@@ -618,7 +618,17 @@ export class BillingService {
       throw new NotFoundException('User not found');
     }
     if (user.stripeCustomerId) {
-      return user.stripeCustomerId;
+      const existing = await this.findLiveCustomer(
+        stripe,
+        user.stripeCustomerId,
+      );
+      if (existing) {
+        return existing;
+      }
+      this.logger.warn('Stored Stripe customer is missing, recreating it', {
+        userId,
+        stripeCustomerId: user.stripeCustomerId,
+      });
     }
     const customer = await stripe.customers.create({
       email: user.email,
@@ -627,6 +637,24 @@ export class BillingService {
     });
     await this.repository.saveStripeCustomerId(userId, customer.id);
     return customer.id;
+  }
+
+  private async findLiveCustomer(
+    stripe: Stripe,
+    customerId: string,
+  ): Promise<string | null> {
+    try {
+      const customer = await stripe.customers.retrieve(customerId);
+      return customer.deleted ? null : customer.id;
+    } catch (error) {
+      if (
+        error instanceof Stripe.errors.StripeError &&
+        error.code === 'resource_missing'
+      ) {
+        return null;
+      }
+      throw error;
+    }
   }
 
   private catalog(): PriceCatalog {
