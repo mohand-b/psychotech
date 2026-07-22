@@ -93,6 +93,7 @@
         relief="mobile"
         [block]="true"
         [loading]="starting()"
+        [disabled]="energyLocked()"
         (click)="start()"
       >
         <span class="sim-start__cta-content">
@@ -102,6 +103,12 @@
           <span class="t-mono">{{ energyCost }}</span>
         </span>
       </ui-button>
+      @if (energyLocked()) {
+      <p class="sim-start__note">
+        Énergie insuffisante pour lancer une session complète. Votre énergie se
+        recharge entièrement à minuit.
+      </p>
+      }
     </div>
   </div>
 </section>

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -15,6 +16,7 @@ import {
   VolumeX,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -42,8 +44,13 @@ interface AdviceItem {
 })
 export class SimulationStart {
   private readonly authFacade = inject(AuthFacade);
+  private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
+
+  protected readonly energyLocked = computed(
+    () => this.energyFacade.state()?.canStartFull === false,
+  );
 
   protected readonly heroIcon = Layers;
   protected readonly axesIcon = LayoutGrid;
@@ -72,7 +79,7 @@ export class SimulationStart {
   ];
 
   protected start(): void {
-    if (this.starting()) {
+    if (this.starting() || this.energyLocked()) {
       return;
     }
     this.starting.set(true);

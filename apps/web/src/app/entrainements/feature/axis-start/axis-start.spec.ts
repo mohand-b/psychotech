@@ -88,7 +88,10 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
       provideRouter([]),
       { provide: GamepadFacade, useValue: gamepad },
       { provide: SessionsApi, useValue: { start, get: vi.fn() } },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { load: vi.fn(() => of(null)), state: signal(null) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },

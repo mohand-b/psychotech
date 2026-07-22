@@ -163,8 +163,17 @@
 
 .sim-start__cta {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   width: 100%;
+}
+
+.sim-start__note {
+  margin: 0;
+  font: 400 0.78125rem/1.45 var(--font-ui);
+  color: var(--label);
+  text-align: center;
 }
 
 .sim-start__cta ui-button {

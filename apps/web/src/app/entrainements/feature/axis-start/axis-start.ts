@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +13,7 @@ import {
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -32,6 +34,7 @@ const TARGETED_AXIS_ENERGY_COST = 1;
 })
 export class AxisStart {
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
+  private readonly energyFacade = inject(EnergyFacade);
   private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -48,6 +51,10 @@ export class AxisStart {
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
   protected readonly showPairing =
     this.axis === AxisType.MOTOR_SKILLS && !this.tutorial;
+
+  protected readonly energyLocked = computed(
+    () => !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
+  );
 
   protected readonly gamepadPairing = this.gamepad.pairing;
   protected readonly gamepadConnected = this.gamepad.connected;
@@ -89,7 +96,7 @@ export class AxisStart {
   }
 
   protected start(): void {
-    if (this.starting()) {
+    if (this.starting() || this.energyLocked()) {
       return;
     }
     this.starting.set(true);

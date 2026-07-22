@@ -27,6 +27,7 @@
       relief="mobile"
       [block]="true"
       [loading]="starting()"
+      [disabled]="energyLocked()"
       (click)="start()"
     >
       <span class="axis-start__cta-content">
@@ -40,6 +41,11 @@
     @if (tutorial) {
     <p class="axis-start__note">
       La découverte est toujours identique et ne consomme aucune énergie.
+    </p>
+    } @if (energyLocked()) {
+    <p class="axis-start__note">
+      Énergie insuffisante pour lancer cet axe. Votre énergie se recharge
+      entièrement à minuit.
     </p>
     }
   </div>

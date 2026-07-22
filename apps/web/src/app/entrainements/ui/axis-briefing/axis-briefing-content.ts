@@ -401,8 +401,8 @@ export const AXIS_BRIEFING_CONTENT: Record<
       { icon: CircleCheck, label: 'Justesse des commandes' },
     ],
     summary: [
-      { value: '≈45', label: 'stimulus' },
-      { value: '3:00', label: 'temps global' },
+      { value: '≈60', label: 'stimulus' },
+      { value: '2:00', label: 'temps global' },
       { value: '3', label: 'signaux en fin d’épreuve' },
     ],
     discoverySummary: [
