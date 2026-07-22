@@ -10,9 +10,11 @@ import {
   AxisProgressStatus,
   AxisType,
   FULL_SESSION_AXIS_ORDER,
+  RailwayPlayableAxis,
   Sector,
   SessionMode,
   SubscriptionTier,
+  axisMaxDurationSec,
 } from '@psychotech/shared';
 import { ArrowRight, Check, Gem, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -55,6 +57,7 @@ interface WeakAxisView {
   tagColorVar: string;
   bestScore: number;
   slug: string;
+  durationMinutes: number;
 }
 
 interface LastResultView {
@@ -348,6 +351,9 @@ export class Dashboard {
         : 'var(--label)',
       bestScore: Math.round(weakest.bestScore ?? 0),
       slug: axisSlug(weakest.axis),
+      durationMinutes: Math.ceil(
+        axisMaxDurationSec(weakest.axis as RailwayPlayableAxis) / 60,
+      ),
     };
   });
 

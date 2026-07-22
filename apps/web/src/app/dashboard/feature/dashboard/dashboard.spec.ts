@@ -291,6 +291,7 @@ describe('Dashboard', () => {
     const { fixture, navigate } = await setup();
     expect(textOf(fixture)).toContain('Votre point faible');
     expect(textOf(fixture)).toContain('Mémoire');
+    expect(textOf(fixture)).toContain('dure au plus 3 minutes');
     const cta = fixture.nativeElement.querySelector(
       '.home__cta-outline',
     ) as HTMLButtonElement;
