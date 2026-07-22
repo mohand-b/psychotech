@@ -87,8 +87,7 @@ export class TrainingSessionFacade {
     if (!session) {
       return null;
     }
-    const current =
-      session.axisResults[session.currentAxisIndex] ?? session.axisResults[0];
+    const current = session.axisResults[session.currentAxisIndex];
     return current?.axis ?? null;
   });
 

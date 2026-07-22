@@ -144,7 +144,7 @@ export class Register {
   });
 
   protected submitOnEnter(event: Event): void {
-    if (event instanceof KeyboardEvent && event.key !== 'Enter') {
+    if (!(event instanceof KeyboardEvent) || event.key !== 'Enter') {
       return;
     }
     if (event.target instanceof HTMLInputElement) {
