@@ -70,7 +70,7 @@ describe('scoreReactivitySession', () => {
   it('ignores the phase structure when the candidate is steady within each phase', () => {
     const times = [300, 300, 310, 450, 450, 460, 600, 600, 610];
     const appearAts = [
-      3000, 20000, 40000, 70000, 90000, 110000, 130000, 150000, 170000,
+      3000, 15000, 30000, 45000, 60000, 75000, 85000, 100000, 115000,
     ];
     const types: ReactivityStimulusType[] = [
       'YELLOW',
@@ -104,7 +104,7 @@ describe('scoreReactivitySession', () => {
   it('feeds the stability term with the returned intra-phase deviation, never a global one', () => {
     const times = [400, 420, 410, 700, 720, 710, 1000, 1020, 1010];
     const appearAts = [
-      3000, 20000, 40000, 70000, 90000, 110000, 130000, 150000, 170000,
+      3000, 15000, 30000, 45000, 60000, 75000, 85000, 100000, 115000,
     ];
     const types: ReactivityStimulusType[] = [
       'YELLOW',
@@ -283,7 +283,7 @@ describe('scoreReactivitySession', () => {
     const generated = generateReactivitySession('isi-count-seed');
     const scored = scoreReactivitySession(generated, [], []);
     expect(scored.omissionCount).toBe(generated.length);
-    expect(generated.length).toBeGreaterThanOrEqual(80);
+    expect(generated.length).toBeGreaterThanOrEqual(50);
     expect(scored.score).toBe(0);
   });
 });

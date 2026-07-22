@@ -98,8 +98,10 @@ describe('generateReactivitySession', () => {
   it('produces roughly the expected stimulus count', () => {
     for (const seed of SAMPLE_SEEDS) {
       const count = generateReactivitySession(seed).length;
-      expect(count).toBeGreaterThanOrEqual(80);
-      expect(count).toBeLessThanOrEqual(96);
+      expect(count).toBeGreaterThanOrEqual(
+        TRAINING.approximateStimulusCount - 8,
+      );
+      expect(count).toBeLessThanOrEqual(TRAINING.approximateStimulusCount + 5);
     }
   });
 });

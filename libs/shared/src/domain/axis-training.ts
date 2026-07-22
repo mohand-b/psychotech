@@ -140,10 +140,10 @@ export const AXIS_TRAINING: {
   },
   [AxisType.REACTIVITY]: {
     axis: AxisType.REACTIVITY,
-    timer: { model: AxisTimerModel.GLOBAL, durationSec: 180 },
+    timer: { model: AxisTimerModel.GLOBAL, durationSec: 120 },
     exerciseCount: 1,
-    approximateStimulusCount: 95,
-    phaseDurationSec: 60,
+    approximateStimulusCount: 60,
+    phaseDurationSec: 40,
     isiMinMs: REACTIVITY_ISI_MIN_MS,
     isiMaxMs: REACTIVITY_ISI_MAX_MS,
     responseWindowMs: 1500,

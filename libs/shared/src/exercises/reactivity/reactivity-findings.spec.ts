@@ -138,10 +138,10 @@ describe('analyzeReactivity', () => {
 
   it('flags a brutal step between phase two and phase three', () => {
     const points = [
-      point(70_000, 'VALID', 350),
-      point(90_000, 'VALID', 360),
-      point(130_000, 'VALID', 430),
-      point(150_000, 'VALID', 440),
+      point(45_000, 'VALID', 350),
+      point(60_000, 'VALID', 360),
+      point(90_000, 'VALID', 430),
+      point(110_000, 'VALID', 440),
     ];
     const findings = analyzeReactivity(score({ points }));
     const step = findings.find(({ id }) => id === 'REACTIVITY_PHASE_STEP');
@@ -152,10 +152,10 @@ describe('analyzeReactivity', () => {
 
   it('stays silent on the phase step when both phases align', () => {
     const points = [
-      point(70_000, 'VALID', 350),
-      point(90_000, 'VALID', 360),
-      point(130_000, 'VALID', 370),
-      point(150_000, 'VALID', 380),
+      point(45_000, 'VALID', 350),
+      point(60_000, 'VALID', 360),
+      point(90_000, 'VALID', 370),
+      point(110_000, 'VALID', 380),
     ];
     expect(ids(score({ points }))).not.toContain('REACTIVITY_PHASE_STEP');
   });

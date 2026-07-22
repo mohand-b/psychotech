@@ -180,7 +180,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.26,
       "fy": 0.91,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 42055,
@@ -198,7 +198,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.09,
       "fy": 0.857,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 46474,
@@ -207,7 +207,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.422,
       "fy": -0.044,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 48830,
@@ -216,7 +216,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.275,
       "fy": -0.872,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 50733,
@@ -234,7 +234,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.954,
       "fy": 0.716,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 54301,
@@ -243,7 +243,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.326,
       "fy": 0.223,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 56450,
@@ -270,7 +270,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.088,
       "fy": -0.064,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 61908,
@@ -279,7 +279,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.838,
       "fy": -0.47,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
     "appearAtMs": 63772,
@@ -378,7 +378,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.731,
       "fy": -0.251,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 85899,
@@ -387,7 +387,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.472,
       "fy": -0.468,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 88006,
@@ -396,7 +396,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.226,
       "fy": 0.796,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 90425,
@@ -405,7 +405,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.632,
       "fy": 0.907,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 92056,
@@ -423,7 +423,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.176,
       "fy": 0.889,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 95932,
@@ -432,7 +432,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.656,
       "fy": 0.28,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 97923,
@@ -441,7 +441,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.433,
       "fy": -0.949,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 99516,
@@ -450,7 +450,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.882,
       "fy": 0.279,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 101293,
@@ -459,7 +459,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.476,
       "fy": 0.83,
     },
-    "type": "YELLOW",
+    "type": "BLUE",
   },
   {
     "appearAtMs": 103368,
@@ -486,7 +486,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.351,
       "fy": 0.386,
     },
-    "type": "BLUE",
+    "type": "YELLOW",
   },
   {
     "appearAtMs": 108967,
@@ -495,7 +495,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.931,
       "fy": 0.22,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 111163,
@@ -504,7 +504,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": -0.248,
       "fy": 0.021,
     },
-    "type": "BLUE",
+    "type": "RED",
   },
   {
     "appearAtMs": 113064,
@@ -531,277 +531,7 @@ exports[`generateReactivitySession > matches the reference snapshot for a fixed 
       "fx": 0.134,
       "fy": -0.462,
     },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 119011,
-    "index": 59,
-    "position": {
-      "fx": 1,
-      "fy": 0.256,
-    },
     "type": "BLUE",
-  },
-  {
-    "appearAtMs": 120826,
-    "index": 60,
-    "position": {
-      "fx": 0.318,
-      "fy": 0.727,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 123151,
-    "index": 61,
-    "position": {
-      "fx": 0.378,
-      "fy": -0.307,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 125606,
-    "index": 62,
-    "position": {
-      "fx": 0.006,
-      "fy": 0.554,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 127546,
-    "index": 63,
-    "position": {
-      "fx": -0.557,
-      "fy": -0.825,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 129527,
-    "index": 64,
-    "position": {
-      "fx": 0.022,
-      "fy": 0.996,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 131343,
-    "index": 65,
-    "position": {
-      "fx": -0.934,
-      "fy": -0.72,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 133294,
-    "index": 66,
-    "position": {
-      "fx": -0.595,
-      "fy": 0.754,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 135783,
-    "index": 67,
-    "position": {
-      "fx": 0.203,
-      "fy": 0.336,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 138197,
-    "index": 68,
-    "position": {
-      "fx": 0.011,
-      "fy": -0.698,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 139754,
-    "index": 69,
-    "position": {
-      "fx": -0.901,
-      "fy": -0.66,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 141927,
-    "index": 70,
-    "position": {
-      "fx": 0.927,
-      "fy": -0.891,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 144021,
-    "index": 71,
-    "position": {
-      "fx": -0.131,
-      "fy": 0.583,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 145930,
-    "index": 72,
-    "position": {
-      "fx": -0.362,
-      "fy": -0.647,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 148233,
-    "index": 73,
-    "position": {
-      "fx": 0.898,
-      "fy": 0.154,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 150605,
-    "index": 74,
-    "position": {
-      "fx": 0.333,
-      "fy": -0.591,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 152399,
-    "index": 75,
-    "position": {
-      "fx": -0.773,
-      "fy": -0.142,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 154728,
-    "index": 76,
-    "position": {
-      "fx": -0.673,
-      "fy": -0.757,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 156325,
-    "index": 77,
-    "position": {
-      "fx": -0.837,
-      "fy": -0.043,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 158218,
-    "index": 78,
-    "position": {
-      "fx": -0.149,
-      "fy": -0.309,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 159911,
-    "index": 79,
-    "position": {
-      "fx": -0.085,
-      "fy": 0.847,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 161906,
-    "index": 80,
-    "position": {
-      "fx": 0.022,
-      "fy": -0.887,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 163509,
-    "index": 81,
-    "position": {
-      "fx": -0.978,
-      "fy": -0.257,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 165051,
-    "index": 82,
-    "position": {
-      "fx": -0.825,
-      "fy": 0.577,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 166877,
-    "index": 83,
-    "position": {
-      "fx": 0.836,
-      "fy": 0.016,
-    },
-    "type": "YELLOW",
-  },
-  {
-    "appearAtMs": 168938,
-    "index": 84,
-    "position": {
-      "fx": -0.586,
-      "fy": 0.167,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 170773,
-    "index": 85,
-    "position": {
-      "fx": -0.758,
-      "fy": -0.716,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 172370,
-    "index": 86,
-    "position": {
-      "fx": 0.301,
-      "fy": 0.651,
-    },
-    "type": "RED",
-  },
-  {
-    "appearAtMs": 174459,
-    "index": 87,
-    "position": {
-      "fx": -0.844,
-      "fy": 0.416,
-    },
-    "type": "BLUE",
-  },
-  {
-    "appearAtMs": 176510,
-    "index": 88,
-    "position": {
-      "fx": -0.134,
-      "fy": -0.849,
-    },
-    "type": "RED",
   },
 ]
 `;
