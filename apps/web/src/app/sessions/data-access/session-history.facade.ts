@@ -40,15 +40,17 @@ export class SessionHistoryFacade {
       .history({ ...historyQueryFor(this.store.filter()), cursor })
       .subscribe({
         next: (page) => this.store.appendPage(page),
-        error: () =>
-          this.store.appendPage({ items: [], nextCursor: null }),
+        error: (err: unknown) => this.store.setError(err),
       });
   }
 
   refreshCurrent(): void {
     this.api.current().subscribe({
       next: (current) => this.store.setCurrent(current),
-      error: () => this.store.setCurrent(null),
+      error: (err: unknown) => {
+        console.error('[SessionHistoryFacade] current session refresh failed', err);
+        this.store.setCurrent(null);
+      },
     });
   }
 }

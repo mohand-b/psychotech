@@ -72,8 +72,13 @@ export class SubscriptionsFacade {
   }
 
   refreshTier(): Observable<SubscriptionTier> {
-    return this.authFacade
-      .loadCurrentUser()
-      .pipe(map((user) => user?.tier ?? SubscriptionTier.FREE));
+    return this.authFacade.loadCurrentUser().pipe(
+      map((user) => {
+        if (!user) {
+          throw new Error('Cannot refresh the tier without an authenticated user');
+        }
+        return user.tier;
+      }),
+    );
   }
 }
