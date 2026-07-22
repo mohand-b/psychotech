@@ -84,6 +84,29 @@ export const FULL_SESSION_AXIS_ORDER: readonly RailwayPlayableAxis[] = [
   AxisType.MOTOR_SKILLS,
 ];
 
+export function axisMaxDurationSec(axis: RailwayPlayableAxis): number {
+  const training = AXIS_TRAINING[axis];
+  switch (training.axis) {
+    case AxisType.LOGIC:
+    case AxisType.VISUAL_DISCRIMINATION:
+    case AxisType.REACTIVITY:
+      return training.timer.durationSec;
+    case AxisType.MEMORY:
+      return training.sequences.reduce(
+        (total, sequence) =>
+          total +
+          sequence.length * training.elementDisplaySec +
+          training.restitutionSec,
+        0,
+      );
+    case AxisType.MOTOR_SKILLS:
+      return (
+        training.exerciseCount * training.secondsPerCourse +
+        (training.exerciseCount - 1) * training.pauseBetweenCoursesSec
+      );
+  }
+}
+
 export const AXIS_TRAINING: {
   [Axis in RailwayPlayableAxis]: Extract<AxisTraining, { axis: Axis }>;
 } = {
