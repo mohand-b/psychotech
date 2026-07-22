@@ -80,7 +80,7 @@ describe('Offers', () => {
       'Votre formule actuelle',
     );
     expect(texts(element, '.offd ui-button button')).toEqual([
-      'Mettre à jour ma carte',
+      'Mettre à jour mon moyen de paiement',
       'Résilier mon abonnement',
       "Passer à l'Illimité",
     ]);
@@ -202,7 +202,7 @@ describe('Offers', () => {
     expect(
       (fixture.nativeElement as HTMLElement).querySelector('.offers__banner')
         ?.textContent,
-    ).toContain('Votre carte a été mise à jour.');
+    ).toContain('Votre moyen de paiement a été mis à jour.');
     expect(navigate).toHaveBeenCalled();
   });
 

@@ -2,14 +2,14 @@
   <div class="pm__head">
     <h1 class="pm__title">Moyen de paiement</h1>
     <span class="pm__subtitle"
-      >La nouvelle carte remplace l'actuelle pour vos prochains prélèvements.
-      Aucun débit aujourd'hui.</span
+      >Le nouveau moyen de paiement remplace l'actuel pour vos prochains
+      prélèvements. Aucun débit aujourd'hui.</span
     >
   </div>
 
   @if (currentCard(); as card) {
     <section class="pm__card pm__current">
-      <span class="t-label">Carte actuelle</span>
+      <span class="t-label">Moyen de paiement actuel</span>
       <div class="pm__current-row">
         <span class="pm__badge">{{ cardBrandLabel() }}</span>
         <span class="pm__current-copy">
@@ -35,7 +35,7 @@
 
   <section class="pm__card pm__panel">
     <div class="pm__panel-head">
-      <span class="pm__panel-title">Nouvelle carte</span>
+      <span class="pm__panel-title">Nouveau moyen de paiement</span>
       <span class="pm__stripe-brand">
         Propulsé par
         <span class="pm__stripe-wordmark">Stripe</span>
@@ -71,7 +71,7 @@
       [disabled]="!elementReady()"
       (click)="save()"
     >
-      Remplacer la carte
+      Remplacer le moyen de paiement
     </ui-button>
 
     <span class="pm__note">
@@ -82,6 +82,6 @@
   </section>
 
   <span class="pm__footnote"
-    >L'ancienne carte est retirée dès que la nouvelle est validée.</span
+    >L'ancien moyen de paiement est retiré dès que le nouveau est validé.</span
   >
 </div>

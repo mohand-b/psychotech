@@ -23,7 +23,7 @@ import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
 const CARD_UPDATE_FAILED_MESSAGE =
-  "L'enregistrement de la carte n'a pas abouti. Vérifiez vos informations et réessayez.";
+  "L'enregistrement du moyen de paiement n'a pas abouti. Vérifiez vos informations et réessayez.";
 
 function formatDayMonthYear(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', {
