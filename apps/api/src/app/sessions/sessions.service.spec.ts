@@ -20,6 +20,7 @@ import {
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgesService } from '../badges/badges.service';
+import { EnergyService } from '../energy/energy.service';
 import { ScoringService } from '../scoring/scoring.service';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { SessionWithRelations } from './sessions.mappers';
@@ -121,6 +122,7 @@ const repository = {
 
 const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
 const badgesService = { evaluateAndUnlockWithin: vi.fn() };
+const energyService = { spendWithin: vi.fn() };
 
 const tierResolution = new TierResolutionService({
   getOrThrow: () => ({ enabled: true }),
@@ -131,6 +133,7 @@ const service = new SessionsService(
   scoringService as unknown as ScoringService,
   badgesService as unknown as BadgesService,
   tierResolution,
+  energyService as unknown as EnergyService,
 );
 
 const SECTOR_CONFIG = {
@@ -146,6 +149,10 @@ beforeEach(() => {
   repository.findUserSubscription.mockResolvedValue({
     tier: 'ESSENTIAL',
     status: 'ACTIVE',
+  });
+  repository.findStreakContext.mockResolvedValue({
+    timezone: 'Europe/Paris',
+    streak: null,
   });
 });
 
@@ -209,11 +216,12 @@ describe('SessionsService.start subscription gate', () => {
 });
 
 describe('SessionsService.start', () => {
-  it('creates the session without debiting energy while the debit is disabled', async () => {
+  it('debits one energy inside the creation transaction of a targeted session', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
-    repository.createSession.mockResolvedValue(
-      buildSession({ mode: 'TARGETED', energyCost: 1 }),
-    );
+    repository.createSession.mockImplementation(async (_params, spend) => {
+      await spend?.('tx-client', 'session-created');
+      return buildSession({ mode: 'TARGETED', energyCost: 1 });
+    });
 
     await service.start('user-1', {
       mode: SessionMode.TARGETED,
@@ -229,7 +237,50 @@ describe('SessionsService.start', () => {
         energyCost: 1,
         axes: [AxisType.LOGIC],
       }),
+      expect.any(Function),
     );
+    expect(energyService.spendWithin).toHaveBeenCalledWith(
+      'tx-client',
+      'user-1',
+      1,
+      'AXIS_SPENT',
+      'session-created',
+    );
+  });
+
+  it('debits five energies for a full session and none for a tutorial', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    repository.createSession.mockImplementation(async (_params, spend) => {
+      await spend?.('tx-client', 'session-created');
+      return buildSession({ mode: 'FULL', energyCost: 5 });
+    });
+
+    await service.start('user-1', {
+      mode: SessionMode.FULL,
+      sector: Sector.RAILWAY,
+    });
+    expect(energyService.spendWithin).toHaveBeenCalledWith(
+      'tx-client',
+      'user-1',
+      5,
+      'SESSION_SPENT',
+      'session-created',
+    );
+
+    energyService.spendWithin.mockClear();
+    repository.createSession.mockResolvedValue(
+      buildSession({ mode: 'TUTORIAL', energyCost: 0 }),
+    );
+    await service.start('user-1', {
+      mode: SessionMode.TUTORIAL,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+    });
+    expect(repository.createSession).toHaveBeenLastCalledWith(
+      expect.objectContaining({ mode: SessionMode.TUTORIAL, energyCost: 0 }),
+      undefined,
+    );
+    expect(energyService.spendWithin).not.toHaveBeenCalled();
   });
 
   it('persists the enabled training options for a targeted session', async () => {
@@ -250,6 +301,7 @@ describe('SessionsService.start', () => {
         helpEnabled: true,
         trainingOptions: [TrainingOptionId.LOGIC_HELP],
       }),
+      expect.any(Function),
     );
   });
 
@@ -276,6 +328,7 @@ describe('SessionsService.start', () => {
           TrainingOptionId.NO_TIMER,
         ],
       }),
+      expect.any(Function),
     );
   });
 
@@ -297,6 +350,7 @@ describe('SessionsService.start', () => {
         helpEnabled: false,
         trainingOptions: [TrainingOptionId.NO_TIMER],
       }),
+      expect.any(Function),
     );
   });
 
@@ -374,6 +428,7 @@ describe('SessionsService.start', () => {
         contentVersion: 4,
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
+      expect.any(Function),
     );
   });
 
@@ -1304,7 +1359,7 @@ describe('SessionsService.list', () => {
     expect(item.band).toBe(ScoreBand.ACCEPTABLE);
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
-    expect(item.durationSec).toBe(180);
+    expect(item.durationSec).toBe(120);
     expect(item.untimed).toBe(false);
   });
 

@@ -37,6 +37,7 @@ describe('TrainingsService', () => {
     findSectorConfig: ReturnType<typeof vi.fn>;
     findLastCompletedFullSession: ReturnType<typeof vi.fn>;
     findAxisBests: ReturnType<typeof vi.fn>;
+    findPlayedAxes: ReturnType<typeof vi.fn>;
   };
   let service: TrainingsService;
 
@@ -45,6 +46,7 @@ describe('TrainingsService', () => {
       findSectorConfig: vi.fn().mockResolvedValue(RAILWAY_CONFIG),
       findLastCompletedFullSession: vi.fn().mockResolvedValue(null),
       findAxisBests: vi.fn().mockResolvedValue([]),
+      findPlayedAxes: vi.fn().mockResolvedValue([]),
     };
     service = new TrainingsService(
       repository as unknown as TrainingsRepository,
@@ -89,6 +91,7 @@ describe('TrainingsService', () => {
     repository.findAxisBests.mockResolvedValue([
       buildBest(AxisType.LOGIC, 82),
     ]);
+    repository.findPlayedAxes.mockResolvedValue([AxisType.LOGIC]);
 
     const overview = await service.getOverview('user-1', Sector.RAILWAY);
     const memory = overview.axes.find(
@@ -101,6 +104,19 @@ describe('TrainingsService', () => {
       neverPlayed: true,
       isCriticalAxis: false,
       needsWork: false,
+    });
+  });
+
+  it('keeps a family-filtered axis visible as played even without a best score', async () => {
+    repository.findAxisBests.mockResolvedValue([]);
+    repository.findPlayedAxes.mockResolvedValue([AxisType.LOGIC]);
+
+    const overview = await service.getOverview('user-1', Sector.RAILWAY);
+    const logic = overview.axes.find(({ axis }) => axis === AxisType.LOGIC);
+
+    expect(logic).toMatchObject({
+      bestScore: null,
+      neverPlayed: false,
     });
   });
 

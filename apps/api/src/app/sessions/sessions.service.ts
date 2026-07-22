@@ -16,6 +16,7 @@ import {
   CurrentSessionDto,
   DiscriminationRawResultDto,
   DiscriminationTrialAnswerDto,
+  EnergyLedgerReason,
   LOGIC_CONTENT_VERSION_V2,
   LOGIC_CONTENT_VERSION_V4,
   LogicFamilyFilter,
@@ -73,6 +74,7 @@ import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
 import { mapEnumValue } from '../common/enum.util';
 import { energyCost } from '../energy/energy.logic';
+import { EnergyService } from '../energy/energy.service';
 import { AxisScore } from '../scoring/scoring.logic';
 import { ScoringService } from '../scoring/scoring.service';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
@@ -108,6 +110,7 @@ export class SessionsService {
     private readonly scoringService: ScoringService,
     private readonly badgesService: BadgesService,
     private readonly tierResolution: TierResolutionService,
+    private readonly energyService: EnergyService,
   ) {}
 
   async start(userId: string, request: StartSessionRequest): Promise<SessionDto> {
@@ -147,19 +150,33 @@ export class SessionsService {
     if (!config || !config.isActive) {
       throw new BadRequestException('The requested sector is not available');
     }
-    const session = await this.repository.createSession({
-      userId,
-      mode: request.mode,
-      sector: request.sector,
-      seed: randomUUID(),
-      contentVersion: LOGIC_CONTENT_VERSION_V4,
-      logicFamily,
-      helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
-      trainingOptions: enabledOptions,
-      energyCost: cost,
-      sectorThreshold: config.admissibilityThreshold,
-      axes,
-    });
+    const session = await this.repository.createSession(
+      {
+        userId,
+        mode: request.mode,
+        sector: request.sector,
+        seed: randomUUID(),
+        contentVersion: LOGIC_CONTENT_VERSION_V4,
+        logicFamily,
+        helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
+        trainingOptions: enabledOptions,
+        energyCost: cost,
+        sectorThreshold: config.admissibilityThreshold,
+        axes,
+      },
+      cost > 0
+        ? (client, createdSessionId) =>
+            this.energyService.spendWithin(
+              client,
+              userId,
+              cost,
+              request.mode === SessionMode.FULL
+                ? EnergyLedgerReason.SESSION_SPENT
+                : EnergyLedgerReason.AXIS_SPENT,
+              createdSessionId,
+            )
+        : undefined,
+    );
     return toSessionDto(session);
   }
 
@@ -204,6 +221,13 @@ export class SessionsService {
       axis,
       request,
     );
+    const streakContext = await this.repository.findStreakContext(userId);
+    const completedAt = new Date();
+    const streak = computeStreakUpdate(
+      streakContext.streak ?? { current: 0, longest: 0, lastActivityDate: null },
+      completedAt,
+      streakContext.timezone,
+    );
     const completed = await this.repository.completeTargetedSession({
       sessionId,
       userId,
@@ -213,7 +237,12 @@ export class SessionsService {
       excludeFromBest: session.logicFamily != null || sessionUntimed(session),
       controlModality: request.controlModality ?? null,
       startedAt: target.startedAt ?? session.startedAt,
-      completedAt: new Date(),
+      completedAt,
+      streak: {
+        current: streak.current,
+        longest: streak.longest,
+        lastActivityDate: completedAt,
+      },
     });
     return toSessionDto(completed);
   }

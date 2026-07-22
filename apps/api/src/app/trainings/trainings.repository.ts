@@ -59,4 +59,19 @@ export class TrainingsRepository {
   findAxisBests(userId: string): Promise<AxisBest[]> {
     return this.prisma.axisBest.findMany({ where: { userId } });
   }
+
+  async findPlayedAxes(userId: string): Promise<AxisType[]> {
+    const rows = await this.prisma.sessionAxis.findMany({
+      where: {
+        completedAt: { not: null },
+        session: {
+          userId,
+          status: mapEnumValue(DbSessionStatus, SessionStatus.COMPLETED),
+        },
+      },
+      select: { axis: true },
+      distinct: ['axis'],
+    });
+    return rows.map((row) => mapEnumValue(AxisType, row.axis));
+  }
 }

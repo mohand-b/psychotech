@@ -104,6 +104,7 @@ export interface CompleteTargetedSessionParams {
   controlModality: ControlModality | null;
   startedAt: Date;
   completedAt: Date;
+  streak: { current: number; longest: number; lastActivityDate: Date };
 }
 
 export type TargetedAxisRow = Prisma.SessionAxisGetPayload<{
@@ -356,6 +357,20 @@ export class SessionsRepository {
           });
         }
       }
+      await tx.streak.upsert({
+        where: { userId: params.userId },
+        update: {
+          current: params.streak.current,
+          longest: params.streak.longest,
+          lastActivityDate: params.streak.lastActivityDate,
+        },
+        create: {
+          userId: params.userId,
+          current: params.streak.current,
+          longest: params.streak.longest,
+          lastActivityDate: params.streak.lastActivityDate,
+        },
+      });
       return session;
     });
   }

@@ -23,13 +23,15 @@ export class TrainingsService {
     if (!config) {
       throw new BadRequestException('The requested sector is not available');
     }
-    const [lastSession, bests] = await Promise.all([
+    const [lastSession, bests, playedAxes] = await Promise.all([
       this.repository.findLastCompletedFullSession(userId, sector),
       this.repository.findAxisBests(userId),
+      this.repository.findPlayedAxes(userId),
     ]);
     const bestByAxis = new Map(
       bests.map((best) => [mapEnumValue(AxisType, best.axis), best.bestScore]),
     );
+    const played = new Set(playedAxes);
     const axes: TrainingsAxisOverviewDto[] = [...config.weights]
       .sort((a, b) => a.order - b.order)
       .map((weight) => {
@@ -37,7 +39,7 @@ export class TrainingsService {
         return {
           axis: weight.axis,
           bestScore,
-          neverPlayed: bestScore === null,
+          neverPlayed: !played.has(weight.axis),
           isCriticalAxis: isVeryCriticalAxisCoefficient(weight.coefficient),
           needsWork:
             bestScore !== null && bestScore < config.vigilanceThreshold,
