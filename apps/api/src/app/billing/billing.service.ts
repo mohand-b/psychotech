@@ -198,7 +198,11 @@ export class BillingService {
           subscription: current.id,
         });
         nextInvoiceAmount = upcoming.total;
-      } catch {
+      } catch (error) {
+        this.logger.warn('Failed to fetch upcoming invoice', {
+          subscriptionId: current.id,
+          error,
+        });
         nextInvoiceAmount = null;
       }
     }

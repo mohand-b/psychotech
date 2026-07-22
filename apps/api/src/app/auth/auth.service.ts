@@ -3,8 +3,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import { LoginDto, RegisterDto, UserProfileDto } from '@psychotech/shared';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { toUserProfileDto } from '../users/users.mappers';
@@ -28,6 +30,8 @@ export interface AuthResult {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly repository: AuthRepository,
     private readonly passwordHasher: PasswordHasher,
@@ -124,7 +128,13 @@ export class AuthService {
   ): Promise<AccessTokenPayload | null> {
     try {
       return await this.tokenService.verifyRefreshToken(token);
-    } catch {
+    } catch (error) {
+      if (
+        !(error instanceof TokenExpiredError) &&
+        !(error instanceof JsonWebTokenError)
+      ) {
+        this.logger.error('Unexpected refresh token verification error', error);
+      }
       return null;
     }
   }
