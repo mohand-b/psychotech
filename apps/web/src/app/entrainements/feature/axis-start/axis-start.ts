@@ -49,8 +49,7 @@ export class AxisStart {
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
-  protected readonly showPairing =
-    this.axis === AxisType.MOTOR_SKILLS && !this.tutorial;
+  protected readonly showPairing = this.axis === AxisType.MOTOR_SKILLS;
 
   protected readonly energyLocked = computed(
     () => !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
@@ -80,8 +79,10 @@ export class AxisStart {
   }
 
   private leavingTowardsPlay(): boolean {
-    return this.router.url.includes(
-      `/entrainements/cible/${axisSlug(this.axis)}/session/`,
+    const slug = axisSlug(this.axis);
+    return (
+      this.router.url.includes(`/entrainements/cible/${slug}/session/`) ||
+      this.router.url.includes(`/entrainements/tutoriel/${slug}/session/`)
     );
   }
 

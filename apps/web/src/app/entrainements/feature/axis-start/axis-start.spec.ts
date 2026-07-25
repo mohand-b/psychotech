@@ -189,7 +189,7 @@ describe('AxisStart - option Familles', () => {
     expect(result.start).not.toHaveBeenCalled();
   });
 
-  it('pairs the phone gamepad from the motricity briefing, targeted only', async () => {
+  it('pairs the phone gamepad from every motricity briefing, discovery included', async () => {
     const targeted = await setup('motricite');
     expect(targeted.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
     expect(
@@ -197,8 +197,10 @@ describe('AxisStart - option Familles', () => {
     ).not.toBeNull();
 
     const discovery = await setup('motricite', true);
-    expect(discovery.gamepad.pairTutorial).not.toHaveBeenCalled();
-    expect(discovery.element.querySelector('ui-gamepad-pairing')).toBeNull();
+    expect(discovery.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
+    expect(
+      discovery.element.querySelector('ui-gamepad-pairing'),
+    ).not.toBeNull();
 
     const other = await setup('logique');
     expect(other.gamepad.pairTutorial).not.toHaveBeenCalled();

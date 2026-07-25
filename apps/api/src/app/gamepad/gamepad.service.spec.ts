@@ -175,14 +175,13 @@ describe('GamepadService.createPairing', () => {
 
 describe('GamepadService.createTutorialPairing', () => {
   const repository = { findUserSession: vi.fn() };
+  let pairingService: GamepadPairingService;
   let service: GamepadService;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new GamepadService(
-      repository as never,
-      new GamepadPairingService(),
-    );
+    pairingService = new GamepadPairingService();
+    service = new GamepadService(repository as never, pairingService);
   });
 
   it('returns a pairing without looking up any session', () => {
@@ -191,5 +190,35 @@ describe('GamepadService.createTutorialPairing', () => {
     expect(pairing.code).toMatch(/^\d{6}$/);
     expect(Date.parse(pairing.expiresAt)).toBeGreaterThan(Date.now());
     expect(repository.findUserSession).not.toHaveBeenCalled();
+  });
+
+  it('expires the tutorial token after the configured ttl', () => {
+    const pairing = service.createTutorialPairing('user-1');
+    const expiredAt = Date.parse(pairing.expiresAt) + 1;
+    expect(pairingService.claimPhone(pairing.token, expiredAt)).toEqual({
+      ok: false,
+      error: 'TOKEN_EXPIRED',
+    });
+    expect(pairingService.claimPhone(pairing.token, Date.now())).toEqual({
+      ok: false,
+      error: 'INVALID_TOKEN',
+    });
+  });
+
+  it('invalidates the previous tutorial token when regenerating for the same user', () => {
+    const first = service.createTutorialPairing('user-1');
+    const second = service.createTutorialPairing('user-1');
+    expect(second.token).not.toBe(first.token);
+    expect(pairingService.claimPhone(first.token).ok).toBe(false);
+    expect(pairingService.claimPhone(second.token).ok).toBe(true);
+  });
+
+  it('keeps tutorial and session tokens of the same user isolated', () => {
+    const tutorial = service.createTutorialPairing('user-1');
+    const sessionRecord = pairingService.create('user-1', 'session-1');
+    expect(pairingService.claimPhone(tutorial.token).ok).toBe(true);
+    expect(pairingService.claimPhone(sessionRecord.token).ok).toBe(true);
+    expect(pairingService.validateDesktop(tutorial.token).ok).toBe(true);
+    expect(pairingService.validateDesktop(sessionRecord.token).ok).toBe(true);
   });
 });
