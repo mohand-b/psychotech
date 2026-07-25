@@ -206,6 +206,80 @@ describe('buildSimulationAppreciation', () => {
     );
   });
 
+  it('cites each axis measured value inside the transversal sentence', () => {
+    const findingsByAxis = [
+      {
+        axis: AxisType.REACTIVITY,
+        findings: [
+          {
+            ...finding(
+              'REACTIVITY_POST_ERROR_SLOWDOWN',
+              RecommendationPriority.HIGH,
+            ),
+            evidence: '0,52 s après erreur contre 0,41 s',
+          },
+        ],
+      },
+      {
+        axis: AxisType.MOTOR_SKILLS,
+        findings: [
+          {
+            ...finding(
+              'MOTRICITY_POST_EXIT_CASCADE',
+              RecommendationPriority.HIGH,
+            ),
+            evidence: '4 erreurs en cascade après une sortie',
+          },
+        ],
+      },
+    ];
+    const appreciation = buildSimulationAppreciation(
+      context(),
+      STANDARD_AXES,
+      STANDARD_SELECTION,
+      findingsByAxis,
+    );
+
+    expect(plainText(appreciation.detail)).toContain(
+      '(Réactivité : 0,52 s après erreur contre 0,41 s · Motricité : 4 erreurs en cascade après une sortie)',
+    );
+  });
+
+  it('promotes the weak logic family as the priority label', () => {
+    const axes = [
+      outcome(AxisType.LOGIC, 58, ScoreBand.INSUFFICIENT),
+      outcome(AxisType.MEMORY, 80, ScoreBand.EXCELLENT, true),
+      outcome(AxisType.VISUAL_DISCRIMINATION, 78, ScoreBand.ACCEPTABLE, true),
+      outcome(AxisType.REACTIVITY, 76, ScoreBand.ACCEPTABLE, true),
+      outcome(AxisType.MOTOR_SKILLS, 82, ScoreBand.EXCELLENT),
+    ];
+    const selection = buildSimulationSummary(axes, THRESHOLDS, [
+      {
+        axis: AxisType.LOGIC,
+        findings: [
+          {
+            ...finding(
+              'LOGIC_FAMILY_RELATIVE_FAILURE',
+              RecommendationPriority.HIGH,
+            ),
+            priorityLabel: 'Les matrices (déduction) en Logique',
+          },
+        ],
+      },
+    ]);
+
+    const appreciation = buildSimulationAppreciation(
+      context({ globalScore: 74.1 }),
+      axes,
+      selection,
+    );
+
+    expect(appreciation.priority).toEqual({
+      axis: AxisType.LOGIC,
+      label: 'Les matrices (déduction) en Logique',
+    });
+  });
+
   it('adds no transversal sentence when no family spans several axes', () => {
     const appreciation = buildSimulationAppreciation(
       context(),

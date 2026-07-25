@@ -105,7 +105,19 @@ function buildTransversal(
   if (!family) {
     return null;
   }
-  return `Constat transversal : sur ${joinWithArticle(family.axes)}, ${FAMILY_TRANSVERSAL_LABELS[family.family]} — c’est le levier commun que révèle cette session, qu’aucun axe seul ne montre.`;
+  const cited = family.occurrences.filter(
+    (occurrence) => occurrence.evidence !== null,
+  );
+  const values =
+    cited.length >= 2
+      ? ` (${cited
+          .map(
+            (occurrence) =>
+              `${labelOf(occurrence.axis)} : ${occurrence.evidence}`,
+          )
+          .join(' · ')})`
+      : '';
+  return `Constat transversal : sur ${joinWithArticle(family.axes)}, ${FAMILY_TRANSVERSAL_LABELS[family.family]}${values} — c’est le levier commun que révèle cette session, qu’aucun axe seul ne montre.`;
 }
 
 function buildLead(
@@ -242,9 +254,13 @@ function buildPriority(
   if (!first) {
     return null;
   }
+  const familyLabel =
+    first.findings.find((finding) => finding.priorityLabel !== undefined)
+      ?.priorityLabel ?? null;
   return {
     axis: first.axis,
     label:
+      familyLabel ??
       AXIS_PRIORITY_LABELS[first.axis as RailwayPlayableAxis] ??
       PRIORITY_LABEL_FALLBACK,
   };

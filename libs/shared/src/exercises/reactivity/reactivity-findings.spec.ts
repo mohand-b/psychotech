@@ -188,4 +188,34 @@ describe('analyzeReactivity', () => {
       );
     }
   });
+
+  it('cites at least one measured value in every produced finding', () => {
+    const points = [
+      point(2_000, 'VALID', 350),
+      point(4_000, 'VALID', 360),
+      point(6_000, 'VALID', 340),
+      point(8_000, 'WRONG_COMMAND', 380),
+      point(10_000, 'VALID', 480),
+      point(12_000, 'VALID', 460),
+      point(14_000, 'VALID', 470),
+    ];
+    const trend = [340, 345, 350, 420, 430, 440].map((trMs, position) => ({
+      appearAtMs: position * 20_000,
+      trMs,
+    }));
+    const findings = analyzeReactivity(
+      score({
+        points,
+        trend,
+        wrongCommandCount: 1,
+        anticipationCount: 2,
+        trMoyMs: 400,
+        sdMs: 150,
+      }),
+    );
+    expect(findings.length).toBeGreaterThan(2);
+    for (const finding of findings) {
+      expect(finding.finding).toMatch(/\d/);
+    }
+  });
 });

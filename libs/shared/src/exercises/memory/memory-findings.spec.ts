@@ -137,4 +137,33 @@ describe('analyzeMemory', () => {
       findings.find(({ id }) => id === 'MEMORY_TIMEOUTS')?.finding,
     ).toContain('2 restitutions hors délai');
   });
+
+  it('cites at least one measured value in every produced finding', () => {
+    const sequences = [
+      sequence(0, 4),
+      sequence(1, 5),
+      sequence(2, 6),
+      sequence(3, 7),
+    ];
+    const findings = analyzeMemory(
+      sequences,
+      score({
+        normalAvg: 0.9,
+        inverseAvg: 0.5,
+        misplacedCount: 4,
+        absentCount: 1,
+        timedOutCount: 2,
+        results: [
+          result('PERFECT'),
+          result('PERFECT'),
+          result('FAILED'),
+          result('FAILED'),
+        ],
+      }),
+    );
+    expect(findings.length).toBeGreaterThan(2);
+    for (const finding of findings) {
+      expect(finding.finding).toMatch(/\d/);
+    }
+  });
 });

@@ -202,4 +202,28 @@ describe('analyzeMotricity', () => {
       ]),
     );
   });
+
+  it('cites at least one measured value in every produced finding', () => {
+    const events = [
+      event(5_000, 'EXIT', 'DIAG', 0, 500),
+      event(6_000, 'CONTACT', 'DIAG', 0),
+      event(7_000, 'CONTACT', 'H', 0),
+      event(20_000, 'EXIT', 'DIAG', 1, 700),
+      event(21_000, 'CONTACT', 'DIAG', 1),
+      event(40_000, 'EXIT', 'H', 2, 400),
+    ];
+    const findings = analyzeMotricity(
+      metrics({
+        events,
+        minorErrors: 6,
+        majorErrors: 3,
+        totalTimeMs: 135_000,
+        courses: [course(0, 45_000), course(1, 45_000), course(2, 45_000)],
+      }),
+    );
+    expect(findings.length).toBeGreaterThan(1);
+    for (const finding of findings) {
+      expect(finding.finding).toMatch(/\d/);
+    }
+  });
 });

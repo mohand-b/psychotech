@@ -42,6 +42,8 @@ function responseBias(scored: DiscriminationSessionScore): AxisFinding | null {
   return {
     id: 'DISCRIMINATION_BIAS_DIFFERENT',
     severity: RecommendationPriority.MEDIUM,
+    deviation: falseAlarms / Math.max(1, missed) - 1,
+    evidence: `${falseAlarms} paires identiques jugées différentes`,
     finding: `${falseAlarms} paires identiques jugées « différentes », contre ${missed} différence${missed > 1 ? 's' : ''} manquée${missed > 1 ? 's' : ''} : vous répondez « différentes » trop vite`,
     recommendation:
       'Localisez la différence exacte avant de répondre : sans position précise, la paire est identique.',
@@ -62,6 +64,8 @@ function speedAccuracyTradeoff(
     return {
       id: 'DISCRIMINATION_RUSH',
       severity: RecommendationPriority.MEDIUM,
+      deviation: scored.correctAnswerAvgMs / scored.wrongAnswerAvgMs - 1,
+      evidence: `erreurs en ${formatFindingSeconds(scored.wrongAnswerAvgMs)} contre ${formatFindingSeconds(scored.correctAnswerAvgMs)}`,
       finding: `Vos erreurs partent en ${formatFindingSeconds(scored.wrongAnswerAvgMs)} contre ${formatFindingSeconds(scored.correctAnswerAvgMs)} pour vos bonnes réponses`,
       recommendation:
         'Stabilisez votre cadence : la demi-seconde gagnée sur une paire coûte la paire entière.',
@@ -103,6 +107,8 @@ function vigilanceDrop(scored: DiscriminationSessionScore): AxisFinding | null {
   return {
     id: 'DISCRIMINATION_VIGILANCE_DROP',
     severity: RecommendationPriority.MEDIUM,
+    deviation: lateErrors / Math.max(1, firstErrors) - 1,
+    evidence: `${lateErrors} erreurs au dernier tiers contre ${firstErrors} au premier`,
     finding: `${lateErrors} erreurs sur le dernier tiers des essais contre ${firstErrors} sur le premier : votre vigilance chute sur la durée`,
     recommendation:
       'Traitez chaque paire comme la première : la constance pèse plus que la vitesse de pointe.',

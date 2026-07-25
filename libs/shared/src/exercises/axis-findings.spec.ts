@@ -24,6 +24,21 @@ describe('sortFindingsBySeverity', () => {
     ]);
     expect(sorted.map(({ id }) => id)).toEqual(['b', 'c', 'a']);
   });
+
+  it('ranks the largest statistical deviation first within a severity level', () => {
+    const sorted = sortFindingsBySeverity([
+      { ...finding('small', RecommendationPriority.MEDIUM), deviation: 0.2 },
+      { ...finding('large', RecommendationPriority.MEDIUM), deviation: 0.9 },
+      finding('none', RecommendationPriority.MEDIUM),
+      { ...finding('high', RecommendationPriority.HIGH), deviation: 0.1 },
+    ]);
+    expect(sorted.map(({ id }) => id)).toEqual([
+      'high',
+      'large',
+      'small',
+      'none',
+    ]);
+  });
 });
 
 describe('getAxisRecommendations', () => {
@@ -69,6 +84,49 @@ describe('crossAxisFindingFamilies', () => {
       {
         family: 'POST_ERROR_DISRUPTION',
         axes: [AxisType.REACTIVITY, AxisType.MOTOR_SKILLS],
+        occurrences: [
+          { axis: AxisType.REACTIVITY, evidence: null },
+          { axis: AxisType.MOTOR_SKILLS, evidence: null },
+        ],
+      },
+    ]);
+  });
+
+  it('carries each axis measured evidence for the transversal finding', () => {
+    const families = crossAxisFindingFamilies([
+      {
+        axis: AxisType.REACTIVITY,
+        findings: [
+          {
+            ...finding(
+              'REACTIVITY_POST_ERROR_SLOWDOWN',
+              RecommendationPriority.HIGH,
+            ),
+            evidence: '0,52 s après erreur contre 0,41 s',
+          },
+        ],
+      },
+      {
+        axis: AxisType.MOTOR_SKILLS,
+        findings: [
+          {
+            ...finding(
+              'MOTRICITY_POST_EXIT_CASCADE',
+              RecommendationPriority.HIGH,
+            ),
+            evidence: '4 erreurs en cascade après une sortie',
+          },
+        ],
+      },
+    ]);
+    expect(families[0].occurrences).toEqual([
+      {
+        axis: AxisType.REACTIVITY,
+        evidence: '0,52 s après erreur contre 0,41 s',
+      },
+      {
+        axis: AxisType.MOTOR_SKILLS,
+        evidence: '4 erreurs en cascade après une sortie',
       },
     ]);
   });

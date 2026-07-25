@@ -145,4 +145,30 @@ describe('analyzeDiscrimination', () => {
       'DISCRIMINATION_VIGILANCE_DROP',
     );
   });
+
+  it('cites at least one measured value in every produced finding', () => {
+    const outcomes: DiscriminationOutcome[] = [
+      ...Array.from({ length: 20 }, () => 'TRUE_POSITIVE' as DiscriminationOutcome),
+      'FALSE_POSITIVE',
+      'FALSE_POSITIVE',
+      'FALSE_POSITIVE',
+      'FALSE_POSITIVE',
+      'FALSE_NEGATIVE',
+      ...Array.from({ length: 5 }, () => 'TRUE_POSITIVE' as DiscriminationOutcome),
+    ];
+    const findings = analyzeDiscrimination(
+      score({
+        outcomes,
+        correctCount: 25,
+        wrongIdenticalCount: 1,
+        wrongDifferentCount: 4,
+        correctAnswerAvgMs: 1_000,
+        wrongAnswerAvgMs: 550,
+      }),
+    );
+    expect(findings.length).toBeGreaterThan(1);
+    for (const finding of findings) {
+      expect(finding.finding).toMatch(/\d/);
+    }
+  });
 });

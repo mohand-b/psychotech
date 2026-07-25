@@ -82,6 +82,7 @@ function postExitCascade(metrics: MotorSkillsMetrics): AxisFinding | null {
   return {
     id: 'MOTRICITY_POST_EXIT_CASCADE',
     severity: RecommendationPriority.HIGH,
+    evidence: `${cascaded} erreurs en cascade après une sortie`,
     finding: `${cascaded} erreurs s'enchaînent dans les ${Math.round(MOTRICITY_CASCADE_WINDOW_MS / 1000)} secondes qui suivent une sortie de couloir`,
     recommendation:
       'Ne paniquez pas après une sortie : recentrez calmement le curseur avant de relancer l’allure.',

@@ -71,6 +71,8 @@ function postErrorSlowdown(scored: ReactivitySessionScore): AxisFinding | null {
   return {
     id: 'REACTIVITY_POST_ERROR_SLOWDOWN',
     severity: RecommendationPriority.HIGH,
+    deviation: postAvg / baseAvg - 1,
+    evidence: `${formatFindingSeconds(postAvg)} après erreur contre ${formatFindingSeconds(baseAvg)}`,
     finding: `Après une erreur, vos ${REACTIVITY_POST_ERROR_WINDOW} réponses suivantes ralentissent à ${formatFindingSeconds(postAvg)}, contre ${formatFindingSeconds(baseAvg)} en temps normal`,
     recommendation:
       'Une erreur ne doit pas casser votre rythme : respirez, enchaînez.',
@@ -95,6 +97,8 @@ function fatigueSlope(scored: ReactivitySessionScore): AxisFinding | null {
   return {
     id: 'REACTIVITY_FATIGUE_SLOPE',
     severity: RecommendationPriority.MEDIUM,
+    deviation: late / early - 1,
+    evidence: `TR de ${formatFindingSeconds(early)} à ${formatFindingSeconds(late)}`,
     finding: `Votre temps de réaction dérive de ${formatFindingSeconds(early)} à ${formatFindingSeconds(late)} entre la première et la seconde moitié de l'épreuve`,
     recommendation:
       'Travaillez la tenue dans la durée : la fin d’épreuve doit rester au niveau du début.',
@@ -119,6 +123,7 @@ function phaseThreeErrors(scored: ReactivitySessionScore): AxisFinding | null {
   return {
     id: 'REACTIVITY_PHASE3_ERRORS',
     severity: RecommendationPriority.HIGH,
+    deviation: lateWrong / scored.wrongCommandCount,
     finding: `${lateWrong} de vos ${scored.wrongCommandCount} mauvaises commandes surviennent en phase 3, après l'arrivée du signal rouge`,
     recommendation:
       'Consolidez la commande Espace du signal rouge avant de chercher la vitesse.',
@@ -132,6 +137,7 @@ function anticipations(scored: ReactivitySessionScore): AxisFinding | null {
   return {
     id: 'REACTIVITY_ANTICIPATIONS',
     severity: RecommendationPriority.MEDIUM,
+    evidence: `${scored.anticipationCount} appuis anticipés`,
     finding: `${scored.anticipationCount} appuis anticipés, déclenchés avant le signal ou moins de ${formatFindingSeconds(REACTIVITY_ANTICIPATION_TR_MS)} après lui`,
     recommendation:
       'Attendez l’apparition réelle du signal avant de déclencher votre geste.',
@@ -182,6 +188,7 @@ function phaseStep(scored: ReactivitySessionScore): AxisFinding | null {
   return {
     id: 'REACTIVITY_PHASE_STEP',
     severity: RecommendationPriority.MEDIUM,
+    deviation: thirdAvg / secondAvg - 1,
     finding: `Votre temps de réaction bondit de ${formatFindingSeconds(secondAvg)} en phase 2 à ${formatFindingSeconds(thirdAvg)} en phase 3`,
     recommendation:
       'Entraînez la bascule à trois commandes : l’ajout du signal rouge ne doit pas ralentir les deux autres.',

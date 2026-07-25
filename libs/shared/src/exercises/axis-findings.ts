@@ -5,6 +5,9 @@ export interface AxisFinding {
   severity: RecommendationPriority;
   finding: string;
   recommendation: string;
+  deviation?: number;
+  evidence?: string;
+  priorityLabel?: string;
 }
 
 export interface AxisFindingsEntry {
@@ -24,7 +27,9 @@ export function sortFindingsBySeverity(
   findings: AxisFinding[],
 ): AxisFinding[] {
   return [...findings].sort(
-    (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity],
+    (a, b) =>
+      SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+      (b.deviation ?? 0) - (a.deviation ?? 0),
   );
 }
 
@@ -51,9 +56,15 @@ export const AXIS_FINDING_FAMILIES: Record<string, AxisFindingFamily> = {
   DISCRIMINATION_BIAS_DIFFERENT: 'IMPULSIVITY',
 };
 
+export interface CrossAxisFindingOccurrence {
+  axis: AxisType;
+  evidence: string | null;
+}
+
 export interface CrossAxisFindingFamily {
   family: AxisFindingFamily;
   axes: AxisType[];
+  occurrences: CrossAxisFindingOccurrence[];
 }
 
 const FAMILY_RANK: Record<AxisFindingFamily, number> = {
@@ -65,24 +76,30 @@ const FAMILY_RANK: Record<AxisFindingFamily, number> = {
 export function crossAxisFindingFamilies(
   entries: AxisFindingsEntry[],
 ): CrossAxisFindingFamily[] {
-  const axesByFamily = new Map<AxisFindingFamily, AxisType[]>();
+  const occurrencesByFamily = new Map<
+    AxisFindingFamily,
+    CrossAxisFindingOccurrence[]
+  >();
   for (const entry of entries) {
-    const families = new Set<AxisFindingFamily>();
+    const seenFamilies = new Set<AxisFindingFamily>();
     for (const finding of entry.findings) {
       const family = AXIS_FINDING_FAMILIES[finding.id];
-      if (family) {
-        families.add(family);
+      if (!family || seenFamilies.has(family)) {
+        continue;
       }
-    }
-    for (const family of families) {
-      axesByFamily.set(family, [
-        ...(axesByFamily.get(family) ?? []),
-        entry.axis,
+      seenFamilies.add(family);
+      occurrencesByFamily.set(family, [
+        ...(occurrencesByFamily.get(family) ?? []),
+        { axis: entry.axis, evidence: finding.evidence ?? null },
       ]);
     }
   }
-  return [...axesByFamily.entries()]
-    .filter(([, axes]) => axes.length >= 2)
+  return [...occurrencesByFamily.entries()]
+    .filter(([, occurrences]) => occurrences.length >= 2)
     .sort(([a], [b]) => FAMILY_RANK[a] - FAMILY_RANK[b])
-    .map(([family, axes]) => ({ family, axes }));
+    .map(([family, occurrences]) => ({
+      family,
+      axes: occurrences.map(({ axis }) => axis),
+      occurrences,
+    }));
 }
