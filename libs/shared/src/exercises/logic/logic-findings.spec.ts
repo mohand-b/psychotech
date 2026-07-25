@@ -83,6 +83,29 @@ describe('analyzeLogic', () => {
     expect(family?.finding).toContain('somme des deux précédents');
   });
 
+  it('names no family but never crashes on v2 rule ids unknown to the legacy hints', () => {
+    const items = [
+      item(0, 'domino-mirror-columns'),
+      item(1, 'domino-mirror-columns'),
+      item(2, 'domino-mirror-columns'),
+      item(3, 'arithmetic-constant-step'),
+      item(4, 'powers'),
+    ];
+    const statuses: LogicItemStatus[] = [
+      'WRONG',
+      'WRONG',
+      'WRONG',
+      'CORRECT',
+      'CORRECT',
+    ];
+    const findings = analyzeLogic(items, score(statuses), []);
+    const family = findings.find(({ id }) => id === 'LOGIC_RULE_FAMILY_ERRORS');
+    expect(family).toBeDefined();
+    expect(family?.finding).toContain(
+      "3 de vos 3 erreurs portent sur le même type d'exercice",
+    );
+  });
+
   it('stays silent on rule families when errors are spread out', () => {
     const items = [
       item(0, 'arithmetic-constant-step'),

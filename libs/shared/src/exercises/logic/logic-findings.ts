@@ -11,7 +11,7 @@ import {
   TriangleLogicItem,
 } from './logic-item';
 import { LogicRuleItem } from './logic-rule-item';
-import { resolveLogicRuleHint } from './logic-rule-hints';
+import { logicRuleHintIfKnown } from './logic-rule-hints';
 import { LogicSessionScore } from './logic-scoring';
 import {
   logicAnswerCorrect,
@@ -389,12 +389,14 @@ function ruleFamilyErrors(
   ) {
     return null;
   }
-  const hint = resolveLogicRuleHint(dominant[0]);
+  const hint = logicRuleHintIfKnown(dominant[0]);
   return {
     id: 'LOGIC_RULE_FAMILY_ERRORS',
     severity: RecommendationPriority.HIGH,
     deviation: dominant.length / scored.wrongCount,
-    finding: `${dominant.length} de vos ${scored.wrongCount} erreurs portent sur la même famille de règles (« ${hint.replace(/\.$/, '')} »)`,
+    finding: hint
+      ? `${dominant.length} de vos ${scored.wrongCount} erreurs portent sur la même famille de règles (« ${hint.replace(/\.$/, '')} »)`
+      : `${dominant.length} de vos ${scored.wrongCount} erreurs portent sur le même type d'exercice`,
     recommendation:
       'Revoyez cette famille en particulier : identifiez son mécanisme avant de valider votre réponse.',
   };

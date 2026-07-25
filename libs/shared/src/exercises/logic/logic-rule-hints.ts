@@ -82,6 +82,12 @@ export function resolveLogicRuleHint(
     : hint.decreasing;
 }
 
+export function logicRuleHintIfKnown(
+  item: Pick<LogicRuleItem, 'ruleId' | 'sequence'>,
+): string | null {
+  return LOGIC_RULE_HINTS[item.ruleId] ? resolveLogicRuleHint(item) : null;
+}
+
 export function resolveLogicRuleDetail(
   item: Pick<LogicRuleItem, 'ruleId' | 'sequence'>,
   answer: string,
