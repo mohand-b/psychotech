@@ -30,15 +30,14 @@ import {
   Zap,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
+import { Badge } from '../../../shared/ui/badge/badge';
 import { Icon } from '../../../shared/ui/icon/icon';
-import {
-  SECTOR_PRESENTATION,
-  SectorPresentation,
-} from '../../../shared/ui/sector-presentation';
+import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
@@ -95,14 +94,6 @@ const PLAN_COPY: Record<SubscriptionTier, { name: string; description: string }>
   },
 };
 
-const SECTOR_ORDER: readonly Sector[] = [
-  Sector.RAILWAY,
-  Sector.HEALTHCARE,
-  Sector.AVIATION,
-  Sector.SECURITY,
-  Sector.DRIVING,
-];
-
 const SAVED_STATUS_DURATION_MS = 3200;
 
 const INVOICE_STATUS_PRESENTATION: Record<
@@ -131,13 +122,14 @@ interface InvoiceRowView {
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, PasswordStrengthMeter, RouterLink],
+  imports: [Badge, Icon, PasswordStrengthMeter, RouterLink],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
 export class Profile {
   private readonly authFacade = inject(AuthFacade);
+  private readonly catalogFacade = inject(CatalogFacade);
   private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly progressionFacade = inject(ProgressionFacade);
@@ -321,13 +313,21 @@ export class Profile {
   );
 
   protected readonly sectorCards = computed<
-    { sector: Sector; presentation: SectorPresentation; active: boolean }[]
+    {
+      sector: Sector;
+      label: string;
+      icon: LucideIconData;
+      active: boolean;
+      coming: boolean;
+    }[]
   >(() => {
     const current = this.user()?.currentSector ?? null;
-    return SECTOR_ORDER.map((sector) => ({
-      sector,
-      presentation: SECTOR_PRESENTATION[sector],
-      active: sector === current,
+    return this.catalogFacade.sectors().map((sector) => ({
+      sector: sector.code,
+      label: sector.label,
+      icon: SECTOR_PRESENTATION[sector.code].icon,
+      active: sector.code === current,
+      coming: !sector.isActive,
     }));
   });
 

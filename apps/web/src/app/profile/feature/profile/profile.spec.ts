@@ -10,6 +10,7 @@ import {
   PaymentWalletType,
   ProgressionDto,
   Sector,
+  SectorSummaryDto,
   SubscriptionStatus,
   SubscriptionTier,
   UserProfileDto,
@@ -17,6 +18,7 @@ import {
 import { Observable, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
@@ -91,6 +93,14 @@ function buildProgression(): ProgressionDto {
   };
 }
 
+const CATALOG_SECTORS: SectorSummaryDto[] = [
+  { code: Sector.RAILWAY, label: 'Ferroviaire', isActive: true },
+  { code: Sector.HEALTHCARE, label: 'Santé', isActive: false },
+  { code: Sector.AVIATION, label: 'Aérien', isActive: false },
+  { code: Sector.SECURITY, label: 'Sécurité', isActive: false },
+  { code: Sector.DRIVING, label: 'Conduite', isActive: false },
+];
+
 function buildInvoices(): BillingInvoiceDto[] {
   return [
     {
@@ -159,6 +169,13 @@ async function setup(options: SetupOptions = {}) {
       {
         provide: SubscriptionsFacade,
         useValue: { getPaymentMethodOverview, listInvoices },
+      },
+      {
+        provide: CatalogFacade,
+        useValue: {
+          sectors: signal(CATALOG_SECTORS),
+          sectorsError: signal(null),
+        },
       },
     ],
   })
@@ -246,6 +263,16 @@ describe('Profile', () => {
       fixture.nativeElement.querySelector('.profil__sector--active')
         ?.textContent,
     ).toContain('Ferroviaire');
+    const coming = fixture.nativeElement.querySelectorAll(
+      '.profil__sector--coming',
+    );
+    expect(coming).toHaveLength(4);
+    expect(coming[0].textContent).toContain('À venir');
+    expect(coming[0].getAttribute('aria-disabled')).toBe('true');
+    expect(
+      fixture.nativeElement.querySelector('.profil__sector--active')
+        ?.textContent,
+    ).not.toContain('À venir');
 
     buttons[3].click();
     fixture.detectChanges();

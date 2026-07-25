@@ -1,6 +1,6 @@
-<div class="profil">
+<div class="page-shell profil">
   <div class="profil__head flex flex-col">
-    <h1 class="profil__title">Mon profil</h1>
+    <h1 class="t-page-title">Mon profil</h1>
     <span class="profil__subtitle"
       >Vos informations, votre secteur de préparation et votre
       abonnement.</span
@@ -81,7 +81,9 @@
               <div class="profil__metas">
                 <span class="profil__meta flex flex-col">
                   <span class="t-label">Membre depuis</span>
-                  <span class="profil__meta-value">{{ memberSince() }}</span>
+                  <span class="profil__meta-value t-mono">{{
+                    memberSince()
+                  }}</span>
                 </span>
                 @if (completedSessions() !== null) {
                   <span class="profil__meta flex flex-col">
@@ -167,6 +169,8 @@
                   <div
                     class="profil__sector"
                     [class.profil__sector--active]="card.active"
+                    [class.profil__sector--coming]="card.coming"
+                    [attr.aria-disabled]="card.coming ? true : null"
                   >
                     @if (card.active) {
                       <span class="profil__sector-check">
@@ -178,13 +182,14 @@
                       </span>
                     }
                     <ui-icon
-                      [img]="card.presentation.icon"
+                      [img]="card.icon"
                       [size]="22"
                       [strokeWidth]="1.8"
                     />
-                    <span class="profil__sector-label">{{
-                      card.presentation.label
-                    }}</span>
+                    <span class="profil__sector-label">{{ card.label }}</span>
+                    @if (card.coming) {
+                      <ui-badge tone="neutral">À venir</ui-badge>
+                    }
                   </div>
                 }
               </div>
@@ -224,7 +229,9 @@
                   @if (renewalLabel(); as renewal) {
                     <span class="profil__meta flex flex-col">
                       <span class="t-label">Prochain renouvellement</span>
-                      <span class="profil__meta-value">{{ renewal }}</span>
+                      <span class="profil__meta-value t-mono">{{
+                        renewal
+                      }}</span>
                     </span>
                   }
                   @if (billingPeriodLabel(); as period) {
@@ -236,7 +243,9 @@
                   @if (dailyEnergyLabel(); as dailyEnergy) {
                     <span class="profil__meta flex flex-col">
                       <span class="t-label">Énergie du jour</span>
-                      <span class="profil__meta-value">{{ dailyEnergy }}</span>
+                      <span class="profil__meta-value t-mono">{{
+                        dailyEnergy
+                      }}</span>
                     </span>
                   }
                 </div>

@@ -1,19 +1,8 @@
-.profil {
-  max-width: 1216px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 36px 32px 72px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
 .profil__head {
   gap: 5px;
 }
 
-.profil__title {
-  font: 700 28px/1.15 var(--font-display);
+.profil__head .t-page-title {
   margin: 0;
 }
 
@@ -265,6 +254,11 @@
   border-color: var(--brand-pastel-bd);
   background: color-mix(in srgb, var(--brand) 3%, var(--card));
   color: var(--brand-hover);
+}
+
+.profil__sector--coming {
+  cursor: default;
+  user-select: none;
 }
 
 .profil__sector--active .profil__sector-label {
@@ -578,12 +572,7 @@
 }
 
 @media (max-width: 767px) {
-  .profil {
-    padding: 20px 16px 32px;
-    gap: 16px;
-  }
-
-  .profil__title {
+  .profil__head .t-page-title {
     font-size: 24px;
   }
 
