@@ -17,9 +17,14 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
-import { SelectOption } from '../../../shared/ui/select/select';
 import { passwordsMatch } from '../../../shared/util/password-match';
 import { AuthFacade } from '../../data-access/auth.facade';
+
+interface SectorOption {
+  value: string;
+  label: string;
+  disabled: boolean;
+}
 
 const PASSWORD_MIN_LENGTH = 8;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,7 +66,7 @@ export class Register {
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
 
-  protected readonly sectorOptions = computed<readonly SelectOption[]>(() =>
+  protected readonly sectorOptions = computed<readonly SectorOption[]>(() =>
     this.catalogFacade.sectors().map((sector: SectorSummaryDto) => ({
       value: sector.code,
       label: sector.label,

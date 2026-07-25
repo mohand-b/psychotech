@@ -122,7 +122,7 @@ const repository = {
   persistAxisScore: vi.fn(),
 };
 
-const scoringService = { scoreAxis: vi.fn(), evaluateSession: vi.fn() };
+const scoringService = { evaluateSession: vi.fn() };
 const badgesService = { evaluateAndUnlockWithin: vi.fn() };
 const energyService = { spendWithin: vi.fn() };
 
@@ -496,8 +496,6 @@ describe('SessionsService.completeAxis (targeted)', () => {
       axis: AxisType.LOGIC,
       items: answers(40),
     });
-
-    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
     expect(scoringService.evaluateSession).not.toHaveBeenCalled();
     expect(repository.completeTargetedSession).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -679,8 +677,6 @@ describe('SessionsService.completeAxis (memory)', () => {
       axis: AxisType.MEMORY,
       sequences: sequenceAnswers,
     });
-
-    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
     expect(repository.completeTargetedSession).toHaveBeenCalledWith(
       expect.objectContaining({
         axis: AxisType.MEMORY,
@@ -754,8 +750,6 @@ describe('SessionsService.completeAxis (discrimination)', () => {
       AxisType.VISUAL_DISCRIMINATION,
       { axis: AxisType.VISUAL_DISCRIMINATION, trials: trialAnswers },
     );
-
-    expect(scoringService.scoreAxis).not.toHaveBeenCalled();
     expect(repository.completeTargetedSession).toHaveBeenCalledWith(
       expect.objectContaining({
         axis: AxisType.VISUAL_DISCRIMINATION,
