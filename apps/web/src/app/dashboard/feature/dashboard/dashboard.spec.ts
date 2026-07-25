@@ -260,6 +260,21 @@ describe('Dashboard', () => {
     expect(textOf(fixture)).toContain('∞');
   });
 
+  it('keeps the selection subtitle on every paying tier', async () => {
+    const unlimited = await setup({ tier: SubscriptionTier.UNLIMITED });
+    expect(textOf(unlimited.fixture)).toContain(
+      'Chaque session vous rapproche de la sélection.',
+    );
+    expect(textOf(unlimited.fixture)).not.toContain('à vous de choisir');
+
+    TestBed.resetTestingModule();
+    const essentialFull = await setup();
+    expect(textOf(essentialFull.fixture)).toContain(
+      'Chaque session vous rapproche de la sélection.',
+    );
+    expect(textOf(essentialFull.fixture)).not.toContain('à vous de choisir');
+  });
+
   it('renders the new-account variant with the free plan and empty states', async () => {
     const { fixture } = await setup({
       tier: SubscriptionTier.FREE,

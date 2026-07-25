@@ -179,12 +179,7 @@ export class Dashboard {
     if (this.free()) {
       return 'Découvrez les épreuves avec le mode découverte, en libre accès.';
     }
-    if (this.unlimited()) {
-      return 'Énergie illimitée : simulation complète ou axe ciblé, à vous de choisir.';
-    }
-    return this.fullEnergy()
-      ? 'Votre énergie est pleine : simulation complète ou axe ciblé, à vous de choisir.'
-      : 'Chaque session vous rapproche de la sélection.';
+    return 'Chaque session vous rapproche de la sélection.';
   });
 
   protected readonly energyLabel = computed(() => {
