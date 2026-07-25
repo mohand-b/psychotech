@@ -17,6 +17,7 @@ import {
   PaymentIntentKind,
   PaymentMethodOverviewDto,
   PaymentMethodSummaryDto,
+  PaymentWalletType,
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
@@ -248,7 +249,21 @@ export class BillingService {
       last4: paymentMethod.card.last4,
       expMonth: paymentMethod.card.exp_month,
       expYear: paymentMethod.card.exp_year,
+      wallet: this.walletOf(paymentMethod.card),
     };
+  }
+
+  private walletOf(card: Stripe.PaymentMethod.Card): PaymentWalletType | null {
+    switch (card.wallet?.type) {
+      case 'google_pay':
+        return PaymentWalletType.GOOGLE_PAY;
+      case 'apple_pay':
+        return PaymentWalletType.APPLE_PAY;
+      case 'link':
+        return PaymentWalletType.LINK;
+      default:
+        return null;
+    }
   }
 
   private async requireChangeableSubscription(
