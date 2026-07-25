@@ -144,6 +144,9 @@ describe('Offers', () => {
     expect(cancelButton()?.textContent?.trim()).toBe(
       'Confirmer la résiliation',
     );
+    const discoveryButton =
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[0];
+    expect(discoveryButton.textContent?.trim()).toBe('Passer en Découverte');
 
     cancelButton()?.click();
     fixture.detectChanges();

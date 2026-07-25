@@ -72,7 +72,7 @@
             appearance="outlined"
             color="neutral"
             [block]="true"
-            (click)="cancelSubscription()"
+            (click)="cancelSubscription('discovery')"
             [loading]="managing()"
           >
             {{ freeCtaLabel() }}
@@ -414,7 +414,7 @@
             color="neutral"
             size="lg"
             [block]="true"
-            (click)="cancelSubscription()"
+            (click)="cancelSubscription('discovery')"
             [loading]="managing()"
           >
             {{ freeCtaLabel() }}
@@ -449,7 +449,7 @@
             <button
               type="button"
               class="offers__manage-cancel"
-              (click)="cancelSubscription()"
+              (click)="cancelSubscription('manage')"
             >
               {{ cancelLabel() }}
             </button>
