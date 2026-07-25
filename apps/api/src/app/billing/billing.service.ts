@@ -14,6 +14,7 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   ChangePlanPreviewDto,
+  EnergyCheckoutDto,
   InvoiceStatus,
   PaidTier,
   PaymentIntentKind,
@@ -24,8 +25,10 @@ import {
   SubscriptionDto,
   SubscriptionPaymentDto,
   SubscriptionTier,
+  energyTopUpQuantity,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
+import { EnergyService } from '../energy/energy.service';
 import { toSubscriptionDto } from '../subscriptions/subscription.mappers';
 import { BillingConfig } from '../config/billing.config';
 import {
@@ -54,9 +57,10 @@ export class BillingService {
   constructor(
     @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
     private readonly repository: BillingRepository,
-    configService: ConfigService,
+    private readonly energyService: EnergyService,
+    private readonly configService: ConfigService,
   ) {
-    this.config = configService.getOrThrow<BillingConfig>('billing');
+    this.config = this.configService.getOrThrow<BillingConfig>('billing');
   }
 
   getBillingConfig(): BillingConfigDto {
@@ -571,6 +575,38 @@ export class BillingService {
     };
   }
 
+  async createEnergyCheckout(userId: string): Promise<EnergyCheckoutDto> {
+    const stripe = this.requireStripe();
+    const priceEnergyPack = this.requireEnergyPackPrice();
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (!row || toSubscriptionDto(row).tier !== SubscriptionTier.ESSENTIAL) {
+      throw new ForbiddenException(
+        'Energy recharge is only available on the essential plan',
+      );
+    }
+    const state = await this.energyService.getState(userId);
+    const quantity = energyTopUpQuantity(state.balance);
+    if (quantity === 0) {
+      throw new BadRequestException('The energy balance is already full');
+    }
+    const customerId = await this.ensureCustomer(stripe, userId);
+    const origin = this.configService.getOrThrow<string>('CORS_ORIGIN');
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer: customerId,
+      line_items: [{ price: priceEnergyPack, quantity }],
+      metadata: { userId },
+      success_url: `${origin}/recharge?statut=succes`,
+      cancel_url: `${origin}/recharge?statut=annule`,
+    });
+    if (!session.url) {
+      throw new ServiceUnavailableException(
+        'Stripe returned no checkout url',
+      );
+    }
+    return { url: session.url };
+  }
+
   async handleWebhook(
     payload: Buffer | undefined,
     signature: string | undefined,
@@ -596,11 +632,41 @@ export class BillingService {
       await this.applyPaymentMethodUpdate(stripe, event.data.object);
       return;
     }
+    if (event.type === 'checkout.session.completed') {
+      await this.applyEnergyPurchase(
+        stripe,
+        event.data.object as Stripe.Checkout.Session,
+      );
+      return;
+    }
     if (
       (HANDLED_SUBSCRIPTION_EVENTS as readonly string[]).includes(event.type)
     ) {
       await this.applySubscription(event.data.object as Stripe.Subscription);
     }
+  }
+
+  private async applyEnergyPurchase(
+    stripe: Stripe,
+    session: Stripe.Checkout.Session,
+  ): Promise<void> {
+    if (session.mode !== 'payment' || session.payment_status !== 'paid') {
+      return;
+    }
+    const userId = session.metadata?.['userId'];
+    const priceEnergyPack = this.config.priceEnergyPack;
+    if (!userId || !priceEnergyPack) {
+      return;
+    }
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+    const packLine = lineItems.data.find(
+      (line) => line.price?.id === priceEnergyPack,
+    );
+    const quantity = packLine?.quantity ?? 0;
+    if (quantity <= 0) {
+      return;
+    }
+    await this.energyService.credit(userId, quantity, session.id);
   }
 
   private async applyPaymentMethodUpdate(
@@ -763,5 +829,14 @@ export class BillingService {
       );
     }
     return this.stripe;
+  }
+
+  private requireEnergyPackPrice(): string {
+    if (!this.config.priceEnergyPack) {
+      throw new ServiceUnavailableException(
+        'The energy pack price is not configured',
+      );
+    }
+    return this.config.priceEnergyPack;
   }
 }

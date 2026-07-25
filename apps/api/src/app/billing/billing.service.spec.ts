@@ -11,20 +11,25 @@ import {
 import { SubscriptionTier } from '@psychotech/shared';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { EnergyService } from '../energy/energy.service';
 import { BillingRepository } from './billing.repository';
 import { BillingService } from './billing.service';
 
 const WEBHOOK_SECRET = 'whsec_test';
 
 const configService = {
-  getOrThrow: () => ({
-    enabled: true,
-    secretKey: 'sk_test_x',
-    publishableKey: 'pk_test_x',
-    webhookSecret: WEBHOOK_SECRET,
-    priceEssential: 'price_essential',
-    priceUnlimited: 'price_unlimited',
-  }),
+  getOrThrow: (key: string) =>
+    key === 'CORS_ORIGIN'
+      ? 'http://localhost:4200'
+      : {
+          enabled: true,
+          secretKey: 'sk_test_x',
+          publishableKey: 'pk_test_x',
+          webhookSecret: WEBHOOK_SECRET,
+          priceEssential: 'price_essential',
+          priceUnlimited: 'price_unlimited',
+          priceEnergyPack: 'price_energy_pack',
+        },
 } as unknown as ConfigService;
 
 function buildStripeSubscription(
@@ -76,6 +81,8 @@ const createStripeSchedule = vi.fn();
 const updateStripeSchedule = vi.fn();
 const releaseStripeSchedule = vi.fn();
 const retrieveStripeSchedule = vi.fn();
+const createCheckoutSession = vi.fn();
+const listCheckoutLineItems = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -100,6 +107,12 @@ const stripe = {
   invoices: { createPreview: createInvoicePreview, list: listStripeInvoices },
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
+  checkout: {
+    sessions: {
+      create: createCheckoutSession,
+      listLineItems: listCheckoutLineItems,
+    },
+  },
 } as unknown as Stripe;
 
 function buildStripePromotion(overrides: Record<string, unknown> = {}) {
@@ -122,9 +135,15 @@ function buildStripePromotion(overrides: Record<string, unknown> = {}) {
   };
 }
 
+const energyService = {
+  getState: vi.fn(),
+  credit: vi.fn(),
+};
+
 const service = new BillingService(
   stripe,
   repository as unknown as BillingRepository,
+  energyService as unknown as EnergyService,
   configService,
 );
 
@@ -810,6 +829,7 @@ describe('BillingService.listInvoices', () => {
     const offlineService = new BillingService(
       null,
       repository as unknown as BillingRepository,
+      energyService as unknown as EnergyService,
       configService,
     );
 
@@ -1009,6 +1029,138 @@ describe('BillingService.handleWebhook subscription upsert', () => {
 
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
+    expect(repository.upsertSubscription).not.toHaveBeenCalled();
+  });
+});
+
+function buildEssentialRow(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'row-1',
+    userId: 'user-1',
+    tier: DbSubscriptionTier.ESSENTIAL,
+    status: DbSubscriptionStatus.ACTIVE,
+    billingPeriod: 'MONTHLY',
+    currentPeriodEnd: new Date('2026-08-17T00:00:00Z'),
+    cancelAtPeriodEnd: false,
+    pendingTier: null,
+    stripeSubscriptionId: 'sub_1',
+    ...overrides,
+  };
+}
+
+describe('BillingService.createEnergyCheckout', () => {
+  beforeEach(() => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      email: 'user@example.com',
+      firstName: 'Alice',
+      lastName: 'Martin',
+      stripeCustomerId: 'cus_1',
+    });
+  });
+
+  it('creates a payment checkout for the missing energies only', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    energyService.getState.mockResolvedValue({ balance: 2, capacity: 5 });
+    createCheckoutSession.mockResolvedValue({
+      id: 'cs_1',
+      url: 'https://checkout.stripe.com/cs_1',
+    });
+
+    const checkout = await service.createEnergyCheckout('user-1');
+
+    expect(createCheckoutSession).toHaveBeenCalledWith({
+      mode: 'payment',
+      customer: 'cus_1',
+      line_items: [{ price: 'price_energy_pack', quantity: 3 }],
+      metadata: { userId: 'user-1' },
+      success_url: 'http://localhost:4200/recharge?statut=succes',
+      cancel_url: 'http://localhost:4200/recharge?statut=annule',
+    });
+    expect(checkout).toEqual({ url: 'https://checkout.stripe.com/cs_1' });
+  });
+
+  it('refuses tiers other than essential', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(
+      buildEssentialRow({ tier: DbSubscriptionTier.UNLIMITED }),
+    );
+
+    await expect(
+      service.createEnergyCheckout('user-1'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+
+    repository.findSubscriptionByUserId.mockResolvedValue(null);
+    await expect(
+      service.createEnergyCheckout('user-1'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(createCheckoutSession).not.toHaveBeenCalled();
+  });
+
+  it('refuses a checkout when the balance is already full', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    energyService.getState.mockResolvedValue({ balance: 5, capacity: 5 });
+
+    await expect(
+      service.createEnergyCheckout('user-1'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(createCheckoutSession).not.toHaveBeenCalled();
+  });
+});
+
+describe('BillingService.handleWebhook energy purchase', () => {
+  function buildCheckoutSession(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'cs_1',
+      mode: 'payment',
+      payment_status: 'paid',
+      metadata: { userId: 'user-1' },
+      ...overrides,
+    };
+  }
+
+  it('credits the purchased energies exactly once for a replayed event', async () => {
+    stubEvent('checkout.session.completed', buildCheckoutSession());
+    listCheckoutLineItems.mockResolvedValue({
+      data: [{ price: { id: 'price_energy_pack' }, quantity: 3 }],
+    });
+    repository.registerEvent
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false);
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(energyService.credit).toHaveBeenCalledTimes(1);
+    expect(energyService.credit).toHaveBeenCalledWith('user-1', 3, 'cs_1');
+  });
+
+  it('ignores a completed checkout carrying a foreign price', async () => {
+    stubEvent('checkout.session.completed', buildCheckoutSession());
+    listCheckoutLineItems.mockResolvedValue({
+      data: [{ price: { id: 'price_other' }, quantity: 3 }],
+    });
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(energyService.credit).not.toHaveBeenCalled();
+  });
+
+  it('ignores subscription-mode and unpaid checkout sessions', async () => {
+    stubEvent(
+      'checkout.session.completed',
+      buildCheckoutSession({ mode: 'subscription' }),
+    );
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    stubEvent(
+      'checkout.session.completed',
+      buildCheckoutSession({ payment_status: 'unpaid' }),
+      'evt_2',
+    );
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(listCheckoutLineItems).not.toHaveBeenCalled();
+    expect(energyService.credit).not.toHaveBeenCalled();
     expect(repository.upsertSubscription).not.toHaveBeenCalled();
   });
 });
