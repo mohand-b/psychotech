@@ -26,7 +26,7 @@ import { SessionHistoryFacade } from '../../../sessions/data-access/session-hist
 import {
   AxisRadar,
   AxisRadarEntry,
-} from '../../../sessions/ui/axis-radar/axis-radar';
+} from '../../../shared/ui/axis-radar/axis-radar';
 import {
   AXIS_PRESENTATION,
   AxisPresentation,

@@ -25,7 +25,7 @@ import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-v
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { AxisRadar, AxisRadarEntry } from '../../ui/axis-radar/axis-radar';
+import { AxisRadar, AxisRadarEntry } from '../../../shared/ui/axis-radar/axis-radar';
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
 import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';

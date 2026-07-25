@@ -14,8 +14,10 @@ import {
 import { ChevronRight } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
-import { AxisRadarEntry } from '../../../sessions/ui/axis-radar/axis-radar';
-import { AxisRadar } from '../../../sessions/ui/axis-radar/axis-radar';
+import {
+  AxisRadar,
+  AxisRadarEntry,
+} from '../../../shared/ui/axis-radar/axis-radar';
 import {
   AXIS_PRESENTATION,
   AxisPresentation,
