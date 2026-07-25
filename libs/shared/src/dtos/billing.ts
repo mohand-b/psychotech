@@ -11,11 +11,18 @@ export interface ChangeSubscriptionPlanDto {
   plan: PaidTier;
 }
 
+export enum PaymentWalletType {
+  GOOGLE_PAY = 'google_pay',
+  APPLE_PAY = 'apple_pay',
+  LINK = 'link',
+}
+
 export interface PaymentMethodSummaryDto {
   brand: string;
   last4: string;
   expMonth: number;
   expYear: number;
+  wallet: PaymentWalletType | null;
 }
 
 export interface ChangePlanPreviewDto {
