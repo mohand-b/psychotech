@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
+  ENERGY_INSUFFICIENT_ERROR_CODE,
   EnergyLedgerReason,
   EnergyStateDto,
   SubscriptionTier,
@@ -14,6 +15,7 @@ import {
   buildEnergyState,
   canAfford,
   isDailyResetDue,
+  refilledBalance,
 } from './energy.logic';
 import { toDbReason } from './energy.mappers';
 import { EnergyRepository } from './energy.repository';
@@ -52,7 +54,7 @@ export class EnergyService {
     const now = new Date();
     const wallet = await this.ensureFreshWallet(userId, now);
     if (!canAfford({ tier: wallet.tier, balance: wallet.balance, cost })) {
-      throw new ForbiddenException('Insufficient energy balance');
+      throw this.insufficientEnergy(wallet.balance, cost);
     }
     if (wallet.tier === SubscriptionTier.UNLIMITED || cost === 0) {
       return buildEnergyState(wallet, now);
@@ -91,7 +93,7 @@ export class EnergyService {
       balance = reset.balance;
     }
     if (!canAfford({ tier, balance, cost })) {
-      throw new ForbiddenException('Insufficient energy balance');
+      throw this.insufficientEnergy(balance, cost);
     }
     if (tier === SubscriptionTier.UNLIMITED || cost === 0) {
       return;
@@ -103,6 +105,33 @@ export class EnergyService {
       toDbReason(reason),
       sessionId,
     );
+  }
+
+  async credit(
+    userId: string,
+    amount: number,
+    ref?: string,
+  ): Promise<EnergyStateDto> {
+    const now = new Date();
+    const wallet = await this.ensureFreshWallet(userId, now);
+    const updated = await this.repository.credit(
+      userId,
+      amount,
+      toDbReason(EnergyLedgerReason.PURCHASE),
+      ref,
+    );
+    return buildEnergyState({ ...wallet, balance: updated.balance }, now);
+  }
+
+  private insufficientEnergy(
+    balance: number,
+    cost: number,
+  ): ForbiddenException {
+    return new ForbiddenException({
+      message: ENERGY_INSUFFICIENT_ERROR_CODE,
+      balance,
+      cost,
+    });
   }
 
   private async peekWallet(userId: string, now: Date): Promise<FreshWallet> {
@@ -117,7 +146,9 @@ export class EnergyService {
       context.timezone,
     );
     return {
-      balance: resetDue ? context.wallet.capacity : context.wallet.balance,
+      balance: resetDue
+        ? refilledBalance(context.wallet.balance, context.wallet.capacity)
+        : context.wallet.balance,
       capacity: context.wallet.capacity,
       tier,
       timezone: context.timezone,

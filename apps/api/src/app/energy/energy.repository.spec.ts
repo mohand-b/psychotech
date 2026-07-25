@@ -66,4 +66,78 @@ describe('EnergyRepository.applyDailyReset', () => {
       },
     });
   });
+
+  it('keeps a balance above capacity untouched and skips the ledger entry', async () => {
+    const { prisma, tx } = buildPrismaMock(7);
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+    const resetAt = new Date('2026-06-13T10:00:00Z');
+
+    await repository.applyDailyReset('user-1', 5, resetAt, 7);
+
+    expect(tx.energyWallet.update).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+      data: { balance: 7, lastResetAt: resetAt },
+    });
+    expect(tx.energyLedger.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('EnergyRepository.credit', () => {
+  it('increments the balance and records the purchase with its reference', async () => {
+    const { prisma, tx } = buildPrismaMock(6);
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+
+    const wallet = await repository.credit(
+      'user-1',
+      4,
+      EnergyLedgerReason.PURCHASE,
+      'cs_test_1',
+    );
+
+    expect(tx.energyWallet.update).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+      data: { balance: { increment: 4 } },
+    });
+    expect(tx.energyLedger.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-1',
+        delta: 4,
+        reason: EnergyLedgerReason.PURCHASE,
+        balanceAfter: 6,
+        ref: 'cs_test_1',
+      },
+    });
+    expect(wallet.balance).toBe(6);
+  });
+});
+
+describe('EnergyRepository.findEnergyContext', () => {
+  it('creates the wallet lazily when the user exists without one', async () => {
+    const created = {
+      id: 'wallet-1',
+      userId: 'user-1',
+      balance: 5,
+      capacity: 5,
+    };
+    const prisma = {
+      user: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'user-1',
+          timezone: 'Europe/Paris',
+          energyWallet: null,
+          subscription: null,
+        }),
+      },
+      energyWallet: { create: vi.fn().mockResolvedValue(created) },
+    };
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+
+    const context = await repository.findEnergyContext('user-1');
+
+    expect(prisma.energyWallet.create).toHaveBeenCalledWith({
+      data: { userId: 'user-1' },
+    });
+    expect(context?.wallet).toEqual(created);
+    expect(context?.timezone).toBe('Europe/Paris');
+  });
 });

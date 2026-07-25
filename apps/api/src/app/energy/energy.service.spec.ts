@@ -6,7 +6,11 @@ import {
   Subscription,
   SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
-import { EnergyLedgerReason, SubscriptionTier } from '@psychotech/shared';
+import {
+  ENERGY_INSUFFICIENT_ERROR_CODE,
+  EnergyLedgerReason,
+  SubscriptionTier,
+} from '@psychotech/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { EnergyContext, EnergyRepository } from './energy.repository';
@@ -53,6 +57,7 @@ const repository = {
   findEnergyContext: vi.fn(),
   applyDailyReset: vi.fn(),
   spend: vi.fn(),
+  credit: vi.fn(),
 };
 
 const tierResolution = new TierResolutionService({
@@ -122,15 +127,44 @@ describe('EnergyService.spend', () => {
     expect(repository.spend).not.toHaveBeenCalled();
   });
 
-  it('rejects with a forbidden error when the balance is insufficient', async () => {
+  it('rejects with the structured insufficient-energy code, balance and cost', async () => {
     repository.findEnergyContext.mockResolvedValue(
       buildContext({ wallet: buildWallet({ balance: 1 }) }),
     );
 
-    await expect(
-      service.spend('user-1', 5, EnergyLedgerReason.SESSION_SPENT),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    const rejection = service.spend(
+      'user-1',
+      5,
+      EnergyLedgerReason.SESSION_SPENT,
+    );
+    await expect(rejection).rejects.toBeInstanceOf(ForbiddenException);
+    await rejection.catch((error: ForbiddenException) => {
+      expect(error.getResponse()).toMatchObject({
+        message: ENERGY_INSUFFICIENT_ERROR_CODE,
+        balance: 1,
+        cost: 5,
+      });
+    });
     expect(repository.spend).not.toHaveBeenCalled();
+  });
+});
+
+describe('EnergyService.credit', () => {
+  it('credits the purchase into the ledger with its reference', async () => {
+    repository.findEnergyContext.mockResolvedValue(
+      buildContext({ wallet: buildWallet({ balance: 1 }) }),
+    );
+    repository.credit.mockResolvedValue(buildWallet({ balance: 5 }));
+
+    const state = await service.credit('user-1', 4, 'cs_test_1');
+
+    expect(repository.credit).toHaveBeenCalledWith(
+      'user-1',
+      4,
+      DbEnergyLedgerReason.PURCHASE,
+      'cs_test_1',
+    );
+    expect(state.balance).toBe(5);
   });
 });
 
@@ -170,5 +204,29 @@ describe('EnergyService lazy daily reset', () => {
     expect(repository.applyDailyReset).not.toHaveBeenCalled();
     expect(state.balance).toBe(3);
     expect(state.tier).toBe(SubscriptionTier.ESSENTIAL);
+  });
+
+  it('never clamps a purchased balance above capacity on the daily refill', async () => {
+    repository.findEnergyContext.mockResolvedValue(
+      buildContext({
+        wallet: buildWallet({
+          balance: 7,
+          lastResetAt: new Date('2026-06-12T08:00:00Z'),
+        }),
+      }),
+    );
+    repository.applyDailyReset.mockResolvedValue(
+      buildWallet({ balance: 7, lastResetAt: new Date('2026-06-13T10:00:00Z') }),
+    );
+
+    const state = await service.getState('user-1');
+
+    expect(repository.applyDailyReset).toHaveBeenCalledWith(
+      'user-1',
+      5,
+      expect.any(Date),
+      7,
+    );
+    expect(state.balance).toBe(7);
   });
 });

@@ -1,17 +1,12 @@
 import {
   EnergyStateDto,
+  SESSION_ENERGY_COST,
   SessionMode,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { localDayNumber, nextLocalMidnight } from '../common/timezone.util';
 
 export { nextLocalMidnight };
-
-const ENERGY_COST_BY_MODE: Record<SessionMode, number> = {
-  [SessionMode.FULL]: 5,
-  [SessionMode.TARGETED]: 1,
-  [SessionMode.TUTORIAL]: 0,
-};
 
 interface AffordabilityInput {
   tier: SubscriptionTier;
@@ -27,7 +22,7 @@ interface EnergyStateInput {
 }
 
 export function energyCost(mode: SessionMode): number {
-  return ENERGY_COST_BY_MODE[mode];
+  return SESSION_ENERGY_COST[mode];
 }
 
 export function canAfford({ tier, balance, cost }: AffordabilityInput): boolean {
@@ -46,6 +41,10 @@ export function isDailyResetDue(
   timezone: string,
 ): boolean {
   return localDayNumber(lastResetAt, timezone) < localDayNumber(now, timezone);
+}
+
+export function refilledBalance(balance: number, capacity: number): number {
+  return Math.max(balance, capacity);
 }
 
 export function buildEnergyState(

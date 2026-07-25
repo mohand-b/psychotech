@@ -6,6 +6,7 @@ import {
   energyCost,
   isDailyResetDue,
   nextLocalMidnight,
+  refilledBalance,
 } from './energy.logic';
 
 describe('energyCost', () => {
@@ -13,6 +14,18 @@ describe('energyCost', () => {
     expect(energyCost(SessionMode.FULL)).toBe(5);
     expect(energyCost(SessionMode.TARGETED)).toBe(1);
     expect(energyCost(SessionMode.TUTORIAL)).toBe(0);
+  });
+});
+
+describe('refilledBalance', () => {
+  it('refills a low balance to capacity', () => {
+    expect(refilledBalance(2, 5)).toBe(5);
+    expect(refilledBalance(0, 5)).toBe(5);
+  });
+
+  it('never clamps a balance already above capacity', () => {
+    expect(refilledBalance(7, 5)).toBe(7);
+    expect(refilledBalance(5, 5)).toBe(5);
   });
 });
 

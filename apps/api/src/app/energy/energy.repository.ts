@@ -6,6 +6,7 @@ import {
   Subscription,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { refilledBalance } from './energy.logic';
 
 export interface EnergyContext {
   wallet: EnergyWallet;
@@ -72,6 +73,30 @@ export class EnergyRepository {
     return this.applySpend(client, userId, cost, reason, sessionId);
   }
 
+  credit(
+    userId: string,
+    amount: number,
+    reason: EnergyLedgerReason,
+    ref?: string,
+  ): Promise<EnergyWallet> {
+    return this.prisma.$transaction(async (tx) => {
+      const wallet = await tx.energyWallet.update({
+        where: { userId },
+        data: { balance: { increment: amount } },
+      });
+      await tx.energyLedger.create({
+        data: {
+          userId,
+          delta: amount,
+          reason,
+          balanceAfter: wallet.balance,
+          ref: ref ?? null,
+        },
+      });
+      return wallet;
+    });
+  }
+
   private async queryContext(
     client: PrismaClientLike,
     userId: string,
@@ -80,11 +105,14 @@ export class EnergyRepository {
       where: { id: userId },
       include: { energyWallet: true, subscription: true },
     });
-    if (!user || !user.energyWallet) {
+    if (!user) {
       return null;
     }
+    const wallet =
+      user.energyWallet ??
+      (await client.energyWallet.create({ data: { userId } }));
     return {
-      wallet: user.energyWallet,
+      wallet,
       subscription: user.subscription,
       timezone: user.timezone,
     };
@@ -97,18 +125,21 @@ export class EnergyRepository {
     resetAt: Date,
     previousBalance: number,
   ): Promise<EnergyWallet> {
+    const balance = refilledBalance(previousBalance, capacity);
     const wallet = await client.energyWallet.update({
       where: { userId },
-      data: { balance: capacity, lastResetAt: resetAt },
+      data: { balance, lastResetAt: resetAt },
     });
-    await client.energyLedger.create({
-      data: {
-        userId,
-        delta: capacity - previousBalance,
-        reason: EnergyLedgerReason.DAILY_RESET,
-        balanceAfter: capacity,
-      },
-    });
+    if (balance > previousBalance) {
+      await client.energyLedger.create({
+        data: {
+          userId,
+          delta: balance - previousBalance,
+          reason: EnergyLedgerReason.DAILY_RESET,
+          balanceAfter: balance,
+        },
+      });
+    }
     return wallet;
   }
 
