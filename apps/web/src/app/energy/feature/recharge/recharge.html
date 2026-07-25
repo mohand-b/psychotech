@@ -71,10 +71,12 @@
                     >Aucune carte enregistrée</span
                   >
                   <span class="rech__method-note"
-                    >Vous saisirez votre carte sur la page de paiement sécurisée
-                    Stripe. Débit immédiat, paiement unique.</span
+                    >Ajoutez une carte pour recharger votre énergie.</span
                   >
                 </span>
+                <a class="rech__method-edit" routerLink="/paiement/carte"
+                  >Ajouter</a
+                >
               </div>
             }
           </div>
@@ -99,10 +101,8 @@
           </div>
         </section>
 
-        @if (payError()) {
-          <span class="rech__pay-error"
-            >Le paiement n'a pas pu démarrer. Réessayez.</span
-          >
+        @if (payError(); as message) {
+          <span class="rech__pay-error">{{ message }}</span>
         }
 
         <div class="rech__upsell flex items-center">
@@ -181,12 +181,10 @@
             <ui-energy-chip [state]="energy()" [tier]="tiers.ESSENTIAL" />
           </div>
           <div class="rech__summary-metas flex">
-            @if (paidAmountLabel(); as amount) {
-              <span class="rech__summary-meta flex flex-col">
-                <span class="t-label">Montant débité</span>
-                <span class="rech__summary-value t-mono">{{ amount }}</span>
-              </span>
-            }
+            <span class="rech__summary-meta flex flex-col">
+              <span class="t-label">Montant débité</span>
+              <span class="rech__summary-value t-mono">{{ priceLabel }}</span>
+            </span>
             @if (methodView(); as method) {
               <span class="rech__summary-meta flex flex-col">
                 <span class="t-label">Moyen de paiement</span>
