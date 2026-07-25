@@ -92,6 +92,24 @@
 .user-name {
   font: 600 14px/1 var(--font-ui);
   color: var(--ink);
+  text-decoration: none;
+}
+
+.user-name:hover {
+  color: var(--brand-hover);
+}
+
+.avatar-mobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-pastel);
+  color: var(--brand-hover);
+  font: 700 13px/1 var(--font-ui);
+  text-decoration: none;
 }
 
 .logout {

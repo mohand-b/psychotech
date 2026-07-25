@@ -3,6 +3,7 @@ import { Injectable, Signal, inject } from '@angular/core';
 import {
   LoginDto,
   RegisterDto,
+  UpdateUserProfileDto,
   UserProfileDto,
 } from '@psychotech/shared';
 import {
@@ -48,6 +49,12 @@ export class AuthFacade {
     return this.api
       .logout()
       .pipe(finalize(() => this.store.setCurrentUser(null)));
+  }
+
+  updateProfile(payload: UpdateUserProfileDto): Observable<UserProfileDto> {
+    return this.api
+      .updateProfile(payload)
+      .pipe(tap((user) => this.store.setCurrentUser(user)));
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {

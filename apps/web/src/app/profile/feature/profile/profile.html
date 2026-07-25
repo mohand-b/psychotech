@@ -1,0 +1,259 @@
+<div class="profil">
+  <div class="profil__head flex flex-col">
+    <h1 class="profil__title">Mon profil</h1>
+    <span class="profil__subtitle"
+      >Vos informations, votre secteur de préparation et votre
+      abonnement.</span
+    >
+  </div>
+
+  <div class="profil__grid">
+    <aside class="profil__rail flex flex-col">
+      <div class="profil__identity flex items-center">
+        <span class="profil__avatar">{{ initial() }}</span>
+        <span class="profil__identity-copy flex flex-col">
+          <span class="profil__name">{{ fullName() }}</span>
+          <span class="profil__plan-line">{{ railSubtitle() }}</span>
+        </span>
+      </div>
+
+      <nav class="profil__nav flex flex-col">
+        @for (item of navItems(); track item.id) {
+          <button
+            type="button"
+            class="profil__nav-item"
+            [class.profil__nav-item--active]="section() === item.id"
+            (click)="open(item.id)"
+          >
+            <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
+            {{ item.label }}
+          </button>
+        }
+      </nav>
+
+      <button type="button" class="profil__logout" (click)="logout()">
+        <ui-icon [img]="logoutIcon" [size]="16" [strokeWidth]="1.8" />
+        Se déconnecter
+      </button>
+    </aside>
+
+    <div class="profil__panel flex flex-col">
+      <section class="profil__card flex flex-col">
+        <div class="profil__section-head flex flex-col">
+          <span class="profil__section-title">{{ meta().title }}</span>
+          <span class="profil__section-desc">{{ meta().description }}</span>
+        </div>
+
+        @switch (section()) {
+          @case ('account') {
+            <div class="profil__section-body flex flex-col">
+              <div class="profil__field-row">
+                <label class="profil__field flex flex-col">
+                  <span class="profil__field-label">Prénom</span>
+                  <input
+                    class="profil__input"
+                    [value]="firstName()"
+                    (input)="firstName.set(readValue($event))"
+                  />
+                </label>
+                <label class="profil__field flex flex-col">
+                  <span class="profil__field-label">Nom</span>
+                  <input
+                    class="profil__input"
+                    [value]="lastName()"
+                    (input)="lastName.set(readValue($event))"
+                  />
+                </label>
+              </div>
+              <label class="profil__field profil__field--email flex flex-col">
+                <span class="profil__field-label">Adresse email</span>
+                <input
+                  class="profil__input"
+                  type="email"
+                  [value]="user()?.email ?? ''"
+                  disabled
+                />
+                <span class="profil__field-hint"
+                  >L'adresse email de connexion ne peut pas être modifiée pour
+                  l'instant.</span
+                >
+              </label>
+              <div class="profil__metas">
+                <span class="profil__meta flex flex-col">
+                  <span class="t-label">Membre depuis</span>
+                  <span class="profil__meta-value">{{ memberSince() }}</span>
+                </span>
+                @if (completedSessions() !== null) {
+                  <span class="profil__meta flex flex-col">
+                    <span class="t-label">Sessions réalisées</span>
+                    <span class="profil__meta-value t-mono">{{
+                      completedSessions()
+                    }}</span>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          @case ('sector') {
+            <div class="profil__section-body flex flex-col">
+              <div class="profil__sectors">
+                @for (card of sectorCards(); track card.sector) {
+                  <div
+                    class="profil__sector"
+                    [class.profil__sector--active]="card.active"
+                  >
+                    @if (card.active) {
+                      <span class="profil__sector-check">
+                        <ui-icon
+                          [img]="checkIcon"
+                          [size]="12"
+                          [strokeWidth]="3"
+                        />
+                      </span>
+                    }
+                    <ui-icon
+                      [img]="card.presentation.icon"
+                      [size]="22"
+                      [strokeWidth]="1.8"
+                    />
+                    <span class="profil__sector-label">{{
+                      card.presentation.label
+                    }}</span>
+                  </div>
+                }
+              </div>
+              <span class="profil__sector-note"
+                >Les autres secteurs ouvriront prochainement. Le secteur
+                détermine vos épreuves, la pondération de vos scores et le
+                seuil d'admissibilité ; votre historique est conservé par
+                secteur, changer de secteur ne supprime rien.</span
+              >
+            </div>
+          }
+          @case ('plan') {
+            <div class="profil__section-body flex flex-col">
+              <div class="profil__plan-top flex">
+                <span class="profil__plan-name-block flex flex-col">
+                  <span class="profil__plan-name-row flex items-center">
+                    <ui-icon
+                      class="profil__plan-bolt"
+                      [img]="planIcon"
+                      [size]="20"
+                    />
+                    <span class="profil__plan-name">{{ plan().name }}</span>
+                  </span>
+                  <span class="profil__plan-desc">{{
+                    plan().description
+                  }}</span>
+                </span>
+                @if (priceLabel(); as price) {
+                  <span class="profil__plan-price flex items-baseline">
+                    <span class="profil__plan-amount t-mono">{{ price }}</span>
+                    <span class="profil__plan-period">par mois</span>
+                  </span>
+                }
+              </div>
+              @if (tier() !== tiers.FREE) {
+                <div class="profil__metas">
+                  @if (renewalLabel(); as renewal) {
+                    <span class="profil__meta flex flex-col">
+                      <span class="t-label">Prochain renouvellement</span>
+                      <span class="profil__meta-value">{{ renewal }}</span>
+                    </span>
+                  }
+                  @if (billingPeriodLabel(); as period) {
+                    <span class="profil__meta flex flex-col">
+                      <span class="t-label">Facturation</span>
+                      <span class="profil__meta-value">{{ period }}</span>
+                    </span>
+                  }
+                  @if (dailyEnergyLabel(); as dailyEnergy) {
+                    <span class="profil__meta flex flex-col">
+                      <span class="t-label">Énergie du jour</span>
+                      <span class="profil__meta-value">{{ dailyEnergy }}</span>
+                    </span>
+                  }
+                </div>
+              }
+              <div class="profil__plan-actions flex items-center">
+                @if (tier() === tiers.FREE) {
+                  <a class="profil__cta" routerLink="/abonnements"
+                    >Découvrir les offres</a
+                  >
+                } @else {
+                  <a class="profil__cta" routerLink="/abonnements"
+                    >Changer d'offre</a
+                  >
+                  <a class="profil__cta-secondary" routerLink="/abonnements"
+                    >Comparer les offres</a
+                  >
+                  <span class="profil__plan-actions-spacer"></span>
+                  <a class="profil__cancel-link" routerLink="/abonnements"
+                    >Résilier l'abonnement</a
+                  >
+                }
+              </div>
+            </div>
+          }
+          @case ('billing') {
+            <div class="profil__section-body flex flex-col">
+              @if (methodView(); as method) {
+                <div class="profil__billing-card flex items-center">
+                  <span class="profil__billing-badge">{{
+                    method.badgeLabel
+                  }}</span>
+                  <span class="profil__billing-copy flex flex-col">
+                    <span class="profil__billing-detail t-mono">{{
+                      method.detailLabel
+                    }}</span>
+                    <span class="profil__billing-exp"
+                      >Expire {{ method.expiryLabel }}</span
+                    >
+                  </span>
+                  <a class="profil__cta-secondary" routerLink="/paiement/carte"
+                    >Modifier</a
+                  >
+                </div>
+              } @else {
+                <span class="profil__billing-empty"
+                  >Aucun moyen de paiement enregistré.</span
+                >
+              }
+            </div>
+          }
+        }
+
+        <div class="profil__footer flex items-center">
+          <span
+            class="profil__status flex items-center"
+            [class.profil__status--dirty]="status().tone === 'dirty'"
+            [class.profil__status--saved]="status().tone === 'saved'"
+          >
+            @if (status().tone === 'saved') {
+              <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.2" />
+            }
+            {{ status().text }}
+          </span>
+          @if (section() === 'account') {
+            <button
+              type="button"
+              class="profil__action-cancel"
+              [class.profil__action-cancel--idle]="!dirty()"
+              (click)="cancel()"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              class="profil__action-save"
+              [class.profil__action-save--idle]="!canSave()"
+              (click)="save()"
+            >
+              Enregistrer
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

@@ -43,7 +43,7 @@ import {
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS, planFromSlug } from '../../plan-slug';
-import { buildPaymentMethodView } from '../../ui/payment-method-view';
+import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 
 const PLAN_PRESENTATION: Record<
   PaidTier,

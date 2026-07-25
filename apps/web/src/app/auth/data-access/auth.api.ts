@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import {
   LoginDto,
   RegisterDto,
+  UpdateUserProfileDto,
   UserProfileDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
@@ -31,5 +32,9 @@ export class AuthApi {
 
   currentUser(): Observable<UserProfileDto> {
     return this.http.get<UserProfileDto>(`${this.baseUrl}/me`);
+  }
+
+  updateProfile(payload: UpdateUserProfileDto): Observable<UserProfileDto> {
+    return this.http.patch<UserProfileDto>(`${this.baseUrl}/me`, payload);
   }
 }

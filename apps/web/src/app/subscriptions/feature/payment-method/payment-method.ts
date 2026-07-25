@@ -19,7 +19,7 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
-import { buildPaymentMethodView } from '../../ui/payment-method-view';
+import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
