@@ -833,7 +833,13 @@ export class SessionsService {
             caption: 'de précision',
           },
         ],
-        findings: analyzeLogic(items, scored, responses),
+        findings: analyzeLogic(
+          items,
+          scored,
+          responses,
+          v2Items,
+          context.logicFamily,
+        ),
       };
     }
     if (axis === AxisType.MEMORY) {
