@@ -281,8 +281,9 @@ export class BillingService {
   }
 
   private invoiceTier(invoice: Stripe.Invoice): PaidTier | null {
-    const priceId =
+    const priceRef =
       invoice.lines.data[0]?.pricing?.price_details?.price ?? null;
+    const priceId = typeof priceRef === 'string' ? priceRef : (priceRef?.id ?? null);
     if (!priceId) {
       return null;
     }
