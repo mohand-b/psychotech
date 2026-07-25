@@ -85,6 +85,7 @@
   --stripe-brand: #635bff;
 
   --relief-shine: rgba(255, 255, 255, 0.32);
+  --scrollbar-thumb-inverse: rgba(255, 255, 255, 0.24);
 
   --font-display: 'Baloo 2', sans-serif;
   --font-ui: 'Inter', sans-serif;
