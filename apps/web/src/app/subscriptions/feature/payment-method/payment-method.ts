@@ -18,6 +18,7 @@ import { firstValueFrom } from 'rxjs';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
@@ -25,14 +26,6 @@ import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
 const CARD_UPDATE_FAILED_MESSAGE =
   "L'enregistrement du moyen de paiement n'a pas abouti. Vérifiez vos informations et réessayez.";
-
-function formatDayMonthYear(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 
 @Component({
   selector: 'app-payment-method',

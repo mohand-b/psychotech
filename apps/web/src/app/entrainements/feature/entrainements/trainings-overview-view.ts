@@ -1,4 +1,6 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { DAY_MS, startOfDay } from '../../../shared/util/format-session-date';
 
 export type TrainingsPanel = 'sim' | 'cible';
 
@@ -42,13 +44,6 @@ export function formatRechargeCountdown(resetsAt: string, now: Date): string {
     : `${remaining} min`;
 }
 
-export function formatOverviewScore(score: number): string {
-  return score.toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-}
-
 export interface SignedGap {
   label: string;
   above: boolean;
@@ -63,19 +58,9 @@ export function formatSignedGap(
   const gap = simulation.globalScore - simulation.sectorThreshold;
   const above = gap >= 0;
   return {
-    label: `${above ? '+' : '-'}${formatOverviewScore(Math.abs(gap))}`,
+    label: `${above ? '+' : '-'}${formatFrenchDecimal(Math.abs(gap))}`,
     above,
   };
-}
-
-const DAY_MS = 86_400_000;
-
-function startOfDay(date: Date): number {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  ).getTime();
 }
 
 export function formatOverviewDate(iso: string, now: Date): string {

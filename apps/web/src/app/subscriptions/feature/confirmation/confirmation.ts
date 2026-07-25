@@ -14,21 +14,14 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
+import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
-import { PLAN_LABELS } from '../../plan-labels';
 import { planFromSlug } from '../../plan-slug';
 
 const ACTIVATION_POLL_INTERVAL_MS = 2000;
 const ACTIVATION_POLL_MAX_ATTEMPTS = 15;
-
-function formatDayMonthYear(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 
 @Component({
   selector: 'app-subscription-confirmation',

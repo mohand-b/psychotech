@@ -44,31 +44,25 @@ import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS, planFromSlug } from '../../plan-slug';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
+import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
+import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 
 const PLAN_PRESENTATION: Record<
   PaidTier,
   { label: string; description: string }
 > = {
   [SubscriptionTier.ESSENTIAL]: {
-    label: 'Essentiel',
+    label: PLAN_LABELS[SubscriptionTier.ESSENTIAL],
     description: '5 énergies par jour, résultats détaillés, progression',
   },
   [SubscriptionTier.UNLIMITED]: {
-    label: 'Illimité',
+    label: PLAN_LABELS[SubscriptionTier.UNLIMITED],
     description: 'Énergie illimitée, préparation intensive',
   },
 };
 
 const PAYMENT_FAILED_MESSAGE =
   "Le paiement n'a pas abouti. Vérifiez vos informations et réessayez.";
-
-function formatDayMonthYear(date: Date): string {
-  return date.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 
 function formatDayShortMonth(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', {

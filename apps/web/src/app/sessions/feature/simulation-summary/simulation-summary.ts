@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -28,14 +28,8 @@ import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisRadar, AxisRadarEntry } from '../../ui/axis-radar/axis-radar';
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
 import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../sessions/session-history-view';
-
-function frenchDecimal(value: number): string {
-  return value.toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-}
 
 @Component({
   selector: 'app-simulation-summary',
@@ -106,7 +100,7 @@ export class SimulationSummary {
 
   protected readonly scoreLabel = computed(() => {
     const summary = this.summary();
-    return summary ? frenchDecimal(summary.globalScore) : '';
+    return summary ? formatFrenchDecimal(summary.globalScore) : '';
   });
 
   protected readonly verdict = computed(() => {
@@ -131,8 +125,8 @@ export class SimulationSummary {
     }
     const above = summary.admissibilityGap >= 0;
     const label = above
-      ? `+${frenchDecimal(summary.admissibilityGap)} au-dessus`
-      : `${frenchDecimal(summary.admissibilityGap)} en dessous`;
+      ? `+${formatFrenchDecimal(summary.admissibilityGap)} au-dessus`
+      : `${formatFrenchDecimal(summary.admissibilityGap)} en dessous`;
     return { above, label };
   });
 

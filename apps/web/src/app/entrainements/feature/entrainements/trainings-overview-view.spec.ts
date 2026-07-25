@@ -1,13 +1,13 @@
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
   formatOverviewDate,
-  formatOverviewScore,
   formatSignedGap,
 } from './trainings-overview-view';
 
-describe('formatOverviewScore', () => {
+describe('formatFrenchDecimal', () => {
   it('renders the score with a french decimal comma', () => {
-    expect(formatOverviewScore(74.8)).toBe('74,8');
-    expect(formatOverviewScore(70)).toBe('70,0');
+    expect(formatFrenchDecimal(74.8)).toBe('74,8');
+    expect(formatFrenchDecimal(70)).toBe('70,0');
   });
 });
 

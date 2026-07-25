@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -39,7 +39,9 @@ import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
+import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 
 type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
@@ -68,13 +70,6 @@ interface LastResultView {
   deltaLabel: string;
   deltaAbove: boolean;
   dateLabel: string;
-}
-
-function formatScore(value: number): string {
-  return value.toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
 }
 
 @Component({
@@ -260,12 +255,7 @@ export class Dashboard {
   });
 
   protected readonly planName = computed(() => {
-    const tier = this.tier();
-    return tier === SubscriptionTier.FREE
-      ? 'Découverte'
-      : tier === SubscriptionTier.UNLIMITED
-        ? 'Illimité'
-        : 'Essentiel';
+    return PLAN_LABELS[this.tier()];
   });
 
   protected readonly planDesc = computed(() => {
@@ -289,10 +279,10 @@ export class Dashboard {
     const delta =
       Math.round((simulation.globalScore - simulation.sectorThreshold) * 10) /
       10;
-    const deltaValue = formatScore(Math.abs(delta));
+    const deltaValue = formatFrenchDecimal(Math.abs(delta));
     return {
       sessionId: simulation.sessionId,
-      scoreLabel: formatScore(simulation.globalScore),
+      scoreLabel: formatFrenchDecimal(simulation.globalScore),
       verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
       verdictColorVar:
         SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,

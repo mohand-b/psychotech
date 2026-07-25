@@ -12,21 +12,10 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
+import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS } from '../../plan-slug';
-
-const PLAN_LABELS: Record<PaidTier, string> = {
-  [SubscriptionTier.ESSENTIAL]: 'Essentiel',
-  [SubscriptionTier.UNLIMITED]: 'Illimité',
-};
-
-function formatDayMonthYear(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 
 @Component({
   selector: 'app-subscription-cancellation',

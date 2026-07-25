@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -43,6 +43,7 @@ import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-v
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
@@ -50,7 +51,6 @@ import {
   SignedGap,
   TrainingsPanel,
   formatOverviewDate,
-  formatOverviewScore,
   formatRechargeCountdown,
   formatSignedGap,
 } from './trainings-overview-view';
@@ -226,7 +226,7 @@ export class Entrainements {
     simulation: TrainingsLastSimulationDto,
   ): LastSimulationView {
     return {
-      scoreLabel: formatOverviewScore(simulation.globalScore),
+      scoreLabel: formatFrenchDecimal(simulation.globalScore),
       verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
       verdictColorVar:
         SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,

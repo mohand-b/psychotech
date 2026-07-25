@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -34,6 +34,8 @@ import {
   SectorPresentation,
 } from '../../../shared/ui/sector-presentation';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
+import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
+import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { inputValue } from '../../../shared/util/input-value';
 
@@ -66,15 +68,15 @@ const SECTION_META: Record<ProfileSection, ProfileSectionMeta> = {
 
 const PLAN_COPY: Record<SubscriptionTier, { name: string; description: string }> = {
   [SubscriptionTier.FREE]: {
-    name: 'Découverte',
+    name: PLAN_LABELS[SubscriptionTier.FREE],
     description: 'Mode découverte de chaque axe, en libre accès.',
   },
   [SubscriptionTier.ESSENTIAL]: {
-    name: 'Essentiel',
+    name: PLAN_LABELS[SubscriptionTier.ESSENTIAL],
     description: '5 énergies par jour, rechargées à minuit.',
   },
   [SubscriptionTier.UNLIMITED]: {
-    name: 'Illimité',
+    name: PLAN_LABELS[SubscriptionTier.UNLIMITED],
     description: 'Énergie illimitée, tous les axes et toutes les simulations.',
   },
 };
@@ -88,14 +90,6 @@ const SECTOR_ORDER: readonly Sector[] = [
 ];
 
 const SAVED_STATUS_DURATION_MS = 3200;
-
-function formatLongDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 
 @Component({
   selector: 'app-profile',
@@ -219,7 +213,7 @@ export class Profile {
 
   protected readonly memberSince = computed(() => {
     const created = this.user()?.createdAt;
-    return created ? formatLongDate(created) : '';
+    return created ? formatDayMonthYear(created) : '';
   });
 
   protected readonly completedSessions = computed(
@@ -246,7 +240,7 @@ export class Profile {
 
   protected readonly renewalLabel = computed(() => {
     const periodEnd = this.user()?.subscription?.currentPeriodEnd;
-    return periodEnd ? formatLongDate(periodEnd) : null;
+    return periodEnd ? formatDayMonthYear(periodEnd) : null;
   });
 
   protected readonly billingPeriodLabel = computed(() => {
@@ -273,7 +267,7 @@ export class Profile {
 
   protected readonly nextInvoiceLabel = computed(() => {
     const iso = this.paymentOverview()?.nextInvoiceDate;
-    return iso ? formatLongDate(iso) : null;
+    return iso ? formatDayMonthYear(iso) : null;
   });
 
   protected readonly status = computed<{
