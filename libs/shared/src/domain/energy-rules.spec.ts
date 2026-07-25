@@ -1,9 +1,9 @@
 import {
   ENERGY_CAPACITY,
+  ENERGY_PACK_PRICE_EUR,
+  ENERGY_PACK_SIZE,
   ENERGY_UNIT_PRICE_EUR,
   SESSION_ENERGY_COST,
-  energyTopUpPriceEur,
-  energyTopUpQuantity,
 } from './energy-rules';
 import { SessionMode } from '../enums';
 
@@ -14,17 +14,9 @@ describe('energy rules', () => {
     expect(SESSION_ENERGY_COST[SessionMode.TUTORIAL]).toBe(0);
   });
 
-  it('tops up only the missing energies', () => {
-    expect(energyTopUpQuantity(0)).toBe(ENERGY_CAPACITY);
-    expect(energyTopUpQuantity(3)).toBe(2);
-    expect(energyTopUpQuantity(5)).toBe(0);
-    expect(energyTopUpQuantity(7)).toBe(0);
-    expect(energyTopUpQuantity(-1)).toBe(ENERGY_CAPACITY);
-  });
-
-  it('prices the top-up at twenty cents per energy', () => {
-    expect(energyTopUpPriceEur(0)).toBeCloseTo(ENERGY_CAPACITY * ENERGY_UNIT_PRICE_EUR);
-    expect(energyTopUpPriceEur(3)).toBeCloseTo(0.4);
-    expect(energyTopUpPriceEur(5)).toBe(0);
+  it('sells a pack of five energies for one euro', () => {
+    expect(ENERGY_PACK_SIZE).toBe(ENERGY_CAPACITY);
+    expect(ENERGY_UNIT_PRICE_EUR).toBeCloseTo(0.2);
+    expect(ENERGY_PACK_PRICE_EUR).toBeCloseTo(1);
   });
 });
