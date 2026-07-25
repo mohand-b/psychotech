@@ -12,7 +12,9 @@ import { SubscriptionTier as DbSubscriptionTier } from '@prisma/client';
 import Stripe from 'stripe';
 import {
   BillingConfigDto,
+  BillingInvoiceDto,
   ChangePlanPreviewDto,
+  InvoiceStatus,
   PaidTier,
   PaymentIntentKind,
   PaymentMethodOverviewDto,
@@ -23,6 +25,7 @@ import {
   SubscriptionPaymentDto,
   SubscriptionTier,
 } from '@psychotech/shared';
+import { mapEnumValue } from '../common/enum.util';
 import { toSubscriptionDto } from '../subscriptions/subscription.mappers';
 import { BillingConfig } from '../config/billing.config';
 import {
@@ -215,6 +218,76 @@ export class BillingService {
         ? new Date(periodEnd * 1000).toISOString()
         : null,
     };
+  }
+
+  async listInvoices(userId: string): Promise<BillingInvoiceDto[]> {
+    if (!this.stripe) {
+      return [];
+    }
+    const user = await this.repository.findUserById(userId);
+    if (!user?.stripeCustomerId) {
+      return [];
+    }
+    let invoices: Stripe.ApiList<Stripe.Invoice>;
+    try {
+      invoices = await this.stripe.invoices.list({
+        customer: user.stripeCustomerId,
+        limit: 24,
+      });
+    } catch (error) {
+      if (
+        error instanceof Stripe.errors.StripeError &&
+        error.code === 'resource_missing'
+      ) {
+        return [];
+      }
+      throw error;
+    }
+    return invoices.data
+      .map((invoice) => this.toInvoiceDto(invoice))
+      .filter((invoice): invoice is BillingInvoiceDto => invoice !== null);
+  }
+
+  private toInvoiceDto(invoice: Stripe.Invoice): BillingInvoiceDto | null {
+    const status = this.invoiceStatus(invoice.status);
+    if (!invoice.id || status === null) {
+      return null;
+    }
+    return {
+      id: invoice.id,
+      createdAt: new Date(invoice.created * 1000).toISOString(),
+      tier: this.invoiceTier(invoice),
+      amount: invoice.total,
+      status,
+      url: invoice.hosted_invoice_url ?? invoice.invoice_pdf ?? null,
+    };
+  }
+
+  private invoiceStatus(
+    status: Stripe.Invoice.Status | null,
+  ): InvoiceStatus | null {
+    switch (status) {
+      case 'paid':
+        return InvoiceStatus.PAID;
+      case 'open':
+        return InvoiceStatus.OPEN;
+      case 'void':
+        return InvoiceStatus.VOID;
+      case 'uncollectible':
+        return InvoiceStatus.UNCOLLECTIBLE;
+      default:
+        return null;
+    }
+  }
+
+  private invoiceTier(invoice: Stripe.Invoice): PaidTier | null {
+    const priceId =
+      invoice.lines.data[0]?.pricing?.price_details?.price ?? null;
+    if (!priceId) {
+      return null;
+    }
+    const tier = tierForPrice(priceId, this.catalog());
+    return tier ? (mapEnumValue(SubscriptionTier, tier) as PaidTier) : null;
   }
 
   private async findDefaultCard(

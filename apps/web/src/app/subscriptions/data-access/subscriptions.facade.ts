@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
+  BillingInvoiceDto,
   ChangePlanPreviewDto,
   PaidTier,
   PaymentMethodOverviewDto,
@@ -61,6 +62,10 @@ export class SubscriptionsFacade {
 
   getPaymentMethodOverview(): Observable<PaymentMethodOverviewDto> {
     return this.api.getPaymentMethodOverview();
+  }
+
+  listInvoices(): Observable<BillingInvoiceDto[]> {
+    return this.api.listInvoices();
   }
 
   createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {

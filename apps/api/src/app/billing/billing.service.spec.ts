@@ -70,6 +70,7 @@ const createStripeCustomer = vi.fn();
 const updateStripeCustomer = vi.fn();
 const retrieveStripeCustomer = vi.fn();
 const createInvoicePreview = vi.fn();
+const listStripeInvoices = vi.fn();
 const retrieveStripePrice = vi.fn();
 const createStripeSchedule = vi.fn();
 const updateStripeSchedule = vi.fn();
@@ -96,7 +97,7 @@ const stripe = {
     update: updateStripeCustomer,
     retrieve: retrieveStripeCustomer,
   },
-  invoices: { createPreview: createInvoicePreview },
+  invoices: { createPreview: createInvoicePreview, list: listStripeInvoices },
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
 } as unknown as Stripe;
@@ -801,6 +802,112 @@ describe('BillingService.getBillingConfig', () => {
     expect(service.getBillingConfig()).toEqual({
       publishableKey: 'pk_test_x',
     });
+  });
+});
+
+describe('BillingService.listInvoices', () => {
+  it('returns an empty list without stripe configured', async () => {
+    const offlineService = new BillingService(
+      null,
+      repository as unknown as BillingRepository,
+      configService,
+    );
+
+    await expect(offlineService.listInvoices('user-1')).resolves.toEqual([]);
+    expect(repository.findUserById).not.toHaveBeenCalled();
+  });
+
+  it('returns an empty list without a stripe customer', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: null,
+    });
+
+    await expect(service.listInvoices('user-1')).resolves.toEqual([]);
+    expect(listStripeInvoices).not.toHaveBeenCalled();
+  });
+
+  it('maps stripe invoices onto the shared dto and drops drafts', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    listStripeInvoices.mockResolvedValue({
+      data: [
+        {
+          id: 'in_1',
+          created: 1_754_000_000,
+          total: 1499,
+          status: 'paid',
+          hosted_invoice_url: 'https://invoice.stripe.com/in_1',
+          invoice_pdf: 'https://files.stripe.com/in_1.pdf',
+          lines: {
+            data: [
+              { pricing: { price_details: { price: 'price_unlimited' } } },
+            ],
+          },
+        },
+        {
+          id: 'in_2',
+          created: 1_751_000_000,
+          total: 899,
+          status: 'open',
+          hosted_invoice_url: null,
+          invoice_pdf: 'https://files.stripe.com/in_2.pdf',
+          lines: { data: [{ pricing: { price_details: { price: 'price_essential' } } }] },
+        },
+        {
+          id: 'in_3',
+          created: 1_750_000_000,
+          total: 899,
+          status: 'draft',
+          hosted_invoice_url: null,
+          invoice_pdf: null,
+          lines: { data: [] },
+        },
+      ],
+    });
+
+    const invoices = await service.listInvoices('user-1');
+
+    expect(listStripeInvoices).toHaveBeenCalledWith({
+      customer: 'cus_1',
+      limit: 24,
+    });
+    expect(invoices).toEqual([
+      {
+        id: 'in_1',
+        createdAt: new Date(1_754_000_000 * 1000).toISOString(),
+        tier: SubscriptionTier.UNLIMITED,
+        amount: 1499,
+        status: 'PAID',
+        url: 'https://invoice.stripe.com/in_1',
+      },
+      {
+        id: 'in_2',
+        createdAt: new Date(1_751_000_000 * 1000).toISOString(),
+        tier: SubscriptionTier.ESSENTIAL,
+        amount: 899,
+        status: 'OPEN',
+        url: 'https://files.stripe.com/in_2.pdf',
+      },
+    ]);
+  });
+
+  it('returns an empty list when the stripe customer no longer exists', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_gone',
+    });
+    listStripeInvoices.mockRejectedValue(
+      new Stripe.errors.StripeInvalidRequestError({
+        type: 'invalid_request_error',
+        code: 'resource_missing',
+        message: 'No such customer',
+      } as Stripe.StripeRawError),
+    );
+
+    await expect(service.listInvoices('user-1')).resolves.toEqual([]);
   });
 });
 

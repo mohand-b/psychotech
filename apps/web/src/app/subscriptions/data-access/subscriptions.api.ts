@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
+  BillingInvoiceDto,
   ChangePlanPreviewDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
@@ -74,6 +75,12 @@ export class SubscriptionsApi {
   getPaymentMethodOverview(): Observable<PaymentMethodOverviewDto> {
     return this.http.get<PaymentMethodOverviewDto>(
       `${this.baseUrl}/billing/payment-method`,
+    );
+  }
+
+  listInvoices(): Observable<BillingInvoiceDto[]> {
+    return this.http.get<BillingInvoiceDto[]>(
+      `${this.baseUrl}/billing/invoices`,
     );
   }
 

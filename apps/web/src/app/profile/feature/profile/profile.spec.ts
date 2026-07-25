@@ -2,8 +2,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
+  BillingInvoiceDto,
   BillingPeriod,
   EnergyStateDto,
+  InvoiceStatus,
   PaymentMethodOverviewDto,
   PaymentWalletType,
   ProgressionDto,
@@ -89,10 +91,32 @@ function buildProgression(): ProgressionDto {
   };
 }
 
+function buildInvoices(): BillingInvoiceDto[] {
+  return [
+    {
+      id: 'in_1',
+      createdAt: '2026-07-05T00:00:00.000Z',
+      tier: SubscriptionTier.UNLIMITED,
+      amount: 1499,
+      status: InvoiceStatus.PAID,
+      url: 'https://invoice.stripe.com/in_1',
+    },
+    {
+      id: 'in_2',
+      createdAt: '2026-06-05T00:00:00.000Z',
+      tier: SubscriptionTier.ESSENTIAL,
+      amount: 899,
+      status: InvoiceStatus.PAID,
+      url: null,
+    },
+  ];
+}
+
 interface SetupOptions {
   tier?: SubscriptionTier;
   user?: UserProfileDto;
   changePasswordResult?: () => Observable<UserProfileDto>;
+  invoicesResult?: () => Observable<BillingInvoiceDto[]>;
 }
 
 async function setup(options: SetupOptions = {}) {
@@ -108,6 +132,9 @@ async function setup(options: SetupOptions = {}) {
     return of(updated);
   });
   const getPaymentMethodOverview = vi.fn().mockReturnValue(of(buildOverview()));
+  const listInvoices = vi.fn(() =>
+    options.invoicesResult ? options.invoicesResult() : of(buildInvoices()),
+  );
   const changePassword = vi.fn(() =>
     options.changePasswordResult
       ? options.changePasswordResult()
@@ -131,7 +158,7 @@ async function setup(options: SetupOptions = {}) {
       { provide: EnergyFacade, useValue: { state: signal(buildEnergy()) } },
       {
         provide: SubscriptionsFacade,
-        useValue: { getPaymentMethodOverview },
+        useValue: { getPaymentMethodOverview, listInvoices },
       },
     ],
   })
@@ -160,6 +187,7 @@ async function setup(options: SetupOptions = {}) {
     updateProfile,
     changePassword,
     getPaymentMethodOverview,
+    listInvoices,
   };
 }
 
@@ -256,6 +284,41 @@ describe('Profile', () => {
       lastName: 'Boudjema',
     });
     expect(textOf(fixture)).toContain('Modifications enregistrées');
+  });
+
+  it('lists the stripe invoices with french amounts on the billing tab', async () => {
+    const { fixture } = await setup();
+    navButtons(fixture)[4].click();
+    fixture.detectChanges();
+
+    expect(textOf(fixture)).toContain('Reçus');
+    const rows = fixture.nativeElement.querySelectorAll('.profil__invoice-row');
+    expect(rows).toHaveLength(2);
+    expect(rows[0].textContent).toContain('05/07/2026');
+    expect(rows[0].textContent).toContain('Illimité, mensuel');
+    expect(rows[0].textContent).toContain('14,99 €');
+    expect(rows[0].textContent).toContain('Payée');
+    expect(
+      rows[0].querySelector('.profil__invoice-link')?.getAttribute('href'),
+    ).toBe('https://invoice.stripe.com/in_1');
+    expect(rows[1].querySelector('.profil__invoice-link')).toBeNull();
+  });
+
+  it('shows a clean empty state without invoices and an error state with retry', async () => {
+    const empty = await setup({ invoicesResult: () => of([]) });
+    navButtons(empty.fixture)[4].click();
+    empty.fixture.detectChanges();
+    expect(textOf(empty.fixture)).toContain("Aucun reçu pour l'instant.");
+
+    const failing = await setup({
+      invoicesResult: () => throwError(() => new Error('boom')),
+    });
+    navButtons(failing.fixture)[4].click();
+    failing.fixture.detectChanges();
+    expect(textOf(failing.fixture)).toContain('Impossible de charger vos reçus.');
+    expect(
+      failing.fixture.nativeElement.querySelector('.profil__invoices-retry'),
+    ).not.toBeNull();
   });
 
   it('changes the password from the security tab and clears the form on success', async () => {

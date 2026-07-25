@@ -10,8 +10,10 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
+  BillingInvoiceDto,
   BillingPeriod,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
+  InvoiceStatus,
   PASSWORD_MIN_LENGTH,
   PaymentMethodOverviewDto,
   Sector,
@@ -41,6 +43,7 @@ import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { PLAN_LABELS } from '../../../shared/util/plan-labels';
+import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { passwordsMatch } from '../../../shared/util/password-match';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { inputValue } from '../../../shared/util/input-value';
@@ -102,6 +105,29 @@ const SECTOR_ORDER: readonly Sector[] = [
 
 const SAVED_STATUS_DURATION_MS = 3200;
 
+const INVOICE_STATUS_PRESENTATION: Record<
+  InvoiceStatus,
+  { label: string; colorVar: string }
+> = {
+  [InvoiceStatus.PAID]: { label: 'Payée', colorVar: 'var(--success-text)' },
+  [InvoiceStatus.OPEN]: { label: 'À régler', colorVar: 'var(--warning-text)' },
+  [InvoiceStatus.VOID]: { label: 'Annulée', colorVar: 'var(--label)' },
+  [InvoiceStatus.UNCOLLECTIBLE]: {
+    label: 'Impayée',
+    colorVar: 'var(--danger-text)',
+  },
+};
+
+interface InvoiceRowView {
+  id: string;
+  dateLabel: string;
+  label: string;
+  amountLabel: string;
+  statusLabel: string;
+  statusColorVar: string;
+  url: string | null;
+}
+
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -138,6 +164,8 @@ export class Profile {
   protected readonly saving = signal(false);
   protected readonly paymentOverview =
     signal<PaymentMethodOverviewDto | null>(null);
+  protected readonly invoices = signal<BillingInvoiceDto[] | null>(null);
+  protected readonly invoicesError = signal(false);
   private savedTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly firstName = linkedSignal(
@@ -159,12 +187,28 @@ export class Profile {
           next: (overview) => this.paymentOverview.set(overview),
           error: () => this.paymentOverview.set(null),
         });
+      this.loadInvoices();
     }
     this.destroyRef.onDestroy(() => {
       if (this.savedTimer) {
         clearTimeout(this.savedTimer);
       }
     });
+  }
+
+  protected loadInvoices(): void {
+    this.invoicesError.set(false);
+    this.invoices.set(null);
+    this.subscriptionsFacade
+      .listInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (invoices) => this.invoices.set(invoices),
+        error: () => {
+          this.invoices.set([]);
+          this.invoicesError.set(true);
+        },
+      });
   }
 
   protected readonly meta = computed(() => SECTION_META[this.section()]);
@@ -325,6 +369,20 @@ export class Profile {
     const iso = this.paymentOverview()?.nextInvoiceDate;
     return iso ? formatDayMonthYear(iso) : null;
   });
+
+  protected readonly invoiceRows = computed<InvoiceRowView[]>(() =>
+    (this.invoices() ?? []).map((invoice) => ({
+      id: invoice.id,
+      dateLabel: new Date(invoice.createdAt).toLocaleDateString('fr-FR'),
+      label: invoice.tier
+        ? `${PLAN_LABELS[invoice.tier]}, mensuel`
+        : 'Abonnement',
+      amountLabel: `${formatEuroAmount(invoice.amount / 100)} €`,
+      statusLabel: INVOICE_STATUS_PRESENTATION[invoice.status].label,
+      statusColorVar: INVOICE_STATUS_PRESENTATION[invoice.status].colorVar,
+      url: invoice.url,
+    })),
+  );
 
   protected readonly status = computed<{
     text: string;

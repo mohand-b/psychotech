@@ -285,6 +285,58 @@
                   >Aucun moyen de paiement enregistré.</span
                 >
               }
+
+              <div class="profil__invoices flex flex-col">
+                <span class="t-label">Reçus</span>
+                @if (invoicesError()) {
+                  <span class="profil__billing-empty">
+                    Impossible de charger vos reçus.
+                    <button
+                      type="button"
+                      class="profil__invoices-retry"
+                      (click)="loadInvoices()"
+                    >
+                      Réessayer
+                    </button>
+                  </span>
+                } @else if (invoiceRows().length === 0) {
+                  <span class="profil__billing-empty"
+                    >Aucun reçu pour l'instant.</span
+                  >
+                } @else {
+                  <div class="flex flex-col">
+                    @for (row of invoiceRows(); track row.id) {
+                      <div class="profil__invoice-row flex items-center">
+                        <span class="profil__invoice-date t-mono">{{
+                          row.dateLabel
+                        }}</span>
+                        <span class="profil__invoice-label">{{
+                          row.label
+                        }}</span>
+                        <span class="profil__invoice-amount t-mono">{{
+                          row.amountLabel
+                        }}</span>
+                        <span
+                          class="profil__invoice-status"
+                          [style.color]="row.statusColorVar"
+                          >{{ row.statusLabel }}</span
+                        >
+                        @if (row.url; as url) {
+                          <a
+                            class="profil__invoice-link"
+                            [href]="url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Télécharger</a
+                          >
+                        } @else {
+                          <span class="profil__invoice-link--empty">-</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
             </div>
           }
         }
