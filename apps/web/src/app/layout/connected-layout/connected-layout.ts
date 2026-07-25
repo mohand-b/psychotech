@@ -132,11 +132,6 @@ export class ConnectedLayout {
   });
 
   constructor() {
-    this.energyFacade
-      .load()
-      .pipe(takeUntilDestroyed())
-      .subscribe({ error: () => undefined });
-
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
