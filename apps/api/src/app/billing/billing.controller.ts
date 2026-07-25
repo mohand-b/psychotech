@@ -14,7 +14,6 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   ChangePlanPreviewDto,
-  EnergyCheckoutDto,
   PaymentMethodOverviewDto,
   PromotionCodeDto,
   SubscriptionDto,
@@ -100,11 +99,9 @@ export class BillingController {
     return this.billingService.createPaymentMethodSetup(userId);
   }
 
-  @Post('energy-checkout')
-  createEnergyCheckout(
-    @CurrentUser() userId: string,
-  ): Promise<EnergyCheckoutDto> {
-    return this.billingService.createEnergyCheckout(userId);
+  @Post('energy-refill')
+  createEnergyRefillPayment(@CurrentUser() userId: string): Promise<void> {
+    return this.billingService.createEnergyRefillPayment(userId);
   }
 
   @Get('promotion-codes/:code')

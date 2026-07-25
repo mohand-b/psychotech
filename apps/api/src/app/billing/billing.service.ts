@@ -14,7 +14,9 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   ChangePlanPreviewDto,
-  EnergyCheckoutDto,
+  ENERGY_CAPACITY,
+  ENERGY_NO_PAYMENT_METHOD_ERROR_CODE,
+  ENERGY_PAYMENT_DECLINED_ERROR_CODE,
   InvoiceStatus,
   PaidTier,
   PaymentIntentKind,
@@ -22,7 +24,6 @@ import {
   PaymentMethodSummaryDto,
   PaymentWalletType,
   PromotionCodeDto,
-  ENERGY_CAPACITY,
   SubscriptionDto,
   SubscriptionPaymentDto,
   SubscriptionTier,
@@ -48,6 +49,8 @@ const HANDLED_SUBSCRIPTION_EVENTS = [
 ] as const;
 
 const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
+
+const ENERGY_REFILL_PURPOSE = 'energy_refill';
 
 @Injectable()
 export class BillingService {
@@ -575,7 +578,7 @@ export class BillingService {
     };
   }
 
-  async createEnergyCheckout(userId: string): Promise<EnergyCheckoutDto> {
+  async createEnergyRefillPayment(userId: string): Promise<void> {
     const stripe = this.requireStripe();
     const priceEnergyPack = this.requireEnergyPackPrice();
     const row = await this.repository.findSubscriptionByUserId(userId);
@@ -589,25 +592,64 @@ export class BillingService {
       throw new BadRequestException('The energy balance is already full');
     }
     const customerId = await this.ensureCustomer(stripe, userId);
-    const origin = this.configService.getOrThrow<string>('CORS_ORIGIN');
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer: customerId,
-      line_items: [{ price: priceEnergyPack, quantity: 1 }],
-      metadata: { userId },
-      saved_payment_method_options: {
-        payment_method_save: 'enabled',
-        allow_redisplay_filters: ['always', 'limited', 'unspecified'],
-      },
-      success_url: `${origin}/recharge?statut=succes`,
-      cancel_url: `${origin}/recharge?statut=annule`,
-    });
-    if (!session.url) {
+    const paymentMethodId = await this.resolveDefaultPaymentMethodId(
+      stripe,
+      userId,
+      customerId,
+    );
+    if (!paymentMethodId) {
+      throw new BadRequestException(ENERGY_NO_PAYMENT_METHOD_ERROR_CODE);
+    }
+    const price = await stripe.prices.retrieve(priceEnergyPack);
+    if (!price.unit_amount) {
       throw new ServiceUnavailableException(
-        'Stripe returned no checkout url',
+        'The energy pack price has no amount',
       );
     }
-    return { url: session.url };
+    try {
+      await stripe.paymentIntents.create({
+        amount: price.unit_amount,
+        currency: price.currency,
+        customer: customerId,
+        payment_method: paymentMethodId,
+        off_session: true,
+        confirm: true,
+        description: "Recharge d'énergie",
+        metadata: { userId, purpose: ENERGY_REFILL_PURPOSE },
+      });
+    } catch (error) {
+      if (error instanceof Stripe.errors.StripeCardError) {
+        throw new BadRequestException(ENERGY_PAYMENT_DECLINED_ERROR_CODE);
+      }
+      throw error;
+    }
+  }
+
+  private async resolveDefaultPaymentMethodId(
+    stripe: Stripe,
+    userId: string,
+    customerId: string,
+  ): Promise<string | null> {
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (row?.stripeSubscriptionId) {
+      const subscription = await stripe.subscriptions.retrieve(
+        row.stripeSubscriptionId,
+      );
+      const fromSubscription = subscription.default_payment_method;
+      if (fromSubscription) {
+        return typeof fromSubscription === 'string'
+          ? fromSubscription
+          : fromSubscription.id;
+      }
+    }
+    const customer = await stripe.customers.retrieve(customerId);
+    if ('invoice_settings' in customer) {
+      const fallback = customer.invoice_settings.default_payment_method;
+      if (fallback) {
+        return typeof fallback === 'string' ? fallback : fallback.id;
+      }
+    }
+    return null;
   }
 
   async handleWebhook(
@@ -635,11 +677,8 @@ export class BillingService {
       await this.applyPaymentMethodUpdate(stripe, event.data.object);
       return;
     }
-    if (event.type === 'checkout.session.completed') {
-      await this.applyEnergyPurchase(
-        stripe,
-        event.data.object as Stripe.Checkout.Session,
-      );
+    if (event.type === 'payment_intent.succeeded') {
+      await this.applyEnergyRefill(event.data.object as Stripe.PaymentIntent);
       return;
     }
     if (
@@ -649,26 +688,17 @@ export class BillingService {
     }
   }
 
-  private async applyEnergyPurchase(
-    stripe: Stripe,
-    session: Stripe.Checkout.Session,
+  private async applyEnergyRefill(
+    intent: Stripe.PaymentIntent,
   ): Promise<void> {
-    if (session.mode !== 'payment' || session.payment_status !== 'paid') {
+    if (intent.metadata?.['purpose'] !== ENERGY_REFILL_PURPOSE) {
       return;
     }
-    const userId = session.metadata?.['userId'];
-    const priceEnergyPack = this.config.priceEnergyPack;
-    if (!userId || !priceEnergyPack) {
+    const userId = intent.metadata?.['userId'];
+    if (!userId) {
       return;
     }
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
-    const packLine = lineItems.data.find(
-      (line) => line.price?.id === priceEnergyPack,
-    );
-    if (!packLine) {
-      return;
-    }
-    await this.energyService.creditPurchasedRefill(userId, session.id);
+    await this.energyService.creditPurchasedRefill(userId, intent.id);
   }
 
   private async applyPaymentMethodUpdate(

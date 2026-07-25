@@ -81,8 +81,7 @@ const createStripeSchedule = vi.fn();
 const updateStripeSchedule = vi.fn();
 const releaseStripeSchedule = vi.fn();
 const retrieveStripeSchedule = vi.fn();
-const createCheckoutSession = vi.fn();
-const listCheckoutLineItems = vi.fn();
+const createPaymentIntent = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -107,12 +106,7 @@ const stripe = {
   invoices: { createPreview: createInvoicePreview, list: listStripeInvoices },
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
-  checkout: {
-    sessions: {
-      create: createCheckoutSession,
-      listLineItems: listCheckoutLineItems,
-    },
-  },
+  paymentIntents: { create: createPaymentIntent },
 } as unknown as Stripe;
 
 function buildStripePromotion(overrides: Record<string, unknown> = {}) {
@@ -1048,7 +1042,7 @@ function buildEssentialRow(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe('BillingService.createEnergyCheckout', () => {
+describe('BillingService.createEnergyRefillPayment', () => {
   beforeEach(() => {
     repository.findUserById.mockResolvedValue({
       id: 'user-1',
@@ -1057,31 +1051,33 @@ describe('BillingService.createEnergyCheckout', () => {
       lastName: 'Martin',
       stripeCustomerId: 'cus_1',
     });
+    retrieveStripePrice.mockResolvedValue({
+      id: 'price_energy_pack',
+      unit_amount: 100,
+      currency: 'eur',
+    });
   });
 
-  it('creates a payment checkout for the one-euro full refill', async () => {
+  it('charges the saved card off-session for one euro', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
     energyService.getState.mockResolvedValue({ balance: 2, capacity: 5 });
-    createCheckoutSession.mockResolvedValue({
-      id: 'cs_1',
-      url: 'https://checkout.stripe.com/cs_1',
-    });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ default_payment_method: 'pm_1' }),
+    );
+    createPaymentIntent.mockResolvedValue({ id: 'pi_1', status: 'succeeded' });
 
-    const checkout = await service.createEnergyCheckout('user-1');
+    await service.createEnergyRefillPayment('user-1');
 
-    expect(createCheckoutSession).toHaveBeenCalledWith({
-      mode: 'payment',
+    expect(createPaymentIntent).toHaveBeenCalledWith({
+      amount: 100,
+      currency: 'eur',
       customer: 'cus_1',
-      line_items: [{ price: 'price_energy_pack', quantity: 1 }],
-      metadata: { userId: 'user-1' },
-      saved_payment_method_options: {
-        payment_method_save: 'enabled',
-        allow_redisplay_filters: ['always', 'limited', 'unspecified'],
-      },
-      success_url: 'http://localhost:4200/recharge?statut=succes',
-      cancel_url: 'http://localhost:4200/recharge?statut=annule',
+      payment_method: 'pm_1',
+      off_session: true,
+      confirm: true,
+      description: "Recharge d'énergie",
+      metadata: { userId: 'user-1', purpose: 'energy_refill' },
     });
-    expect(checkout).toEqual({ url: 'https://checkout.stripe.com/cs_1' });
   });
 
   it('refuses tiers other than essential', async () => {
@@ -1090,43 +1086,79 @@ describe('BillingService.createEnergyCheckout', () => {
     );
 
     await expect(
-      service.createEnergyCheckout('user-1'),
+      service.createEnergyRefillPayment('user-1'),
     ).rejects.toBeInstanceOf(ForbiddenException);
 
     repository.findSubscriptionByUserId.mockResolvedValue(null);
     await expect(
-      service.createEnergyCheckout('user-1'),
+      service.createEnergyRefillPayment('user-1'),
     ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(createCheckoutSession).not.toHaveBeenCalled();
+    expect(createPaymentIntent).not.toHaveBeenCalled();
   });
 
-  it('refuses a checkout when the balance is already full', async () => {
+  it('refuses a refill when the balance is already full', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
     energyService.getState.mockResolvedValue({ balance: 5, capacity: 5 });
 
     await expect(
-      service.createEnergyCheckout('user-1'),
+      service.createEnergyRefillPayment('user-1'),
     ).rejects.toBeInstanceOf(BadRequestException);
-    expect(createCheckoutSession).not.toHaveBeenCalled();
+    expect(createPaymentIntent).not.toHaveBeenCalled();
+  });
+
+  it('surfaces a missing default payment method as a typed error', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    energyService.getState.mockResolvedValue({ balance: 2, capacity: 5 });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ default_payment_method: null }),
+    );
+    retrieveStripeCustomer.mockResolvedValue({
+      id: 'cus_1',
+      deleted: false,
+      invoice_settings: { default_payment_method: null },
+    });
+
+    const rejection = service.createEnergyRefillPayment('user-1');
+    await expect(rejection).rejects.toBeInstanceOf(BadRequestException);
+    await rejection.catch((error: BadRequestException) => {
+      expect(error.message).toBe('ENERGY_NO_PAYMENT_METHOD');
+    });
+  });
+
+  it('maps a declined card onto the typed payment error', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    energyService.getState.mockResolvedValue({ balance: 2, capacity: 5 });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ default_payment_method: 'pm_1' }),
+    );
+    createPaymentIntent.mockRejectedValue(
+      new Stripe.errors.StripeCardError({
+        type: 'card_error',
+        message: 'Your card was declined.',
+        code: 'card_declined',
+      } as Stripe.StripeRawError),
+    );
+
+    const rejection = service.createEnergyRefillPayment('user-1');
+    await expect(rejection).rejects.toBeInstanceOf(BadRequestException);
+    await rejection.catch((error: BadRequestException) => {
+      expect(error.message).toBe('ENERGY_PAYMENT_DECLINED');
+    });
   });
 });
 
-describe('BillingService.handleWebhook energy purchase', () => {
-  function buildCheckoutSession(overrides: Record<string, unknown> = {}) {
+describe('BillingService.handleWebhook energy refill', () => {
+  function buildIntent(overrides: Record<string, unknown> = {}) {
     return {
-      id: 'cs_1',
-      mode: 'payment',
-      payment_status: 'paid',
-      metadata: { userId: 'user-1' },
+      id: 'pi_1',
+      object: 'payment_intent',
+      metadata: { userId: 'user-1', purpose: 'energy_refill' },
       ...overrides,
     };
   }
 
   it('credits the purchased refill exactly once for a replayed event', async () => {
-    stubEvent('checkout.session.completed', buildCheckoutSession());
-    listCheckoutLineItems.mockResolvedValue({
-      data: [{ price: { id: 'price_energy_pack' }, quantity: 1 }],
-    });
+    stubEvent('payment_intent.succeeded', buildIntent());
     repository.registerEvent
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(false);
@@ -1137,36 +1169,20 @@ describe('BillingService.handleWebhook energy purchase', () => {
     expect(energyService.creditPurchasedRefill).toHaveBeenCalledTimes(1);
     expect(energyService.creditPurchasedRefill).toHaveBeenCalledWith(
       'user-1',
-      'cs_1',
+      'pi_1',
     );
   });
 
-  it('ignores a completed checkout carrying a foreign price', async () => {
-    stubEvent('checkout.session.completed', buildCheckoutSession());
-    listCheckoutLineItems.mockResolvedValue({
-      data: [{ price: { id: 'price_other' }, quantity: 5 }],
-    });
-
-    await service.handleWebhook(PAYLOAD, SIGNATURE);
-
-    expect(energyService.creditPurchasedRefill).not.toHaveBeenCalled();
-  });
-
-  it('ignores subscription-mode and unpaid checkout sessions', async () => {
+  it('ignores payment intents that are not energy refills', async () => {
     stubEvent(
-      'checkout.session.completed',
-      buildCheckoutSession({ mode: 'subscription' }),
+      'payment_intent.succeeded',
+      buildIntent({ metadata: { purpose: 'payment_method_update' } }),
     );
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
-    stubEvent(
-      'checkout.session.completed',
-      buildCheckoutSession({ payment_status: 'unpaid' }),
-      'evt_2',
-    );
+    stubEvent('payment_intent.succeeded', buildIntent({ metadata: {} }), 'evt_2');
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
-    expect(listCheckoutLineItems).not.toHaveBeenCalled();
     expect(energyService.creditPurchasedRefill).not.toHaveBeenCalled();
     expect(repository.upsertSubscription).not.toHaveBeenCalled();
   });
