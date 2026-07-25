@@ -101,7 +101,13 @@ export class LogicResult {
     const scored = this.scored();
     return result && items && scored
       ? getAxisRecommendations(
-          analyzeLogic(logicAnalyzerItems(items), scored, result.items),
+          analyzeLogic(
+            logicAnalyzerItems(items),
+            scored,
+            result.items,
+            items,
+            result.logicFamily,
+          ),
         )
       : [];
   });
