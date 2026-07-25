@@ -115,7 +115,9 @@ export class Payment {
       return;
     }
     this.plan = plan;
-    if (tier === SubscriptionTier.FREE) {
+    const billingPeriod =
+      this.authFacade.currentUser()?.subscription?.billingPeriod ?? null;
+    if (tier === SubscriptionTier.FREE || billingPeriod === null) {
       this.mode = 'checkout';
       afterNextRender(() => void this.setupPaymentElement());
       return;

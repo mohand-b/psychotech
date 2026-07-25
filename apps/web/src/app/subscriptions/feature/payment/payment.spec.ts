@@ -43,6 +43,18 @@ async function setup(
   tier = SubscriptionTier.FREE,
   subscription: Partial<SubscriptionDto> | null = null,
 ) {
+  const subscriptionValue =
+    tier === SubscriptionTier.FREE && subscription === null
+      ? null
+      : {
+          tier,
+          status: 'ACTIVE',
+          billingPeriod: 'MONTHLY',
+          currentPeriodEnd: '2026-08-17T00:00:00.000Z',
+          cancelAtPeriodEnd: false,
+          pendingTier: null,
+          ...subscription,
+        };
   const subscriptionsFacade = {
     getBillingConfig: vi
       .fn()
@@ -107,7 +119,10 @@ async function setup(
       {
         provide: AuthFacade,
         useValue: {
-          currentUser: signal({ email: 'alice@example.com', subscription }),
+          currentUser: signal({
+            email: 'alice@example.com',
+            subscription: subscriptionValue,
+          }),
         },
       },
       { provide: SubscriptionsFacade, useValue: subscriptionsFacade },
@@ -229,6 +244,17 @@ describe('Payment', () => {
     expect(text(fixture, '.chg__pm-last4')).toContain('4242');
     expect(text(fixture, '.pay__cta')).toBe('Confirmer et payer 4,10 €');
     expect(stripePayment.mount).not.toHaveBeenCalled();
+  });
+
+  it('falls back to checkout for a paid tier without a stripe-backed subscription', async () => {
+    const { fixture, stripePayment, subscriptionsFacade } = await setup(
+      'illimite',
+      SubscriptionTier.ESSENTIAL,
+      { billingPeriod: null, currentPeriodEnd: null },
+    );
+    expect(subscriptionsFacade.previewPlanChange).not.toHaveBeenCalled();
+    expect(stripePayment.mount).toHaveBeenCalled();
+    expect(text(fixture, '.pay__cta')).toBe("Payer 14,99 € et s'abonner");
   });
 
   it('redirects when the requested change is already scheduled', async () => {
