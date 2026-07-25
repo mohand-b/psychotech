@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import {
   AxisType,
+  LogicFamilyResultDto,
   TargetedAxisResultDto,
   generateDiscriminationSession,
   generateMemorySession,
@@ -16,7 +17,11 @@ import {
   scoreMemorySession,
   scoreReactivitySession,
 } from '@psychotech/shared';
-import { logicItemsForResult } from '../../../entrainements/ui/logic-result-items';
+import {
+  logicFamilyBoundaries,
+  logicItemsForResult,
+} from '../../../entrainements/ui/logic-result-items';
+import { ResultFamilyBars } from '../../../entrainements/ui/result-family-bars/result-family-bars';
 import {
   buildDiscriminationChartEntries,
   buildDiscriminationMetricRows,
@@ -78,6 +83,7 @@ const DETAIL_CONTENT: Record<string, AxisDetailContent> = {
     MemoryReliabilityChart,
     MotricityTrajectoryChart,
     ReactivityTrChart,
+    ResultFamilyBars,
     TimeChart,
   ],
   templateUrl: './simulation-axis-detail.html',
@@ -180,6 +186,18 @@ export class SimulationAxisDetail {
     const scored = this.logicScored();
     return detail.axis === AxisType.LOGIC && scored
       ? buildLogicChartEntries(scored, detail)
+      : [];
+  });
+
+  protected readonly logicFamilies = computed<LogicFamilyResultDto[]>(() => {
+    const detail = this.detail();
+    return detail.axis === AxisType.LOGIC ? (detail.families ?? []) : [];
+  });
+
+  protected readonly logicBoundaries = computed<number[]>(() => {
+    const detail = this.detail();
+    return detail.axis === AxisType.LOGIC
+      ? logicFamilyBoundaries(logicItemsForResult(detail))
       : [];
   });
 

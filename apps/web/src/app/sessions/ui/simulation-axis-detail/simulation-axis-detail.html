@@ -24,7 +24,10 @@
   <div class="detail__chart-box">
     @switch (detail().axis) {
       @case (axisTypes.LOGIC) {
-        <ui-time-chart [entries]="logicChartEntries()" />
+        <ui-time-chart
+          [entries]="logicChartEntries()"
+          [boundariesAfter]="logicBoundaries()"
+        />
       }
       @case (axisTypes.MEMORY) {
         @if (memoryScored(); as s) {
@@ -76,3 +79,7 @@
     </div>
   }
 </div>
+
+@if (logicFamilies().length > 0) {
+  <ui-result-family-bars [families]="logicFamilies()" />
+}

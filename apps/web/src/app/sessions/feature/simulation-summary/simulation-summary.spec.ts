@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  LogicFamily,
   RecommendationPriority,
   ScoreBand,
   Sector,
@@ -136,6 +137,46 @@ function buildSummary(
   };
 }
 
+const LOGIC_DETAIL_V2: TargetedLogicResultDto = {
+  sessionId: 'session-1',
+  sector: Sector.RAILWAY,
+  seed: 'seed-v2',
+  helpEnabled: false,
+  score: 68,
+  band: ScoreBand.FRAGILE,
+  startedAt: '2026-07-12T10:00:00.000Z',
+  completedAt: '2026-07-12T10:10:00.000Z',
+  bestScore: 68,
+  isNewBest: false,
+  isEqualBest: false,
+  previousBestScore: null,
+  untimed: false,
+  axis: AxisType.LOGIC,
+  items: [],
+  contentVersion: 4,
+  logicFamily: null,
+  families: [
+    {
+      family: LogicFamily.NUMERIC,
+      correct: 8,
+      attempted: 10,
+      total: 10,
+      ratePct: 80,
+      timeMs: 70_000,
+      marker: 'STRENGTH',
+    },
+    {
+      family: LogicFamily.MATRIX_II,
+      correct: 2,
+      attempted: 10,
+      total: 10,
+      ratePct: 20,
+      timeMs: 160_000,
+      marker: 'WEAKNESS',
+    },
+  ],
+};
+
 const LOGIC_DETAIL: TargetedLogicResultDto = {
   sessionId: 'session-1',
   sector: Sector.RAILWAY,
@@ -156,10 +197,13 @@ const LOGIC_DETAIL: TargetedLogicResultDto = {
   logicFamily: null,
 };
 
-async function setup(summary: SimulationSummaryDto) {
+async function setup(
+  summary: SimulationSummaryDto,
+  detail: TargetedLogicResultDto = LOGIC_DETAIL,
+) {
   const facade = {
     loadSummary: vi.fn().mockReturnValue(of(summary)),
-    loadAxisDetail: vi.fn().mockReturnValue(of(LOGIC_DETAIL)),
+    loadAxisDetail: vi.fn().mockReturnValue(of(detail)),
   };
   await TestBed.configureTestingModule({
     imports: [SimulationSummary],
@@ -348,6 +392,39 @@ describe('SimulationSummary', () => {
     expect(
       fixture.nativeElement.querySelectorAll('.bilan__axis-detail'),
     ).toHaveLength(0);
+  });
+
+  it('renders the family section and separators in the logic accordion for a v2 simulation', async () => {
+    const { fixture } = await setup(buildSummary(), LOGIC_DETAIL_V2);
+    (
+      fixture.nativeElement.querySelectorAll(
+        '.bilan__axis-row',
+      )[0] as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('ui-result-family-bars')).not.toBeNull();
+    expect(element.textContent).toContain('Par famille');
+    expect(element.textContent).toContain('Matrices (déduction)');
+    expect(element.querySelectorAll('.chart__boundary').length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it('omits the family section for a logic session prior to v2 without breaking the chart', async () => {
+    const { fixture } = await setup(buildSummary());
+    (
+      fixture.nativeElement.querySelectorAll(
+        '.bilan__axis-row',
+      )[0] as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('ui-result-family-bars')).toBeNull();
+    expect(element.textContent).not.toContain('Par famille');
+    expect(element.querySelector('ui-time-chart')).not.toBeNull();
   });
 
   it('navigates to the targeted preparation of the recommended axis', async () => {
