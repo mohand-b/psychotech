@@ -4,10 +4,12 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { EnergyStateDto, SubscriptionTier } from '@psychotech/shared';
+import {
+  ENERGY_CAPACITY,
+  EnergyStateDto,
+  SubscriptionTier,
+} from '@psychotech/shared';
 import { BoltIcon } from '../bolt-icon/bolt-icon';
-
-const ENERGY_CAPACITY = 5;
 
 @Component({
   selector: 'ui-energy-chip',
@@ -25,7 +27,11 @@ const ENERGY_CAPACITY = 5;
         <span class="chip__value">∞</span>
       </span>
     } @else {
-      <span class="chip" [class.chip--depleted]="depleted()">
+      <span
+        class="chip"
+        [class.chip--depleted]="depleted() && !short()"
+        [class.chip--short]="short()"
+      >
         <ui-bolt class="chip__bolt" [size]="14" />
         <span class="chip__value"
           >{{ balance() }}<span class="chip__max">/{{ capacity }}</span></span
@@ -84,6 +90,15 @@ const ENERGY_CAPACITY = 5;
     .chip--free .chip__label {
       color: var(--label);
     }
+    .chip--short {
+      background: var(--danger-pastel);
+      border: 1px solid color-mix(in srgb, var(--danger-text) 30%, var(--card));
+      padding: 6px 11px;
+    }
+    .chip--short .chip__bolt,
+    .chip--short .chip__value {
+      color: var(--danger-text);
+    }
     @media (max-width: 767px) {
       .chip {
         gap: 6px;
@@ -105,6 +120,7 @@ const ENERGY_CAPACITY = 5;
 export class EnergyChip {
   readonly state = input<EnergyStateDto | null>(null);
   readonly tier = input<SubscriptionTier | null>(null);
+  readonly requiredCost = input<number | null>(null);
 
   protected readonly capacity = ENERGY_CAPACITY;
 
@@ -120,4 +136,14 @@ export class EnergyChip {
   );
   protected readonly balance = computed(() => this.state()?.balance ?? 0);
   protected readonly depleted = computed(() => this.balance() === 0);
+  protected readonly short = computed(() => {
+    const cost = this.requiredCost();
+    return (
+      cost !== null &&
+      this.state() !== null &&
+      !this.free() &&
+      !this.unlimited() &&
+      this.balance() < cost
+    );
+  });
 }

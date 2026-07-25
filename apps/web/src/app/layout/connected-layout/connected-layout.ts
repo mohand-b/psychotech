@@ -44,6 +44,7 @@ interface FocusedHeaderData {
   mobileTitle?: boolean;
   stepper?: boolean;
   showEnergy?: boolean;
+  energyCost?: number;
   showTimer?: boolean;
   securityBadge?: boolean;
   live?: boolean;
@@ -71,6 +72,7 @@ interface FocusedHeaderView {
   mobileTitle: boolean;
   stepper: boolean;
   showEnergy: boolean;
+  energyCost: number | null;
   showTimer: boolean;
   securityBadge: boolean;
   live: boolean;
@@ -237,6 +239,7 @@ export class ConnectedLayout {
       mobileTitle: data.mobileTitle ?? false,
       stepper: data.stepper ?? false,
       showEnergy: data.showEnergy ?? true,
+      energyCost: data.energyCost ?? null,
       showTimer: data.showTimer ?? true,
       securityBadge: data.securityBadge ?? false,
       live: data.live ?? snapshot?.paramMap.has('sessionId') ?? false,

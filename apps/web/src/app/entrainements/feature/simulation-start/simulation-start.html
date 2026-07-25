@@ -1,114 +1,110 @@
-<section class="page-shell sim-start">
-  <header class="sim-start__hero">
-    <span class="sim-start__tile">
-      <ui-icon [img]="heroIcon" [size]="32" />
+<section class="page-shell simb flex flex-col items-center">
+  <header class="simb__hero flex flex-col items-center">
+    <span class="simb__hero-icon">
+      <ui-icon [img]="heroIcon" [size]="30" [strokeWidth]="1.8" />
     </span>
-    <h1 class="sim-start__title">
-      <span class="sim-start__title-label--desktop">Simulation complète</span>
-      <span class="sim-start__title-label--mobile">Votre simulation</span>
-    </h1>
-    <ui-sector-chip [sector]="sector" [showLabel]="false" />
+    <h1 class="simb__title">Simulation complète</h1>
+    <span class="simb__subtitle"
+      >Tous les axes de votre secteur enchaînés, dans les conditions de la
+      sélection.</span
+    >
   </header>
 
-  <div class="sim-start__cards">
-    <article class="sim-start__card">
-      <span class="sim-start__label">Déroulé</span>
-      <p class="sim-start__text">
-        Les axes s'enchaînent dans cet ordre, avec une courte pause entre
-        chacun. En cas d'imprévu, quittez : vous reprendrez au début de l'axe en
-        cours.
-      </p>
-    </article>
+  <div class="simb__card flex flex-col">
+    <div class="simb__section flex flex-col">
+      <span class="t-label">Comment ça se passe</span>
+      @for (step of howItGoes; track step; let index = $index) {
+        <div class="simb__step flex">
+          <span class="simb__step-number t-mono">{{ index + 1 }}</span>
+          <span class="simb__step-text">{{ step }}</span>
+        </div>
+      }
+    </div>
 
-    <article class="sim-start__card">
-      <span class="sim-start__label">Parcours</span>
-      <div class="sim-start__course">
+    <div class="simb__section simb__section--divided flex flex-col">
+      <span class="t-label">Parcours</span>
+      <div class="simb__course">
         <ui-chevron-stepper
-          class="sim-start__stepper sim-start__stepper--desktop"
+          class="simb__stepper simb__stepper--desktop"
           [steps]="steps"
         />
         <ui-chevron-stepper
-          class="sim-start__stepper sim-start__stepper--mobile"
+          class="simb__stepper simb__stepper--mobile"
           variant="mini"
           [steps]="steps"
         />
       </div>
-    </article>
+    </div>
 
-    <article class="sim-start__card sim-start__card--summary">
-      <span class="sim-start__label">Résumé</span>
-      <div class="sim-start__metrics">
-        <span class="sim-start__metric">
-          <ui-icon
-            class="sim-start__metric-icon"
-            [img]="axesIcon"
-            [size]="15"
-          />
-          <span class="sim-start__metric-value t-mono">{{ axisCount }}</span>
-          <span class="sim-start__metric-label sim-start__metric-label--desktop"
-            >axes</span
-          >
-          <span class="sim-start__metric-label sim-start__metric-label--mobile"
-            >axes enchaînés</span
-          >
-        </span>
-        <span class="sim-start__metric">
-          <ui-icon
-            class="sim-start__metric-icon"
-            [img]="durationIcon"
-            [size]="15"
-          />
-          <span class="sim-start__metric-value t-mono"
-            >{{ estimatedDuration }}</span
-          >
-          <span class="sim-start__metric-label sim-start__metric-label--mobile"
-            >durée estimée</span
-          >
-        </span>
-      </div>
-    </article>
-
-    <article class="sim-start__card">
-      <span class="sim-start__label">Avant de commencer</span>
-      <ul class="sim-start__advice">
-        @for (item of adviceItems; track item.text) {
-        <li class="sim-start__advice-item">
-          <ui-icon
-            class="sim-start__advice-icon"
-            [img]="item.icon"
-            [size]="15"
-          />
-          <span>{{ item.text }}</span>
-        </li>
-        }
-      </ul>
-    </article>
-  </div>
-
-  <div class="sim-start__footer">
-    <div class="sim-start__cta">
-      <ui-button
-        color="brand"
-        size="lg"
-        relief="mobile"
-        [block]="true"
-        [loading]="starting()"
-        [disabled]="energyLocked()"
-        (click)="start()"
-      >
-        <span class="sim-start__cta-content">
-          Commencer la session
-          <span class="sim-start__cta-sep"></span>
-          <ui-bolt [size]="14" />
-          <span class="t-mono">{{ energyCost }}</span>
-        </span>
-      </ui-button>
-      @if (energyLocked()) {
-      <p class="sim-start__note">
-        Énergie insuffisante pour lancer une session complète. Votre énergie se
-        recharge entièrement à minuit.
-      </p>
+    <div class="simb__section simb__section--divided flex flex-col">
+      <span class="t-label">Avant de commencer</span>
+      @for (item of adviceItems; track item.text) {
+        <div class="simb__advice flex items-center">
+          <span class="simb__advice-icon">
+            <ui-icon [img]="item.icon" [size]="14" [strokeWidth]="1.8" />
+          </span>
+          <span class="simb__advice-text">{{ item.text }}</span>
+        </div>
       }
     </div>
+
+    <div class="simb__summary flex items-baseline">
+      <span class="t-label">Résumé</span>
+      <span class="simb__summary-line flex items-baseline">
+        <span class="simb__summary-value t-mono">{{ axisCount }}</span>
+        <span class="simb__summary-text">axes en {{ sectorLabel }}</span>
+        <span class="simb__summary-dot">·</span>
+        <span class="simb__summary-value t-mono">{{ estimatedDuration }}</span>
+        <span class="simb__summary-text">au total</span>
+        <span class="simb__summary-dot">·</span>
+        <span class="simb__summary-text"
+          >notation pondérée {{ sectorLabel }}</span
+        >
+      </span>
+    </div>
+  </div>
+
+  <div class="simb__footer flex flex-col items-center">
+    @if (!energyShort()) {
+      <button
+        type="button"
+        class="simb__cta"
+        [class.simb__cta--starting]="starting()"
+        (click)="start()"
+      >
+        Commencer la session
+        @if (!unlimited()) {
+          <span class="simb__cta-sep"></span>
+          <span class="simb__cta-cost flex items-center">
+            <ui-bolt [size]="13" />
+            <span class="t-mono">{{ energyCost }}</span>
+          </span>
+        }
+      </button>
+      <span class="simb__note">Le chronomètre démarre au premier axe.</span>
+    } @else {
+      <span class="simb__cta simb__cta--locked">
+        Commencer la session
+        <span class="simb__cta-sep"></span>
+        <span class="simb__cta-cost flex items-center">
+          <ui-bolt [size]="13" />
+          <span class="t-mono">{{ energyCost }}</span>
+        </span>
+      </span>
+      <span class="simb__short flex items-center">
+        Il vous faut {{ energyCost }} énergies, vous en avez {{ balance() }}.
+        <a class="simb__short-link" routerLink="/recharge"
+          >Recharger pour {{ rechargePriceLabel() }}</a
+        >
+        @if (rechargeCountdown(); as countdown) {
+          <span class="simb__summary-dot">·</span>
+          <span
+            >ou attendez la recharge dans
+            <span class="simb__short-countdown t-mono">{{ countdown }}</span
+            ></span
+          >
+        }
+      </span>
+    }
   </div>
 </section>

@@ -35,6 +35,61 @@
   opacity: 0.4;
 }
 
+.axis-start__locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-muted);
+  color: var(--text-disabled);
+  font: 600 15.5px/1 var(--font-ui);
+  padding: 13px 28px;
+  border-radius: var(--radius-input);
+  cursor: default;
+}
+
+.axis-start__locked-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-hover);
+}
+
+.axis-start__locked-cost {
+  gap: 5px;
+}
+
+.axis-start__locked-cost .t-mono {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.axis-start__note--short {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.axis-start__recharge-link {
+  font: 600 0.78125rem/1.45 var(--font-ui);
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.axis-start__recharge-link:hover {
+  text-decoration: underline;
+}
+
+.axis-start__note-dot {
+  color: var(--text-disabled);
+}
+
+.axis-start__note-countdown {
+  font-size: 0.78125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 @media (max-width: 767px) {
   .axis-start {
     gap: 0.75rem;

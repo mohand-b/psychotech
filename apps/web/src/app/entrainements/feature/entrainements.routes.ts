@@ -166,6 +166,8 @@ export const entrainementsRoutes: Route[] = [
         title: 'Simulation complète',
         backLabel: 'Entraînements',
         backLink: '/entrainements',
+        closeLink: '/entrainements',
+        energyCost: 5,
       },
     },
     loadComponent: () =>
@@ -245,6 +247,7 @@ export const entrainementsRoutes: Route[] = [
         backQueryParams: { panel: 'cible' },
         axisParam: 'axis',
         showTimer: false,
+        energyCost: 1,
       },
     },
     loadComponent: () =>

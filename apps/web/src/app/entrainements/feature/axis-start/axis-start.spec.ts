@@ -7,16 +7,21 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  ENERGY_INSUFFICIENT_ERROR_CODE,
+  EnergyStateDto,
   LogicFamilyFilter,
   Sector,
   SessionDto,
   SessionMode,
   SessionStatus,
   StartSessionDto,
+  SubscriptionTier,
 } from '@psychotech/shared';
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
@@ -76,12 +81,24 @@ interface Setup {
   element: HTMLElement;
   start: ReturnType<typeof vi.fn>;
   gamepad: ReturnType<typeof gamepadFacadeStub>;
+  energyLoad: ReturnType<typeof vi.fn>;
 }
 
-async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
+interface SetupOptions {
+  energyState?: EnergyStateDto | null;
+  tier?: SubscriptionTier;
+  startResult?: () => Observable<SessionDto>;
+}
+
+async function setup(
+  axisSlug: string,
+  tutorial = false,
+  options: SetupOptions = {},
+): Promise<Setup> {
   TestBed.resetTestingModule();
-  const start = vi.fn(() => of(buildSession()));
+  const start = vi.fn(options.startResult ?? (() => of(buildSession())));
   const gamepad = gamepadFacadeStub();
+  const energyLoad = vi.fn(() => of(null));
   await TestBed.configureTestingModule({
     imports: [AxisStart],
     providers: [
@@ -90,7 +107,16 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
       { provide: SessionsApi, useValue: { start, get: vi.fn() } },
       {
         provide: EnergyFacade,
-        useValue: { load: vi.fn(() => of(null)), state: signal(null) },
+        useValue: {
+          load: energyLoad,
+          state: signal(options.energyState ?? null),
+        },
+      },
+      {
+        provide: CoreFacade,
+        useValue: {
+          tier: signal(options.tier ?? SubscriptionTier.ESSENTIAL),
+        },
       },
       {
         provide: AuthFacade,
@@ -112,7 +138,21 @@ async function setup(axisSlug: string, tutorial = false): Promise<Setup> {
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(AxisStart);
   fixture.detectChanges();
-  return { fixture, element: fixture.nativeElement, start, gamepad };
+  return { fixture, element: fixture.nativeElement, start, gamepad, energyLoad };
+}
+
+function buildEnergyState(
+  overrides: Partial<EnergyStateDto> = {},
+): EnergyStateDto {
+  return {
+    balance: 5,
+    capacity: 5,
+    tier: SubscriptionTier.ESSENTIAL,
+    resetsAt: '2026-07-17T00:00:00.000Z',
+    canStartFull: true,
+    canStartAxis: true,
+    ...overrides,
+  };
 }
 
 function familySegments(element: HTMLElement): HTMLButtonElement[] {
@@ -218,5 +258,57 @@ describe('AxisStart - option Familles', () => {
     expect(result.element.textContent?.toLowerCase()).not.toContain(
       'tutoriel',
     );
+  });
+});
+
+describe('AxisStart - énergie', () => {
+  it('locks the launch with a recharge path when the balance is empty', async () => {
+    const result = await setup('logique', false, {
+      energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
+    });
+
+    expect(result.element.querySelector('ui-button button')).toBeNull();
+    expect(
+      result.element.querySelector('.axis-start__locked'),
+    ).not.toBeNull();
+    expect(result.element.textContent).toContain(
+      "Énergie épuisée pour aujourd'hui.",
+    );
+    const link = result.element.querySelector('.axis-start__recharge-link');
+    expect(link?.textContent).toContain('Recharger pour 1,00 €');
+    expect(link?.getAttribute('href')).toBe('/recharge');
+    expect(result.element.textContent).toContain('ou attendez la recharge');
+  });
+
+  it('hides the energy cost on the cta for the unlimited tier', async () => {
+    const result = await setup('logique', false, {
+      tier: SubscriptionTier.UNLIMITED,
+      energyState: buildEnergyState({ tier: SubscriptionTier.UNLIMITED }),
+    });
+    const button = result.element.querySelector('ui-button button');
+    expect(button?.textContent).toContain('Commencer');
+    expect(button?.querySelector('ui-bolt')).toBeNull();
+  });
+
+  it('handles the backend insufficient-energy refusal by reloading the balance', async () => {
+    const result = await setup('logique', false, {
+      energyState: buildEnergyState({ balance: 1 }),
+      startResult: () =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 403,
+              error: {
+                message: ENERGY_INSUFFICIENT_ERROR_CODE,
+                balance: 0,
+                cost: 1,
+              },
+            }),
+        ),
+    });
+
+    clickStart(result);
+
+    expect(result.energyLoad).toHaveBeenCalled();
   });
 });

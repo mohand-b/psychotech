@@ -21,31 +21,53 @@
   </ui-axis-briefing>
 
   <div class="axis-start__cta">
-    <ui-button
-      [color]="buttonColor"
-      size="lg"
-      relief="mobile"
-      [block]="true"
-      [loading]="starting()"
-      [disabled]="energyLocked()"
-      (click)="start()"
-    >
-      <span class="axis-start__cta-content">
-        @if (tutorial) { Commencer la découverte } @else { Commencer
-        <span class="axis-start__cta-sep"></span>
-        <ui-bolt [size]="14" />
-        <span class="t-mono">{{ energyCost }}</span>
-        }
+    @if (!energyLocked()) {
+      <ui-button
+        [color]="buttonColor"
+        size="lg"
+        relief="mobile"
+        [block]="true"
+        [loading]="starting()"
+        (click)="start()"
+      >
+        <span class="axis-start__cta-content">
+          @if (tutorial) { Commencer la découverte } @else { Commencer @if
+          (!unlimited()) {
+          <span class="axis-start__cta-sep"></span>
+          <ui-bolt [size]="14" />
+          <span class="t-mono">{{ energyCost }}</span>
+          } }
+        </span>
+      </ui-button>
+    } @else {
+      <span class="axis-start__locked">
+        Commencer
+        <span class="axis-start__locked-sep"></span>
+        <span class="axis-start__locked-cost flex items-center">
+          <ui-bolt [size]="13" />
+          <span class="t-mono">{{ energyCost }}</span>
+        </span>
       </span>
-    </ui-button>
+    }
     @if (tutorial) {
     <p class="axis-start__note">
       La découverte est toujours identique et ne consomme aucune énergie.
     </p>
     } @if (energyLocked()) {
-    <p class="axis-start__note">
-      Énergie insuffisante pour lancer cet axe. Votre énergie se recharge
-      entièrement à minuit.
+    <p class="axis-start__note axis-start__note--short">
+      Énergie épuisée pour aujourd'hui.
+      <a class="axis-start__recharge-link" routerLink="/recharge"
+        >Recharger pour {{ rechargePriceLabel() }}</a
+      >
+      @if (rechargeCountdown(); as countdown) {
+        <span class="axis-start__note-dot">·</span>
+        <span
+          >ou attendez la recharge dans
+          <span class="axis-start__note-countdown t-mono">{{
+            countdown
+          }}</span></span
+        >
+      }
     </p>
     }
   </div>

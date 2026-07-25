@@ -217,7 +217,7 @@ export class Dashboard {
       return 'Votre énergie du jour est pleine. Une séance suffit pour progresser, même courte.';
     }
     if (this.balance() === 0) {
-      return 'Votre énergie du jour est épuisée. Elle se recharge à minuit ; le mode découverte reste en libre accès.';
+      return 'Votre énergie du jour est épuisée. Elle revient à minuit, et vous pouvez la recharger sans attendre.';
     }
     const balance = this.balance();
     return `Il vous reste ${balance} énergie${balance > 1 ? 's' : ''} aujourd'hui. Une séance suffit pour progresser, même courte.`;

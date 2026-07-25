@@ -88,7 +88,11 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
             </span>
           }
           @if (showEnergy()) {
-            <ui-energy-chip [state]="energy()" [tier]="tier()" />
+            <ui-energy-chip
+              [state]="energy()"
+              [tier]="tier()"
+              [requiredCost]="energyCost()"
+            />
             @if (duration() || closeLink()) {
               <span class="focused-header__separator"></span>
             }
@@ -141,6 +145,7 @@ export class FocusedHeader {
   readonly duration = input<string | null>(null);
   readonly timerSeverity = input<TimerSeverity>('normal');
   readonly showEnergy = input(true);
+  readonly energyCost = input<number | null>(null);
   readonly securityBadge = input(false);
   readonly closeLink = input<string | null>(null);
   readonly closeRequested = output<void>();
