@@ -4,4 +4,5 @@ export enum EnergyLedgerReason {
   AXIS_SPENT = 'AXIS_SPENT',
   REFUND = 'REFUND',
   ADMIN_GRANT = 'ADMIN_GRANT',
+  PURCHASE = 'PURCHASE',
 }
