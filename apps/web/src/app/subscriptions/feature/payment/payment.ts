@@ -43,6 +43,7 @@ import {
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS, planFromSlug } from '../../plan-slug';
+import { buildPaymentMethodView } from '../../ui/payment-method-view';
 
 const PLAN_PRESENTATION: Record<
   PaidTier,
@@ -305,14 +306,9 @@ export class Payment {
   protected readonly changeCard = computed(
     () => this.changePreview()?.card ?? null,
   );
-  protected readonly cardBrandLabel = computed(() =>
-    (this.changeCard()?.brand ?? '').toUpperCase(),
-  );
-  protected readonly cardExpiryLabel = computed(() => {
+  protected readonly changeMethodView = computed(() => {
     const card = this.changeCard();
-    return card
-      ? `${String(card.expMonth).padStart(2, '0')}/${String(card.expYear).slice(-2)}`
-      : '';
+    return card ? buildPaymentMethodView(card) : null;
   });
   protected readonly debitNote = computed(() =>
     this.isUpgrade()

@@ -136,17 +136,17 @@
         }
       </section>
 
-      @if (changeCard(); as card) {
+      @if (changeMethodView(); as method) {
         <section class="pay__card chg__section">
           <div class="pay__card-head">
             <span class="t-label">Moyen de paiement</span>
             <a class="pay__edit" routerLink="/paiement/carte">Modifier</a>
           </div>
           <div class="chg__pm">
-            <span class="chg__pm-badge">{{ cardBrandLabel() }}</span>
+            <span class="chg__pm-badge">{{ method.badgeLabel }}</span>
             <span class="chg__pm-copy">
-              <span class="t-mono chg__pm-last4">•••• {{ card.last4 }}</span>
-              <span class="chg__pm-exp">Expire {{ cardExpiryLabel() }}</span>
+              <span class="t-mono chg__pm-last4">{{ method.detailLabel }}</span>
+              <span class="chg__pm-exp">Expire {{ method.expiryLabel }}</span>
             </span>
             <span class="chg__pm-note">{{ debitNote() }}</span>
           </div>

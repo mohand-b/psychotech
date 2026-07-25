@@ -590,16 +590,19 @@
 }
 
 .chg__pm-badge {
-  width: 42px;
+  min-width: 42px;
+  max-width: 100%;
   height: 28px;
+  padding: 0 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font: 700 9px/1 var(--font-ui);
+  font: 700 10px/1 var(--font-ui);
   letter-spacing: 0.02em;
   color: var(--ink);
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
@@ -614,6 +617,9 @@
 .chg__pm-last4 {
   font-size: 13.5px;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chg__pm-exp {
@@ -660,6 +666,11 @@
   .chg__arrow {
     width: 28px;
     height: 28px;
+  }
+
+  .chg__pm {
+    flex-wrap: wrap;
+    row-gap: 8px;
   }
 
   .chg__pm-note {

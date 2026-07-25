@@ -7,14 +7,14 @@
     >
   </div>
 
-  @if (currentCard(); as card) {
+  @if (methodView(); as method) {
     <section class="pm__card pm__current">
       <span class="t-label">Moyen de paiement actuel</span>
       <div class="pm__current-row">
-        <span class="pm__badge">{{ cardBrandLabel() }}</span>
+        <span class="pm__badge">{{ method.badgeLabel }}</span>
         <span class="pm__current-copy">
-          <span class="t-mono pm__last4">•••• {{ card.last4 }}</span>
-          <span class="pm__exp">Expire {{ cardExpiryLabel() }}</span>
+          <span class="t-mono pm__last4">{{ method.detailLabel }}</span>
+          <span class="pm__exp">Expire {{ method.expiryLabel }}</span>
         </span>
         <span class="pm__active">
           <span class="pm__active-dot"></span>

@@ -19,6 +19,7 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
+import { buildPaymentMethodView } from '../../ui/payment-method-view';
 import { StripePaymentService } from '../../data-access/stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
@@ -80,14 +81,9 @@ export class PaymentMethod {
   protected readonly currentCard = computed(
     () => this.overview()?.card ?? null,
   );
-  protected readonly cardBrandLabel = computed(() =>
-    (this.currentCard()?.brand ?? '').toUpperCase(),
-  );
-  protected readonly cardExpiryLabel = computed(() => {
+  protected readonly methodView = computed(() => {
     const card = this.currentCard();
-    return card
-      ? `${String(card.expMonth).padStart(2, '0')}/${String(card.expYear).slice(-2)}`
-      : '';
+    return card ? buildPaymentMethodView(card) : null;
   });
   protected readonly nextInvoiceAmountLabel = computed(() => {
     const amount = this.overview()?.nextInvoiceAmount;
