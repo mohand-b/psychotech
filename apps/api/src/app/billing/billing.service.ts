@@ -259,7 +259,7 @@ export class BillingService {
       tier: this.invoiceTier(invoice),
       amount: invoice.total,
       status,
-      url: invoice.hosted_invoice_url ?? invoice.invoice_pdf ?? null,
+      url: invoice.invoice_pdf ?? invoice.hosted_invoice_url ?? null,
     };
   }
 

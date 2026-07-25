@@ -852,8 +852,8 @@ describe('BillingService.listInvoices', () => {
           created: 1_751_000_000,
           total: 899,
           status: 'open',
-          hosted_invoice_url: null,
-          invoice_pdf: 'https://files.stripe.com/in_2.pdf',
+          hosted_invoice_url: 'https://invoice.stripe.com/in_2',
+          invoice_pdf: null,
           lines: { data: [{ pricing: { price_details: { price: 'price_essential' } } }] },
         },
         {
@@ -881,7 +881,7 @@ describe('BillingService.listInvoices', () => {
         tier: SubscriptionTier.UNLIMITED,
         amount: 1499,
         status: 'PAID',
-        url: 'https://invoice.stripe.com/in_1',
+        url: 'https://files.stripe.com/in_1.pdf',
       },
       {
         id: 'in_2',
@@ -889,7 +889,7 @@ describe('BillingService.listInvoices', () => {
         tier: SubscriptionTier.ESSENTIAL,
         amount: 899,
         status: 'OPEN',
-        url: 'https://files.stripe.com/in_2.pdf',
+        url: 'https://invoice.stripe.com/in_2',
       },
     ]);
   });
