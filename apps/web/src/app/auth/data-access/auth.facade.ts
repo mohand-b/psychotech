@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Signal, inject } from '@angular/core';
 import {
+  ChangePasswordDto,
   LoginDto,
   RegisterDto,
   UpdateUserProfileDto,
@@ -54,6 +55,12 @@ export class AuthFacade {
   updateProfile(payload: UpdateUserProfileDto): Observable<UserProfileDto> {
     return this.api
       .updateProfile(payload)
+      .pipe(tap((user) => this.store.setCurrentUser(user)));
+  }
+
+  changePassword(payload: ChangePasswordDto): Observable<UserProfileDto> {
+    return this.api
+      .changePassword(payload)
       .pipe(tap((user) => this.store.setCurrentUser(user)));
   }
 

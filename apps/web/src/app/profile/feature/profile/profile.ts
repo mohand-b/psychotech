@@ -11,13 +11,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   BillingPeriod,
+  INVALID_CURRENT_PASSWORD_ERROR_CODE,
+  PASSWORD_MIN_LENGTH,
   PaymentMethodOverviewDto,
   Sector,
   SubscriptionTier,
 } from '@psychotech/shared';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Check,
   CreditCard,
+  Lock,
   LogOut,
   LucideIconData,
   User,
@@ -34,12 +38,14 @@ import {
   SectorPresentation,
 } from '../../../shared/ui/sector-presentation';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
+import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { PLAN_LABELS } from '../../../shared/util/plan-labels';
+import { passwordsMatch } from '../../../shared/util/password-match';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { inputValue } from '../../../shared/util/input-value';
 
-type ProfileSection = 'account' | 'sector' | 'plan' | 'billing';
+type ProfileSection = 'account' | 'security' | 'sector' | 'plan' | 'billing';
 
 interface ProfileSectionMeta {
   title: string;
@@ -50,6 +56,11 @@ const SECTION_META: Record<ProfileSection, ProfileSectionMeta> = {
   account: {
     title: 'Informations personnelles',
     description: 'Votre identité et votre adresse de connexion.',
+  },
+  security: {
+    title: 'Sécurité',
+    description:
+      'Modifiez votre mot de passe. Il vous sera demandé à chaque connexion.',
   },
   sector: {
     title: 'Secteur de préparation',
@@ -94,7 +105,7 @@ const SAVED_STATUS_DURATION_MS = 3200;
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, RouterLink],
+  imports: [Icon, PasswordStrengthMeter, RouterLink],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -109,6 +120,7 @@ export class Profile {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly accountIcon = User;
+  protected readonly securityIcon = Lock;
   protected readonly planIcon = Zap;
   protected readonly billingIcon = CreditCard;
   protected readonly logoutIcon = LogOut;
@@ -132,6 +144,11 @@ export class Profile {
     () => this.user()?.firstName ?? '',
   );
   protected readonly lastName = linkedSignal(() => this.user()?.lastName ?? '');
+
+  protected readonly currentPassword = signal('');
+  protected readonly newPassword = signal('');
+  protected readonly confirmation = signal('');
+  protected readonly securityError = signal<string | null>(null);
 
   constructor() {
     if (this.tier() !== SubscriptionTier.FREE) {
@@ -159,6 +176,7 @@ export class Profile {
     const items: { id: ProfileSection; label: string; icon: LucideIconData }[] =
       [
         { id: 'account', label: 'Informations', icon: this.accountIcon },
+        { id: 'security', label: 'Sécurité', icon: this.securityIcon },
         {
           id: 'sector',
           label: 'Secteur',
@@ -203,12 +221,55 @@ export class Profile {
     );
   });
 
-  protected readonly canSave = computed(
+  private readonly canSaveAccount = computed(
     () =>
       this.dirty() &&
       !this.saving() &&
       this.firstName().trim().length > 0 &&
       this.lastName().trim().length > 0,
+  );
+
+  protected readonly passwordChecks = computed(() => {
+    const value = this.newPassword();
+    return {
+      length: value.length >= PASSWORD_MIN_LENGTH,
+      digit: /[0-9]/.test(value),
+      uppercase: /[A-Z]/.test(value),
+    };
+  });
+
+  protected readonly confirmationValid = computed(() =>
+    passwordsMatch(this.newPassword(), this.confirmation()),
+  );
+
+  protected readonly securityDirty = computed(
+    () =>
+      this.currentPassword() !== '' ||
+      this.newPassword() !== '' ||
+      this.confirmation() !== '',
+  );
+
+  private readonly canSaveSecurity = computed(
+    () =>
+      !this.saving() &&
+      this.currentPassword().length > 0 &&
+      this.newPassword().length >= PASSWORD_MIN_LENGTH &&
+      this.confirmationValid(),
+  );
+
+  protected readonly isForm = computed(() => {
+    const section = this.section();
+    return section === 'account' || section === 'security';
+  });
+
+  protected readonly formDirty = computed(() =>
+    this.section() === 'security' ? this.securityDirty() : this.dirty(),
+  );
+
+  protected readonly formCanSave = computed(() =>
+    this.section() === 'security'
+      ? this.canSaveSecurity()
+      : this.canSaveAccount(),
   );
 
   protected readonly memberSince = computed(() => {
@@ -272,7 +333,7 @@ export class Profile {
 
   protected readonly status = computed<{
     text: string;
-    tone: 'idle' | 'dirty' | 'saved';
+    tone: 'idle' | 'dirty' | 'saved' | 'error';
   }>(() => {
     const section = this.section();
     if (section === 'account') {
@@ -280,6 +341,19 @@ export class Profile {
         return { text: 'Modifications enregistrées', tone: 'saved' };
       }
       if (this.dirty()) {
+        return { text: 'Modifications non enregistrées', tone: 'dirty' };
+      }
+      return { text: 'Aucune modification en attente', tone: 'idle' };
+    }
+    if (section === 'security') {
+      const error = this.securityError();
+      if (error) {
+        return { text: error, tone: 'error' };
+      }
+      if (this.saved()) {
+        return { text: 'Mot de passe mis à jour', tone: 'saved' };
+      }
+      if (this.securityDirty()) {
         return { text: 'Modifications non enregistrées', tone: 'dirty' };
       }
       return { text: 'Aucune modification en attente', tone: 'idle' };
@@ -317,10 +391,18 @@ export class Profile {
     const current = this.user();
     this.firstName.set(current?.firstName ?? '');
     this.lastName.set(current?.lastName ?? '');
+    this.currentPassword.set('');
+    this.newPassword.set('');
+    this.confirmation.set('');
+    this.securityError.set(null);
   }
 
   protected save(): void {
-    if (!this.canSave()) {
+    if (!this.formCanSave()) {
+      return;
+    }
+    if (this.section() === 'security') {
+      this.saveSecurity();
       return;
     }
     this.saving.set(true);
@@ -332,17 +414,58 @@ export class Profile {
       .subscribe({
         next: () => {
           this.saving.set(false);
-          this.saved.set(true);
-          if (this.savedTimer) {
-            clearTimeout(this.savedTimer);
-          }
-          this.savedTimer = setTimeout(
-            () => this.saved.set(false),
-            SAVED_STATUS_DURATION_MS,
-          );
+          this.markSaved();
         },
         error: () => this.saving.set(false),
       });
+  }
+
+  private saveSecurity(): void {
+    this.saving.set(true);
+    this.securityError.set(null);
+    this.authFacade
+      .changePassword({
+        currentPassword: this.currentPassword(),
+        newPassword: this.newPassword(),
+      })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.currentPassword.set('');
+          this.newPassword.set('');
+          this.confirmation.set('');
+          this.markSaved();
+        },
+        error: (error: unknown) => {
+          this.saving.set(false);
+          this.securityError.set(this.securityErrorMessage(error));
+        },
+      });
+  }
+
+  private markSaved(): void {
+    this.saved.set(true);
+    if (this.savedTimer) {
+      clearTimeout(this.savedTimer);
+    }
+    this.savedTimer = setTimeout(
+      () => this.saved.set(false),
+      SAVED_STATUS_DURATION_MS,
+    );
+  }
+
+  private securityErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const message = (error.error as { message?: string | string[] } | null)
+        ?.message;
+      if (message === INVALID_CURRENT_PASSWORD_ERROR_CODE) {
+        return 'Mot de passe actuel invalide.';
+      }
+      if (Array.isArray(message)) {
+        return 'Le nouveau mot de passe ne respecte pas les règles de robustesse.';
+      }
+    }
+    return 'Le changement de mot de passe a échoué. Réessayez.';
   }
 
   protected logout(): void {

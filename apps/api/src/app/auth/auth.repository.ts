@@ -79,4 +79,11 @@ export class AuthRepository {
       data: { refreshTokenHash },
     });
   }
+
+  updatePasswordHash(userId: string, passwordHash: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+  }
 }

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
+  ChangePasswordDto,
   LoginDto,
   RegisterDto,
   UpdateUserProfileDto,
@@ -36,5 +37,12 @@ export class AuthApi {
 
   updateProfile(payload: UpdateUserProfileDto): Observable<UserProfileDto> {
     return this.http.patch<UserProfileDto>(`${this.baseUrl}/me`, payload);
+  }
+
+  changePassword(payload: ChangePasswordDto): Observable<UserProfileDto> {
+    return this.http.post<UserProfileDto>(
+      `${this.baseUrl}/auth/password`,
+      payload,
+    );
   }
 }

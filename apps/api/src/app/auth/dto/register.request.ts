@@ -1,4 +1,9 @@
-import { RegisterDto, Sector } from '@psychotech/shared';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  RegisterDto,
+  Sector,
+} from '@psychotech/shared';
 import {
   IsEmail,
   IsEnum,
@@ -7,9 +12,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-
-const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_MAX_LENGTH = 100;
 
 export class RegisterRequest implements RegisterDto {
   @IsEmail()

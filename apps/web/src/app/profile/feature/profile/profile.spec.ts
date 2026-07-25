@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+﻿import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
@@ -12,7 +12,8 @@ import {
   SubscriptionTier,
   UserProfileDto,
 } from '@psychotech/shared';
-import { of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
@@ -91,6 +92,7 @@ function buildProgression(): ProgressionDto {
 interface SetupOptions {
   tier?: SubscriptionTier;
   user?: UserProfileDto;
+  changePasswordResult?: () => Observable<UserProfileDto>;
 }
 
 async function setup(options: SetupOptions = {}) {
@@ -106,6 +108,11 @@ async function setup(options: SetupOptions = {}) {
     return of(updated);
   });
   const getPaymentMethodOverview = vi.fn().mockReturnValue(of(buildOverview()));
+  const changePassword = vi.fn(() =>
+    options.changePasswordResult
+      ? options.changePasswordResult()
+      : of(user() ?? buildUser({ tier })),
+  );
 
   await TestBed.configureTestingModule({
     imports: [Profile],
@@ -116,6 +123,7 @@ async function setup(options: SetupOptions = {}) {
         useValue: {
           currentUser: user,
           updateProfile,
+          changePassword,
           logout: vi.fn().mockReturnValue(of(undefined)),
         },
       },
@@ -146,7 +154,13 @@ async function setup(options: SetupOptions = {}) {
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   fixture.detectChanges();
-  return { fixture, navigate, updateProfile, getPaymentMethodOverview };
+  return {
+    fixture,
+    navigate,
+    updateProfile,
+    changePassword,
+    getPaymentMethodOverview,
+  };
 }
 
 function textOf(fixture: { nativeElement: HTMLElement }): string {
@@ -188,12 +202,13 @@ describe('Profile', () => {
     const buttons = navButtons(fixture);
     expect(buttons.map((button) => button.textContent?.trim())).toEqual([
       'Informations',
+      'Sécurité',
       'Secteur',
       'Abonnement',
       'Facturation',
     ]);
 
-    buttons[1].click();
+    buttons[2].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('Secteur de préparation');
     expect(
@@ -204,14 +219,14 @@ describe('Profile', () => {
         ?.textContent,
     ).toContain('Ferroviaire');
 
-    buttons[2].click();
+    buttons[3].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('14,99 €');
     expect(textOf(fixture)).toContain('Prochain renouvellement');
     expect(textOf(fixture)).toContain('5 août 2026');
     expect(textOf(fixture)).toContain('Illimitée');
 
-    buttons[3].click();
+    buttons[4].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('Google Pay');
     expect(textOf(fixture)).toContain('Mastercard •••• 1234');
@@ -243,6 +258,107 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('Modifications enregistrées');
   });
 
+  it('changes the password from the security tab and clears the form on success', async () => {
+    const { fixture, changePassword } = await setup();
+    navButtons(fixture)[1].click();
+    fixture.detectChanges();
+
+    expect(textOf(fixture)).toContain(
+      'Modifiez votre mot de passe. Il vous sera demandé à chaque connexion.',
+    );
+    expect(textOf(fixture)).toContain('8 caractères');
+    expect(textOf(fixture)).toContain('Un chiffre');
+    expect(textOf(fixture)).toContain('Une majuscule');
+
+    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
+      '.profil__input',
+    );
+    fields[0].value = 'AncienSecret1';
+    fields[0].dispatchEvent(new Event('input'));
+    fields[1].value = 'NouveauSecret1';
+    fields[1].dispatchEvent(new Event('input'));
+    fields[2].value = 'NouveauSecret1';
+    fields[2].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(textOf(fixture)).toContain('Mots de passe identiques');
+    (
+      fixture.nativeElement.querySelector(
+        '.profil__action-save',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(changePassword).toHaveBeenCalledWith({
+      currentPassword: 'AncienSecret1',
+      newPassword: 'NouveauSecret1',
+    });
+    expect(textOf(fixture)).toContain('Mot de passe mis à jour');
+    expect(input(fixture, 0).value).toBe('');
+  });
+
+  it('surfaces an invalid current password error from the api', async () => {
+    const { fixture, changePassword } = await setup({
+      changePasswordResult: () =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { message: 'INVALID_CURRENT_PASSWORD' },
+            }),
+        ),
+    });
+    navButtons(fixture)[1].click();
+    fixture.detectChanges();
+
+    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
+      '.profil__input',
+    );
+    fields[0].value = 'MauvaisActuel1';
+    fields[0].dispatchEvent(new Event('input'));
+    fields[1].value = 'NouveauSecret1';
+    fields[1].dispatchEvent(new Event('input'));
+    fields[2].value = 'NouveauSecret1';
+    fields[2].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector(
+        '.profil__action-save',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(changePassword).toHaveBeenCalled();
+    expect(textOf(fixture)).toContain('Mot de passe actuel invalide.');
+  });
+
+  it('keeps the save action inert while the password form is incomplete', async () => {
+    const { fixture, changePassword } = await setup();
+    navButtons(fixture)[1].click();
+    fixture.detectChanges();
+
+    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
+      '.profil__input',
+    );
+    fields[0].value = 'AncienSecret1';
+    fields[0].dispatchEvent(new Event('input'));
+    fields[1].value = 'court';
+    fields[1].dispatchEvent(new Event('input'));
+    fields[2].value = 'court';
+    fields[2].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector(
+        '.profil__action-save',
+      ) as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(changePassword).not.toHaveBeenCalled();
+  });
+
   it('cancels pending edits back to the stored profile', async () => {
     const { fixture, updateProfile } = await setup();
     const firstName = input(fixture, 0);
@@ -269,10 +385,10 @@ describe('Profile', () => {
     });
     expect(
       navButtons(fixture).map((button) => button.textContent?.trim()),
-    ).toEqual(['Informations', 'Secteur', 'Abonnement']);
+    ).toEqual(['Informations', 'Sécurité', 'Secteur', 'Abonnement']);
     expect(getPaymentMethodOverview).not.toHaveBeenCalled();
 
-    navButtons(fixture)[2].click();
+    navButtons(fixture)[3].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('Découverte');
     expect(textOf(fixture)).toContain('Découvrir les offres');

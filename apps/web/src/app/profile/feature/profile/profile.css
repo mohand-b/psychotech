@@ -199,6 +199,30 @@
   color: var(--label);
 }
 
+.profil__field-row--security {
+  max-width: 660px;
+}
+
+.profil__password-feedback {
+  gap: 14px;
+  max-width: 660px;
+}
+
+.profil__password-checks {
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.profil__password-check {
+  gap: 7px;
+  font: 400 12.5px/1.4 var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.profil__password-check--met {
+  color: var(--success-text);
+}
+
 .profil__metas {
   display: flex;
   gap: 48px;
@@ -432,6 +456,10 @@
 
 .profil__status--saved {
   color: var(--success-text);
+}
+
+.profil__status--error {
+  color: var(--danger-text);
 }
 
 .profil__action-cancel {

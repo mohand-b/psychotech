@@ -7,7 +7,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
-import { LoginDto, RegisterDto, UserProfileDto } from '@psychotech/shared';
+import {
+  ChangePasswordDto,
+  INVALID_CURRENT_PASSWORD_ERROR_CODE,
+  LoginDto,
+  RegisterDto,
+  UserProfileDto,
+} from '@psychotech/shared';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { toUserProfileDto } from '../users/users.mappers';
 import {
@@ -92,6 +98,26 @@ export class AuthService {
     if (!matches) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+    return this.issueSession(user);
+  }
+
+  async changePassword(
+    userId: string,
+    input: ChangePasswordDto,
+  ): Promise<AuthResult> {
+    const user = await this.repository.findById(userId);
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const valid = await this.passwordHasher.verify(
+      user.passwordHash,
+      input.currentPassword,
+    );
+    if (!valid) {
+      throw new BadRequestException(INVALID_CURRENT_PASSWORD_ERROR_CODE);
+    }
+    const passwordHash = await this.passwordHasher.hash(input.newPassword);
+    await this.repository.updatePasswordHash(user.id, passwordHash);
     return this.issueSession(user);
   }
 

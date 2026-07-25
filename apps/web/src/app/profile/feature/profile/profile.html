@@ -94,6 +94,88 @@
               </div>
             </div>
           }
+          @case ('security') {
+            <div class="profil__section-body flex flex-col">
+              <label class="profil__field profil__field--email flex flex-col">
+                <span class="profil__field-label">Mot de passe actuel</span>
+                <input
+                  class="profil__input"
+                  type="password"
+                  placeholder="Votre mot de passe"
+                  autocomplete="current-password"
+                  [value]="currentPassword()"
+                  (input)="currentPassword.set(readValue($event))"
+                />
+              </label>
+              <div class="profil__field-row profil__field-row--security">
+                <label class="profil__field flex flex-col">
+                  <span class="profil__field-label">Nouveau mot de passe</span>
+                  <input
+                    class="profil__input"
+                    type="password"
+                    placeholder="8 caractères minimum"
+                    autocomplete="new-password"
+                    [value]="newPassword()"
+                    (input)="newPassword.set(readValue($event))"
+                  />
+                </label>
+                <label class="profil__field flex flex-col">
+                  <span class="profil__field-label">Confirmation</span>
+                  <input
+                    class="profil__input"
+                    type="password"
+                    placeholder="Répétez le mot de passe"
+                    autocomplete="new-password"
+                    [value]="confirmation()"
+                    (input)="confirmation.set(readValue($event))"
+                  />
+                </label>
+              </div>
+              <div class="profil__password-feedback flex flex-col">
+                <ui-password-strength-meter [value]="newPassword()" />
+                <div class="profil__password-checks flex items-center">
+                  <span
+                    class="profil__password-check flex items-center"
+                    [class.profil__password-check--met]="
+                      passwordChecks().length
+                    "
+                  >
+                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
+                    8 caractères
+                  </span>
+                  <span
+                    class="profil__password-check flex items-center"
+                    [class.profil__password-check--met]="passwordChecks().digit"
+                  >
+                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
+                    Un chiffre
+                  </span>
+                  <span
+                    class="profil__password-check flex items-center"
+                    [class.profil__password-check--met]="
+                      passwordChecks().uppercase
+                    "
+                  >
+                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
+                    Une majuscule
+                  </span>
+                  @if (confirmation().length > 0) {
+                    <span
+                      class="profil__password-check flex items-center"
+                      [class.profil__password-check--met]="confirmationValid()"
+                    >
+                      <ui-icon
+                        [img]="checkIcon"
+                        [size]="14"
+                        [strokeWidth]="2.2"
+                      />
+                      Mots de passe identiques
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
           @case ('sector') {
             <div class="profil__section-body flex flex-col">
               <div class="profil__sectors">
@@ -228,17 +310,18 @@
             class="profil__status flex items-center"
             [class.profil__status--dirty]="status().tone === 'dirty'"
             [class.profil__status--saved]="status().tone === 'saved'"
+            [class.profil__status--error]="status().tone === 'error'"
           >
             @if (status().tone === 'saved') {
               <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.2" />
             }
             {{ status().text }}
           </span>
-          @if (section() === 'account') {
+          @if (isForm()) {
             <button
               type="button"
               class="profil__action-cancel"
-              [class.profil__action-cancel--idle]="!dirty()"
+              [class.profil__action-cancel--idle]="!formDirty()"
               (click)="cancel()"
             >
               Annuler
@@ -246,7 +329,7 @@
             <button
               type="button"
               class="profil__action-save"
-              [class.profil__action-save--idle]="!canSave()"
+              [class.profil__action-save--idle]="!formCanSave()"
               (click)="save()"
             >
               Enregistrer

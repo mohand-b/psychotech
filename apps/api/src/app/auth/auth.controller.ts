@@ -9,11 +9,13 @@ import {
 } from '@nestjs/common';
 import { UserProfileDto } from '@psychotech/shared';
 import { Request, Response } from 'express';
+import { CurrentUser } from '../common/current-user.decorator';
 import { REFRESH_TOKEN_COOKIE } from './auth.constants';
 import { AuthCookieService } from './auth.cookie.service';
 import { AuthResult, AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { SkipCsrf } from './decorators/skip-csrf.decorator';
+import { ChangePasswordRequest } from './dto/change-password.request';
 import { LoginRequest } from './dto/login.request';
 import { RegisterRequest } from './dto/register.request';
 
@@ -58,6 +60,19 @@ export class AuthController {
   ): Promise<UserProfileDto> {
     return this.completeSession(
       await this.authService.refresh(request.cookies[REFRESH_TOKEN_COOKIE]),
+      response,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('password')
+  async changePassword(
+    @CurrentUser() userId: string,
+    @Body() request: ChangePasswordRequest,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<UserProfileDto> {
+    return this.completeSession(
+      await this.authService.changePassword(userId, request),
       response,
     );
   }

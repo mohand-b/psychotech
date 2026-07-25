@@ -42,6 +42,7 @@ const repository = {
   findById: vi.fn(),
   createAccount: vi.fn(),
   updateRefreshTokenHash: vi.fn(),
+  updatePasswordHash: vi.fn(),
 };
 
 const passwordHasher = { hash: vi.fn(), verify: vi.fn() };
@@ -168,6 +169,54 @@ describe('AuthService.login', () => {
       'user-1',
       'hashed-refresh-token',
     );
+  });
+});
+
+describe('AuthService.changePassword', () => {
+  it('rejects an invalid current password without touching the stored hashes', async () => {
+    repository.findById.mockResolvedValue(buildUser());
+    passwordHasher.verify.mockResolvedValue(false);
+
+    await expect(
+      service.changePassword('user-1', {
+        currentPassword: 'wrong',
+        newPassword: 'NewSecret1',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.updatePasswordHash).not.toHaveBeenCalled();
+    expect(repository.updateRefreshTokenHash).not.toHaveBeenCalled();
+  });
+
+  it('hashes the new password and revokes the other refresh tokens by rotation', async () => {
+    repository.findById.mockResolvedValue(
+      buildUser({ refreshTokenHash: 'other-device-refresh-hash' }),
+    );
+    passwordHasher.verify.mockResolvedValue(true);
+    passwordHasher.hash
+      .mockResolvedValueOnce('new-password-hash')
+      .mockResolvedValueOnce('rotated-refresh-hash');
+
+    const result = await service.changePassword('user-1', {
+      currentPassword: 'super-secret',
+      newPassword: 'NewSecret1',
+    });
+
+    expect(passwordHasher.verify).toHaveBeenCalledWith(
+      'stored-password-hash',
+      'super-secret',
+    );
+    expect(repository.updatePasswordHash).toHaveBeenCalledWith(
+      'user-1',
+      'new-password-hash',
+    );
+    expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
+      'user-1',
+      'rotated-refresh-hash',
+    );
+    expect(result.tokens).toEqual({
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+    });
   });
 });
 
