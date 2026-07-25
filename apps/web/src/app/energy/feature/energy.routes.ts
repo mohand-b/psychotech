@@ -6,6 +6,5 @@ export const energyRoutes: Route[] = [
     path: 'recharge',
     canActivate: [essentialTierGuard],
     loadComponent: () => import('./recharge/recharge').then((m) => m.Recharge),
-    data: { hideHeader: true, hideMobileNav: true },
   },
 ];

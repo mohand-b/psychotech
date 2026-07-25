@@ -107,7 +107,7 @@ describe('SimulationStart', () => {
       'Il vous faut 5 énergies, vous en avez 3.',
     );
     const link = fixture.nativeElement.querySelector('.simb__short-link');
-    expect(link?.textContent).toContain('Recharger pour 0,40 €');
+    expect(link?.textContent).toContain('Recharger pour 1,00 €');
     expect(link?.getAttribute('href')).toBe('/recharge');
     expect(text(fixture)).toContain('ou attendez la recharge dans');
     expect(text(fixture)).not.toContain(

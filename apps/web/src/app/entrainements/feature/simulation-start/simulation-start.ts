@@ -8,12 +8,12 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
+  ENERGY_PACK_PRICE_EUR,
   FULL_SESSION_AXIS_ORDER,
   SESSION_ENERGY_COST,
   Sector,
   SessionMode,
   SubscriptionTier,
-  energyTopUpPriceEur,
 } from '@psychotech/shared';
 import {
   BellOff,
@@ -114,9 +114,7 @@ export class SimulationStart {
     () => this.energyFacade.state()?.balance ?? 0,
   );
 
-  protected readonly rechargePriceLabel = computed(
-    () => `${formatEuroAmount(energyTopUpPriceEur(this.balance()))} €`,
-  );
+  protected readonly rechargePriceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;
 
   protected readonly rechargeCountdown = computed(() => {
     const resetsAt = this.energyFacade.state()?.resetsAt;

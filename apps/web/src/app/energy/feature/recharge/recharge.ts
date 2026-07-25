@@ -10,13 +10,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   ENERGY_CAPACITY,
-  ENERGY_UNIT_PRICE_EUR,
+  ENERGY_PACK_PRICE_EUR,
   PaymentMethodOverviewDto,
   SubscriptionTier,
-  energyTopUpPriceEur,
-  energyTopUpQuantity,
 } from '@psychotech/shared';
-import { ArrowRight, Check, Clock, Info, RotateCcw, X } from 'lucide-angular';
+import { ArrowRight, Check, Clock, Info, RotateCcw } from 'lucide-angular';
 import { catchError, of, switchMap, takeWhile, timer } from 'rxjs';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
@@ -46,7 +44,6 @@ export class Recharge {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly closeIcon = X;
   protected readonly arrowIcon = ArrowRight;
   protected readonly infoIcon = Info;
   protected readonly clockIcon = Clock;
@@ -55,7 +52,8 @@ export class Recharge {
 
   protected readonly tiers = SubscriptionTier;
   protected readonly capacity = ENERGY_CAPACITY;
-  protected readonly unitPriceLabel = `${formatEuroAmount(ENERGY_UNIT_PRICE_EUR)} €`;
+  protected readonly priceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;
+  protected readonly packUnit = 'Remise à 5 énergies, paiement unique';
 
   protected readonly energy = this.energyFacade.state;
   protected readonly phase = signal<RechargePhase>('buy');
@@ -90,46 +88,23 @@ export class Recharge {
 
   protected readonly balance = computed(() => this.energy()?.balance ?? null);
 
-  protected readonly missing = computed(() => {
-    const balance = this.balance();
-    return balance === null ? null : energyTopUpQuantity(balance);
-  });
-
   protected readonly isDone = computed(() => this.phase() === 'done');
 
   protected readonly isFull = computed(() => {
-    const missing = this.missing();
-    return !this.isDone() && missing !== null && missing === 0;
+    const balance = this.balance();
+    return !this.isDone() && balance !== null && balance >= ENERGY_CAPACITY;
   });
 
   protected readonly isBuy = computed(() => {
-    const missing = this.missing();
-    return !this.isDone() && missing !== null && missing > 0;
-  });
-
-  protected readonly packSub = computed(() => {
-    const missing = this.missing() ?? 0;
-    const credited =
-      missing > 1
-        ? `${missing} énergies créditées immédiatement`
-        : '1 énergie créditée immédiatement';
-    return `${credited}, sans attendre minuit.`;
-  });
-
-  protected readonly packUnit = computed(() => {
-    const missing = this.missing() ?? 0;
-    return `${missing} ${missing > 1 ? 'énergies' : 'énergie'} × ${this.unitPriceLabel}`;
-  });
-
-  protected readonly priceLabel = computed(() => {
     const balance = this.balance();
-    return balance === null
-      ? ''
-      : `${formatEuroAmount(energyTopUpPriceEur(balance))} €`;
+    return !this.isDone() && balance !== null && balance < ENERGY_CAPACITY;
   });
+
+  protected readonly packSub =
+    'Votre solde revient à 5 immédiatement, sans attendre minuit.';
 
   protected readonly payLabel = computed(() =>
-    this.phase() === 'pending' ? 'Paiement…' : `Payer ${this.priceLabel()}`,
+    this.phase() === 'pending' ? 'Paiement…' : `Payer ${this.priceLabel}`,
   );
 
   protected readonly methodView = computed(() => {
@@ -150,7 +125,7 @@ export class Recharge {
         next: ({ url }) => {
           sessionStorage.setItem(
             PENDING_PURCHASE_STORAGE_KEY,
-            JSON.stringify({ amount: this.priceLabel() }),
+            JSON.stringify({ amount: this.priceLabel }),
           );
           this.openCheckout(url);
         },

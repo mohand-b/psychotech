@@ -9,13 +9,13 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AxisType,
+  ENERGY_PACK_PRICE_EUR,
   LogicFamilyFilter,
   SESSION_ENERGY_COST,
   SessionMode,
   SubscriptionTier,
   TargetedSessionOptionsDto,
   TrainingOptionId,
-  energyTopUpPriceEur,
 } from '@psychotech/shared';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
@@ -72,10 +72,7 @@ export class AxisStart {
       this.energyFacade.state()?.canStartAxis === false,
   );
 
-  protected readonly rechargePriceLabel = computed(() => {
-    const balance = this.energyFacade.state()?.balance ?? 0;
-    return `${formatEuroAmount(energyTopUpPriceEur(balance))} €`;
-  });
+  protected readonly rechargePriceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;
 
   protected readonly rechargeCountdown = computed(() => {
     const resetsAt = this.energyFacade.state()?.resetsAt;

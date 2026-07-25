@@ -81,13 +81,18 @@ describe('Recharge', () => {
     sessionStorage.clear();
   });
 
-  it('prices only the missing energies in the buy state', async () => {
+  it('sells the one-euro refill back to five in the buy state', async () => {
     const { fixture } = await setup(buildState({ balance: 2 }));
     expect(text(fixture)).toContain('Recharger votre énergie');
-    expect(text(fixture)).toContain('3 énergies créditées immédiatement');
-    expect(text(fixture)).toContain('3 énergies × 0,20 €');
-    expect(text(fixture)).toContain('Payer 0,60 €');
+    expect(text(fixture)).toContain("Recharge jusqu'à 5 énergies");
+    expect(text(fixture)).toContain('Votre solde revient à 5 immédiatement');
+    expect(text(fixture)).toContain('Remise à 5 énergies');
+    expect(text(fixture)).toContain('Payer 1,00 €');
     expect(text(fixture)).toContain('4242');
+    const chips = Array.from(
+      fixture.nativeElement.querySelectorAll('.rech__balance-value'),
+    ).map((chip) => (chip as HTMLElement).textContent?.trim());
+    expect(chips).toEqual(['2/5', '5/5']);
   });
 
   it('starts the stripe checkout on pay', async () => {

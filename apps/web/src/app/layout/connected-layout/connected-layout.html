@@ -27,7 +27,7 @@
     [closeLink]="header.closeLink"
     (closeRequested)="onCloseRequested(header)"
   />
-  } @else if (!hideHeader()) {
+  } @else {
   <ui-navbar
     [hideMobile]="mobileFlow() !== null || hideMobileHeader()"
     [hideMobileTabs]="hideMobileNav()"
