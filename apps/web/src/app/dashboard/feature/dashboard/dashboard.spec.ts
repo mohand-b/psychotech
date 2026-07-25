@@ -21,6 +21,7 @@ import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { SessionHistoryFacade } from '../../../sessions/data-access/session-history.facade';
+import { Clock } from '../../../shared/util/clock';
 import { Dashboard } from './dashboard';
 
 const USER: UserProfileDto = {
@@ -137,6 +138,7 @@ interface SetupOptions {
   overview?: TrainingsOverviewDto;
   progression?: ProgressionDto | null;
   current?: CurrentSessionDto | null;
+  hour?: number;
 }
 
 async function setup(options: SetupOptions = {}) {
@@ -173,6 +175,16 @@ async function setup(options: SetupOptions = {}) {
         },
       },
       { provide: SessionHistoryFacade, useValue: sessionHistoryFacade },
+      {
+        provide: Clock,
+        useValue: {
+          now: () => {
+            const date = new Date('2026-07-25T00:00:00');
+            date.setHours(options.hour ?? 10);
+            return date;
+          },
+        },
+      },
     ],
   })
     .overrideComponent(Dashboard, {
@@ -203,6 +215,19 @@ describe('Dashboard', () => {
     expect(textOf(fixture)).toContain("C'est le moment de vous entraîner");
     expect(textOf(fixture)).toContain('Énergie pleine');
     expect(textOf(fixture)).toContain('5/5');
+  });
+
+  it('says bonsoir outside the five to eighteen local window', async () => {
+    const evening = await setup({ hour: 20 });
+    expect(textOf(evening.fixture)).toContain('Bonsoir Mohand');
+
+    TestBed.resetTestingModule();
+    const night = await setup({ hour: 4 });
+    expect(textOf(night.fixture)).toContain('Bonsoir Mohand');
+
+    TestBed.resetTestingModule();
+    const lateAfternoon = await setup({ hour: 17 });
+    expect(textOf(lateAfternoon.fixture)).toContain('Bonjour Mohand');
   });
 
   it('navigates to the trainings page from the train call to action', async () => {

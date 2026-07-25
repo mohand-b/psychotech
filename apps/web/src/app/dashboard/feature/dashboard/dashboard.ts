@@ -39,6 +39,7 @@ import {
 } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
+import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
@@ -95,6 +96,7 @@ export class Dashboard {
   private readonly progressionFacade = inject(ProgressionFacade);
   private readonly sessionHistoryFacade = inject(SessionHistoryFacade);
   private readonly router = inject(Router);
+  private readonly clock = inject(Clock);
   private readonly now = new Date();
 
   protected readonly playIcon = Play;
@@ -155,7 +157,9 @@ export class Dashboard {
 
   protected readonly greeting = computed(() => {
     const firstName = this.authFacade.currentUser()?.firstName ?? '';
-    return `${this.isNew() ? 'Bienvenue' : 'Bonjour'} ${firstName}`.trim();
+    const hour = this.clock.now().getHours();
+    const salutation = hour >= 5 && hour < 18 ? 'Bonjour' : 'Bonsoir';
+    return `${this.isNew() ? 'Bienvenue' : salutation} ${firstName}`.trim();
   });
 
   protected readonly subtitle = computed(() => {
@@ -173,7 +177,7 @@ export class Dashboard {
     }
     return this.fullEnergy()
       ? 'Votre énergie est pleine : simulation complète ou axe ciblé, à vous de choisir.'
-      : 'Simulation complète ou axe ciblé : à vous de choisir.';
+      : 'Chaque session vous rapproche de la sélection.';
   });
 
   protected readonly energyLabel = computed(() => {

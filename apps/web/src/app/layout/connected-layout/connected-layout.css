@@ -23,6 +23,7 @@
 .flow-header .logo {
   font: 700 19px/1 var(--font-display);
   color: var(--ink);
+  text-decoration: none;
 }
 
 .flow-header .logo__accent {

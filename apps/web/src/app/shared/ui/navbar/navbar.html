@@ -1,6 +1,8 @@
 <header class="topbar navbar-surface hidden h-16 md:block">
   <div class="topbar__inner mx-auto flex h-full items-center gap-10 px-6">
-    <span class="logo">Psycho<span class="logo__accent">Tech</span></span>
+    <a class="logo" routerLink="/" aria-label="Accueil PsychoTech"
+      >Psycho<span class="logo__accent">Tech</span></a
+    >
 
     <nav class="flex flex-1 items-center gap-2" aria-label="Sections">
       @for (item of navItems; track item.path) {
@@ -39,7 +41,12 @@
   <header
     class="mobile-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
   >
-    <span class="logo logo--compact">Psycho<span class="logo__accent">Tech</span></span>
+    <a
+      class="logo logo--compact"
+      routerLink="/"
+      aria-label="Accueil PsychoTech"
+      >Psycho<span class="logo__accent">Tech</span></a
+    >
     <div class="flex items-center gap-2">
       @if (sector(); as current) {
         <ui-sector-chip [sector]="current" [showLabel]="false" />

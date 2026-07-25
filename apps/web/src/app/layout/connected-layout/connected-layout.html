@@ -35,8 +35,11 @@
   <header
     class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
   >
-    <span class="logo logo--compact"
-      >Psycho<span class="logo__accent">Tech</span></span
+    <a
+      class="logo logo--compact"
+      routerLink="/"
+      aria-label="Accueil PsychoTech"
+      >Psycho<span class="logo__accent">Tech</span></a
     >
     @if (mobileFlowPresentation(flow); as presentation) {
     <span

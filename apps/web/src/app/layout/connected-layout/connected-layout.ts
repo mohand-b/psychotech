@@ -10,6 +10,7 @@ import {
   ActivatedRoute,
   NavigationEnd,
   Router,
+  RouterLink,
   RouterOutlet,
 } from '@angular/router';
 import {
@@ -78,7 +79,7 @@ interface FocusedHeaderView {
 @Component({
   selector: 'app-connected-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, Navbar, FocusedHeader, Icon],
+  imports: [RouterLink, RouterOutlet, Navbar, FocusedHeader, Icon],
   templateUrl: './connected-layout.html',
   styleUrl: './connected-layout.css',
 })
