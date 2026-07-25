@@ -1,10 +1,44 @@
-<div class="page-shell profil">
+<header class="profilm__header safe-top md:hidden">
+  <div class="profilm__bar flex items-center">
+    <a class="profilm__back" routerLink="/dashboard" aria-label="Retour">
+      <ui-icon [img]="backIcon" [size]="18" [strokeWidth]="2" />
+    </a>
+    <span class="profilm__bar-title">Mon profil</span>
+    <span class="profilm__bar-spacer"></span>
+    @if (tier() !== tiers.FREE) {
+      <ui-energy-chip [state]="energy()" [tier]="tier()" />
+    }
+  </div>
+  <div class="profilm__tabs flex">
+    @for (item of navItems(); track item.id) {
+      <button
+        type="button"
+        class="profilm__tab"
+        [class.profilm__tab--active]="section() === item.id"
+        (click)="open(item.id)"
+      >
+        <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
+        {{ item.label }}
+      </button>
+    }
+  </div>
+</header>
+
+<div class="page-shell profil" [class.profil--form-bar]="isForm()">
   <div class="profil__head flex flex-col">
     <h1 class="t-page-title">Mon profil</h1>
     <span class="profil__subtitle"
       >Vos informations, votre secteur de préparation et votre
       abonnement.</span
     >
+  </div>
+
+  <div class="profilm__identity flex items-center md:hidden">
+    <span class="profil__avatar">{{ initial() }}</span>
+    <span class="profil__identity-copy flex flex-col">
+      <span class="profil__name">{{ fullName() }}</span>
+      <span class="profil__plan-line">{{ railSubtitle() }}</span>
+    </span>
   </div>
 
   <div class="profil__grid">
@@ -81,9 +115,7 @@
               <div class="profil__metas">
                 <span class="profil__meta flex flex-col">
                   <span class="t-label">Membre depuis</span>
-                  <span class="profil__meta-value t-mono">{{
-                    memberSince()
-                  }}</span>
+                  <span class="profil__meta-value">{{ memberSince() }}</span>
                 </span>
                 @if (completedSessions() !== null) {
                   <span class="profil__meta flex flex-col">
@@ -205,69 +237,73 @@
             <div class="profil__section-body flex flex-col">
               <div class="profil__plan-top flex">
                 <span class="profil__plan-name-block flex flex-col">
-                  <span class="profil__plan-name-row flex items-center">
-                    <ui-icon
-                      class="profil__plan-bolt"
-                      [img]="planIcon"
-                      [size]="20"
-                    />
-                    <span class="profil__plan-name">{{ plan().name }}</span>
-                  </span>
+                  <span class="profil__plan-name">{{ plan().name }}</span>
                   <span class="profil__plan-desc">{{
                     plan().description
                   }}</span>
                 </span>
-                @if (priceLabel(); as price) {
-                  <span class="profil__plan-price flex items-baseline">
-                    <span class="profil__plan-amount t-mono">{{ price }}</span>
-                    <span class="profil__plan-period">par mois</span>
+                <span class="profil__plan-price flex items-baseline">
+                  <span
+                    class="profil__plan-amount"
+                    [class.t-mono]="planPrice().mono"
+                    >{{ planPrice().label }}</span
+                  >
+                  @if (planPrice().period; as period) {
+                    <span class="profil__plan-period">{{ period }}</span>
+                  }
+                </span>
+              </div>
+              <div class="profil__metas">
+                <span class="profil__meta flex flex-col">
+                  <span class="t-label">Énergie du jour</span>
+                  <span class="profil__meta-value">{{ plan().energy }}</span>
+                </span>
+                <span class="profil__meta flex flex-col">
+                  <span class="t-label">Facturation</span>
+                  <span class="profil__meta-value">{{
+                    planBillingLabel()
+                  }}</span>
+                </span>
+                @if (planRenewMeta(); as renewMeta) {
+                  <span class="profil__meta flex flex-col">
+                    <span class="t-label">{{ renewMeta.label }}</span>
+                    <span class="profil__meta-value">{{ renewMeta.value }}</span>
                   </span>
                 }
               </div>
-              @if (tier() !== tiers.FREE) {
-                <div class="profil__metas">
-                  @if (renewalLabel(); as renewal) {
-                    <span class="profil__meta flex flex-col">
-                      <span class="t-label">Prochain renouvellement</span>
-                      <span class="profil__meta-value t-mono">{{
-                        renewal
-                      }}</span>
-                    </span>
-                  }
-                  @if (billingPeriodLabel(); as period) {
-                    <span class="profil__meta flex flex-col">
-                      <span class="t-label">Facturation</span>
-                      <span class="profil__meta-value">{{ period }}</span>
-                    </span>
-                  }
-                  @if (dailyEnergyLabel(); as dailyEnergy) {
-                    <span class="profil__meta flex flex-col">
-                      <span class="t-label">Énergie du jour</span>
-                      <span class="profil__meta-value t-mono">{{
-                        dailyEnergy
-                      }}</span>
-                    </span>
-                  }
-                </div>
-              }
               <div class="profil__plan-actions flex items-center">
-                @if (tier() === tiers.FREE) {
-                  <a class="profil__cta" routerLink="/abonnements"
-                    >Découvrir les offres</a
-                  >
-                } @else {
-                  <a class="profil__cta" routerLink="/abonnements"
-                    >Changer d'offre</a
-                  >
-                  <a class="profil__cta-secondary" routerLink="/abonnements"
-                    >Comparer les offres</a
-                  >
-                  <span class="profil__plan-actions-spacer"></span>
-                  <a class="profil__cancel-link" routerLink="/abonnements"
-                    >Résilier l'abonnement</a
-                  >
-                }
+                <a class="profil__cta" [routerLink]="planCta().link">{{
+                  planCta().label
+                }}</a>
+                <a class="profil__cta-secondary" routerLink="/abonnements"
+                  >Comparer les offres</a
+                >
               </div>
+              @if (cancelRow(); as cancel) {
+                <div class="profil__plan-row flex items-center">
+                  <span class="profil__plan-row-copy flex flex-col">
+                    <span class="profil__plan-row-title">{{
+                      cancel.title
+                    }}</span>
+                    <span class="profil__plan-row-desc">{{
+                      cancel.description
+                    }}</span>
+                  </span>
+                  <a
+                    class="profil__cta-secondary"
+                    [class.profil__plan-row-cta--danger]="!subscriptionEnding()"
+                    routerLink="/abonnements"
+                    >{{ cancel.ctaLabel }}</a
+                  >
+                </div>
+              } @else {
+                <span class="profil__plan-free-note"
+                  >L'offre Découverte est gratuite et sans limite de durée :
+                  vous accédez au mode découverte de chaque axe. Les simulations
+                  complètes, les entraînements ciblés et le suivi de progression
+                  nécessitent une formule payante.</span
+                >
+              }
             </div>
           }
           @case ('billing') {
@@ -338,9 +374,14 @@
                         <span class="profil__invoice-date t-mono">{{
                           row.dateLabel
                         }}</span>
-                        <span class="profil__invoice-label">{{
-                          row.label
-                        }}</span>
+                        <span class="profil__invoice-main flex flex-col">
+                          <span class="profil__invoice-label">{{
+                            row.label
+                          }}</span>
+                          <span class="profil__invoice-date-mobile t-mono">{{
+                            row.dateLabel
+                          }}</span>
+                        </span>
                         <span class="profil__invoice-amount t-mono">{{
                           row.amountLabel
                         }}</span>
@@ -355,8 +396,12 @@
                             [href]="url"
                             target="_blank"
                             rel="noopener noreferrer"
-                            >Télécharger</a
                           >
+                            <span class="profil__invoice-link-full"
+                              >Télécharger</span
+                            >
+                            <span class="profil__invoice-link-short">Reçu</span>
+                          </a>
                         } @else {
                           <span class="profil__invoice-link--empty">-</span>
                         }
@@ -369,7 +414,10 @@
           }
         }
 
-        <div class="profil__footer flex items-center">
+        <div
+          class="profil__footer flex items-center"
+          [class.profil__footer--form]="isForm()"
+        >
           <span
             class="profil__status flex items-center"
             [class.profil__status--dirty]="status().tone === 'dirty'"
@@ -382,25 +430,36 @@
             {{ status().text }}
           </span>
           @if (isForm()) {
-            <button
-              type="button"
-              class="profil__action-cancel"
-              [class.profil__action-cancel--idle]="!formDirty()"
-              (click)="cancel()"
-            >
-              Annuler
-            </button>
-            <button
-              type="button"
-              class="profil__action-save"
-              [class.profil__action-save--idle]="!formCanSave()"
-              (click)="save()"
-            >
-              Enregistrer
-            </button>
+            <div class="profil__footer-actions flex items-center">
+              <button
+                type="button"
+                class="profil__action-cancel"
+                [class.profil__action-cancel--idle]="!formDirty()"
+                (click)="cancel()"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                class="profil__action-save"
+                [class.profil__action-save--idle]="!formCanSave()"
+                (click)="save()"
+              >
+                Enregistrer
+              </button>
+            </div>
           }
         </div>
       </section>
     </div>
   </div>
+
+  <button
+    type="button"
+    class="profilm__logout md:hidden"
+    (click)="logout()"
+  >
+    <ui-icon [img]="logoutIcon" [size]="16" [strokeWidth]="1.8" />
+    Se déconnecter
+  </button>
 </div>

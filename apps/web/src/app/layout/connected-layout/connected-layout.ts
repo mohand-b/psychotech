@@ -96,6 +96,7 @@ export class ConnectedLayout {
     this.readMobileFlow(),
   );
   protected readonly hideMobileNav = signal(this.readHideMobileNav());
+  protected readonly hideMobileHeader = signal(this.readHideMobileHeader());
   protected readonly liveCountdown = this.trainingSessionFacade.remainingLabel;
   protected readonly liveCountdownSeverity =
     this.trainingSessionFacade.countdownSeverity;
@@ -142,6 +143,7 @@ export class ConnectedLayout {
         this.focusedHeader.set(this.readFocusedHeader());
         this.mobileFlow.set(this.readMobileFlow());
         this.hideMobileNav.set(this.readHideMobileNav());
+        this.hideMobileHeader.set(this.readHideMobileHeader());
       });
   }
 
@@ -169,6 +171,10 @@ export class ConnectedLayout {
 
   private readHideMobileNav(): boolean {
     return this.deepestSnapshot()?.data?.['hideMobileNav'] === true;
+  }
+
+  private readHideMobileHeader(): boolean {
+    return this.deepestSnapshot()?.data?.['hideMobileHeader'] === true;
   }
 
   private readMobileFlow(): MobileFlowView | null {

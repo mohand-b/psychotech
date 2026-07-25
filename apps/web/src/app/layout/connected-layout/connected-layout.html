@@ -28,7 +28,7 @@
   />
   } @else {
   <ui-navbar
-    [hideMobile]="mobileFlow() !== null"
+    [hideMobile]="mobileFlow() !== null || hideMobileHeader()"
     [hideMobileTabs]="hideMobileNav()"
   />
   @if (mobileFlow(); as flow) {

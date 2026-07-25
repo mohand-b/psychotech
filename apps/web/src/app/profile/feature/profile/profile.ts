@@ -21,13 +21,14 @@ import {
 } from '@psychotech/shared';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
+  ArrowLeft,
   Check,
   CreditCard,
   Lock,
   LogOut,
   LucideIconData,
+  ShieldCheck,
   User,
-  Zap,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
@@ -35,7 +36,9 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
+import { PLAN_SLUGS } from '../../../subscriptions/plan-slug';
 import { Badge } from '../../../shared/ui/badge/badge';
+import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
@@ -80,18 +83,24 @@ const SECTION_META: Record<ProfileSection, ProfileSectionMeta> = {
   },
 };
 
-const PLAN_COPY: Record<SubscriptionTier, { name: string; description: string }> = {
+const PLAN_COPY: Record<
+  SubscriptionTier,
+  { name: string; description: string; energy: string }
+> = {
   [SubscriptionTier.FREE]: {
     name: PLAN_LABELS[SubscriptionTier.FREE],
-    description: 'Mode découverte de chaque axe, en libre accès.',
+    description: 'Mode découverte de chaque axe, sans évaluation enregistrée.',
+    energy: 'Mode découverte seul',
   },
   [SubscriptionTier.ESSENTIAL]: {
     name: PLAN_LABELS[SubscriptionTier.ESSENTIAL],
-    description: '5 énergies par jour, rechargées à minuit.',
+    description: '5 énergies par jour : une simulation complète ou cinq axes.',
+    energy: '5 par jour',
   },
   [SubscriptionTier.UNLIMITED]: {
     name: PLAN_LABELS[SubscriptionTier.UNLIMITED],
     description: 'Énergie illimitée, tous les axes et toutes les simulations.',
+    energy: 'Illimitée',
   },
 };
 
@@ -123,7 +132,14 @@ interface InvoiceRowView {
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Badge, Icon, PasswordStrengthMeter, RouterLink, Skeleton],
+  imports: [
+    Badge,
+    EnergyChip,
+    Icon,
+    PasswordStrengthMeter,
+    RouterLink,
+    Skeleton,
+  ],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -140,10 +156,11 @@ export class Profile {
 
   protected readonly accountIcon = User;
   protected readonly securityIcon = Lock;
-  protected readonly planIcon = Zap;
+  protected readonly planIcon = ShieldCheck;
   protected readonly billingIcon = CreditCard;
   protected readonly logoutIcon = LogOut;
   protected readonly checkIcon = Check;
+  protected readonly backIcon = ArrowLeft;
 
   protected readonly readValue = inputValue;
   protected readonly tiers = SubscriptionTier;
@@ -340,11 +357,19 @@ export class Profile {
     }));
   });
 
-  protected readonly priceLabel = computed(() => {
+  protected readonly planPrice = computed<{
+    label: string;
+    mono: boolean;
+    period: string | null;
+  }>(() => {
     const tier = this.tier();
     return tier === SubscriptionTier.FREE
-      ? null
-      : `${SUBSCRIPTION_MONTHLY_PRICES[tier]} €`;
+      ? { label: 'Gratuit', mono: false, period: null }
+      : {
+          label: `${SUBSCRIPTION_MONTHLY_PRICES[tier]} €`,
+          mono: true,
+          period: 'par mois',
+        };
   });
 
   protected readonly renewalLabel = computed(() => {
@@ -352,21 +377,71 @@ export class Profile {
     return periodEnd ? formatDayMonthYear(periodEnd) : null;
   });
 
-  protected readonly billingPeriodLabel = computed(() => {
+  protected readonly planBillingLabel = computed(() => {
     const period = this.user()?.subscription?.billingPeriod;
     return period === BillingPeriod.ANNUAL
       ? 'Annuelle'
       : period === BillingPeriod.MONTHLY
         ? 'Mensuelle'
-        : null;
+        : 'Aucune';
   });
 
-  protected readonly dailyEnergyLabel = computed(() => {
-    if (this.tier() === SubscriptionTier.UNLIMITED) {
-      return 'Illimitée';
+  protected readonly planRenewMeta = computed<{
+    label: string;
+    value: string;
+  } | null>(() => {
+    if (this.tier() === SubscriptionTier.FREE) {
+      return { label: 'Durée', value: 'Sans limite' };
     }
-    const state = this.energy();
-    return state ? `${state.balance}/${state.capacity}` : null;
+    const renewal = this.renewalLabel();
+    return renewal
+      ? { label: 'Prochain renouvellement', value: renewal }
+      : null;
+  });
+
+  protected readonly planCta = computed<{ label: string; link: string }>(() => {
+    const tier = this.tier();
+    if (tier === SubscriptionTier.FREE) {
+      return { label: 'Choisir une formule', link: '/abonnements' };
+    }
+    if (tier === SubscriptionTier.ESSENTIAL) {
+      return {
+        label: "Passer à l'Illimité",
+        link: `/paiement/${PLAN_SLUGS[SubscriptionTier.UNLIMITED]}`,
+      };
+    }
+    return { label: "Changer d'offre", link: '/abonnements' };
+  });
+
+  protected readonly subscriptionEnding = computed(
+    () => this.user()?.subscription?.cancelAtPeriodEnd === true,
+  );
+
+  protected readonly cancelRow = computed<{
+    title: string;
+    description: string;
+    ctaLabel: string;
+  } | null>(() => {
+    if (this.tier() === SubscriptionTier.FREE) {
+      return null;
+    }
+    const renewal = this.renewalLabel();
+    if (this.subscriptionEnding()) {
+      return {
+        title: 'Abonnement résilié',
+        description: renewal
+          ? `Votre abonnement prend fin le ${renewal}. Vous pouvez le reprendre jusqu'à cette date, votre progression est conservée.`
+          : 'Votre abonnement prend fin à la fin de la période payée. Vous pouvez le reprendre jusque-là, votre progression est conservée.',
+        ctaLabel: 'Reprendre',
+      };
+    }
+    return {
+      title: 'Résilier mon abonnement',
+      description: renewal
+        ? `La résiliation prend effet le ${renewal}, fin de la période payée. Votre progression est conservée.`
+        : 'La résiliation prend effet à la fin de la période payée. Votre progression est conservée.',
+      ctaLabel: 'Résilier',
+    };
   });
 
   protected readonly methodView = computed(() => {
@@ -429,14 +504,17 @@ export class Profile {
         tone: 'idle',
       };
     }
-    const renewal = this.renewalLabel();
-    const invoice = this.nextInvoiceLabel() ?? renewal;
-    if (section === 'plan') {
+    if (this.tier() === SubscriptionTier.FREE) {
+      return { text: 'Aucune facturation en cours', tone: 'idle' };
+    }
+    if (this.subscriptionEnding()) {
+      const renewal = this.renewalLabel();
       return {
-        text: renewal ? `Prochain renouvellement le ${renewal}` : '',
+        text: renewal ? `Votre abonnement prend fin le ${renewal}` : '',
         tone: 'idle',
       };
     }
+    const invoice = this.nextInvoiceLabel() ?? this.renewalLabel();
     return {
       text: invoice ? `Prochaine facture le ${invoice}` : '',
       tone: 'idle',

@@ -277,9 +277,16 @@ describe('Profile', () => {
     buttons[3].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('14,99 €');
+    expect(textOf(fixture)).toContain('Énergie du jour');
+    expect(textOf(fixture)).toContain('Illimitée');
     expect(textOf(fixture)).toContain('Prochain renouvellement');
     expect(textOf(fixture)).toContain('5 août 2026');
-    expect(textOf(fixture)).toContain('Illimitée');
+    expect(textOf(fixture)).toContain("Changer d'offre");
+    expect(textOf(fixture)).toContain('Comparer les offres');
+    expect(textOf(fixture)).toContain('Résilier mon abonnement');
+    expect(textOf(fixture)).toContain(
+      'La résiliation prend effet le 5 août 2026',
+    );
 
     buttons[4].click();
     fixture.detectChanges();
@@ -494,7 +501,11 @@ describe('Profile', () => {
     navButtons(fixture)[3].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('Découverte');
-    expect(textOf(fixture)).toContain('Découvrir les offres');
+    expect(textOf(fixture)).toContain('Gratuit');
+    expect(textOf(fixture)).toContain('Choisir une formule');
+    expect(textOf(fixture)).toContain('Mode découverte seul');
+    expect(textOf(fixture)).toContain('Sans limite');
+    expect(textOf(fixture)).toContain('Aucune facturation en cours');
     expect(textOf(fixture)).not.toContain('Résilier');
   });
 });
