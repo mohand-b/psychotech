@@ -36,6 +36,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
+import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -75,7 +76,7 @@ interface LastResultView {
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, BoltIcon, Icon, SectorChip, ThresholdBar],
+  imports: [AxisRadar, BoltIcon, Icon, SectorChip, Skeleton, ThresholdBar],
   providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -110,6 +111,20 @@ export class Dashboard {
   protected readonly overviewLoaded = computed(
     () => this.overviewFacade.overview() !== null,
   );
+
+  protected readonly overviewError = computed(
+    () =>
+      this.overviewFacade.error() !== undefined &&
+      this.overviewFacade.error() !== null,
+  );
+
+  protected readonly overviewPending = computed(
+    () => !this.overviewLoaded() && !this.overviewError(),
+  );
+
+  protected retryOverview(): void {
+    this.overviewFacade.reload();
+  }
 
   private readonly overview = this.overviewFacade.overview;
   private readonly current = this.sessionHistoryFacade.current;

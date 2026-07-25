@@ -137,7 +137,7 @@ function fullSession(): CurrentSessionDto {
 interface SetupOptions {
   tier?: SubscriptionTier;
   balance?: number;
-  overview?: TrainingsOverviewDto;
+  overview?: TrainingsOverviewDto | null;
   progression?: ProgressionDto | null;
   current?: CurrentSessionDto | null;
   hour?: number;
@@ -145,11 +145,14 @@ interface SetupOptions {
 
 async function setup(options: SetupOptions = {}) {
   const tier = options.tier ?? SubscriptionTier.ESSENTIAL;
-  const overview = options.overview ?? overviewWithData();
+  const overview =
+    options.overview === undefined ? overviewWithData() : options.overview;
   const overviewFacade = {
     overview: signal<TrainingsOverviewDto | null>(overview),
     loading: signal(false),
+    error: signal<unknown>(undefined),
     load: vi.fn(),
+    reload: vi.fn(),
   };
   const progressionFacade = {
     progression: signal<ProgressionDto | null>(
@@ -325,6 +328,23 @@ describe('Dashboard', () => {
     expect(cta.textContent).toContain('Travailler cet axe');
     cta.click();
     expect(navigate).toHaveBeenCalledWith(['/entrainements/cible', 'memoire']);
+  });
+
+  it('renders skeletons over the async widgets while the overview loads', async () => {
+    const { fixture } = await setup({ overview: null, progression: null });
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.home__skeleton-score')).not.toBeNull();
+    expect(element.querySelector('.home__skeleton-radar')).not.toBeNull();
+    expect(element.querySelector('.home__skeleton-weak-icon')).not.toBeNull();
+    expect(textOf(fixture)).not.toContain("Aucun résultat pour l'instant");
+    expect(textOf(fixture)).not.toContain('À découvrir');
+  });
+
+  it('drops every skeleton once the overview data arrives', async () => {
+    const { fixture } = await setup();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('ui-skeleton'),
+    ).toBeNull();
   });
 
   it('switches the radar caption between last session and best scores', async () => {

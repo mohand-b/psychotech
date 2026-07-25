@@ -501,6 +501,48 @@
   text-decoration: underline;
 }
 
+.profil__skeleton-badge {
+  width: 46px;
+  height: 31px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.profil__skeleton-detail {
+  width: 180px;
+  height: 15px;
+  max-width: 100%;
+}
+
+.profil__skeleton-exp {
+  width: 96px;
+  height: 12px;
+}
+
+.profil__skeleton-cta {
+  width: 96px;
+  height: 44px;
+  border-radius: var(--radius-input);
+  flex-shrink: 0;
+}
+
+.profil__skeleton-invoice-date {
+  width: 108px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.profil__skeleton-invoice-label {
+  flex: 1;
+  height: 14px;
+}
+
+.profil__skeleton-invoice-amount {
+  width: 76px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .profil__footer {
   gap: 16px;
   min-height: 68px;

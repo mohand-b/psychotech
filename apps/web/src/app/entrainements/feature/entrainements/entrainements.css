@@ -349,6 +349,76 @@
   gap: 18px;
 }
 
+.duo__skeleton-score {
+  width: 128px;
+  height: 42px;
+}
+
+.duo__skeleton-badge {
+  width: 104px;
+  height: 32px;
+}
+
+.duo__skeleton-bar {
+  height: 8px;
+  border-radius: var(--radius-pill);
+}
+
+.duo__skeleton-caption {
+  width: 240px;
+  height: 15px;
+  max-width: 100%;
+}
+
+.duo__skeleton-line {
+  height: 13px;
+}
+
+.duo__skeleton-line--short {
+  width: 70%;
+}
+
+.duo__axis--skeleton {
+  pointer-events: none;
+}
+
+.duo__skeleton-tile {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.duo__skeleton-axis-name {
+  width: 96px;
+  height: 14px;
+}
+
+.duo__skeleton-axis-desc {
+  width: 160px;
+  height: 12px;
+  max-width: 100%;
+}
+
+.duo__skeleton-axis-score {
+  width: 96px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.duo__retry {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: 600 12.5px/1.4 var(--font-ui);
+  color: var(--brand-hover);
+  cursor: pointer;
+}
+
+.duo__retry:hover {
+  text-decoration: underline;
+}
+
 .duo__bilan-score {
   display: inline-flex;
   align-items: baseline;

@@ -253,5 +253,23 @@
         }
       </section>
     </div>
+  } @else {
+    <section class="prog__card prog__kpis">
+      @for (kpi of skeletonKpis; track kpi) {
+        <div class="prog__kpi">
+          <ui-skeleton class="prog__skeleton-kpi-label" />
+          <ui-skeleton class="prog__skeleton-kpi-value" />
+          <ui-skeleton class="prog__skeleton-kpi-sub" />
+        </div>
+      }
+    </section>
+    <section class="prog__card prog__skeleton-chart-card">
+      <ui-skeleton class="prog__skeleton-kpi-label" />
+      <ui-skeleton class="prog__skeleton-chart" />
+    </section>
+    <section class="prog__card prog__skeleton-chart-card">
+      <ui-skeleton class="prog__skeleton-kpi-label" />
+      <ui-skeleton class="prog__skeleton-radar" />
+    </section>
   }
 </div>

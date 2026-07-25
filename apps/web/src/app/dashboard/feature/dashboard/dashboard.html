@@ -7,7 +7,7 @@
     <ui-sector-chip class="home__sector" [sector]="sector()" />
   </div>
 
-  @if (overviewLoaded()) {
+  @if (overviewLoaded() || overviewPending() || overviewError()) {
     <div class="home__grid">
       <section class="home__card home__day">
         <div class="home__day-head">
@@ -266,6 +266,32 @@
               >Simulation complète · {{ result.dateLabel }}</span
             >
           </div>
+        } @else if (overviewPending()) {
+          <div class="home__result-body">
+            <div class="home__result-top">
+              <ui-skeleton class="home__skeleton-score" />
+              <ui-skeleton class="home__skeleton-band" />
+            </div>
+            <div class="home__result-bar">
+              <ui-skeleton class="home__skeleton-bar" />
+              <ui-skeleton class="home__skeleton-caption" />
+            </div>
+            <ui-skeleton class="home__skeleton-line" />
+          </div>
+        } @else if (overviewError()) {
+          <div class="home__result-empty">
+            <span class="home__empty-title">Résultat indisponible</span>
+            <span class="home__empty-text"
+              >Impossible de charger votre dernier résultat.
+              <button
+                type="button"
+                class="home__retry"
+                (click)="retryOverview()"
+              >
+                Réessayer
+              </button></span
+            >
+          </div>
         } @else {
           <div class="home__result-empty">
             <span class="home__empty-title">Aucun résultat pour l'instant</span>
@@ -286,7 +312,13 @@
             <ui-icon [img]="arrowIcon" [size]="13" />
           </button>
         </div>
-        @if (!isNew()) {
+        @if (overviewPending()) {
+          <div class="home__radar-body">
+            <ui-skeleton class="home__skeleton-segs" />
+            <ui-skeleton class="home__skeleton-radar" />
+            <ui-skeleton class="home__skeleton-caption" />
+          </div>
+        } @else if (!isNew()) {
           <div class="home__radar-body">
             <div class="home__radar-segs">
               <button
@@ -363,6 +395,19 @@
               Travailler cet axe
               <ui-icon [img]="arrowIcon" [size]="15" />
             </button>
+          </div>
+        } @else if (overviewPending()) {
+          <div class="home__weak-body">
+            <div class="home__weak-head">
+              <ui-skeleton class="home__skeleton-weak-icon" />
+              <div class="home__weak-copy">
+                <ui-skeleton class="home__skeleton-weak-name" />
+                <ui-skeleton class="home__skeleton-weak-tag" />
+              </div>
+            </div>
+            <ui-skeleton class="home__skeleton-bar" />
+            <ui-skeleton class="home__skeleton-line" />
+            <ui-skeleton class="home__skeleton-cta" />
           </div>
         } @else {
           <div class="home__weak-empty">

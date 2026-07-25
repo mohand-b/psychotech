@@ -95,6 +95,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
         opacity: 0.45;
       }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton__block {
+        animation: none;
+      }
+    }
     @media (max-width: 767px) {
       .skeleton {
         display: none;

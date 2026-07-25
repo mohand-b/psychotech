@@ -40,6 +40,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
+import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
@@ -122,7 +123,7 @@ interface InvoiceRowView {
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Badge, Icon, PasswordStrengthMeter, RouterLink],
+  imports: [Badge, Icon, PasswordStrengthMeter, RouterLink, Skeleton],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -156,6 +157,7 @@ export class Profile {
   protected readonly saving = signal(false);
   protected readonly paymentOverview =
     signal<PaymentMethodOverviewDto | null>(null);
+  protected readonly paymentLoading = signal(false);
   protected readonly invoices = signal<BillingInvoiceDto[] | null>(null);
   protected readonly invoicesError = signal(false);
   private savedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -172,12 +174,19 @@ export class Profile {
 
   constructor() {
     if (this.tier() !== SubscriptionTier.FREE) {
+      this.paymentLoading.set(true);
       this.subscriptionsFacade
         .getPaymentMethodOverview()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (overview) => this.paymentOverview.set(overview),
-          error: () => this.paymentOverview.set(null),
+          next: (overview) => {
+            this.paymentOverview.set(overview);
+            this.paymentLoading.set(false);
+          },
+          error: () => {
+            this.paymentOverview.set(null);
+            this.paymentLoading.set(false);
+          },
         });
       this.loadInvoices();
     }

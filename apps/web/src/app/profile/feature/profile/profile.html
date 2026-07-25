@@ -272,7 +272,16 @@
           }
           @case ('billing') {
             <div class="profil__section-body flex flex-col">
-              @if (methodView(); as method) {
+              @if (paymentLoading()) {
+                <div class="profil__billing-card flex items-center">
+                  <ui-skeleton class="profil__skeleton-badge" />
+                  <span class="profil__billing-copy flex flex-col">
+                    <ui-skeleton class="profil__skeleton-detail" />
+                    <ui-skeleton class="profil__skeleton-exp" />
+                  </span>
+                  <ui-skeleton class="profil__skeleton-cta" />
+                </div>
+              } @else if (methodView(); as method) {
                 <div class="profil__billing-card flex items-center">
                   <span class="profil__billing-badge">{{
                     method.badgeLabel
@@ -308,6 +317,16 @@
                       Réessayer
                     </button>
                   </span>
+                } @else if (invoices() === null) {
+                  <div class="flex flex-col">
+                    @for (row of [0, 1]; track row) {
+                      <div class="profil__invoice-row flex items-center">
+                        <ui-skeleton class="profil__skeleton-invoice-date" />
+                        <ui-skeleton class="profil__skeleton-invoice-label" />
+                        <ui-skeleton class="profil__skeleton-invoice-amount" />
+                      </div>
+                    }
+                  </div>
                 } @else if (invoiceRows().length === 0) {
                   <span class="profil__billing-empty"
                     >Aucun reçu pour l'instant.</span

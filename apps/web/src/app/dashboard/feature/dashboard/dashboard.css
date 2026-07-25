@@ -531,6 +531,77 @@
   width: 216px;
 }
 
+.home__skeleton-score {
+  width: 120px;
+  height: 34px;
+}
+
+.home__skeleton-band {
+  width: 108px;
+  height: 30px;
+}
+
+.home__skeleton-bar {
+  height: 8px;
+  border-radius: var(--radius-pill);
+}
+
+.home__skeleton-caption {
+  width: 200px;
+  height: 14px;
+  max-width: 100%;
+}
+
+.home__skeleton-line {
+  height: 13px;
+}
+
+.home__skeleton-segs {
+  width: 200px;
+  height: 32px;
+}
+
+.home__skeleton-radar {
+  width: 216px;
+  height: 190px;
+  border-radius: var(--radius-card);
+}
+
+.home__skeleton-weak-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.home__skeleton-weak-name {
+  width: 96px;
+  height: 15px;
+}
+
+.home__skeleton-weak-tag {
+  width: 72px;
+  height: 12px;
+}
+
+.home__skeleton-cta {
+  height: 40px;
+  border-radius: var(--radius-button);
+}
+
+.home__retry {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: 600 12.5px/1.4 var(--font-ui);
+  color: var(--brand-hover);
+  cursor: pointer;
+}
+
+.home__retry:hover {
+  text-decoration: underline;
+}
+
 .home__radar-body--empty {
   justify-content: center;
   gap: 8px;

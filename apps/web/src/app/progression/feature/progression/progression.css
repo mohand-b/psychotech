@@ -315,6 +315,43 @@
   padding: 6px 0;
 }
 
+.prog__skeleton-kpi-label {
+  width: 120px;
+  height: 15px;
+  max-width: 100%;
+}
+
+.prog__skeleton-kpi-value {
+  width: 88px;
+  height: 27px;
+}
+
+.prog__skeleton-kpi-sub {
+  width: 140px;
+  height: 13px;
+  max-width: 100%;
+}
+
+.prog__skeleton-chart-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prog__skeleton-chart {
+  height: 220px;
+  border-radius: var(--radius-card);
+}
+
+.prog__skeleton-radar {
+  width: 330px;
+  height: 280px;
+  max-width: 100%;
+  border-radius: var(--radius-card);
+  align-self: center;
+}
+
 .prog__radar-box ui-axis-radar {
   width: 330px;
 }

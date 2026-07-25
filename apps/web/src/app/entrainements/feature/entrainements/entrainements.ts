@@ -40,6 +40,7 @@ import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
+import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -88,7 +89,15 @@ interface LastSimulationView {
 @Component({
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button, Icon, RouterLink, SectorChip, ThresholdBar],
+  imports: [
+    BoltIcon,
+    Button,
+    Icon,
+    RouterLink,
+    SectorChip,
+    Skeleton,
+    ThresholdBar,
+  ],
   providers: [TrainingsOverviewFacade],
   templateUrl: './entrainements.html',
   styleUrl: './entrainements.css',
@@ -210,6 +219,20 @@ export class Entrainements {
   protected readonly overviewLoaded = computed(
     () => this.facade.overview() !== null,
   );
+
+  protected readonly overviewError = computed(
+    () => this.facade.error() !== undefined && this.facade.error() !== null,
+  );
+
+  protected readonly overviewPending = computed(
+    () => !this.overviewLoaded() && !this.overviewError(),
+  );
+
+  protected readonly skeletonAxisRows = [0, 1, 2, 3, 4];
+
+  protected retryOverview(): void {
+    this.facade.reload();
+  }
 
   protected openPanel(panel: TrainingsPanel): void {
     if (this.isFree()) {

@@ -15,7 +15,7 @@ import {
   SubscriptionTier,
   UserProfileDto,
 } from '@psychotech/shared';
-import { Observable, of, throwError } from 'rxjs';
+import { NEVER, Observable, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
@@ -329,6 +329,20 @@ describe('Profile', () => {
       rows[0].querySelector('.profil__invoice-link')?.getAttribute('href'),
     ).toBe('https://invoice.stripe.com/in_1');
     expect(rows[1].querySelector('.profil__invoice-link')).toBeNull();
+  });
+
+  it('shows locked-size invoice skeletons while the receipts are loading', async () => {
+    const { fixture } = await setup({ invoicesResult: () => NEVER });
+    navButtons(fixture)[4].click();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelectorAll('.profil__skeleton-invoice-date'),
+    ).toHaveLength(2);
+    expect(
+      fixture.nativeElement.querySelectorAll('.profil__invoice-row'),
+    ).toHaveLength(2);
+    expect(textOf(fixture)).not.toContain("Aucun reçu pour l'instant.");
   });
 
   it('shows a clean empty state without invoices and an error state with retry', async () => {

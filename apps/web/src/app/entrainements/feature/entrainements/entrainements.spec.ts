@@ -94,13 +94,16 @@ async function setup(
   options: {
     queryParams?: Record<string, string>;
     tier?: SubscriptionTier;
+    error?: unknown;
   } = {},
 ) {
   const tier = options.tier ?? SubscriptionTier.ESSENTIAL;
   const facade = {
     overview: signal(overview),
     loading: signal(false),
+    error: signal(options.error),
     load: vi.fn(),
+    reload: vi.fn(),
   };
   await TestBed.configureTestingModule({
     imports: [Entrainements],
@@ -302,6 +305,35 @@ describe('Entrainements', () => {
       });
       const element: HTMLElement = fixture.nativeElement;
       expect(element.querySelectorAll('.tut__card')).toHaveLength(5);
+    });
+  });
+
+  describe('loaders', () => {
+    it('renders locked-size skeletons while the overview loads', async () => {
+      const { fixture } = await setup(null);
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('.duo__skeleton-score')).not.toBeNull();
+      expect(element.querySelectorAll('.duo__axis--skeleton')).toHaveLength(5);
+      expect(element.querySelectorAll('.duo__skeleton-tile')).toHaveLength(5);
+      expect(element.textContent).not.toContain('Pas encore de bilan');
+    });
+
+    it('replaces the skeletons once the overview arrives', async () => {
+      const { fixture } = await setup(buildOverview());
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('ui-skeleton')).toBeNull();
+      expect(element.querySelectorAll('.duo__axis')).toHaveLength(5);
+    });
+
+    it('offers a retry when the overview fails to load', async () => {
+      const { fixture, facade } = await setup(null, {
+        error: new Error('boom'),
+      });
+      const element: HTMLElement = fixture.nativeElement;
+      expect(element.querySelector('ui-skeleton')).toBeNull();
+      expect(element.textContent).toContain('Impossible de charger');
+      (element.querySelector('.duo__retry') as HTMLButtonElement).click();
+      expect(facade.reload).toHaveBeenCalled();
     });
   });
 });

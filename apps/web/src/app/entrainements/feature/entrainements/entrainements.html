@@ -155,6 +155,18 @@
             souffler et reprendre la session quand vous le souhaitez.</span
           >
         </span>
+        } @else if (overviewError()) {
+        <span class="duo__empty-title">Bilan indisponible</span>
+        <span class="duo__empty-hint"
+          >Impossible de charger votre dernier bilan.
+          <button
+            type="button"
+            class="duo__retry"
+            (click)="retryOverview()"
+          >
+            Réessayer
+          </button></span
+        >
         } @else if (overviewLoaded()) {
         <span class="duo__empty-title">Pas encore de bilan</span>
         <span class="duo__empty-hint"
@@ -162,6 +174,19 @@
           avec votre score, l'avis d'admissibilité et votre position vs le seuil
           d'admissibilité de votre secteur.</span
         >
+        } @else {
+        <div class="duo__bilan-score-row">
+          <ui-skeleton class="duo__skeleton-score" />
+          <ui-skeleton class="duo__skeleton-badge" />
+        </div>
+        <div class="duo__bilan-bar-block">
+          <ui-skeleton class="duo__skeleton-bar" />
+          <ui-skeleton class="duo__skeleton-caption" />
+        </div>
+        <div class="duo__bilan-note">
+          <ui-skeleton class="duo__skeleton-line" />
+          <ui-skeleton class="duo__skeleton-line duo__skeleton-line--short" />
+        </div>
         }
       </div>
     </div>
@@ -175,6 +200,32 @@
           <span class="duo__label">Meilleur score</span>
         </div>
         <span class="duo__axes-sep"></span>
+        @if (overviewPending()) {
+          @for (row of skeletonAxisRows; track row; let last = $last) {
+            <div class="duo__axis duo__axis--skeleton">
+              <ui-skeleton class="duo__skeleton-tile" />
+              <span class="duo__axis-copy">
+                <ui-skeleton class="duo__skeleton-axis-name" />
+                <ui-skeleton class="duo__skeleton-axis-desc" />
+              </span>
+              <ui-skeleton class="duo__skeleton-axis-score" />
+            </div>
+            @if (!last) {
+              <span class="duo__axes-sep"></span>
+            }
+          }
+        } @else if (overviewError()) {
+          <span class="duo__empty-hint"
+            >Impossible de charger vos axes.
+            <button
+              type="button"
+              class="duo__retry"
+              (click)="retryOverview()"
+            >
+              Réessayer
+            </button></span
+          >
+        }
         @for (row of axisRows(); track row.axis; let last = $last) {
         <a class="duo__axis" [routerLink]="row.link">
           <span
