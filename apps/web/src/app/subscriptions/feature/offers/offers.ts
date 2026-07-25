@@ -34,8 +34,6 @@ interface CompareRow {
 
 type OffersBanner = 'cardUpdated';
 
-type CancelSource = 'manage' | 'discovery';
-
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
 const mono = (value: string): CompareCell => ({ kind: 'mono', value });
@@ -56,7 +54,7 @@ export class Offers {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly managing = signal(false);
-  protected readonly pendingCancel = signal<CancelSource | null>(null);
+  protected readonly pendingCancel = signal(false);
   protected readonly banner = signal<OffersBanner | null>(null);
 
   protected readonly checkIcon = Check;
@@ -229,24 +227,24 @@ export class Offers {
     });
   }
 
-  protected cancelSubscription(source: CancelSource): void {
+  protected cancelSubscription(): void {
     if (this.managing()) {
       return;
     }
-    if (this.pendingCancel() !== source) {
-      this.pendingCancel.set(source);
+    if (!this.pendingCancel()) {
+      this.pendingCancel.set(true);
       return;
     }
     this.managing.set(true);
     this.subscriptionsFacade.cancelSubscription().subscribe({
       next: () => {
         this.managing.set(false);
-        this.pendingCancel.set(null);
+        this.pendingCancel.set(false);
         this.router.navigate(['/abonnement-resilie']);
       },
       error: () => {
         this.managing.set(false);
-        this.pendingCancel.set(null);
+        this.pendingCancel.set(false);
       },
     });
   }
@@ -271,14 +269,8 @@ export class Offers {
   }
 
   protected cancelLabel(): string {
-    return this.pendingCancel() === 'manage'
+    return this.pendingCancel()
       ? 'Confirmer la résiliation'
       : 'Résilier mon abonnement';
-  }
-
-  protected freeCtaLabel(): string {
-    return this.pendingCancel() === 'discovery'
-      ? 'Confirmer le passage en Découverte'
-      : 'Passer en Découverte';
   }
 }

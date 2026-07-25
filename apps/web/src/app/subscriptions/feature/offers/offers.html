@@ -67,16 +67,6 @@
         </div>
         @if (isFreeCurrent()) {
           <span class="offd__card-note">Gratuit, sans limite de durée</span>
-        } @else {
-          <ui-button
-            appearance="outlined"
-            color="neutral"
-            [block]="true"
-            (click)="cancelSubscription('discovery')"
-            [loading]="managing()"
-          >
-            {{ freeCtaLabel() }}
-          </ui-button>
         }
       </section>
 
@@ -408,17 +398,6 @@
         </div>
         @if (isFreeCurrent()) {
           <span class="offd__card-note">Gratuit, sans limite de durée</span>
-        } @else {
-          <ui-button
-            appearance="outlined"
-            color="neutral"
-            size="lg"
-            [block]="true"
-            (click)="cancelSubscription('discovery')"
-            [loading]="managing()"
-          >
-            {{ freeCtaLabel() }}
-          </ui-button>
         }
       </section>
     </div>
@@ -449,7 +428,7 @@
             <button
               type="button"
               class="offers__manage-cancel"
-              (click)="cancelSubscription('manage')"
+              (click)="cancelSubscription()"
             >
               {{ cancelLabel() }}
             </button>

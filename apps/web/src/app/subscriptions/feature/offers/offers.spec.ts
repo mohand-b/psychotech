@@ -83,7 +83,6 @@ describe('Offers', () => {
       'Renouvellement le 17 août 2026',
     );
     expect(texts(element, '.offd ui-button button')).toEqual([
-      'Passer en Découverte',
       "Passer à l'Illimité",
     ]);
     const manage = element.querySelector('.offers__manage');
@@ -126,7 +125,7 @@ describe('Offers', () => {
     const buttons = (
       fixture.nativeElement as HTMLElement
     ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
-    buttons[1].click();
+    buttons[0].click();
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
@@ -144,9 +143,6 @@ describe('Offers', () => {
     expect(cancelButton()?.textContent?.trim()).toBe(
       'Confirmer la résiliation',
     );
-    const discoveryButton =
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[0];
-    expect(discoveryButton.textContent?.trim()).toBe('Passer en Découverte');
 
     cancelButton()?.click();
     fixture.detectChanges();
@@ -164,24 +160,12 @@ describe('Offers', () => {
     expect(navigate).toHaveBeenCalledWith(['/abonnement-resilie']);
   });
 
-  it('downgrades to discovery from the free card after an inline confirmation', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
-      SubscriptionTier.ESSENTIAL,
-    );
+  it('keeps the discovery card free of any action button', async () => {
+    const { fixture } = await setup(SubscriptionTier.ESSENTIAL);
     const element: HTMLElement = fixture.nativeElement;
-    const freeButton = () =>
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[0];
-
-    expect(freeButton().textContent?.trim()).toBe('Passer en Découverte');
-    freeButton().click();
-    fixture.detectChanges();
-    expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
-    expect(freeButton().textContent?.trim()).toBe(
-      'Confirmer le passage en Découverte',
-    );
-
-    freeButton().click();
-    expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
+    const freeCard = element.querySelector('.offd__card');
+    expect(freeCard?.querySelector('ui-button')).toBeNull();
+    expect(freeCard?.textContent).not.toContain('Passer en Découverte');
   });
 
   it('resumes a scheduled cancellation and lands on the confirmation page', async () => {
