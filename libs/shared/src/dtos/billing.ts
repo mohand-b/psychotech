@@ -65,6 +65,10 @@ export interface BillingConfigDto {
   publishableKey: string;
 }
 
+export interface EnergyCheckoutDto {
+  url: string;
+}
+
 export enum PaymentIntentKind {
   PAYMENT = 'PAYMENT',
   SETUP = 'SETUP',
