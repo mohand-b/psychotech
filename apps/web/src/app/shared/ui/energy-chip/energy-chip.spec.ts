@@ -49,13 +49,13 @@ describe('EnergyChip', () => {
     );
   });
 
-  it('shows the unlimited label for the unlimited tier', async () => {
+  it('shows the infinity symbol for the unlimited tier', async () => {
     const fixture = await setup(
       buildState({ tier: SubscriptionTier.UNLIMITED }),
     );
     expect(
-      fixture.nativeElement.querySelector('.chip__label').textContent,
-    ).toBe('Illimité');
-    expect(fixture.nativeElement.querySelector('.chip__value')).toBeNull();
+      fixture.nativeElement.querySelector('.chip__value').textContent,
+    ).toBe('∞');
+    expect(fixture.nativeElement.querySelector('.chip__max')).toBeNull();
   });
 });

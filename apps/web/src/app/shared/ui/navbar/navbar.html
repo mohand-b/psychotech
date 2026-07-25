@@ -18,13 +18,13 @@
     </nav>
 
     <div class="flex items-center gap-4">
-      <a
-        routerLink="/abonnements"
-        class="energy-link"
-        aria-label="Voir les offres et votre formule"
-      >
+      @if (energyLink(); as link) {
+        <a [routerLink]="link" class="energy-link" aria-label="Votre énergie">
+          <ui-energy-chip [state]="energy()" [tier]="tier()" />
+        </a>
+      } @else {
         <ui-energy-chip [state]="energy()" [tier]="tier()" />
-      </a>
+      }
       <span class="separator"></span>
       @if (user(); as current) {
         <a class="user-name" routerLink="/profil" aria-label="Ouvrir mon profil"
@@ -53,13 +53,13 @@
       @if (sector(); as current) {
         <ui-sector-chip [sector]="current" [showLabel]="false" />
       }
-      <a
-        routerLink="/abonnements"
-        class="energy-link"
-        aria-label="Voir les offres et votre formule"
-      >
+      @if (energyLink(); as link) {
+        <a [routerLink]="link" class="energy-link" aria-label="Votre énergie">
+          <ui-energy-chip [state]="energy()" [tier]="tier()" />
+        </a>
+      } @else {
         <ui-energy-chip [state]="energy()" [tier]="tier()" />
-      </a>
+      }
       @if (user(); as current) {
         <a
           class="avatar-mobile"

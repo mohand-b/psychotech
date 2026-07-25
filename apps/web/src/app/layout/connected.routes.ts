@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { authGuard } from '../auth/data-access/auth.guard';
 import { dashboardRoutes } from '../dashboard/feature/dashboard.routes';
+import { energyRoutes } from '../energy/feature/energy.routes';
 import { entrainementsRoutes } from '../entrainements/feature/entrainements.routes';
 import { profileRoutes } from '../profile/feature/profile.routes';
 import { progressionRoutes } from '../progression/feature/progression.routes';
@@ -17,6 +18,7 @@ export const connectedRoutes: Route[] = [
       ),
     children: [
       ...dashboardRoutes,
+      ...energyRoutes,
       ...entrainementsRoutes,
       ...sessionsRoutes,
       ...profileRoutes,

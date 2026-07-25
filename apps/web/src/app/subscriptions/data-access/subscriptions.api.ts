@@ -6,6 +6,7 @@ import {
   ChangePlanPreviewDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
+  EnergyCheckoutDto,
   PaidTier,
   PaymentMethodOverviewDto,
   PromotionCodeDto,
@@ -87,6 +88,13 @@ export class SubscriptionsApi {
   createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {
     return this.http.post<SubscriptionPaymentDto>(
       `${this.baseUrl}/billing/payment-method/intent`,
+      {},
+    );
+  }
+
+  createEnergyCheckout(): Observable<EnergyCheckoutDto> {
+    return this.http.post<EnergyCheckoutDto>(
+      `${this.baseUrl}/billing/energy-checkout`,
       {},
     );
   }

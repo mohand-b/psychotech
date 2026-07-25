@@ -22,7 +22,7 @@ const ENERGY_CAPACITY = 5;
     } @else if (unlimited()) {
       <span class="chip">
         <ui-bolt class="chip__bolt" [size]="14" />
-        <span class="chip__label">Illimité</span>
+        <span class="chip__value">∞</span>
       </span>
     } @else {
       <span class="chip" [class.chip--depleted]="depleted()">

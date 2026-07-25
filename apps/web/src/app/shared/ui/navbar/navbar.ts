@@ -6,6 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { SubscriptionTier } from '@psychotech/shared';
 import {
   House,
   List,
@@ -58,6 +59,14 @@ export class Navbar {
   protected readonly sector = computed(
     () => this.user()?.currentSector ?? null,
   );
+
+  protected readonly energyLink = computed(() => {
+    const tier = this.tier();
+    if (tier === SubscriptionTier.ESSENTIAL) {
+      return '/recharge';
+    }
+    return tier === SubscriptionTier.FREE ? '/abonnements' : null;
+  });
 
   protected logout(): void {
     this.authFacade.logout().subscribe({

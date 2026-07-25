@@ -3,6 +3,7 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   ChangePlanPreviewDto,
+  EnergyCheckoutDto,
   PaidTier,
   PaymentMethodOverviewDto,
   PromotionCodeDto,
@@ -70,6 +71,10 @@ export class SubscriptionsFacade {
 
   createPaymentMethodSetup(): Observable<SubscriptionPaymentDto> {
     return this.api.createPaymentMethodSetup();
+  }
+
+  createEnergyCheckout(): Observable<EnergyCheckoutDto> {
+    return this.api.createEnergyCheckout();
   }
 
   getPromotionCode(code: string): Observable<PromotionCodeDto> {
