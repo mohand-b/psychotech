@@ -98,6 +98,51 @@ export class Offers {
       : null;
   });
 
+  protected readonly renewalDate = computed(() => {
+    const periodEnd = this.authFacade.currentUser()?.subscription
+      ?.currentPeriodEnd;
+    return periodEnd ? formatDayMonthYear(periodEnd) : null;
+  });
+
+  protected readonly isPaidCurrent = computed(() => {
+    const tier = this.tier();
+    return (
+      tier === SubscriptionTier.ESSENTIAL ||
+      tier === SubscriptionTier.UNLIMITED
+    );
+  });
+
+  protected readonly unlimitedUntil = computed(() =>
+    this.isUnlimitedCurrent() &&
+    (this.pendingChange() !== null || this.subscriptionEndsAt() !== null)
+      ? this.renewalDate()
+      : null,
+  );
+
+  protected readonly essentialCardNote = computed(() => {
+    if (!this.isEssentialCurrent()) {
+      return null;
+    }
+    const endsAt = this.subscriptionEndsAt();
+    if (endsAt) {
+      return `Actif jusqu'au ${endsAt}`;
+    }
+    const renewal = this.renewalDate();
+    return renewal ? `Renouvellement le ${renewal}` : null;
+  });
+
+  protected readonly manageNote = computed(() => {
+    const pending = this.pendingChange();
+    if (pending) {
+      return `Passage à l'${pending.label} programmé le ${pending.date}, annulable jusque-là. Votre progression est conservée.`;
+    }
+    const endsAt = this.subscriptionEndsAt();
+    if (endsAt) {
+      return `Votre abonnement prend fin le ${endsAt}. Votre progression est conservée.`;
+    }
+    return 'La résiliation prend effet en fin de période payée, votre progression est conservée.';
+  });
+
   protected readonly pendingChange = computed(() => {
     const subscription = this.authFacade.currentUser()?.subscription;
     return subscription?.pendingTier && subscription.currentPeriodEnd
@@ -227,5 +272,11 @@ export class Offers {
     return this.pendingCancel()
       ? 'Confirmer la résiliation'
       : 'Résilier mon abonnement';
+  }
+
+  protected freeCtaLabel(): string {
+    return this.pendingCancel()
+      ? 'Confirmer le passage en Découverte'
+      : 'Passer en Découverte';
   }
 }

@@ -73,28 +73,36 @@ function texts(element: HTMLElement, selector: string): string[] {
 }
 
 describe('Offers', () => {
-  it('marks the essential card as current with in-app management actions', async () => {
+  it('marks the essential card as current with a passive note and the manage section', async () => {
     const { fixture } = await setup(SubscriptionTier.ESSENTIAL);
     const element: HTMLElement = fixture.nativeElement;
     expect(texts(element, '.offd__current-badge')).toContain(
       'Votre formule actuelle',
     );
+    expect(texts(element, '.offd .offd__card-note')).toContain(
+      'Renouvellement le 17 août 2026',
+    );
     expect(texts(element, '.offd ui-button button')).toEqual([
-      'Mettre à jour mon moyen de paiement',
-      'Résilier mon abonnement',
+      'Passer en Découverte',
       "Passer à l'Illimité",
     ]);
+    const manage = element.querySelector('.offers__manage');
+    expect(manage?.textContent).toContain("Gestion de l'abonnement");
+    expect(manage?.textContent).toContain('Mettre à jour ma carte');
+    expect(manage?.textContent).toContain('Résilier mon abonnement');
   });
 
-  it('marks the discovery card as current for the free plan', async () => {
+  it('marks the discovery card as current for the free plan without management', async () => {
     const { fixture } = await setup(SubscriptionTier.FREE);
     const element: HTMLElement = fixture.nativeElement;
     const freeCard = element.querySelector('.offd__card');
     expect(freeCard?.querySelector('.offd__current-badge')).not.toBeNull();
+    expect(freeCard?.textContent).toContain('Gratuit, sans limite de durée');
     expect(texts(element, '.offd ui-button button')).toEqual([
       'Choisir Essentiel',
       "Passer à l'Illimité",
     ]);
+    expect(element.querySelector('.offers__manage')).toBeNull();
   });
 
   it('renders the centralized monthly prices', async () => {
@@ -118,7 +126,7 @@ describe('Offers', () => {
     const buttons = (
       fixture.nativeElement as HTMLElement
     ).querySelectorAll<HTMLButtonElement>('.offd ui-button button');
-    buttons[2].click();
+    buttons[1].click();
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
@@ -128,16 +136,16 @@ describe('Offers', () => {
     );
     const element: HTMLElement = fixture.nativeElement;
     const cancelButton = () =>
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[1];
+      element.querySelector<HTMLButtonElement>('.offers__manage-cancel');
 
-    cancelButton().click();
+    cancelButton()?.click();
     fixture.detectChanges();
     expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
-    expect(cancelButton().textContent?.trim()).toBe(
+    expect(cancelButton()?.textContent?.trim()).toBe(
       'Confirmer la résiliation',
     );
 
-    cancelButton().click();
+    cancelButton()?.click();
     fixture.detectChanges();
     expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
   });
@@ -146,11 +154,31 @@ describe('Offers', () => {
     const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL);
     const element: HTMLElement = fixture.nativeElement;
     const cancelButton = () =>
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[1];
-    cancelButton().click();
+      element.querySelector<HTMLButtonElement>('.offers__manage-cancel');
+    cancelButton()?.click();
     fixture.detectChanges();
-    cancelButton().click();
+    cancelButton()?.click();
     expect(navigate).toHaveBeenCalledWith(['/abonnement-resilie']);
+  });
+
+  it('downgrades to discovery from the free card after an inline confirmation', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.ESSENTIAL,
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    const freeButton = () =>
+      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button')[0];
+
+    expect(freeButton().textContent?.trim()).toBe('Passer en Découverte');
+    freeButton().click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
+    expect(freeButton().textContent?.trim()).toBe(
+      'Confirmer le passage en Découverte',
+    );
+
+    freeButton().click();
+    expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
   });
 
   it('resumes a scheduled cancellation and lands on the confirmation page', async () => {
@@ -159,11 +187,18 @@ describe('Offers', () => {
       { subscription: { cancelAtPeriodEnd: true } },
     );
     const element: HTMLElement = fixture.nativeElement;
-    expect(texts(element, '.offers__cancel-note')[0]).toContain(
+    expect(texts(element, '.offers__manage-note')[0]).toContain(
       'prend fin le',
     );
+    expect(
+      texts(element, '.offd .offd__card-note').some((note) =>
+        note.includes("Actif jusqu'au 17 août 2026"),
+      ),
+    ).toBe(true);
     const resumeButton = Array.from(
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button'),
+      element.querySelectorAll<HTMLButtonElement>(
+        '.offers__manage ui-button button',
+      ),
     ).find((button) => button.textContent?.includes('Reprendre'));
     resumeButton?.click();
     expect(subscriptionsFacade.resumeSubscription).toHaveBeenCalledTimes(1);
@@ -172,26 +207,29 @@ describe('Offers', () => {
     });
   });
 
-  it('shows the scheduled plan change instead of the choose button and cancels it', async () => {
+  it('shows the scheduled plan change on the essential card and cancels it', async () => {
     const { fixture, subscriptionsFacade } = await setup(
       SubscriptionTier.UNLIMITED,
       { subscription: { pendingTier: SubscriptionTier.ESSENTIAL } },
     );
     const element: HTMLElement = fixture.nativeElement;
-    const notes = texts(element, '.offers__cancel-note');
+    expect(texts(element, '.offd__pending-date')).toContain(
+      'Prend effet le 17 août 2026',
+    );
     expect(
-      notes.some((note) =>
-        note.includes("Votre offre passe à l'Essentiel le"),
+      texts(element, '.offd .offd__card-note').some((note) =>
+        note.includes("Actif jusqu'au 17 août 2026"),
       ),
     ).toBe(true);
-    const buttons = texts(element, '.offd ui-button button');
-    expect(buttons).not.toContain('Choisir Essentiel');
-    const cancelChangeButton = Array.from(
-      element.querySelectorAll<HTMLButtonElement>('.offd ui-button button'),
-    ).find((button) =>
-      button.textContent?.includes('Annuler le changement'),
+    expect(texts(element, '.offers__manage-note')[0]).toContain(
+      "Passage à l'Essentiel programmé le 17 août 2026",
     );
-    cancelChangeButton?.click();
+    expect(texts(element, '.offd ui-button button')).not.toContain(
+      'Choisir Essentiel',
+    );
+    element
+      .querySelector<HTMLButtonElement>('.offd .offd__pending-cancel')
+      ?.click();
     expect(subscriptionsFacade.cancelPlanChange).toHaveBeenCalledTimes(1);
   });
 

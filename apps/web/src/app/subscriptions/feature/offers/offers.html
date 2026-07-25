@@ -65,6 +65,19 @@
             Score non enregistré dans la progression
           </span>
         </div>
+        @if (isFreeCurrent()) {
+          <span class="offd__card-note">Gratuit, sans limite de durée</span>
+        } @else {
+          <ui-button
+            appearance="outlined"
+            color="neutral"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ freeCtaLabel() }}
+          </ui-button>
+        }
       </section>
 
       <section class="offd__card">
@@ -90,8 +103,8 @@
               [strokeWidth]="2.5"
             />
             <span
-              ><span class="offd__feature-strong">5 énergies par jour</span> -
-              simulation complète (5) ou axes ciblés (1 chacun)</span
+              ><span class="offd__feature-strong">5 énergies par jour</span
+              >&nbsp;: simulation complète (5) ou axes ciblés (1 chacun)</span
             >
           </span>
           <span class="offd__feature">
@@ -122,59 +135,22 @@
             Énergie rechargée chaque jour à minuit
           </span>
         </div>
-        @if (isEssentialCurrent()) {
-        <div class="offers__current-actions">
-          @if (subscriptionEndsAt(); as endsAt) {
-          <span class="offers__cancel-note"
-            >Votre abonnement prend fin le
-            <span class="t-mono">{{ endsAt }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            [block]="true"
-            (click)="resumeSubscription()"
-            [loading]="managing()"
-          >
-            Reprendre mon abonnement
-          </ui-button>
-          } @else {
-          <ui-button
-            appearance="outlined"
-            color="brand"
-            [block]="true"
-            routerLink="/paiement/carte"
-          >
-            Mettre à jour mon moyen de paiement
-          </ui-button>
-          <ui-button
-            appearance="ghost"
-            color="neutral"
-            [block]="true"
-            (click)="cancelSubscription()"
-            [loading]="managing()"
-          >
-            {{ cancelLabel() }}
-          </ui-button>
-          }
-        </div>
+        @if (essentialCardNote(); as note) {
+          <span class="offd__card-note">{{ note }}</span>
         } @else if (pendingChange(); as pending) {
-        <div class="offers__current-actions">
-          <span class="offers__cancel-note"
-            >Votre offre passe à l'{{ pending.label }} le
-            <span class="t-mono">{{ pending.date }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            [block]="true"
-            (click)="cancelPlanChange()"
-            [loading]="managing()"
-          >
-            Annuler le changement d'offre
-          </ui-button>
-        </div>
-        } @else {
+          <div class="offd__pending flex flex-col items-center">
+            <span class="offd__pending-date"
+              >Prend effet le {{ pending.date }}</span
+            >
+            <button
+              type="button"
+              class="offd__pending-cancel"
+              (click)="cancelPlanChange()"
+            >
+              Annuler le changement
+            </button>
+          </div>
+        } @else if (!isEssentialCurrent()) {
         <ui-button
           appearance="outlined"
           color="brand"
@@ -251,45 +227,13 @@
               [size]="16"
               [strokeWidth]="2.5"
             />
-            Énergie illimitée - entraînez-vous à votre rythme
+            Énergie illimitée&nbsp;: entraînez-vous à votre rythme
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-        <div class="offers__current-actions">
-          @if (subscriptionEndsAt(); as endsAt) {
-          <span class="offers__cancel-note"
-            >Votre abonnement prend fin le
-            <span class="t-mono">{{ endsAt }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            [block]="true"
-            (click)="resumeSubscription()"
-            [loading]="managing()"
-          >
-            Reprendre mon abonnement
-          </ui-button>
-          } @else {
-          <ui-button
-            appearance="outlined"
-            color="brand"
-            [block]="true"
-            routerLink="/paiement/carte"
-          >
-            Mettre à jour mon moyen de paiement
-          </ui-button>
-          <ui-button
-            appearance="ghost"
-            color="neutral"
-            [block]="true"
-            (click)="cancelSubscription()"
-            [loading]="managing()"
-          >
-            {{ cancelLabel() }}
-          </ui-button>
+          @if (unlimitedUntil(); as until) {
+            <span class="offd__card-note">Actif jusqu'au {{ until }}</span>
           }
-        </div>
         } @else {
         <ui-button
           color="brand"
@@ -343,45 +287,9 @@
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-        <div class="offers__current-actions">
-          @if (subscriptionEndsAt(); as endsAt) {
-          <span class="offers__cancel-note"
-            >Votre abonnement prend fin le
-            <span class="t-mono">{{ endsAt }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            size="lg"
-            [block]="true"
-            relief="mobile"
-            (click)="resumeSubscription()"
-            [loading]="managing()"
-          >
-            Reprendre mon abonnement
-          </ui-button>
-          } @else {
-          <ui-button
-            appearance="outlined"
-            color="brand"
-            size="lg"
-            [block]="true"
-            routerLink="/paiement/carte"
-          >
-            Mettre à jour mon moyen de paiement
-          </ui-button>
-          <ui-button
-            appearance="ghost"
-            color="neutral"
-            size="lg"
-            [block]="true"
-            (click)="cancelSubscription()"
-            [loading]="managing()"
-          >
-            {{ cancelLabel() }}
-          </ui-button>
+          @if (unlimitedUntil(); as until) {
+            <span class="offd__card-note">Actif jusqu'au {{ until }}</span>
           }
-        </div>
         } @else {
         <ui-button
           color="brand"
@@ -415,7 +323,7 @@
               [strokeWidth]="2.5"
             />
             <span
-              ><span class="offd__feature-strong">5 énergies par jour</span> -
+              ><span class="offd__feature-strong">5 énergies par jour</span> —
               simulation (5) ou axe (1)</span
             >
           </span>
@@ -438,65 +346,22 @@
             Énergie rechargée chaque jour à minuit
           </span>
         </div>
-        @if (isEssentialCurrent()) {
-        <div class="offers__current-actions">
-          @if (subscriptionEndsAt(); as endsAt) {
-          <span class="offers__cancel-note"
-            >Votre abonnement prend fin le
-            <span class="t-mono">{{ endsAt }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            size="lg"
-            [block]="true"
-            relief="mobile"
-            (click)="resumeSubscription()"
-            [loading]="managing()"
-          >
-            Reprendre mon abonnement
-          </ui-button>
-          } @else {
-          <ui-button
-            appearance="outlined"
-            color="brand"
-            size="lg"
-            [block]="true"
-            routerLink="/paiement/carte"
-          >
-            Mettre à jour mon moyen de paiement
-          </ui-button>
-          <ui-button
-            appearance="ghost"
-            color="neutral"
-            size="lg"
-            [block]="true"
-            (click)="cancelSubscription()"
-            [loading]="managing()"
-          >
-            {{ cancelLabel() }}
-          </ui-button>
-          }
-        </div>
+        @if (essentialCardNote(); as note) {
+          <span class="offd__card-note">{{ note }}</span>
         } @else if (pendingChange(); as pending) {
-        <div class="offers__current-actions">
-          <span class="offers__cancel-note"
-            >Votre offre passe à l'{{ pending.label }} le
-            <span class="t-mono">{{ pending.date }}</span
-            >.</span
-          >
-          <ui-button
-            color="brand"
-            size="lg"
-            [block]="true"
-            relief="mobile"
-            (click)="cancelPlanChange()"
-            [loading]="managing()"
-          >
-            Annuler le changement d'offre
-          </ui-button>
-        </div>
-        } @else {
+          <div class="offd__pending flex flex-col items-center">
+            <span class="offd__pending-date"
+              >Prend effet le {{ pending.date }}</span
+            >
+            <button
+              type="button"
+              class="offd__pending-cancel"
+              (click)="cancelPlanChange()"
+            >
+              Annuler le changement
+            </button>
+          </div>
+        } @else if (!isEssentialCurrent()) {
         <ui-button
           appearance="outlined"
           color="brand"
@@ -541,8 +406,57 @@
             Score non enregistré dans la progression
           </span>
         </div>
+        @if (isFreeCurrent()) {
+          <span class="offd__card-note">Gratuit, sans limite de durée</span>
+        } @else {
+          <ui-button
+            appearance="outlined"
+            color="neutral"
+            size="lg"
+            [block]="true"
+            (click)="cancelSubscription()"
+            [loading]="managing()"
+          >
+            {{ freeCtaLabel() }}
+          </ui-button>
+        }
       </section>
     </div>
+
+    @if (isPaidCurrent()) {
+      <section class="offers__manage">
+        <span class="offers__manage-copy flex flex-col">
+          <span class="offers__manage-title">Gestion de l'abonnement</span>
+          <span class="offers__manage-note">{{ manageNote() }}</span>
+        </span>
+        <span class="offers__manage-actions flex items-center">
+          @if (subscriptionEndsAt()) {
+            <ui-button
+              color="brand"
+              (click)="resumeSubscription()"
+              [loading]="managing()"
+            >
+              Reprendre mon abonnement
+            </ui-button>
+          } @else {
+            <ui-button
+              appearance="outlined"
+              color="neutral"
+              routerLink="/paiement/carte"
+            >
+              Mettre à jour ma carte
+            </ui-button>
+            <button
+              type="button"
+              class="offers__manage-cancel"
+              (click)="cancelSubscription()"
+            >
+              {{ cancelLabel() }}
+            </button>
+          }
+        </span>
+      </section>
+    }
   </div>
 
   <section class="cmp">
