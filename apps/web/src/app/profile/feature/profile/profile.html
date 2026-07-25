@@ -137,27 +137,11 @@
                   <span
                     class="profil__password-check flex items-center"
                     [class.profil__password-check--met]="
-                      passwordChecks().length
+                      newPasswordLongEnough()
                     "
                   >
                     <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
-                    8 caractères
-                  </span>
-                  <span
-                    class="profil__password-check flex items-center"
-                    [class.profil__password-check--met]="passwordChecks().digit"
-                  >
-                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
-                    Un chiffre
-                  </span>
-                  <span
-                    class="profil__password-check flex items-center"
-                    [class.profil__password-check--met]="
-                      passwordChecks().uppercase
-                    "
-                  >
-                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
-                    Une majuscule
+                    8 caractères minimum
                   </span>
                   @if (confirmation().length > 0) {
                     <span

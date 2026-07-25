@@ -8,7 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Sector, SectorSummaryDto } from '@psychotech/shared';
+import {
+  PASSWORD_MIN_LENGTH,
+  Sector,
+  SectorSummaryDto,
+} from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { Button } from '../../../shared/ui/button/button';
@@ -26,7 +30,6 @@ interface SectorOption {
   disabled: boolean;
 }
 
-const PASSWORD_MIN_LENGTH = 8;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({

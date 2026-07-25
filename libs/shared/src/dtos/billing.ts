@@ -45,6 +45,22 @@ export interface PaymentMethodOverviewDto {
   nextInvoiceDate: string | null;
 }
 
+export enum InvoiceStatus {
+  PAID = 'PAID',
+  OPEN = 'OPEN',
+  VOID = 'VOID',
+  UNCOLLECTIBLE = 'UNCOLLECTIBLE',
+}
+
+export interface BillingInvoiceDto {
+  id: string;
+  createdAt: string;
+  tier: PaidTier | null;
+  amount: number;
+  status: InvoiceStatus;
+  url: string | null;
+}
+
 export interface BillingConfigDto {
   publishableKey: string;
 }

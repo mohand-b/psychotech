@@ -266,9 +266,8 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain(
       'Modifiez votre mot de passe. Il vous sera demandé à chaque connexion.',
     );
-    expect(textOf(fixture)).toContain('8 caractères');
-    expect(textOf(fixture)).toContain('Un chiffre');
-    expect(textOf(fixture)).toContain('Une majuscule');
+    expect(textOf(fixture)).toContain('8 caractères minimum');
+    expect(textOf(fixture)).not.toContain('Un chiffre');
 
     const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
       '.profil__input',

@@ -229,14 +229,9 @@ export class Profile {
       this.lastName().trim().length > 0,
   );
 
-  protected readonly passwordChecks = computed(() => {
-    const value = this.newPassword();
-    return {
-      length: value.length >= PASSWORD_MIN_LENGTH,
-      digit: /[0-9]/.test(value),
-      uppercase: /[A-Z]/.test(value),
-    };
-  });
+  protected readonly newPasswordLongEnough = computed(
+    () => this.newPassword().length >= PASSWORD_MIN_LENGTH,
+  );
 
   protected readonly confirmationValid = computed(() =>
     passwordsMatch(this.newPassword(), this.confirmation()),
