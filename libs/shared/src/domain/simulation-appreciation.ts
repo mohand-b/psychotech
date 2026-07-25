@@ -149,15 +149,13 @@ function buildLead(
     return [
       text(`Votre score global dépasse le seuil ${context.sectorLabel} de `),
       mono(frenchDecimal(gap)),
-      text(` points : votre profil est admissible, ${margin}.`),
+      text(` points : avis favorable, ${margin}.`),
     ];
   }
   return [
     text(`Votre score global est sous le seuil ${context.sectorLabel} de `),
     mono(frenchDecimal(Math.abs(gap))),
-    text(
-      ' points : votre profil n’est pas encore admissible sur cette session.',
-    ),
+    text(' points : avis défavorable sur cette session.'),
   ];
 }
 

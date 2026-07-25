@@ -7,6 +7,7 @@ import {
   TrainingsLastSimulationDto,
   TrainingsOverviewDto,
   isVeryCriticalAxisCoefficient,
+  simulationVerdictFromAdmissibility,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { TrainingsRepository } from './trainings.repository';
@@ -71,6 +72,9 @@ export class TrainingsService {
       globalBand: mapEnumValue(ScoreBand, session.globalBand),
       isAdmissible: session.isAdmissible ?? false,
       isEliminated: session.isEliminated ?? false,
+      verdict: simulationVerdictFromAdmissibility(
+        session.isAdmissible ?? false,
+      ),
       sectorThreshold: session.sectorThreshold,
       completedAt: session.completedAt.toISOString(),
     };

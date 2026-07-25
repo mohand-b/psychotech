@@ -14,6 +14,8 @@ import {
   Sector,
   SessionMode,
   LogicFamilyFilter,
+  SimulationVerdict,
+  SimulationVerdictReasonKind,
   TrainingOptionId,
   generateMotricityCourses,
   scoreMotricitySession,
@@ -1110,6 +1112,14 @@ describe('SessionsService.simulationSummary', () => {
     expect(summary.isEliminated).toBe(true);
     expect(summary.isAdmissible).toBe(false);
     expect(summary.eliminatoryAxes).toEqual([AxisType.REACTIVITY]);
+    expect(summary.verdict).toEqual({
+      verdict: SimulationVerdict.UNFAVORABLE,
+      reason: {
+        kind: SimulationVerdictReasonKind.ELIMINATORY_AXES,
+        axes: [AxisType.REACTIVITY],
+        eliminatoryThreshold: 55,
+      },
+    });
     expect(summary.selection.weaknesses[0]).toMatchObject({
       axis: AxisType.REACTIVITY,
       thresholdKind: 'ELIMINATORY',
@@ -1194,6 +1204,43 @@ describe('SessionsService.simulationSummary', () => {
     });
     expect(summary.admissibilityGap).toBe(4.8);
     expect(summary.eliminatoryAxes).toEqual([]);
+    expect(summary.verdict).toEqual({
+      verdict: SimulationVerdict.FAVORABLE,
+      reason: null,
+    });
+  });
+
+  it('derives the verdict at read for a legacy session without persisted flags', async () => {
+    repository.findUserSession.mockResolvedValue(
+      completedSimulation(
+        {
+          LOGIC: 62,
+          MEMORY: 60,
+          VISUAL_DISCRIMINATION: 66,
+          REACTIVITY: 64,
+          MOTOR_SKILLS: 68,
+        },
+        { isAdmissible: null, isEliminated: null, globalScore: 63.6 },
+      ),
+    );
+    repository.findSectorConfig.mockResolvedValue({
+      ...SECTOR_CONFIG,
+      weights: RAILWAY_WEIGHTS,
+    });
+
+    const summary = await service.simulationSummary('user-1', sessionId);
+
+    expect(summary.verdict).toEqual({
+      verdict: SimulationVerdict.UNFAVORABLE,
+      reason: {
+        kind: SimulationVerdictReasonKind.GLOBAL_SCORE_BELOW_THRESHOLD,
+        gap: 6.4,
+        admissibilityThreshold: 70,
+      },
+    });
+    expect(
+      summary.appreciation.lead.map(({ text }) => text).join(''),
+    ).toContain('avis défavorable sur cette session');
   });
 });
 
@@ -1283,6 +1330,33 @@ describe('SessionsService.list', () => {
     expect(lastPage.nextCursor).toBeNull();
   });
 
+  it('maps the binary verdict on completed simulations only', async () => {
+    repository.listHistory.mockResolvedValue([
+      buildSession({
+        status: 'COMPLETED',
+        completedAt: new Date('2026-07-01T10:00:00Z'),
+        globalScore: 74.8,
+        globalBand: 'ACCEPTABLE',
+        isAdmissible: true,
+        isEliminated: false,
+      }),
+      buildSession({
+        id: '22222222-2222-2222-2222-222222222222',
+        status: 'COMPLETED',
+        completedAt: new Date('2026-07-01T11:00:00Z'),
+        globalScore: 66,
+        globalBand: 'FRAGILE',
+        isAdmissible: false,
+        isEliminated: true,
+      }),
+    ]);
+
+    const page = await service.list('user-1', {});
+
+    expect(page.items[0].verdict).toBe(SimulationVerdict.FAVORABLE);
+    expect(page.items[1].verdict).toBe(SimulationVerdict.UNFAVORABLE);
+  });
+
   it('maps an abandoned full session with the reached axis, no result and only the played time', async () => {
     repository.listHistory.mockResolvedValue([
       buildSession({
@@ -1357,6 +1431,7 @@ describe('SessionsService.list', () => {
     expect(item.axis).toBe(AxisType.REACTIVITY);
     expect(item.score).toBe(76);
     expect(item.band).toBe(ScoreBand.ACCEPTABLE);
+    expect(item.verdict).toBeNull();
     expect(item.axisReached).toBeNull();
     expect(item.axisTotal).toBe(1);
     expect(item.durationSec).toBe(120);

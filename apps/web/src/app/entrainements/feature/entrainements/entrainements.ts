@@ -39,7 +39,7 @@ import {
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { BAND_COLOR_VARS, BAND_LABELS } from '../../../shared/ui/score-rating';
+import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -76,8 +76,8 @@ interface TutorialAxisView {
 
 interface LastSimulationView {
   scoreLabel: string;
-  bandLabel: string;
-  bandColorVar: string;
+  verdictLabel: string;
+  verdictColorVar: string;
   barWidth: number;
   markerLeft: number;
   threshold: number;
@@ -227,8 +227,9 @@ export class Entrainements {
   ): LastSimulationView {
     return {
       scoreLabel: formatOverviewScore(simulation.globalScore),
-      bandLabel: BAND_LABELS[simulation.globalBand],
-      bandColorVar: BAND_COLOR_VARS[simulation.globalBand],
+      verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
+      verdictColorVar:
+        SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,
       barWidth: simulation.globalScore,
       markerLeft: simulation.sectorThreshold,
       threshold: simulation.sectorThreshold,

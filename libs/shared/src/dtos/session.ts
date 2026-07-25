@@ -15,6 +15,7 @@ import {
   AxisMetrics,
   MotorSkillsCourseRecap,
   MotorSkillsMetrics,
+  SimulationVerdict,
   TrainingOptionId,
 } from '../domain';
 import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
@@ -245,6 +246,7 @@ export interface SessionHistoryItemDto {
   durationSec: number;
   score: number | null;
   band: ScoreBand | null;
+  verdict: SimulationVerdict | null;
   axisReached: number | null;
   axisTotal: number;
 }

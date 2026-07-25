@@ -1,4 +1,5 @@
 import { AxisType, ScoreBand } from '../enums';
+import { SimulationVerdict } from '../domain';
 
 export interface TrainingsLastSimulationDto {
   sessionId: string;
@@ -6,6 +7,7 @@ export interface TrainingsLastSimulationDto {
   globalBand: ScoreBand;
   isAdmissible: boolean;
   isEliminated: boolean;
+  verdict: SimulationVerdict;
   sectorThreshold: number;
   completedAt: string;
 }

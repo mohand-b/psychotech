@@ -10,6 +10,7 @@ import {
   AxisType,
   SimulationSummaryDto,
   SimulationThresholdKind,
+  SimulationVerdict,
   SimulationWeaknessDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
@@ -19,10 +20,8 @@ import { SimulationSummaryFacade } from '../../data-access/simulation-summary.fa
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import {
-  BAND_COLOR_VARS,
-  BAND_LABELS,
-} from '../../../shared/ui/score-rating';
+import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
+import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -115,14 +114,15 @@ export class SimulationSummary {
     if (!summary) {
       return null;
     }
-    if (summary.isEliminated) {
-      return { label: 'Défavorable', dotVar: 'var(--danger)' };
-    }
-    return {
-      label: BAND_LABELS[summary.globalBand],
-      dotVar: BAND_COLOR_VARS[summary.globalBand],
-    };
+    const presentation =
+      SIMULATION_VERDICT_PRESENTATION[summary.verdict.verdict];
+    return { label: presentation.label, dotVar: presentation.colorVar };
   });
+
+  protected readonly unfavorable = computed(
+    () =>
+      this.summary()?.verdict.verdict === SimulationVerdict.UNFAVORABLE,
+  );
 
   protected readonly gap = computed(() => {
     const summary = this.summary();

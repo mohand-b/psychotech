@@ -11,6 +11,7 @@ import {
   EnergyStateDto,
   ScoreBand,
   Sector,
+  SimulationVerdict,
   SubscriptionTier,
   TrainingsOverviewDto,
 } from '@psychotech/shared';
@@ -31,6 +32,7 @@ function buildOverview(
       globalBand: ScoreBand.ACCEPTABLE,
       isAdmissible: true,
       isEliminated: false,
+      verdict: SimulationVerdict.FAVORABLE,
       sectorThreshold: 70,
       completedAt: '2026-07-11T19:42:00',
     },

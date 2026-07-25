@@ -19,6 +19,7 @@ import {
   SessionResultDto,
   SessionStatus,
   TrainingOptionId,
+  simulationVerdictFromAdmissibility,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { activePlayDurationSec, sessionUntimed } from './sessions.logic';
@@ -133,6 +134,10 @@ export function toSessionHistoryItemDto(
     durationSec: activePlayDurationSec(axisResults),
     score,
     band: band ? mapEnumValue(ScoreBand, band) : null,
+    verdict:
+      mode === SessionMode.FULL && !isAbandoned && session.isAdmissible !== null
+        ? simulationVerdictFromAdmissibility(session.isAdmissible)
+        : null,
     axisReached:
       mode === SessionMode.FULL && isAbandoned
         ? Math.min(session.currentAxisIndex + 1, axisResults.length)

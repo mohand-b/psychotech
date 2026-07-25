@@ -2,6 +2,7 @@ import { AxisType, ScoreBand, Sector } from '../enums';
 import {
   SimulationAppreciationDto,
   SimulationSummarySelectionDto,
+  SimulationVerdictDto,
 } from '../domain';
 
 export interface SimulationObservableDto {
@@ -28,6 +29,7 @@ export interface SimulationSummaryDto {
   globalBand: ScoreBand;
   isAdmissible: boolean;
   isEliminated: boolean;
+  verdict: SimulationVerdictDto;
   admissibilityThreshold: number;
   admissibilityGap: number;
   eliminatoryAxes: AxisType[];

@@ -29,6 +29,7 @@ function buildItem(
     durationSec: 240,
     score: 82,
     band: ScoreBand.EXCELLENT,
+    verdict: null,
     axisReached: null,
     axisTotal: 1,
     ...overrides,

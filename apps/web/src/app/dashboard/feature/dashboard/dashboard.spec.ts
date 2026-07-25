@@ -11,6 +11,7 @@ import {
   ScoreBand,
   Sector,
   SessionMode,
+  SimulationVerdict,
   SubscriptionTier,
   TrainingsOverviewDto,
   UserProfileDto,
@@ -59,6 +60,7 @@ function overviewWithData(): TrainingsOverviewDto {
       globalBand: ScoreBand.ACCEPTABLE,
       isAdmissible: true,
       isEliminated: false,
+      verdict: SimulationVerdict.FAVORABLE,
       sectorThreshold: 70,
       completedAt: '2026-07-15T19:42:00.000Z',
     },
@@ -296,7 +298,7 @@ describe('Dashboard', () => {
   it('renders the last result with its threshold bar and opens the report', async () => {
     const { fixture, navigate } = await setup();
     expect(textOf(fixture)).toContain('74,8');
-    expect(textOf(fixture)).toContain('Acceptable');
+    expect(textOf(fixture)).toContain('Favorable');
     expect(textOf(fixture)).toContain('+4,8 au-dessus');
     expect(
       fixture.nativeElement.querySelector('.home__result-bar ui-threshold-bar'),

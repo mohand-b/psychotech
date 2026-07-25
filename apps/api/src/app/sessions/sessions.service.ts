@@ -52,6 +52,7 @@ import {
   avisFromScore,
   buildSimulationAppreciation,
   buildSimulationSummary,
+  computeSimulationVerdict,
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLegacyLogicSession,
@@ -768,6 +769,12 @@ export class SessionsService {
         : avisFromScore(globalScore),
       isAdmissible: session.isAdmissible ?? false,
       isEliminated: session.isEliminated ?? false,
+      verdict: computeSimulationVerdict({
+        globalScore,
+        admissibilityThreshold: session.sectorThreshold,
+        eliminatoryThreshold: config.eliminatoryThreshold,
+        axes: outcomes,
+      }),
       admissibilityThreshold: session.sectorThreshold,
       admissibilityGap:
         Math.round((globalScore - session.sectorThreshold) * 10) / 10,

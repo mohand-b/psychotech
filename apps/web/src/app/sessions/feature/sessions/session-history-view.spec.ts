@@ -5,9 +5,11 @@ import {
   SessionHistoryItemDto,
   SessionMode,
   SessionStatus,
+  SimulationVerdict,
 } from '@psychotech/shared';
 import { historyQueryFor } from '../../data-access/session-history.filter';
 import {
+  buildSessionRowView,
   formatSessionDate,
   formatSessionScore,
   groupSessionsByPeriod,
@@ -30,6 +32,7 @@ function item(
     durationSec: 240,
     score: 82,
     band: ScoreBand.EXCELLENT,
+    verdict: null,
     axisReached: null,
     axisTotal: 1,
     ...overrides,
@@ -104,6 +107,38 @@ describe('formatSessionScore', () => {
   it('renders a targeted axis score as an integer and no score as null', () => {
     expect(formatSessionScore(item({ score: 76 }))).toBe('76');
     expect(formatSessionScore(item({ score: null, band: null }))).toBeNull();
+  });
+});
+
+describe('buildSessionRowView', () => {
+  it('colors a simulation row with the binary verdict and keeps the band for targeted rows', () => {
+    const favorable = buildSessionRowView(
+      item({
+        mode: SessionMode.FULL,
+        axis: null,
+        score: 74.8,
+        band: ScoreBand.ACCEPTABLE,
+        verdict: SimulationVerdict.FAVORABLE,
+        axisTotal: 5,
+      }),
+      NOW,
+    );
+    const unfavorable = buildSessionRowView(
+      item({
+        mode: SessionMode.FULL,
+        axis: null,
+        score: 66,
+        band: ScoreBand.FRAGILE,
+        verdict: SimulationVerdict.UNFAVORABLE,
+        axisTotal: 5,
+      }),
+      NOW,
+    );
+    const targeted = buildSessionRowView(item({}), NOW);
+
+    expect(favorable.dotVar).toBe('var(--success)');
+    expect(unfavorable.dotVar).toBe('var(--danger)');
+    expect(targeted.dotVar).toBe('var(--rating-good)');
   });
 });
 

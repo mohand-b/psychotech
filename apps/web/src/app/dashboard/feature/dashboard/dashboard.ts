@@ -33,10 +33,7 @@ import {
 } from '../../../shared/ui/axis-presentation';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
-import {
-  BAND_COLOR_VARS,
-  BAND_LABELS,
-} from '../../../shared/ui/score-rating';
+import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Clock } from '../../../shared/util/clock';
@@ -64,8 +61,8 @@ interface WeakAxisView {
 interface LastResultView {
   sessionId: string;
   scoreLabel: string;
-  bandLabel: string;
-  bandColorVar: string;
+  verdictLabel: string;
+  verdictColorVar: string;
   score: number;
   threshold: number;
   deltaLabel: string;
@@ -296,8 +293,9 @@ export class Dashboard {
     return {
       sessionId: simulation.sessionId,
       scoreLabel: formatScore(simulation.globalScore),
-      bandLabel: BAND_LABELS[simulation.globalBand],
-      bandColorVar: BAND_COLOR_VARS[simulation.globalBand],
+      verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
+      verdictColorVar:
+        SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,
       score: simulation.globalScore,
       threshold: simulation.sectorThreshold,
       deltaLabel:

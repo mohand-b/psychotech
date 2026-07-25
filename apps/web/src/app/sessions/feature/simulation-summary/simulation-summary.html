@@ -20,7 +20,7 @@
           @if (verdict(); as v) {
             <span
               class="bilan__verdict"
-              [class.bilan__verdict--eliminated]="s.isEliminated"
+              [class.bilan__verdict--eliminated]="unfavorable()"
             >
               <span
                 class="bilan__verdict-dot"

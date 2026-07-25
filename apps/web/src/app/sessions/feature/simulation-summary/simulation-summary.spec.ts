@@ -12,6 +12,8 @@ import {
   Sector,
   SimulationSummaryDto,
   SimulationThresholdKind,
+  SimulationVerdict,
+  SimulationVerdictReasonKind,
   TargetedLogicResultDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
@@ -43,6 +45,7 @@ function buildSummary(
     globalBand: ScoreBand.ACCEPTABLE,
     isAdmissible: true,
     isEliminated: false,
+    verdict: { verdict: SimulationVerdict.FAVORABLE, reason: null },
     admissibilityThreshold: 70,
     admissibilityGap: 4.8,
     eliminatoryAxes: [],
@@ -115,7 +118,7 @@ function buildSummary(
         { text: 'Votre score global dépasse le seuil Ferroviaire de ', value: false },
         { text: '4,8', value: true },
         {
-          text: ' points : votre profil est admissible, avec une marge encore fragile.',
+          text: ' points : avis favorable, avec une marge encore fragile.',
           value: false,
         },
       ],
@@ -187,6 +190,15 @@ describe('SimulationSummary', () => {
     expect(fixture.nativeElement.textContent).toContain('+4,8 au-dessus');
   });
 
+  it('renders the binary favorable badge from the summary verdict', async () => {
+    const { fixture } = await setup(buildSummary());
+    const badge = fixture.nativeElement.querySelector('.bilan__verdict');
+    expect(badge.textContent).toContain('Favorable');
+    expect(
+      badge.classList.contains('bilan__verdict--eliminated'),
+    ).toBe(false);
+  });
+
   it('renders appreciation paragraphs with mono value segments and the priority line', async () => {
     const { fixture } = await setup(buildSummary());
     const values = [
@@ -238,6 +250,14 @@ describe('SimulationSummary', () => {
       buildSummary({
         isEliminated: true,
         isAdmissible: false,
+        verdict: {
+          verdict: SimulationVerdict.UNFAVORABLE,
+          reason: {
+            kind: SimulationVerdictReasonKind.ELIMINATORY_AXES,
+            axes: [AxisType.REACTIVITY],
+            eliminatoryThreshold: 55,
+          },
+        },
         eliminatoryAxes: [AxisType.REACTIVITY],
       }),
     );

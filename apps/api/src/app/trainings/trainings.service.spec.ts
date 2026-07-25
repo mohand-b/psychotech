@@ -1,5 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { AxisType, ScoreBand, Sector } from '@psychotech/shared';
+import {
+  AxisType,
+  ScoreBand,
+  Sector,
+  SimulationVerdict,
+} from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TrainingsRepository } from './trainings.repository';
 import { TrainingsService } from './trainings.service';
@@ -82,9 +87,22 @@ describe('TrainingsService', () => {
       globalBand: ScoreBand.ACCEPTABLE,
       isAdmissible: true,
       isEliminated: false,
+      verdict: SimulationVerdict.FAVORABLE,
       sectorThreshold: 70,
       completedAt: '2026-07-11T19:42:00.000Z',
     });
+  });
+
+  it('derives an unfavorable verdict from the persisted admissibility flag', async () => {
+    repository.findLastCompletedFullSession.mockResolvedValue(
+      buildCompletedSession({ isAdmissible: false, isEliminated: true }),
+    );
+
+    const overview = await service.getOverview('user-1', Sector.RAILWAY);
+
+    expect(overview.lastSimulation?.verdict).toBe(
+      SimulationVerdict.UNFAVORABLE,
+    );
   });
 
   it('marks a never-played axis without best score and without the needs-work flag', async () => {

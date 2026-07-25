@@ -124,7 +124,7 @@ describe('buildSimulationAppreciation', () => {
     expect(appreciation.priority).toBeNull();
   });
 
-  it('renders the admissible template with the signed gap as a value', () => {
+  it('renders the favorable template with the signed gap as a value', () => {
     const appreciation = buildSimulationAppreciation(
       context(),
       STANDARD_AXES,
@@ -132,7 +132,7 @@ describe('buildSimulationAppreciation', () => {
     );
 
     expect(plainText(appreciation.lead)).toBe(
-      'Votre score global dépasse le seuil Ferroviaire de 4,8 points : votre profil est admissible, avec une marge encore fragile.',
+      'Votre score global dépasse le seuil Ferroviaire de 4,8 points : avis favorable, avec une marge encore fragile.',
     );
     expect(
       appreciation.lead.filter(({ value }) => value).map(({ text }) => text),
@@ -154,7 +154,7 @@ describe('buildSimulationAppreciation', () => {
     );
 
     expect(plainText(appreciation.lead)).toBe(
-      'Votre score global est sous le seuil Ferroviaire de 6,4 points : votre profil n’est pas encore admissible sur cette session.',
+      'Votre score global est sous le seuil Ferroviaire de 6,4 points : avis défavorable sur cette session.',
     );
   });
 
