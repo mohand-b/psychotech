@@ -57,7 +57,7 @@ const repository = {
   findEnergyContext: vi.fn(),
   applyDailyReset: vi.fn(),
   spend: vi.fn(),
-  credit: vi.fn(),
+  creditToCapacity: vi.fn(),
 };
 
 const tierResolution = new TierResolutionService({
@@ -149,18 +149,17 @@ describe('EnergyService.spend', () => {
   });
 });
 
-describe('EnergyService.credit', () => {
-  it('credits the purchase into the ledger with its reference', async () => {
+describe('EnergyService.creditPurchasedRefill', () => {
+  it('refills the balance to capacity and records the purchase reference', async () => {
     repository.findEnergyContext.mockResolvedValue(
       buildContext({ wallet: buildWallet({ balance: 1 }) }),
     );
-    repository.credit.mockResolvedValue(buildWallet({ balance: 5 }));
+    repository.creditToCapacity.mockResolvedValue(buildWallet({ balance: 5 }));
 
-    const state = await service.credit('user-1', 4, 'cs_test_1');
+    const state = await service.creditPurchasedRefill('user-1', 'cs_test_1');
 
-    expect(repository.credit).toHaveBeenCalledWith(
+    expect(repository.creditToCapacity).toHaveBeenCalledWith(
       'user-1',
-      4,
       DbEnergyLedgerReason.PURCHASE,
       'cs_test_1',
     );

@@ -73,27 +73,32 @@ export class EnergyRepository {
     return this.applySpend(client, userId, cost, reason, sessionId);
   }
 
-  credit(
+  creditToCapacity(
     userId: string,
-    amount: number,
     reason: EnergyLedgerReason,
     ref?: string,
   ): Promise<EnergyWallet> {
     return this.prisma.$transaction(async (tx) => {
-      const wallet = await tx.energyWallet.update({
+      const wallet = await tx.energyWallet.findUniqueOrThrow({
         where: { userId },
-        data: { balance: { increment: amount } },
+      });
+      if (wallet.balance >= wallet.capacity) {
+        return wallet;
+      }
+      const updated = await tx.energyWallet.update({
+        where: { userId },
+        data: { balance: wallet.capacity },
       });
       await tx.energyLedger.create({
         data: {
           userId,
-          delta: amount,
+          delta: wallet.capacity - wallet.balance,
           reason,
-          balanceAfter: wallet.balance,
+          balanceAfter: wallet.capacity,
           ref: ref ?? null,
         },
       });
-      return wallet;
+      return updated;
     });
   }
 

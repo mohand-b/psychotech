@@ -107,16 +107,14 @@ export class EnergyService {
     );
   }
 
-  async credit(
+  async creditPurchasedRefill(
     userId: string,
-    amount: number,
     ref?: string,
   ): Promise<EnergyStateDto> {
     const now = new Date();
     const wallet = await this.ensureFreshWallet(userId, now);
-    const updated = await this.repository.credit(
+    const updated = await this.repository.creditToCapacity(
       userId,
-      amount,
       toDbReason(EnergyLedgerReason.PURCHASE),
       ref,
     );

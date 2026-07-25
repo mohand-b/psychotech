@@ -137,7 +137,7 @@ function buildStripePromotion(overrides: Record<string, unknown> = {}) {
 
 const energyService = {
   getState: vi.fn(),
-  credit: vi.fn(),
+  creditPurchasedRefill: vi.fn(),
 };
 
 const service = new BillingService(
@@ -1059,7 +1059,7 @@ describe('BillingService.createEnergyCheckout', () => {
     });
   });
 
-  it('creates a payment checkout for the missing energies only', async () => {
+  it('creates a payment checkout for the one-euro full refill', async () => {
     repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
     energyService.getState.mockResolvedValue({ balance: 2, capacity: 5 });
     createCheckoutSession.mockResolvedValue({
@@ -1072,8 +1072,12 @@ describe('BillingService.createEnergyCheckout', () => {
     expect(createCheckoutSession).toHaveBeenCalledWith({
       mode: 'payment',
       customer: 'cus_1',
-      line_items: [{ price: 'price_energy_pack', quantity: 3 }],
+      line_items: [{ price: 'price_energy_pack', quantity: 1 }],
       metadata: { userId: 'user-1' },
+      saved_payment_method_options: {
+        payment_method_save: 'enabled',
+        allow_redisplay_filters: ['always', 'limited', 'unspecified'],
+      },
       success_url: 'http://localhost:4200/recharge?statut=succes',
       cancel_url: 'http://localhost:4200/recharge?statut=annule',
     });
@@ -1118,10 +1122,10 @@ describe('BillingService.handleWebhook energy purchase', () => {
     };
   }
 
-  it('credits the purchased energies exactly once for a replayed event', async () => {
+  it('credits the purchased refill exactly once for a replayed event', async () => {
     stubEvent('checkout.session.completed', buildCheckoutSession());
     listCheckoutLineItems.mockResolvedValue({
-      data: [{ price: { id: 'price_energy_pack' }, quantity: 3 }],
+      data: [{ price: { id: 'price_energy_pack' }, quantity: 1 }],
     });
     repository.registerEvent
       .mockResolvedValueOnce(true)
@@ -1130,19 +1134,22 @@ describe('BillingService.handleWebhook energy purchase', () => {
     await service.handleWebhook(PAYLOAD, SIGNATURE);
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
-    expect(energyService.credit).toHaveBeenCalledTimes(1);
-    expect(energyService.credit).toHaveBeenCalledWith('user-1', 3, 'cs_1');
+    expect(energyService.creditPurchasedRefill).toHaveBeenCalledTimes(1);
+    expect(energyService.creditPurchasedRefill).toHaveBeenCalledWith(
+      'user-1',
+      'cs_1',
+    );
   });
 
   it('ignores a completed checkout carrying a foreign price', async () => {
     stubEvent('checkout.session.completed', buildCheckoutSession());
     listCheckoutLineItems.mockResolvedValue({
-      data: [{ price: { id: 'price_other' }, quantity: 3 }],
+      data: [{ price: { id: 'price_other' }, quantity: 5 }],
     });
 
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
-    expect(energyService.credit).not.toHaveBeenCalled();
+    expect(energyService.creditPurchasedRefill).not.toHaveBeenCalled();
   });
 
   it('ignores subscription-mode and unpaid checkout sessions', async () => {
@@ -1160,7 +1167,7 @@ describe('BillingService.handleWebhook energy purchase', () => {
     await service.handleWebhook(PAYLOAD, SIGNATURE);
 
     expect(listCheckoutLineItems).not.toHaveBeenCalled();
-    expect(energyService.credit).not.toHaveBeenCalled();
+    expect(energyService.creditPurchasedRefill).not.toHaveBeenCalled();
     expect(repository.upsertSubscription).not.toHaveBeenCalled();
   });
 });

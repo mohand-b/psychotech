@@ -22,10 +22,10 @@ import {
   PaymentMethodSummaryDto,
   PaymentWalletType,
   PromotionCodeDto,
+  ENERGY_CAPACITY,
   SubscriptionDto,
   SubscriptionPaymentDto,
   SubscriptionTier,
-  energyTopUpQuantity,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { EnergyService } from '../energy/energy.service';
@@ -585,8 +585,7 @@ export class BillingService {
       );
     }
     const state = await this.energyService.getState(userId);
-    const quantity = energyTopUpQuantity(state.balance);
-    if (quantity === 0) {
+    if (state.balance >= ENERGY_CAPACITY) {
       throw new BadRequestException('The energy balance is already full');
     }
     const customerId = await this.ensureCustomer(stripe, userId);
@@ -594,8 +593,12 @@ export class BillingService {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       customer: customerId,
-      line_items: [{ price: priceEnergyPack, quantity }],
+      line_items: [{ price: priceEnergyPack, quantity: 1 }],
       metadata: { userId },
+      saved_payment_method_options: {
+        payment_method_save: 'enabled',
+        allow_redisplay_filters: ['always', 'limited', 'unspecified'],
+      },
       success_url: `${origin}/recharge?statut=succes`,
       cancel_url: `${origin}/recharge?statut=annule`,
     });
@@ -662,11 +665,10 @@ export class BillingService {
     const packLine = lineItems.data.find(
       (line) => line.price?.id === priceEnergyPack,
     );
-    const quantity = packLine?.quantity ?? 0;
-    if (quantity <= 0) {
+    if (!packLine) {
       return;
     }
-    await this.energyService.credit(userId, quantity, session.id);
+    await this.energyService.creditPurchasedRefill(userId, session.id);
   }
 
   private async applyPaymentMethodUpdate(

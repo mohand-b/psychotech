@@ -82,32 +82,68 @@ describe('EnergyRepository.applyDailyReset', () => {
   });
 });
 
-describe('EnergyRepository.credit', () => {
-  it('increments the balance and records the purchase with its reference', async () => {
-    const { prisma, tx } = buildPrismaMock(6);
+describe('EnergyRepository.creditToCapacity', () => {
+  function buildCreditPrisma(balance: number) {
+    const tx = {
+      energyWallet: {
+        findUniqueOrThrow: vi
+          .fn()
+          .mockResolvedValue({ userId: 'user-1', balance, capacity: 5 }),
+        update: vi.fn().mockResolvedValue({
+          userId: 'user-1',
+          balance: 5,
+          capacity: 5,
+        }),
+      },
+      energyLedger: { create: vi.fn().mockResolvedValue({}) },
+    };
+    const prisma = {
+      $transaction: vi.fn((callback: (client: typeof tx) => unknown) =>
+        callback(tx),
+      ),
+    };
+    return { prisma, tx };
+  }
+
+  it('sets the balance back to capacity and records the purchase with its reference', async () => {
+    const { prisma, tx } = buildCreditPrisma(1);
     const repository = new EnergyRepository(prisma as unknown as PrismaService);
 
-    const wallet = await repository.credit(
+    const wallet = await repository.creditToCapacity(
       'user-1',
-      4,
       EnergyLedgerReason.PURCHASE,
       'cs_test_1',
     );
 
     expect(tx.energyWallet.update).toHaveBeenCalledWith({
       where: { userId: 'user-1' },
-      data: { balance: { increment: 4 } },
+      data: { balance: 5 },
     });
     expect(tx.energyLedger.create).toHaveBeenCalledWith({
       data: {
         userId: 'user-1',
         delta: 4,
         reason: EnergyLedgerReason.PURCHASE,
-        balanceAfter: 6,
+        balanceAfter: 5,
         ref: 'cs_test_1',
       },
     });
-    expect(wallet.balance).toBe(6);
+    expect(wallet.balance).toBe(5);
+  });
+
+  it('never pushes the balance above capacity and skips the ledger when already full', async () => {
+    const { prisma, tx } = buildCreditPrisma(5);
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+
+    const wallet = await repository.creditToCapacity(
+      'user-1',
+      EnergyLedgerReason.PURCHASE,
+      'cs_test_2',
+    );
+
+    expect(tx.energyWallet.update).not.toHaveBeenCalled();
+    expect(tx.energyLedger.create).not.toHaveBeenCalled();
+    expect(wallet.balance).toBe(5);
   });
 });
 
