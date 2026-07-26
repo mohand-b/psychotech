@@ -24,7 +24,6 @@ export const connectedRoutes: Route[] = [
       ...profileRoutes,
       ...progressionRoutes,
       ...subscriptionsRoutes,
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },
