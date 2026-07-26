@@ -884,7 +884,8 @@ export class BillingService {
       currentPeriodEnd: item.current_period_end
         ? new Date(item.current_period_end * 1000)
         : null,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      cancelAtPeriodEnd:
+        subscription.cancel_at_period_end || subscription.cancel_at !== null,
       canceledAt: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000)
         : null,

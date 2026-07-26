@@ -44,6 +44,7 @@ function buildStripeSubscription(
     metadata: {},
     cancel_at_period_end: false,
     schedule: null,
+    cancel_at: null,
     canceled_at: null,
     items: {
       data: [
@@ -1007,6 +1008,28 @@ describe('BillingService.handleWebhook subscription upsert', () => {
         cancelAtPeriodEnd: true,
         canceledAt: new Date(1_790_000_000 * 1000),
         status: DbSubscriptionStatus.ACTIVE,
+      }),
+    );
+  });
+
+  it('captures a portal cancellation expressed through cancel_at only', async () => {
+    stubEvent(
+      'customer.subscription.updated',
+      buildStripeSubscription({
+        cancel_at_period_end: false,
+        cancel_at: 1_798_000_000,
+        canceled_at: 1_790_000_000,
+      }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        cancelAtPeriodEnd: true,
+        canceledAt: new Date(1_790_000_000 * 1000),
       }),
     );
   });
