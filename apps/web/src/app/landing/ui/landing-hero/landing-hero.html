@@ -25,8 +25,11 @@
           les conditions réelles de l'examen, sur les cinq aptitudes évaluées par
           les recruteurs.
         </p>
-        <a routerLink="/register" class="hero__cta hero__animate">
-          <span>Créer un compte</span>
+        <a
+          [routerLink]="authenticated() ? '/dashboard' : '/register'"
+          class="hero__cta hero__animate"
+        >
+          <span>{{ authenticated() ? 'Accéder à mon espace' : 'Créer un compte' }}</span>
           <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
         </a>
         <div class="hero__axes-group hero__animate">
@@ -128,8 +131,11 @@
         </div>
       </div>
       <div class="hero__stacked-ctas hero__animate">
-        <a routerLink="/register" class="hero__stacked-cta">
-          Créer un compte
+        <a
+          [routerLink]="authenticated() ? '/dashboard' : '/register'"
+          class="hero__stacked-cta"
+        >
+          {{ authenticated() ? 'Accéder à mon espace' : 'Créer un compte' }}
           <ui-icon [img]="arrowIcon" [size]="16" [strokeWidth]="2" />
         </a>
         <a href="#fonctionnement" class="hero__stacked-secondary">

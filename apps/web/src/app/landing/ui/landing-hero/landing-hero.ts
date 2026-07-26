@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  input,
   NgZone,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -54,6 +55,8 @@ function axesFor(sector: Sector): HeroAxis[] {
   styleUrl: './landing-hero.css',
 })
 export class LandingHero {
+  readonly authenticated = input(false);
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);

@@ -10,4 +10,5 @@ import { RouterLink } from '@angular/router';
 })
 export class LandingHeader {
   readonly scrolled = input(false);
+  readonly authenticated = input(false);
 }

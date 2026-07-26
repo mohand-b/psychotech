@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LandingReveal } from '../landing-reveal.directive';
 
@@ -13,12 +13,22 @@ import { LandingReveal } from '../landing-reveal.directive';
         <h2 class="cta__title">
           Prêt à mettre toutes les chances de votre côté&nbsp;?
         </h2>
-        <p class="cta__text">
-          Créez votre compte gratuitement et essayez chaque épreuve en mode
-          découverte. Aucune carte bancaire requise.
-        </p>
-        <a class="cta__button" routerLink="/register">
-          Créer un compte
+        @if (authenticated()) {
+          <p class="cta__text">
+            Votre compte est prêt. Chaque session génère de nouveaux exercices :
+            reprenez l'entraînement dès maintenant.
+          </p>
+        } @else {
+          <p class="cta__text">
+            Créez votre compte gratuitement et essayez chaque épreuve en mode
+            découverte. Aucune carte bancaire requise.
+          </p>
+        }
+        <a
+          class="cta__button"
+          [routerLink]="authenticated() ? '/entrainements' : '/register'"
+        >
+          {{ authenticated() ? "Reprendre l'entraînement" : 'Créer un compte' }}
           <svg
             width="17"
             height="17"
@@ -124,4 +134,6 @@ import { LandingReveal } from '../landing-reveal.directive';
     }
   `,
 })
-export class LandingCta {}
+export class LandingCta {
+  readonly authenticated = input(false);
+}

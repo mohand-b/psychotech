@@ -8,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { LandingAxes } from '../../ui/landing-axes/landing-axes';
 import { LandingCta } from '../../ui/landing-cta/landing-cta';
 import { LandingDifferentiator } from '../../ui/landing-differentiator/landing-differentiator';
@@ -41,10 +42,12 @@ import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
 })
 export class Landing {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authFacade = inject(AuthFacade);
   private readonly sentinel =
     viewChild.required<ElementRef<HTMLElement>>('sentinel');
 
   protected readonly scrolled = signal(false);
+  protected readonly authenticated = this.authFacade.isAuthenticated;
 
   constructor() {
     afterNextRender(() => {
