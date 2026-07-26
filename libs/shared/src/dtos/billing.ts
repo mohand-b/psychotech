@@ -1,4 +1,4 @@
-import { SubscriptionTier } from '../enums';
+import { SubscriptionStatus, SubscriptionTier } from '../enums';
 
 export type PaidTier = Exclude<SubscriptionTier, SubscriptionTier.FREE>;
 
@@ -43,6 +43,22 @@ export interface PaymentMethodOverviewDto {
   card: PaymentMethodSummaryDto | null;
   nextInvoiceAmount: number | null;
   nextInvoiceDate: string | null;
+}
+
+export interface BillingOverviewDto {
+  tier: SubscriptionTier;
+  status: SubscriptionStatus | null;
+  cancelAtPeriodEnd: boolean;
+  canceledAt: string | null;
+  currentPeriodEnd: string | null;
+  pendingTier: PaidTier | null;
+  monthlyAmount: number | null;
+  paymentMethod: PaymentMethodSummaryDto | null;
+  nextInvoiceDate: string | null;
+}
+
+export interface BillingPortalSessionDto {
+  url: string;
 }
 
 export enum InvoiceStatus {

@@ -7,6 +7,7 @@ export interface SubscriptionDto {
   billingPeriod: BillingPeriod | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  canceledAt: string | null;
   pendingTier: PaidTier | null;
 }
 
