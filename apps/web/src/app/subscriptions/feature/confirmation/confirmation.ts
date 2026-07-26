@@ -42,12 +42,10 @@ export class SubscriptionConfirmation {
 
   protected readonly plan: PaidTier;
   protected readonly isPlanChange: boolean;
-  protected readonly isResume: boolean;
 
   constructor() {
     const mode = this.route.snapshot.queryParamMap.get('mode');
     this.isPlanChange = mode === 'changement';
-    this.isResume = mode === 'reprise';
     const fromQuery = planFromSlug(
       this.route.snapshot.queryParamMap.get('offre'),
     );

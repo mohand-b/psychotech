@@ -11,12 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   BillingInvoiceDto,
-  BillingPeriod,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
   InvoiceStatus,
   PASSWORD_MIN_LENGTH,
-  PaymentMethodOverviewDto,
   Sector,
+  SubscriptionStatus,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -36,7 +35,6 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
-import { PLAN_SLUGS } from '../../../subscriptions/plan-slug';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -79,7 +77,7 @@ const SECTION_META: Record<ProfileSection, ProfileSectionMeta> = {
   },
   billing: {
     title: 'Facturation',
-    description: 'Moyen de paiement et prochaine facture.',
+    description: 'Moyen de paiement et reçus émis.',
   },
 };
 
@@ -172,9 +170,9 @@ export class Profile {
   protected readonly section = signal<ProfileSection>('account');
   protected readonly saved = signal(false);
   protected readonly saving = signal(false);
-  protected readonly paymentOverview =
-    signal<PaymentMethodOverviewDto | null>(null);
-  protected readonly paymentLoading = signal(false);
+  protected readonly billing = this.subscriptionsFacade.billingOverview;
+  protected readonly billingLoading = this.subscriptionsFacade.billingLoading;
+  protected readonly portalOpening = signal(false);
   protected readonly invoices = signal<BillingInvoiceDto[] | null>(null);
   protected readonly invoicesError = signal(false);
   private savedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -190,27 +188,27 @@ export class Profile {
   protected readonly securityError = signal<string | null>(null);
 
   constructor() {
+    this.subscriptionsFacade
+      .loadBillingOverview()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => undefined });
     if (this.tier() !== SubscriptionTier.FREE) {
-      this.paymentLoading.set(true);
-      this.subscriptionsFacade
-        .getPaymentMethodOverview()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (overview) => {
-            this.paymentOverview.set(overview);
-            this.paymentLoading.set(false);
-          },
-          error: () => {
-            this.paymentOverview.set(null);
-            this.paymentLoading.set(false);
-          },
-        });
       this.loadInvoices();
     }
     this.destroyRef.onDestroy(() => {
       if (this.savedTimer) {
         clearTimeout(this.savedTimer);
       }
+    });
+  }
+
+  protected openPortal(): void {
+    if (this.portalOpening()) {
+      return;
+    }
+    this.portalOpening.set(true);
+    this.subscriptionsFacade.openPortal('/profil').subscribe({
+      error: () => this.portalOpening.set(false),
     });
   }
 
@@ -363,28 +361,33 @@ export class Profile {
     period: string | null;
   }>(() => {
     const tier = this.tier();
-    return tier === SubscriptionTier.FREE
-      ? { label: 'Gratuit', mono: false, period: null }
-      : {
-          label: `${SUBSCRIPTION_MONTHLY_PRICES[tier]} €`,
-          mono: true,
-          period: 'par mois',
-        };
+    if (tier === SubscriptionTier.FREE) {
+      return { label: 'Gratuit', mono: false, period: null };
+    }
+    const monthlyAmount = this.billing()?.monthlyAmount;
+    const amount =
+      monthlyAmount !== null && monthlyAmount !== undefined
+        ? formatEuroAmount(monthlyAmount / 100)
+        : SUBSCRIPTION_MONTHLY_PRICES[tier];
+    return { label: `${amount} €`, mono: true, period: 'par mois' };
   });
 
   protected readonly renewalLabel = computed(() => {
-    const periodEnd = this.user()?.subscription?.currentPeriodEnd;
+    const periodEnd = this.billing()?.currentPeriodEnd;
     return periodEnd ? formatDayMonthYear(periodEnd) : null;
   });
 
-  protected readonly planBillingLabel = computed(() => {
-    const period = this.user()?.subscription?.billingPeriod;
-    return period === BillingPeriod.ANNUAL
-      ? 'Annuelle'
-      : period === BillingPeriod.MONTHLY
-        ? 'Mensuelle'
-        : 'Aucune';
-  });
+  protected readonly planBillingLabel = computed(() =>
+    this.tier() === SubscriptionTier.FREE ? 'Aucune' : 'Mensuelle',
+  );
+
+  protected readonly subscriptionEnding = computed(
+    () => this.billing()?.cancelAtPeriodEnd === true,
+  );
+
+  protected readonly paymentPastDue = computed(
+    () => this.billing()?.status === SubscriptionStatus.PAST_DUE,
+  );
 
   protected readonly planRenewMeta = computed<{
     label: string;
@@ -394,27 +397,20 @@ export class Profile {
       return { label: 'Durée', value: 'Sans limite' };
     }
     const renewal = this.renewalLabel();
-    return renewal
-      ? { label: 'Prochain renouvellement', value: renewal }
-      : null;
+    if (!renewal) {
+      return null;
+    }
+    return this.subscriptionEnding()
+      ? { label: "Accès jusqu'au", value: renewal }
+      : { label: 'Prochain renouvellement', value: renewal };
   });
 
-  protected readonly planCta = computed<{ label: string; link: string }>(() => {
-    const tier = this.tier();
-    if (tier === SubscriptionTier.FREE) {
-      return { label: 'Choisir une formule', link: '/abonnements' };
-    }
-    if (tier === SubscriptionTier.ESSENTIAL) {
-      return {
-        label: "Passer à l'Illimité",
-        link: `/paiement/${PLAN_SLUGS[SubscriptionTier.UNLIMITED]}`,
-      };
-    }
-    return { label: "Changer d'offre", link: '/abonnements' };
-  });
-
-  protected readonly subscriptionEnding = computed(
-    () => this.user()?.subscription?.cancelAtPeriodEnd === true,
+  protected readonly planCta = computed<
+    { kind: 'offers'; label: string } | { kind: 'portal'; label: string }
+  >(() =>
+    this.tier() === SubscriptionTier.FREE
+      ? { kind: 'offers', label: 'Choisir une formule' }
+      : { kind: 'portal', label: 'Gérer mon abonnement' },
   );
 
   protected readonly cancelRow = computed<{
@@ -428,11 +424,11 @@ export class Profile {
     const renewal = this.renewalLabel();
     if (this.subscriptionEnding()) {
       return {
-        title: 'Abonnement résilié',
+        title: 'Résiliation programmée',
         description: renewal
-          ? `Votre abonnement prend fin le ${renewal}. Vous pouvez le reprendre jusqu'à cette date, votre progression est conservée.`
-          : 'Votre abonnement prend fin à la fin de la période payée. Vous pouvez le reprendre jusque-là, votre progression est conservée.',
-        ctaLabel: 'Reprendre',
+          ? `Accès jusqu'au ${renewal}. Vous pouvez réactiver votre abonnement jusqu'à cette date, votre progression est conservée.`
+          : "Accès conservé jusqu'à la fin de la période payée. Vous pouvez réactiver votre abonnement jusque-là, votre progression est conservée.",
+        ctaLabel: 'Réactiver',
       };
     }
     return {
@@ -445,12 +441,12 @@ export class Profile {
   });
 
   protected readonly methodView = computed(() => {
-    const card = this.paymentOverview()?.card ?? null;
+    const card = this.billing()?.paymentMethod ?? null;
     return card ? buildPaymentMethodView(card) : null;
   });
 
   protected readonly nextInvoiceLabel = computed(() => {
-    const iso = this.paymentOverview()?.nextInvoiceDate;
+    const iso = this.billing()?.nextInvoiceDate;
     return iso ? formatDayMonthYear(iso) : null;
   });
 
@@ -507,6 +503,9 @@ export class Profile {
     if (this.tier() === SubscriptionTier.FREE) {
       return { text: 'Aucune facturation en cours', tone: 'idle' };
     }
+    if (this.paymentPastDue()) {
+      return { text: 'Paiement en échec', tone: 'error' };
+    }
     if (this.subscriptionEnding()) {
       const renewal = this.renewalLabel();
       return {
@@ -514,7 +513,10 @@ export class Profile {
         tone: 'idle',
       };
     }
-    const invoice = this.nextInvoiceLabel() ?? this.renewalLabel();
+    if (section === 'billing') {
+      return { text: 'Aucun paiement en attente', tone: 'idle' };
+    }
+    const invoice = this.nextInvoiceLabel();
     return {
       text: invoice ? `Prochaine facture le ${invoice}` : '',
       tone: 'idle',

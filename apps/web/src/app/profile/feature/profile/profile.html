@@ -78,6 +78,27 @@
           <span class="profil__section-desc">{{ meta().description }}</span>
         </div>
 
+        @if (
+          paymentPastDue() && (section() === 'plan' || section() === 'billing')
+        ) {
+          <div class="profil__alert flex items-center">
+            <span class="profil__alert-copy flex flex-col">
+              <span class="profil__alert-title">Paiement en échec</span>
+              <span class="profil__alert-desc"
+                >Le dernier prélèvement n'a pas abouti. Votre accès est conservé
+                le temps de régulariser.</span
+              >
+            </span>
+            <button
+              type="button"
+              class="profil__cta-secondary"
+              (click)="openPortal()"
+            >
+              Mettre à jour le moyen de paiement
+            </button>
+          </div>
+        }
+
         @switch (section()) {
           @case ('account') {
             <div class="profil__section-body flex flex-col">
@@ -237,7 +258,12 @@
             <div class="profil__section-body flex flex-col">
               <div class="profil__plan-top flex">
                 <span class="profil__plan-name-block flex flex-col">
-                  <span class="profil__plan-name">{{ plan().name }}</span>
+                  <span class="profil__plan-name-row flex items-center">
+                    <span class="profil__plan-name">{{ plan().name }}</span>
+                    @if (subscriptionEnding()) {
+                      <ui-badge tone="neutral">Résiliation programmée</ui-badge>
+                    }
+                  </span>
                   <span class="profil__plan-desc">{{
                     plan().description
                   }}</span>
@@ -270,12 +296,28 @@
                     <span class="profil__meta-value">{{ renewMeta.value }}</span>
                   </span>
                 }
+                @if (methodView(); as method) {
+                  <span class="profil__meta flex flex-col">
+                    <span class="t-label">Moyen de paiement</span>
+                    <span class="profil__meta-value t-mono">{{
+                      method.detailLabel
+                    }}</span>
+                  </span>
+                }
               </div>
               <div class="profil__plan-actions flex items-center">
-                <a class="profil__cta" [routerLink]="planCta().link">{{
-                  planCta().label
-                }}</a>
-                @if (planCta().link !== '/abonnements') {
+                @if (planCta().kind === 'offers') {
+                  <a class="profil__cta" routerLink="/abonnements">{{
+                    planCta().label
+                  }}</a>
+                } @else {
+                  <button
+                    type="button"
+                    class="profil__cta"
+                    (click)="openPortal()"
+                  >
+                    {{ planCta().label }}
+                  </button>
                   <a class="profil__cta-secondary" routerLink="/abonnements"
                     >Comparer les offres</a
                   >
@@ -291,12 +333,14 @@
                       cancel.description
                     }}</span>
                   </span>
-                  <a
+                  <button
+                    type="button"
                     class="profil__cta-secondary"
                     [class.profil__plan-row-cta--danger]="!subscriptionEnding()"
-                    routerLink="/abonnements"
-                    >{{ cancel.ctaLabel }}</a
+                    (click)="openPortal()"
                   >
+                    {{ cancel.ctaLabel }}
+                  </button>
                 </div>
               } @else {
                 <span class="profil__plan-free-note"
@@ -310,7 +354,7 @@
           }
           @case ('billing') {
             <div class="profil__section-body flex flex-col">
-              @if (paymentLoading()) {
+              @if (billingLoading()) {
                 <div class="profil__billing-card flex items-center">
                   <ui-skeleton class="profil__skeleton-badge" />
                   <span class="profil__billing-copy flex flex-col">

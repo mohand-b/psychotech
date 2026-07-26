@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
   BillingInvoiceDto,
+  BillingOverviewDto,
+  BillingPortalSessionDto,
   ChangePlanPreviewDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
@@ -58,17 +60,16 @@ export class SubscriptionsApi {
     );
   }
 
-  cancelSubscription(): Observable<SubscriptionDto> {
-    return this.http.post<SubscriptionDto>(
-      `${this.baseUrl}/billing/subscription/cancel`,
-      {},
-    );
+  getBillingOverview(reconcile: boolean): Observable<BillingOverviewDto> {
+    return this.http.get<BillingOverviewDto>(`${this.baseUrl}/billing/overview`, {
+      params: reconcile ? { reconcile: 'true' } : {},
+    });
   }
 
-  resumeSubscription(): Observable<SubscriptionDto> {
-    return this.http.post<SubscriptionDto>(
-      `${this.baseUrl}/billing/subscription/resume`,
-      {},
+  createPortalSession(returnPath: string): Observable<BillingPortalSessionDto> {
+    return this.http.post<BillingPortalSessionDto>(
+      `${this.baseUrl}/billing/portal`,
+      { returnPath },
     );
   }
 

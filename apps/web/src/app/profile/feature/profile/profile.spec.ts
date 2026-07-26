@@ -3,10 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
   BillingInvoiceDto,
+  BillingOverviewDto,
   BillingPeriod,
   EnergyStateDto,
   InvoiceStatus,
-  PaymentMethodOverviewDto,
   PaymentWalletType,
   ProgressionDto,
   Sector,
@@ -41,6 +41,7 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
       billingPeriod: BillingPeriod.MONTHLY,
       currentPeriodEnd: '2026-08-05T00:00:00.000Z',
       cancelAtPeriodEnd: false,
+      canceledAt: null,
       pendingTier: null,
     },
     createdAt: '2026-04-14T00:00:00.000Z',
@@ -59,17 +60,26 @@ function buildEnergy(): EnergyStateDto {
   };
 }
 
-function buildOverview(): PaymentMethodOverviewDto {
+function buildBillingOverview(
+  overrides: Partial<BillingOverviewDto> = {},
+): BillingOverviewDto {
   return {
-    card: {
+    tier: SubscriptionTier.UNLIMITED,
+    status: SubscriptionStatus.ACTIVE,
+    cancelAtPeriodEnd: false,
+    canceledAt: null,
+    currentPeriodEnd: '2026-08-05T00:00:00.000Z',
+    pendingTier: null,
+    monthlyAmount: 1499,
+    paymentMethod: {
       brand: 'mastercard',
       last4: '1234',
       expMonth: 8,
       expYear: 2027,
       wallet: PaymentWalletType.GOOGLE_PAY,
     },
-    nextInvoiceAmount: 1499,
     nextInvoiceDate: '2026-08-05T00:00:00.000Z',
+    ...overrides,
   };
 }
 
@@ -125,6 +135,7 @@ function buildInvoices(): BillingInvoiceDto[] {
 interface SetupOptions {
   tier?: SubscriptionTier;
   user?: UserProfileDto;
+  billingOverview?: BillingOverviewDto | null;
   changePasswordResult?: () => Observable<UserProfileDto>;
   invoicesResult?: () => Observable<BillingInvoiceDto[]>;
 }
@@ -141,7 +152,24 @@ async function setup(options: SetupOptions = {}) {
     user.set(updated);
     return of(updated);
   });
-  const getPaymentMethodOverview = vi.fn().mockReturnValue(of(buildOverview()));
+  const overview =
+    options.billingOverview !== undefined
+      ? options.billingOverview
+      : tier === SubscriptionTier.FREE
+        ? buildBillingOverview({
+            tier: SubscriptionTier.FREE,
+            status: null,
+            monthlyAmount: null,
+            paymentMethod: null,
+            currentPeriodEnd: null,
+            nextInvoiceDate: null,
+          })
+        : buildBillingOverview({ tier });
+  const billingOverview = signal<BillingOverviewDto | null>(overview);
+  const loadBillingOverview = vi.fn(() =>
+    overview ? of(overview) : of(null),
+  );
+  const openPortal = vi.fn().mockReturnValue(of(undefined));
   const listInvoices = vi.fn(() =>
     options.invoicesResult ? options.invoicesResult() : of(buildInvoices()),
   );
@@ -168,7 +196,13 @@ async function setup(options: SetupOptions = {}) {
       { provide: EnergyFacade, useValue: { state: signal(buildEnergy()) } },
       {
         provide: SubscriptionsFacade,
-        useValue: { getPaymentMethodOverview, listInvoices },
+        useValue: {
+          billingOverview,
+          billingLoading: signal(false),
+          loadBillingOverview,
+          openPortal,
+          listInvoices,
+        },
       },
       {
         provide: CatalogFacade,
@@ -203,7 +237,8 @@ async function setup(options: SetupOptions = {}) {
     navigate,
     updateProfile,
     changePassword,
-    getPaymentMethodOverview,
+    loadBillingOverview,
+    openPortal,
     listInvoices,
   };
 }
@@ -214,7 +249,7 @@ function textOf(fixture: { nativeElement: HTMLElement }): string {
 
 function navButtons(fixture: { nativeElement: HTMLElement }): HTMLButtonElement[] {
   return Array.from(
-    fixture.nativeElement.querySelectorAll<HTMLButtonElement>(
+    (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
       '.profil__nav-item',
     ),
   );
@@ -281,19 +316,22 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('Illimitée');
     expect(textOf(fixture)).toContain('Prochain renouvellement');
     expect(textOf(fixture)).toContain('5 août 2026');
-    expect(textOf(fixture)).toContain("Changer d'offre");
-    expect(textOf(fixture)).not.toContain('Comparer les offres');
+    expect(textOf(fixture)).toContain('Gérer mon abonnement');
+    expect(textOf(fixture)).toContain('Comparer les offres');
+    expect(textOf(fixture)).toContain('Mastercard •••• 1234');
     expect(textOf(fixture)).toContain('Résilier mon abonnement');
     expect(textOf(fixture)).toContain(
       'La résiliation prend effet le 5 août 2026',
     );
+    expect(textOf(fixture)).toContain('Prochaine facture le 5 août 2026');
 
     buttons[4].click();
     fixture.detectChanges();
     expect(textOf(fixture)).toContain('Google Pay');
     expect(textOf(fixture)).toContain('Mastercard •••• 1234');
     expect(textOf(fixture)).toContain('Expire 08/27');
-    expect(textOf(fixture)).toContain('Prochaine facture le 5 août 2026');
+    expect(textOf(fixture)).not.toContain('Prochaine facture');
+    expect(textOf(fixture)).toContain('Aucun paiement en attente');
   });
 
   it('walks the footer states from idle to dirty to saved', async () => {
@@ -488,15 +526,15 @@ describe('Profile', () => {
     expect(updateProfile).not.toHaveBeenCalled();
   });
 
-  it('hides billing for the free plan and skips the payment overview call', async () => {
-    const { fixture, getPaymentMethodOverview } = await setup({
+  it('hides billing for the free plan and shows the no-subscription state', async () => {
+    const { fixture, listInvoices } = await setup({
       tier: SubscriptionTier.FREE,
       user: buildUser({ tier: SubscriptionTier.FREE, subscription: null }),
     });
     expect(
       navButtons(fixture).map((button) => button.textContent?.trim()),
     ).toEqual(['Informations', 'Sécurité', 'Secteur', 'Abonnement']);
-    expect(getPaymentMethodOverview).not.toHaveBeenCalled();
+    expect(listInvoices).not.toHaveBeenCalled();
 
     navButtons(fixture)[3].click();
     fixture.detectChanges();
@@ -507,5 +545,95 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('Sans limite');
     expect(textOf(fixture)).toContain('Aucune facturation en cours');
     expect(textOf(fixture)).not.toContain('Résilier');
+    expect(textOf(fixture)).not.toContain('Gérer mon abonnement');
+  });
+
+  it('opens the portal directly from the cancel action', async () => {
+    const { fixture, openPortal, navigate } = await setup();
+    navButtons(fixture)[3].click();
+    fixture.detectChanges();
+
+    const cancelButton = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+        '.profil__plan-row button',
+      ),
+    ).find((button) => button.textContent?.includes('Résilier'));
+    expect(cancelButton).toBeDefined();
+    cancelButton?.click();
+    fixture.detectChanges();
+
+    expect(openPortal).toHaveBeenCalledWith('/profil');
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the portal from the manage subscription action', async () => {
+    const { fixture, openPortal } = await setup();
+    navButtons(fixture)[3].click();
+    fixture.detectChanges();
+
+    const manageButton = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+        '.profil__plan-actions button',
+      ),
+    ).find((button) => button.textContent?.includes('Gérer mon abonnement'));
+    expect(manageButton).toBeDefined();
+    manageButton?.click();
+
+    expect(openPortal).toHaveBeenCalledWith('/profil');
+  });
+
+  it('renders the scheduled cancellation state with a reactivate action', async () => {
+    const { fixture, openPortal } = await setup({
+      billingOverview: buildBillingOverview({
+        cancelAtPeriodEnd: true,
+        canceledAt: '2026-07-20T10:00:00.000Z',
+        nextInvoiceDate: null,
+      }),
+    });
+    navButtons(fixture)[3].click();
+    fixture.detectChanges();
+
+    expect(textOf(fixture)).toContain('Résiliation programmée');
+    expect(textOf(fixture)).toContain("Accès jusqu'au 5 août 2026");
+    expect(textOf(fixture)).toContain('Réactiver');
+    expect(textOf(fixture)).not.toContain('Résilier mon abonnement');
+    expect(textOf(fixture)).not.toContain('Prochaine facture');
+
+    const reactivate = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+        '.profil__plan-row button',
+      ),
+    ).find((button) => button.textContent?.includes('Réactiver'));
+    reactivate?.click();
+    expect(openPortal).toHaveBeenCalledWith('/profil');
+  });
+
+  it('renders the past due alert with a payment method action', async () => {
+    const { fixture, openPortal } = await setup({
+      billingOverview: buildBillingOverview({
+        status: SubscriptionStatus.PAST_DUE,
+        nextInvoiceDate: null,
+      }),
+    });
+    navButtons(fixture)[3].click();
+    fixture.detectChanges();
+
+    expect(textOf(fixture)).toContain('Paiement en échec');
+    expect(textOf(fixture)).toContain('Mettre à jour le moyen de paiement');
+
+    const updateButton = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+        '.profil__alert button',
+      ),
+    ).find((button) =>
+      button.textContent?.includes('Mettre à jour le moyen de paiement'),
+    );
+    updateButton?.click();
+    expect(openPortal).toHaveBeenCalledWith('/profil');
+  });
+
+  it('loads the billing overview on init', async () => {
+    const { loadBillingOverview } = await setup();
+    expect(loadBillingOverview).toHaveBeenCalled();
   });
 });

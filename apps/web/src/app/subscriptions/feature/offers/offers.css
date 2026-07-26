@@ -540,21 +540,32 @@
   flex-shrink: 0;
 }
 
-.offers__manage-cancel {
-  border: none;
-  background: transparent;
-  padding: 10px 4px;
-  font: 600 13px/1.4 var(--font-ui);
-  color: var(--label);
-  cursor: pointer;
+.offers__alert {
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--danger-pastel);
+  border: 1px solid color-mix(in srgb, var(--danger-text) 18%, var(--card));
+  border-radius: 14px;
+  padding: 16px 24px;
 }
 
-.offers__manage-cancel:hover {
+.offers__alert-copy {
+  gap: 2px;
+}
+
+.offers__alert-title {
+  font: 600 13.5px/1.4 var(--font-ui);
   color: var(--danger-text);
 }
 
+.offers__alert-desc {
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--text-secondary);
+}
+
 @media (max-width: 767px) {
-  .offers__manage {
+  .offers__manage,
+  .offers__alert {
     flex-direction: column;
     align-items: stretch;
     padding: 16px;

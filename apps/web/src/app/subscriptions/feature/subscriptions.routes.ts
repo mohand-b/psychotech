@@ -13,13 +13,6 @@ export const subscriptionsRoutes: Route[] = [
       ),
   },
   {
-    path: 'abonnement-resilie',
-    loadComponent: () =>
-      import('./cancellation/cancellation').then(
-        (m) => m.SubscriptionCancellation,
-      ),
-  },
-  {
     path: 'paiement/carte',
     loadComponent: () =>
       import('./payment-method/payment-method').then((m) => m.PaymentMethod),

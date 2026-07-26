@@ -402,6 +402,49 @@
   color: var(--ink);
 }
 
+button.profil__cta {
+  border: 0;
+  cursor: pointer;
+}
+
+button.profil__cta-secondary {
+  cursor: pointer;
+}
+
+.profil__plan-name-row {
+  gap: 10px;
+}
+
+.profil__alert {
+  gap: 16px;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--danger-pastel);
+  border: 1px solid color-mix(in srgb, var(--danger-text) 18%, var(--card));
+  border-radius: var(--radius-input);
+}
+
+.profil__alert-copy {
+  gap: 2px;
+}
+
+.profil__alert-title {
+  font: 600 14px/1.4 var(--font-ui);
+  color: var(--danger-text);
+}
+
+.profil__alert-desc {
+  font: 400 13px/1.5 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.profil__alert .profil__cta-secondary {
+  height: 40px;
+  padding: 0 18px;
+  font-size: 13.5px;
+  flex-shrink: 0;
+}
+
 .profil__cancel-link {
   font: 600 13px/1.4 var(--font-ui);
   color: var(--label);
@@ -892,6 +935,12 @@
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
+  }
+
+  .profil__alert {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
   .profil__plan-row .profil__cta-secondary {

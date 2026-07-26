@@ -65,7 +65,7 @@
 
       <section class="offd__card">
         @if (isEssentialCurrent()) {
-        <span class="offd__current-badge">Votre formule actuelle</span>
+        <span class="offd__current-badge">{{ currentPlanBadge() }}</span>
         }
         <div class="offd__card-head">
           <span class="offd__plan">Essentiel</span>
@@ -214,8 +214,8 @@
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-          @if (unlimitedUntil(); as until) {
-            <span class="offd__card-note">Actif jusqu'au {{ until }}</span>
+          @if (unlimitedCardNote(); as note) {
+            <span class="offd__card-note">{{ note }}</span>
           }
         } @else {
         <ui-button
@@ -270,8 +270,8 @@
           </span>
         </div>
         @if (isUnlimitedCurrent()) {
-          @if (unlimitedUntil(); as until) {
-            <span class="offd__card-note">Actif jusqu'au {{ until }}</span>
+          @if (unlimitedCardNote(); as note) {
+            <span class="offd__card-note">{{ note }}</span>
           }
         } @else {
         <ui-button
@@ -288,7 +288,7 @@
 
       <section class="offm__card">
         @if (isEssentialCurrent()) {
-        <span class="offd__current-badge">Votre formule actuelle</span>
+        <span class="offd__current-badge">{{ currentPlanBadge() }}</span>
         }
         <div class="offm__card-head">
           <span class="offd__plan">Essentiel</span>
@@ -395,6 +395,21 @@
       </section>
     </div>
 
+    @if (isPaidCurrent() && paymentPastDue()) {
+      <section class="offers__alert flex items-center">
+        <span class="offers__alert-copy flex flex-col">
+          <span class="offers__alert-title">Paiement en échec</span>
+          <span class="offers__alert-desc"
+            >Le dernier prélèvement n'a pas abouti. Votre accès est conservé le
+            temps de régulariser.</span
+          >
+        </span>
+        <ui-button color="brand" (click)="openPortal()" [loading]="managing()">
+          Mettre à jour le moyen de paiement
+        </ui-button>
+      </section>
+    }
+
     @if (isPaidCurrent()) {
       <section class="offers__manage">
         <span class="offers__manage-copy flex flex-col">
@@ -405,10 +420,10 @@
           @if (subscriptionEndsAt()) {
             <ui-button
               color="brand"
-              (click)="resumeSubscription()"
+              (click)="openPortal()"
               [loading]="managing()"
             >
-              Reprendre mon abonnement
+              Réactiver mon abonnement
             </ui-button>
           } @else {
             <ui-button
@@ -419,13 +434,13 @@
             >
               Mettre à jour ma carte
             </ui-button>
-            <button
-              type="button"
-              class="offers__manage-cancel"
-              (click)="cancelSubscription()"
+            <ui-button
+              color="brand"
+              (click)="openPortal()"
+              [loading]="managing()"
             >
-              {{ cancelLabel() }}
-            </button>
+              Gérer mon abonnement
+            </ui-button>
           }
         </span>
       </section>

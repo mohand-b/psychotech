@@ -8,9 +8,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { PaidTier, SubscriptionTier } from '@psychotech/shared';
+import {
+  PaidTier,
+  SubscriptionStatus,
+  SubscriptionTier,
+} from '@psychotech/shared';
 import { ArrowRight, Check, Minus } from 'lucide-angular';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS } from '../../plan-slug';
@@ -45,13 +48,11 @@ const mono = (value: string): CompareCell => ({ kind: 'mono', value });
 })
 export class Offers {
   private readonly coreFacade = inject(CoreFacade);
-  private readonly authFacade = inject(AuthFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly managing = signal(false);
-  protected readonly pendingCancel = signal(false);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -60,12 +61,17 @@ export class Offers {
   protected readonly tiers = SubscriptionTier;
   protected readonly tier = this.coreFacade.tier;
   protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
+  private readonly billing = this.subscriptionsFacade.billingOverview;
 
   constructor() {
     this.subscriptionsFacade
       .refreshTier()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
+    this.subscriptionsFacade
+      .loadBillingOverview()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => undefined });
   }
 
   protected readonly isFreeCurrent = computed(
@@ -79,17 +85,20 @@ export class Offers {
   );
 
   protected readonly subscriptionEndsAt = computed(() => {
-    const subscription = this.authFacade.currentUser()?.subscription;
-    return subscription?.cancelAtPeriodEnd && subscription.currentPeriodEnd
-      ? formatDayMonthYear(subscription.currentPeriodEnd)
+    const overview = this.billing();
+    return overview?.cancelAtPeriodEnd && overview.currentPeriodEnd
+      ? formatDayMonthYear(overview.currentPeriodEnd)
       : null;
   });
 
   protected readonly renewalDate = computed(() => {
-    const periodEnd = this.authFacade.currentUser()?.subscription
-      ?.currentPeriodEnd;
+    const periodEnd = this.billing()?.currentPeriodEnd;
     return periodEnd ? formatDayMonthYear(periodEnd) : null;
   });
+
+  protected readonly paymentPastDue = computed(
+    () => this.billing()?.status === SubscriptionStatus.PAST_DUE,
+  );
 
   protected readonly isPaidCurrent = computed(() => {
     const tier = this.tier();
@@ -99,12 +108,21 @@ export class Offers {
     );
   });
 
-  protected readonly unlimitedUntil = computed(() =>
-    this.isUnlimitedCurrent() &&
-    (this.pendingChange() !== null || this.subscriptionEndsAt() !== null)
-      ? this.renewalDate()
-      : null,
-  );
+  protected readonly unlimitedCardNote = computed(() => {
+    if (
+      !this.isUnlimitedCurrent() ||
+      (this.pendingChange() === null && this.subscriptionEndsAt() === null)
+    ) {
+      return null;
+    }
+    const until = this.renewalDate();
+    if (!until) {
+      return null;
+    }
+    return this.subscriptionEndsAt()
+      ? `Accès jusqu'au ${until}`
+      : `Actif jusqu'au ${until}`;
+  });
 
   protected readonly essentialCardNote = computed(() => {
     if (!this.isEssentialCurrent()) {
@@ -112,7 +130,7 @@ export class Offers {
     }
     const endsAt = this.subscriptionEndsAt();
     if (endsAt) {
-      return `Actif jusqu'au ${endsAt}`;
+      return `Accès jusqu'au ${endsAt}`;
     }
     const renewal = this.renewalDate();
     return renewal ? `Renouvellement le ${renewal}` : null;
@@ -125,25 +143,35 @@ export class Offers {
     }
     const endsAt = this.subscriptionEndsAt();
     if (endsAt) {
-      return `Votre abonnement prend fin le ${endsAt}. Votre progression est conservée.`;
+      return `Votre abonnement prend fin le ${endsAt}. Vous pouvez le réactiver jusqu'à cette date, votre progression est conservée.`;
     }
-    return 'La résiliation prend effet en fin de période payée, votre progression est conservée.';
+    return 'Résiliation, réactivation et moyen de paiement se gèrent depuis votre espace de facturation sécurisé.';
   });
 
   protected readonly pendingChange = computed(() => {
-    const subscription = this.authFacade.currentUser()?.subscription;
-    return subscription?.pendingTier && subscription.currentPeriodEnd
+    const overview = this.billing();
+    return overview?.pendingTier && overview.currentPeriodEnd
       ? {
-          tier: subscription.pendingTier,
-          label: PLAN_LABELS[subscription.pendingTier],
-          date: formatDayMonthYear(subscription.currentPeriodEnd),
+          tier: overview.pendingTier,
+          label: PLAN_LABELS[overview.pendingTier],
+          date: formatDayMonthYear(overview.currentPeriodEnd),
         }
       : null;
   });
 
+  protected readonly currentPlanBadge = computed(() => {
+    if (this.subscriptionEndsAt()) {
+      return 'Résiliation programmée';
+    }
+    if (this.paymentPastDue()) {
+      return 'Paiement en échec';
+    }
+    return 'Votre formule actuelle';
+  });
+
   protected readonly unlimitedBadge = computed(() =>
     this.isUnlimitedCurrent()
-      ? 'Votre formule actuelle'
+      ? this.currentPlanBadge()
       : 'Recommandé pour la préparation intensive',
   );
 
@@ -214,50 +242,13 @@ export class Offers {
     });
   }
 
-  protected cancelSubscription(): void {
-    if (this.managing()) {
-      return;
-    }
-    if (!this.pendingCancel()) {
-      this.pendingCancel.set(true);
-      return;
-    }
-    this.managing.set(true);
-    this.subscriptionsFacade.cancelSubscription().subscribe({
-      next: () => {
-        this.managing.set(false);
-        this.pendingCancel.set(false);
-        this.router.navigate(['/abonnement-resilie']);
-      },
-      error: () => {
-        this.managing.set(false);
-        this.pendingCancel.set(false);
-      },
-    });
-  }
-
-  protected resumeSubscription(): void {
+  protected openPortal(): void {
     if (this.managing()) {
       return;
     }
     this.managing.set(true);
-    const tier = this.tier();
-    const slug =
-      tier === SubscriptionTier.FREE
-        ? PLAN_SLUGS[SubscriptionTier.ESSENTIAL]
-        : PLAN_SLUGS[tier as PaidTier];
-    this.subscriptionsFacade.resumeSubscription().subscribe({
-      next: () =>
-        this.router.navigate(['/abonnement-confirme'], {
-          queryParams: { offre: slug, mode: 'reprise' },
-        }),
+    this.subscriptionsFacade.openPortal('/abonnements').subscribe({
       error: () => this.managing.set(false),
     });
-  }
-
-  protected cancelLabel(): string {
-    return this.pendingCancel()
-      ? 'Confirmer la résiliation'
-      : 'Résilier mon abonnement';
   }
 }

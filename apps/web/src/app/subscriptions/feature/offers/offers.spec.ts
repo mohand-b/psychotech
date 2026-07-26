@@ -6,45 +6,56 @@ import {
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
-import { SubscriptionDto, SubscriptionTier } from '@psychotech/shared';
+import {
+  BillingOverviewDto,
+  SubscriptionStatus,
+  SubscriptionTier,
+} from '@psychotech/shared';
 import { of } from 'rxjs';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Offers } from './offers';
 
 interface SetupOptions {
-  subscription?: Partial<SubscriptionDto>;
+  overview?: Partial<BillingOverviewDto>;
+}
+
+function buildOverview(
+  tier: SubscriptionTier,
+  overrides: Partial<BillingOverviewDto> = {},
+): BillingOverviewDto {
+  return {
+    tier,
+    status: tier === SubscriptionTier.FREE ? null : SubscriptionStatus.ACTIVE,
+    cancelAtPeriodEnd: false,
+    canceledAt: null,
+    currentPeriodEnd:
+      tier === SubscriptionTier.FREE ? null : '2026-08-17T00:00:00.000Z',
+    pendingTier: null,
+    monthlyAmount: null,
+    paymentMethod: null,
+    nextInvoiceDate:
+      tier === SubscriptionTier.FREE ? null : '2026-08-17T00:00:00.000Z',
+    ...overrides,
+  };
 }
 
 async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
-  const subscription =
-    tier === SubscriptionTier.FREE
-      ? null
-      : {
-          tier,
-          status: 'ACTIVE',
-          billingPeriod: 'MONTHLY',
-          currentPeriodEnd: '2026-08-17T00:00:00.000Z',
-          cancelAtPeriodEnd: false,
-          ...options.subscription,
-        };
+  const overview = buildOverview(tier, options.overview);
   const subscriptionsFacade = {
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
-    cancelSubscription: vi.fn().mockReturnValue(of(undefined)),
-    resumeSubscription: vi.fn().mockReturnValue(of(undefined)),
     cancelPlanChange: vi.fn().mockReturnValue(of(undefined)),
     refreshTier: vi.fn().mockReturnValue(of(tier)),
+    loadBillingOverview: vi.fn().mockReturnValue(of(overview)),
+    openPortal: vi.fn().mockReturnValue(of(undefined)),
+    billingOverview: signal<BillingOverviewDto | null>(overview),
+    billingLoading: signal(false),
   };
   await TestBed.configureTestingModule({
     imports: [Offers],
     providers: [
       provideRouter([]),
       { provide: CoreFacade, useValue: { tier: signal(tier) } },
-      {
-        provide: AuthFacade,
-        useValue: { currentUser: signal({ subscription }) },
-      },
       { provide: SubscriptionsFacade, useValue: subscriptionsFacade },
       {
         provide: ActivatedRoute,
@@ -85,7 +96,8 @@ describe('Offers', () => {
     const manage = element.querySelector('.offers__manage');
     expect(manage?.textContent).toContain("Gestion de l'abonnement");
     expect(manage?.textContent).toContain('Mettre à jour ma carte');
-    expect(manage?.textContent).toContain('Résilier mon abonnement');
+    expect(manage?.textContent).toContain('Gérer mon abonnement');
+    expect(manage?.textContent).not.toContain('Résilier');
   });
 
   it('marks the discovery card as current for the free plan without management', async () => {
@@ -126,35 +138,21 @@ describe('Offers', () => {
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
-  it('cancels the subscription in-app after an inline confirmation', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
+  it('opens the billing portal from the manage action', async () => {
+    const { fixture, subscriptionsFacade, navigate } = await setup(
       SubscriptionTier.ESSENTIAL,
     );
     const element: HTMLElement = fixture.nativeElement;
-    const cancelButton = () =>
-      element.querySelector<HTMLButtonElement>('.offers__manage-cancel');
-
-    cancelButton()?.click();
-    fixture.detectChanges();
-    expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
-    expect(cancelButton()?.textContent?.trim()).toBe(
-      'Confirmer la résiliation',
+    const manageButton = Array.from(
+      element.querySelectorAll<HTMLButtonElement>(
+        '.offers__manage ui-button button',
+      ),
+    ).find((button) => button.textContent?.includes('Gérer mon abonnement'));
+    manageButton?.click();
+    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
+      '/abonnements',
     );
-
-    cancelButton()?.click();
-    fixture.detectChanges();
-    expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
-  });
-
-  it('lands on the cancellation page after cancelling', async () => {
-    const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL);
-    const element: HTMLElement = fixture.nativeElement;
-    const cancelButton = () =>
-      element.querySelector<HTMLButtonElement>('.offers__manage-cancel');
-    cancelButton()?.click();
-    fixture.detectChanges();
-    cancelButton()?.click();
-    expect(navigate).toHaveBeenCalledWith(['/abonnement-resilie']);
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('keeps the discovery card free of any action button', async () => {
@@ -165,36 +163,60 @@ describe('Offers', () => {
     expect(freeCard?.textContent).not.toContain('Passer en Découverte');
   });
 
-  it('resumes a scheduled cancellation and lands on the confirmation page', async () => {
-    const { fixture, subscriptionsFacade, navigate } = await setup(
+  it('renders the scheduled cancellation with a portal reactivation action', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
       SubscriptionTier.UNLIMITED,
-      { subscription: { cancelAtPeriodEnd: true } },
+      { overview: { cancelAtPeriodEnd: true, nextInvoiceDate: null } },
     );
     const element: HTMLElement = fixture.nativeElement;
+    expect(texts(element, '.offd__featured-badge')).toContain(
+      'Résiliation programmée',
+    );
     expect(texts(element, '.offers__manage-note')[0]).toContain(
-      'prend fin le',
+      'prend fin le 17 août 2026',
     );
     expect(
       texts(element, '.offd .offd__card-note').some((note) =>
-        note.includes("Actif jusqu'au 17 août 2026"),
+        note.includes("Accès jusqu'au 17 août 2026"),
       ),
     ).toBe(true);
-    const resumeButton = Array.from(
+    const manage = element.querySelector('.offers__manage');
+    expect(manage?.textContent).not.toContain('Résilier');
+    const reactivateButton = Array.from(
       element.querySelectorAll<HTMLButtonElement>(
         '.offers__manage ui-button button',
       ),
-    ).find((button) => button.textContent?.includes('Reprendre'));
-    resumeButton?.click();
-    expect(subscriptionsFacade.resumeSubscription).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(['/abonnement-confirme'], {
-      queryParams: { offre: 'illimite', mode: 'reprise' },
-    });
+    ).find((button) => button.textContent?.includes('Réactiver'));
+    reactivateButton?.click();
+    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
+      '/abonnements',
+    );
+  });
+
+  it('renders the past due alert with a portal payment method action', async () => {
+    const { fixture, subscriptionsFacade } = await setup(
+      SubscriptionTier.ESSENTIAL,
+      { overview: { status: SubscriptionStatus.PAST_DUE } },
+    );
+    const element: HTMLElement = fixture.nativeElement;
+    expect(texts(element, '.offd__current-badge')).toContain(
+      'Paiement en échec',
+    );
+    const alert = element.querySelector('.offers__alert');
+    expect(alert?.textContent).toContain('Paiement en échec');
+    expect(alert?.textContent).toContain('Mettre à jour le moyen de paiement');
+    alert
+      ?.querySelector<HTMLButtonElement>('ui-button button')
+      ?.click();
+    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
+      '/abonnements',
+    );
   });
 
   it('shows the scheduled plan change on the essential card and cancels it', async () => {
     const { fixture, subscriptionsFacade } = await setup(
       SubscriptionTier.UNLIMITED,
-      { subscription: { pendingTier: SubscriptionTier.ESSENTIAL } },
+      { overview: { pendingTier: SubscriptionTier.ESSENTIAL } },
     );
     const element: HTMLElement = fixture.nativeElement;
     expect(texts(element, '.offd__pending-date')).toContain(
