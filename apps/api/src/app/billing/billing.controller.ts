@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   RawBodyRequest,
   Req,
 } from '@nestjs/common';
@@ -13,6 +14,8 @@ import { Request } from 'express';
 import {
   BillingConfigDto,
   BillingInvoiceDto,
+  BillingOverviewDto,
+  BillingPortalSessionDto,
   ChangePlanPreviewDto,
   PaymentMethodOverviewDto,
   PromotionCodeDto,
@@ -24,6 +27,7 @@ import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CurrentUser } from '../common/current-user.decorator';
 import { BillingService } from './billing.service';
 import { ChangeSubscriptionPlanRequest } from './dto/change-subscription-plan.request';
+import { CreatePortalSessionRequest } from './dto/create-portal-session.request';
 import { CreateSubscriptionRequest } from './dto/create-subscription.request';
 
 const STRIPE_SIGNATURE_HEADER = 'stripe-signature';
@@ -78,6 +82,22 @@ export class BillingController {
   @Post('subscription/resume')
   resumeSubscription(@CurrentUser() userId: string): Promise<SubscriptionDto> {
     return this.billingService.resumeSubscription(userId);
+  }
+
+  @Get('overview')
+  getBillingOverview(
+    @CurrentUser() userId: string,
+    @Query('reconcile') reconcile?: string,
+  ): Promise<BillingOverviewDto> {
+    return this.billingService.getBillingOverview(userId, reconcile === 'true');
+  }
+
+  @Post('portal')
+  createPortalSession(
+    @CurrentUser() userId: string,
+    @Body() body: CreatePortalSessionRequest,
+  ): Promise<BillingPortalSessionDto> {
+    return this.billingService.createPortalSession(userId, body.returnPath);
   }
 
   @Get('payment-method')

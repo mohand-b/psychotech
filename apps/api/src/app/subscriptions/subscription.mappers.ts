@@ -19,6 +19,7 @@ export function toSubscriptionDto(subscription: Subscription): SubscriptionDto {
       : null,
     currentPeriodEnd: subscription.currentPeriodEnd?.toISOString() ?? null,
     cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+    canceledAt: subscription.canceledAt?.toISOString() ?? null,
     pendingTier: pendingTier === SubscriptionTier.FREE ? null : pendingTier,
   };
 }

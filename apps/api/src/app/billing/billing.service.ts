@@ -8,11 +8,16 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SubscriptionTier as DbSubscriptionTier } from '@prisma/client';
+import {
+  SubscriptionStatus as DbSubscriptionStatus,
+  SubscriptionTier as DbSubscriptionTier,
+} from '@prisma/client';
 import Stripe from 'stripe';
 import {
   BillingConfigDto,
   BillingInvoiceDto,
+  BillingOverviewDto,
+  BillingPortalSessionDto,
   ChangePlanPreviewDto,
   ENERGY_CAPACITY,
   ENERGY_NO_PAYMENT_METHOD_ERROR_CODE,
@@ -26,11 +31,13 @@ import {
   PromotionCodeDto,
   SubscriptionDto,
   SubscriptionPaymentDto,
+  SubscriptionStatus,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { EnergyService } from '../energy/energy.service';
 import { toSubscriptionDto } from '../subscriptions/subscription.mappers';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { BillingConfig } from '../config/billing.config';
 import {
   mapStripeSubscriptionStatus,
@@ -52,6 +59,8 @@ const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
 
 const ENERGY_REFILL_PURPOSE = 'energy_refill';
 
+const DEFAULT_PORTAL_RETURN_PATH = '/profil';
+
 @Injectable()
 export class BillingService {
   private readonly logger = new Logger(BillingService.name);
@@ -62,6 +71,7 @@ export class BillingService {
     private readonly repository: BillingRepository,
     private readonly energyService: EnergyService,
     private readonly configService: ConfigService,
+    private readonly tierResolution: TierResolutionService,
   ) {
     this.config = this.configService.getOrThrow<BillingConfig>('billing');
   }
@@ -227,6 +237,121 @@ export class BillingService {
     };
   }
 
+  async getBillingOverview(
+    userId: string,
+    reconcile: boolean,
+  ): Promise<BillingOverviewDto> {
+    if (reconcile) {
+      await this.reconcileSubscription(userId);
+    }
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    const subscription = row ? toSubscriptionDto(row) : null;
+    const overview: BillingOverviewDto = {
+      tier: this.tierResolution.resolve(row),
+      status: subscription?.status ?? null,
+      cancelAtPeriodEnd: subscription?.cancelAtPeriodEnd ?? false,
+      canceledAt: subscription?.canceledAt ?? null,
+      currentPeriodEnd: subscription?.currentPeriodEnd ?? null,
+      pendingTier: subscription?.pendingTier ?? null,
+      monthlyAmount: null,
+      paymentMethod: null,
+      nextInvoiceDate: null,
+    };
+    const billable =
+      overview.status === SubscriptionStatus.ACTIVE ||
+      overview.status === SubscriptionStatus.PAST_DUE;
+    if (this.stripe && row?.stripeSubscriptionId && billable) {
+      try {
+        const current = await this.stripe.subscriptions.retrieve(
+          row.stripeSubscriptionId,
+        );
+        overview.paymentMethod = await this.findDefaultCard(
+          this.stripe,
+          userId,
+          current,
+        );
+        overview.monthlyAmount =
+          current.items.data[0]?.price.unit_amount ?? null;
+      } catch (error) {
+        if (!this.isMissingResource(error)) {
+          throw error;
+        }
+      }
+    }
+    if (
+      overview.status === SubscriptionStatus.ACTIVE &&
+      !overview.cancelAtPeriodEnd
+    ) {
+      overview.nextInvoiceDate = overview.currentPeriodEnd;
+    }
+    return overview;
+  }
+
+  private async reconcileSubscription(userId: string): Promise<void> {
+    if (!this.stripe) {
+      return;
+    }
+    const row = await this.repository.findSubscriptionByUserId(userId);
+    if (!row?.stripeSubscriptionId) {
+      return;
+    }
+    try {
+      const subscription = await this.stripe.subscriptions.retrieve(
+        row.stripeSubscriptionId,
+      );
+      await this.applySubscription(subscription);
+    } catch (error) {
+      if (!this.isMissingResource(error)) {
+        throw error;
+      }
+      await this.repository.upsertSubscription(userId, {
+        stripeSubscriptionId: row.stripeSubscriptionId,
+        tier: row.tier,
+        status: DbSubscriptionStatus.CANCELED,
+        currentPeriodEnd: row.currentPeriodEnd,
+        cancelAtPeriodEnd: false,
+        canceledAt: row.canceledAt ?? new Date(),
+        pendingTier: null,
+      });
+    }
+  }
+
+  async createPortalSession(
+    userId: string,
+    returnPath?: string,
+  ): Promise<BillingPortalSessionDto> {
+    const stripe = this.requireStripe();
+    const user = await this.repository.findUserById(userId);
+    if (!user?.stripeCustomerId) {
+      throw new ForbiddenException('No billing account for this user');
+    }
+    const session = await stripe.billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: this.buildPortalReturnUrl(returnPath),
+    });
+    return { url: session.url };
+  }
+
+  private buildPortalReturnUrl(returnPath?: string): string {
+    if (!this.config.webAppUrl) {
+      throw new ServiceUnavailableException(
+        'The web application url is not configured',
+      );
+    }
+    const path =
+      returnPath && returnPath.startsWith('/') && !returnPath.startsWith('//')
+        ? returnPath
+        : DEFAULT_PORTAL_RETURN_PATH;
+    return `${this.config.webAppUrl}${path}`;
+  }
+
+  private isMissingResource(error: unknown): boolean {
+    return (
+      error instanceof Stripe.errors.StripeError &&
+      error.code === 'resource_missing'
+    );
+  }
+
   async listInvoices(userId: string): Promise<BillingInvoiceDto[]> {
     if (!this.stripe) {
       return [];
@@ -242,10 +367,7 @@ export class BillingService {
         limit: 24,
       });
     } catch (error) {
-      if (
-        error instanceof Stripe.errors.StripeError &&
-        error.code === 'resource_missing'
-      ) {
+      if (this.isMissingResource(error)) {
         return [];
       }
       throw error;
@@ -763,6 +885,9 @@ export class BillingService {
         ? new Date(item.current_period_end * 1000)
         : null,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      canceledAt: subscription.canceled_at
+        ? new Date(subscription.canceled_at * 1000)
+        : null,
       pendingTier: await this.resolvePendingTier(subscription, tier),
     });
   }
@@ -834,10 +959,7 @@ export class BillingService {
       const customer = await stripe.customers.retrieve(customerId);
       return customer.deleted ? null : customer.id;
     } catch (error) {
-      if (
-        error instanceof Stripe.errors.StripeError &&
-        error.code === 'resource_missing'
-      ) {
+      if (this.isMissingResource(error)) {
         return null;
       }
       throw error;

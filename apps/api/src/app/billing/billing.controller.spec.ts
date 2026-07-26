@@ -41,5 +41,17 @@ describe('BillingController.handleWebhook guards', () => {
         BillingController.prototype.createPaymentMethodSetup,
       ),
     ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        BillingController.prototype.createPortalSession,
+      ),
+    ).toBeUndefined();
+    expect(
+      Reflect.getMetadata(
+        IS_PUBLIC_KEY,
+        BillingController.prototype.getBillingOverview,
+      ),
+    ).toBeUndefined();
   });
 });

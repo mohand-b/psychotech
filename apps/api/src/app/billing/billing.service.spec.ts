@@ -8,10 +8,11 @@ import {
   SubscriptionStatus as DbSubscriptionStatus,
   SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
-import { SubscriptionTier } from '@psychotech/shared';
+import { SubscriptionStatus, SubscriptionTier } from '@psychotech/shared';
 import Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EnergyService } from '../energy/energy.service';
+import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { BillingRepository } from './billing.repository';
 import { BillingService } from './billing.service';
 
@@ -29,6 +30,7 @@ const configService = {
           priceEssential: 'price_essential',
           priceUnlimited: 'price_unlimited',
           priceEnergyPack: 'price_energy_pack',
+          webAppUrl: 'http://localhost:4200',
         },
 } as unknown as ConfigService;
 
@@ -42,10 +44,11 @@ function buildStripeSubscription(
     metadata: {},
     cancel_at_period_end: false,
     schedule: null,
+    canceled_at: null,
     items: {
       data: [
         {
-          price: { id: 'price_essential' },
+          price: { id: 'price_essential', unit_amount: 899 },
           current_period_end: 1_800_000_000,
         },
       ],
@@ -82,6 +85,7 @@ const updateStripeSchedule = vi.fn();
 const releaseStripeSchedule = vi.fn();
 const retrieveStripeSchedule = vi.fn();
 const createPaymentIntent = vi.fn();
+const createPortalSession = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -107,6 +111,7 @@ const stripe = {
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
   paymentIntents: { create: createPaymentIntent },
+  billingPortal: { sessions: { create: createPortalSession } },
 } as unknown as Stripe;
 
 function buildStripePromotion(overrides: Record<string, unknown> = {}) {
@@ -134,11 +139,14 @@ const energyService = {
   creditPurchasedRefill: vi.fn(),
 };
 
+const tierResolution = new TierResolutionService(configService);
+
 const service = new BillingService(
   stripe,
   repository as unknown as BillingRepository,
   energyService as unknown as EnergyService,
   configService,
+  tierResolution,
 );
 
 function stubEvent(type: string, object: unknown, id = 'evt_1'): void {
@@ -825,6 +833,7 @@ describe('BillingService.listInvoices', () => {
       repository as unknown as BillingRepository,
       energyService as unknown as EnergyService,
       configService,
+      tierResolution,
     );
 
     await expect(offlineService.listInvoices('user-1')).resolves.toEqual([]);
@@ -975,8 +984,55 @@ describe('BillingService.handleWebhook subscription upsert', () => {
       status: DbSubscriptionStatus.ACTIVE,
       currentPeriodEnd: new Date(1_800_000_000 * 1000),
       cancelAtPeriodEnd: false,
+      canceledAt: null,
       pendingTier: null,
     });
+  });
+
+  it('persists the scheduled cancellation state on every update event', async () => {
+    stubEvent(
+      'customer.subscription.updated',
+      buildStripeSubscription({
+        cancel_at_period_end: true,
+        canceled_at: 1_790_000_000,
+      }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        cancelAtPeriodEnd: true,
+        canceledAt: new Date(1_790_000_000 * 1000),
+        status: DbSubscriptionStatus.ACTIVE,
+      }),
+    );
+  });
+
+  it('follows a plan change made in the portal through the price', async () => {
+    stubEvent(
+      'customer.subscription.updated',
+      buildStripeSubscription({
+        items: {
+          data: [
+            {
+              price: { id: 'price_unlimited', unit_amount: 1499 },
+              current_period_end: 1_800_000_000,
+            },
+          ],
+        },
+      }),
+    );
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+
+    await service.handleWebhook(PAYLOAD, SIGNATURE);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ tier: DbSubscriptionTier.UNLIMITED }),
+    );
   });
 
   it('stores a deleted subscription as canceled', async () => {
@@ -1036,6 +1092,7 @@ function buildEssentialRow(overrides: Record<string, unknown> = {}) {
     billingPeriod: 'MONTHLY',
     currentPeriodEnd: new Date('2026-08-17T00:00:00Z'),
     cancelAtPeriodEnd: false,
+    canceledAt: null,
     pendingTier: null,
     stripeSubscriptionId: 'sub_1',
     ...overrides,
@@ -1185,5 +1242,273 @@ describe('BillingService.handleWebhook energy refill', () => {
 
     expect(energyService.creditPurchasedRefill).not.toHaveBeenCalled();
     expect(repository.upsertSubscription).not.toHaveBeenCalled();
+  });
+});
+
+describe('BillingService.getBillingOverview', () => {
+  it('returns the discovery state without a subscription row', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(null);
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview).toEqual({
+      tier: SubscriptionTier.FREE,
+      status: null,
+      cancelAtPeriodEnd: false,
+      canceledAt: null,
+      currentPeriodEnd: null,
+      pendingTier: null,
+      monthlyAmount: null,
+      paymentMethod: null,
+      nextInvoiceDate: null,
+    });
+    expect(retrieveStripeSubscription).not.toHaveBeenCalled();
+  });
+
+  it('describes an active subscription with price, card and next invoice date', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        default_payment_method: {
+          id: 'pm_1',
+          card: {
+            brand: 'visa',
+            last4: '4242',
+            exp_month: 4,
+            exp_year: 2030,
+            wallet: null,
+          },
+        },
+      }),
+    );
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview).toMatchObject({
+      tier: SubscriptionTier.ESSENTIAL,
+      status: SubscriptionStatus.ACTIVE,
+      cancelAtPeriodEnd: false,
+      monthlyAmount: 899,
+      paymentMethod: expect.objectContaining({ brand: 'visa', last4: '4242' }),
+      nextInvoiceDate: new Date('2026-08-17T00:00:00Z').toISOString(),
+    });
+  });
+
+  it('hides the next invoice date once the cancellation is scheduled', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(
+      buildEssentialRow({
+        cancelAtPeriodEnd: true,
+        canceledAt: new Date('2026-07-20T10:00:00Z'),
+      }),
+    );
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({ cancel_at_period_end: true }),
+    );
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview).toMatchObject({
+      tier: SubscriptionTier.ESSENTIAL,
+      status: SubscriptionStatus.ACTIVE,
+      cancelAtPeriodEnd: true,
+      canceledAt: new Date('2026-07-20T10:00:00Z').toISOString(),
+      currentPeriodEnd: new Date('2026-08-17T00:00:00Z').toISOString(),
+      nextInvoiceDate: null,
+    });
+  });
+
+  it('keeps access while past due without a next invoice date', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(
+      buildEssentialRow({ status: DbSubscriptionStatus.PAST_DUE }),
+    );
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    retrieveStripeSubscription.mockResolvedValue(buildStripeSubscription());
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview).toMatchObject({
+      tier: SubscriptionTier.ESSENTIAL,
+      status: SubscriptionStatus.PAST_DUE,
+      nextInvoiceDate: null,
+    });
+    expect(retrieveStripeSubscription).toHaveBeenCalled();
+  });
+
+  it('falls back to discovery once the subscription is canceled', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(
+      buildEssentialRow({
+        status: DbSubscriptionStatus.CANCELED,
+        canceledAt: new Date('2026-07-20T10:00:00Z'),
+      }),
+    );
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview).toMatchObject({
+      tier: SubscriptionTier.FREE,
+      status: SubscriptionStatus.CANCELED,
+      monthlyAmount: null,
+      paymentMethod: null,
+      nextInvoiceDate: null,
+    });
+    expect(retrieveStripeSubscription).not.toHaveBeenCalled();
+  });
+
+  it('treats an incomplete subscription as no subscription', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(
+      buildEssentialRow({ status: DbSubscriptionStatus.EXPIRED }),
+    );
+
+    const overview = await service.getBillingOverview('user-1', false);
+
+    expect(overview.tier).toBe(SubscriptionTier.FREE);
+    expect(overview.status).toBe(SubscriptionStatus.EXPIRED);
+    expect(retrieveStripeSubscription).not.toHaveBeenCalled();
+  });
+});
+
+describe('BillingService.getBillingOverview reconciliation', () => {
+  it('realigns the base from stripe when asked to reconcile', async () => {
+    const staleRow = buildEssentialRow();
+    const repairedRow = buildEssentialRow({
+      cancelAtPeriodEnd: true,
+      canceledAt: new Date(1_790_000_000 * 1000),
+    });
+    repository.findSubscriptionByUserId
+      .mockResolvedValueOnce(staleRow)
+      .mockResolvedValue(repairedRow);
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    retrieveStripeSubscription.mockResolvedValue(
+      buildStripeSubscription({
+        cancel_at_period_end: true,
+        canceled_at: 1_790_000_000,
+      }),
+    );
+
+    const overview = await service.getBillingOverview('user-1', true);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        cancelAtPeriodEnd: true,
+        canceledAt: new Date(1_790_000_000 * 1000),
+      }),
+    );
+    expect(overview.cancelAtPeriodEnd).toBe(true);
+    expect(overview.nextInvoiceDate).toBeNull();
+  });
+
+  it('leaves an aligned subscription untouched by reconciliation', async () => {
+    repository.findSubscriptionByUserId.mockResolvedValue(buildEssentialRow());
+    repository.findUserIdByStripeCustomerId.mockResolvedValue('user-1');
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    retrieveStripeSubscription.mockResolvedValue(buildStripeSubscription());
+
+    const overview = await service.getBillingOverview('user-1', true);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith('user-1', {
+      stripeSubscriptionId: 'sub_1',
+      tier: DbSubscriptionTier.ESSENTIAL,
+      status: DbSubscriptionStatus.ACTIVE,
+      currentPeriodEnd: new Date(1_800_000_000 * 1000),
+      cancelAtPeriodEnd: false,
+      canceledAt: null,
+      pendingTier: null,
+    });
+    expect(overview.tier).toBe(SubscriptionTier.ESSENTIAL);
+  });
+
+  it('marks the subscription canceled when stripe no longer knows it', async () => {
+    repository.findSubscriptionByUserId
+      .mockResolvedValueOnce(buildEssentialRow())
+      .mockResolvedValue(
+        buildEssentialRow({ status: DbSubscriptionStatus.CANCELED }),
+      );
+    retrieveStripeSubscription.mockRejectedValue(
+      new Stripe.errors.StripeInvalidRequestError({
+        type: 'invalid_request_error',
+        code: 'resource_missing',
+        message: 'No such subscription',
+      } as Stripe.StripeRawError),
+    );
+
+    const overview = await service.getBillingOverview('user-1', true);
+
+    expect(repository.upsertSubscription).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({
+        status: DbSubscriptionStatus.CANCELED,
+        cancelAtPeriodEnd: false,
+        pendingTier: null,
+      }),
+    );
+    expect(overview.tier).toBe(SubscriptionTier.FREE);
+  });
+});
+
+describe('BillingService.createPortalSession', () => {
+  it('opens a portal session on the app return url', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    createPortalSession.mockResolvedValue({
+      url: 'https://billing.stripe.com/session/xyz',
+    });
+
+    const session = await service.createPortalSession('user-1', '/profil');
+
+    expect(session).toEqual({ url: 'https://billing.stripe.com/session/xyz' });
+    expect(createPortalSession).toHaveBeenCalledWith({
+      customer: 'cus_1',
+      return_url: 'http://localhost:4200/profil',
+    });
+  });
+
+  it('falls back to the profile return path when the requested one is unsafe', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: 'cus_1',
+    });
+    createPortalSession.mockResolvedValue({
+      url: 'https://billing.stripe.com/session/xyz',
+    });
+
+    await service.createPortalSession('user-1', '//evil.example');
+
+    expect(createPortalSession).toHaveBeenCalledWith({
+      customer: 'cus_1',
+      return_url: 'http://localhost:4200/profil',
+    });
+  });
+
+  it('refuses without a stripe customer', async () => {
+    repository.findUserById.mockResolvedValue({
+      id: 'user-1',
+      stripeCustomerId: null,
+    });
+
+    await expect(service.createPortalSession('user-1')).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(createPortalSession).not.toHaveBeenCalled();
   });
 });

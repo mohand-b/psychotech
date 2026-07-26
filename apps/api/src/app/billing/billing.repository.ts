@@ -15,6 +15,7 @@ export interface SubscriptionUpsert {
   status: SubscriptionStatus;
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
+  canceledAt: Date | null;
   pendingTier: SubscriptionTier | null;
 }
 

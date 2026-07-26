@@ -43,6 +43,9 @@ describe('mapStripeSubscriptionStatus', () => {
     expect(mapStripeSubscriptionStatus('unpaid')).toBe(
       DbSubscriptionStatus.EXPIRED,
     );
+    expect(mapStripeSubscriptionStatus('incomplete')).toBe(
+      DbSubscriptionStatus.EXPIRED,
+    );
     expect(mapStripeSubscriptionStatus('incomplete_expired')).toBe(
       DbSubscriptionStatus.EXPIRED,
     );
