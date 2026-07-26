@@ -98,14 +98,6 @@
   font-size: 12px;
 }
 
-.prog__kpi-band-dot {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  border-radius: var(--radius-pill);
-  vertical-align: -1px;
-}
-
 .prog__kpi-sub-short {
   display: none;
 }

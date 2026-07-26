@@ -275,9 +275,11 @@
                 <a class="profil__cta" [routerLink]="planCta().link">{{
                   planCta().label
                 }}</a>
-                <a class="profil__cta-secondary" routerLink="/abonnements"
-                  >Comparer les offres</a
-                >
+                @if (planCta().link !== '/abonnements') {
+                  <a class="profil__cta-secondary" routerLink="/abonnements"
+                    >Comparer les offres</a
+                  >
+                }
               </div>
               @if (cancelRow(); as cancel) {
                 <div class="profil__plan-row flex items-center">
@@ -330,7 +332,10 @@
                       >Expire {{ method.expiryLabel }}</span
                     >
                   </span>
-                  <a class="profil__cta-secondary" routerLink="/paiement/carte"
+                  <a
+                    class="profil__cta-secondary"
+                    routerLink="/paiement/carte"
+                    [queryParams]="{ retour: '/profil' }"
                     >Modifier</a
                   >
                 </div>

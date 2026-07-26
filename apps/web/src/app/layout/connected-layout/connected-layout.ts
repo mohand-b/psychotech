@@ -200,7 +200,10 @@ export class ConnectedLayout {
     const resolveLink = (link: string) =>
       link.replace(
         /:([A-Za-z]+)/g,
-        (segment, name) => snapshot?.paramMap.get(name) ?? segment,
+        (segment, name) =>
+          snapshot?.paramMap.get(name) ??
+          snapshot?.queryParamMap.get(name) ??
+          segment,
       );
     let title = data.title ?? '';
     let duration: string | null = null;

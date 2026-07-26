@@ -1,12 +1,5 @@
 <section class="page-shell offers">
   <div class="offers__intro">
-    @if (banner(); as state) {
-    @if (state === 'cardUpdated') {
-    <div class="offers__banner offers__banner--success">
-      Votre moyen de paiement a été mis à jour.
-    </div>
-    }
-    }
     <div class="offers__head">
       <h1 class="offers__title">Choisissez votre rythme de préparation</h1>
       <p class="offers__subtitle offers__subtitle--desktop">
@@ -422,6 +415,7 @@
               appearance="outlined"
               color="neutral"
               routerLink="/paiement/carte"
+              [queryParams]="{ retour: '/abonnements' }"
             >
               Mettre à jour ma carte
             </ui-button>

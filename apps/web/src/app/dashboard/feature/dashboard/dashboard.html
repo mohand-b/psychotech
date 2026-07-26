@@ -24,7 +24,11 @@
                 >{{ energyLabel()
                 }}@if (energyValue(); as value) {
                   <span class="home__day-energy-sep">·</span>
-                  <span class="home__day-energy-value t-mono">{{ value }}</span>
+                  <span
+                    class="home__day-energy-value t-mono"
+                    [class.home__day-energy-value--infinity]="value === '∞'"
+                    >{{ value }}</span
+                  >
                 }</span
               >
             }

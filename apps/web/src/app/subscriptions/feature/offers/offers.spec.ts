@@ -14,7 +14,6 @@ import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Offers } from './offers';
 
 interface SetupOptions {
-  carte?: string;
   subscription?: Partial<SubscriptionDto>;
 }
 
@@ -51,9 +50,7 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
         provide: ActivatedRoute,
         useValue: {
           snapshot: {
-            queryParamMap: convertToParamMap(
-              options.carte ? { carte: options.carte } : {},
-            ),
+            queryParamMap: convertToParamMap({}),
           },
         },
       },
@@ -218,17 +215,6 @@ describe('Offers', () => {
       .querySelector<HTMLButtonElement>('.offd .offd__pending-cancel')
       ?.click();
     expect(subscriptionsFacade.cancelPlanChange).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows the card update banner when returning from the card page', async () => {
-    const { fixture, navigate } = await setup(SubscriptionTier.ESSENTIAL, {
-      carte: 'maj',
-    });
-    expect(
-      (fixture.nativeElement as HTMLElement).querySelector('.offers__banner')
-        ?.textContent,
-    ).toContain('Votre moyen de paiement a été mis à jour.');
-    expect(navigate).toHaveBeenCalled();
   });
 
   it('renders the seven comparison rows', async () => {

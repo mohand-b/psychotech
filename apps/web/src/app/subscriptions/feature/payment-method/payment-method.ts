@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentMethodOverviewDto, SubscriptionTier } from '@psychotech/shared';
 import { CircleAlert, CreditCard, ShieldCheck } from 'lucide-angular';
 import { firstValueFrom } from 'rxjs';
@@ -39,9 +39,12 @@ export class PaymentMethod {
   private readonly coreFacade = inject(CoreFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly stripePayment = inject(StripePaymentService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
+
+  private readonly returnPath = this.sanitizedReturnPath();
 
   protected readonly cardIcon = CreditCard;
   protected readonly shieldIcon = ShieldCheck;
@@ -127,7 +130,7 @@ export class PaymentMethod {
       const confirmation = await this.stripePayment.confirm(
         setup.kind,
         setup.clientSecret,
-        `${this.document.location.origin}/abonnements?carte=maj`,
+        `${this.document.location.origin}${this.returnPath}`,
         '',
         '',
       );
@@ -135,13 +138,18 @@ export class PaymentMethod {
         this.saveError.set(confirmation.errorMessage);
         return;
       }
-      this.router.navigate(['/abonnements'], {
-        queryParams: { carte: 'maj' },
-      });
+      this.router.navigateByUrl(this.returnPath);
     } catch {
       this.saveError.set(CARD_UPDATE_FAILED_MESSAGE);
     } finally {
       this.saving.set(false);
     }
+  }
+
+  private sanitizedReturnPath(): string {
+    const retour = this.route.snapshot.queryParamMap.get('retour');
+    return retour && retour.startsWith('/') && !retour.startsWith('//')
+      ? retour
+      : '/abonnements';
   }
 }

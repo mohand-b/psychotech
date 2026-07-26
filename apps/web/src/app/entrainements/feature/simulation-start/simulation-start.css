@@ -9,11 +9,6 @@
 }
 
 .simb__hero-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: var(--brand-pastel);
-  border: 1px solid var(--brand-pastel-bd);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -78,6 +73,13 @@
 
 .simb__course {
   min-width: 0;
+}
+
+.simb__course ui-chevron-stepper {
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .simb__stepper--mobile {

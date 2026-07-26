@@ -26,8 +26,8 @@ export const subscriptionsRoutes: Route[] = [
     data: {
       focusedHeader: {
         title: 'Moyen de paiement',
-        backLabel: 'Retour aux offres',
-        backLink: '/abonnements',
+        backLabel: 'Retour',
+        backLink: ':retour',
         mobileTitle: true,
         showEnergy: false,
         showTimer: false,

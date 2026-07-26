@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PaidTier, SubscriptionTier } from '@psychotech/shared';
 import { ArrowRight, Check, Minus } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -32,8 +32,6 @@ interface CompareRow {
   mobile: [CompareCell, CompareCell, CompareCell];
 }
 
-type OffersBanner = 'cardUpdated';
-
 const CHECK: CompareCell = { kind: 'check' };
 const DASH: CompareCell = { kind: 'dash' };
 const mono = (value: string): CompareCell => ({ kind: 'mono', value });
@@ -49,13 +47,11 @@ export class Offers {
   private readonly coreFacade = inject(CoreFacade);
   private readonly authFacade = inject(AuthFacade);
   private readonly subscriptionsFacade = inject(SubscriptionsFacade);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly managing = signal(false);
   protected readonly pendingCancel = signal(false);
-  protected readonly banner = signal<OffersBanner | null>(null);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -66,15 +62,6 @@ export class Offers {
   protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
 
   constructor() {
-    if (this.route.snapshot.queryParamMap.get('carte') === 'maj') {
-      this.banner.set('cardUpdated');
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { carte: null },
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
-      });
-    }
     this.subscriptionsFacade
       .refreshTier()
       .pipe(takeUntilDestroyed(this.destroyRef))

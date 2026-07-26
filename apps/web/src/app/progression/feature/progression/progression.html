@@ -21,13 +21,7 @@
             <span class="prog__kpi-value t-mono">{{ last.scoreLabel }}</span>
             <span class="prog__kpi-unit t-mono">/100</span>
           </span>
-          <span class="prog__kpi-sub">
-            {{ last.dateLabel }}
-            <span
-              class="prog__kpi-band-dot"
-              [style.background]="last.bandColorVar"
-            ></span>
-          </span>
+          <span class="prog__kpi-sub">{{ last.dateLabel }}</span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
           <span class="prog__kpi-sub">Aucune simulation complétée</span>

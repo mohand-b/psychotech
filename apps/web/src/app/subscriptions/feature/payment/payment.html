@@ -140,7 +140,12 @@
         <section class="pay__card chg__section">
           <div class="pay__card-head">
             <span class="t-label">Moyen de paiement</span>
-            <a class="pay__edit" routerLink="/paiement/carte">Modifier</a>
+            <a
+              class="pay__edit"
+              routerLink="/paiement/carte"
+              [queryParams]="{ retour: cardReturnPath }"
+              >Modifier</a
+            >
           </div>
           <div class="chg__pm">
             <span class="chg__pm-badge">{{ method.badgeLabel }}</span>

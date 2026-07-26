@@ -78,7 +78,7 @@ export class SimulationStart {
   protected readonly estimatedDuration = ESTIMATED_DURATION_LABEL;
 
   protected readonly howItGoes: readonly string[] = [
-    "Les axes de votre secteur s'enchaînent dans l'ordre, avec un briefing et une courte pause avant chacun.",
+    "Les axes s'enchaînent dans l'ordre, avec une courte pause avant chacun.",
     'Chaque axe est chronométré séparément et ne se rejoue pas.',
     "En cas d'imprévu, quittez : vous reprendrez au début de l'axe en cours.",
   ];

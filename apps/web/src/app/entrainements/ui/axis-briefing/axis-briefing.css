@@ -24,11 +24,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 1.25rem;
-  background: var(--axis-pastel);
-  border: 1px solid var(--axis-pastel-bd);
   color: var(--axis-text);
 }
 

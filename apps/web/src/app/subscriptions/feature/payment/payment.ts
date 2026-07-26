@@ -101,6 +101,9 @@ export class Payment {
 
   protected readonly plan: PaidTier;
   protected readonly mode: 'checkout' | 'change';
+  protected get cardReturnPath(): string {
+    return `/paiement/${PLAN_SLUGS[this.plan]}`;
+  }
 
   private readonly paymentElementHost =
     viewChild<ElementRef<HTMLElement>>('paymentElement');

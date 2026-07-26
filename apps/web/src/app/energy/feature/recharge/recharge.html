@@ -60,7 +60,10 @@
                     >Débit immédiat, paiement unique. Aucun engagement.</span
                   >
                 </span>
-                <a class="rech__method-edit" routerLink="/paiement/carte"
+                <a
+                  class="rech__method-edit"
+                  routerLink="/paiement/carte"
+                  [queryParams]="{ retour: '/recharge' }"
                   >Modifier</a
                 >
               </div>
@@ -74,7 +77,10 @@
                     >Ajoutez une carte pour recharger votre énergie.</span
                   >
                 </span>
-                <a class="rech__method-edit" routerLink="/paiement/carte"
+                <a
+                  class="rech__method-edit"
+                  routerLink="/paiement/carte"
+                  [queryParams]="{ retour: '/recharge' }"
                   >Ajouter</a
                 >
               </div>

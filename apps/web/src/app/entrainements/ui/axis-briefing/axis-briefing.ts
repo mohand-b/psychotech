@@ -88,7 +88,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
     >
       <header class="axis-briefing__hero">
         <span class="axis-briefing__tile">
-          <ui-icon [img]="presentation().icon" [size]="30" />
+          <ui-icon [img]="presentation().icon" [size]="44" />
         </span>
         @if (positionLabel(); as position) {
           <span class="axis-briefing__position t-mono">{{ position }}</span>

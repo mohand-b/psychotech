@@ -22,7 +22,6 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
-import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
@@ -125,7 +124,6 @@ export class Progression {
     return last
       ? {
           scoreLabel: formatGlobalScore(last.globalScore),
-          bandColorVar: BAND_COLOR_VARS[last.band],
           dateLabel: formatSessionDate(last.date, this.now),
         }
       : null;

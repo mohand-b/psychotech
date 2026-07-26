@@ -282,7 +282,7 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('Prochain renouvellement');
     expect(textOf(fixture)).toContain('5 août 2026');
     expect(textOf(fixture)).toContain("Changer d'offre");
-    expect(textOf(fixture)).toContain('Comparer les offres');
+    expect(textOf(fixture)).not.toContain('Comparer les offres');
     expect(textOf(fixture)).toContain('Résilier mon abonnement');
     expect(textOf(fixture)).toContain(
       'La résiliation prend effet le 5 août 2026',

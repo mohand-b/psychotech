@@ -24,7 +24,7 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
     } @else if (unlimited()) {
       <span class="chip">
         <ui-bolt class="chip__bolt" [size]="14" />
-        <span class="chip__value">∞</span>
+        <span class="chip__value chip__value--infinity">∞</span>
       </span>
     } @else {
       <span
@@ -63,6 +63,10 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
       font-size: 10.5px;
       font-weight: 500;
       opacity: 0.6;
+    }
+    .chip__value--infinity {
+      font-size: 17px;
+      line-height: 13px;
     }
     .chip__label {
       font: 600 13px/1 var(--font-ui);
