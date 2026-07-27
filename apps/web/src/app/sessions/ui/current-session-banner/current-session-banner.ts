@@ -18,7 +18,6 @@ import {
   ChevronStepper,
   StepState,
 } from '../../../shared/ui/chevron-stepper/chevron-stepper';
-import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 const STEP_STATES: Record<AxisProgressStatus, StepState> = {
   [AxisProgressStatus.DONE]: 'done',
@@ -43,10 +42,6 @@ export class CurrentSessionBanner {
 
   protected readonly modeLabel = computed(() =>
     this.isFull() ? 'Simulation complète' : 'Entraînement ciblé',
-  );
-
-  protected readonly sectorLabel = computed(
-    () => SECTOR_PRESENTATION[this.session().sector].label,
   );
 
   protected readonly targetedAxis = computed(

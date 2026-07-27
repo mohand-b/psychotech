@@ -11,8 +11,6 @@
       } @else {
         <span class="banner__text flex items-center gap-2">
           <span class="banner__mode">{{ modeLabel() }}</span>
-          <span class="banner__sep">·</span>
-          <span class="banner__muted">{{ sectorLabel() }}</span>
           @if (targetedAxis(); as axis) {
             <ui-axis-label [axis]="axis" />
           }
@@ -25,7 +23,7 @@
         <ui-chevron-stepper variant="mini" [steps]="steps()" />
       } @else if (targetedAxis(); as axis) {
         <span class="banner__compact-meta flex items-center gap-2">
-          <span class="banner__muted">Ciblé ·</span>
+          <span class="banner__muted">Entraînement ciblé</span>
           <ui-axis-label [axis]="axis" />
         </span>
       }

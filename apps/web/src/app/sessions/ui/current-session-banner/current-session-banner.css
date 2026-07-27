@@ -31,11 +31,6 @@
   color: var(--ink);
 }
 
-.banner__sep {
-  margin: 0 4px;
-  color: var(--label);
-}
-
 .banner__muted {
   color: var(--text-secondary);
 }
