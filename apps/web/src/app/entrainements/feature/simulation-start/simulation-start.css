@@ -74,6 +74,7 @@
 .simb__course {
   min-width: 0;
   gap: 14px;
+  overflow: hidden;
 }
 
 .simb__course ui-chevron-stepper {
@@ -98,24 +99,24 @@
 }
 
 .simb__axis-panel--forward {
-  animation: simb-panel-forward 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: simb-panel-forward 0.5s cubic-bezier(0.35, 0, 0.25, 1);
 }
 
 .simb__axis-panel--backward {
-  animation: simb-panel-backward 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: simb-panel-backward 0.5s cubic-bezier(0.35, 0, 0.25, 1);
 }
 
 @keyframes simb-panel-forward {
   from {
-    opacity: 0;
-    transform: translateX(32px);
+    opacity: 0.3;
+    transform: translateX(100%);
   }
 }
 
 @keyframes simb-panel-backward {
   from {
-    opacity: 0;
-    transform: translateX(-32px);
+    opacity: 0.3;
+    transform: translateX(-100%);
   }
 }
 
