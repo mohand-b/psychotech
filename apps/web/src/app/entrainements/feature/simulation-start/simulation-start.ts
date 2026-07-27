@@ -84,13 +84,14 @@ export class SimulationStart {
 
   protected readonly exploredKeys = computed(() => [this.exploredAxis()]);
 
-  protected readonly exploredPresentation = computed(
-    () => AXIS_PRESENTATION[this.exploredAxis()],
+  protected readonly panelLeaveClass = computed(() =>
+    this.panelDirection() === 'backward'
+      ? 'simb__axis-panel--leave-right'
+      : 'simb__axis-panel--leave-left',
   );
 
-  protected readonly exploredEntry = computed(
-    () => SIMULATION_COURSE[this.exploredAxis()],
-  );
+  protected readonly presentations = AXIS_PRESENTATION;
+  protected readonly course = SIMULATION_COURSE;
 
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.FULL];

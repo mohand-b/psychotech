@@ -37,44 +37,53 @@
           [axes]="courseAxes"
           (activeAxisChange)="onAxisExplored($event)"
         />
-        @for (axis of exploredKeys(); track axis) {
-          <div
-            class="simb__axis-panel flex items-center"
-            [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
-            [class.simb__axis-panel--backward]="panelDirection() === 'backward'"
-            [style.background]="exploredPresentation().pastelVar"
-          >
-            <span
-              class="simb__axis-icon"
-              [style.color]="exploredPresentation().textVar"
+        <div class="simb__panel-viewport">
+          @for (axis of exploredKeys(); track axis) {
+            <div
+              class="simb__axis-panel flex items-center"
+              [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
+              [class.simb__axis-panel--backward]="
+                panelDirection() === 'backward'
+              "
+              [animate.leave]="panelLeaveClass()"
+              [style.background]="presentations[axis].pastelVar"
             >
-              <ui-icon
-                [img]="exploredPresentation().icon"
-                [size]="26"
-                [strokeWidth]="1.8"
-              />
-            </span>
-            <div class="simb__axis-text flex flex-col flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <span
-                  class="simb__axis-name"
-                  [style.color]="exploredPresentation().textVar"
-                  >{{ exploredPresentation().label }}</span
-                >
-                <span
-                  class="simb__axis-duration flex items-center"
-                  [style.color]="exploredPresentation().textVar"
-                >
-                  <ui-icon [img]="durationIcon" [size]="13" [strokeWidth]="2" />
-                  <span class="t-mono">{{ exploredEntry().duration }}</span>
-                </span>
+              <span
+                class="simb__axis-icon"
+                [style.color]="presentations[axis].textVar"
+              >
+                <ui-icon
+                  [img]="presentations[axis].icon"
+                  [size]="26"
+                  [strokeWidth]="1.8"
+                />
+              </span>
+              <div class="simb__axis-text flex flex-col flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span
+                    class="simb__axis-name"
+                    [style.color]="presentations[axis].textVar"
+                    >{{ presentations[axis].label }}</span
+                  >
+                  <span
+                    class="simb__axis-duration flex items-center"
+                    [style.color]="presentations[axis].textVar"
+                  >
+                    <ui-icon
+                      [img]="durationIcon"
+                      [size]="13"
+                      [strokeWidth]="2"
+                    />
+                    <span class="t-mono">{{ course[axis].duration }}</span>
+                  </span>
+                </div>
+                <span class="simb__axis-instruction">{{
+                  course[axis].instruction
+                }}</span>
               </div>
-              <span class="simb__axis-instruction">{{
-                exploredEntry().instruction
-              }}</span>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
 
@@ -123,7 +132,6 @@
           </span>
         }
       </button>
-      <span class="simb__note">Le chronomètre démarre au premier axe.</span>
     } @else {
       <span class="simb__cta simb__cta--locked">
         Commencer la session

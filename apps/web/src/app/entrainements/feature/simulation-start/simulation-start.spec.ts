@@ -90,7 +90,6 @@ describe('SimulationStart', () => {
     ) as HTMLButtonElement;
     expect(cta.textContent).toContain('Commencer la session');
     expect(cta.querySelector('ui-bolt')).not.toBeNull();
-    expect(text(fixture)).toContain('Le chronomètre démarre au premier axe.');
 
     cta.click();
     expect(startFull).toHaveBeenCalledTimes(1);
@@ -155,9 +154,6 @@ describe('SimulationStart', () => {
     expect(link?.textContent).toContain('Recharger pour 1,00 €');
     expect(link?.getAttribute('href')).toBe('/recharge');
     expect(text(fixture)).toContain('ou attendez la recharge dans');
-    expect(text(fixture)).not.toContain(
-      'Le chronomètre démarre au premier axe.',
-    );
     (locked as HTMLElement).click();
     expect(startFull).not.toHaveBeenCalled();
   });
