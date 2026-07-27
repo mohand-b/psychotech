@@ -18,12 +18,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 12px;
-  border: 1px solid var(--brand-pastel-bd);
-  border-radius: var(--radius-chip);
-  background: var(--brand-pastel);
+  min-width: 0;
+}
+
+.row__simulation-chip ui-icon {
   color: var(--brand);
-  font: 600 13px/18px var(--font-ui);
+  flex-shrink: 0;
+}
+
+.row__simulation-chip span {
+  font: 500 14px/20px var(--font-ui);
+  color: var(--ink);
+  white-space: nowrap;
 }
 
 .row__title {
