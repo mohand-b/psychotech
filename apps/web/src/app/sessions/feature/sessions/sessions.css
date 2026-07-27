@@ -49,10 +49,6 @@
   filter: brightness(1.35);
 }
 
-.sessions__filter-icon {
-  color: var(--chip-text);
-}
-
 .sessions__filter--axis:hover {
   border-color: var(--chip-pastel-bd);
   color: var(--ink);

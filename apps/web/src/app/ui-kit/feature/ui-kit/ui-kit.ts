@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AXIS_META, AxisType } from '@psychotech/shared';
 import { Check, Lock, Mail, Play, Zap } from 'lucide-angular';
-import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
@@ -43,7 +43,7 @@ interface TypeSample {
 @Component({
   selector: 'app-ui-kit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisChip, Badge, Button, Card, FormField, Icon, ScorePill],
+  imports: [AxisLabel, Badge, Button, Card, FormField, Icon, ScorePill],
   templateUrl: './ui-kit.html',
   styleUrl: './ui-kit.css',
 })

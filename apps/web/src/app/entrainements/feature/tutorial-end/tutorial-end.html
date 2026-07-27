@@ -11,16 +11,8 @@
             >Mode découverte · {{ sectorLabel }}</span
           >
         </div>
-        @if (presentation; as axisPresentation) {
-        <span
-          class="te__axis-chip"
-          [style.background]="axisPresentation.pastelVar"
-          [style.border-color]="axisPresentation.pastelBorderVar"
-          [style.color]="axisPresentation.textVar"
-        >
-          <ui-icon [img]="axisPresentation.icon" [size]="15" />
-          {{ axisPresentation.label }}
-        </span>
+        @if (axis; as tutorialAxis) {
+          <ui-axis-label class="te__axis-chip" [axis]="tutorialAxis" />
         }
       </div>
       <span class="te__hero-note"

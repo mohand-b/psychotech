@@ -228,16 +228,8 @@
         }
         @for (row of axisRows(); track row.axis; let last = $last) {
         <a class="duo__axis" [routerLink]="row.link">
-          <span
-            class="duo__axis-tile"
-            [style.background]="row.presentation.pastelVar"
-            [style.border-color]="row.presentation.pastelBorderVar"
-            [style.color]="row.presentation.textVar"
-          >
-            <ui-icon [img]="row.presentation.icon" [size]="17" />
-          </span>
           <span class="duo__axis-copy">
-            <span class="duo__axis-name">{{ row.presentation.label }}</span>
+            <ui-axis-label [axis]="row.axis" />
             <span class="duo__axis-desc">{{ row.description }}</span>
           </span>
           <span class="duo__axis-score">
@@ -447,18 +439,8 @@
         @for (row of axisRows(); track row.axis) {
         <a class="trainm__axis" [routerLink]="row.link">
           <span class="trainm__axis-top">
-            <span
-              class="trainm__axis-tile"
-              [style.background]="row.presentation.pastelVar"
-              [style.border-color]="row.presentation.pastelBorderVar"
-              [style.color]="row.presentation.textVar"
-            >
-              <ui-icon [img]="row.presentation.icon" [size]="19" />
-            </span>
             <span class="trainm__axis-copy">
-              <span class="trainm__axis-name"
-                >{{ row.presentation.label }}</span
-              >
+              <ui-axis-label [axis]="row.axis" />
               <span class="trainm__axis-desc">{{ row.mobileDescription }}</span>
             </span>
             <ui-icon

@@ -152,11 +152,11 @@
   </section>
 
   <section class="flex flex-col gap-4">
-    <h2 class="t-label">Puces d'axe</h2>
+    <h2 class="t-label">Libellés d'axe</h2>
     <ui-card>
       <div class="flex flex-wrap items-center gap-3">
         @for (axis of axes; track axis) {
-          <ui-axis-chip [axis]="axis" />
+          <ui-axis-label [axis]="axis" />
         }
       </div>
     </ui-card>

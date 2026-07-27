@@ -11,10 +11,11 @@ import {
   RailwayPlayableAxis,
   SessionMode,
 } from '@psychotech/shared';
-import { ChevronDown, LucideIconData } from 'lucide-angular';
+import { ChevronDown } from 'lucide-angular';
 import { SessionHistoryFacade } from '../../data-access/session-history.facade';
 import { SessionHistoryFilter } from '../../data-access/session-history.filter';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -31,7 +32,7 @@ interface FilterChipView {
   value: SessionHistoryFilter;
   label: string;
   shortLabel: string;
-  icon: LucideIconData | null;
+  axis: RailwayPlayableAxis | null;
   pastelVar: string | null;
   pastelBorderVar: string | null;
   textVar: string | null;
@@ -46,6 +47,7 @@ interface RowGroupView {
   selector: 'app-sessions',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AxisLabel,
     Button,
     CurrentSessionBanner,
     Icon,
@@ -74,7 +76,7 @@ export class Sessions {
       value: 'ALL',
       label: 'Toutes',
       shortLabel: 'Toutes',
-      icon: null,
+      axis: null,
       pastelVar: null,
       pastelBorderVar: null,
       textVar: null,
@@ -83,7 +85,7 @@ export class Sessions {
       value: SessionMode.FULL,
       label: 'Simulations complètes',
       shortLabel: 'Simulations',
-      icon: null,
+      axis: null,
       pastelVar: null,
       pastelBorderVar: null,
       textVar: null,
@@ -92,7 +94,7 @@ export class Sessions {
       value: SessionMode.TARGETED,
       label: 'Entraînements ciblés',
       shortLabel: 'Ciblés',
-      icon: null,
+      axis: null,
       pastelVar: null,
       pastelBorderVar: null,
       textVar: null,
@@ -101,7 +103,7 @@ export class Sessions {
       value: axis as SessionHistoryFilter,
       label: AXIS_PRESENTATION[axis].label,
       shortLabel: AXIS_PRESENTATION[axis].label,
-      icon: AXIS_PRESENTATION[axis].icon,
+      axis,
       pastelVar: AXIS_PRESENTATION[axis].pastelVar,
       pastelBorderVar: AXIS_PRESENTATION[axis].pastelBorderVar,
       textVar: AXIS_PRESENTATION[axis].textVar,

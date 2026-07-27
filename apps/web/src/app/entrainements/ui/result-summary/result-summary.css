@@ -34,13 +34,6 @@
   grid-area: chip;
   justify-self: end;
   align-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border: 1px solid;
-  border-radius: var(--radius-button);
-  font: 600 14px/18px var(--font-ui);
 }
 
 .summary__score {

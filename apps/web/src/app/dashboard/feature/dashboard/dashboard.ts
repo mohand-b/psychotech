@@ -31,6 +31,7 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
@@ -76,7 +77,7 @@ interface LastResultView {
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisRadar, BoltIcon, Icon, SectorChip, Skeleton, ThresholdBar],
+  imports: [AxisLabel, AxisRadar, BoltIcon, Icon, SectorChip, Skeleton, ThresholdBar],
   providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -257,10 +258,10 @@ export class Dashboard {
     return next ? AXIS_PRESENTATION[next.axis].label : null;
   });
 
-  protected readonly targetedPresentation = computed(() => {
+  protected readonly targetedAxis = computed(() => {
     const session = this.current();
     return session && session.mode === SessionMode.TARGETED
-      ? (AXIS_PRESENTATION[session.axes[0]?.axis] ?? null)
+      ? (session.axes[0]?.axis ?? null)
       : null;
   });
 

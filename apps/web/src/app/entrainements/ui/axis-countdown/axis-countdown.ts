@@ -11,6 +11,7 @@ import {
 import { AxisType } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Icon } from '../../../shared/ui/icon/icon';
 
 export const AXIS_COUNTDOWN_START = 3;
@@ -19,7 +20,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
 @Component({
   selector: 'ui-axis-countdown',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon],
+  imports: [AxisLabel, Icon],
   template: `
     <div
       class="countdown overlay-screen"
@@ -30,10 +31,7 @@ export const AXIS_COUNTDOWN_TICK_MS = 1000;
       [style.--axis-pastel-bd]="presentation().pastelBorderVar"
       [style.--axis-text]="presentation().textVar"
     >
-      <span class="countdown__chip">
-        <ui-icon [img]="presentation().icon" [size]="14" />
-        <span>{{ presentation().label }}</span>
-      </span>
+      <ui-axis-label class="countdown__chip" [axis]="axis()" />
 
       <div class="countdown__stage overlay-stage">
         @for (tick of ringKey(); track tick) {

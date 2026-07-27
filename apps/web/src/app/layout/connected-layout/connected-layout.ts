@@ -24,8 +24,8 @@ import {
 import { filter } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
-import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
 import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';
+import { AxisLabel } from '../../shared/ui/axis-label/axis-label';
 import { axisFromSlug } from '../../shared/util/axis-slug';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
@@ -81,7 +81,7 @@ interface FocusedHeaderView {
 @Component({
   selector: 'app-connected-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterOutlet, Navbar, FocusedHeader, Icon],
+  imports: [AxisLabel, RouterLink, RouterOutlet, Navbar, FocusedHeader, Icon],
   templateUrl: './connected-layout.html',
   styleUrl: './connected-layout.css',
 })
@@ -147,10 +147,6 @@ export class ConnectedLayout {
         this.hideMobileNav.set(this.readHideMobileNav());
         this.hideMobileHeader.set(this.readHideMobileHeader());
       });
-  }
-
-  protected mobileFlowPresentation(flow: MobileFlowView) {
-    return AXIS_PRESENTATION[flow.axis];
   }
 
   protected onCloseRequested(header: FocusedHeaderView): void {

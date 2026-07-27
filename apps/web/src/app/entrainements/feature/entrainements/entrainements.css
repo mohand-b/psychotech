@@ -536,27 +536,12 @@
   background: var(--card);
 }
 
-.duo__axis-tile {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .duo__axis-copy {
   display: flex;
   flex-direction: column;
   gap: 1px;
   flex: 1;
   min-width: 0;
-}
-
-.duo__axis-name {
-  font: 600 14px/20px var(--font-ui);
 }
 
 .duo__axis-desc {
@@ -740,27 +725,12 @@
   gap: 13px;
 }
 
-.trainm__axis-tile {
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
-  border: 1px solid;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .trainm__axis-copy {
   display: flex;
   flex-direction: column;
   gap: 2px;
   flex: 1;
   min-width: 0;
-}
-
-.trainm__axis-name {
-  font: 600 14.5px/20px var(--font-ui);
 }
 
 .trainm__axis-desc {

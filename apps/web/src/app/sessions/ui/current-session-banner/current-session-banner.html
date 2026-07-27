@@ -19,7 +19,7 @@
           [steps]="steps()"
         />
       } @else if (targetedAxis(); as axis) {
-        <ui-axis-chip [axis]="axis" />
+        <ui-axis-label [axis]="axis" />
       }
     </div>
     <div class="banner__compact flex flex-col gap-1.5">
@@ -33,14 +33,9 @@
       <span class="banner__compact-meta flex items-center gap-2">
         @if (isFull()) {
           <ui-chevron-stepper variant="mini" [steps]="steps()" />
-        } @else if (targetedAxisPresentation(); as presentation) {
-          <ui-icon
-            class="banner__axis-icon"
-            [img]="presentation.icon"
-            [size]="15"
-            [style.color]="presentation.plainVar"
-          />
-          <span class="banner__muted">Ciblé · {{ presentation.label }}</span>
+        } @else if (targetedAxis(); as axis) {
+          <span class="banner__muted">Ciblé ·</span>
+          <ui-axis-label [axis]="axis" />
         }
       </span>
     </div>

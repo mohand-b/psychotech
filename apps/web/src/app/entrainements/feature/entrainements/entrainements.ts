@@ -36,6 +36,7 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -90,6 +91,7 @@ interface LastSimulationView {
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AxisLabel,
     BoltIcon,
     Button,
     Icon,

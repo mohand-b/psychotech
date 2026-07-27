@@ -125,17 +125,9 @@
                       }
                     </span>
                   </div>
-                } @else if (targetedPresentation(); as presentation) {
+                } @else if (targetedAxis(); as axis) {
                   <div class="home__day-meta">
-                    <span
-                      class="home__day-axis-chip"
-                      [style.background]="presentation.pastelVar"
-                      [style.border-color]="presentation.pastelBorderVar"
-                      [style.color]="presentation.textVar"
-                    >
-                      <ui-icon [img]="presentation.icon" [size]="13" />
-                      {{ presentation.label }}
-                    </span>
+                    <ui-axis-label [axis]="axis" />
                   </div>
                 }
               }

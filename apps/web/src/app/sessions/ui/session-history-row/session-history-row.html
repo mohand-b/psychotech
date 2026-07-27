@@ -1,7 +1,7 @@
 <div class="row" [class.row--abandoned]="view().abandoned">
   <span class="row__chip">
     @if (view().axis; as axis) {
-      <ui-axis-chip [axis]="axis" />
+      <ui-axis-label [axis]="axis" />
     } @else {
       <span class="row__simulation-chip">
         <ui-icon [img]="simulationIcon" [size]="14" />

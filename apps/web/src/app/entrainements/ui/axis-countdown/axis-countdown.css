@@ -4,16 +4,7 @@
 }
 
 .countdown__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   margin-bottom: 12px;
-  padding: 7px 14px;
-  border: 1px solid var(--axis-pastel-bd);
-  border-radius: var(--radius-chip);
-  background: var(--card);
-  color: var(--axis-text);
-  font: 600 13px/18px var(--font-ui);
 }
 
 .countdown__ring {

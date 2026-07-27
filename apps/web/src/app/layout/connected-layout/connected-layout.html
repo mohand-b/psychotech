@@ -42,17 +42,10 @@
       aria-label="Accueil PsychoTech"
       >Psycho<span class="logo__accent">Tech</span></a
     >
-    @if (mobileFlowPresentation(flow); as presentation) {
-    <span
-      class="flow-header__chip"
-      [style.background]="presentation.pastelVar"
-      [style.border-color]="presentation.pastelBorderVar"
-      [style.color]="presentation.textVar"
-    >
-      <ui-icon [img]="presentation.icon" [size]="13" />
-      <span>{{ presentation.label }} · {{ flow.suffix }}</span>
+    <span class="flow-header__chip">
+      <ui-axis-label [axis]="flow.axis" />
+      <span class="flow-header__suffix">· {{ flow.suffix }}</span>
     </span>
-    }
   </header>
   } }
   <main

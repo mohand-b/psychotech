@@ -18,6 +18,7 @@ import { Lightbulb, Play } from 'lucide-angular';
 import { axisButtonColor } from '../../../entrainements/ui/axis-button-color';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
@@ -35,6 +36,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
   selector: 'app-simulation-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AxisLabel,
     AxisRadar,
     Button,
     Icon,

@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { AxisType, ScoreBand, Sector } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { formatDayTime } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
 import {
@@ -17,7 +18,7 @@ import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 @Component({
   selector: 'ui-result-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon],
+  imports: [AxisLabel, Icon],
   templateUrl: './result-summary.html',
   styleUrl: './result-summary.css',
 })

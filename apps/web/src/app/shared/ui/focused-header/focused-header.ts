@@ -10,7 +10,7 @@ import { AxisType } from '@psychotech/shared';
 import { ArrowLeft, BookOpen, ShieldCheck, Timer, X } from 'lucide-angular';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { AxisChip } from '../axis-chip/axis-chip';
+import { AxisLabel } from '../axis-label/axis-label';
 import {
   ChevronStep,
   ChevronStepper,
@@ -23,7 +23,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 @Component({
   selector: 'ui-focused-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, EnergyChip, AxisChip, ChevronStepper],
+  imports: [RouterLink, Icon, EnergyChip, AxisLabel, ChevronStepper],
   template: `
     <header class="focused-header">
       <div class="focused-header__inner">
@@ -60,7 +60,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
               >
             }
             @if (axisChip(); as chip) {
-              <ui-axis-chip [axis]="chip" [mobileIconOnly]="discoveryTag()" />
+              <ui-axis-label [axis]="chip" />
             }
           </nav>
         }

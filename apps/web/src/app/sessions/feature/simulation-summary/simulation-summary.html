@@ -84,20 +84,7 @@
                 (click)="toggle(axis.axis)"
               >
                 <span class="bilan__axis-line">
-                  <span
-                    class="bilan__axis-chip"
-                    [style.background]="presentations[axis.axis].pastelVar"
-                    [style.border-color]="
-                      presentations[axis.axis].pastelBorderVar
-                    "
-                    [style.color]="presentations[axis.axis].textVar"
-                  >
-                    <ui-icon
-                      [img]="presentations[axis.axis].icon"
-                      [size]="13"
-                    />
-                    <span>{{ presentations[axis.axis].shortLabel }}</span>
-                  </span>
+                  <ui-axis-label [axis]="axis.axis" [compact]="true" />
                   <span class="bilan__axis-spacer"></span>
                   <ui-threshold-gauge
                     class="bilan__axis-gauge bilan__axis-gauge--desktop"
@@ -273,17 +260,7 @@
         <div class="bilan__priority">
           <span class="t-label bilan__priority-label">Priorité</span>
           <span class="bilan__priority-body">
-            <span
-              class="bilan__priority-chip"
-              [style.background]="presentations[priority.axis].pastelVar"
-              [style.border-color]="
-                presentations[priority.axis].pastelBorderVar
-              "
-              [style.color]="presentations[priority.axis].textVar"
-            >
-              <ui-icon [img]="presentations[priority.axis].icon" [size]="13" />
-              <span>{{ presentations[priority.axis].label }}</span>
-            </span>
+            <ui-axis-label [axis]="priority.axis" />
             <span class="bilan__priority-text">{{ priority.label }}</span>
           </span>
         </div>

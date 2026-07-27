@@ -1,15 +1,7 @@
 <article class="summary">
   <span class="t-label summary__label">Résultat d'axe</span>
   <p class="summary__subtitle">{{ subtitle() }}</p>
-  <span
-    class="summary__chip"
-    [style.background]="presentation().pastelVar"
-    [style.border-color]="presentation().pastelBorderVar"
-    [style.color]="presentation().textVar"
-  >
-    <ui-icon [img]="presentation().icon" [size]="14" />
-    <span>{{ presentation().label }}</span>
-  </span>
+  <ui-axis-label class="summary__chip" [axis]="axis()" />
   <div class="summary__score">
     <span class="summary__score-value t-mono">{{ score() }}</span>
     <span class="summary__score-max t-mono">/100</span>

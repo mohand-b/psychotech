@@ -27,7 +27,7 @@ import {
 import { ArrowRight, Check } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
-import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
@@ -162,7 +162,7 @@ function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
 @Component({
   selector: 'app-tutorial-end',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Icon, RouterLink],
+  imports: [AxisLabel, Button, Icon, RouterLink],
   templateUrl: './tutorial-end.html',
   styleUrl: './tutorial-end.css',
 })
@@ -177,13 +177,9 @@ export class TutorialEnd {
   protected readonly checkIcon = Check;
   protected readonly evaluationPoints = FULL_EVALUATION_POINTS;
 
-  private readonly axis = axisFromSlug(
+  protected readonly axis = axisFromSlug(
     this.route.snapshot.paramMap.get('axis'),
   );
-
-  protected readonly presentation = this.axis
-    ? AXIS_PRESENTATION[this.axis]
-    : null;
 
   protected readonly sectorLabel =
     SECTOR_LABELS[

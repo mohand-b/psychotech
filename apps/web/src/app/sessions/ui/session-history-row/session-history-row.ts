@@ -7,14 +7,14 @@ import {
 import { RouterLink } from '@angular/router';
 import { ArrowRight, ChevronRight, Layers } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { AxisChip } from '../../../shared/ui/axis-chip/axis-chip';
+import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SessionRowView } from '../../feature/sessions/session-history-view';
 
 @Component({
   selector: 'app-session-history-row',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisChip, Icon, RouterLink],
+  imports: [AxisLabel, Icon, RouterLink],
   templateUrl: './session-history-row.html',
   styleUrl: './session-history-row.css',
 })

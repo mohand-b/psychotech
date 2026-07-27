@@ -183,7 +183,7 @@
     text-overflow: ellipsis;
   }
 
-  .focused-header__crumb:has(ui-axis-chip)
+  .focused-header__crumb:has(ui-axis-label)
     .focused-header__title:not(.focused-header__title--mobile-visible) {
     display: none;
   }
