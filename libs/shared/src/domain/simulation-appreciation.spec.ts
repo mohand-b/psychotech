@@ -121,7 +121,10 @@ describe('buildSimulationAppreciation', () => {
     expect(
       appreciation.lead.filter(({ value }) => value).map(({ text }) => text),
     ).toEqual(['52', '46', '55']);
-    expect(appreciation.priority).toBeNull();
+    expect(appreciation.priority).toEqual({
+      axis: AxisType.REACTIVITY,
+      label: 'Stabiliser votre temps de réaction',
+    });
   });
 
   it('renders the favorable template with the signed gap as a value', () => {

@@ -1,4 +1,4 @@
-import { AxisType, ScoreBand } from '../enums';
+import { AxisType, RecommendationPriority, ScoreBand } from '../enums';
 import {
   AxisFinding,
   AxisFindingsEntry,
@@ -134,18 +134,52 @@ function selectRecommendations(
   const findingsMap = new Map(
     findingsByAxis.map((entry) => [entry.axis, entry.findings]),
   );
-  const thresholdRank = (entry: SimulationAxisOutcome): number => {
-    const kind = weaknessThresholdKind(entry, thresholds);
-    return kind === null ? 2 : THRESHOLD_KIND_RANK[kind];
-  };
-  return [...axes]
-    .filter((entry) => (findingsMap.get(entry.axis) ?? []).length > 0)
-    .sort((a, b) => thresholdRank(a) - thresholdRank(b) || a.score - b.score)
-    .slice(0, RECOMMENDATION_LIMIT)
+  return axes
     .map((entry) => ({
+      entry,
+      kind: weaknessThresholdKind(entry, thresholds),
+      findings: findingsMap.get(entry.axis) ?? [],
+    }))
+    .filter(({ kind, findings }) => findings.length > 0 || kind !== null)
+    .sort(
+      (a, b) =>
+        (a.kind === null ? 2 : THRESHOLD_KIND_RANK[a.kind]) -
+          (b.kind === null ? 2 : THRESHOLD_KIND_RANK[b.kind]) ||
+        a.entry.score - b.entry.score,
+    )
+    .slice(0, RECOMMENDATION_LIMIT)
+    .map(({ entry, kind, findings }) => ({
       axis: entry.axis,
-      findings: getAxisRecommendations(findingsMap.get(entry.axis) ?? []),
+      findings:
+        findings.length > 0
+          ? getAxisRecommendations(findings)
+          : kind === null
+            ? []
+            : [thresholdShortfallFinding(entry, kind, thresholds)],
     }));
+}
+
+function thresholdShortfallFinding(
+  entry: SimulationAxisOutcome,
+  kind: SimulationThresholdKind,
+  thresholds: SimulationSummaryThresholds,
+): AxisFinding {
+  if (kind === SimulationThresholdKind.ELIMINATORY) {
+    return {
+      id: 'AXIS_UNDER_ELIMINATORY_THRESHOLD',
+      severity: RecommendationPriority.HIGH,
+      finding: `Score de ${entry.score}/100, sous le seuil éliminatoire de l'axe (${thresholds.eliminatoryThreshold}), sans défaut de méthode isolé : c'est le niveau d'ensemble qui pèche`,
+      recommendation:
+        'Rejouez cet axe en entraînement ciblé en priorité : il bloque votre admissibilité à lui seul.',
+    };
+  }
+  return {
+    id: 'AXIS_UNDER_VIGILANCE_THRESHOLD',
+    severity: RecommendationPriority.MEDIUM,
+    finding: `Score de ${entry.score}/100, sous le seuil de vigilance (${thresholds.vigilanceThreshold}), sans défaut de méthode isolé`,
+    recommendation:
+      'Consolidez cet axe en entraînement ciblé pour repasser durablement au-dessus du seuil.',
+  };
 }
 
 function weaknessThresholdKind(

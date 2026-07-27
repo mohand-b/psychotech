@@ -148,10 +148,10 @@ describe('buildSimulationSummary', () => {
     ]);
   });
 
-  it('skips axes without findings and caps each card at three findings', () => {
+  it('skips finding-less axes above every threshold and caps each card at three findings', () => {
     const summary = buildSimulationSummary(
       [
-        outcome(AxisType.LOGIC, 62, ScoreBand.FRAGILE),
+        outcome(AxisType.LOGIC, 70, ScoreBand.ACCEPTABLE),
         outcome(AxisType.MEMORY, 58, ScoreBand.INSUFFICIENT, true),
         outcome(AxisType.MOTOR_SKILLS, 85, ScoreBand.EXCELLENT),
       ],
@@ -177,5 +177,57 @@ describe('buildSimulationSummary', () => {
     ]);
     expect(summary.recommendations[0].findings).toHaveLength(3);
     expect(summary.recommendations[0].findings[0].id).toBe('b');
+  });
+
+  it('recommends finding-less axes under a threshold with a generic shortfall finding', () => {
+    const summary = buildSimulationSummary(
+      [
+        outcome(AxisType.LOGIC, 59, ScoreBand.INSUFFICIENT),
+        outcome(AxisType.MEMORY, 86, ScoreBand.EXCELLENT, true),
+        outcome(AxisType.VISUAL_DISCRIMINATION, 27, ScoreBand.INSUFFICIENT, true),
+        outcome(AxisType.REACTIVITY, 40, ScoreBand.INSUFFICIENT, true),
+        outcome(AxisType.MOTOR_SKILLS, 96, ScoreBand.EXCELLENT),
+      ],
+      THRESHOLDS,
+      [
+        { axis: AxisType.LOGIC, findings: [finding('logic')] },
+        { axis: AxisType.VISUAL_DISCRIMINATION, findings: [] },
+        { axis: AxisType.REACTIVITY, findings: [] },
+      ],
+    );
+
+    expect(summary.recommendations.map(({ axis }) => axis)).toEqual([
+      AxisType.VISUAL_DISCRIMINATION,
+      AxisType.REACTIVITY,
+      AxisType.LOGIC,
+    ]);
+    const [discrimination, reactivity] = summary.recommendations;
+    expect(discrimination.findings).toHaveLength(1);
+    expect(discrimination.findings[0]).toMatchObject({
+      id: 'AXIS_UNDER_ELIMINATORY_THRESHOLD',
+      severity: RecommendationPriority.HIGH,
+    });
+    expect(discrimination.findings[0].finding).toContain('27/100');
+    expect(discrimination.findings[0].finding).toContain('55');
+    expect(reactivity.findings[0].id).toBe('AXIS_UNDER_ELIMINATORY_THRESHOLD');
+  });
+
+  it('marks a finding-less axis under vigilance only with the medium shortfall finding', () => {
+    const summary = buildSimulationSummary(
+      [
+        outcome(AxisType.LOGIC, 62, ScoreBand.FRAGILE),
+        outcome(AxisType.MOTOR_SKILLS, 85, ScoreBand.EXCELLENT),
+      ],
+      THRESHOLDS,
+      [],
+    );
+
+    expect(summary.recommendations.map(({ axis }) => axis)).toEqual([
+      AxisType.LOGIC,
+    ]);
+    expect(summary.recommendations[0].findings[0]).toMatchObject({
+      id: 'AXIS_UNDER_VIGILANCE_THRESHOLD',
+      severity: RecommendationPriority.MEDIUM,
+    });
   });
 });
