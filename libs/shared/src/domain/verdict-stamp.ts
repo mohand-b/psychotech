@@ -3,6 +3,7 @@ import { SimulationVerdict } from './simulation-verdict';
 export enum SimulationStampQualifier {
   EXCELLENT = 'EXCELLENT',
   SOLID = 'SOLID',
+  COMFORTABLE = 'COMFORTABLE',
   JUST = 'JUST',
   ELIMINATORY = 'ELIMINATORY',
   BORDERLINE = 'BORDERLINE',
@@ -24,6 +25,7 @@ export const SIMULATION_STAMP_QUALIFIER_LABELS: Record<
 > = {
   [SimulationStampQualifier.EXCELLENT]: 'Excellent',
   [SimulationStampQualifier.SOLID]: 'Solide',
+  [SimulationStampQualifier.COMFORTABLE]: 'Confortable',
   [SimulationStampQualifier.JUST]: 'Juste',
   [SimulationStampQualifier.ELIMINATORY]: 'Éliminatoire',
   [SimulationStampQualifier.BORDERLINE]: 'Limite',
@@ -41,6 +43,7 @@ export const AXIS_STAMP_WORD_LABELS: Record<AxisStampWord, string> = {
 
 export const SIMULATION_STAMP_EXCELLENT_MARGIN = 25;
 export const SIMULATION_STAMP_SOLID_MARGIN = 15;
+export const SIMULATION_STAMP_COMFORTABLE_MARGIN = 5;
 export const SIMULATION_STAMP_INSUFFICIENT_GAP = 5;
 
 export const AXIS_STAMP_EXCELLENT_MIN = 95;
@@ -83,7 +86,9 @@ export function buildSimulationStamp(
           ? SimulationStampQualifier.EXCELLENT
           : gap >= SIMULATION_STAMP_SOLID_MARGIN
             ? SimulationStampQualifier.SOLID
-            : SimulationStampQualifier.JUST,
+            : gap >= SIMULATION_STAMP_COMFORTABLE_MARGIN
+              ? SimulationStampQualifier.COMFORTABLE
+              : SimulationStampQualifier.JUST,
     };
   }
   return {
