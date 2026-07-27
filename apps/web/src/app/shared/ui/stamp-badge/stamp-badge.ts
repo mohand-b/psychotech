@@ -60,13 +60,13 @@ const AXIS_WORD_INK_VARS: Record<AxisStampWord, string> = {
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      border: 2.5px solid color-mix(in srgb, var(--stamp-ink) 80%, transparent);
+      border: 2px solid color-mix(in srgb, var(--stamp-ink) 80%, transparent);
       border-radius: 5px;
       font-family: var(--font-stamp);
       text-transform: uppercase;
     }
     .stamp--simulation {
-      padding: 6px 14px 5px;
+      padding: 5px 12px 4px;
       transform: rotate(-3.5deg);
       background: color-mix(in srgb, var(--stamp-ink) 6%, transparent);
     }
@@ -74,21 +74,21 @@ const AXIS_WORD_INK_VARS: Record<AxisStampWord, string> = {
       transform: rotate(2.5deg);
     }
     .stamp--axis {
-      padding: 5px 13px;
+      padding: 4px 11px;
       transform: rotate(-2.5deg);
     }
     .stamp__main {
-      font-size: 14.5px;
+      font-size: 12.5px;
       letter-spacing: 0.06em;
       line-height: 1.1;
       color: color-mix(in srgb, var(--stamp-ink) 92%, transparent);
     }
     .stamp__main--word {
-      font-size: 13.5px;
+      font-size: 12px;
       letter-spacing: 0.08em;
     }
     .stamp__sub {
-      font-size: 9.5px;
+      font-size: 8.5px;
       letter-spacing: 0.12em;
       color: color-mix(in srgb, var(--stamp-ink) 82%, transparent);
     }

@@ -230,13 +230,10 @@
                 <span class="home__result-value t-mono">{{ result.scoreLabel }}</span>
                 <span class="home__result-max t-mono">/100</span>
               </span>
-              <span class="home__result-band">
-                <span
-                  class="home__result-band-dot"
-                  [style.background]="result.verdictColorVar"
-                ></span>
-                <span>{{ result.verdictLabel }}</span>
-              </span>
+              <ui-stamp-badge
+                class="home__result-stamp"
+                [simulationStamp]="result.stamp"
+              />
             </div>
             <div class="home__result-bar">
               <ui-threshold-bar

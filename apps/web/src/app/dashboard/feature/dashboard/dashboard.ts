@@ -13,8 +13,10 @@ import {
   RailwayPlayableAxis,
   Sector,
   SessionMode,
+  SimulationStamp,
   SubscriptionTier,
   axisMaxDurationSec,
+  buildSimulationStamp,
 } from '@psychotech/shared';
 import { ArrowRight, Check, Gem, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -34,10 +36,10 @@ import {
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
+import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -65,8 +67,7 @@ interface WeakAxisView {
 interface LastResultView {
   sessionId: string;
   scoreLabel: string;
-  verdictLabel: string;
-  verdictColorVar: string;
+  stamp: SimulationStamp;
   score: number;
   threshold: number;
   deltaLabel: string;
@@ -77,7 +78,16 @@ interface LastResultView {
 @Component({
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisLabel, AxisRadar, BoltIcon, Icon, SectorChip, Skeleton, ThresholdBar],
+  imports: [
+    AxisLabel,
+    AxisRadar,
+    BoltIcon,
+    Icon,
+    SectorChip,
+    Skeleton,
+    StampBadge,
+    ThresholdBar,
+  ],
   providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -294,9 +304,12 @@ export class Dashboard {
     return {
       sessionId: simulation.sessionId,
       scoreLabel: formatFrenchDecimal(simulation.globalScore),
-      verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
-      verdictColorVar:
-        SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,
+      stamp: buildSimulationStamp(
+        simulation.globalScore,
+        simulation.sectorThreshold,
+        simulation.isEliminated,
+        simulation.completedAt,
+      ),
       score: simulation.globalScore,
       threshold: simulation.sectorThreshold,
       deltaLabel:

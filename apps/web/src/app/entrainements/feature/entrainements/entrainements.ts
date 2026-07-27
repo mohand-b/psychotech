@@ -15,8 +15,10 @@ import {
   FULL_SESSION_AXIS_ORDER,
   SECTOR_LABELS,
   Sector,
+  SimulationStamp,
   SubscriptionTier,
   TrainingsLastSimulationDto,
+  buildSimulationStamp,
 } from '@psychotech/shared';
 import {
   ArrowLeft,
@@ -39,9 +41,9 @@ import {
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
+import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
@@ -77,8 +79,7 @@ interface TutorialAxisView {
 
 interface LastSimulationView {
   scoreLabel: string;
-  verdictLabel: string;
-  verdictColorVar: string;
+  stamp: SimulationStamp;
   barWidth: number;
   markerLeft: number;
   threshold: number;
@@ -96,6 +97,7 @@ interface LastSimulationView {
     RouterLink,
     SectorChip,
     Skeleton,
+    StampBadge,
     ThresholdBar,
   ],
   providers: [TrainingsOverviewFacade],
@@ -250,9 +252,12 @@ export class Entrainements {
   ): LastSimulationView {
     return {
       scoreLabel: formatFrenchDecimal(simulation.globalScore),
-      verdictLabel: SIMULATION_VERDICT_PRESENTATION[simulation.verdict].label,
-      verdictColorVar:
-        SIMULATION_VERDICT_PRESENTATION[simulation.verdict].colorVar,
+      stamp: buildSimulationStamp(
+        simulation.globalScore,
+        simulation.sectorThreshold,
+        simulation.isEliminated,
+        simulation.completedAt,
+      ),
       barWidth: simulation.globalScore,
       markerLeft: simulation.sectorThreshold,
       threshold: simulation.sectorThreshold,

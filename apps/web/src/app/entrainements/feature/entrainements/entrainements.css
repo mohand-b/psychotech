@@ -437,22 +437,8 @@
   color: var(--label);
 }
 
-.duo__bilan-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: var(--radius-chip);
-  padding: 6px 11px;
-  font: 600 13px/18px var(--font-ui);
-  color: var(--ink);
-}
-
-.duo__bilan-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-pill);
+.duo__bilan-stamp {
+  flex-shrink: 0;
 }
 
 .duo__bilan-bar-block {
