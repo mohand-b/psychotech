@@ -563,6 +563,19 @@
   color: var(--text-secondary);
 }
 
+.offers__manage-cancel {
+  border: none;
+  background: transparent;
+  padding: 10px 4px;
+  font: 600 13px/1.4 var(--font-ui);
+  color: var(--label);
+  cursor: pointer;
+}
+
+.offers__manage-cancel:hover {
+  color: var(--danger-text);
+}
+
 @media (max-width: 767px) {
   .offers__manage,
   .offers__alert {

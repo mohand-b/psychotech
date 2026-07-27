@@ -4,7 +4,6 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   BillingOverviewDto,
-  BillingPortalSessionDto,
   ChangePlanPreviewDto,
   ChangeSubscriptionPlanDto,
   CreateSubscriptionDto,
@@ -66,10 +65,17 @@ export class SubscriptionsApi {
     });
   }
 
-  createPortalSession(returnPath: string): Observable<BillingPortalSessionDto> {
-    return this.http.post<BillingPortalSessionDto>(
-      `${this.baseUrl}/billing/portal`,
-      { returnPath },
+  cancelSubscription(): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/cancel`,
+      {},
+    );
+  }
+
+  resumeSubscription(): Observable<SubscriptionDto> {
+    return this.http.post<SubscriptionDto>(
+      `${this.baseUrl}/billing/subscription/resume`,
+      {},
     );
   }
 

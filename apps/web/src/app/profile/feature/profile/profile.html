@@ -89,13 +89,13 @@
                 le temps de régulariser.</span
               >
             </span>
-            <button
-              type="button"
+            <a
               class="profil__cta-secondary"
-              (click)="openPortal()"
+              routerLink="/paiement/carte"
+              [queryParams]="{ retour: '/profil' }"
             >
               Mettre à jour le moyen de paiement
-            </button>
+            </a>
           </div>
         }
 
@@ -306,18 +306,10 @@
                 }
               </div>
               <div class="profil__plan-actions flex items-center">
-                @if (planCta().kind === 'offers') {
-                  <a class="profil__cta" routerLink="/abonnements">{{
-                    planCta().label
-                  }}</a>
-                } @else {
-                  <button
-                    type="button"
-                    class="profil__cta"
-                    (click)="openPortal()"
-                  >
-                    {{ planCta().label }}
-                  </button>
+                <a class="profil__cta" [routerLink]="planCta().link">{{
+                  planCta().label
+                }}</a>
+                @if (planCta().link !== '/abonnements') {
                   <a class="profil__cta-secondary" routerLink="/abonnements"
                     >Comparer les offres</a
                   >
@@ -337,7 +329,11 @@
                     type="button"
                     class="profil__cta-secondary"
                     [class.profil__plan-row-cta--danger]="!subscriptionEnding()"
-                    (click)="openPortal()"
+                    (click)="
+                      subscriptionEnding()
+                        ? resumeSubscription()
+                        : cancelSubscription()
+                    "
                   >
                     {{ cancel.ctaLabel }}
                   </button>

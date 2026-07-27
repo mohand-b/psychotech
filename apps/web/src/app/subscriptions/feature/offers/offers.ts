@@ -53,6 +53,7 @@ export class Offers {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly managing = signal(false);
+  protected readonly pendingCancel = signal(false);
 
   protected readonly checkIcon = Check;
   protected readonly dashIcon = Minus;
@@ -69,7 +70,7 @@ export class Offers {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
     this.subscriptionsFacade
-      .loadBillingOverview()
+      .loadBillingOverview(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
   }
@@ -145,7 +146,7 @@ export class Offers {
     if (endsAt) {
       return `Votre abonnement prend fin le ${endsAt}. Vous pouvez le réactiver jusqu'à cette date, votre progression est conservée.`;
     }
-    return 'Résiliation, réactivation et moyen de paiement se gèrent depuis votre espace de facturation sécurisé.';
+    return 'La résiliation prend effet en fin de période payée, votre progression est conservée.';
   });
 
   protected readonly pendingChange = computed(() => {
@@ -242,13 +243,41 @@ export class Offers {
     });
   }
 
-  protected openPortal(): void {
+  protected cancelSubscription(): void {
+    if (this.managing()) {
+      return;
+    }
+    if (!this.pendingCancel()) {
+      this.pendingCancel.set(true);
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.cancelSubscription().subscribe({
+      next: () => {
+        this.managing.set(false);
+        this.pendingCancel.set(false);
+      },
+      error: () => {
+        this.managing.set(false);
+        this.pendingCancel.set(false);
+      },
+    });
+  }
+
+  protected resumeSubscription(): void {
     if (this.managing()) {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.openPortal('/abonnements').subscribe({
+    this.subscriptionsFacade.resumeSubscription().subscribe({
+      next: () => this.managing.set(false),
       error: () => this.managing.set(false),
     });
+  }
+
+  protected cancelLabel(): string {
+    return this.pendingCancel()
+      ? 'Confirmer la résiliation'
+      : 'Résilier mon abonnement';
   }
 }

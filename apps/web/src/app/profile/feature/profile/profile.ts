@@ -35,6 +35,7 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
+import { PLAN_SLUGS } from '../../../subscriptions/plan-slug';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -172,7 +173,8 @@ export class Profile {
   protected readonly saving = signal(false);
   protected readonly billing = this.subscriptionsFacade.billingOverview;
   protected readonly billingLoading = this.subscriptionsFacade.billingLoading;
-  protected readonly portalOpening = signal(false);
+  protected readonly managing = signal(false);
+  protected readonly confirmingCancel = signal(false);
   protected readonly invoices = signal<BillingInvoiceDto[] | null>(null);
   protected readonly invoicesError = signal(false);
   private savedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -189,7 +191,7 @@ export class Profile {
 
   constructor() {
     this.subscriptionsFacade
-      .loadBillingOverview()
+      .loadBillingOverview(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
     if (this.tier() !== SubscriptionTier.FREE) {
@@ -202,13 +204,35 @@ export class Profile {
     });
   }
 
-  protected openPortal(): void {
-    if (this.portalOpening()) {
+  protected cancelSubscription(): void {
+    if (this.managing()) {
       return;
     }
-    this.portalOpening.set(true);
-    this.subscriptionsFacade.openPortal('/profil').subscribe({
-      error: () => this.portalOpening.set(false),
+    if (!this.confirmingCancel()) {
+      this.confirmingCancel.set(true);
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.cancelSubscription().subscribe({
+      next: () => {
+        this.managing.set(false);
+        this.confirmingCancel.set(false);
+      },
+      error: () => {
+        this.managing.set(false);
+        this.confirmingCancel.set(false);
+      },
+    });
+  }
+
+  protected resumeSubscription(): void {
+    if (this.managing()) {
+      return;
+    }
+    this.managing.set(true);
+    this.subscriptionsFacade.resumeSubscription().subscribe({
+      next: () => this.managing.set(false),
+      error: () => this.managing.set(false),
     });
   }
 
@@ -405,13 +429,19 @@ export class Profile {
       : { label: 'Prochain renouvellement', value: renewal };
   });
 
-  protected readonly planCta = computed<
-    { kind: 'offers'; label: string } | { kind: 'portal'; label: string }
-  >(() =>
-    this.tier() === SubscriptionTier.FREE
-      ? { kind: 'offers', label: 'Choisir une formule' }
-      : { kind: 'portal', label: 'Gérer mon abonnement' },
-  );
+  protected readonly planCta = computed<{ label: string; link: string }>(() => {
+    const tier = this.tier();
+    if (tier === SubscriptionTier.FREE) {
+      return { label: 'Choisir une formule', link: '/abonnements' };
+    }
+    if (tier === SubscriptionTier.ESSENTIAL) {
+      return {
+        label: "Passer à l'Illimité",
+        link: `/paiement/${PLAN_SLUGS[SubscriptionTier.UNLIMITED]}`,
+      };
+    }
+    return { label: "Changer d'offre", link: '/abonnements' };
+  });
 
   protected readonly cancelRow = computed<{
     title: string;
@@ -436,7 +466,7 @@ export class Profile {
       description: renewal
         ? `La résiliation prend effet le ${renewal}, fin de la période payée. Votre progression est conservée.`
         : 'La résiliation prend effet à la fin de la période payée. Votre progression est conservée.',
-      ctaLabel: 'Résilier',
+      ctaLabel: this.confirmingCancel() ? 'Confirmer la résiliation' : 'Résilier',
     };
   });
 
@@ -526,6 +556,7 @@ export class Profile {
   protected open(section: ProfileSection): void {
     this.section.set(section);
     this.saved.set(false);
+    this.confirmingCancel.set(false);
     this.cancel();
   }
 

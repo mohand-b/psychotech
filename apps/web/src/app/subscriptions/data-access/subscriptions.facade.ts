@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { Injectable, Signal, inject } from '@angular/core';
 import {
   BillingConfigDto,
@@ -16,26 +15,15 @@ import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { BillingStore } from './billing.store';
 import { SubscriptionsApi } from './subscriptions.api';
 
-const PORTAL_PENDING_KEY = 'psychotech.billing.portal-pending';
-
 @Injectable({ providedIn: 'root' })
 export class SubscriptionsFacade {
   private readonly api = inject(SubscriptionsApi);
   private readonly authFacade = inject(AuthFacade);
   private readonly billingStore = inject(BillingStore);
-  private readonly document = inject(DOCUMENT);
 
   readonly billingOverview: Signal<BillingOverviewDto | null> =
     this.billingStore.overview;
   readonly billingLoading: Signal<boolean> = this.billingStore.loading;
-
-  constructor() {
-    this.document.defaultView?.addEventListener('focus', () => {
-      if (this.consumePendingPortalReturn()) {
-        this.fetchBillingOverview(true).subscribe();
-      }
-    });
-  }
 
   getBillingConfig(): Observable<BillingConfigDto> {
     return this.api.getBillingConfig();
@@ -65,13 +53,21 @@ export class SubscriptionsFacade {
     );
   }
 
-  loadBillingOverview(): Observable<BillingOverviewDto> {
-    return this.fetchBillingOverview(this.consumePendingPortalReturn());
+  cancelSubscription(): Observable<void> {
+    return this.api.cancelSubscription().pipe(
+      switchMap(() => this.refreshBilling()),
+      map(() => undefined),
+    );
   }
 
-  private fetchBillingOverview(
-    reconcile: boolean,
-  ): Observable<BillingOverviewDto> {
+  resumeSubscription(): Observable<void> {
+    return this.api.resumeSubscription().pipe(
+      switchMap(() => this.refreshBilling()),
+      map(() => undefined),
+    );
+  }
+
+  loadBillingOverview(reconcile = false): Observable<BillingOverviewDto> {
     this.billingStore.setLoading(true);
     return this.api.getBillingOverview(reconcile).pipe(
       switchMap((overview) =>
@@ -83,16 +79,6 @@ export class SubscriptionsFacade {
         next: (overview) => this.billingStore.setOverview(overview),
         error: () => this.billingStore.setLoading(false),
       }),
-    );
-  }
-
-  openPortal(returnPath: string): Observable<void> {
-    return this.api.createPortalSession(returnPath).pipe(
-      tap((session) => {
-        this.markPortalReturnPending();
-        this.document.defaultView?.location.assign(session.url);
-      }),
-      map(() => undefined),
     );
   }
 
@@ -131,21 +117,5 @@ export class SubscriptionsFacade {
     return this.refreshTier().pipe(
       switchMap(() => this.loadBillingOverview()),
     );
-  }
-
-  private markPortalReturnPending(): void {
-    this.document.defaultView?.sessionStorage.setItem(
-      PORTAL_PENDING_KEY,
-      'true',
-    );
-  }
-
-  private consumePendingPortalReturn(): boolean {
-    const storage = this.document.defaultView?.sessionStorage;
-    if (!storage || storage.getItem(PORTAL_PENDING_KEY) === null) {
-      return false;
-    }
-    storage.removeItem(PORTAL_PENDING_KEY);
-    return true;
   }
 }

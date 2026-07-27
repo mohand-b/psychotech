@@ -1,4 +1,3 @@
-import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import {
   BillingOverviewDto,
@@ -27,46 +26,23 @@ function buildOverview(
   };
 }
 
-interface FakeWindow {
-  listeners: Record<string, () => void>;
-  storage: Map<string, string>;
-  assign: ReturnType<typeof vi.fn>;
-}
-
-function buildFakeWindow(): { view: unknown; handles: FakeWindow } {
-  const listeners: Record<string, () => void> = {};
-  const storage = new Map<string, string>();
-  const assign = vi.fn();
-  const view = {
-    addEventListener: (type: string, callback: () => void) => {
-      listeners[type] = callback;
-    },
-    sessionStorage: {
-      getItem: (key: string) => storage.get(key) ?? null,
-      setItem: (key: string, value: string) => storage.set(key, value),
-      removeItem: (key: string) => storage.delete(key),
-    },
-    location: { assign },
-  };
-  return { view, handles: { listeners, storage, assign } };
-}
-
 function setup() {
   TestBed.resetTestingModule();
-  const { view, handles } = buildFakeWindow();
   const getBillingOverview = vi.fn().mockReturnValue(of(buildOverview()));
-  const createPortalSession = vi
+  const cancelSubscription = vi
     .fn()
-    .mockReturnValue(of({ url: 'https://billing.stripe.com/session/xyz' }));
+    .mockReturnValue(of({ cancelAtPeriodEnd: true }));
+  const resumeSubscription = vi
+    .fn()
+    .mockReturnValue(of({ cancelAtPeriodEnd: false }));
   const loadCurrentUser = vi
     .fn()
     .mockReturnValue(of({ tier: SubscriptionTier.ESSENTIAL }));
   TestBed.configureTestingModule({
     providers: [
-      { provide: DOCUMENT, useValue: { defaultView: view } },
       {
         provide: SubscriptionsApi,
-        useValue: { getBillingOverview, createPortalSession },
+        useValue: { getBillingOverview, cancelSubscription, resumeSubscription },
       },
       { provide: AuthFacade, useValue: { loadCurrentUser } },
     ],
@@ -74,66 +50,54 @@ function setup() {
   const facade = TestBed.inject(SubscriptionsFacade);
   return {
     facade,
-    handles,
     getBillingOverview,
-    createPortalSession,
+    cancelSubscription,
+    resumeSubscription,
     loadCurrentUser,
   };
 }
 
 describe('SubscriptionsFacade billing overview', () => {
   it('loads the overview into the store without reconciling by default', () => {
-    const { facade, getBillingOverview } = setup();
+    const { facade, getBillingOverview, loadCurrentUser } = setup();
 
     facade.loadBillingOverview().subscribe();
 
     expect(getBillingOverview).toHaveBeenCalledWith(false);
+    expect(loadCurrentUser).not.toHaveBeenCalled();
     expect(facade.billingOverview()).toMatchObject({
       tier: SubscriptionTier.ESSENTIAL,
     });
   });
 
-  it('opens the portal and marks the return as pending', () => {
-    const { facade, handles, createPortalSession } = setup();
-
-    facade.openPortal('/profil').subscribe();
-
-    expect(createPortalSession).toHaveBeenCalledWith('/profil');
-    expect(handles.assign).toHaveBeenCalledWith(
-      'https://billing.stripe.com/session/xyz',
-    );
-    expect(handles.storage.size).toBe(1);
-  });
-
-  it('reconciles and refreshes the user on the load following a portal visit', () => {
+  it('reconciles against stripe and refreshes the user on demand', () => {
     const { facade, getBillingOverview, loadCurrentUser } = setup();
 
-    facade.openPortal('/profil').subscribe();
-    facade.loadBillingOverview().subscribe();
+    facade.loadBillingOverview(true).subscribe();
 
     expect(getBillingOverview).toHaveBeenCalledWith(true);
     expect(loadCurrentUser).toHaveBeenCalled();
-
-    getBillingOverview.mockClear();
-    facade.loadBillingOverview().subscribe();
-    expect(getBillingOverview).toHaveBeenCalledWith(false);
   });
 
-  it('refetches with reconciliation when the window regains focus after the portal', () => {
-    const { facade, handles, getBillingOverview } = setup();
+  it('cancels in-app then refreshes the tier and the overview', () => {
+    const { facade, cancelSubscription, loadCurrentUser, getBillingOverview } =
+      setup();
 
-    facade.openPortal('/profil').subscribe();
-    handles.listeners['focus']();
+    facade.cancelSubscription().subscribe();
 
-    expect(getBillingOverview).toHaveBeenCalledWith(true);
-    expect(handles.storage.size).toBe(0);
+    expect(cancelSubscription).toHaveBeenCalled();
+    expect(loadCurrentUser).toHaveBeenCalled();
+    expect(getBillingOverview).toHaveBeenCalled();
   });
 
-  it('ignores a window focus without a pending portal return', () => {
-    const { handles, getBillingOverview } = setup();
+  it('resumes in-app then refreshes the tier and the overview', () => {
+    const { facade, resumeSubscription, loadCurrentUser, getBillingOverview } =
+      setup();
 
-    handles.listeners['focus']();
+    facade.resumeSubscription().subscribe();
 
-    expect(getBillingOverview).not.toHaveBeenCalled();
+    expect(resumeSubscription).toHaveBeenCalled();
+    expect(loadCurrentUser).toHaveBeenCalled();
+    expect(getBillingOverview).toHaveBeenCalled();
   });
 });

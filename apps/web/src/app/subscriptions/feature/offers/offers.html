@@ -404,7 +404,11 @@
             temps de régulariser.</span
           >
         </span>
-        <ui-button color="brand" (click)="openPortal()" [loading]="managing()">
+        <ui-button
+          color="brand"
+          routerLink="/paiement/carte"
+          [queryParams]="{ retour: '/abonnements' }"
+        >
           Mettre à jour le moyen de paiement
         </ui-button>
       </section>
@@ -420,7 +424,7 @@
           @if (subscriptionEndsAt()) {
             <ui-button
               color="brand"
-              (click)="openPortal()"
+              (click)="resumeSubscription()"
               [loading]="managing()"
             >
               Réactiver mon abonnement
@@ -434,13 +438,13 @@
             >
               Mettre à jour ma carte
             </ui-button>
-            <ui-button
-              color="brand"
-              (click)="openPortal()"
-              [loading]="managing()"
+            <button
+              type="button"
+              class="offers__manage-cancel"
+              (click)="cancelSubscription()"
             >
-              Gérer mon abonnement
-            </ui-button>
+              {{ cancelLabel() }}
+            </button>
           }
         </span>
       </section>

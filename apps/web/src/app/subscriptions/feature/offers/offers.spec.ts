@@ -45,9 +45,10 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
   const subscriptionsFacade = {
     changePlan: vi.fn().mockReturnValue(of(SubscriptionTier.UNLIMITED)),
     cancelPlanChange: vi.fn().mockReturnValue(of(undefined)),
+    cancelSubscription: vi.fn().mockReturnValue(of(undefined)),
+    resumeSubscription: vi.fn().mockReturnValue(of(undefined)),
     refreshTier: vi.fn().mockReturnValue(of(tier)),
     loadBillingOverview: vi.fn().mockReturnValue(of(overview)),
-    openPortal: vi.fn().mockReturnValue(of(undefined)),
     billingOverview: signal<BillingOverviewDto | null>(overview),
     billingLoading: signal(false),
   };
@@ -96,8 +97,8 @@ describe('Offers', () => {
     const manage = element.querySelector('.offers__manage');
     expect(manage?.textContent).toContain("Gestion de l'abonnement");
     expect(manage?.textContent).toContain('Mettre à jour ma carte');
-    expect(manage?.textContent).toContain('Gérer mon abonnement');
-    expect(manage?.textContent).not.toContain('Résilier');
+    expect(manage?.textContent).toContain('Résilier mon abonnement');
+    expect(manage?.textContent).not.toContain('Gérer mon abonnement');
   });
 
   it('marks the discovery card as current for the free plan without management', async () => {
@@ -138,20 +139,24 @@ describe('Offers', () => {
     expect(navigate).toHaveBeenCalledWith(['/paiement', 'illimite']);
   });
 
-  it('opens the billing portal from the manage action', async () => {
+  it('cancels the subscription in-app after an inline confirmation', async () => {
     const { fixture, subscriptionsFacade, navigate } = await setup(
       SubscriptionTier.ESSENTIAL,
     );
     const element: HTMLElement = fixture.nativeElement;
-    const manageButton = Array.from(
-      element.querySelectorAll<HTMLButtonElement>(
-        '.offers__manage ui-button button',
-      ),
-    ).find((button) => button.textContent?.includes('Gérer mon abonnement'));
-    manageButton?.click();
-    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
-      '/abonnements',
+    const cancelButton = () =>
+      element.querySelector<HTMLButtonElement>('.offers__manage-cancel');
+
+    cancelButton()?.click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.cancelSubscription).not.toHaveBeenCalled();
+    expect(cancelButton()?.textContent?.trim()).toBe(
+      'Confirmer la résiliation',
     );
+
+    cancelButton()?.click();
+    fixture.detectChanges();
+    expect(subscriptionsFacade.cancelSubscription).toHaveBeenCalledTimes(1);
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -163,7 +168,7 @@ describe('Offers', () => {
     expect(freeCard?.textContent).not.toContain('Passer en Découverte');
   });
 
-  it('renders the scheduled cancellation with a portal reactivation action', async () => {
+  it('renders the scheduled cancellation with an in-app reactivation action', async () => {
     const { fixture, subscriptionsFacade } = await setup(
       SubscriptionTier.UNLIMITED,
       { overview: { cancelAtPeriodEnd: true, nextInvoiceDate: null } },
@@ -188,16 +193,13 @@ describe('Offers', () => {
       ),
     ).find((button) => button.textContent?.includes('Réactiver'));
     reactivateButton?.click();
-    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
-      '/abonnements',
-    );
+    expect(subscriptionsFacade.resumeSubscription).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the past due alert with a portal payment method action', async () => {
-    const { fixture, subscriptionsFacade } = await setup(
-      SubscriptionTier.ESSENTIAL,
-      { overview: { status: SubscriptionStatus.PAST_DUE } },
-    );
+  it('renders the past due alert with an in-app payment method action', async () => {
+    const { fixture } = await setup(SubscriptionTier.ESSENTIAL, {
+      overview: { status: SubscriptionStatus.PAST_DUE },
+    });
     const element: HTMLElement = fixture.nativeElement;
     expect(texts(element, '.offd__current-badge')).toContain(
       'Paiement en échec',
@@ -205,12 +207,12 @@ describe('Offers', () => {
     const alert = element.querySelector('.offers__alert');
     expect(alert?.textContent).toContain('Paiement en échec');
     expect(alert?.textContent).toContain('Mettre à jour le moyen de paiement');
-    alert
-      ?.querySelector<HTMLButtonElement>('ui-button button')
-      ?.click();
-    expect(subscriptionsFacade.openPortal).toHaveBeenCalledWith(
-      '/abonnements',
-    );
+    const router = TestBed.inject(Router);
+    const navigateByUrl = vi
+      .spyOn(router, 'navigateByUrl')
+      .mockResolvedValue(true);
+    alert?.querySelector<HTMLButtonElement>('ui-button button')?.click();
+    expect(navigateByUrl).toHaveBeenCalled();
   });
 
   it('shows the scheduled plan change on the essential card and cancels it', async () => {

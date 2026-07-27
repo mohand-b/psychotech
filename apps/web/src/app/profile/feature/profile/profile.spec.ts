@@ -169,7 +169,8 @@ async function setup(options: SetupOptions = {}) {
   const loadBillingOverview = vi.fn(() =>
     overview ? of(overview) : of(null),
   );
-  const openPortal = vi.fn().mockReturnValue(of(undefined));
+  const cancelSubscription = vi.fn().mockReturnValue(of(undefined));
+  const resumeSubscription = vi.fn().mockReturnValue(of(undefined));
   const listInvoices = vi.fn(() =>
     options.invoicesResult ? options.invoicesResult() : of(buildInvoices()),
   );
@@ -200,7 +201,8 @@ async function setup(options: SetupOptions = {}) {
           billingOverview,
           billingLoading: signal(false),
           loadBillingOverview,
-          openPortal,
+          cancelSubscription,
+          resumeSubscription,
           listInvoices,
         },
       },
@@ -238,7 +240,8 @@ async function setup(options: SetupOptions = {}) {
     updateProfile,
     changePassword,
     loadBillingOverview,
-    openPortal,
+    cancelSubscription,
+    resumeSubscription,
     listInvoices,
   };
 }
@@ -316,8 +319,8 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('Illimitée');
     expect(textOf(fixture)).toContain('Prochain renouvellement');
     expect(textOf(fixture)).toContain('5 août 2026');
-    expect(textOf(fixture)).toContain('Gérer mon abonnement');
-    expect(textOf(fixture)).toContain('Comparer les offres');
+    expect(textOf(fixture)).toContain("Changer d'offre");
+    expect(textOf(fixture)).not.toContain('Gérer mon abonnement');
     expect(textOf(fixture)).toContain('Mastercard •••• 1234');
     expect(textOf(fixture)).toContain('Résilier mon abonnement');
     expect(textOf(fixture)).toContain(
@@ -548,42 +551,31 @@ describe('Profile', () => {
     expect(textOf(fixture)).not.toContain('Gérer mon abonnement');
   });
 
-  it('opens the portal directly from the cancel action', async () => {
-    const { fixture, openPortal, navigate } = await setup();
+  it('cancels in-app after an inline confirmation without leaving the page', async () => {
+    const { fixture, cancelSubscription, navigate } = await setup();
     navButtons(fixture)[3].click();
     fixture.detectChanges();
 
-    const cancelButton = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+    const cancelButton = () =>
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
         '.profil__plan-row button',
-      ),
-    ).find((button) => button.textContent?.includes('Résilier'));
-    expect(cancelButton).toBeDefined();
-    cancelButton?.click();
+      );
+    expect(cancelButton()?.textContent).toContain('Résilier');
+    cancelButton()?.click();
     fixture.detectChanges();
 
-    expect(openPortal).toHaveBeenCalledWith('/profil');
+    expect(cancelSubscription).not.toHaveBeenCalled();
+    expect(textOf(fixture)).toContain('Confirmer la résiliation');
+
+    cancelButton()?.click();
+    fixture.detectChanges();
+
+    expect(cancelSubscription).toHaveBeenCalledTimes(1);
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('opens the portal from the manage subscription action', async () => {
-    const { fixture, openPortal } = await setup();
-    navButtons(fixture)[3].click();
-    fixture.detectChanges();
-
-    const manageButton = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
-        '.profil__plan-actions button',
-      ),
-    ).find((button) => button.textContent?.includes('Gérer mon abonnement'));
-    expect(manageButton).toBeDefined();
-    manageButton?.click();
-
-    expect(openPortal).toHaveBeenCalledWith('/profil');
-  });
-
   it('renders the scheduled cancellation state with a reactivate action', async () => {
-    const { fixture, openPortal } = await setup({
+    const { fixture, resumeSubscription } = await setup({
       billingOverview: buildBillingOverview({
         cancelAtPeriodEnd: true,
         canceledAt: '2026-07-20T10:00:00.000Z',
@@ -605,11 +597,11 @@ describe('Profile', () => {
       ),
     ).find((button) => button.textContent?.includes('Réactiver'));
     reactivate?.click();
-    expect(openPortal).toHaveBeenCalledWith('/profil');
+    expect(resumeSubscription).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the past due alert with a payment method action', async () => {
-    const { fixture, openPortal } = await setup({
+  it('renders the past due alert with an in-app payment method link', async () => {
+    const { fixture } = await setup({
       billingOverview: buildBillingOverview({
         status: SubscriptionStatus.PAST_DUE,
         nextInvoiceDate: null,
@@ -619,21 +611,17 @@ describe('Profile', () => {
     fixture.detectChanges();
 
     expect(textOf(fixture)).toContain('Paiement en échec');
-    expect(textOf(fixture)).toContain('Mettre à jour le moyen de paiement');
-
-    const updateButton = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
-        '.profil__alert button',
-      ),
-    ).find((button) =>
-      button.textContent?.includes('Mettre à jour le moyen de paiement'),
+    const updateLink = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector<HTMLAnchorElement>('.profil__alert a');
+    expect(updateLink?.textContent).toContain(
+      'Mettre à jour le moyen de paiement',
     );
-    updateButton?.click();
-    expect(openPortal).toHaveBeenCalledWith('/profil');
+    expect(updateLink?.getAttribute('href')).toContain('/paiement/carte');
   });
 
-  it('loads the billing overview on init', async () => {
+  it('loads the billing overview with reconciliation on init', async () => {
     const { loadBillingOverview } = await setup();
-    expect(loadBillingOverview).toHaveBeenCalled();
+    expect(loadBillingOverview).toHaveBeenCalledWith(true);
   });
 });
