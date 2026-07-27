@@ -234,14 +234,14 @@ describe('SimulationSummary', () => {
     expect(fixture.nativeElement.textContent).toContain('+4,8 au-dessus');
   });
 
-  it('stamps a favorable verdict with its qualifier and completion date', async () => {
+  it('stamps a favorable verdict with its qualifier subline', async () => {
     const { fixture } = await setup(buildSummary());
     const stamp = fixture.nativeElement.querySelector('.bilan__stamp');
     expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
       'Favorable',
     );
     expect(stamp.querySelector('.stamp__sub').textContent.trim()).toBe(
-      'Juste · 12/07/2026',
+      'Juste',
     );
   });
 
@@ -253,7 +253,7 @@ describe('SimulationSummary', () => {
       fixture.nativeElement
         .querySelector('.bilan__stamp .stamp__sub')
         .textContent.trim(),
-    ).toBe('Solide · 12/07/2026');
+    ).toBe('Solide');
     TestBed.resetTestingModule();
     const net = await setup(
       buildSummary({ globalScore: 79.9, admissibilityGap: 9.9 }),
@@ -262,7 +262,7 @@ describe('SimulationSummary', () => {
       net.fixture.nativeElement
         .querySelector('.bilan__stamp .stamp__sub')
         .textContent.trim(),
-    ).toBe('Net · 12/07/2026');
+    ).toBe('Net');
   });
 
   it('stamps ELIMINATOIRE with priority even when the global score clears the threshold', async () => {

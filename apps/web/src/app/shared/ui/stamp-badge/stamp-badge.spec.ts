@@ -41,16 +41,15 @@ describe('StampBadge', () => {
     TestBed.resetTestingModule();
   });
 
-  it('renders the simulation verdict with its qualifier and date subline', () => {
+  it('renders the simulation verdict with its qualifier subline', () => {
     const fixture = render({
       simulationStamp: {
         verdict: SimulationVerdict.FAVORABLE,
         qualifier: SimulationStampQualifier.SOLID,
-        date: '27/07/2026',
       },
     });
     expect(text(fixture, '.stamp__main')).toBe('Favorable');
-    expect(text(fixture, '.stamp__sub')).toBe('Solide · 27/07/2026');
+    expect(text(fixture, '.stamp__sub')).toBe('Solide');
     const stamp = fixture.nativeElement.querySelector('.stamp');
     expect(stamp.classList.contains('stamp--unfavorable')).toBe(false);
     expect(stamp.style.getPropertyValue('--stamp-ink')).toBe(
@@ -63,11 +62,10 @@ describe('StampBadge', () => {
       simulationStamp: {
         verdict: SimulationVerdict.UNFAVORABLE,
         qualifier: SimulationStampQualifier.BORDERLINE,
-        date: '01/02/2026',
       },
     });
     expect(text(fixture, '.stamp__main')).toBe('Défavorable');
-    expect(text(fixture, '.stamp__sub')).toBe('Limite · 01/02/2026');
+    expect(text(fixture, '.stamp__sub')).toBe('Limite');
     const stamp = fixture.nativeElement.querySelector('.stamp');
     expect(stamp.classList.contains('stamp--unfavorable')).toBe(true);
     expect(stamp.style.getPropertyValue('--stamp-ink')).toBe(

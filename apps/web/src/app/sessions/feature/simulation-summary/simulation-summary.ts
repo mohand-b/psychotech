@@ -115,7 +115,6 @@ export class SimulationSummary {
       summary.globalScore,
       summary.admissibilityThreshold,
       summary.isEliminated,
-      summary.completedAt,
     );
   });
 

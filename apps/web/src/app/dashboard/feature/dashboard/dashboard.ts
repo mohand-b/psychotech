@@ -308,7 +308,6 @@ export class Dashboard {
         simulation.globalScore,
         simulation.sectorThreshold,
         simulation.isEliminated,
-        simulation.completedAt,
       ),
       score: simulation.globalScore,
       threshold: simulation.sectorThreshold,

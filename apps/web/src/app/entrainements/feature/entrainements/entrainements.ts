@@ -256,7 +256,6 @@ export class Entrainements {
         simulation.globalScore,
         simulation.sectorThreshold,
         simulation.isEliminated,
-        simulation.completedAt,
       ),
       barWidth: simulation.globalScore,
       markerLeft: simulation.sectorThreshold,

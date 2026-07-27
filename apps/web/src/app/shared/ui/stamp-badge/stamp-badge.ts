@@ -38,9 +38,7 @@ const AXIS_WORD_INK_VARS: Record<AxisStampWord, string> = {
         [style.--stamp-ink]="simulationInk()"
       >
         <span class="stamp__main">{{ verdictLabel() }}</span>
-        <span class="stamp__sub"
-          >{{ qualifierLabel() }} · {{ stamp.date }}</span
-        >
+        <span class="stamp__sub">{{ qualifierLabel() }}</span>
       </span>
     } @else if (axisStamp(); as stamp) {
       <span

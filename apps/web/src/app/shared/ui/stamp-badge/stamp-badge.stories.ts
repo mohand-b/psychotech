@@ -6,8 +6,6 @@ import {
 } from '@psychotech/shared';
 import { StampBadge } from './stamp-badge';
 
-const DATE = '27/07/2026';
-
 const meta: Meta<StampBadge> = {
   title: 'Design System/Stamp Badge',
   component: StampBadge,
@@ -22,9 +20,7 @@ export const SimulationFavorableSolide: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.SOLID,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.SOLID,    },
   },
 };
 
@@ -32,9 +28,7 @@ export const SimulationFavorableNet: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.NET,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.NET,    },
   },
 };
 
@@ -42,9 +36,7 @@ export const SimulationFavorableJuste: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.JUST,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.JUST,    },
   },
 };
 
@@ -52,9 +44,7 @@ export const SimulationDefavorableEliminatoire: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.ELIMINATORY,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.ELIMINATORY,    },
   },
 };
 
@@ -62,9 +52,7 @@ export const SimulationDefavorableLimite: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.BORDERLINE,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.BORDERLINE,    },
   },
 };
 
@@ -72,9 +60,7 @@ export const SimulationDefavorableInsuffisant: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.INSUFFICIENT,
-      date: DATE,
-    },
+      qualifier: SimulationStampQualifier.INSUFFICIENT,    },
   },
 };
 
