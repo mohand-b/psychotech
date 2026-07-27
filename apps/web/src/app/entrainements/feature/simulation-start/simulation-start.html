@@ -37,28 +37,44 @@
           [axes]="courseAxes"
           (activeAxisChange)="onAxisExplored($event)"
         />
-        <div class="simb__axis-panel flex items-center">
-          <span
-            class="simb__axis-squircle"
+        @for (axis of exploredKeys(); track axis) {
+          <div
+            class="simb__axis-panel flex items-center"
+            [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
+            [class.simb__axis-panel--backward]="panelDirection() === 'backward'"
             [style.background]="exploredPresentation().pastelVar"
-            [style.border-color]="exploredPresentation().pastelBorderVar"
-            [style.color]="exploredPresentation().textVar"
           >
-            <ui-icon
-              [img]="exploredPresentation().icon"
-              [size]="20"
-              [strokeWidth]="1.8"
-            />
-          </span>
-          <div class="simb__axis-text flex flex-col">
-            <span class="simb__axis-name">{{
-              exploredPresentation().label
-            }}</span>
-            <span class="simb__axis-instruction">{{
-              exploredInstruction()
-            }}</span>
+            <span
+              class="simb__axis-icon"
+              [style.color]="exploredPresentation().textVar"
+            >
+              <ui-icon
+                [img]="exploredPresentation().icon"
+                [size]="26"
+                [strokeWidth]="1.8"
+              />
+            </span>
+            <div class="simb__axis-text flex flex-col flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span
+                  class="simb__axis-name"
+                  [style.color]="exploredPresentation().textVar"
+                  >{{ exploredPresentation().label }}</span
+                >
+                <span
+                  class="simb__axis-duration flex items-center"
+                  [style.color]="exploredPresentation().textVar"
+                >
+                  <ui-icon [img]="durationIcon" [size]="13" [strokeWidth]="2" />
+                  <span class="t-mono">{{ exploredEntry().duration }}</span>
+                </span>
+              </div>
+              <span class="simb__axis-instruction">{{
+                exploredEntry().instruction
+              }}</span>
+            </div>
           </div>
-        </div>
+        }
       </div>
     </div>
 

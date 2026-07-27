@@ -22,6 +22,7 @@ import {
   Clock,
   Layers,
   LucideIconData,
+  Timer,
   VolumeX,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -36,7 +37,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
-import { SIMULATION_COURSE_INSTRUCTIONS } from './simulation-course-instructions';
+import { SIMULATION_COURSE } from './simulation-course-instructions';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
 const COUNTDOWN_TICK_MS = 30_000;
@@ -62,6 +63,7 @@ export class SimulationStart {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly heroIcon = Layers;
+  protected readonly durationIcon = Timer;
 
   protected readonly starting = signal(false);
   private readonly now = signal(new Date());
@@ -76,12 +78,18 @@ export class SimulationStart {
     FULL_SESSION_AXIS_ORDER[0],
   );
 
+  protected readonly panelDirection = signal<'forward' | 'backward' | null>(
+    null,
+  );
+
+  protected readonly exploredKeys = computed(() => [this.exploredAxis()]);
+
   protected readonly exploredPresentation = computed(
     () => AXIS_PRESENTATION[this.exploredAxis()],
   );
 
-  protected readonly exploredInstruction = computed(
-    () => SIMULATION_COURSE_INSTRUCTIONS[this.exploredAxis()],
+  protected readonly exploredEntry = computed(
+    () => SIMULATION_COURSE[this.exploredAxis()],
   );
 
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
@@ -133,7 +141,18 @@ export class SimulationStart {
   });
 
   protected onAxisExplored(axis: AxisType): void {
-    this.exploredAxis.set(axis as RailwayPlayableAxis);
+    const next = axis as RailwayPlayableAxis;
+    const previous = this.exploredAxis();
+    if (next === previous) {
+      return;
+    }
+    this.panelDirection.set(
+      FULL_SESSION_AXIS_ORDER.indexOf(next) >
+        FULL_SESSION_AXIS_ORDER.indexOf(previous)
+        ? 'forward'
+        : 'backward',
+    );
+    this.exploredAxis.set(next);
   }
 
   protected start(): void {

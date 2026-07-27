@@ -11,7 +11,7 @@ import {
   SubscriptionTier,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
-import { SIMULATION_COURSE_INSTRUCTIONS } from './simulation-course-instructions';
+import { SIMULATION_COURSE } from './simulation-course-instructions';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
@@ -108,8 +108,9 @@ describe('SimulationStart', () => {
     expect(desktopSteps).toHaveLength(FULL_SESSION_AXIS_ORDER.length);
     expect(desktopSteps[0].getAttribute('aria-current')).toBe('true');
     expect(text(fixture)).toContain(
-      SIMULATION_COURSE_INSTRUCTIONS[AxisType.LOGIC],
+      SIMULATION_COURSE[AxisType.LOGIC].instruction,
     );
+    expect(text(fixture)).toContain(SIMULATION_COURSE[AxisType.LOGIC].duration);
   });
 
   it('previews another axis on hover then reverts, and persists it on click', async () => {
@@ -122,13 +123,13 @@ describe('SimulationStart', () => {
     memoryStep.dispatchEvent(new Event('pointerenter'));
     fixture.detectChanges();
     expect(text(fixture)).toContain(
-      SIMULATION_COURSE_INSTRUCTIONS[AxisType.MEMORY],
+      SIMULATION_COURSE[AxisType.MEMORY].instruction,
     );
 
     memoryStep.dispatchEvent(new Event('pointerleave'));
     fixture.detectChanges();
     expect(text(fixture)).toContain(
-      SIMULATION_COURSE_INSTRUCTIONS[AxisType.LOGIC],
+      SIMULATION_COURSE[AxisType.LOGIC].instruction,
     );
 
     memoryStep.dispatchEvent(new Event('pointerenter'));
@@ -137,7 +138,7 @@ describe('SimulationStart', () => {
     fixture.detectChanges();
     expect(memoryStep.getAttribute('aria-current')).toBe('true');
     expect(text(fixture)).toContain(
-      SIMULATION_COURSE_INSTRUCTIONS[AxisType.MEMORY],
+      SIMULATION_COURSE[AxisType.MEMORY].instruction,
     );
   });
 
