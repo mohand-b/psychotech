@@ -27,15 +27,6 @@
   color: var(--axis-text);
 }
 
-.axis-briefing__position {
-  font-size: 0.78125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg);
-  border-radius: var(--radius-badge);
-  padding: 0.3125rem 0.5625rem;
-}
-
 .axis-briefing__name {
   margin: 0;
   font: 700 1.875rem/1 var(--font-display);

@@ -90,9 +90,6 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
         <span class="axis-briefing__tile">
           <ui-icon [img]="presentation().icon" [size]="44" />
         </span>
-        @if (positionLabel(); as position) {
-          <span class="axis-briefing__position t-mono">{{ position }}</span>
-        }
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
         <p class="axis-briefing__tagline">{{ content().tagline }}</p>
       </header>
@@ -347,7 +344,6 @@ export class AxisBriefing {
   readonly axis = input.required<AxisType>();
   readonly showOptions = input(true);
   readonly tutorial = input(false);
-  readonly positionLabel = input<string | null>(null);
   readonly showPairing = input(false);
   readonly enabledOptions = model<TrainingOptionId[]>([]);
   readonly logicFamily = model<LogicFamilyFilter | null>(null);

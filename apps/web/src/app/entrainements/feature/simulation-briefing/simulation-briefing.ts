@@ -41,14 +41,6 @@ export class SimulationBriefing {
   protected readonly loaded = signal(false);
   protected readonly axis = this.facade.axis;
 
-  protected readonly positionLabel = computed(() => {
-    const session = this.facade.session();
-    if (!session) {
-      return null;
-    }
-    return `Axe ${session.currentAxisIndex + 1}/${session.axisResults.length}`;
-  });
-
   protected readonly motricityAxis = computed(
     () => this.axis() === AxisType.MOTOR_SKILLS,
   );
