@@ -98,24 +98,24 @@
 }
 
 .simb__axis-panel--forward {
-  animation: simb-panel-forward 0.2s ease;
+  animation: simb-panel-forward 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .simb__axis-panel--backward {
-  animation: simb-panel-backward 0.2s ease;
+  animation: simb-panel-backward 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes simb-panel-forward {
   from {
     opacity: 0;
-    transform: translateX(16px);
+    transform: translateX(32px);
   }
 }
 
 @keyframes simb-panel-backward {
   from {
     opacity: 0;
-    transform: translateX(-16px);
+    transform: translateX(-32px);
   }
 }
 
