@@ -8,8 +8,10 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
+  AxisType,
   ENERGY_PACK_PRICE_EUR,
   FULL_SESSION_AXIS_ORDER,
+  RailwayPlayableAxis,
   SESSION_ENERGY_COST,
   Sector,
   SessionMode,
@@ -27,15 +29,14 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
-import {
-  ChevronStep,
-  ChevronStepper,
-} from '../../../shared/ui/chevron-stepper/chevron-stepper';
+import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
+import { SIMULATION_COURSE_INSTRUCTIONS } from './simulation-course-instructions';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
 const COUNTDOWN_TICK_MS = 30_000;
@@ -69,8 +70,18 @@ export class SimulationStart {
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
   protected readonly sectorLabel = SECTOR_PRESENTATION[this.sector].label;
 
-  protected readonly steps: ChevronStep[] = FULL_SESSION_AXIS_ORDER.map(
-    (axis) => ({ axis, state: 'plain' }),
+  protected readonly courseAxes = FULL_SESSION_AXIS_ORDER;
+
+  protected readonly exploredAxis = signal<RailwayPlayableAxis>(
+    FULL_SESSION_AXIS_ORDER[0],
+  );
+
+  protected readonly exploredPresentation = computed(
+    () => AXIS_PRESENTATION[this.exploredAxis()],
+  );
+
+  protected readonly exploredInstruction = computed(
+    () => SIMULATION_COURSE_INSTRUCTIONS[this.exploredAxis()],
   );
 
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
@@ -120,6 +131,10 @@ export class SimulationStart {
     const resetsAt = this.energyFacade.state()?.resetsAt;
     return resetsAt ? formatRechargeCountdown(resetsAt, this.now()) : null;
   });
+
+  protected onAxisExplored(axis: AxisType): void {
+    this.exploredAxis.set(axis as RailwayPlayableAxis);
+  }
 
   protected start(): void {
     if (this.starting() || this.energyShort()) {

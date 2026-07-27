@@ -3,12 +3,15 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
+  AxisType,
   ENERGY_INSUFFICIENT_ERROR_CODE,
   EnergyStateDto,
+  FULL_SESSION_AXIS_ORDER,
   Sector,
   SubscriptionTier,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
+import { SIMULATION_COURSE_INSTRUCTIONS } from './simulation-course-instructions';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
@@ -95,6 +98,47 @@ describe('SimulationStart', () => {
       '/entrainements/simulation/session',
       'session-1',
     ]);
+  });
+
+  it('shows the explorer course with the first axis selected and its instruction', async () => {
+    const { fixture } = await setup();
+    const desktopSteps = fixture.nativeElement.querySelectorAll(
+      '.simb__stepper--desktop button.step',
+    );
+    expect(desktopSteps).toHaveLength(FULL_SESSION_AXIS_ORDER.length);
+    expect(desktopSteps[0].getAttribute('aria-current')).toBe('true');
+    expect(text(fixture)).toContain(
+      SIMULATION_COURSE_INSTRUCTIONS[AxisType.LOGIC],
+    );
+  });
+
+  it('previews another axis on hover then reverts, and persists it on click', async () => {
+    const { fixture } = await setup();
+    const desktopSteps = fixture.nativeElement.querySelectorAll(
+      '.simb__stepper--desktop button.step',
+    );
+    const memoryStep = desktopSteps[1] as HTMLButtonElement;
+
+    memoryStep.dispatchEvent(new Event('pointerenter'));
+    fixture.detectChanges();
+    expect(text(fixture)).toContain(
+      SIMULATION_COURSE_INSTRUCTIONS[AxisType.MEMORY],
+    );
+
+    memoryStep.dispatchEvent(new Event('pointerleave'));
+    fixture.detectChanges();
+    expect(text(fixture)).toContain(
+      SIMULATION_COURSE_INSTRUCTIONS[AxisType.LOGIC],
+    );
+
+    memoryStep.dispatchEvent(new Event('pointerenter'));
+    memoryStep.click();
+    memoryStep.dispatchEvent(new Event('pointerleave'));
+    fixture.detectChanges();
+    expect(memoryStep.getAttribute('aria-current')).toBe('true');
+    expect(text(fixture)).toContain(
+      SIMULATION_COURSE_INSTRUCTIONS[AxisType.MEMORY],
+    );
   });
 
   it('locks the launch and offers the recharge path when energy is short', async () => {

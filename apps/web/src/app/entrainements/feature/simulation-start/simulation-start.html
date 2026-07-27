@@ -23,16 +23,42 @@
 
     <div class="simb__section simb__section--divided flex flex-col">
       <span class="t-label">Parcours</span>
-      <div class="simb__course">
+      <div class="simb__course flex flex-col">
         <ui-chevron-stepper
           class="simb__stepper simb__stepper--desktop"
-          [steps]="steps"
+          mode="explorer"
+          [axes]="courseAxes"
+          (activeAxisChange)="onAxisExplored($event)"
         />
         <ui-chevron-stepper
           class="simb__stepper simb__stepper--mobile"
+          mode="explorer"
           variant="mini"
-          [steps]="steps"
+          [axes]="courseAxes"
+          (activeAxisChange)="onAxisExplored($event)"
         />
+        <div class="simb__axis-panel flex items-center">
+          <span
+            class="simb__axis-squircle"
+            [style.background]="exploredPresentation().pastelVar"
+            [style.border-color]="exploredPresentation().pastelBorderVar"
+            [style.color]="exploredPresentation().textVar"
+          >
+            <ui-icon
+              [img]="exploredPresentation().icon"
+              [size]="20"
+              [strokeWidth]="1.8"
+            />
+          </span>
+          <div class="simb__axis-text flex flex-col">
+            <span class="simb__axis-name">{{
+              exploredPresentation().label
+            }}</span>
+            <span class="simb__axis-instruction">{{
+              exploredInstruction()
+            }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
