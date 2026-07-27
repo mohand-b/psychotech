@@ -1,8 +1,14 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
+  effect,
   input,
+  output,
+  signal,
+  viewChildren,
 } from '@angular/core';
 import { AxisType } from '@psychotech/shared';
 import { Check, LucideIconData } from 'lucide-angular';
@@ -18,9 +24,12 @@ export interface ChevronStep {
 
 export type ChevronStepperVariant = 'full' | 'mini';
 
+export type ChevronStepperMode = 'progress' | 'explorer';
+
 interface DecoratedStep {
   axis: AxisType;
   state: StepState;
+  number: string;
   label: string;
   icon: LucideIconData;
   pastelVar: string;
@@ -31,40 +40,76 @@ interface DecoratedStep {
 @Component({
   selector: 'ui-chevron-stepper',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon],
+  imports: [Icon, NgTemplateOutlet],
   template: `
-    <nav [class]="navClasses()" aria-label="Progression de la simulation">
+    <nav [class]="navClasses()" [attr.aria-label]="navLabel()">
       @for (
         step of decoratedSteps();
         track step.axis;
+        let index = $index;
         let first = $first;
         let last = $last
       ) {
-        <span
-          class="step"
-          [class.step--first]="first"
-          [class.step--last]="last"
-          [class.step--done]="step.state === 'done'"
-          [class.step--current]="step.state === 'current'"
-          [class.step--todo]="step.state === 'todo'"
-          [style.--axis-pastel]="step.pastelVar"
-          [style.--axis-text]="step.textVar"
-          [style.--axis-accent]="step.accentVar"
-          [title]="step.label"
-          [attr.aria-label]="variant() === 'mini' ? step.label : null"
-          [attr.aria-current]="step.state === 'current' ? 'step' : null"
-        >
-          <ui-icon
-            [img]="step.state === 'done' ? checkIcon : step.icon"
-            [size]="14"
-            [strokeWidth]="step.state === 'done' ? 2.5 : 2"
-          />
-          @if (variant() === 'full') {
-            <span class="step__label">{{ step.label }}</span>
-          }
-        </span>
+        @if (isExplorer()) {
+          <button
+            #stepButton
+            type="button"
+            class="step step--interactive"
+            [class.step--first]="first"
+            [class.step--last]="last"
+            [class.step--active]="index === activeIndex()"
+            [style.--axis-pastel]="step.pastelVar"
+            [style.--axis-text]="step.textVar"
+            [style.--axis-accent]="step.accentVar"
+            [title]="step.label"
+            [tabindex]="index === selectedIndex() ? 0 : -1"
+            [attr.aria-label]="variant() === 'mini' ? step.label : null"
+            [attr.aria-current]="index === selectedIndex() ? 'true' : null"
+            (pointerenter)="previewStep(index)"
+            (pointerleave)="clearPreview()"
+            (click)="selectStep(index)"
+            (keydown)="onKeydown($event)"
+          >
+            <ng-container
+              [ngTemplateOutlet]="stepContent"
+              [ngTemplateOutletContext]="{ $implicit: step }"
+            />
+          </button>
+        } @else {
+          <span
+            class="step"
+            [class.step--first]="first"
+            [class.step--last]="last"
+            [class.step--done]="step.state === 'done'"
+            [class.step--current]="step.state === 'current'"
+            [class.step--todo]="step.state === 'todo'"
+            [style.--axis-pastel]="step.pastelVar"
+            [style.--axis-text]="step.textVar"
+            [style.--axis-accent]="step.accentVar"
+            [title]="step.label"
+            [attr.aria-label]="variant() === 'mini' ? step.label : null"
+            [attr.aria-current]="step.state === 'current' ? 'step' : null"
+          >
+            <ng-container
+              [ngTemplateOutlet]="stepContent"
+              [ngTemplateOutletContext]="{ $implicit: step }"
+            />
+          </span>
+        }
       }
     </nav>
+
+    <ng-template #stepContent let-step>
+      <span class="step__number">{{ step.number }}</span>
+      <ui-icon
+        [img]="step.state === 'done' ? checkIcon : step.icon"
+        [size]="14"
+        [strokeWidth]="step.state === 'done' ? 2.5 : 2"
+      />
+      @if (variant() === 'full') {
+        <span class="step__label">{{ step.label }}</span>
+      }
+    </ng-template>
   `,
   styles: `
     :host {
@@ -125,30 +170,53 @@ interface DecoratedStep {
       background: var(--surface-muted);
       color: var(--text-disabled);
     }
+    .step--interactive {
+      border: none;
+      cursor: pointer;
+    }
+    .step--active {
+      box-shadow: inset 0 -2px 0 var(--axis-accent);
+    }
+    .step--interactive:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 2px var(--axis-accent);
+    }
+    .step--interactive.step--active:focus-visible {
+      box-shadow:
+        inset 0 0 0 2px var(--axis-accent),
+        inset 0 -2px 0 var(--axis-accent);
+    }
     .stepper--full .step {
       gap: 7px;
-      padding: 8px 18px 8px 22px;
+      padding: 10px 18px 10px 22px;
       font-size: 13px;
     }
     .stepper--full .step--first {
-      padding: 8px 18px 8px 14px;
+      padding: 10px 18px 10px 14px;
       border-radius: 8px 0 0 8px;
     }
     .stepper--full .step--last {
-      padding: 8px 14px 8px 22px;
+      padding: 10px 14px 10px 22px;
       border-radius: 0 8px 8px 0;
     }
     .stepper--mini .step {
-      gap: 0;
-      padding: 8px 18px 8px 20px;
+      gap: 5px;
+      padding: 10px 15px 10px 18px;
     }
     .stepper--mini .step--first {
-      padding: 8px 18px 8px 14px;
+      padding: 10px 15px 10px 12px;
       border-radius: 6px 0 0 6px;
     }
     .stepper--mini .step--last {
-      padding: 8px 16px 8px 20px;
+      padding: 10px 13px 10px 18px;
       border-radius: 0 6px 6px 0;
+    }
+    .step__number {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 11px;
+      line-height: 1;
+      opacity: 0.65;
     }
     .step__label {
       line-height: 1;
@@ -156,18 +224,40 @@ interface DecoratedStep {
   `,
 })
 export class ChevronStepper {
+  readonly mode = input<ChevronStepperMode>('progress');
   readonly variant = input<ChevronStepperVariant>('full');
   readonly axes = input<readonly AxisType[]>([]);
   readonly currentIndex = input(0);
   readonly steps = input<readonly ChevronStep[]>([]);
+  readonly activeAxisChange = output<AxisType>();
 
   protected readonly checkIcon = Check;
+
+  protected readonly isExplorer = computed(() => this.mode() === 'explorer');
+
+  protected readonly selectedIndex = signal(0);
+  private readonly previewIndex = signal<number | null>(null);
+  protected readonly activeIndex = computed(
+    () => this.previewIndex() ?? this.selectedIndex(),
+  );
+
+  private readonly stepButtons =
+    viewChildren<ElementRef<HTMLButtonElement>>('stepButton');
 
   protected readonly navClasses = computed(
     () => `stepper stepper--${this.variant()}`,
   );
 
+  protected readonly navLabel = computed(() =>
+    this.isExplorer()
+      ? 'Parcours de la simulation'
+      : 'Progression de la simulation',
+  );
+
   private readonly effectiveSteps = computed<ChevronStep[]>(() => {
+    if (this.isExplorer()) {
+      return this.axes().map((axis) => ({ axis, state: 'plain' }));
+    }
     const explicit = this.steps();
     if (explicit.length > 0) {
       return [...explicit];
@@ -181,11 +271,12 @@ export class ChevronStepper {
   });
 
   protected readonly decoratedSteps = computed<DecoratedStep[]>(() =>
-    this.effectiveSteps().map((step) => {
+    this.effectiveSteps().map((step, index) => {
       const presentation = AXIS_PRESENTATION[step.axis];
       return {
         axis: step.axis,
         state: step.state,
+        number: String(index + 1).padStart(2, '0'),
         label: presentation.shortLabel,
         icon: presentation.icon,
         pastelVar: presentation.pastelVar,
@@ -194,4 +285,45 @@ export class ChevronStepper {
       };
     }),
   );
+
+  constructor() {
+    effect(() => {
+      if (!this.isExplorer()) {
+        return;
+      }
+      const step = this.decoratedSteps()[this.activeIndex()];
+      if (step) {
+        this.activeAxisChange.emit(step.axis);
+      }
+    });
+  }
+
+  protected previewStep(index: number): void {
+    this.previewIndex.set(index);
+  }
+
+  protected clearPreview(): void {
+    this.previewIndex.set(null);
+  }
+
+  protected selectStep(index: number): void {
+    this.selectedIndex.set(index);
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    const delta =
+      event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (delta === 0) {
+      return;
+    }
+    event.preventDefault();
+    const lastIndex = this.decoratedSteps().length - 1;
+    const next = Math.min(
+      lastIndex,
+      Math.max(0, this.selectedIndex() + delta),
+    );
+    this.previewIndex.set(null);
+    this.selectedIndex.set(next);
+    this.stepButtons()[next]?.nativeElement.focus();
+  }
 }
