@@ -66,6 +66,10 @@
   --rating-ok: #eab308;
   --rating-weak: #f97316;
   --rating-bad: #ef4444;
+  --rating-good-ink: #0e9669;
+  --rating-ok-ink: #a16207;
+  --rating-weak-ink: #c2410c;
+  --rating-bad-ink: #d93636;
 
   --stimulus-yellow: #f5a623;
   --stimulus-blue: #3b82f6;
@@ -90,6 +94,7 @@
   --font-display: 'Baloo 2', sans-serif;
   --font-ui: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  --font-stamp: 'Special Elite', 'JetBrains Mono', monospace;
 
   --radius-button: 10px;
   --radius-chip: 8px;
