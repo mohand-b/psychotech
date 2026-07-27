@@ -30,7 +30,6 @@ const configService = {
           priceEssential: 'price_essential',
           priceUnlimited: 'price_unlimited',
           priceEnergyPack: 'price_energy_pack',
-          webAppUrl: 'http://localhost:4200',
         },
 } as unknown as ConfigService;
 
@@ -86,7 +85,6 @@ const updateStripeSchedule = vi.fn();
 const releaseStripeSchedule = vi.fn();
 const retrieveStripeSchedule = vi.fn();
 const createPaymentIntent = vi.fn();
-const createPortalSession = vi.fn();
 const stripe = {
   webhooks: { constructEvent },
   subscriptions: {
@@ -112,7 +110,6 @@ const stripe = {
   prices: { retrieve: retrieveStripePrice },
   promotionCodes: { list: listPromotionCodes },
   paymentIntents: { create: createPaymentIntent },
-  billingPortal: { sessions: { create: createPortalSession } },
 } as unknown as Stripe;
 
 function buildStripePromotion(overrides: Record<string, unknown> = {}) {
@@ -1484,54 +1481,5 @@ describe('BillingService.getBillingOverview reconciliation', () => {
       }),
     );
     expect(overview.tier).toBe(SubscriptionTier.FREE);
-  });
-});
-
-describe('BillingService.createPortalSession', () => {
-  it('opens a portal session on the app return url', async () => {
-    repository.findUserById.mockResolvedValue({
-      id: 'user-1',
-      stripeCustomerId: 'cus_1',
-    });
-    createPortalSession.mockResolvedValue({
-      url: 'https://billing.stripe.com/session/xyz',
-    });
-
-    const session = await service.createPortalSession('user-1', '/profil');
-
-    expect(session).toEqual({ url: 'https://billing.stripe.com/session/xyz' });
-    expect(createPortalSession).toHaveBeenCalledWith({
-      customer: 'cus_1',
-      return_url: 'http://localhost:4200/profil',
-    });
-  });
-
-  it('falls back to the profile return path when the requested one is unsafe', async () => {
-    repository.findUserById.mockResolvedValue({
-      id: 'user-1',
-      stripeCustomerId: 'cus_1',
-    });
-    createPortalSession.mockResolvedValue({
-      url: 'https://billing.stripe.com/session/xyz',
-    });
-
-    await service.createPortalSession('user-1', '//evil.example');
-
-    expect(createPortalSession).toHaveBeenCalledWith({
-      customer: 'cus_1',
-      return_url: 'http://localhost:4200/profil',
-    });
-  });
-
-  it('refuses without a stripe customer', async () => {
-    repository.findUserById.mockResolvedValue({
-      id: 'user-1',
-      stripeCustomerId: null,
-    });
-
-    await expect(service.createPortalSession('user-1')).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
-    expect(createPortalSession).not.toHaveBeenCalled();
   });
 });

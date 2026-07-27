@@ -17,7 +17,6 @@ import {
   BillingConfigDto,
   BillingInvoiceDto,
   BillingOverviewDto,
-  BillingPortalSessionDto,
   ChangePlanPreviewDto,
   ENERGY_CAPACITY,
   ENERGY_NO_PAYMENT_METHOD_ERROR_CODE,
@@ -58,8 +57,6 @@ const HANDLED_SUBSCRIPTION_EVENTS = [
 const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
 
 const ENERGY_REFILL_PURPOSE = 'energy_refill';
-
-const DEFAULT_PORTAL_RETURN_PATH = '/profil';
 
 @Injectable()
 export class BillingService {
@@ -314,35 +311,6 @@ export class BillingService {
         pendingTier: null,
       });
     }
-  }
-
-  async createPortalSession(
-    userId: string,
-    returnPath?: string,
-  ): Promise<BillingPortalSessionDto> {
-    const stripe = this.requireStripe();
-    const user = await this.repository.findUserById(userId);
-    if (!user?.stripeCustomerId) {
-      throw new ForbiddenException('No billing account for this user');
-    }
-    const session = await stripe.billingPortal.sessions.create({
-      customer: user.stripeCustomerId,
-      return_url: this.buildPortalReturnUrl(returnPath),
-    });
-    return { url: session.url };
-  }
-
-  private buildPortalReturnUrl(returnPath?: string): string {
-    if (!this.config.webAppUrl) {
-      throw new ServiceUnavailableException(
-        'The web application url is not configured',
-      );
-    }
-    const path =
-      returnPath && returnPath.startsWith('/') && !returnPath.startsWith('//')
-        ? returnPath
-        : DEFAULT_PORTAL_RETURN_PATH;
-    return `${this.config.webAppUrl}${path}`;
   }
 
   private isMissingResource(error: unknown): boolean {

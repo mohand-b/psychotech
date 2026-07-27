@@ -9,7 +9,6 @@ export interface BillingConfig {
   priceEssential?: string;
   priceUnlimited?: string;
   priceEnergyPack?: string;
-  webAppUrl?: string;
 }
 
 export const billingConfig = registerAs('billing', (): BillingConfig => {
@@ -19,7 +18,6 @@ export const billingConfig = registerAs('billing', (): BillingConfig => {
   const priceEssential = readOptional('STRIPE_PRICE_ESSENTIAL');
   const priceUnlimited = readOptional('STRIPE_PRICE_UNLIMITED');
   const priceEnergyPack = readOptional('STRIPE_PRICE_ENERGY_PACK');
-  const webAppUrl = readOptional('WEB_APP_URL') ?? readOptional('CORS_ORIGIN');
   return {
     enabled:
       secretKey !== undefined &&
@@ -33,6 +31,5 @@ export const billingConfig = registerAs('billing', (): BillingConfig => {
     priceEssential,
     priceUnlimited,
     priceEnergyPack,
-    webAppUrl,
   };
 });

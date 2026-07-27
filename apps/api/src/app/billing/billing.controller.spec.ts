@@ -44,12 +44,6 @@ describe('BillingController.handleWebhook guards', () => {
     expect(
       Reflect.getMetadata(
         IS_PUBLIC_KEY,
-        BillingController.prototype.createPortalSession,
-      ),
-    ).toBeUndefined();
-    expect(
-      Reflect.getMetadata(
-        IS_PUBLIC_KEY,
         BillingController.prototype.getBillingOverview,
       ),
     ).toBeUndefined();
