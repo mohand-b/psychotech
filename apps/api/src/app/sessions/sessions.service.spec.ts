@@ -1128,14 +1128,19 @@ describe('SessionsService.simulationSummary', () => {
       summary.appreciation.lead.map(({ text }) => text).join(''),
     ).toContain('seuil éliminatoire');
     expect(summary.appreciation.priority).toEqual({
-      axis: AxisType.VISUAL_DISCRIMINATION,
-      label: 'Fiabiliser la comparaison des séquences',
+      axis: AxisType.REACTIVITY,
+      label: 'Stabiliser votre temps de réaction',
     });
     expect(summary.selection.recommendations[0]).toMatchObject({
-      axis: AxisType.VISUAL_DISCRIMINATION,
+      axis: AxisType.REACTIVITY,
     });
     expect(
       summary.selection.recommendations[0].findings[0].id,
+    ).toBe('AXIS_UNDER_ELIMINATORY_THRESHOLD');
+    expect(
+      summary.selection.recommendations
+        .find(({ axis }) => axis === AxisType.VISUAL_DISCRIMINATION)
+        ?.findings[0].id,
     ).toBe('DISCRIMINATION_SLOW_ACCURATE');
     expect(summary.selection.strengths[0].sublabel).toBe(
       'Votre meilleur axe de la session',
