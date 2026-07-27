@@ -17,17 +17,8 @@
             <span class="bilan__score t-mono">{{ scoreLabel() }}</span>
             <span class="bilan__score-max t-mono">/100</span>
           </span>
-          @if (verdict(); as v) {
-            <span
-              class="bilan__verdict"
-              [class.bilan__verdict--eliminated]="unfavorable()"
-            >
-              <span
-                class="bilan__verdict-dot"
-                [style.background]="v.dotVar"
-              ></span>
-              <span>{{ v.label }}</span>
-            </span>
+          @if (stamp(); as s) {
+            <ui-stamp-badge class="bilan__stamp" [simulationStamp]="s" />
           }
         </div>
 

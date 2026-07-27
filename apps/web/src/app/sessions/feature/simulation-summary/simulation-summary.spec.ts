@@ -234,13 +234,61 @@ describe('SimulationSummary', () => {
     expect(fixture.nativeElement.textContent).toContain('+4,8 au-dessus');
   });
 
-  it('renders the binary favorable badge from the summary verdict', async () => {
+  it('stamps a favorable verdict with its qualifier and completion date', async () => {
     const { fixture } = await setup(buildSummary());
-    const badge = fixture.nativeElement.querySelector('.bilan__verdict');
-    expect(badge.textContent).toContain('Favorable');
+    const stamp = fixture.nativeElement.querySelector('.bilan__stamp');
+    expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
+      'Favorable',
+    );
+    expect(stamp.querySelector('.stamp__sub').textContent.trim()).toBe(
+      'Juste · 12/07/2026',
+    );
+  });
+
+  it('stamps SOLIDE with a comfortable margin and NET with a clear one', async () => {
+    const { fixture } = await setup(
+      buildSummary({ globalScore: 85, admissibilityGap: 15 }),
+    );
     expect(
-      badge.classList.contains('bilan__verdict--eliminated'),
-    ).toBe(false);
+      fixture.nativeElement
+        .querySelector('.bilan__stamp .stamp__sub')
+        .textContent.trim(),
+    ).toBe('Solide · 12/07/2026');
+    TestBed.resetTestingModule();
+    const net = await setup(
+      buildSummary({ globalScore: 79.9, admissibilityGap: 9.9 }),
+    );
+    expect(
+      net.fixture.nativeElement
+        .querySelector('.bilan__stamp .stamp__sub')
+        .textContent.trim(),
+    ).toBe('Net · 12/07/2026');
+  });
+
+  it('stamps ELIMINATOIRE with priority even when the global score clears the threshold', async () => {
+    const { fixture } = await setup(
+      buildSummary({
+        globalScore: 78,
+        admissibilityGap: 8,
+        isEliminated: true,
+        isAdmissible: false,
+        verdict: {
+          verdict: SimulationVerdict.UNFAVORABLE,
+          reason: {
+            kind: SimulationVerdictReasonKind.ELIMINATORY_AXES,
+            axes: [AxisType.REACTIVITY],
+            eliminatoryThreshold: 55,
+          },
+        },
+      }),
+    );
+    const stamp = fixture.nativeElement.querySelector('.bilan__stamp');
+    expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
+      'Défavorable',
+    );
+    expect(stamp.querySelector('.stamp__sub').textContent).toContain(
+      'Éliminatoire',
+    );
   });
 
   it('renders appreciation paragraphs with mono value segments and the priority line', async () => {
@@ -317,7 +365,7 @@ describe('SimulationSummary', () => {
       cards[0].classList.contains('bilan__axis-card--eliminatory'),
     ).toBe(false);
     expect(
-      fixture.nativeElement.querySelector('.bilan__verdict').textContent,
+      fixture.nativeElement.querySelector('.bilan__stamp').textContent,
     ).toContain('Défavorable');
   });
 

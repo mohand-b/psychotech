@@ -2,27 +2,33 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  inject,
   input,
 } from '@angular/core';
-import { AxisType, ScoreBand, Sector } from '@psychotech/shared';
+import {
+  AxisType,
+  ScoreBand,
+  Sector,
+  buildAxisStamp,
+} from '@psychotech/shared';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { formatDayTime } from '../../../shared/ui/format-duration';
-import { Icon } from '../../../shared/ui/icon/icon';
-import {
-  VERDICT_LABELS,
-  resolveScoreRating,
-} from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 
 @Component({
   selector: 'ui-result-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisLabel, Icon],
+  imports: [AxisLabel, StampBadge],
   templateUrl: './result-summary.html',
   styleUrl: './result-summary.css',
 })
 export class ResultSummary {
+  private readonly catalogFacade = inject(CatalogFacade);
+
   readonly axis = input.required<AxisType>();
   readonly score = input.required<number>();
   readonly band = input.required<ScoreBand>();
@@ -48,11 +54,20 @@ export class ResultSummary {
     return previous === null ? null : this.score() - previous;
   });
 
-  protected readonly verdictLabel = computed(() => VERDICT_LABELS[this.band()]);
+  protected readonly stamp = computed(() => {
+    const referential = this.catalogFacade.sectorReferential();
+    const entry = referential?.axes.find(
+      (axisEntry) => axisEntry.code === this.axis(),
+    );
+    return buildAxisStamp(this.score(), {
+      isCritical: entry?.isCritical ?? false,
+      eliminatoryThreshold: referential?.eliminatoryThreshold ?? 0,
+    });
+  });
 
-  protected readonly verdictColor = computed(
-    () => resolveScoreRating(this.score()).colorVar,
-  );
+  constructor() {
+    effect(() => this.catalogFacade.loadSectorReferential(this.sector()));
+  }
 
   protected readonly bestSuffix = computed(() => {
     if (this.isNewBest()) {

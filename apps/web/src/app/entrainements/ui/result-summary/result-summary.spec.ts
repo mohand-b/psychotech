@@ -1,19 +1,61 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AxisType, ScoreBand, Sector } from '@psychotech/shared';
+import {
+  AxisType,
+  ScoreBand,
+  Sector,
+  SectorReferentialDto,
+} from '@psychotech/shared';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { ResultSummary } from './result-summary';
+
+const REFERENTIAL: SectorReferentialDto = {
+  code: Sector.RAILWAY,
+  label: 'Ferroviaire',
+  isActive: true,
+  admissibilityThreshold: 70,
+  vigilanceThreshold: 65,
+  eliminatoryThreshold: 55,
+  axes: [
+    {
+      code: AxisType.LOGIC,
+      label: 'Logique',
+      description: '',
+      coefficient: 1,
+      isCritical: false,
+    },
+    {
+      code: AxisType.REACTIVITY,
+      label: 'Réactivité',
+      description: '',
+      coefficient: 1.4,
+      isCritical: true,
+    },
+  ],
+};
 
 async function setup(inputs: {
   score: number;
   previousBestScore: number | null;
+  axis?: AxisType;
   isNewBest?: boolean;
   recordVisible?: boolean;
 }): Promise<ComponentFixture<ResultSummary>> {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [ResultSummary],
+    providers: [
+      {
+        provide: CatalogFacade,
+        useValue: {
+          sectorReferential: signal(REFERENTIAL),
+          loadSectorReferential: vi.fn(),
+        },
+      },
+    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(ResultSummary);
-  fixture.componentRef.setInput('axis', AxisType.LOGIC);
+  fixture.componentRef.setInput('axis', inputs.axis ?? AxisType.LOGIC);
   fixture.componentRef.setInput('score', inputs.score);
   fixture.componentRef.setInput('band', ScoreBand.ACCEPTABLE);
   fixture.componentRef.setInput('previousBestScore', inputs.previousBestScore);
@@ -59,6 +101,48 @@ describe('ResultSummary', () => {
       isNewBest: true,
     });
     expect(deltaText(fixture)).toBeNull();
+  });
+
+  it.each([
+    [92, 'Solide'],
+    [84.9, 'Bon'],
+    [70, 'Bon'],
+    [65, 'Fragile'],
+    [58, 'Faible'],
+  ])(
+    'stamps a one-word verdict without date for score %s (%s)',
+    async (score, word) => {
+      const fixture = await setup({ score, previousBestScore: null });
+      const stamp = fixture.nativeElement.querySelector('.summary__stamp');
+      expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
+        word,
+      );
+      expect(stamp.querySelector('.stamp__sub')).toBeNull();
+    },
+  );
+
+  it('overrides the stamp with ÉLIMINATOIRE for a critical axis under 55', async () => {
+    const fixture = await setup({
+      score: 52,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+    const stamp = fixture.nativeElement.querySelector('.summary__stamp');
+    expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
+      'Éliminatoire',
+    );
+    expect(
+      stamp.querySelector('.stamp').classList.contains('stamp--eliminatory'),
+    ).toBe(true);
+  });
+
+  it('never stamps a non-critical axis as eliminatory', async () => {
+    const fixture = await setup({ score: 30, previousBestScore: null });
+    expect(
+      fixture.nativeElement
+        .querySelector('.summary__stamp .stamp__main')
+        .textContent.trim(),
+    ).toBe('Faible');
   });
 
   it('hides the best line and the delta when the record is not visible', async () => {

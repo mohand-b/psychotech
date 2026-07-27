@@ -70,25 +70,10 @@
   color: var(--danger-text);
 }
 
-.summary__verdict {
+.summary__stamp {
   grid-area: verdict;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-button);
-  background: var(--card);
-  font: 600 15px/20px var(--font-ui);
-  color: var(--ink);
   margin-top: 10px;
   justify-self: start;
-}
-
-.summary__verdict-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: var(--radius-pill);
 }
 
 .summary__best {
@@ -126,7 +111,7 @@
     margin-top: 14px;
   }
 
-  .summary__verdict {
+  .summary__stamp {
     order: 3;
     margin-top: 14px;
     justify-self: center;

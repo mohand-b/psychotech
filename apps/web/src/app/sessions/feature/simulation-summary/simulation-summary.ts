@@ -10,9 +10,9 @@ import {
   AxisType,
   SimulationSummaryDto,
   SimulationThresholdKind,
-  SimulationVerdict,
   SimulationWeaknessDto,
   TargetedAxisResultDto,
+  buildSimulationStamp,
 } from '@psychotech/shared';
 import { Lightbulb, Play } from 'lucide-angular';
 import { axisButtonColor } from '../../../entrainements/ui/axis-button-color';
@@ -22,8 +22,8 @@ import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
-import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { AxisRadar, AxisRadarEntry } from '../../../shared/ui/axis-radar/axis-radar';
@@ -41,6 +41,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
     Button,
     Icon,
     SimulationAxisDetail,
+    StampBadge,
     ThresholdBar,
     ThresholdGauge,
   ],
@@ -105,20 +106,18 @@ export class SimulationSummary {
     return summary ? formatFrenchDecimal(summary.globalScore) : '';
   });
 
-  protected readonly verdict = computed(() => {
+  protected readonly stamp = computed(() => {
     const summary = this.summary();
     if (!summary) {
       return null;
     }
-    const presentation =
-      SIMULATION_VERDICT_PRESENTATION[summary.verdict.verdict];
-    return { label: presentation.label, dotVar: presentation.colorVar };
+    return buildSimulationStamp(
+      summary.globalScore,
+      summary.admissibilityThreshold,
+      summary.isEliminated,
+      summary.completedAt,
+    );
   });
-
-  protected readonly unfavorable = computed(
-    () =>
-      this.summary()?.verdict.verdict === SimulationVerdict.UNFAVORABLE,
-  );
 
   protected readonly gap = computed(() => {
     const summary = this.summary();

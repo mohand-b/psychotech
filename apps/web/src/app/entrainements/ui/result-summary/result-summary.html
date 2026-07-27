@@ -14,13 +14,7 @@
     >
     } } }
   </div>
-  <span class="summary__verdict">
-    <span
-      class="summary__verdict-dot"
-      [style.background]="verdictColor()"
-    ></span>
-    {{ verdictLabel() }}
-  </span>
+  <ui-stamp-badge class="summary__stamp" [axisStamp]="stamp()" />
   @if (recordVisible()) {
   <p class="summary__best">
     Meilleur score sur cet axe :
