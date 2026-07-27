@@ -31,6 +31,10 @@
   color: var(--ink);
 }
 
+.banner__sep {
+  color: var(--label);
+}
+
 .banner__muted {
   color: var(--text-secondary);
 }

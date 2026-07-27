@@ -12,6 +12,7 @@
         <span class="banner__text flex items-center gap-2">
           <span class="banner__mode">{{ modeLabel() }}</span>
           @if (targetedAxis(); as axis) {
+            <span class="banner__sep">·</span>
             <ui-axis-label [axis]="axis" />
           }
         </span>
@@ -24,6 +25,7 @@
       } @else if (targetedAxis(); as axis) {
         <span class="banner__compact-meta flex items-center gap-2">
           <span class="banner__muted">Entraînement ciblé</span>
+          <span class="banner__sep">·</span>
           <ui-axis-label [axis]="axis" />
         </span>
       }
