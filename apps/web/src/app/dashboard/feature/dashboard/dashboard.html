@@ -88,32 +88,11 @@
                     </span>
                   </div>
                   <div class="home__day-meta home__day-meta--desktop">
-                    <span class="home__chips">
-                      @for (
-                        chip of sessionChips();
-                        track chip.presentation.label;
-                        let first = $first, last = $last
-                      ) {
-                        <span
-                          class="home__chip"
-                          [class.home__chip--first]="first"
-                          [class.home__chip--last]="last"
-                          [style.background]="chipBackground(chip)"
-                          [style.color]="chipColor(chip)"
-                          [style.box-shadow]="
-                            chip.status === statuses.CURRENT
-                              ? 'inset 0 -2px 0 ' + chip.presentation.plainVar
-                              : null
-                          "
-                        >
-                          @if (chip.status === statuses.DONE) {
-                            <ui-icon [img]="checkIcon" [size]="12" />
-                          } @else {
-                            <ui-icon [img]="chip.presentation.icon" [size]="12" />
-                          }
-                        </span>
-                      }
-                    </span>
+                    <ui-chevron-stepper
+                      class="home__day-stepper"
+                      variant="mini"
+                      [steps]="sessionSteps()"
+                    />
                     <span class="home__day-progress">
                       <span class="home__day-count t-mono"
                         >{{ sessionDoneCount() }}/{{ sessionAxisTotal() }}</span

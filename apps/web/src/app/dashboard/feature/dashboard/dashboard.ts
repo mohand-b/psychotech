@@ -18,7 +18,7 @@ import {
   axisMaxDurationSec,
   buildSimulationStamp,
 } from '@psychotech/shared';
-import { ArrowRight, Check, Gem, Play, Target } from 'lucide-angular';
+import { ArrowRight, Gem, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
@@ -35,6 +35,10 @@ import {
 } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import {
+  ChevronStep,
+  ChevronStepper,
+} from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
@@ -82,6 +86,7 @@ interface LastResultView {
     AxisLabel,
     AxisRadar,
     BoltIcon,
+    ChevronStepper,
     Icon,
     SectorChip,
     Skeleton,
@@ -105,7 +110,6 @@ export class Dashboard {
 
   protected readonly playIcon = Play;
   protected readonly arrowIcon = ArrowRight;
-  protected readonly checkIcon = Check;
   protected readonly planIcon = Gem;
   protected readonly discoverIcon = Target;
   protected readonly statuses = AxisProgressStatus;
@@ -246,6 +250,22 @@ export class Dashboard {
     return session.axes.map((axis) => ({
       presentation: AXIS_PRESENTATION[axis.axis],
       status: axis.status,
+    }));
+  });
+
+  protected readonly sessionSteps = computed<ChevronStep[]>(() => {
+    const session = this.current();
+    if (!session || session.mode !== SessionMode.FULL) {
+      return [];
+    }
+    return session.axes.map((axis) => ({
+      axis: axis.axis,
+      state:
+        axis.status === AxisProgressStatus.DONE
+          ? 'done'
+          : axis.status === AxisProgressStatus.CURRENT
+            ? 'current'
+            : 'todo',
     }));
   });
 
@@ -423,15 +443,4 @@ export class Dashboard {
     }
   }
 
-  protected chipColor(chip: SessionChipView): string {
-    return chip.status === AxisProgressStatus.PENDING
-      ? '#9AA3B2'
-      : chip.presentation.textVar;
-  }
-
-  protected chipBackground(chip: SessionChipView): string {
-    return chip.status === AxisProgressStatus.PENDING
-      ? 'var(--surface-muted)'
-      : chip.presentation.pastelVar;
-  }
 }

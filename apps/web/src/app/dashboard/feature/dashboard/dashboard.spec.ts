@@ -294,15 +294,15 @@ describe('Dashboard', () => {
     );
   });
 
-  it('renders the running session with its chips and resumes it', async () => {
+  it('renders the running session with its progress stepper and resumes it', async () => {
     const { fixture, navigate } = await setup({ current: fullSession() });
     expect(textOf(fixture)).toContain('Reprenez votre simulation');
     expect(textOf(fixture)).toContain('3/5');
     expect(textOf(fixture)).toContain('prochain :');
     expect(textOf(fixture)).toContain('Réactivité');
-    expect(fixture.nativeElement.querySelectorAll('.home__chip')).toHaveLength(
-      5,
-    );
+    expect(
+      fixture.nativeElement.querySelectorAll('.home__day-stepper .step'),
+    ).toHaveLength(5);
     const cta = fixture.nativeElement.querySelector(
       '.home__cta-primary',
     ) as HTMLButtonElement;

@@ -200,43 +200,11 @@
   box-sizing: border-box;
 }
 
-.home__chips {
-  display: inline-flex;
-  align-items: center;
-}
-
-.home__chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 13px 6px 15px;
-  margin-left: -5px;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 8px) 0,
-    100% 50%,
-    calc(100% - 8px) 100%,
-    0 100%,
-    8px 50%
-  );
-}
-
-.home__chip--first {
-  padding-left: 10px;
-  margin-left: 0;
-  clip-path: polygon(
-    0 0,
-    calc(100% - 8px) 0,
-    100% 50%,
-    calc(100% - 8px) 100%,
-    0 100%
-  );
-  border-radius: 6px 0 0 6px;
-}
-
-.home__chip--last {
-  padding-right: 11px;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 8px 50%);
-  border-radius: 0 6px 6px 0;
+.home__day-stepper {
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 .home__day-progress {
