@@ -42,6 +42,7 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
     }
     .ui-axis-label__name {
       font: 500 14px/20px var(--font-ui);
+      font-size: var(--axis-label-font-size, 14px);
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
