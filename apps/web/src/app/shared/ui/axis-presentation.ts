@@ -2,10 +2,10 @@ import { AXIS_META, AxisType } from '@psychotech/shared';
 import {
   BookOpen,
   Brain,
-  BrainCircuit,
   Calculator,
   Hand,
   LucideIconData,
+  Puzzle,
   Rotate3d,
   ScanEye,
   Target,
@@ -27,7 +27,7 @@ const AXIS_SHORT_LABELS: Partial<Record<AxisType, string>> = {
 };
 
 const AXIS_ICONS: Record<AxisType, LucideIconData> = {
-  [AxisType.LOGIC]: BrainCircuit,
+  [AxisType.LOGIC]: Puzzle,
   [AxisType.MEMORY]: Brain,
   [AxisType.VISUAL_DISCRIMINATION]: ScanEye,
   [AxisType.REACTIVITY]: Zap,
