@@ -48,7 +48,6 @@ export const AXIS_STAMP_FRAGILE_MIN = 60;
 export interface SimulationStamp {
   verdict: SimulationVerdict;
   qualifier: SimulationStampQualifier;
-  date: string;
 }
 
 export interface AxisStamp {
@@ -61,25 +60,15 @@ export interface AxisStampThresholds {
   eliminatoryThreshold: number;
 }
 
-function formatStampDate(completedAt: string): string {
-  const date = new Date(completedAt);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}/${month}/${date.getFullYear()}`;
-}
-
 export function buildSimulationStamp(
   globalScore: number,
   admissibilityThreshold: number,
   isEliminatory: boolean,
-  completedAt: string,
 ): SimulationStamp {
-  const date = formatStampDate(completedAt);
   if (isEliminatory) {
     return {
       verdict: SimulationVerdict.UNFAVORABLE,
       qualifier: SimulationStampQualifier.ELIMINATORY,
-      date,
     };
   }
   const gap = globalScore - admissibilityThreshold;
@@ -87,34 +76,29 @@ export function buildSimulationStamp(
     return {
       verdict: SimulationVerdict.FAVORABLE,
       qualifier: SimulationStampQualifier.SOLID,
-      date,
     };
   }
   if (gap >= SIMULATION_STAMP_NET_MARGIN) {
     return {
       verdict: SimulationVerdict.FAVORABLE,
       qualifier: SimulationStampQualifier.NET,
-      date,
     };
   }
   if (gap >= 0) {
     return {
       verdict: SimulationVerdict.FAVORABLE,
       qualifier: SimulationStampQualifier.JUST,
-      date,
     };
   }
   if (gap > -SIMULATION_STAMP_INSUFFICIENT_GAP) {
     return {
       verdict: SimulationVerdict.UNFAVORABLE,
       qualifier: SimulationStampQualifier.BORDERLINE,
-      date,
     };
   }
   return {
     verdict: SimulationVerdict.UNFAVORABLE,
     qualifier: SimulationStampQualifier.INSUFFICIENT,
-    date,
   };
 }
 

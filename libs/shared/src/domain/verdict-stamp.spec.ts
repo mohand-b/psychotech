@@ -7,7 +7,6 @@ import {
 } from './verdict-stamp';
 
 const THRESHOLD = 70;
-const COMPLETED_AT = '2026-07-27T14:30:00.000Z';
 
 describe('buildSimulationStamp', () => {
   it.each([
@@ -24,7 +23,7 @@ describe('buildSimulationStamp', () => {
   ])(
     'maps score %s to %s / %s against threshold 70',
     (score, verdict, qualifier) => {
-      const stamp = buildSimulationStamp(score, THRESHOLD, false, COMPLETED_AT);
+      const stamp = buildSimulationStamp(score, THRESHOLD, false);
       expect(stamp.verdict).toBe(verdict);
       expect(stamp.qualifier).toBe(qualifier);
     },
@@ -33,16 +32,11 @@ describe('buildSimulationStamp', () => {
   it.each([88, 62])(
     'gives eliminatory priority over every score band (score %s)',
     (score) => {
-      const stamp = buildSimulationStamp(score, THRESHOLD, true, COMPLETED_AT);
+      const stamp = buildSimulationStamp(score, THRESHOLD, true);
       expect(stamp.verdict).toBe(SimulationVerdict.UNFAVORABLE);
       expect(stamp.qualifier).toBe(SimulationStampQualifier.ELIMINATORY);
     },
   );
-
-  it('formats the completion date as DD/MM/YYYY', () => {
-    const stamp = buildSimulationStamp(80, THRESHOLD, false, COMPLETED_AT);
-    expect(stamp.date).toBe('27/07/2026');
-  });
 });
 
 describe('buildAxisStamp', () => {
