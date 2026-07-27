@@ -67,15 +67,6 @@ export class CurrentSessionBanner {
       : 'Reprend depuis le début, mêmes exercices',
   );
 
-  protected readonly doneCount = computed(
-    () =>
-      this.session().axes.filter(
-        ({ status }) => status === AxisProgressStatus.DONE,
-      ).length,
-  );
-
-  protected readonly axisTotal = computed(() => this.session().axes.length);
-
   protected readonly steps = computed<ChevronStep[]>(() =>
     this.session().axes.map(({ axis, status }) => ({
       axis,

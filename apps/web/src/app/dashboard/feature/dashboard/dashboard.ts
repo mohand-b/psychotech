@@ -280,14 +280,6 @@ export class Dashboard {
     () => this.current()?.axes.length ?? 0,
   );
 
-  protected readonly sessionNextLabel = computed(() => {
-    const axes = this.current()?.axes ?? [];
-    const next =
-      axes.find((axis) => axis.status === AxisProgressStatus.CURRENT) ??
-      axes.find((axis) => axis.status === AxisProgressStatus.PENDING);
-    return next ? AXIS_PRESENTATION[next.axis].label : null;
-  });
-
   protected readonly targetedAxis = computed(() => {
     const session = this.current();
     return session && session.mode === SessionMode.TARGETED

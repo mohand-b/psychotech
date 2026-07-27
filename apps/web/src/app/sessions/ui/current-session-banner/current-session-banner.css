@@ -36,11 +36,6 @@
   color: var(--label);
 }
 
-.banner__count {
-  font-weight: 700;
-  color: var(--ink);
-}
-
 .banner__muted {
   color: var(--text-secondary);
 }

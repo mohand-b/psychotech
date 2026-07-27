@@ -1,43 +1,34 @@
 <div class="banner">
   <div class="banner__inner flex items-center gap-4">
-    <div class="banner__info flex items-center gap-5">
+    <div class="banner__info flex flex-col items-start gap-2">
       <span class="t-label">Session en cours</span>
-      <span class="banner__text">
-        <span class="banner__mode">{{ modeLabel() }}</span>
-        <span class="banner__sep">·</span>
-        <span class="banner__muted">{{ sectorLabel() }}</span>
-        @if (isFull()) {
-          <span class="banner__sep">·</span>
-          <span class="banner__count">{{ doneCount() }}/{{ axisTotal() }}</span
-          >&ngsp;<span class="banner__muted">axes</span>
-        }
-      </span>
       @if (isFull()) {
         <ui-chevron-stepper
           class="banner__stepper"
           variant="mini"
           [steps]="steps()"
         />
-      } @else if (targetedAxis(); as axis) {
-        <ui-axis-label [axis]="axis" />
+      } @else {
+        <span class="banner__text flex items-center gap-2">
+          <span class="banner__mode">{{ modeLabel() }}</span>
+          <span class="banner__sep">·</span>
+          <span class="banner__muted">{{ sectorLabel() }}</span>
+          @if (targetedAxis(); as axis) {
+            <ui-axis-label [axis]="axis" />
+          }
+        </span>
       }
     </div>
-    <div class="banner__compact flex flex-col gap-1.5">
+    <div class="banner__compact flex flex-col items-start gap-1.5">
       <span class="banner__compact-title">Session en cours</span>
       @if (isFull()) {
-        <span class="banner__compact-line"
-          >Simulation complète&nbsp;:
-          {{ doneCount() }}/{{ axisTotal() }}</span
-        >
-      }
-      <span class="banner__compact-meta flex items-center gap-2">
-        @if (isFull()) {
-          <ui-chevron-stepper variant="mini" [steps]="steps()" />
-        } @else if (targetedAxis(); as axis) {
+        <ui-chevron-stepper variant="mini" [steps]="steps()" />
+      } @else if (targetedAxis(); as axis) {
+        <span class="banner__compact-meta flex items-center gap-2">
           <span class="banner__muted">Ciblé ·</span>
           <ui-axis-label [axis]="axis" />
-        }
-      </span>
+        </span>
+      }
     </div>
     <div class="banner__cta flex flex-col items-end gap-1">
       <ui-button

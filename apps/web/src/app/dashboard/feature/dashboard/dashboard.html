@@ -50,12 +50,6 @@
                 </span>
                 @if (sessionIsFull()) {
                   <div class="home__day-meta home__day-meta--mobile">
-                    <span class="home__day-next-label"
-                      >Prochain axe&nbsp;:
-                      @if (sessionNextLabel(); as next) {
-                        <span class="home__day-next">{{ next }}</span>
-                      }</span
-                    >
                     <span class="home__day-dots-wrap">
                       <span class="home__day-dots">
                         @for (
@@ -93,16 +87,6 @@
                       variant="mini"
                       [steps]="sessionSteps()"
                     />
-                    <span class="home__day-progress">
-                      <span class="home__day-count t-mono"
-                        >{{ sessionDoneCount() }}/{{ sessionAxisTotal() }}</span
-                      >
-                      axes
-                      @if (sessionNextLabel(); as next) {
-                        · prochain :
-                        <span class="home__day-next">{{ next }}</span>
-                      }
-                    </span>
                   </div>
                 } @else if (targetedAxis(); as axis) {
                   <div class="home__day-meta">
