@@ -125,15 +125,17 @@ interface DecoratedStep {
     }
     .stepper--full {
       justify-content: center;
-      --notch: 10px;
-      --overlap: -7px;
+      --notch: 13px;
+      --overlap: -8px;
     }
     .stepper--mini {
       justify-content: flex-start;
-      --notch: 8px;
-      --overlap: -5px;
+      --notch: 10px;
+      --overlap: -6px;
     }
     .step {
+      position: relative;
+      overflow: hidden;
       display: inline-flex;
       align-items: center;
       margin-left: var(--overlap);
@@ -147,6 +149,17 @@ interface DecoratedStep {
         0 100%,
         var(--notch) 50%
       );
+      clip-path: shape(
+        from 0% 0%,
+        line to calc(100% - var(--notch)) 0%,
+        line to calc(100% - var(--notch) * 0.3) 35%,
+        curve to calc(100% - var(--notch) * 0.3) 65% with 100% 50%,
+        line to calc(100% - var(--notch)) 100%,
+        line to 0% 100%,
+        line to calc(var(--notch) * 0.7) 65%,
+        curve to calc(var(--notch) * 0.7) 35% with var(--notch) 50%,
+        close
+      );
       background: var(--axis-pastel);
       color: var(--axis-text);
     }
@@ -159,12 +172,37 @@ interface DecoratedStep {
         calc(100% - var(--notch)) 100%,
         0 100%
       );
+      clip-path: shape(
+        from 0% 0%,
+        line to calc(100% - var(--notch)) 0%,
+        line to calc(100% - var(--notch) * 0.3) 35%,
+        curve to calc(100% - var(--notch) * 0.3) 65% with 100% 50%,
+        line to calc(100% - var(--notch)) 100%,
+        line to 0% 100%,
+        close
+      );
     }
     .step--last {
       clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, var(--notch) 50%);
+      clip-path: shape(
+        from 0% 0%,
+        line to 100% 0%,
+        line to 100% 100%,
+        line to 0% 100%,
+        line to calc(var(--notch) * 0.7) 65%,
+        curve to calc(var(--notch) * 0.7) 35% with var(--notch) 50%,
+        close
+      );
     }
-    .step--current {
-      box-shadow: inset 0 -2px 0 var(--axis-accent);
+    .step--current::after,
+    .step--active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--axis-accent);
     }
     .step--todo {
       background: var(--surface-muted);
@@ -174,41 +212,33 @@ interface DecoratedStep {
       border: none;
       cursor: pointer;
     }
-    .step--active {
-      box-shadow: inset 0 -2px 0 var(--axis-accent);
-    }
     .step--interactive:focus-visible {
       outline: none;
       box-shadow: inset 0 0 0 2px var(--axis-accent);
     }
-    .step--interactive.step--active:focus-visible {
-      box-shadow:
-        inset 0 0 0 2px var(--axis-accent),
-        inset 0 -2px 0 var(--axis-accent);
-    }
     .stepper--full .step {
       gap: 7px;
-      padding: 10px 18px 10px 22px;
+      padding: 12px 20px 12px 25px;
       font-size: 13px;
     }
     .stepper--full .step--first {
-      padding: 10px 18px 10px 14px;
+      padding: 12px 20px 12px 15px;
       border-radius: 8px 0 0 8px;
     }
     .stepper--full .step--last {
-      padding: 10px 14px 10px 22px;
+      padding: 12px 15px 12px 25px;
       border-radius: 0 8px 8px 0;
     }
     .stepper--mini .step {
       gap: 5px;
-      padding: 10px 15px 10px 18px;
+      padding: 12px 16px 12px 20px;
     }
     .stepper--mini .step--first {
-      padding: 10px 15px 10px 12px;
+      padding: 12px 16px 12px 12px;
       border-radius: 6px 0 0 6px;
     }
     .stepper--mini .step--last {
-      padding: 10px 13px 10px 18px;
+      padding: 12px 13px 12px 20px;
       border-radius: 0 6px 6px 0;
     }
     .step__number {
