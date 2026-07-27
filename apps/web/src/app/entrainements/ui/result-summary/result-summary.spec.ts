@@ -104,6 +104,7 @@ describe('ResultSummary', () => {
   });
 
   it.each([
+    [95, 'Excellent'],
     [92, 'Solide'],
     [84.9, 'Bon'],
     [70, 'Bon'],

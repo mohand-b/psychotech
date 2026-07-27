@@ -245,7 +245,7 @@ describe('SimulationSummary', () => {
     );
   });
 
-  it('stamps SOLIDE with a comfortable margin and NET with a clear one', async () => {
+  it('stamps SOLIDE from +15 over the threshold and EXCELLENT from +25', async () => {
     const { fixture } = await setup(
       buildSummary({ globalScore: 85, admissibilityGap: 15 }),
     );
@@ -255,14 +255,14 @@ describe('SimulationSummary', () => {
         .textContent.trim(),
     ).toBe('Solide');
     TestBed.resetTestingModule();
-    const net = await setup(
-      buildSummary({ globalScore: 79.9, admissibilityGap: 9.9 }),
+    const excellent = await setup(
+      buildSummary({ globalScore: 96.2, admissibilityGap: 26.2 }),
     );
     expect(
-      net.fixture.nativeElement
+      excellent.fixture.nativeElement
         .querySelector('.bilan__stamp .stamp__sub')
         .textContent.trim(),
-    ).toBe('Net');
+    ).toBe('Excellent');
   });
 
   it('stamps ELIMINATOIRE with priority even when the global score clears the threshold', async () => {

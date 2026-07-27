@@ -20,6 +20,7 @@ const VERDICT_INK_VARS: Record<SimulationVerdict, string> = {
 };
 
 const AXIS_WORD_INK_VARS: Record<AxisStampWord, string> = {
+  [AxisStampWord.EXCELLENT]: 'var(--rating-good-ink)',
   [AxisStampWord.SOLID]: 'var(--rating-good-ink)',
   [AxisStampWord.GOOD]: 'var(--rating-ok-ink)',
   [AxisStampWord.FRAGILE]: 'var(--rating-weak-ink)',

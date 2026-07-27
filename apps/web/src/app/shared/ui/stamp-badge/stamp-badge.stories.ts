@@ -16,19 +16,21 @@ export default meta;
 
 type Story = StoryObj<StampBadge>;
 
+export const SimulationFavorableExcellent: Story = {
+  args: {
+    simulationStamp: {
+      verdict: SimulationVerdict.FAVORABLE,
+      qualifier: SimulationStampQualifier.EXCELLENT,
+    },
+  },
+};
+
 export const SimulationFavorableSolide: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.SOLID,    },
-  },
-};
-
-export const SimulationFavorableNet: Story = {
-  args: {
-    simulationStamp: {
-      verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.NET,    },
+      qualifier: SimulationStampQualifier.SOLID,
+    },
   },
 };
 
@@ -36,7 +38,8 @@ export const SimulationFavorableJuste: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.FAVORABLE,
-      qualifier: SimulationStampQualifier.JUST,    },
+      qualifier: SimulationStampQualifier.JUST,
+    },
   },
 };
 
@@ -44,7 +47,8 @@ export const SimulationDefavorableEliminatoire: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.ELIMINATORY,    },
+      qualifier: SimulationStampQualifier.ELIMINATORY,
+    },
   },
 };
 
@@ -52,7 +56,8 @@ export const SimulationDefavorableLimite: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.BORDERLINE,    },
+      qualifier: SimulationStampQualifier.BORDERLINE,
+    },
   },
 };
 
@@ -60,8 +65,13 @@ export const SimulationDefavorableInsuffisant: Story = {
   args: {
     simulationStamp: {
       verdict: SimulationVerdict.UNFAVORABLE,
-      qualifier: SimulationStampQualifier.INSUFFICIENT,    },
+      qualifier: SimulationStampQualifier.INSUFFICIENT,
+    },
   },
+};
+
+export const AxeExcellent: Story = {
+  args: { axisStamp: { word: AxisStampWord.EXCELLENT, isEliminatory: false } },
 };
 
 export const AxeSolide: Story = {
