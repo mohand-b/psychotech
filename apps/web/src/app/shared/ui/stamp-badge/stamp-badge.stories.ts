@@ -34,6 +34,15 @@ export const SimulationFavorableSolide: Story = {
   },
 };
 
+export const SimulationFavorableConfortable: Story = {
+  args: {
+    simulationStamp: {
+      verdict: SimulationVerdict.FAVORABLE,
+      qualifier: SimulationStampQualifier.COMFORTABLE,
+    },
+  },
+};
+
 export const SimulationFavorableJuste: Story = {
   args: {
     simulationStamp: {
