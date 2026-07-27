@@ -57,10 +57,6 @@ export interface BillingOverviewDto {
   nextInvoiceDate: string | null;
 }
 
-export interface BillingPortalSessionDto {
-  url: string;
-}
-
 export enum InvoiceStatus {
   PAID = 'PAID',
   OPEN = 'OPEN',
