@@ -120,6 +120,7 @@ describe('generateMotricityCourses v2 (property-based)', () => {
     for (const seed of propertySeeds(PROPERTY_SEED_COUNT)) {
       const courses = generateMotricityCourses(seed);
       expect(courses).toHaveLength(3);
+      expect(courses[2].totalLength).toBeGreaterThan(courses[1].totalLength);
       courses.forEach((course, index) => {
         const profile = MOTRICITY_COURSE_PROFILES[index];
         const width = course.segments[0].width;
@@ -133,6 +134,9 @@ describe('generateMotricityCourses v2 (property-based)', () => {
         );
         expect(course.totalLength).toBeGreaterThanOrEqual(
           profile.minCurvilinearLength - EPSILON,
+        );
+        expect(course.totalLength).toBeLessThanOrEqual(
+          profile.maxCurvilinearLength + EPSILON,
         );
 
         const start = course.centerline[0];
@@ -153,12 +157,21 @@ describe('generateMotricityCourses v2 (property-based)', () => {
           MOTRICITY_EDGE_BAND + EPSILON,
         );
 
-        const hasDiagonal = course.segments.some((segment) => {
+        const diagonalSegments = course.segments.filter((segment) => {
           const dx = Math.abs(segment.end.x - segment.start.x);
           const dy = Math.abs(segment.end.y - segment.start.y);
           return dx > 1e-6 && Math.abs(dx - dy) < 1e-6;
         });
-        expect(hasDiagonal).toBe(true);
+        expect(diagonalSegments.length).toBeGreaterThanOrEqual(
+          profile.minDiagonalSegments,
+        );
+        const diagonalLength = diagonalSegments.reduce(
+          (sum, segment) => sum + segment.length,
+          0,
+        );
+        expect(diagonalLength).toBeGreaterThanOrEqual(
+          profile.minDiagonalShare * course.totalLength - EPSILON,
+        );
 
         for (const segment of course.segments) {
           expect(segment.length).toBeGreaterThanOrEqual(
