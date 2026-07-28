@@ -1,4 +1,5 @@
 import { createSeededRng, SeededRng } from '../rng';
+import { generateLegacyMotricityCourses } from './generate-motricity-courses-v1';
 import {
   MOTRICITY_CANVAS_HEIGHT,
   MOTRICITY_CANVAS_WIDTH,
@@ -8,378 +9,569 @@ import {
   MotricitySegment,
   MotricityWall,
 } from './motricity-course';
+import {
+  offsetPolyline,
+  rectToSegmentDistance,
+  segmentToSegmentDistance,
+} from './motricity-geometry';
+
+export const MOTRICITY_CONTENT_VERSION_V2 = 5;
 
 export const MOTRICITY_COURSE_COUNT = 3;
 export const MOTRICITY_WIDTH_SHRINK = 0.2;
 
+export const MOTRICITY_MIN_SEGMENT_LENGTH = 80;
+export const MOTRICITY_MAX_SEGMENT_LENGTH = 230;
+export const MOTRICITY_CLEARANCE_MARGIN = 26;
+export const MOTRICITY_MIN_START_END_SPAN_X = 480;
+export const MOTRICITY_REVERSAL_MIN_SPACING = 220;
+export const MOTRICITY_GENERATION_ATTEMPTS = 80;
+export const MOTRICITY_GENERATION_DRAW_BUDGET = 3000;
+
+export interface MotricityCourseProfile {
+  segmentBounds: readonly [number, number];
+  reversalBounds: readonly [number, number];
+  minCurvilinearLength: number;
+}
+
+export const MOTRICITY_COURSE_PROFILES: readonly MotricityCourseProfile[] = [
+  {
+    segmentBounds: [5, 8],
+    reversalBounds: [0, 0],
+    minCurvilinearLength: 900,
+  },
+  {
+    segmentBounds: [7, 11],
+    reversalBounds: [0, 1],
+    minCurvilinearLength: 1100,
+  },
+  {
+    segmentBounds: [10, 16],
+    reversalBounds: [2, 3],
+    minCurvilinearLength: 1450,
+  },
+];
+
 const COURSE_START_WIDTHS = [68, 58, 50];
 
-const MARGIN_X = 30;
-const MARGIN_TOP = 70;
-const MARGIN_BOTTOM = 70;
 const GARAGE_WIDTH_FACTOR = 1.35;
 const GARAGE_DEPTH_FACTOR = 1.4;
 const END_ZONE_WIDTH_FACTOR = 1.35;
 const END_ZONE_DEPTH_FACTOR = 1.2;
 
-const ZIGZAG_SEGMENT_RANGE: [number, number] = [10, 11];
-const VERTICAL_MIN_LENGTH = 60;
-const VERTICAL_MAX_LENGTH = 130;
-const DENSE_TAIL_RATIO = 2 / 3;
-const DENSE_DX_FACTOR = 0.6;
-const MAX_SEGMENT_DX = 240;
+const EDGE_PADDING = 12;
+const STEP_SAMPLE_LIMIT = 24;
+const CLOSING_SEGMENT_MAX_LENGTH = 170;
+const REVERSAL_RUN_MIN_LENGTH = 140;
+const REVERSAL_RUN_MAX_LENGTH = 280;
+const EXTRA_REVERSAL_PROBABILITY = 0.25;
+const REVERSAL_TRIGGER_JITTER = 0.08;
+const ENTRY_BAND_SPAN = 150;
+const VERTICAL_FIRST_PROBABILITY = 0.4;
 
-const SIMPLE_JOG_MIN = 80;
-const SIMPLE_JOG_SPAN = 70;
-const SIMPLE_EDGE_CLEARANCE = 60;
+const SQ = Math.SQRT1_2;
 
-const SERPENTINE_LANE_BOTTOM_MIN = 495;
-const SERPENTINE_LANE_MID_MIN = 310;
-const SERPENTINE_LANE_TOP_MIN = 120;
-const SERPENTINE_LANE_JITTER = 15;
-const SERPENTINE_RISE_MIN = 60;
-const SERPENTINE_RISE_SPAN = 15;
-const SERPENTINE_RIGHT_MIN = 830;
-const SERPENTINE_RIGHT_SPAN = 40;
-const SERPENTINE_LEFT_MIN = 430;
-const SERPENTINE_LEFT_SPAN = 40;
-const SERPENTINE_RUN_A1_MIN = 120;
-const SERPENTINE_RUN_A1_SPAN = 60;
-const SERPENTINE_RUN_A2_MIN = 150;
-const SERPENTINE_RUN_A2_SPAN = 60;
-const SERPENTINE_RETURN_TAIL_MIN = 90;
-const SERPENTINE_RETURN_TAIL_SPAN = 40;
-const SERPENTINE_FINAL_JOG_X_MIN = 800;
-const SERPENTINE_FINAL_JOG_X_SPAN = 40;
-const SERPENTINE_FINAL_JOG_RISE_MIN = 50;
-const SERPENTINE_FINAL_JOG_RISE_SPAN = 15;
+const DIR_VECTORS: readonly MotricityPoint[] = [
+  { x: 1, y: 0 },
+  { x: SQ, y: SQ },
+  { x: 0, y: 1 },
+  { x: -SQ, y: SQ },
+  { x: -1, y: 0 },
+  { x: -SQ, y: -SQ },
+  { x: 0, y: -1 },
+  { x: SQ, y: -SQ },
+];
 
-type Direction = 'E' | 'NE' | 'SE' | 'N' | 'S';
+const DIR_EAST = 0;
+const DIR_SOUTH = 2;
+const DIR_WEST = 4;
+const DIR_NORTH = 6;
 
-const DIRECTION_VECTORS: Record<Direction, MotricityPoint> = {
-  E: { x: 1, y: 0 },
-  NE: { x: Math.SQRT1_2, y: -Math.SQRT1_2 },
-  SE: { x: Math.SQRT1_2, y: Math.SQRT1_2 },
-  N: { x: 0, y: -1 },
-  S: { x: 0, y: 1 },
-};
-
-const TURNS: Record<Direction, Direction[]> = {
-  E: ['NE', 'SE', 'N', 'S'],
-  NE: ['E', 'N', 'SE'],
-  SE: ['E', 'S', 'NE'],
-  N: ['E', 'NE'],
-  S: ['E', 'SE'],
-};
-
-function segmentLength(
-  direction: Direction,
-  dx: number,
-  verticalLength: number,
-): number {
-  if (direction === 'N' || direction === 'S') {
-    return verticalLength;
-  }
-  return direction === 'E' ? dx : dx * Math.SQRT2;
+function turnSteps(a: number, b: number): number {
+  const difference = Math.abs(a - b) % 8;
+  return Math.min(difference, 8 - difference);
 }
 
-function courseStartX(startWidth: number): number {
-  return MARGIN_X + startWidth * GARAGE_DEPTH_FACTOR;
+interface WalkMove {
+  direction: number;
+  length: number;
 }
 
-function courseEndX(): number {
-  return MOTRICITY_CANVAS_WIDTH - MARGIN_X;
+interface WalkSnapshot {
+  queue: number[];
+  queueTag: 'first' | 'reversal' | 'closing' | null;
+  reversalsDone: number;
+  reversalTriggers: number[];
+  curvilinear: number;
 }
 
-function simpleJogTarget(
-  rng: SeededRng,
-  fromY: number,
-  yMin: number,
-  yMax: number,
-): number {
-  const magnitude = SIMPLE_JOG_MIN + rng.next() * SIMPLE_JOG_SPAN;
-  const up = rng.next() < 0.5;
-  const preferred = up ? fromY - magnitude : fromY + magnitude;
-  if (preferred >= yMin && preferred <= yMax) {
-    return preferred;
-  }
-  return up ? fromY + magnitude : fromY - magnitude;
+interface CenterlineResult {
+  points: MotricityPoint[];
 }
 
-function buildCenterlineSimple(
+function segmentEnd(point: MotricityPoint, move: WalkMove): MotricityPoint {
+  const vector = DIR_VECTORS[move.direction];
+  return {
+    x: point.x + vector.x * move.length,
+    y: point.y + vector.y * move.length,
+  };
+}
+
+function tryBuildCenterline(
   rng: SeededRng,
   startWidth: number,
-): MotricityPoint[] {
-  const startX = courseStartX(startWidth);
-  const endX = courseEndX();
-  const yMin = MARGIN_TOP + SIMPLE_EDGE_CLEARANCE;
-  const yMax = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - SIMPLE_EDGE_CLEARANCE;
-  const startY = 240 + rng.next() * 220;
+  profile: MotricityCourseProfile,
+): CenterlineResult | null {
+  const bound = startWidth / 2 + EDGE_PADDING;
+  const xLo = bound;
+  const xHi = MOTRICITY_CANVAS_WIDTH - bound;
+  const yLo = bound;
+  const yHi = MOTRICITY_CANVAS_HEIGHT - bound;
+  const clearance = startWidth + MOTRICITY_CLEARANCE_MARGIN;
+  const minSegment = Math.max(MOTRICITY_MIN_SEGMENT_LENGTH, clearance + 4);
+  const garageCross = startWidth * GARAGE_WIDTH_FACTOR;
+  const garageDepth = startWidth * GARAGE_DEPTH_FACTOR;
 
-  const y1 = simpleJogTarget(rng, startY, yMin, yMax);
-  const dy1 = Math.abs(startY - y1);
-  const y2 = simpleJogTarget(rng, y1, yMin, yMax);
-  const dy2 = Math.abs(y1 - y2);
+  const forwardSign: 1 | -1 = rng.next() < 0.5 ? 1 : -1;
+  const dirForward = forwardSign === 1 ? DIR_EAST : DIR_WEST;
+  const dirBackward = forwardSign === 1 ? DIR_WEST : DIR_EAST;
+  const forwardDiagonals =
+    forwardSign === 1 ? [1, 7] : [3, 5];
+  const forwardSet = new Set<number>([
+    dirForward,
+    ...forwardDiagonals,
+    DIR_NORTH,
+    DIR_SOUTH,
+  ]);
 
-  const straightBudget = endX - startX - dy1 - dy2;
-  const firstShare = 0.22 + rng.next() * 0.23;
-  const secondShare = 0.22 + rng.next() * 0.23;
-  const run1 = straightBudget * firstShare;
-  const run2 = straightBudget * secondShare;
+  const reversalSpan = profile.reversalBounds[1] - profile.reversalBounds[0];
+  const reversalCount =
+    profile.reversalBounds[0] +
+    (reversalSpan > 0 && rng.next() < EXTRA_REVERSAL_PROBABILITY
+      ? rng.nextInt(1, reversalSpan)
+      : 0);
+  const reversalTriggers = Array.from({ length: reversalCount }, (_, k) => {
+    const fraction =
+      (k + 1) / (reversalCount + 1) +
+      (rng.next() * 2 - 1) * REVERSAL_TRIGGER_JITTER;
+    return fraction * profile.minCurvilinearLength;
+  });
 
-  const p0 = { x: startX, y: startY };
-  const p1 = { x: p0.x + run1, y: startY };
-  const p2 = { x: p1.x + dy1, y: y1 };
-  const p3 = { x: p2.x + run2, y: y1 };
-  const p4 = { x: p3.x + dy2, y: y2 };
-  const p5 = { x: endX, y: y2 };
-  return [p0, p1, p2, p3, p4, p5];
-}
+  const courseEscape =
+    reversalCount > 0 ? (rng.next() < 0.5 ? DIR_NORTH : DIR_SOUTH) : null;
 
-function buildCenterlineZigzag(
-  rng: SeededRng,
-  segmentCount: number,
-  startWidth: number,
-): MotricityPoint[] {
-  const startX = courseStartX(startWidth);
-  const startY = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM - startWidth;
-  const goalY = MARGIN_TOP + startWidth;
-  const yMin = MARGIN_TOP;
-  const yMax = MOTRICITY_CANVAS_HEIGHT - MARGIN_BOTTOM;
-  const baseDx = startWidth;
-  const denseFrom = Math.floor(segmentCount * DENSE_TAIL_RATIO);
+  const verticalFirst = rng.next() < VERTICAL_FIRST_PROBABILITY;
+  const firstDir = verticalFirst
+    ? rng.next() < 0.5
+      ? DIR_NORTH
+      : DIR_SOUTH
+    : dirForward;
 
-  const points: MotricityPoint[] = [{ x: startX, y: startY }];
-  const directions: Direction[] = [];
-  let current = points[0];
-  let spanLeft = MOTRICITY_CANVAS_WIDTH - MARGIN_X - startX;
+  const entryLo = forwardSign === 1 ? xLo : xHi - ENTRY_BAND_SPAN;
+  const entryHi = forwardSign === 1 ? xLo + ENTRY_BAND_SPAN : xHi;
+  let startX = entryLo + rng.next() * (entryHi - entryLo);
+  const startBandLo =
+    courseEscape === DIR_NORTH
+      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.55
+      : yLo + garageCross / 2;
+  const startBandHi =
+    courseEscape === DIR_SOUTH
+      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.45
+      : yHi - garageCross / 2;
+  let startY = startBandLo + rng.next() * (startBandHi - startBandLo);
+  if (!verticalFirst) {
+    const behind = garageDepth + EDGE_PADDING;
+    startX =
+      forwardSign === 1
+        ? Math.max(startX, xLo + behind)
+        : Math.min(startX, xHi - behind);
+  } else {
+    const behind = garageDepth + EDGE_PADDING;
+    startY =
+      firstDir === DIR_NORTH
+        ? Math.min(Math.max(startY, yLo + MOTRICITY_MIN_SEGMENT_LENGTH + 40), yHi - behind)
+        : Math.max(Math.min(startY, yHi - MOTRICITY_MIN_SEGMENT_LENGTH - 40), yLo + behind);
+    startX =
+      forwardSign === 1
+        ? Math.max(startX, xLo + garageCross / 2)
+        : Math.min(startX, xHi - garageCross / 2);
+  }
+  const start: MotricityPoint = { x: startX, y: startY };
 
-  for (let index = 0; index < segmentCount; index += 1) {
-    const remaining = segmentCount - index;
-    const denseFactor = index >= denseFrom ? DENSE_DX_FACTOR : 1;
-    const jitter = 0.75 + rng.next() * 0.6;
-    const dx =
-      index === segmentCount - 1
-        ? Math.max(baseDx, spanLeft)
-        : Math.min(
-            MAX_SEGMENT_DX,
-            Math.max(baseDx, (spanLeft / remaining) * jitter * denseFactor),
-          );
-    const verticalLength =
-      VERTICAL_MIN_LENGTH +
-      rng.next() * (VERTICAL_MAX_LENGTH - VERTICAL_MIN_LENGTH);
+  const garageBack = ((): MotricityRect => {
+    const vector = DIR_VECTORS[firstDir];
+    const along = { x: -vector.x * garageDepth, y: -vector.y * garageDepth };
+    const isHorizontal = vector.y === 0;
+    return isHorizontal
+      ? {
+          x: Math.min(start.x, start.x + along.x),
+          y: start.y - garageCross / 2,
+          width: garageDepth,
+          height: garageCross,
+        }
+      : {
+          x: start.x - garageCross / 2,
+          y: Math.min(start.y, start.y + along.y),
+          width: garageCross,
+          height: garageDepth,
+        };
+  })();
 
-    let direction: Direction;
-    if (index === 0 || index === segmentCount - 1) {
-      direction = 'E';
+  const points: MotricityPoint[] = [start];
+  const moves: WalkMove[] = [];
+  const snapshots: WalkSnapshot[] = [];
+  let queue: number[] = [firstDir];
+  let queueTag: WalkSnapshot['queueTag'] = 'first';
+  let reversalsDone = 0;
+  let triggers = [...reversalTriggers];
+  let curvilinear = 0;
+  let budget = MOTRICITY_GENERATION_DRAW_BUDGET;
+  let failStreak = 0;
+
+  const currentPoint = (): MotricityPoint => points[points.length - 1];
+  const currentDir = (): number | null =>
+    moves.length === 0 ? null : moves[moves.length - 1].direction;
+
+  const snapshotState = (): WalkSnapshot => ({
+    queue: [...queue],
+    queueTag,
+    reversalsDone,
+    reversalTriggers: [...triggers],
+    curvilinear,
+  });
+
+  const restoreState = (snapshot: WalkSnapshot): void => {
+    queue = [...snapshot.queue];
+    queueTag = snapshot.queueTag;
+    reversalsDone = snapshot.reversalsDone;
+    triggers = [...snapshot.reversalTriggers];
+    curvilinear = snapshot.curvilinear;
+  };
+
+  const isMoveValid = (from: MotricityPoint, move: WalkMove): boolean => {
+    const end = segmentEnd(from, move);
+    if (end.x < xLo || end.x > xHi || end.y < yLo || end.y > yHi) {
+      return false;
+    }
+    for (let index = 0; index < moves.length - 1; index += 1) {
+      const distance = segmentToSegmentDistance(
+        from,
+        end,
+        points[index],
+        points[index + 1],
+      );
+      if (distance < clearance) {
+        return false;
+      }
+    }
+    if (moves.length >= 1) {
+      const garageDistance = rectToSegmentDistance(garageBack, from, end);
+      if (garageDistance < MOTRICITY_CLEARANCE_MARGIN) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const acceptMove = (move: WalkMove): void => {
+    snapshots.push(snapshotState());
+    const end = segmentEnd(currentPoint(), move);
+    points.push(end);
+    moves.push(move);
+    curvilinear += move.length;
+    if (queue.length > 0) {
+      queue.shift();
+      if (queue.length === 0) {
+        if (queueTag === 'reversal') {
+          reversalsDone += 1;
+          for (let index = 0; index < triggers.length; index += 1) {
+            triggers[index] = Math.max(
+              triggers[index],
+              curvilinear + MOTRICITY_REVERSAL_MIN_SPACING,
+            );
+          }
+        }
+        queueTag = null;
+      }
+    }
+    failStreak = 0;
+  };
+
+  const popMove = (): boolean => {
+    if (moves.length === 0) {
+      return false;
+    }
+    const move = moves.pop();
+    points.pop();
+    const snapshot = snapshots.pop();
+    if (!move || !snapshot) {
+      return false;
+    }
+    restoreState(snapshot);
+    return true;
+  };
+
+  const spanReached = (): boolean =>
+    Math.abs(currentPoint().x - start.x) >= MOTRICITY_MIN_START_END_SPAN_X;
+
+  const requirementsMet = (): boolean =>
+    queue.length === 0 &&
+    reversalsDone === reversalCount &&
+    curvilinear >= profile.minCurvilinearLength &&
+    spanReached() &&
+    moves.length >= profile.segmentBounds[0];
+
+  const isCardinalExit = (direction: number): boolean =>
+    direction === dirForward ||
+    direction === DIR_NORTH ||
+    direction === DIR_SOUTH;
+
+  while (budget > 0) {
+    budget -= 1;
+
+    const lastDir = currentDir();
+    if (
+      requirementsMet() &&
+      lastDir !== null &&
+      isCardinalExit(lastDir) &&
+      moves.length <= profile.segmentBounds[1]
+    ) {
+      return { points };
+    }
+    if (
+      requirementsMet() &&
+      queue.length === 0 &&
+      lastDir !== null &&
+      !isCardinalExit(lastDir) &&
+      moves.length < profile.segmentBounds[1]
+    ) {
+      const exits = [dirForward, DIR_NORTH, DIR_SOUTH].filter(
+        (candidate) => turnSteps(lastDir, candidate) <= 2,
+      );
+      if (exits.length > 0) {
+        queue = [rng.pick(exits)];
+        queueTag = 'closing';
+      }
+    }
+
+    if (moves.length >= profile.segmentBounds[1]) {
+      if (!popMove()) {
+        return null;
+      }
+      continue;
+    }
+
+    let move: WalkMove | null = null;
+
+    if (queue.length > 0) {
+      const direction = queue[0];
+      const vertical = DIR_VECTORS[direction].y !== 0;
+      const length =
+        queueTag === 'reversal'
+          ? vertical
+            ? Math.max(minSegment, clearance + 10) + rng.next() * 40
+            : REVERSAL_RUN_MIN_LENGTH +
+              rng.next() * (REVERSAL_RUN_MAX_LENGTH - REVERSAL_RUN_MIN_LENGTH)
+          : queueTag === 'closing'
+            ? minSegment +
+              rng.next() *
+                Math.max(0, CLOSING_SEGMENT_MAX_LENGTH - minSegment)
+            : minSegment +
+              rng.next() * (MOTRICITY_MAX_SEGMENT_LENGTH - minSegment);
+      move = { direction, length };
     } else {
-      let candidates = TURNS[directions[index - 1]];
-      if (index === segmentCount - 2) {
-        candidates = candidates.filter((candidate) => candidate !== 'E');
+      const direction = currentDir();
+      const shouldStartReversal =
+        direction !== null &&
+        courseEscape !== null &&
+        reversalsDone < reversalCount &&
+        curvilinear >= (triggers[reversalsDone] ?? Infinity) &&
+        turnSteps(direction, dirForward) <= 1;
+      if (shouldStartReversal && courseEscape !== null) {
+        const roomTowardEscape =
+          courseEscape === DIR_NORTH
+            ? currentPoint().y - yLo
+            : yHi - currentPoint().y;
+        const escape =
+          roomTowardEscape < 2 * clearance + 60
+            ? courseEscape === DIR_NORTH
+              ? DIR_SOUTH
+              : DIR_NORTH
+            : courseEscape;
+        if (turnSteps(direction, escape) <= 2) {
+          queue = [escape, dirBackward, escape];
+          queueTag = 'reversal';
+          continue;
+        }
       }
-      const fits = (candidate: Direction): boolean => {
-        const length = segmentLength(candidate, dx, verticalLength);
-        const endY = current.y + DIRECTION_VECTORS[candidate].y * length;
-        return endY >= yMin && endY <= yMax;
+      const from = direction ?? dirForward;
+      const pendingReversals =
+        courseEscape !== null && reversalsDone < reversalCount;
+      const candidates: number[] = [];
+      for (const candidate of forwardSet) {
+        if (turnSteps(from, candidate) === 0 || turnSteps(from, candidate) > 2) {
+          continue;
+        }
+        const vector = DIR_VECTORS[candidate];
+        if (pendingReversals && vector.x === 0) {
+          continue;
+        }
+        candidates.push(candidate);
+        if (vector.x !== 0 && vector.y !== 0) {
+          candidates.push(candidate);
+        }
+      }
+      if (candidates.length === 0) {
+        if (!popMove()) {
+          return null;
+        }
+        continue;
+      }
+      move = {
+        direction: rng.pick(candidates),
+        length:
+          minSegment + rng.next() * (MOTRICITY_MAX_SEGMENT_LENGTH - minSegment),
       };
-      const feasible = candidates.filter(fits);
-      const pool = feasible.length > 0 ? feasible : candidates;
-      const weighted: Direction[] = [];
-      for (const candidate of pool) {
-        weighted.push(candidate);
-        if (candidate === 'NE' || candidate === 'SE') {
-          weighted.push(candidate);
-        }
-        const dy = DIRECTION_VECTORS[candidate].y;
-        const towardGoal =
-          (current.y > goalY && dy < 0) || (current.y < goalY && dy > 0);
-        if (towardGoal) {
-          weighted.push(candidate, candidate);
+    }
+
+    if (move && isMoveValid(currentPoint(), move)) {
+      acceptMove(move);
+    } else {
+      failStreak += 1;
+      if (failStreak > STEP_SAMPLE_LIMIT) {
+        failStreak = 0;
+        if (queueTag !== null) {
+          queue = [];
+          queueTag = null;
+          if (!popMove()) {
+            return null;
+          }
+        } else if (!popMove()) {
+          return null;
         }
       }
-      direction = rng.pick(weighted);
-    }
-    directions.push(direction);
-
-    const length = segmentLength(direction, dx, verticalLength);
-    const vector = DIRECTION_VECTORS[direction];
-    const clampedY = Math.min(
-      yMax,
-      Math.max(yMin, current.y + vector.y * length),
-    );
-    const actualLength =
-      vector.y === 0
-        ? length
-        : Math.max(
-            VERTICAL_MIN_LENGTH / 2,
-            Math.abs((clampedY - current.y) / vector.y),
-          );
-    const next: MotricityPoint = {
-      x: current.x + vector.x * actualLength,
-      y: current.y + vector.y * actualLength,
-    };
-    points.push(next);
-    current = next;
-    if (vector.x > 0) {
-      spanLeft = Math.max(0, spanLeft - vector.x * actualLength);
     }
   }
-  return points;
+  return null;
 }
 
-function buildCenterlineSerpentine(
-  rng: SeededRng,
-  startWidth: number,
-): MotricityPoint[] {
-  const startX = courseStartX(startWidth);
-  const endX = courseEndX();
-  const laneBottom =
-    SERPENTINE_LANE_BOTTOM_MIN + rng.next() * SERPENTINE_LANE_JITTER;
-  const laneMid = SERPENTINE_LANE_MID_MIN + rng.next() * SERPENTINE_LANE_JITTER;
-  const laneTop = SERPENTINE_LANE_TOP_MIN + rng.next() * SERPENTINE_LANE_JITTER;
-  const rise = SERPENTINE_RISE_MIN + rng.next() * SERPENTINE_RISE_SPAN;
-  const xRight = SERPENTINE_RIGHT_MIN + rng.next() * SERPENTINE_RIGHT_SPAN;
-  const xLeft = SERPENTINE_LEFT_MIN + rng.next() * SERPENTINE_LEFT_SPAN;
-  const runA1 = SERPENTINE_RUN_A1_MIN + rng.next() * SERPENTINE_RUN_A1_SPAN;
-  const runA2 = SERPENTINE_RUN_A2_MIN + rng.next() * SERPENTINE_RUN_A2_SPAN;
-  const returnTail =
-    SERPENTINE_RETURN_TAIL_MIN + rng.next() * SERPENTINE_RETURN_TAIL_SPAN;
-  const finalJogX =
-    SERPENTINE_FINAL_JOG_X_MIN + rng.next() * SERPENTINE_FINAL_JOG_X_SPAN;
-  const finalJogRise =
-    SERPENTINE_FINAL_JOG_RISE_MIN + rng.next() * SERPENTINE_FINAL_JOG_RISE_SPAN;
-
-  const upperOutbound = laneBottom - rise;
-  const upperReturn = laneMid - rise;
-
-  const p0 = { x: startX, y: laneBottom };
-  const p1 = { x: p0.x + runA1, y: laneBottom };
-  const p2 = { x: p1.x + rise, y: upperOutbound };
-  const p3 = { x: p2.x + runA2, y: upperOutbound };
-  const p4 = { x: p3.x + rise, y: laneBottom };
-  const p5 = { x: xRight - rise, y: laneBottom };
-  const p6 = { x: xRight, y: upperOutbound };
-  const p7 = { x: xRight, y: laneMid };
-  const p8 = { x: xLeft + returnTail + rise, y: laneMid };
-  const p9 = { x: xLeft + returnTail, y: upperReturn };
-  const p10 = { x: xLeft, y: upperReturn };
-  const p11 = { x: xLeft, y: laneTop };
-  const p12 = { x: finalJogX, y: laneTop };
-  const p13 = { x: finalJogX + finalJogRise, y: laneTop + finalJogRise };
-  const p14 = { x: endX, y: laneTop + finalJogRise };
-  return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
-}
-
-function mirrorVertically(points: MotricityPoint[]): MotricityPoint[] {
-  return points.map((point) => ({
-    x: point.x,
-    y: MOTRICITY_CANVAS_HEIGHT - point.y,
-  }));
-}
-
-function recenterVertically(
-  points: MotricityPoint[],
-  startWidth: number,
-): MotricityPoint[] {
-  const allowance = startWidth * GARAGE_WIDTH_FACTOR;
-  const ys = points.map((point) => point.y);
-  const contentMin = Math.min(...ys) - allowance;
-  const contentMax = Math.max(...ys) + allowance;
-  const centered =
-    (MOTRICITY_CANVAS_HEIGHT - (contentMax - contentMin)) / 2 - contentMin;
-  const offset = Math.max(
-    Math.min(centered, MOTRICITY_CANVAS_HEIGHT - contentMax),
-    -contentMin,
+function buildWidths(startWidth: number, segmentCount: number): number[] {
+  return Array.from(
+    { length: segmentCount },
+    (_, segmentIndex) =>
+      startWidth *
+      (1 - MOTRICITY_WIDTH_SHRINK * (segmentIndex / (segmentCount - 1))),
   );
-  return points.map((point) => ({ x: point.x, y: point.y + offset }));
 }
 
-function offsetPolyline(
+function cardinalAxis(
+  from: MotricityPoint,
+  to: MotricityPoint,
+): MotricityPoint {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy);
+  return { x: Math.round(dx / length), y: Math.round(dy / length) };
+}
+
+function buildGarage(
   points: MotricityPoint[],
-  widths: number[],
-  side: -1 | 1,
-): MotricityPoint[] {
-  const normals = points.slice(0, -1).map((point, index) => {
-    const dx = points[index + 1].x - point.x;
-    const dy = points[index + 1].y - point.y;
-    const length = Math.hypot(dx, dy);
-    return { x: (-dy / length) * side, y: (dx / length) * side };
-  });
-  const result: MotricityPoint[] = [
-    {
-      x: points[0].x + normals[0].x * (widths[0] / 2),
-      y: points[0].y + normals[0].y * (widths[0] / 2),
-    },
-  ];
-  for (let joint = 1; joint < points.length - 1; joint += 1) {
-    const before = joint - 1;
-    const a1 = {
-      x: points[before].x + normals[before].x * (widths[before] / 2),
-      y: points[before].y + normals[before].y * (widths[before] / 2),
-    };
-    const d1 = {
-      x: points[joint].x - points[before].x,
-      y: points[joint].y - points[before].y,
-    };
-    const a2 = {
-      x: points[joint].x + normals[joint].x * (widths[joint] / 2),
-      y: points[joint].y + normals[joint].y * (widths[joint] / 2),
-    };
-    const d2 = {
-      x: points[joint + 1].x - points[joint].x,
-      y: points[joint + 1].y - points[joint].y,
-    };
-    const denominator = d1.x * d2.y - d1.y * d2.x;
-    const t = ((a2.x - a1.x) * d2.y - (a2.y - a1.y) * d2.x) / denominator;
-    result.push({ x: a1.x + d1.x * t, y: a1.y + d1.y * t });
-  }
-  const last = points.length - 2;
-  result.push({
-    x: points[points.length - 1].x + normals[last].x * (widths[last] / 2),
-    y: points[points.length - 1].y + normals[last].y * (widths[last] / 2),
-  });
-  return result;
-}
-
-function buildCenterline(
-  rng: SeededRng,
-  index: number,
+  firstWidth: number,
   startWidth: number,
-): MotricityPoint[] {
-  if (index === 0) {
-    return buildCenterlineSimple(rng, startWidth);
-  }
-  const points =
-    index === 1
-      ? buildCenterlineZigzag(
-          rng,
-          rng.nextInt(ZIGZAG_SEGMENT_RANGE[0], ZIGZAG_SEGMENT_RANGE[1]),
-          startWidth,
-        )
-      : buildCenterlineSerpentine(rng, startWidth);
-  return rng.next() < 0.5 ? mirrorVertically(points) : points;
+): { garage: MotricityRect; walls: MotricityWall[] } {
+  const start = points[0];
+  const along = cardinalAxis(points[0], points[1]);
+  const normal = { x: -along.y, y: along.x };
+  const cross = startWidth * GARAGE_WIDTH_FACTOR;
+  const depth = startWidth * GARAGE_DEPTH_FACTOR;
+
+  const back = { x: start.x - along.x * depth, y: start.y - along.y * depth };
+  const cornerA = {
+    x: back.x + normal.x * (cross / 2),
+    y: back.y + normal.y * (cross / 2),
+  };
+  const cornerB = {
+    x: back.x - normal.x * (cross / 2),
+    y: back.y - normal.y * (cross / 2),
+  };
+  const mouthA = {
+    x: start.x + normal.x * (cross / 2),
+    y: start.y + normal.y * (cross / 2),
+  };
+  const mouthB = {
+    x: start.x - normal.x * (cross / 2),
+    y: start.y - normal.y * (cross / 2),
+  };
+  const corridorA = {
+    x: start.x + normal.x * (firstWidth / 2),
+    y: start.y + normal.y * (firstWidth / 2),
+  };
+  const corridorB = {
+    x: start.x - normal.x * (firstWidth / 2),
+    y: start.y - normal.y * (firstWidth / 2),
+  };
+
+  const xs = [cornerA.x, cornerB.x, mouthA.x, mouthB.x];
+  const ys = [cornerA.y, cornerB.y, mouthA.y, mouthB.y];
+  const garage: MotricityRect = {
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+    width: Math.max(...xs) - Math.min(...xs),
+    height: Math.max(...ys) - Math.min(...ys),
+  };
+  const walls: MotricityWall[] = [
+    { start: cornerA, end: cornerB },
+    { start: cornerA, end: mouthA },
+    { start: cornerB, end: mouthB },
+    { start: mouthA, end: corridorA },
+    { start: mouthB, end: corridorB },
+  ];
+  return { garage, walls };
 }
 
-function buildCourse(
-  seed: string,
+function buildEndZone(
+  points: MotricityPoint[],
+  lastWidth: number,
+): MotricityRect {
+  const end = points[points.length - 1];
+  const along = cardinalAxis(points[points.length - 2], end);
+  const normal = { x: -along.y, y: along.x };
+  const cross = lastWidth * END_ZONE_WIDTH_FACTOR;
+  const roomAlong =
+    along.x > 0
+      ? MOTRICITY_CANVAS_WIDTH - end.x
+      : along.x < 0
+        ? end.x
+        : along.y > 0
+          ? MOTRICITY_CANVAS_HEIGHT - end.y
+          : end.y;
+  const depth = Math.min(lastWidth * END_ZONE_DEPTH_FACTOR, roomAlong);
+  const tip = { x: end.x + along.x * depth, y: end.y + along.y * depth };
+  const sideA = {
+    x: end.x + normal.x * (cross / 2),
+    y: end.y + normal.y * (cross / 2),
+  };
+  const sideB = {
+    x: end.x - normal.x * (cross / 2),
+    y: end.y - normal.y * (cross / 2),
+  };
+  const xs = [sideA.x, sideB.x, tip.x + normal.x * (cross / 2), tip.x - normal.x * (cross / 2)];
+  const ys = [sideA.y, sideB.y, tip.y + normal.y * (cross / 2), tip.y - normal.y * (cross / 2)];
+  return {
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+    width: Math.max(...xs) - Math.min(...xs),
+    height: Math.max(...ys) - Math.min(...ys),
+  };
+}
+
+function assembleCourse(
   index: number,
+  points: MotricityPoint[],
   startWidth: number,
 ): MotricityCourse {
-  const rng = createSeededRng(`${seed}:motricity:${index}`);
-
-  const points = recenterVertically(
-    buildCenterline(rng, index, startWidth),
-    startWidth,
-  );
   const segmentCount = points.length - 1;
-
-  const widths = points
-    .slice(0, -1)
-    .map(
-      (_, segmentIndex) =>
-        startWidth *
-        (1 - MOTRICITY_WIDTH_SHRINK * (segmentIndex / (segmentCount - 1))),
-    );
+  const widths = buildWidths(startWidth, segmentCount);
 
   const segments: MotricitySegment[] = points
     .slice(0, -1)
@@ -401,50 +593,8 @@ function buildCourse(
   const rightSide = offsetPolyline(points, widths, 1);
   const polygon = [...leftSide, ...[...rightSide].reverse()];
 
-  const startPoint = points[0];
-  const garageWidth = startWidth * GARAGE_WIDTH_FACTOR;
-  const garageDepth = startWidth * GARAGE_DEPTH_FACTOR;
-  const garage: MotricityRect = {
-    x: startPoint.x - garageDepth,
-    y: startPoint.y - garageWidth / 2,
-    width: garageDepth,
-    height: garageWidth,
-  };
-  const garageWalls: MotricityWall[] = [
-    {
-      start: { x: garage.x, y: garage.y },
-      end: { x: garage.x, y: garage.y + garage.height },
-    },
-    {
-      start: { x: garage.x, y: garage.y },
-      end: { x: garage.x + garage.width, y: garage.y },
-    },
-    {
-      start: { x: garage.x, y: garage.y + garage.height },
-      end: { x: garage.x + garage.width, y: garage.y + garage.height },
-    },
-    {
-      start: { x: startPoint.x, y: garage.y },
-      end: { x: startPoint.x, y: startPoint.y - widths[0] / 2 },
-    },
-    {
-      start: { x: startPoint.x, y: garage.y + garage.height },
-      end: { x: startPoint.x, y: startPoint.y + widths[0] / 2 },
-    },
-  ];
-
-  const endPoint = points[points.length - 1];
-  const endWidthValue = widths[widths.length - 1];
-  const endZoneWidth = endWidthValue * END_ZONE_WIDTH_FACTOR;
-  const endZone: MotricityRect = {
-    x: endPoint.x,
-    y: endPoint.y - endZoneWidth / 2,
-    width: Math.min(
-      endWidthValue * END_ZONE_DEPTH_FACTOR,
-      MOTRICITY_CANVAS_WIDTH - endPoint.x,
-    ),
-    height: endZoneWidth,
-  };
+  const { garage, walls } = buildGarage(points, widths[0], startWidth);
+  const endZone = buildEndZone(points, widths[widths.length - 1]);
 
   return {
     index,
@@ -454,7 +604,7 @@ function buildCourse(
     rightSide,
     polygon,
     garage,
-    garageWalls,
+    garageWalls: walls,
     startPosition: {
       x: garage.x + garage.width / 2,
       y: garage.y + garage.height / 2,
@@ -464,9 +614,64 @@ function buildCourse(
   };
 }
 
+function courseIsSane(course: MotricityCourse): boolean {
+  const inCanvas = (rect: MotricityRect): boolean =>
+    rect.x >= 0 &&
+    rect.y >= 0 &&
+    rect.x + rect.width <= MOTRICITY_CANVAS_WIDTH &&
+    rect.y + rect.height <= MOTRICITY_CANVAS_HEIGHT;
+  if (!inCanvas(course.garage) || !inCanvas(course.endZone)) {
+    return false;
+  }
+  for (let index = 0; index < course.segments.length - 2; index += 1) {
+    const segment = course.segments[index];
+    const distance = rectToSegmentDistance(
+      course.endZone,
+      segment.start,
+      segment.end,
+    );
+    if (distance < MOTRICITY_CLEARANCE_MARGIN) {
+      return false;
+    }
+  }
+  return course.polygon.every(
+    (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+  );
+}
+
+function buildCourseV2(
+  seed: string,
+  index: number,
+  startWidth: number,
+): MotricityCourse {
+  const profile =
+    MOTRICITY_COURSE_PROFILES[
+      Math.min(index, MOTRICITY_COURSE_PROFILES.length - 1)
+    ];
+  for (
+    let attempt = 0;
+    attempt < MOTRICITY_GENERATION_ATTEMPTS;
+    attempt += 1
+  ) {
+    const rng = createSeededRng(`${seed}:motricity:v2:${index}#${attempt}`);
+    const centerline = tryBuildCenterline(rng, startWidth, profile);
+    if (!centerline) {
+      continue;
+    }
+    const course = assembleCourse(index, centerline.points, startWidth);
+    if (courseIsSane(course)) {
+      return course;
+    }
+  }
+  throw new Error(
+    `Motricity course generation exhausted its ${MOTRICITY_GENERATION_ATTEMPTS} attempts for seed "${seed}" course ${index}`,
+  );
+}
+
 export interface MotricityGenerationOptions {
   courseCount?: number;
   startWidths?: readonly number[];
+  contentVersion?: number;
 }
 
 export function generateMotricityCourses(
@@ -475,7 +680,12 @@ export function generateMotricityCourses(
 ): MotricityCourse[] {
   const startWidths = options.startWidths ?? COURSE_START_WIDTHS;
   const courseCount = options.courseCount ?? MOTRICITY_COURSE_COUNT;
+  const contentVersion =
+    options.contentVersion ?? MOTRICITY_CONTENT_VERSION_V2;
+  if (contentVersion < MOTRICITY_CONTENT_VERSION_V2) {
+    return generateLegacyMotricityCourses(seed, startWidths, courseCount);
+  }
   return Array.from({ length: courseCount }, (_, index) =>
-    buildCourse(seed, index, startWidths[index]),
+    buildCourseV2(seed, index, startWidths[index]),
   );
 }

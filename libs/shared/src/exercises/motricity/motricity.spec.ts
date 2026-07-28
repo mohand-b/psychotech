@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MotricitySampleDto } from '../../dtos/session';
 import {
   MOTRICITY_COURSE_COUNT,
+  MOTRICITY_COURSE_PROFILES,
   MOTRICITY_WIDTH_SHRINK,
   generateMotricityCourses,
 } from './generate-motricity-courses';
@@ -133,10 +134,11 @@ describe('generateMotricityCourses', () => {
     for (const seed of SAMPLE_SEEDS) {
       const courses = generateMotricityCourses(seed);
       expect(courses).toHaveLength(MOTRICITY_COURSE_COUNT);
-      expect(courses[0].segments.length).toBe(5);
-      expect(courses[1].segments.length).toBeGreaterThanOrEqual(10);
-      expect(courses[1].segments.length).toBeLessThanOrEqual(11);
-      expect(courses[2].segments.length).toBe(14);
+      courses.forEach((generated, index) => {
+        const bounds = MOTRICITY_COURSE_PROFILES[index].segmentBounds;
+        expect(generated.segments.length).toBeGreaterThanOrEqual(bounds[0]);
+        expect(generated.segments.length).toBeLessThanOrEqual(bounds[1]);
+      });
       for (const course of courses) {
         for (const segment of course.segments) {
           const dx = Math.abs(segment.end.x - segment.start.x);
@@ -179,25 +181,35 @@ describe('generateMotricityCourses', () => {
     }
   });
 
-  it('raises the difficulty across courses and makes the third one backtrack', () => {
+  it('raises the difficulty across profiles and makes the third one a serpentine', () => {
     for (const seed of SAMPLE_SEEDS) {
       const courses = generateMotricityCourses(seed);
-      expect(courses[0].totalLength).toBeLessThan(courses[1].totalLength);
-      expect(courses[1].totalLength).toBeLessThan(courses[2].totalLength);
-      expect(courses[2].totalLength).toBeGreaterThan(
-        courses[0].totalLength * 1.5,
-      );
-      const goesBackward = (course: MotricityCourse): boolean =>
-        course.segments.some((segment) => segment.end.x < segment.start.x - 1);
-      expect(goesBackward(courses[0])).toBe(false);
-      expect(goesBackward(courses[1])).toBe(false);
-      expect(goesBackward(courses[2])).toBe(true);
-      const diagonalCount = courses[2].segments.filter((segment) => {
-        const dx = Math.abs(segment.end.x - segment.start.x);
-        const dy = Math.abs(segment.end.y - segment.start.y);
-        return dx > 1e-6 && Math.abs(dx - dy) < 1e-6;
-      }).length;
-      expect(diagonalCount).toBeGreaterThanOrEqual(5);
+      courses.forEach((course, index) => {
+        expect(course.totalLength).toBeGreaterThanOrEqual(
+          MOTRICITY_COURSE_PROFILES[index].minCurvilinearLength,
+        );
+      });
+      const progressionSign = (course: MotricityCourse): number =>
+        Math.sign(
+          course.centerline[course.centerline.length - 1].x -
+            course.centerline[0].x,
+        );
+      const backwardCount = (course: MotricityCourse): number => {
+        const sign = progressionSign(course);
+        let runs = 0;
+        let inRun = false;
+        for (const segment of course.segments) {
+          const backward = (segment.end.x - segment.start.x) * sign < -1;
+          if (backward && !inRun) {
+            runs += 1;
+          }
+          inRun = backward;
+        }
+        return runs;
+      };
+      expect(backwardCount(courses[0])).toBe(0);
+      expect(backwardCount(courses[1])).toBeLessThanOrEqual(1);
+      expect(backwardCount(courses[2])).toBeGreaterThanOrEqual(2);
     }
   });
 
@@ -219,12 +231,25 @@ describe('generateMotricityCourses', () => {
 describe('scoreMotricityCourse', () => {
   const course = generateMotricityCourses('scoring')[0];
   const first = course.segments[0];
-  const midX = first.start.x + first.length / 2;
-  const borderY = first.start.y + first.width / 2 - 3;
-  const outsideY = first.start.y + first.width / 2 + 30;
+  const firstDx = first.end.x - first.start.x;
+  const firstDy = first.end.y - first.start.y;
+  const firstNormal = {
+    x: -firstDy / first.length,
+    y: firstDx / first.length,
+  };
+  const midpoint = {
+    x: (first.start.x + first.end.x) / 2,
+    y: (first.start.y + first.end.y) / 2,
+  };
+  const offsetPoint = (offset: number): MotricityPoint => ({
+    x: midpoint.x + firstNormal.x * offset,
+    y: midpoint.y + firstNormal.y * offset,
+  });
+  const borderPoint = offsetPoint(first.width / 2 - 3);
+  const outsidePoint = offsetPoint(first.width / 2 + 12);
 
   function episode(
-    positions: { fromMs: number; toMs: number; y: number }[],
+    positions: { fromMs: number; toMs: number; point: MotricityPoint }[],
   ): MotricitySampleDto[] {
     const samples: MotricitySampleDto[] = [];
     const endMs = positions[positions.length - 1].toMs;
@@ -232,19 +257,16 @@ describe('scoreMotricityCourse', () => {
       const active = positions.find(
         (position) => t >= position.fromMs && t < position.toMs,
       );
-      samples.push({
-        t: Math.round(t),
-        x: midX,
-        y: active ? active.y : first.start.y,
-      });
+      const point = active ? active.point : midpoint;
+      samples.push({ t: Math.round(t), x: point.x, y: point.y });
     }
     return samples;
   }
 
   it('counts one minor error per continuous border contact episode', () => {
     const grazing = episode([
-      { fromMs: 1000, toMs: 1500, y: borderY },
-      { fromMs: 3000, toMs: 3400, y: borderY },
+      { fromMs: 1000, toMs: 1500, point: borderPoint },
+      { fromMs: 3000, toMs: 3400, point: borderPoint },
     ]);
     const scored = scoreMotricityCourse(course, grazing);
     expect(scored.minorErrors).toBe(2);
@@ -254,14 +276,14 @@ describe('scoreMotricityCourse', () => {
   it('grants two major errors for a 2.4 second exit and none for 0.8 second', () => {
     const longExit = scoreMotricityCourse(
       course,
-      episode([{ fromMs: 1000, toMs: 3400, y: outsideY }]),
+      episode([{ fromMs: 1000, toMs: 3400, point: outsidePoint }]),
     );
     expect(longExit.majorErrors).toBe(2);
     expect(longExit.minorErrors).toBe(1);
 
     const shortExit = scoreMotricityCourse(
       course,
-      episode([{ fromMs: 1000, toMs: 1800, y: outsideY }]),
+      episode([{ fromMs: 1000, toMs: 1800, point: outsidePoint }]),
     );
     expect(shortExit.majorErrors).toBe(0);
     expect(shortExit.minorErrors).toBe(1);

@@ -10,7 +10,10 @@ import {
   MotricitySampleDto,
 } from '../../dtos/session';
 import { AxisType, ControlModality } from '../../enums';
-import { generateMotricityCourses } from './generate-motricity-courses';
+import {
+  MOTRICITY_CONTENT_VERSION_V2,
+  generateMotricityCourses,
+} from './generate-motricity-courses';
 import {
   MotricityCourse,
   MotricityCursorZone,
@@ -173,8 +176,9 @@ export interface MotricityTimelineDerivation {
 export function deriveMotricityTimeline(
   trajectories: MotricityCourseTrajectoryDto[],
   seed: string,
+  contentVersion: number = MOTRICITY_CONTENT_VERSION_V2,
 ): MotricityTimelineDerivation {
-  const courses = generateMotricityCourses(seed);
+  const courses = generateMotricityCourses(seed, { contentVersion });
   const sorted = [...trajectories].sort((a, b) => a.index - b.index);
   const timeline: MotricityCourseTimeline[] = [];
   const events: MotricityErrorEvent[] = [];
@@ -242,9 +246,14 @@ export function deriveMotorSkillsMetrics(
   trajectories: MotricityCourseTrajectoryDto[],
   seed: string,
   controlModality: ControlModality | null,
+  contentVersion: number = MOTRICITY_CONTENT_VERSION_V2,
 ): MotorSkillsMetrics {
-  const scored = scoreMotricitySession(trajectories, seed);
-  const { timeline, events } = deriveMotricityTimeline(trajectories, seed);
+  const scored = scoreMotricitySession(trajectories, seed, contentVersion);
+  const { timeline, events } = deriveMotricityTimeline(
+    trajectories,
+    seed,
+    contentVersion,
+  );
   const trajectoryByIndex = new Map(
     trajectories.map((trajectory) => [trajectory.index, trajectory]),
   );

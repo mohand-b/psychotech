@@ -76,14 +76,18 @@ describe('deriveMotricityTimeline', () => {
     const course = courses[0];
     const contactStartMs = 10_000;
     const contactEndMs = 10_100;
-    const halfWidth = course.segments[0].width / 2;
+    const durationMs = 45_000;
+    const contactArc = (contactStartMs / durationMs) * course.totalLength;
+    const halfWidth =
+      course.segments[motricitySegmentIndexAtArc(course, contactArc)].width / 2;
     const trajectory = {
       index: 0,
-      samples: centerlineSamples(course, 45_000, () => 0).map((sample) =>
-        sample.t >= contactStartMs && sample.t <= contactEndMs
-          ? { ...sample, y: sample.y + halfWidth - 1 }
-          : sample,
-      ),
+      samples: centerlineSamples(course, durationMs, (arcRatio) => {
+        const tMs = arcRatio * durationMs;
+        return tMs >= contactStartMs && tMs <= contactEndMs
+          ? halfWidth - 1
+          : 0;
+      }),
     };
     const { timeline, events } = deriveMotricityTimeline([trajectory], seed);
     const windowIndex = Math.floor(contactStartMs / MOTRICITY_TIMELINE_WINDOW_MS);

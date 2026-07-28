@@ -2,7 +2,10 @@ import {
   MotricityCourseTrajectoryDto,
   MotricitySampleDto,
 } from '../../dtos/session';
-import { generateMotricityCourses } from './generate-motricity-courses';
+import {
+  MOTRICITY_CONTENT_VERSION_V2,
+  generateMotricityCourses,
+} from './generate-motricity-courses';
 import {
   MotricityCourse,
   MotricityCursorZone,
@@ -179,8 +182,9 @@ export function motricityCourseFinished(
 export function scoreMotricitySession(
   trajectories: MotricityCourseTrajectoryDto[],
   seed: string,
+  contentVersion: number = MOTRICITY_CONTENT_VERSION_V2,
 ): MotricitySessionScore {
-  const courses = generateMotricityCourses(seed);
+  const courses = generateMotricityCourses(seed, { contentVersion });
   const samplesByIndex = new Map(
     trajectories.map((trajectory) => [trajectory.index, trajectory.samples]),
   );
