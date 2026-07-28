@@ -17,6 +17,7 @@ import {
   SimulationVerdict,
   SimulationVerdictReasonKind,
   TrainingOptionId,
+  MOTRICITY_CONTENT_VERSION_V2,
   generateMotricityCourses,
   scoreMotricitySession,
 } from '@psychotech/shared';
@@ -427,7 +428,7 @@ describe('SessionsService.start', () => {
 
     expect(repository.createSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentVersion: 4,
+        contentVersion: MOTRICITY_CONTENT_VERSION_V2,
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
       expect.any(Function),
@@ -943,7 +944,9 @@ describe('SessionsService.completeAxis (full simulation)', () => {
   });
 
   it('completes the simulation once the fifth axis is played', async () => {
-    const seedCourses = generateMotricityCourses('seed');
+    const seedCourses = generateMotricityCourses('seed', {
+      contentVersion: 1,
+    });
     const trajectories = seedCourses.map((course) => ({
       index: course.index,
       samples: walk(course, 45000),
@@ -1467,6 +1470,7 @@ describe('SessionsService.completeAxis (motricity)', () => {
       mode: 'TARGETED',
       energyCost: 1,
       seed: 'motricity-seed',
+      contentVersion: MOTRICITY_CONTENT_VERSION_V2,
       axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
     });
 

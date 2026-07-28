@@ -18,7 +18,7 @@ import {
   DiscriminationTrialAnswerDto,
   EnergyLedgerReason,
   LOGIC_CONTENT_VERSION_V2,
-  LOGIC_CONTENT_VERSION_V4,
+  MOTRICITY_CONTENT_VERSION_V2,
   LogicFamilyFilter,
   LogicItemAnswerDto,
   LogicRawResultDto,
@@ -157,7 +157,7 @@ export class SessionsService {
         mode: request.mode,
         sector: request.sector,
         seed: randomUUID(),
-        contentVersion: LOGIC_CONTENT_VERSION_V4,
+        contentVersion: MOTRICITY_CONTENT_VERSION_V2,
         logicFamily,
         helpEnabled: enabledOptions.includes(TrainingOptionId.LOGIC_HELP),
         trainingOptions: enabledOptions,
@@ -316,6 +316,7 @@ export class SessionsService {
         seed,
         request.courses ?? [],
         request.controlModality ?? null,
+        context.contentVersion,
       );
     }
     const rawResult =
@@ -499,6 +500,7 @@ export class SessionsService {
     seed: string,
     trajectories: MotricityCourseTrajectoryDto[],
     controlModality: ControlModality | null,
+    contentVersion: number,
   ): {
     rawResult: MotorSkillsMetrics;
     score: { normalizedScore: number; band: ScoreBand };
@@ -516,7 +518,7 @@ export class SessionsService {
         'Trajectories must target distinct courses of the targeted axis',
       );
     }
-    const courses = generateMotricityCourses(seed);
+    const courses = generateMotricityCourses(seed, { contentVersion });
     const samplesByIndex = new Map(
       trajectories.map((trajectory) => [trajectory.index, trajectory.samples]),
     );
@@ -526,9 +528,14 @@ export class SessionsService {
     if (!allFinished) {
       throw new ConflictException('The session content is not fully played');
     }
-    const scored = scoreMotricitySession(trajectories, seed);
+    const scored = scoreMotricitySession(trajectories, seed, contentVersion);
     return {
-      rawResult: deriveMotorSkillsMetrics(trajectories, seed, controlModality),
+      rawResult: deriveMotorSkillsMetrics(
+        trajectories,
+        seed,
+        controlModality,
+        contentVersion,
+      ),
       score: {
         normalizedScore: scored.score,
         band: avisFromScore(scored.score),
