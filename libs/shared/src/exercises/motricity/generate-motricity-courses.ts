@@ -22,8 +22,10 @@ export const MOTRICITY_WIDTH_SHRINK = 0.2;
 
 export const MOTRICITY_MIN_SEGMENT_LENGTH = 80;
 export const MOTRICITY_MAX_SEGMENT_LENGTH = 230;
+export const MOTRICITY_SIMPLE_COURSE_MAX_SEGMENT_LENGTH = 460;
 export const MOTRICITY_CLEARANCE_MARGIN = 26;
 export const MOTRICITY_MIN_START_END_SPAN_X = 480;
+export const MOTRICITY_EDGE_BAND = 250;
 export const MOTRICITY_REVERSAL_MIN_SPACING = 220;
 export const MOTRICITY_GENERATION_ATTEMPTS = 80;
 export const MOTRICITY_GENERATION_DRAW_BUDGET = 3000;
@@ -32,23 +34,31 @@ export interface MotricityCourseProfile {
   segmentBounds: readonly [number, number];
   reversalBounds: readonly [number, number];
   minCurvilinearLength: number;
+  maxSegmentLength: number;
+  clearanceMargin: number;
 }
 
 export const MOTRICITY_COURSE_PROFILES: readonly MotricityCourseProfile[] = [
   {
-    segmentBounds: [5, 8],
+    segmentBounds: [3, 4],
     reversalBounds: [0, 0],
-    minCurvilinearLength: 900,
+    minCurvilinearLength: 700,
+    maxSegmentLength: MOTRICITY_SIMPLE_COURSE_MAX_SEGMENT_LENGTH,
+    clearanceMargin: MOTRICITY_CLEARANCE_MARGIN,
   },
   {
     segmentBounds: [7, 11],
     reversalBounds: [0, 1],
     minCurvilinearLength: 1100,
+    maxSegmentLength: MOTRICITY_MAX_SEGMENT_LENGTH,
+    clearanceMargin: 70,
   },
   {
     segmentBounds: [10, 16],
-    reversalBounds: [2, 3],
+    reversalBounds: [2, 2],
     minCurvilinearLength: 1450,
+    maxSegmentLength: MOTRICITY_MAX_SEGMENT_LENGTH,
+    clearanceMargin: 60,
   },
 ];
 
@@ -127,8 +137,11 @@ function tryBuildCenterline(
   const xHi = MOTRICITY_CANVAS_WIDTH - bound;
   const yLo = bound;
   const yHi = MOTRICITY_CANVAS_HEIGHT - bound;
-  const clearance = startWidth + MOTRICITY_CLEARANCE_MARGIN;
-  const minSegment = Math.max(MOTRICITY_MIN_SEGMENT_LENGTH, clearance + 4);
+  const clearance = startWidth + profile.clearanceMargin;
+  const minSegment = Math.max(
+    MOTRICITY_MIN_SEGMENT_LENGTH,
+    startWidth + MOTRICITY_CLEARANCE_MARGIN + 4,
+  );
   const garageCross = startWidth * GARAGE_WIDTH_FACTOR;
   const garageDepth = startWidth * GARAGE_DEPTH_FACTOR;
 
@@ -160,7 +173,8 @@ function tryBuildCenterline(
   const courseEscape =
     reversalCount > 0 ? (rng.next() < 0.5 ? DIR_NORTH : DIR_SOUTH) : null;
 
-  const verticalFirst = rng.next() < VERTICAL_FIRST_PROBABILITY;
+  const verticalFirst =
+    profile.segmentBounds[1] > 4 && rng.next() < VERTICAL_FIRST_PROBABILITY;
   const firstDir = verticalFirst
     ? rng.next() < 0.5
       ? DIR_NORTH
@@ -172,11 +186,11 @@ function tryBuildCenterline(
   let startX = entryLo + rng.next() * (entryHi - entryLo);
   const startBandLo =
     courseEscape === DIR_NORTH
-      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.55
+      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.85
       : yLo + garageCross / 2;
   const startBandHi =
     courseEscape === DIR_SOUTH
-      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.45
+      ? yLo + garageCross / 2 + (yHi - yLo - garageCross) * 0.15
       : yHi - garageCross / 2;
   let startY = startBandLo + rng.next() * (startBandHi - startBandLo);
   if (!verticalFirst) {
@@ -231,6 +245,7 @@ function tryBuildCenterline(
   const currentPoint = (): MotricityPoint => points[points.length - 1];
   const currentDir = (): number | null =>
     moves.length === 0 ? null : moves[moves.length - 1].direction;
+
 
   const snapshotState = (): WalkSnapshot => ({
     queue: [...queue],
@@ -314,11 +329,28 @@ function tryBuildCenterline(
   const spanReached = (): boolean =>
     Math.abs(currentPoint().x - start.x) >= MOTRICITY_MIN_START_END_SPAN_X;
 
+  const farBandBoundary =
+    forwardSign === 1
+      ? MOTRICITY_CANVAS_WIDTH - MOTRICITY_EDGE_BAND
+      : MOTRICITY_EDGE_BAND;
+  const endAtExtremity = (): boolean =>
+    forwardSign === 1
+      ? currentPoint().x >= farBandBoundary
+      : currentPoint().x <= farBandBoundary;
+
+  const hasDiagonal = (): boolean =>
+    moves.some((move) => {
+      const vector = DIR_VECTORS[move.direction];
+      return vector.x !== 0 && vector.y !== 0;
+    });
+
   const requirementsMet = (): boolean =>
     queue.length === 0 &&
     reversalsDone === reversalCount &&
     curvilinear >= profile.minCurvilinearLength &&
     spanReached() &&
+    endAtExtremity() &&
+    hasDiagonal() &&
     moves.length >= profile.segmentBounds[0];
 
   const isCardinalExit = (direction: number): boolean =>
@@ -356,12 +388,18 @@ function tryBuildCenterline(
 
     if (moves.length >= profile.segmentBounds[1]) {
       if (!popMove()) {
-        return null;
+          return null;
       }
       continue;
     }
 
     let move: WalkMove | null = null;
+
+    const outboundRunLength = (): number =>
+      Math.max(
+        minSegment,
+        (triggers[reversalsDone] ?? 0) - curvilinear + 20 + rng.next() * 50,
+      );
 
     if (queue.length > 0) {
       const direction = queue[0];
@@ -369,15 +407,17 @@ function tryBuildCenterline(
       const length =
         queueTag === 'reversal'
           ? vertical
-            ? Math.max(minSegment, clearance + 10) + rng.next() * 40
+            ? Math.max(minSegment, clearance + 8) + rng.next() * 24
             : REVERSAL_RUN_MIN_LENGTH +
               rng.next() * (REVERSAL_RUN_MAX_LENGTH - REVERSAL_RUN_MIN_LENGTH)
           : queueTag === 'closing'
             ? minSegment +
               rng.next() *
                 Math.max(0, CLOSING_SEGMENT_MAX_LENGTH - minSegment)
-            : minSegment +
-              rng.next() * (MOTRICITY_MAX_SEGMENT_LENGTH - minSegment);
+            : queueTag === 'first' && reversalCount > 0 && !vertical
+              ? outboundRunLength()
+              : minSegment +
+                rng.next() * (profile.maxSegmentLength - minSegment);
       move = { direction, length };
     } else {
       const direction = currentDir();
@@ -393,7 +433,7 @@ function tryBuildCenterline(
             ? currentPoint().y - yLo
             : yHi - currentPoint().y;
         const escape =
-          roomTowardEscape < 2 * clearance + 60
+          reversalsDone === 0 && roomTowardEscape < 2 * clearance + 60
             ? courseEscape === DIR_NORTH
               ? DIR_SOUTH
               : DIR_NORTH
@@ -407,31 +447,42 @@ function tryBuildCenterline(
       const from = direction ?? dirForward;
       const pendingReversals =
         courseEscape !== null && reversalsDone < reversalCount;
-      const candidates: number[] = [];
-      for (const candidate of forwardSet) {
-        if (turnSteps(from, candidate) === 0 || turnSteps(from, candidate) > 2) {
+      if (pendingReversals) {
+        const steps = turnSteps(from, dirForward);
+        if (direction !== null && (steps === 0 || steps > 2)) {
+          if (!popMove()) {
+            return null;
+          }
           continue;
         }
-        const vector = DIR_VECTORS[candidate];
-        if (pendingReversals && vector.x === 0) {
-          continue;
-        }
-        candidates.push(candidate);
-        if (vector.x !== 0 && vector.y !== 0) {
+        move = { direction: dirForward, length: outboundRunLength() };
+      } else {
+        const candidates: number[] = [];
+        for (const candidate of forwardSet) {
+          if (
+            turnSteps(from, candidate) === 0 ||
+            turnSteps(from, candidate) > 2
+          ) {
+            continue;
+          }
           candidates.push(candidate);
+          const vector = DIR_VECTORS[candidate];
+          if (vector.x !== 0 && vector.y !== 0) {
+            candidates.push(candidate);
+          }
         }
-      }
-      if (candidates.length === 0) {
-        if (!popMove()) {
-          return null;
+        if (candidates.length === 0) {
+          if (!popMove()) {
+            return null;
+          }
+          continue;
         }
-        continue;
+        move = {
+          direction: rng.pick(candidates),
+          length:
+            minSegment + rng.next() * (profile.maxSegmentLength - minSegment),
+        };
       }
-      move = {
-        direction: rng.pick(candidates),
-        length:
-          minSegment + rng.next() * (MOTRICITY_MAX_SEGMENT_LENGTH - minSegment),
-      };
     }
 
     if (move && isMoveValid(currentPoint(), move)) {
@@ -444,7 +495,7 @@ function tryBuildCenterline(
           queue = [];
           queueTag = null;
           if (!popMove()) {
-            return null;
+          return null;
           }
         } else if (!popMove()) {
           return null;

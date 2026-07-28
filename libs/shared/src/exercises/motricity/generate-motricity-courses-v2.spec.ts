@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  MOTRICITY_CLEARANCE_MARGIN,
   MOTRICITY_COURSE_PROFILES,
+  MOTRICITY_EDGE_BAND,
   MOTRICITY_MIN_SEGMENT_LENGTH,
   MOTRICITY_MIN_START_END_SPAN_X,
   MOTRICITY_REVERSAL_MIN_SPACING,
@@ -123,7 +123,7 @@ describe('generateMotricityCourses v2 (property-based)', () => {
       courses.forEach((course, index) => {
         const profile = MOTRICITY_COURSE_PROFILES[index];
         const width = course.segments[0].width;
-        const clearance = width + MOTRICITY_CLEARANCE_MARGIN;
+        const clearance = width + profile.clearanceMargin;
 
         expect(course.segments.length).toBeGreaterThanOrEqual(
           profile.segmentBounds[0],
@@ -140,6 +140,25 @@ describe('generateMotricityCourses v2 (property-based)', () => {
         expect(Math.abs(end.x - start.x)).toBeGreaterThanOrEqual(
           MOTRICITY_MIN_START_END_SPAN_X - EPSILON,
         );
+
+        const sign = Math.sign(end.x - start.x);
+        const startEdgeDistance =
+          sign > 0 ? start.x : MOTRICITY_CANVAS_WIDTH - start.x;
+        const endEdgeDistance =
+          sign > 0 ? MOTRICITY_CANVAS_WIDTH - end.x : end.x;
+        expect(startEdgeDistance).toBeLessThanOrEqual(
+          MOTRICITY_EDGE_BAND + EPSILON,
+        );
+        expect(endEdgeDistance).toBeLessThanOrEqual(
+          MOTRICITY_EDGE_BAND + EPSILON,
+        );
+
+        const hasDiagonal = course.segments.some((segment) => {
+          const dx = Math.abs(segment.end.x - segment.start.x);
+          const dy = Math.abs(segment.end.y - segment.start.y);
+          return dx > 1e-6 && Math.abs(dx - dy) < 1e-6;
+        });
+        expect(hasDiagonal).toBe(true);
 
         for (const segment of course.segments) {
           expect(segment.length).toBeGreaterThanOrEqual(
