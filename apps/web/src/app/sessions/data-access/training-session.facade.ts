@@ -176,7 +176,10 @@ export class TrainingSessionFacade {
   readonly motricityCourses: Signal<MotricityCourse[]> = computed(() => {
     const session = this.store.session();
     return session && this.axis() === AxisType.MOTOR_SKILLS
-      ? generateMotricityCourses(session.seed, this.motricityGeneration())
+      ? generateMotricityCourses(session.seed, {
+          contentVersion: session.contentVersion,
+          ...this.motricityGeneration(),
+        })
       : [];
   });
 

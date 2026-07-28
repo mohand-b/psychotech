@@ -7,7 +7,11 @@ import {
 import { MotricityCourse, generateMotricityCourses } from '@psychotech/shared';
 import { MotricityCoursePreview } from './motricity-course-preview';
 
-const LEVEL_SHAPES: readonly string[] = ['Tracé simple', 'Zigzag', 'Serpentin'];
+const LEVEL_SHAPES: readonly string[] = [
+  'Simple',
+  'Intermédiaire',
+  'Serpentin',
+];
 
 interface MotricityLabEntry {
   course: MotricityCourse;

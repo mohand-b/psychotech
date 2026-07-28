@@ -107,12 +107,8 @@
         }
         <g
           [attr.transform]="
-              'translate(' +
-              activeCourse.garage.x +
-              ',' +
-              (activeCourse.garage.y + activeCourse.garage.height + 12) +
-              ')'
-            "
+            'translate(' + startBadge().x + ',' + startBadge().y + ')'
+          "
         >
           <rect
             class="motri__badge motri__badge--start"
@@ -130,14 +126,8 @@
         </g>
         <g
           [attr.transform]="
-              'translate(' +
-              (activeCourse.endZone.x +
-                activeCourse.endZone.width -
-                badgeWidth) +
-              ',' +
-              (activeCourse.endZone.y - badgeHeight - 12) +
-              ')'
-            "
+            'translate(' + endBadge().x + ',' + endBadge().y + ')'
+          "
         >
           <rect
             class="motri__badge motri__badge--end"

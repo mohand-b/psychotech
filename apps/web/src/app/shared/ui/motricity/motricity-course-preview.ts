@@ -13,9 +13,12 @@ import {
   MotricityPoint,
 } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../axis-presentation';
-
-const BADGE_WIDTH = 58;
-const BADGE_HEIGHT = 24;
+import {
+  MOTRICITY_BADGE_HEIGHT,
+  MOTRICITY_BADGE_WIDTH,
+  motricityEndBadgePlacement,
+  motricityStartBadgePlacement,
+} from './motricity-badge-placement';
 
 function formatPoints(points: readonly MotricityPoint[]): string {
   return points
@@ -67,11 +70,7 @@ function formatPoints(points: readonly MotricityPoint[]): string {
       }
       <g
         [attr.transform]="
-          'translate(' +
-          course().garage.x +
-          ',' +
-          (course().garage.y + course().garage.height + 12) +
-          ')'
+          'translate(' + startBadge().x + ',' + startBadge().y + ')'
         "
       >
         <rect
@@ -89,13 +88,7 @@ function formatPoints(points: readonly MotricityPoint[]): string {
         </text>
       </g>
       <g
-        [attr.transform]="
-          'translate(' +
-          (course().endZone.x + course().endZone.width - badgeWidth) +
-          ',' +
-          (course().endZone.y - badgeHeight - 12) +
-          ')'
-        "
+        [attr.transform]="'translate(' + endBadge().x + ',' + endBadge().y + ')'"
       >
         <rect
           class="preview__badge preview__badge--end"
@@ -183,8 +176,15 @@ export class MotricityCoursePreview {
   protected readonly canvasWidth = MOTRICITY_CANVAS_WIDTH;
   protected readonly canvasHeight = MOTRICITY_CANVAS_HEIGHT;
   protected readonly cursorRadius = MOTRICITY_CURSOR_RADIUS;
-  protected readonly badgeWidth = BADGE_WIDTH;
-  protected readonly badgeHeight = BADGE_HEIGHT;
+  protected readonly badgeWidth = MOTRICITY_BADGE_WIDTH;
+  protected readonly badgeHeight = MOTRICITY_BADGE_HEIGHT;
+
+  protected readonly startBadge = computed(() =>
+    motricityStartBadgePlacement(this.course()),
+  );
+  protected readonly endBadge = computed(() =>
+    motricityEndBadgePlacement(this.course()),
+  );
 
   protected readonly polygonPoints = computed(() =>
     formatPoints(this.course().polygon),

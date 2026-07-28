@@ -35,6 +35,12 @@ import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pair
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import {
+  MOTRICITY_BADGE_HEIGHT,
+  MOTRICITY_BADGE_WIDTH,
+  motricityEndBadgePlacement,
+  motricityStartBadgePlacement,
+} from '../../../shared/ui/motricity/motricity-badge-placement';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
@@ -52,8 +58,6 @@ type CursorState = 'depart' | 'normal' | 'contact' | 'outside';
 
 const MAX_FRAME_MS = 50;
 const ARC_COMPLETION_TOLERANCE = 0.5;
-const BADGE_WIDTH = 58;
-const BADGE_HEIGHT = 24;
 
 @Component({
   selector: 'app-motricity-play',
@@ -91,8 +95,8 @@ export class MotricityPlay {
   protected readonly canvasWidth = MOTRICITY_CANVAS_WIDTH;
   protected readonly canvasHeight = MOTRICITY_CANVAS_HEIGHT;
   protected readonly cursorRadius = MOTRICITY_CURSOR_RADIUS;
-  protected readonly badgeWidth = BADGE_WIDTH;
-  protected readonly badgeHeight = BADGE_HEIGHT;
+  protected readonly badgeWidth = MOTRICITY_BADGE_WIDTH;
+  protected readonly badgeHeight = MOTRICITY_BADGE_HEIGHT;
   protected readonly courseCount = this.training.exerciseCount;
 
   protected readonly loaded = signal(false);
@@ -141,6 +145,14 @@ export class MotricityPlay {
   protected readonly course = computed<MotricityCourse | null>(
     () => this.courses()[this.courseIndex()] ?? null,
   );
+  protected readonly startBadge = computed(() => {
+    const course = this.course();
+    return course ? motricityStartBadgePlacement(course) : { x: 0, y: 0 };
+  });
+  protected readonly endBadge = computed(() => {
+    const course = this.course();
+    return course ? motricityEndBadgePlacement(course) : { x: 0, y: 0 };
+  });
   protected readonly polygonPoints = computed(() => {
     const course = this.course();
     return course

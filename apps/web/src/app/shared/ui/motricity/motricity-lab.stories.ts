@@ -13,8 +13,8 @@ export default meta;
 
 type Story = StoryObj<MotricityLab>;
 
-export const Generateur: Story = {
-  name: 'Générateur',
+export const Galerie: Story = {
+  name: 'Galerie',
 };
 
 const levelStory = (index: number): StoryObj<{ seed: string }> => ({
@@ -37,7 +37,7 @@ export const Niveau1: StoryObj<{ seed: string }> = {
 
 export const Niveau2: StoryObj<{ seed: string }> = {
   ...levelStory(1),
-  name: 'Niveau 2 — zigzag',
+  name: 'Niveau 2 — intermédiaire',
 };
 
 export const Niveau3: StoryObj<{ seed: string }> = {
