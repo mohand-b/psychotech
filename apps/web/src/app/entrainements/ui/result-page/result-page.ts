@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styles: `
     @media (max-width: 767px) {
       :host {
-        padding-bottom: calc(9rem + var(--safe-bottom));
+        padding-bottom: 24px;
       }
     }
   `,

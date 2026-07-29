@@ -297,7 +297,7 @@
 @media (max-width: 767px) {
   .simb {
     padding-top: 20px;
-    padding-bottom: calc(6rem + var(--safe-bottom));
+    padding-bottom: 24px;
     gap: 16px;
   }
 

@@ -464,7 +464,7 @@
 @media (max-width: 767px) {
   .bilan {
     gap: 14px;
-    padding-bottom: calc(9rem + var(--safe-bottom));
+    padding-bottom: 24px;
   }
 
   .bilan__hero {

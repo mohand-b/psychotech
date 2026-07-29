@@ -51,7 +51,11 @@
     >
     <div class="flex items-center gap-2">
       @if (sector(); as current) {
-        <ui-sector-chip [sector]="current" [showLabel]="false" />
+        <ui-sector-chip
+          [sector]="current"
+          [showLabel]="false"
+          [compact]="true"
+        />
       }
       @if (energyLink(); as link) {
         <a [routerLink]="link" class="energy-link" aria-label="Votre énergie">

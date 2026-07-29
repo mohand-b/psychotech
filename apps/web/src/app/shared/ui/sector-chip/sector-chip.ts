@@ -13,13 +13,18 @@ import { SECTOR_PRESENTATION } from '../sector-presentation';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icon],
   template: `
-    <span class="sector" title="Votre secteur de préparation">
+    <span
+      class="sector"
+      [title]="'Votre secteur de préparation : ' + presentation().label"
+    >
       @if (showLabel()) {
         <span class="sector__label">Secteur</span>
       }
       <span class="sector__name">
         <ui-icon class="sector__icon" [img]="presentation().icon" [size]="14" />
-        {{ presentation().label }}
+        @if (!compact()) {
+          {{ presentation().label }}
+        }
       </span>
     </span>
   `,
@@ -54,6 +59,7 @@ import { SECTOR_PRESENTATION } from '../sector-presentation';
 export class SectorChip {
   readonly sector = input.required<Sector>();
   readonly showLabel = input(true);
+  readonly compact = input(false);
 
   protected readonly presentation = computed(
     () => SECTOR_PRESENTATION[this.sector()],

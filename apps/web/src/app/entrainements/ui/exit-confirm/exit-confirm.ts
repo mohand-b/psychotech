@@ -23,12 +23,16 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
       <ui-button
         color="neutral"
         appearance="outlined"
+        relief="mobile"
+        block="mobile"
         (click)="continueRequested.emit()"
       >
         Continuer l'épreuve
       </ui-button>
       <ui-button
         [color]="color()"
+        relief="mobile"
+        block="mobile"
         [loading]="leaving()"
         (click)="quitRequested.emit()"
       >
@@ -71,12 +75,19 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
         position: fixed;
         inset: auto 0 0 0;
         z-index: 35;
+        gap: 12px;
+        align-items: stretch;
         border: none;
         border-top: 1px solid var(--border);
         border-radius: 0;
         box-shadow: none;
-        padding: 16px calc(16px + var(--safe-right))
-          calc(16px + var(--safe-bottom)) calc(16px + var(--safe-left));
+        padding: 12px calc(16px + var(--safe-right))
+          calc(12px + var(--safe-bottom)) calc(16px + var(--safe-left));
+      }
+      .exit__actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
       }
     }
   `,

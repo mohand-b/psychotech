@@ -33,6 +33,24 @@ describe('SectorChip', () => {
     ).toBe('Aérien');
   });
 
+  it('keeps only the sector icon in the compact variant', async () => {
+    const fixture = await setup(Sector.RAILWAY);
+    fixture.componentRef.setInput('showLabel', false);
+    fixture.componentRef.setInput('compact', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.sector__label')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.sector__name').textContent.trim(),
+    ).toBe('');
+    expect(
+      fixture.nativeElement.querySelector('.sector__icon svg'),
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.sector').getAttribute('title'),
+    ).toContain('Ferroviaire');
+  });
+
   it('hides the label in the label-less variant', async () => {
     const fixture = await setup(Sector.RAILWAY);
     fixture.componentRef.setInput('showLabel', false);
