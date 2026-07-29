@@ -23,6 +23,7 @@ import {
   scoreMemorySession,
   scoreMotricityCourse,
   scoreReactivitySession,
+  tutorialSeedFor,
 } from '@psychotech/shared';
 import { ArrowRight, Check } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -135,10 +136,13 @@ function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
       ];
     }
     case AxisType.MOTOR_SKILLS: {
-      const course = generateMotricityCourses(TUTORIAL_SEED, {
-        courseCount: 1,
-        startWidths: [MOTRICITY_TUTORIAL_START_WIDTH],
-      })[0];
+      const course = generateMotricityCourses(
+        tutorialSeedFor(AxisType.MOTOR_SKILLS),
+        {
+          courseCount: 1,
+          startWidths: [MOTRICITY_TUTORIAL_START_WIDTH],
+        },
+      )[0];
       const scored = scoreMotricityCourse(
         course,
         result.courses[0]?.samples ?? [],

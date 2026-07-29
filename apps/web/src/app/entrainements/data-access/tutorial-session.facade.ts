@@ -19,9 +19,9 @@ import {
   SessionDto,
   SessionMode,
   SessionStatus,
-  TUTORIAL_SEED,
   TargetedAxisResultDto,
   generateLogicTutorial,
+  tutorialSeedFor,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
@@ -174,7 +174,7 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
       mode: SessionMode.TARGETED,
       sector: this.auth.currentUser()?.currentSector ?? Sector.RAILWAY,
       status: SessionStatus.IN_PROGRESS,
-      seed: TUTORIAL_SEED,
+      seed: tutorialSeedFor(axis),
       contentVersion: MOTRICITY_CONTENT_VERSION_V2,
       logicFamily: null,
       options: { enabledOptions: [] },
