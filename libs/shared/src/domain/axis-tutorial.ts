@@ -8,7 +8,17 @@ import {
 
 export const TUTORIAL_SEED = 'psychotech-tutoriel-v1';
 
+export const MOTRICITY_TUTORIAL_SEED = 'psychotech-tutoriel-motricite-v14';
+
 export const MOTRICITY_TUTORIAL_START_WIDTH = 84;
+
+export const MOTRICITY_TUTORIAL_START_MAX_X_RATIO = 1 / 3;
+
+export function tutorialSeedFor(axis: AxisType): string {
+  return axis === AxisType.MOTOR_SKILLS
+    ? MOTRICITY_TUTORIAL_SEED
+    : TUTORIAL_SEED;
+}
 
 export const AXIS_TUTORIAL: {
   [Axis in RailwayPlayableAxis]: Extract<AxisTraining, { axis: Axis }>;

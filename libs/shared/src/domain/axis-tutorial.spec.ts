@@ -4,10 +4,14 @@ import { generateLegacyLogicSession } from '../exercises/logic';
 import { generateMemorySession } from '../exercises/memory';
 import { generateMotricityCourses } from '../exercises/motricity';
 import { generateReactivitySession } from '../exercises/reactivity';
+import { MOTRICITY_CANVAS_WIDTH } from '../exercises/motricity/motricity-course';
 import {
   AXIS_TUTORIAL,
+  MOTRICITY_TUTORIAL_SEED,
+  MOTRICITY_TUTORIAL_START_MAX_X_RATIO,
   MOTRICITY_TUTORIAL_START_WIDTH,
   TUTORIAL_SEED,
+  tutorialSeedFor,
 } from './axis-tutorial';
 
 const MOTRICITY_TUTORIAL_OPTIONS = {
@@ -50,9 +54,15 @@ describe('AXIS_TUTORIAL', () => {
       ),
     );
     expect(
-      generateMotricityCourses(TUTORIAL_SEED, MOTRICITY_TUTORIAL_OPTIONS),
+      generateMotricityCourses(
+        MOTRICITY_TUTORIAL_SEED,
+        MOTRICITY_TUTORIAL_OPTIONS,
+      ),
     ).toEqual(
-      generateMotricityCourses(TUTORIAL_SEED, MOTRICITY_TUTORIAL_OPTIONS),
+      generateMotricityCourses(
+        MOTRICITY_TUTORIAL_SEED,
+        MOTRICITY_TUTORIAL_OPTIONS,
+      ),
     );
   });
 
@@ -97,12 +107,50 @@ describe('AXIS_TUTORIAL', () => {
 
   it('produces the reduced motricity tutorial: one widened easy course', () => {
     const courses = generateMotricityCourses(
-      TUTORIAL_SEED,
+      MOTRICITY_TUTORIAL_SEED,
       MOTRICITY_TUTORIAL_OPTIONS,
     );
     expect(courses).toHaveLength(1);
     expect(courses[0].segments[0].width).toBe(MOTRICITY_TUTORIAL_START_WIDTH);
     expect(AXIS_TUTORIAL[AxisType.MOTOR_SKILLS].secondsPerCourse).toBe(90);
+  });
+
+  it('starts the pinned motricity tutorial course on the left third of the canvas', () => {
+    const [course] = generateMotricityCourses(
+      MOTRICITY_TUTORIAL_SEED,
+      MOTRICITY_TUTORIAL_OPTIONS,
+    );
+    const leftThirdX =
+      MOTRICITY_CANVAS_WIDTH * MOTRICITY_TUTORIAL_START_MAX_X_RATIO;
+    const garageCenterX = course.garage.x + course.garage.width / 2;
+    const endCenterX = course.endZone.x + course.endZone.width / 2;
+
+    expect(garageCenterX).toBeLessThan(leftThirdX);
+    expect(course.startPosition.x).toBeLessThan(leftThirdX);
+    expect(endCenterX).toBeGreaterThan(garageCenterX);
+  });
+
+  it('keeps the pinned motricity tutorial course simple: three segments', () => {
+    const [course] = generateMotricityCourses(
+      MOTRICITY_TUTORIAL_SEED,
+      MOTRICITY_TUTORIAL_OPTIONS,
+    );
+
+    expect(course.segments).toHaveLength(3);
+  });
+
+  it('routes the motricity tutorial to its own pinned seed and every other axis to the shared one', () => {
+    expect(tutorialSeedFor(AxisType.MOTOR_SKILLS)).toBe(
+      MOTRICITY_TUTORIAL_SEED,
+    );
+    for (const axis of [
+      AxisType.LOGIC,
+      AxisType.MEMORY,
+      AxisType.VISUAL_DISCRIMINATION,
+      AxisType.REACTIVITY,
+    ]) {
+      expect(tutorialSeedFor(axis)).toBe(TUTORIAL_SEED);
+    }
   });
 
   it('keeps the standard generations untouched by the new optional parameters', () => {
