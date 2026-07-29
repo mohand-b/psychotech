@@ -115,14 +115,18 @@
     </div>
   </div>
 
-  <div class="simb__footer flex flex-col items-center">
-    @if (!energyShort()) {
-      <button
-        type="button"
-        class="simb__cta"
-        [class.simb__cta--starting]="starting()"
-        (click)="start()"
-      >
+  <ui-action-footer>
+    <ui-button
+      class="simb__cta"
+      color="brand"
+      size="lg"
+      relief="mobile"
+      block="mobile"
+      [loading]="starting()"
+      [disabled]="energyShort()"
+      (click)="start()"
+    >
+      <span class="simb__cta-content">
         Commencer la session
         @if (!unlimited()) {
           <span class="simb__cta-sep"></span>
@@ -131,17 +135,10 @@
             <span class="t-mono">{{ energyCost }}</span>
           </span>
         }
-      </button>
-    } @else {
-      <span class="simb__cta simb__cta--locked">
-        Commencer la session
-        <span class="simb__cta-sep"></span>
-        <span class="simb__cta-cost flex items-center">
-          <ui-bolt [size]="13" />
-          <span class="t-mono">{{ energyCost }}</span>
-        </span>
       </span>
-      <span class="simb__short flex items-center">
+    </ui-button>
+    @if (energyShort()) {
+      <span actionFooterNote class="simb__short flex items-center">
         Il vous faut {{ energyCost }} énergies, vous en avez {{ balance() }}.
         <a class="simb__short-link" routerLink="/recharge"
           >Recharger pour {{ rechargePriceLabel }}</a
@@ -156,5 +153,5 @@
         }
       </span>
     }
-  </div>
+  </ui-action-footer>
 </section>

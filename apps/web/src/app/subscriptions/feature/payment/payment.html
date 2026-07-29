@@ -256,14 +256,15 @@
               (input)="onCodeInput($any($event.target).value)"
               (keydown.enter)="applyCode()"
             />
-            <button
+            <ui-button
               class="pay__promo-apply"
-              type="button"
+              appearance="outlined"
+              color="neutral"
               [disabled]="applying()"
               (click)="applyCode()"
             >
               Appliquer
-            </button>
+            </ui-button>
           </div>
           @if (codeError()) {
             <span class="pay__promo-error">

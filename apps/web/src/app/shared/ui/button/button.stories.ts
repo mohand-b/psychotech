@@ -25,13 +25,20 @@ const meta: Meta<ButtonStoryArgs> = {
     },
     appearance: {
       control: { type: 'inline-radio' },
-      options: ['solid', 'outlined'],
+      options: ['solid', 'outlined', 'ghost'],
     },
     size: {
       control: { type: 'inline-radio' },
       options: ['md', 'lg'],
     },
-    relief: { control: 'boolean' },
+    relief: {
+      control: { type: 'inline-radio' },
+      options: [false, true, 'mobile'],
+    },
+    block: {
+      control: { type: 'inline-radio' },
+      options: [false, true, 'mobile'],
+    },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
     showArrow: { control: 'boolean' },
@@ -43,6 +50,7 @@ const meta: Meta<ButtonStoryArgs> = {
     appearance: 'solid',
     size: 'md',
     relief: false,
+    block: false,
     disabled: false,
     loading: false,
     showArrow: false,
@@ -50,7 +58,7 @@ const meta: Meta<ButtonStoryArgs> = {
   },
   render: (args) => ({
     props: args,
-    template: `<ui-button [color]="color" [appearance]="appearance" [size]="size" [relief]="relief" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
+    template: `<ui-button [color]="color" [appearance]="appearance" [size]="size" [relief]="relief" [block]="block" [disabled]="disabled" [loading]="loading" [showArrow]="showArrow">{{ label }}</ui-button>`,
   }),
 };
 export default meta;
@@ -78,6 +86,18 @@ export const Large: Story = {
 };
 export const WithArrow: Story = {
   args: { showArrow: true, label: 'Continuer' },
+};
+export const Ghost: Story = {
+  args: { appearance: 'ghost', color: 'neutral', label: 'Passer cet item' },
+};
+export const ReliefMobile: Story = {
+  args: { relief: 'mobile', label: 'Commencer la session' },
+};
+export const BlockMobile: Story = {
+  args: { block: 'mobile', relief: 'mobile', label: 'Commencer la session' },
+};
+export const Block: Story = {
+  args: { block: true, label: 'Payer maintenant' },
 };
 export const Loading: Story = { args: { loading: true } };
 export const Disabled: Story = {

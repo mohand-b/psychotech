@@ -93,17 +93,16 @@
               <span class="rech__total-unit">{{ packUnit }}</span>
             </span>
             <span class="rech__total-price t-mono">{{ priceLabel }}</span>
-            <button
-              type="button"
+            <ui-button
               class="rech__pay"
-              [class.rech__pay--pending]="phase() === 'pending'"
+              color="brand"
+              size="lg"
+              relief="mobile"
+              [loading]="phase() === 'pending'"
               (click)="pay()"
             >
-              @if (phase() === 'pending') {
-                <span class="rech__pay-spinner"></span>
-              }
               {{ payLabel() }}
-            </button>
+            </ui-button>
           </div>
         </section>
 

@@ -35,6 +35,7 @@ import {
 } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { Button } from '../../../shared/ui/button/button';
 import {
   ChevronStep,
   ChevronStepper,
@@ -86,6 +87,7 @@ interface LastResultView {
     AxisLabel,
     AxisRadar,
     BoltIcon,
+    Button,
     ChevronStepper,
     Icon,
     SectorChip,

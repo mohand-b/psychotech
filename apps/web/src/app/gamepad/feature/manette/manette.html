@@ -29,14 +29,16 @@
             placeholder="000000"
             (input)="onCodeInput($event)"
           />
-          <button
-            type="button"
-            class="manette__connect"
+          <ui-button
+            color="brand"
+            size="lg"
+            relief="mobile"
+            [block]="true"
             [disabled]="!codeReady()"
             (click)="submitCode()"
           >
             Se connecter
-          </button>
+          </ui-button>
         </div>
       }
       @case ('INVALID') {

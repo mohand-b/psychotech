@@ -17,6 +17,7 @@ import {
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { Button } from '../../../shared/ui/button/button';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
@@ -25,7 +26,7 @@ import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 @Component({
   selector: 'app-simulation-briefing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisBriefing, Button, GamepadPairing],
+  imports: [ActionFooter, AxisBriefing, Button, GamepadPairing],
   templateUrl: './simulation-briefing.html',
   styleUrl: './simulation-briefing.css',
 })

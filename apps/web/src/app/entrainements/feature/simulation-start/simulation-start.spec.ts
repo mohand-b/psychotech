@@ -145,8 +145,10 @@ describe('SimulationStart', () => {
     const { fixture, startFull } = await setup({
       energyState: buildEnergyState({ balance: 3, canStartFull: false }),
     });
-    const locked = fixture.nativeElement.querySelector('.simb__cta--locked');
-    expect(locked).not.toBeNull();
+    const locked = fixture.nativeElement.querySelector(
+      '.simb__cta button',
+    ) as HTMLButtonElement;
+    expect(locked.disabled).toBe(true);
     expect(text(fixture)).toContain(
       'Il vous faut 5 énergies, vous en avez 3.',
     );
@@ -163,9 +165,13 @@ describe('SimulationStart', () => {
       tier: SubscriptionTier.UNLIMITED,
       energyState: buildEnergyState({ tier: SubscriptionTier.UNLIMITED }),
     });
-    const cta = fixture.nativeElement.querySelector('.simb__cta');
-    expect(cta?.querySelector('ui-bolt')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.simb__cta--locked')).toBeNull();
+    const cta = fixture.nativeElement.querySelector(
+      '.simb__cta',
+    ) as HTMLElement;
+    expect(cta.querySelector('ui-bolt')).toBeNull();
+    expect((cta.querySelector('button') as HTMLButtonElement).disabled).toBe(
+      false,
+    );
   });
 
   it('handles the backend insufficient-energy refusal by reloading the balance', async () => {

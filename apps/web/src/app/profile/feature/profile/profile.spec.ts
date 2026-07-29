@@ -611,13 +611,13 @@ describe('Profile', () => {
     fixture.detectChanges();
 
     expect(textOf(fixture)).toContain('Paiement en échec');
-    const updateLink = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector<HTMLAnchorElement>('.profil__alert a');
-    expect(updateLink?.textContent).toContain(
+    const updateCta = (fixture.nativeElement as HTMLElement).querySelector(
+      '.profil__alert ui-button',
+    ) as HTMLElement;
+    expect(updateCta.textContent).toContain(
       'Mettre à jour le moyen de paiement',
     );
-    expect(updateLink?.getAttribute('href')).toContain('/paiement/carte');
+    expect(updateCta.getAttribute('routerLink')).toBe('/paiement/carte');
   });
 
   it('loads the billing overview with reconciliation on init', async () => {

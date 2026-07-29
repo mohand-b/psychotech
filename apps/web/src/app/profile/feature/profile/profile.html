@@ -89,13 +89,15 @@
                 le temps de régulariser.</span
               >
             </span>
-            <a
+            <ui-button
               class="profil__cta-secondary"
+              appearance="outlined"
+              color="neutral"
               routerLink="/paiement/carte"
               [queryParams]="{ retour: '/profil' }"
             >
               Mettre à jour le moyen de paiement
-            </a>
+            </ui-button>
           </div>
         }
 
@@ -306,12 +308,19 @@
                 }
               </div>
               <div class="profil__plan-actions flex items-center">
-                <a class="profil__cta" [routerLink]="planCta().link">{{
-                  planCta().label
-                }}</a>
+                <ui-button
+                  class="profil__cta"
+                  color="brand"
+                  [routerLink]="planCta().link"
+                  >{{ planCta().label }}</ui-button
+                >
                 @if (planCta().link !== '/abonnements') {
-                  <a class="profil__cta-secondary" routerLink="/abonnements"
-                    >Comparer les offres</a
+                  <ui-button
+                    class="profil__cta-secondary"
+                    appearance="outlined"
+                    color="neutral"
+                    routerLink="/abonnements"
+                    >Comparer les offres</ui-button
                   >
                 }
               </div>
@@ -325,9 +334,10 @@
                       cancel.description
                     }}</span>
                   </span>
-                  <button
-                    type="button"
-                    class="profil__cta-secondary"
+                  <ui-button
+                    class="profil__plan-row-cta"
+                    appearance="outlined"
+                    color="neutral"
                     [class.profil__plan-row-cta--danger]="!subscriptionEnding()"
                     (click)="
                       subscriptionEnding()
@@ -336,7 +346,7 @@
                     "
                   >
                     {{ cancel.ctaLabel }}
-                  </button>
+                  </ui-button>
                 </div>
               } @else {
                 <span class="profil__plan-free-note"
@@ -372,11 +382,13 @@
                       >Expire {{ method.expiryLabel }}</span
                     >
                   </span>
-                  <a
+                  <ui-button
                     class="profil__cta-secondary"
+                    appearance="outlined"
+                    color="neutral"
                     routerLink="/paiement/carte"
                     [queryParams]="{ retour: '/profil' }"
-                    >Modifier</a
+                    >Modifier</ui-button
                   >
                 </div>
               } @else {
@@ -392,7 +404,7 @@
                     Impossible de charger vos reçus.
                     <button
                       type="button"
-                      class="profil__invoices-retry"
+                      class="t-inline-action profil__invoices-retry"
                       (click)="loadInvoices()"
                     >
                       Réessayer
@@ -476,22 +488,23 @@
           </span>
           @if (isForm()) {
             <div class="profil__footer-actions flex items-center">
-              <button
-                type="button"
+              <ui-button
                 class="profil__action-cancel"
-                [class.profil__action-cancel--idle]="!formDirty()"
+                appearance="outlined"
+                color="neutral"
+                [disabled]="!formDirty()"
                 (click)="cancel()"
               >
                 Annuler
-              </button>
-              <button
-                type="button"
+              </ui-button>
+              <ui-button
                 class="profil__action-save"
-                [class.profil__action-save--idle]="!formCanSave()"
+                color="brand"
+                [disabled]="!formCanSave()"
                 (click)="save()"
               >
                 Enregistrer
-              </button>
+              </ui-button>
             </div>
           }
         </div>

@@ -153,20 +153,7 @@
 }
 
 .pay__promo-apply {
-  height: 44px;
-  background: var(--card);
-  color: var(--ink);
-  font: 600 13.5px/1 var(--font-ui);
-  border: 1px solid var(--border);
-  padding: 0 16px;
-  border-radius: 10px;
-  cursor: pointer;
   flex-shrink: 0;
-}
-
-.pay__promo-apply:hover:not(:disabled) {
-  border-color: var(--border-hover);
-  background: var(--surface-hover);
 }
 
 .pay__promo-error {

@@ -112,24 +112,42 @@
           <div class="home__day-cta">
             @switch (variant()) {
               @case ('session') {
-                <button class="home__cta-primary" (click)="resume()">
-                  <ui-icon [img]="playIcon" [size]="15" />
+                <ui-button
+                  class="home__cta-primary"
+                  color="brand"
+                  size="lg"
+                  relief="mobile"
+                  [icon]="playIcon"
+                  (click)="resume()"
+                >
                   Reprendre la session
-                </button>
+                </ui-button>
                 <span class="home__day-foot">Reprend au début de l'axe en cours</span>
               }
               @case ('train') {
-                <button class="home__cta-primary" (click)="train()">
+                <ui-button
+                  class="home__cta-primary"
+                  color="brand"
+                  size="lg"
+                  relief="mobile"
+                  [showArrow]="true"
+                  (click)="train()"
+                >
                   S'entraîner
-                  <ui-icon [img]="arrowIcon" [size]="15" />
-                </button>
+                </ui-button>
                 <span class="home__day-foot">Choix du mode à l'étape suivante</span>
               }
               @case ('new') {
-                <button class="home__cta-primary" (click)="train()">
+                <ui-button
+                  class="home__cta-primary"
+                  color="brand"
+                  size="lg"
+                  relief="mobile"
+                  [showArrow]="true"
+                  (click)="train()"
+                >
                   Lancer ma première session
-                  <ui-icon [img]="arrowIcon" [size]="15" />
-                </button>
+                </ui-button>
                 <span class="home__day-foot">Le mode découverte reste en libre accès</span>
               }
             }
@@ -241,7 +259,7 @@
               >Impossible de charger votre dernier résultat.
               <button
                 type="button"
-                class="home__retry"
+                class="t-inline-action"
                 (click)="retryOverview()"
               >
                 Réessayer
@@ -347,10 +365,15 @@
               <ui-bolt class="home__weak-bolt" [size]="12" />
               et dure au plus {{ weak.durationMinutes }} minutes.
             </p>
-            <button class="home__cta-outline" (click)="workWeakAxis()">
+            <ui-button
+              class="home__cta-outline"
+              appearance="outlined"
+              color="neutral"
+              [showArrow]="true"
+              (click)="workWeakAxis()"
+            >
               Travailler cet axe
-              <ui-icon [img]="arrowIcon" [size]="15" />
-            </button>
+            </ui-button>
           </div>
         } @else if (overviewPending()) {
           <div class="home__weak-body">

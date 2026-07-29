@@ -22,6 +22,7 @@ import {
   gamepadSignalingUrl,
 } from '../../data-access/gamepad-logic';
 import { GamepadTransport } from '../../data-access/gamepad-transport';
+import { Button } from '../../../shared/ui/button/button';
 import { Crank } from '../../ui/crank/crank';
 
 type ManetteView =
@@ -55,7 +56,7 @@ interface StateChip {
 @Component({
   selector: 'app-manette',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Crank],
+  imports: [Button, Crank],
   templateUrl: './manette.html',
   styleUrl: './manette.css',
 })

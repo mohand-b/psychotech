@@ -345,10 +345,7 @@
   color: var(--label);
 }
 
-.profil__plan-row .profil__cta-secondary {
-  height: 40px;
-  padding: 0 18px;
-  font-size: 13.5px;
+.profil__plan-row .profil__plan-row-cta {
   flex-shrink: 0;
 }
 
@@ -363,52 +360,6 @@
   color: var(--text-secondary);
   border-top: 1px solid var(--divider-soft);
   padding-top: 20px;
-}
-
-.profil__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: 0 22px;
-  background: var(--brand);
-  color: var(--card);
-  font: 600 14px/1 var(--font-ui);
-  text-decoration: none;
-  border-radius: var(--radius-input);
-}
-
-.profil__cta:hover {
-  background: var(--brand-hover);
-  color: var(--card);
-}
-
-.profil__cta-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: 0 20px;
-  background: var(--card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  font: 600 14px/1 var(--font-ui);
-  text-decoration: none;
-  border-radius: var(--radius-input);
-}
-
-.profil__cta-secondary:hover {
-  background: var(--bg);
-  color: var(--ink);
-}
-
-button.profil__cta {
-  border: 0;
-  cursor: pointer;
-}
-
-button.profil__cta-secondary {
-  cursor: pointer;
 }
 
 .profil__plan-name-row {
@@ -439,9 +390,6 @@ button.profil__cta-secondary {
 }
 
 .profil__alert .profil__cta-secondary {
-  height: 40px;
-  padding: 0 18px;
-  font-size: 13.5px;
   flex-shrink: 0;
 }
 
@@ -574,19 +522,6 @@ button.profil__cta-secondary {
   color: var(--text-disabled);
 }
 
-.profil__invoices-retry {
-  border: none;
-  background: transparent;
-  padding: 0;
-  font: 600 13px/1.4 var(--font-ui);
-  color: var(--brand-hover);
-  cursor: pointer;
-}
-
-.profil__invoices-retry:hover {
-  text-decoration: underline;
-}
-
 .profil__skeleton-badge {
   width: 46px;
   height: 31px;
@@ -657,50 +592,6 @@ button.profil__cta-secondary {
 
 .profil__status--error {
   color: var(--danger-text);
-}
-
-.profil__action-cancel {
-  height: 42px;
-  padding: 0 18px;
-  background: var(--card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-button);
-  font: 600 13.5px/1 var(--font-ui);
-  cursor: pointer;
-}
-
-.profil__action-cancel:hover {
-  background: var(--bg);
-}
-
-.profil__action-cancel--idle {
-  color: var(--text-disabled);
-  cursor: default;
-}
-
-.profil__action-save {
-  height: 42px;
-  padding: 0 22px;
-  background: var(--brand);
-  color: var(--card);
-  border: none;
-  border-radius: var(--radius-button);
-  font: 600 13.5px/1 var(--font-ui);
-  cursor: pointer;
-}
-
-.profil__action-save:hover {
-  background: var(--brand-hover);
-}
-
-.profil__action-save--idle {
-  background: var(--keycap-bd);
-  cursor: default;
-}
-
-.profil__action-save--idle:hover {
-  background: var(--keycap-bd);
 }
 
 .profilm__header {
@@ -926,10 +817,6 @@ button.profil__cta-secondary {
     gap: 8px;
   }
 
-  .profil__plan-actions .profil__cta,
-  .profil__plan-actions .profil__cta-secondary {
-    min-height: 48px;
-  }
 
   .profil__plan-row {
     flex-direction: column;
@@ -943,9 +830,6 @@ button.profil__cta-secondary {
     gap: 12px;
   }
 
-  .profil__plan-row .profil__cta-secondary {
-    min-height: 46px;
-  }
 
   .profil__invoice-row {
     gap: 12px;

@@ -5,73 +5,46 @@ import {
   output,
 } from '@angular/core';
 import { Play } from 'lucide-angular';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { Button } from '../../../shared/ui/button/button';
 
 @Component({
   selector: 'ui-result-actions',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [ActionFooter, Button],
   template: `
-    <div class="actions">
-      <div class="actions__item">
-        <ui-button
-          color="brand"
-          relief="mobile"
-          [block]="true"
-          [icon]="playIcon"
-          (click)="newTraining.emit()"
-        >
-          Nouvel entraînement
-        </ui-button>
-      </div>
-      <div class="actions__item">
-        <ui-button
-          color="neutral"
-          appearance="outlined"
-          relief="mobile"
-          [block]="true"
-          (click)="back.emit()"
-        >
-          {{ backLabel() }}
-        </ui-button>
-      </div>
-    </div>
-    <p class="actions__footnote t-support">{{ footnote() }}</p>
+    <ui-action-footer>
+      <ui-button
+        color="brand"
+        relief="mobile"
+        block="mobile"
+        [icon]="playIcon"
+        (click)="newTraining.emit()"
+      >
+        Nouvel entraînement
+      </ui-button>
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        relief="mobile"
+        block="mobile"
+        (click)="back.emit()"
+      >
+        {{ backLabel() }}
+      </ui-button>
+      <p actionFooterNote class="actions__footnote t-support">
+        {{ footnote() }}
+      </p>
+    </ui-action-footer>
   `,
   styles: `
     :host {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
+      display: block;
     }
     .actions__footnote {
       margin: 0;
       text-align: center;
       color: var(--label);
-    }
-    @media (max-width: 767px) {
-      .actions {
-        position: fixed;
-        inset: auto 0 0 0;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        background: var(--bg);
-        border-top: 1px solid var(--border);
-        padding: 12px 16px calc(16px + var(--safe-bottom));
-        z-index: 30;
-      }
-      .actions__item {
-        width: 100%;
-      }
-      :host {
-        gap: 16px;
-      }
     }
   `,
 })

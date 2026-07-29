@@ -267,10 +267,11 @@ describe('AxisStart - énergie', () => {
       energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
     });
 
-    expect(result.element.querySelector('ui-button button')).toBeNull();
     expect(
-      result.element.querySelector('.axis-start__locked'),
-    ).not.toBeNull();
+      result.element.querySelector<HTMLButtonElement>(
+        '.axis-start__cta button',
+      )?.disabled,
+    ).toBe(true);
     expect(result.element.textContent).toContain(
       "Énergie épuisée pour aujourd'hui.",
     );

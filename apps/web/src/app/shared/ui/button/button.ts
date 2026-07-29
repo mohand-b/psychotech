@@ -46,7 +46,8 @@ export type ButtonSize = 'md' | 'lg';
     </button>
   `,
   host: {
-    '[class.ui-button--block]': 'block()',
+    '[class.ui-button--block]': 'block() === true',
+    '[class.ui-button--block-mobile]': 'block() === "mobile"',
   },
   styles: `
     :host {
@@ -240,6 +241,13 @@ export type ButtonSize = 'md' | 'lg';
       animation: ui-button-spin 0.7s linear infinite;
     }
     @media (max-width: 767px) {
+      :host(.ui-button--block-mobile) {
+        display: flex;
+        width: 100%;
+      }
+      :host(.ui-button--block-mobile) .ui-button {
+        width: 100%;
+      }
       .ui-button {
         min-height: 44px;
       }
@@ -283,7 +291,7 @@ export class Button {
   readonly appearance = input<ButtonAppearance>('solid');
   readonly size = input<ButtonSize>('md');
   readonly relief = input<boolean | 'mobile'>(false);
-  readonly block = input(false);
+  readonly block = input<boolean | 'mobile'>(false);
   readonly disabled = input(false);
   readonly loading = input(false);
   readonly showArrow = input(false);

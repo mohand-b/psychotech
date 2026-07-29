@@ -167,22 +167,6 @@
   outline-offset: 1px;
 }
 
-.manette__connect {
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: var(--radius-button);
-  background: var(--brand);
-  font: 600 15px/20px var(--font-ui);
-  color: var(--card);
-  cursor: pointer;
-}
-
-.manette__connect:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
 .manette__pulse-row {
   display: flex;
   gap: 10px;

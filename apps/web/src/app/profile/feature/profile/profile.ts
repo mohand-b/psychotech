@@ -37,6 +37,7 @@ import { ProgressionFacade } from '../../../progression/data-access/progression.
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
 import { PLAN_SLUGS } from '../../../subscriptions/plan-slug';
 import { Badge } from '../../../shared/ui/badge/badge';
+import { Button } from '../../../shared/ui/button/button';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
@@ -133,6 +134,7 @@ interface InvoiceRowView {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Badge,
+    Button,
     EnergyChip,
     Icon,
     PasswordStrengthMeter,

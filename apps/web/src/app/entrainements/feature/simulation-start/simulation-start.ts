@@ -30,8 +30,10 @@ import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { Button } from '../../../shared/ui/button/button';
 import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
@@ -50,7 +52,14 @@ interface AdviceItem {
 @Component({
   selector: 'app-simulation-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, ChevronStepper, Icon, RouterLink],
+  imports: [
+    ActionFooter,
+    BoltIcon,
+    Button,
+    ChevronStepper,
+    Icon,
+    RouterLink,
+  ],
   templateUrl: './simulation-start.html',
   styleUrl: './simulation-start.css',
 })

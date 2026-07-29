@@ -209,44 +209,6 @@
   flex-shrink: 0;
 }
 
-.rech__pay {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 46px;
-  padding: 0 24px;
-  background: var(--brand);
-  color: var(--card);
-  border: none;
-  border-radius: var(--radius-input);
-  font: 600 15px/1 var(--font-ui);
-  cursor: pointer;
-}
-
-.rech__pay:hover {
-  background: var(--brand-hover);
-}
-
-.rech__pay--pending {
-  background: color-mix(in srgb, var(--brand) 68%, var(--card));
-  cursor: default;
-}
-
-.rech__pay-spinner {
-  width: 15px;
-  height: 15px;
-  border: 2px solid color-mix(in srgb, var(--card) 35%, transparent);
-  border-top-color: var(--card);
-  border-radius: var(--radius-pill);
-  animation: rech-spin 0.7s linear infinite;
-}
-
-@keyframes rech-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .rech__pay-error {
   font: 500 13px/1.4 var(--font-ui);
   color: var(--danger-text);

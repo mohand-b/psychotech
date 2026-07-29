@@ -248,38 +248,17 @@
   padding: 0 3px;
 }
 
-.simb__footer {
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.simb__cta {
+.simb__cta-content {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: var(--brand);
-  color: var(--card);
-  border: none;
-  font: 600 15.5px/1 var(--font-ui);
-  text-decoration: none;
-  padding: 13px 28px;
-  border-radius: var(--radius-input);
-  cursor: pointer;
-}
-
-.simb__cta:hover {
-  background: var(--brand-hover);
-}
-
-.simb__cta--starting {
-  background: var(--brand-loading);
-  cursor: default;
 }
 
 .simb__cta-sep {
   width: 1px;
   height: 18px;
-  background: color-mix(in srgb, var(--card) 35%, transparent);
+  background: currentColor;
+  opacity: 0.4;
 }
 
 .simb__cta-cost {
@@ -289,20 +268,6 @@
 .simb__cta-cost .t-mono {
   font-size: 14px;
   font-weight: 600;
-}
-
-.simb__cta--locked {
-  background: var(--surface-muted);
-  color: var(--text-disabled);
-  cursor: default;
-}
-
-.simb__cta--locked:hover {
-  background: var(--surface-muted);
-}
-
-.simb__cta--locked .simb__cta-sep {
-  background: var(--border-hover);
 }
 
 .simb__short {
@@ -364,34 +329,5 @@
   .simb__summary {
     flex-direction: column;
     gap: 8px;
-  }
-
-  .simb__footer {
-    width: 100%;
-    position: fixed;
-    inset: auto 0 0 0;
-    margin: 0;
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    padding: 12px calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
-      calc(16px + var(--safe-left));
-    z-index: 30;
-  }
-
-  .simb__cta {
-    width: 100%;
-    justify-content: center;
-    min-height: 50px;
-    border-bottom: 3px solid var(--brand-relief);
-    padding-bottom: 10px;
-  }
-
-  .simb__cta:active {
-    border-bottom-color: transparent;
-  }
-
-  .simb__cta--locked,
-  .simb__cta--starting {
-    border-bottom-color: transparent;
   }
 }

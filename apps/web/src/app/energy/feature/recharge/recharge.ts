@@ -22,6 +22,7 @@ import { catchError, of, switchMap, takeWhile, timer } from 'rxjs';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { Button } from '../../../shared/ui/button/button';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
@@ -48,7 +49,7 @@ const CONFIRMATION_PENDING_MESSAGE =
 @Component({
   selector: 'app-recharge',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, EnergyChip, Icon, RouterLink],
+  imports: [BoltIcon, Button, EnergyChip, Icon, RouterLink],
   templateUrl: './recharge.html',
   styleUrl: './recharge.css',
 })

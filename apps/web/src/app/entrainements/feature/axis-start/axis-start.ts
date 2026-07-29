@@ -25,6 +25,7 @@ import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
@@ -38,7 +39,14 @@ const COUNTDOWN_TICK_MS = 30_000;
 @Component({
   selector: 'app-axis-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisBriefing, BoltIcon, Button, GamepadPairing, RouterLink],
+  imports: [
+    ActionFooter,
+    AxisBriefing,
+    BoltIcon,
+    Button,
+    GamepadPairing,
+    RouterLink,
+  ],
   templateUrl: './axis-start.html',
   styleUrl: './axis-start.css',
 })
