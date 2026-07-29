@@ -9,6 +9,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
+  Sector,
   SessionDto,
   SessionMode,
   SessionStatus,
@@ -40,6 +41,10 @@ export class SimulationBriefing {
 
   protected readonly loaded = signal(false);
   protected readonly axis = this.facade.axis;
+
+  protected readonly sector = computed(
+    () => this.facade.session()?.sector ?? Sector.RAILWAY,
+  );
 
   protected readonly motricityAxis = computed(
     () => this.axis() === AxisType.MOTOR_SKILLS,

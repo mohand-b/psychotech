@@ -12,11 +12,13 @@ import {
   ENERGY_PACK_PRICE_EUR,
   LogicFamilyFilter,
   SESSION_ENERGY_COST,
+  Sector,
   SessionMode,
   SubscriptionTier,
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
@@ -42,6 +44,7 @@ const COUNTDOWN_TICK_MS = 30_000;
 })
 export class AxisStart {
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
+  private readonly authFacade = inject(AuthFacade);
   private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly gamepad = inject(GamepadFacade);
@@ -60,6 +63,10 @@ export class AxisStart {
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
   protected readonly showPairing = this.axis === AxisType.MOTOR_SKILLS;
+
+  protected readonly sector = computed(
+    () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
+  );
 
   protected readonly unlimited = computed(
     () => this.coreFacade.tier() === SubscriptionTier.UNLIMITED,

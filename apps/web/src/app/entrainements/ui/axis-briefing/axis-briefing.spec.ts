@@ -1,16 +1,52 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   AxisType,
   LogicFamilyFilter,
   RailwayPlayableAxis,
+  Sector,
+  SectorReferentialDto,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AxisBriefing } from './axis-briefing';
 import { AXIS_BRIEFING_CONTENT } from './axis-briefing-content';
 
 const PLAYABLE_AXES = Object.keys(
   AXIS_BRIEFING_CONTENT,
 ) as RailwayPlayableAxis[];
+
+const RAILWAY_COEFFICIENTS: Record<RailwayPlayableAxis, number> = {
+  [AxisType.LOGIC]: 1,
+  [AxisType.MEMORY]: 1.2,
+  [AxisType.VISUAL_DISCRIMINATION]: 1.2,
+  [AxisType.REACTIVITY]: 1.4,
+  [AxisType.MOTOR_SKILLS]: 1,
+};
+
+const REFERENTIAL: SectorReferentialDto = {
+  code: Sector.RAILWAY,
+  label: 'Ferroviaire',
+  isActive: true,
+  admissibilityThreshold: 70,
+  vigilanceThreshold: 65,
+  eliminatoryThreshold: 55,
+  axes: PLAYABLE_AXES.map((axis) => ({
+    code: axis,
+    label: axis,
+    description: '',
+    coefficient: RAILWAY_COEFFICIENTS[axis],
+    isCritical: RAILWAY_COEFFICIENTS[axis] >= 1.2,
+  })),
+};
+
+const CRITICAL_RAILWAY_AXES: RailwayPlayableAxis[] = PLAYABLE_AXES.filter(
+  (axis) => RAILWAY_COEFFICIENTS[axis] >= 1.2,
+);
+
+const PLAIN_RAILWAY_AXES: RailwayPlayableAxis[] = PLAYABLE_AXES.filter(
+  (axis) => RAILWAY_COEFFICIENTS[axis] < 1.2,
+);
 
 interface RenderOptions {
   tutorial?: boolean;
@@ -26,6 +62,7 @@ function render(
 ): ComponentFixture<AxisBriefing> {
   const fixture = TestBed.createComponent(AxisBriefing);
   fixture.componentRef.setInput('axis', axis);
+  fixture.componentRef.setInput('sector', Sector.RAILWAY);
   fixture.componentRef.setInput('tutorial', options.tutorial ?? false);
   fixture.componentRef.setInput('showOptions', options.showOptions ?? true);
   fixture.componentRef.setInput('showPairing', options.showPairing ?? false);
@@ -55,6 +92,15 @@ describe('AxisBriefing (gabarit unifié)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AxisBriefing],
+      providers: [
+        {
+          provide: CatalogFacade,
+          useValue: {
+            sectorReferential: signal(REFERENTIAL),
+            loadSectorReferential: vi.fn(),
+          },
+        },
+      ],
     }).compileComponents();
   });
 
@@ -261,6 +307,42 @@ describe('AxisBriefing (gabarit unifié)', () => {
       ),
     ).toHaveLength(0);
   });
+
+  it.each(CRITICAL_RAILWAY_AXES)(
+    'tags the critical railway axis %s in the summary of both briefings',
+    (axis: RailwayPlayableAxis) => {
+      expect(
+        texts(render(axis), '.axis-briefing__summary-critical'),
+      ).toEqual(['Axe critique']);
+      expect(
+        texts(
+          render(axis, { showOptions: false }),
+          '.axis-briefing__summary-critical',
+        ),
+      ).toEqual(['Axe critique']);
+    },
+  );
+
+  it.each(PLAIN_RAILWAY_AXES)(
+    'leaves the non-critical railway axis %s untagged',
+    (axis: RailwayPlayableAxis) => {
+      expect(texts(render(axis), '.axis-briefing__summary-critical')).toEqual(
+        [],
+      );
+    },
+  );
+
+  it.each(PLAYABLE_AXES)(
+    'never tags axis %s on the discovery briefing',
+    (axis) => {
+      expect(
+        texts(
+          render(axis, { tutorial: true }),
+          '.axis-briefing__summary-critical',
+        ),
+      ).toEqual([]);
+    },
+  );
 
   it('reserves the pairing card and the crank note for the motricity axis outside discovery', () => {
     const targeted = render(AxisType.MOTOR_SKILLS, { showPairing: true });

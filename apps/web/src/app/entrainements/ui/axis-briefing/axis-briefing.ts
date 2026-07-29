@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  inject,
   input,
   model,
 } from '@angular/core';
@@ -10,6 +12,7 @@ import {
   LOGIC_FAMILY_FILTER_LABELS,
   LogicFamilyFilter,
   RailwayPlayableAxis,
+  Sector,
   TrainingOptionId,
   trainingOptionsForAxis,
 } from '@psychotech/shared';
@@ -25,6 +28,7 @@ import {
   LayoutGrid,
   LucideIconData,
 } from 'lucide-angular';
+import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Keycap } from '../../../shared/ui/keycap/keycap';
@@ -251,10 +255,13 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
                 <span class="axis-briefing__summary-label">{{
                   entry.label
                 }}</span>
-                @if (!last) {
+                @if (!last || showCriticalChip()) {
                   <span class="axis-briefing__summary-dot">·</span>
                 }
               </span>
+            }
+            @if (showCriticalChip()) {
+              <span class="axis-briefing__summary-critical">Axe critique</span>
             }
           </span>
         </section>
@@ -341,7 +348,10 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
   styleUrl: './axis-briefing.css',
 })
 export class AxisBriefing {
+  private readonly catalogFacade = inject(CatalogFacade);
+
   readonly axis = input.required<AxisType>();
+  readonly sector = input.required<Sector>();
   readonly showOptions = input(true);
   readonly tutorial = input(false);
   readonly showPairing = input(false);
@@ -351,6 +361,21 @@ export class AxisBriefing {
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
   );
+
+  protected readonly showCriticalChip = computed(() => {
+    if (this.tutorial()) {
+      return false;
+    }
+    const referential = this.catalogFacade.sectorReferential();
+    return (
+      referential?.axes.find((entry) => entry.code === this.axis())
+        ?.isCritical ?? false
+    );
+  });
+
+  constructor() {
+    effect(() => this.catalogFacade.loadSectorReferential(this.sector()));
+  }
 
   protected readonly content = computed(
     () => AXIS_BRIEFING_CONTENT[this.axis() as RailwayPlayableAxis],

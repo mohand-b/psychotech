@@ -2,6 +2,7 @@
   @if (loaded() && axis(); as currentAxis) {
   <ui-axis-briefing
     [axis]="currentAxis"
+    [sector]="sector()"
     [showOptions]="false"
     [showPairing]="motricityAxis()"
   >
