@@ -26,8 +26,8 @@ import {
       border-radius: inherit;
       background: linear-gradient(
         90deg,
-        var(--brand-hover),
-        var(--brand-loading)
+        var(--threshold-bar-fill-from, var(--brand-hover)),
+        var(--threshold-bar-fill-to, var(--brand-loading))
       );
     }
     .bar__fill::after {

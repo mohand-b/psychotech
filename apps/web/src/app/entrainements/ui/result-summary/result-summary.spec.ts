@@ -73,6 +73,16 @@ function deltaText(fixture: ComponentFixture<ResultSummary>): string | null {
   return delta ? (delta.textContent ?? '').trim() : null;
 }
 
+function textOf(
+  fixture: ComponentFixture<ResultSummary>,
+  selector: string,
+): string | null {
+  const node = fixture.nativeElement.querySelector(
+    selector,
+  ) as HTMLElement | null;
+  return node ? (node.textContent ?? '').replace(/\s+/g, ' ').trim() : null;
+}
+
 describe('ResultSummary', () => {
   it('shows a positive delta against the previous best when the record is beaten', async () => {
     const fixture = await setup({
@@ -138,6 +148,114 @@ describe('ResultSummary', () => {
         .querySelector('.summary__stamp .stamp__main')
         .textContent.trim(),
     ).toBe('Faible');
+  });
+
+  it('tags a critical axis of the sector and leaves a non-critical one untagged', async () => {
+    const critical = await setup({
+      score: 72,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+    expect(textOf(critical, '.summary__critical')).toBe('Axe critique');
+
+    const plain = await setup({ score: 72, previousBestScore: null });
+    expect(plain.nativeElement.querySelector('.summary__critical')).toBeNull();
+  });
+
+  it('marks the eliminatory threshold of a critical axis on the bar', async () => {
+    const fixture = await setup({
+      score: 72,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+    const bar = fixture.nativeElement.querySelector('ui-threshold-bar');
+
+    expect(
+      textOf(fixture, '.summary__bar-threshold-label--desktop'),
+    ).toContain('Axe critique, seuil éliminatoire');
+    expect(textOf(fixture, '.summary__bar-threshold-value')).toBe('55');
+    expect(bar.querySelector('.bar__marker').style.left).toBe('55%');
+  });
+
+  it('marks the vigilance threshold of a non-critical axis on the bar', async () => {
+    const fixture = await setup({ score: 72, previousBestScore: null });
+    const bar = fixture.nativeElement.querySelector('ui-threshold-bar');
+
+    expect(textOf(fixture, '.summary__bar-threshold-label--desktop')).toBe(
+      'Seuil de vigilance :',
+    );
+    expect(textOf(fixture, '.summary__bar-threshold-value')).toBe('65');
+    expect(bar.querySelector('.bar__marker').style.left).toBe('65%');
+  });
+
+  it.each([
+    [AxisType.REACTIVITY, 72, '+17,0 au-dessus', 'above'],
+    [AxisType.REACTIVITY, 52, '-3,0 en dessous', 'below'],
+    [AxisType.LOGIC, 72, '+7,0 au-dessus', 'above'],
+    [AxisType.LOGIC, 61, '-4,0 en dessous', 'below'],
+  ])(
+    'signs the gap of %s at score %s as %s',
+    async (axis, score, label, side) => {
+      const fixture = await setup({ score, previousBestScore: null, axis });
+      const gap = fixture.nativeElement.querySelector(
+        '.summary__gap',
+      ) as HTMLElement;
+
+      expect(gap.textContent?.trim()).toBe(label);
+      expect(gap.classList.contains(`summary__gap--${side}`)).toBe(true);
+    },
+  );
+
+  it('flags a critical axis under its eliminatory threshold without repeating the stamp word', async () => {
+    const fixture = await setup({
+      score: 52,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+    const tag = fixture.nativeElement.querySelector(
+      '.summary__critical',
+    ) as HTMLElement;
+
+    expect(tag.classList.contains('summary__critical--alert')).toBe(true);
+    expect(tag.textContent?.trim()).toBe('Axe critique');
+    expect(textOf(fixture, '.summary__eliminatory-note')).toContain(
+      "rend l'avis défavorable",
+    );
+  });
+
+  it('keeps the eliminatory note off a critical axis above its threshold', async () => {
+    const fixture = await setup({
+      score: 62,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+
+    expect(
+      fixture.nativeElement.querySelector('.summary__eliminatory-note'),
+    ).toBeNull();
+    expect(
+      fixture.nativeElement
+        .querySelector('.summary__critical')
+        .classList.contains('summary__critical--alert'),
+    ).toBe(false);
+  });
+
+  it('paints the threshold bar with the identity gradient of the axis', async () => {
+    const fixture = await setup({
+      score: 72,
+      previousBestScore: null,
+      axis: AxisType.REACTIVITY,
+    });
+    const bar = fixture.nativeElement.querySelector(
+      'ui-threshold-bar',
+    ) as HTMLElement;
+
+    expect(bar.style.getPropertyValue('--threshold-bar-fill-from')).toBe(
+      'var(--axis-reactivity-text)',
+    );
+    expect(bar.style.getPropertyValue('--threshold-bar-fill-to')).toBe(
+      'var(--axis-reactivity)',
+    );
   });
 
   it('hides the best line and the delta when the record is not visible', async () => {

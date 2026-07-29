@@ -1,6 +1,21 @@
 <article class="summary">
-  <span class="t-label summary__label">Résultat d'axe</span>
-  <p class="summary__subtitle">{{ subtitle() }}</p>
+  <div class="summary__head">
+    <div class="summary__head-line">
+      <span class="t-label">Résultat d'axe</span>
+      @if (isCritical()) {
+        <span
+          class="summary__critical"
+          [class.summary__critical--alert]="isUnderEliminatory()"
+        >
+          @if (isUnderEliminatory()) {
+            <ui-icon [img]="alertIcon" [size]="13" />
+          }
+          Axe critique
+        </span>
+      }
+    </div>
+    <p class="summary__subtitle">{{ subtitle() }}</p>
+  </div>
   <ui-axis-label class="summary__chip" [axis]="axis()" />
   <div class="summary__score">
     <span class="summary__score-value t-mono">{{ score() }}</span>
@@ -20,5 +35,40 @@
     Meilleur score sur cet axe :
     <strong class="t-mono">{{ bestScore() }}</strong>{{ bestSuffix() }}
   </p>
+  }
+  @if (threshold(); as t) {
+  <div class="summary__bar-block">
+    <ui-threshold-bar
+      [value]="score()"
+      [threshold]="t.value"
+      [style.--threshold-bar-fill-from]="fillFrom()"
+      [style.--threshold-bar-fill-to]="fillTo()"
+    />
+    <div class="summary__bar-captions">
+      <span class="summary__bar-threshold">
+        <span class="summary__bar-threshold-label--desktop"
+          >{{ t.desktopLabel }}&nbsp;:&nbsp;</span
+        >
+        <span class="summary__bar-threshold-label--mobile"
+          >{{ t.mobileLabel }}&nbsp;:&nbsp;</span
+        >
+        <span class="summary__bar-threshold-value t-mono">{{ t.value }}</span>
+      </span>
+      @if (gap(); as g) {
+      <span
+        class="summary__gap t-mono"
+        [class.summary__gap--above]="g.above"
+        [class.summary__gap--below]="!g.above"
+        >{{ g.label }}</span
+      >
+      }
+    </div>
+    @if (isUnderEliminatory()) {
+    <p class="summary__eliminatory-note">
+      En simulation, un axe critique sous son seuil éliminatoire rend l'avis
+      défavorable quel que soit le score global.
+    </p>
+    }
+  </div>
   }
 </article>
