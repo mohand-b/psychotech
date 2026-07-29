@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { resolveScoreRating } from '../score-rating';
+import { resolveVerdictAppearance } from '../verdict-appearance';
 
 @Component({
   selector: 'ui-score-pill',
@@ -17,7 +17,9 @@ import { resolveScoreRating } from '../score-rating';
       ></span>
       <div class="ui-score-pill__text">
         <span class="ui-score-pill__label">{{ presentation().label }}</span>
-        <span class="ui-score-pill__range">{{ presentation().range }}</span>
+        <span class="ui-score-pill__range">{{
+          presentation().rangeLabel
+        }}</span>
       </div>
     </div>
   `,
@@ -60,6 +62,6 @@ export class ScorePill {
   readonly score = input.required<number>();
 
   protected readonly presentation = computed(() =>
-    resolveScoreRating(this.score()),
+    resolveVerdictAppearance(this.score()),
   );
 }

@@ -7,26 +7,12 @@ import {
 import {
   AXIS_STAMP_WORD_LABELS,
   AxisStamp,
-  AxisStampWord,
   SIMULATION_STAMP_QUALIFIER_LABELS,
   SimulationStamp,
   SimulationVerdict,
 } from '@psychotech/shared';
 import { SIMULATION_VERDICT_PRESENTATION } from '../simulation-verdict-presentation';
-
-const VERDICT_INK_VARS: Record<SimulationVerdict, string> = {
-  [SimulationVerdict.FAVORABLE]: 'var(--rating-good-ink)',
-  [SimulationVerdict.UNFAVORABLE]: 'var(--rating-bad-ink)',
-};
-
-const AXIS_WORD_INK_VARS: Record<AxisStampWord, string> = {
-  [AxisStampWord.EXCELLENT]: 'var(--rating-good-ink)',
-  [AxisStampWord.SOLID]: 'var(--rating-good-ink)',
-  [AxisStampWord.GOOD]: 'var(--rating-ok-ink)',
-  [AxisStampWord.FRAGILE]: 'var(--rating-weak-ink)',
-  [AxisStampWord.WEAK]: 'var(--rating-bad-ink)',
-  [AxisStampWord.ELIMINATORY]: 'var(--rating-bad-ink)',
-};
+import { verdictWordInkVar } from '../verdict-appearance';
 
 @Component({
   selector: 'ui-stamp-badge',
@@ -124,7 +110,7 @@ export class StampBadge {
 
   protected readonly simulationInk = computed(() => {
     const stamp = this.simulationStamp();
-    return stamp ? VERDICT_INK_VARS[stamp.verdict] : '';
+    return stamp ? SIMULATION_VERDICT_PRESENTATION[stamp.verdict].inkVar : '';
   });
 
   protected readonly wordLabel = computed(() => {
@@ -134,6 +120,6 @@ export class StampBadge {
 
   protected readonly axisInk = computed(() => {
     const stamp = this.axisStamp();
-    return stamp ? AXIS_WORD_INK_VARS[stamp.word] : '';
+    return stamp ? verdictWordInkVar(stamp.word) : '';
   });
 }

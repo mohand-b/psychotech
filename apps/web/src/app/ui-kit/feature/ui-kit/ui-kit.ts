@@ -71,7 +71,7 @@ export class UiKit {
     },
   );
 
-  protected readonly scores: readonly number[] = [92, 74, 64, 48];
+  protected readonly scores: readonly number[] = [97, 92, 74, 64, 48];
 
   protected readonly playIcon = Play;
   protected readonly checkIcon = Check;
@@ -114,10 +114,10 @@ export class UiKit {
     {
       title: "Pastilles d'avis",
       swatches: [
-        { label: 'Très bon', token: '--rating-good' },
-        { label: 'Acceptable', token: '--rating-ok' },
+        { label: 'Solide', token: '--rating-good' },
+        { label: 'Bon', token: '--rating-ok' },
         { label: 'Fragile', token: '--rating-weak' },
-        { label: 'Insuffisant', token: '--rating-bad' },
+        { label: 'Faible', token: '--rating-bad' },
       ],
     },
   ];

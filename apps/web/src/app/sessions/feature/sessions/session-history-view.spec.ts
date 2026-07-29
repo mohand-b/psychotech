@@ -111,7 +111,7 @@ describe('formatSessionScore', () => {
 });
 
 describe('buildSessionRowView', () => {
-  it('colors a simulation row with the binary verdict and keeps the band for targeted rows', () => {
+  it('colors a simulation row with the binary verdict and a targeted row with its score band', () => {
     const favorable = buildSessionRowView(
       item({
         mode: SessionMode.FULL,
@@ -134,11 +134,20 @@ describe('buildSessionRowView', () => {
       }),
       NOW,
     );
-    const targeted = buildSessionRowView(item({}), NOW);
+    const targeted = buildSessionRowView(item({ score: 88 }), NOW);
 
-    expect(favorable.dotVar).toBe('var(--success)');
-    expect(unfavorable.dotVar).toBe('var(--danger)');
+    expect(favorable.dotVar).toBe('var(--rating-good)');
+    expect(unfavorable.dotVar).toBe('var(--rating-bad)');
     expect(targeted.dotVar).toBe('var(--rating-good)');
+  });
+
+  it('ignores the stored band and colors a targeted row from its score', () => {
+    const row = buildSessionRowView(
+      item({ score: 82, band: ScoreBand.EXCELLENT, verdict: null }),
+      NOW,
+    );
+
+    expect(row.dotVar).toBe('var(--rating-ok)');
   });
 });
 

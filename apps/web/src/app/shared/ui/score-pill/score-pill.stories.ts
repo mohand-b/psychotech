@@ -16,7 +16,8 @@ export default meta;
 
 type Story = StoryObj<ScorePill>;
 
-export const Excellent: Story = { args: { score: 92 } };
-export const Acceptable: Story = { args: { score: 74 } };
+export const Excellent: Story = { args: { score: 97 } };
+export const Solid: Story = { args: { score: 92 } };
+export const Good: Story = { args: { score: 74 } };
 export const Fragile: Story = { args: { score: 64 } };
-export const Insufficient: Story = { args: { score: 48 } };
+export const Weak: Story = { args: { score: 48 } };

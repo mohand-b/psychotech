@@ -4,8 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { ScoreBand } from '@psychotech/shared';
-import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
+import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 
 @Component({
   selector: 'ui-threshold-gauge',
@@ -47,12 +46,19 @@ import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 })
 export class ThresholdGauge {
   readonly score = input.required<number>();
-  readonly band = input.required<ScoreBand>();
   readonly eliminatoryThreshold = input<number | null>(null);
 
   protected readonly clampedScore = computed(() =>
     Math.min(100, Math.max(0, this.score())),
   );
 
-  protected readonly fillVar = computed(() => BAND_COLOR_VARS[this.band()]);
+  protected readonly fillVar = computed(() => {
+    const eliminatory = this.eliminatoryThreshold();
+    return resolveVerdictAppearance(
+      this.score(),
+      eliminatory === null
+        ? null
+        : { isCritical: true, eliminatoryThreshold: eliminatory },
+    ).colorVar;
+  });
 }

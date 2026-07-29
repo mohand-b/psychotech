@@ -1,4 +1,9 @@
 import { SimulationVerdict } from './simulation-verdict';
+import {
+  AxisEliminatoryRule,
+  AxisStampWord,
+  resolveVerdictBand,
+} from './verdict-band';
 
 export enum SimulationStampQualifier {
   EXCELLENT = 'EXCELLENT',
@@ -8,15 +13,6 @@ export enum SimulationStampQualifier {
   ELIMINATORY = 'ELIMINATORY',
   BORDERLINE = 'BORDERLINE',
   INSUFFICIENT = 'INSUFFICIENT',
-}
-
-export enum AxisStampWord {
-  EXCELLENT = 'EXCELLENT',
-  SOLID = 'SOLID',
-  GOOD = 'GOOD',
-  FRAGILE = 'FRAGILE',
-  WEAK = 'WEAK',
-  ELIMINATORY = 'ELIMINATORY',
 }
 
 export const SIMULATION_STAMP_QUALIFIER_LABELS: Record<
@@ -32,24 +28,10 @@ export const SIMULATION_STAMP_QUALIFIER_LABELS: Record<
   [SimulationStampQualifier.INSUFFICIENT]: 'Insuffisant',
 };
 
-export const AXIS_STAMP_WORD_LABELS: Record<AxisStampWord, string> = {
-  [AxisStampWord.EXCELLENT]: 'Excellent',
-  [AxisStampWord.SOLID]: 'Solide',
-  [AxisStampWord.GOOD]: 'Bon',
-  [AxisStampWord.FRAGILE]: 'Fragile',
-  [AxisStampWord.WEAK]: 'Faible',
-  [AxisStampWord.ELIMINATORY]: 'Éliminatoire',
-};
-
 export const SIMULATION_STAMP_EXCELLENT_MARGIN = 25;
 export const SIMULATION_STAMP_SOLID_MARGIN = 15;
 export const SIMULATION_STAMP_COMFORTABLE_MARGIN = 5;
 export const SIMULATION_STAMP_INSUFFICIENT_GAP = 5;
-
-export const AXIS_STAMP_EXCELLENT_MIN = 95;
-export const AXIS_STAMP_SOLID_MIN = 85;
-export const AXIS_STAMP_GOOD_MIN = 70;
-export const AXIS_STAMP_FRAGILE_MIN = 60;
 
 export interface SimulationStamp {
   verdict: SimulationVerdict;
@@ -61,10 +43,7 @@ export interface AxisStamp {
   isEliminatory: boolean;
 }
 
-export interface AxisStampThresholds {
-  isCritical: boolean;
-  eliminatoryThreshold: number;
-}
+export type AxisStampThresholds = AxisEliminatoryRule;
 
 export function buildSimulationStamp(
   globalScore: number,
@@ -104,20 +83,6 @@ export function buildAxisStamp(
   score: number,
   thresholds: AxisStampThresholds,
 ): AxisStamp {
-  if (thresholds.isCritical && score < thresholds.eliminatoryThreshold) {
-    return { word: AxisStampWord.ELIMINATORY, isEliminatory: true };
-  }
-  if (score >= AXIS_STAMP_EXCELLENT_MIN) {
-    return { word: AxisStampWord.EXCELLENT, isEliminatory: false };
-  }
-  if (score >= AXIS_STAMP_SOLID_MIN) {
-    return { word: AxisStampWord.SOLID, isEliminatory: false };
-  }
-  if (score >= AXIS_STAMP_GOOD_MIN) {
-    return { word: AxisStampWord.GOOD, isEliminatory: false };
-  }
-  if (score >= AXIS_STAMP_FRAGILE_MIN) {
-    return { word: AxisStampWord.FRAGILE, isEliminatory: false };
-  }
-  return { word: AxisStampWord.WEAK, isEliminatory: false };
+  const band = resolveVerdictBand(score, thresholds);
+  return { word: band.word, isEliminatory: band.isEliminatory };
 }

@@ -6,12 +6,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import {
-  AxisType,
-  ScoreBand,
-  Sector,
-  buildAxisStamp,
-} from '@psychotech/shared';
+import { AxisType, Sector, buildAxisStamp } from '@psychotech/shared';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
@@ -31,7 +26,6 @@ export class ResultSummary {
 
   readonly axis = input.required<AxisType>();
   readonly score = input.required<number>();
-  readonly band = input.required<ScoreBand>();
   readonly previousBestScore = input.required<number | null>();
   readonly bestScore = input.required<number>();
   readonly isNewBest = input.required<boolean>();

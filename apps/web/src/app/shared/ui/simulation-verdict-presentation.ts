@@ -1,8 +1,13 @@
 import { SimulationVerdict } from '@psychotech/shared';
+import {
+  simulationVerdictColorVar,
+  simulationVerdictInkVar,
+} from './verdict-appearance';
 
 export interface SimulationVerdictPresentation {
   label: string;
   colorVar: string;
+  inkVar: string;
 }
 
 export const SIMULATION_VERDICT_PRESENTATION: Record<
@@ -11,10 +16,12 @@ export const SIMULATION_VERDICT_PRESENTATION: Record<
 > = {
   [SimulationVerdict.FAVORABLE]: {
     label: 'Favorable',
-    colorVar: 'var(--success)',
+    colorVar: simulationVerdictColorVar(SimulationVerdict.FAVORABLE),
+    inkVar: simulationVerdictInkVar(SimulationVerdict.FAVORABLE),
   },
   [SimulationVerdict.UNFAVORABLE]: {
     label: 'Défavorable',
-    colorVar: 'var(--danger)',
+    colorVar: simulationVerdictColorVar(SimulationVerdict.UNFAVORABLE),
+    inkVar: simulationVerdictInkVar(SimulationVerdict.UNFAVORABLE),
   },
 };

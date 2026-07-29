@@ -1,11 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  AxisType,
-  ScoreBand,
-  Sector,
-  SectorReferentialDto,
-} from '@psychotech/shared';
+import { AxisType, Sector, SectorReferentialDto } from '@psychotech/shared';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { ResultSummary } from './result-summary';
 
@@ -57,7 +52,6 @@ async function setup(inputs: {
   const fixture = TestBed.createComponent(ResultSummary);
   fixture.componentRef.setInput('axis', inputs.axis ?? AxisType.LOGIC);
   fixture.componentRef.setInput('score', inputs.score);
-  fixture.componentRef.setInput('band', ScoreBand.ACCEPTABLE);
   fixture.componentRef.setInput('previousBestScore', inputs.previousBestScore);
   fixture.componentRef.setInput(
     'bestScore',

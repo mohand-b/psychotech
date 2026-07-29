@@ -1,6 +1,6 @@
 import { SimulationVerdict } from './simulation-verdict';
+import { AxisStampWord } from './verdict-band';
 import {
-  AxisStampWord,
   SimulationStampQualifier,
   buildAxisStamp,
   buildSimulationStamp,

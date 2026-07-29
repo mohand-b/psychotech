@@ -10,4 +10,5 @@ export * from './simulation-appreciation';
 export * from './simulation-summary';
 export * from './simulation-verdict';
 export * from './training-options';
+export * from './verdict-band';
 export * from './verdict-stamp';

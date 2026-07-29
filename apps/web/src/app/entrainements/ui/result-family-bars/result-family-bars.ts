@@ -10,7 +10,7 @@ import {
   LogicFamilyResultMarker,
 } from '@psychotech/shared';
 import { formatDuration } from '../../../shared/ui/format-duration';
-import { resolveScoreRating } from '../../../shared/ui/score-rating';
+import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 
 const MARKER_LABELS: Record<LogicFamilyResultMarker, string> = {
   STRENGTH: 'Votre force',
@@ -45,7 +45,7 @@ export class ResultFamilyBars {
       correct: family.correct,
       total: family.total,
       ratePct: family.ratePct,
-      rateColorVar: resolveScoreRating(family.ratePct).colorVar,
+      rateColorVar: resolveVerdictAppearance(family.ratePct).colorVar,
       time: formatDuration(Math.round(family.timeMs / 1000)),
     })),
   );

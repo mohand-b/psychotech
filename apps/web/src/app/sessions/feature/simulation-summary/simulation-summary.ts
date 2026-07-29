@@ -8,6 +8,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
+  SimulationAxisSummaryDto,
   SimulationSummaryDto,
   SimulationThresholdKind,
   SimulationWeaknessDto,
@@ -21,8 +22,8 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -58,7 +59,6 @@ export class SimulationSummary {
 
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;
-  protected readonly bandColorVars = BAND_COLOR_VARS;
   protected readonly presentations = AXIS_PRESENTATION;
 
   protected readonly summary = signal<SimulationSummaryDto | null>(null);
@@ -139,6 +139,18 @@ export class SimulationSummary {
 
   protected isUnderEliminatory(axis: AxisType): boolean {
     return this.summary()?.eliminatoryAxes.includes(axis) ?? false;
+  }
+
+  protected axisDotVar(axis: SimulationAxisSummaryDto): string {
+    return resolveVerdictAppearance(
+      axis.score,
+      axis.eliminatoryThreshold === null
+        ? null
+        : {
+            isCritical: true,
+            eliminatoryThreshold: axis.eliminatoryThreshold,
+          },
+    ).colorVar;
   }
 
   protected weaknessMention(weakness: SimulationWeaknessDto): string {

@@ -80,12 +80,11 @@
                   <ui-threshold-gauge
                     class="bilan__axis-gauge bilan__axis-gauge--desktop"
                     [score]="axis.score"
-                    [band]="axis.band"
                     [eliminatoryThreshold]="axis.eliminatoryThreshold"
                   />
                   <span
                     class="bilan__axis-dot"
-                    [style.background]="bandColorVars[axis.band]"
+                    [style.background]="axisDotVar(axis)"
                   ></span>
                   <span
                     class="bilan__axis-score t-mono"
@@ -115,7 +114,6 @@
                 <ui-threshold-gauge
                   class="bilan__axis-gauge bilan__axis-gauge--mobile"
                   [score]="axis.score"
-                  [band]="axis.band"
                   [eliminatoryThreshold]="axis.eliminatoryThreshold"
                 />
               </button>

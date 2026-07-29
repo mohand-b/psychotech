@@ -6,9 +6,9 @@ import {
   SessionStatus,
 } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { BAND_COLOR_VARS } from '../../../shared/ui/score-rating';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import {
   DAY_MS,
@@ -134,9 +134,9 @@ export function buildSessionRowView(
     scoreLabel: formatSessionScore(item),
     dotVar: item.verdict
       ? SIMULATION_VERDICT_PRESENTATION[item.verdict].colorVar
-      : item.band
-        ? BAND_COLOR_VARS[item.band]
-        : null,
+      : item.score === null
+        ? null
+        : resolveVerdictAppearance(item.score).colorVar,
     abandoned,
     detailLink,
   };
