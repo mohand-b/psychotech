@@ -1293,14 +1293,20 @@ describe('SessionsService.results', () => {
 });
 
 describe('SessionsService.list', () => {
-  it('rejects combined mode and axis filters', async () => {
-    await expect(
-      service.list('user-1', {
-        mode: SessionMode.TARGETED,
-        axis: AxisType.LOGIC,
-      }),
-    ).rejects.toBeInstanceOf(BadRequestException);
-    expect(repository.listHistory).not.toHaveBeenCalled();
+  it('scopes an axis filter to targeted sessions when both filters are given', async () => {
+    repository.listHistory.mockResolvedValue([]);
+
+    await service.list('user-1', {
+      mode: SessionMode.TARGETED,
+      axis: AxisType.LOGIC,
+    });
+
+    expect(repository.listHistory).toHaveBeenCalledWith('user-1', {
+      mode: SessionMode.TARGETED,
+      axis: AxisType.LOGIC,
+      cursor: undefined,
+      take: 11,
+    });
   });
 
   it('returns a next cursor only when an extra row exists beyond the page', async () => {

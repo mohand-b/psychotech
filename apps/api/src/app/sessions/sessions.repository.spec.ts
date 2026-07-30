@@ -170,6 +170,28 @@ describe('SessionsRepository.listHistory', () => {
     );
   });
 
+  it('narrows an axis filter to targeted sessions when a mode is given too', async () => {
+    const { prisma } = buildPrismaMock([]);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    await repository.listHistory('user-1', {
+      mode: SessionMode.TARGETED,
+      axis: AxisType.LOGIC,
+      take: 11,
+    });
+
+    expect(prisma.session.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          mode: 'TARGETED',
+          axisResults: { some: { axis: 'LOGIC' } },
+        }),
+      }),
+    );
+  });
+
   it('paginates with a cursor that skips the cursor row itself', async () => {
     const { prisma } = buildPrismaMock([]);
     const repository = new SessionsRepository(

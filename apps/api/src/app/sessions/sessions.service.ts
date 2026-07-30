@@ -671,11 +671,6 @@ export class SessionsService {
     userId: string,
     query: ListSessionsQuery,
   ): Promise<SessionHistoryPageDto> {
-    if (query.mode && query.axis) {
-      throw new BadRequestException(
-        'The mode and axis filters are mutually exclusive',
-      );
-    }
     const rows = await this.repository.listHistory(userId, {
       mode: query.mode,
       axis: query.axis,
