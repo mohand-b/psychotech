@@ -1,7 +1,9 @@
 import {
   AXIS_STAMP_MAX,
   AxisStampWord,
+  VERDICT_GOOD_MIN,
   VERDICT_SCALE,
+  VERDICT_WEAK_MIN,
   VERDICT_WORD_PRESENTATION,
   VerdictTone,
   resolveVerdictBand,
@@ -17,8 +19,8 @@ describe('resolveVerdictBand bounds', () => {
     [95, AxisStampWord.EXCELLENT, VerdictTone.GOOD],
     [94.9, AxisStampWord.SOLID, VerdictTone.GOOD],
     [85, AxisStampWord.SOLID, VerdictTone.GOOD],
-    [84.9, AxisStampWord.GOOD, VerdictTone.OK],
-    [70, AxisStampWord.GOOD, VerdictTone.OK],
+    [84.9, AxisStampWord.GOOD, VerdictTone.GOOD],
+    [70, AxisStampWord.GOOD, VerdictTone.GOOD],
     [69.9, AxisStampWord.FRAGILE, VerdictTone.WEAK],
     [60, AxisStampWord.FRAGILE, VerdictTone.WEAK],
     [59.9, AxisStampWord.WEAK, VerdictTone.BAD],
@@ -87,6 +89,53 @@ describe('verdict scale integrity', () => {
       const presentation = VERDICT_WORD_PRESENTATION[word];
       expect(presentation.label.length).toBeGreaterThan(0);
       expect(Object.values(VerdictTone)).toContain(presentation.tone);
+    }
+  });
+
+  it('splits the whole range across exactly three semantic tones', () => {
+    const tones = new Set(
+      Object.values(VERDICT_WORD_PRESENTATION).map(
+        (presentation) => presentation.tone,
+      ),
+    );
+
+    expect(tones).toEqual(
+      new Set([VerdictTone.GOOD, VerdictTone.WEAK, VerdictTone.BAD]),
+    );
+    expect(Object.values(VerdictTone)).toHaveLength(3);
+  });
+
+  it.each([
+    [100, VerdictTone.GOOD],
+    [85, VerdictTone.GOOD],
+    [84.9, VerdictTone.GOOD],
+    [VERDICT_GOOD_MIN, VerdictTone.GOOD],
+    [69.9, VerdictTone.WEAK],
+    [VERDICT_WEAK_MIN, VerdictTone.WEAK],
+    [59.9, VerdictTone.BAD],
+    [0, VerdictTone.BAD],
+  ])('tones score %s as %s', (score, tone) => {
+    expect(resolveVerdictTone(score)).toBe(tone);
+  });
+
+  it('never tones a positive word as an alert', () => {
+    const positiveWords = [
+      AxisStampWord.EXCELLENT,
+      AxisStampWord.SOLID,
+      AxisStampWord.GOOD,
+    ];
+
+    for (const word of positiveWords) {
+      expect([word, VERDICT_WORD_PRESENTATION[word].tone]).toEqual([
+        word,
+        VerdictTone.GOOD,
+      ]);
+    }
+  });
+
+  it('tones an eliminated critical axis as bad whatever its score', () => {
+    for (const score of [0, 40, 54.9]) {
+      expect(resolveVerdictTone(score, CRITICAL)).toBe(VerdictTone.BAD);
     }
   });
 

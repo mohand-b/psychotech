@@ -257,11 +257,11 @@
 }
 
 .bilan__side-label--strong {
-  color: var(--axis-discrimination-text);
+  color: var(--rating-good-ink);
 }
 
 .bilan__side-label--weak {
-  color: var(--danger-text);
+  color: var(--rating-bad-ink);
 }
 
 .bilan__side-row {

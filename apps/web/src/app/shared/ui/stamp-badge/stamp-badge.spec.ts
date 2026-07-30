@@ -76,7 +76,7 @@ describe('StampBadge', () => {
   it.each([
     [AxisStampWord.EXCELLENT, 'Excellent', 'var(--rating-good-ink)'],
     [AxisStampWord.SOLID, 'Solide', 'var(--rating-good-ink)'],
-    [AxisStampWord.GOOD, 'Bon', 'var(--rating-ok-ink)'],
+    [AxisStampWord.GOOD, 'Bon', 'var(--rating-good-ink)'],
     [AxisStampWord.FRAGILE, 'Fragile', 'var(--rating-weak-ink)'],
     [AxisStampWord.WEAK, 'Faible', 'var(--rating-bad-ink)'],
   ])(

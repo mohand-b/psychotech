@@ -114,8 +114,7 @@ export class UiKit {
     {
       title: "Pastilles d'avis",
       swatches: [
-        { label: 'Solide', token: '--rating-good' },
-        { label: 'Bon', token: '--rating-ok' },
+        { label: 'Solide / Bon', token: '--rating-good' },
         { label: 'Fragile', token: '--rating-weak' },
         { label: 'Faible', token: '--rating-bad' },
       ],

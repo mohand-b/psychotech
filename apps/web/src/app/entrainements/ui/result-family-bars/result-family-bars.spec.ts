@@ -90,7 +90,7 @@ describe('ResultFamilyBars', () => {
       ) as NodeListOf<HTMLElement>,
     ).map((element) => element.getAttribute('style') ?? '');
     expect(fills[0]).toContain('var(--rating-good)');
-    expect(fills[1]).toContain('var(--rating-ok)');
+    expect(fills[1]).toContain('var(--rating-good)');
     expect(fills[2]).toContain('var(--rating-weak)');
     expect(fills[3]).toContain('var(--rating-bad)');
     expect(fills[0]).toContain('width: 85%');

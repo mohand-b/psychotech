@@ -10,14 +10,12 @@ import {
 
 export const VERDICT_TONE_COLOR_VARS: Record<VerdictTone, string> = {
   [VerdictTone.GOOD]: 'var(--rating-good)',
-  [VerdictTone.OK]: 'var(--rating-ok)',
   [VerdictTone.WEAK]: 'var(--rating-weak)',
   [VerdictTone.BAD]: 'var(--rating-bad)',
 };
 
 export const VERDICT_TONE_INK_VARS: Record<VerdictTone, string> = {
   [VerdictTone.GOOD]: 'var(--rating-good-ink)',
-  [VerdictTone.OK]: 'var(--rating-ok-ink)',
   [VerdictTone.WEAK]: 'var(--rating-weak-ink)',
   [VerdictTone.BAD]: 'var(--rating-bad-ink)',
 };

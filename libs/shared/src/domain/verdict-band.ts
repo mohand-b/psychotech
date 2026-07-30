@@ -1,6 +1,5 @@
 export enum VerdictTone {
   GOOD = 'GOOD',
-  OK = 'OK',
   WEAK = 'WEAK',
   BAD = 'BAD',
 }
@@ -21,6 +20,9 @@ export const AXIS_STAMP_FRAGILE_MIN = 60;
 export const AXIS_STAMP_WEAK_MIN = 0;
 export const AXIS_STAMP_MAX = 100;
 
+export const VERDICT_GOOD_MIN = AXIS_STAMP_GOOD_MIN;
+export const VERDICT_WEAK_MIN = AXIS_STAMP_FRAGILE_MIN;
+
 export interface VerdictWordPresentation {
   label: string;
   tone: VerdictTone;
@@ -32,7 +34,7 @@ export const VERDICT_WORD_PRESENTATION: Record<
 > = {
   [AxisStampWord.EXCELLENT]: { label: 'Excellent', tone: VerdictTone.GOOD },
   [AxisStampWord.SOLID]: { label: 'Solide', tone: VerdictTone.GOOD },
-  [AxisStampWord.GOOD]: { label: 'Bon', tone: VerdictTone.OK },
+  [AxisStampWord.GOOD]: { label: 'Bon', tone: VerdictTone.GOOD },
   [AxisStampWord.FRAGILE]: { label: 'Fragile', tone: VerdictTone.WEAK },
   [AxisStampWord.WEAK]: { label: 'Faible', tone: VerdictTone.BAD },
   [AxisStampWord.ELIMINATORY]: {

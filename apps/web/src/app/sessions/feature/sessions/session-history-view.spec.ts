@@ -147,7 +147,7 @@ describe('buildSessionRowView', () => {
       NOW,
     );
 
-    expect(row.dotVar).toBe('var(--rating-ok)');
+    expect(row.dotVar).toBe('var(--rating-good)');
   });
 });
 
