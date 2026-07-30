@@ -25,6 +25,7 @@ export interface EvolutionInput {
   completedAt: Date;
   globalScore: number;
   band: ScoreBand;
+  isEliminated: boolean;
 }
 
 export interface RadarAxisScore {
@@ -38,6 +39,7 @@ export function buildEvolutionCurve(points: EvolutionInput[]): EvolutionPointDto
     date: point.completedAt.toISOString(),
     globalScore: point.globalScore,
     band: point.band,
+    isEliminated: point.isEliminated,
   }));
 }
 

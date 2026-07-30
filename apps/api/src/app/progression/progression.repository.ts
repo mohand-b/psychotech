@@ -89,7 +89,13 @@ export class ProgressionRepository {
       },
       orderBy: { completedAt: 'desc' },
       take: limit,
-      select: { id: true, globalScore: true, globalBand: true, completedAt: true },
+      select: {
+        id: true,
+        globalScore: true,
+        globalBand: true,
+        completedAt: true,
+        isEliminated: true,
+      },
     });
     const points: EvolutionInput[] = [];
     for (const row of rows) {
@@ -101,6 +107,7 @@ export class ProgressionRepository {
         completedAt: row.completedAt,
         globalScore: row.globalScore,
         band: mapEnumValue(ScoreBand, row.globalBand),
+        isEliminated: row.isEliminated ?? false,
       });
     }
     return points.reverse();
