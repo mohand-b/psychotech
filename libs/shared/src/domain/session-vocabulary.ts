@@ -6,6 +6,10 @@ export const FULL_SESSION_LABEL_PLURAL = 'Examens blancs';
 export const FULL_SESSION_LABEL_PLURAL_LOWER = 'examens blancs';
 export const FULL_SESSION_REPORT_LABEL = "Bilan d'examen blanc";
 
+export const ELIMINATORY_AXIS_VERDICT_NOTE =
+  `En ${FULL_SESSION_LABEL_LOWER}, un axe critique sous son seuil éliminatoire ` +
+  `rend l'avis défavorable quel que soit le score global.`;
+
 export const DISCOVERY_SESSION_LABEL = 'Mode découverte';
 export const DISCOVERY_SESSION_LABEL_LOWER = 'mode découverte';
 
