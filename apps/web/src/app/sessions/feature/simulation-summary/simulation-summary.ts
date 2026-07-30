@@ -77,7 +77,7 @@ export class SimulationSummary {
   protected readonly reportLabel = FULL_SESSION_REPORT_LABEL;
   protected readonly eliminatoryNote = ELIMINATORY_AXIS_VERDICT_NOTE;
 
-  protected readonly summary = signal<SimulationSummaryDto | null>(null);
+  protected readonly summary = this.facade.summary;
   protected readonly openAxis = signal<AxisType | null>(null);
   protected readonly loadingAxis = signal<AxisType | null>(null);
   protected readonly details = signal<
@@ -86,7 +86,6 @@ export class SimulationSummary {
 
   constructor() {
     this.facade.loadSummary(this.sessionId).subscribe({
-      next: (summary) => this.summary.set(summary),
       error: () => this.router.navigate(['/sessions']),
     });
     effect(() => {

@@ -16,7 +16,7 @@ import {
 import { of, throwError } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CoreFacade } from '../../../core/data-access/core.facade';
-import { StripePaymentService } from '../../data-access/stripe-payment.service';
+import { StripePaymentService } from '../stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { Payment } from './payment';
 

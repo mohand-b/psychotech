@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, Signal, inject, signal } from '@angular/core';
 import {
   AxisType,
   SimulationSummaryDto,
@@ -11,17 +11,20 @@ import { SessionsApi } from './sessions.api';
 export class SimulationSummaryFacade {
   private readonly api = inject(SessionsApi);
 
-  private readonly summaryCache = signal<SimulationSummaryDto | null>(null);
+  private readonly summarySignal = signal<SimulationSummaryDto | null>(null);
   private readonly axisDetailCache = new Map<string, TargetedAxisResultDto>();
 
+  readonly summary: Signal<SimulationSummaryDto | null> =
+    this.summarySignal.asReadonly();
+
   loadSummary(sessionId: string): Observable<SimulationSummaryDto> {
-    const cached = this.summaryCache();
+    const cached = this.summarySignal();
     if (cached?.sessionId === sessionId) {
       return of(cached);
     }
     return this.api
       .simulationSummary(sessionId)
-      .pipe(tap((summary) => this.summaryCache.set(summary)));
+      .pipe(tap((summary) => this.summarySignal.set(summary)));
   }
 
   loadAxisDetail(

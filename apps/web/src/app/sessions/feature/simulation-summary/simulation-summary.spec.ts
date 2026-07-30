@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -202,8 +203,13 @@ async function setup(
   summary: SimulationSummaryDto,
   detail: TargetedLogicResultDto = LOGIC_DETAIL,
 ) {
+  const summarySignal = signal<SimulationSummaryDto | null>(null);
   const facade = {
-    loadSummary: vi.fn().mockReturnValue(of(summary)),
+    summary: summarySignal.asReadonly(),
+    loadSummary: vi.fn().mockImplementation(() => {
+      summarySignal.set(summary);
+      return of(summary);
+    }),
     loadAxisDetail: vi.fn().mockReturnValue(of(detail)),
   };
   await TestBed.configureTestingModule({

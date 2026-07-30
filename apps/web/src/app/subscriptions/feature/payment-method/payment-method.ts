@@ -21,7 +21,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
-import { StripePaymentService } from '../../data-access/stripe-payment.service';
+import { StripePaymentService } from '../stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 
 const CARD_UPDATE_FAILED_MESSAGE =

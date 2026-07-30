@@ -40,7 +40,7 @@ import {
   SUBSCRIPTION_MONTHLY_PRICE_EUR,
   formatEuroAmount,
 } from '../../../shared/util/subscription-prices';
-import { StripePaymentService } from '../../data-access/stripe-payment.service';
+import { StripePaymentService } from '../stripe-payment.service';
 import { SubscriptionsFacade } from '../../data-access/subscriptions.facade';
 import { PLAN_SLUGS, planFromSlug } from '../../plan-slug';
 import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
