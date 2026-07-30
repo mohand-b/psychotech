@@ -11,19 +11,20 @@ import {
   AxisType,
   SectorReferentialDto,
   Sector,
+  TARGETED_SESSION_LABEL,
   buildAxisStamp,
 } from '@psychotech/shared';
 import { TriangleAlert } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
-import { formatDayTime } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ScoreReveal } from '../../../shared/ui/score-reveal/score-reveal';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatSessionDate } from '../../../shared/util/format-session-date';
 
 export interface AxisThresholdView {
   value: number;
@@ -75,7 +76,10 @@ export class ResultSummary {
 
   protected readonly subtitle = computed(() => {
     const sector = SECTOR_PRESENTATION[this.sector()].label;
-    return `Entraînement ciblé · ${sector} · ${formatDayTime(this.completedAt())}`;
+    return `${TARGETED_SESSION_LABEL} · ${sector} · ${formatSessionDate(
+      this.completedAt(),
+      new Date(),
+    )}`;
   });
 
   protected readonly delta = computed(() => {
