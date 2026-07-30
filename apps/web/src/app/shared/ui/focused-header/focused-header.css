@@ -193,6 +193,11 @@
     display: none;
   }
 
+  .focused-header__inner:has(.focused-header__steps)
+    .focused-header__timer {
+    display: none;
+  }
+
   .focused-header__stepper--full {
     display: none;
   }
