@@ -70,6 +70,19 @@
   filter: brightness(0.96);
 }
 
+.sessions__filter:disabled {
+  background: var(--surface-muted);
+  border-color: var(--border);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sessions__filter:disabled:hover {
+  border-color: var(--border);
+  color: var(--text-disabled);
+}
+
 .sessions__filter-short {
   display: none;
 }

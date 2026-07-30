@@ -6,20 +6,59 @@ export type SessionHistoryFilter =
   | SessionMode.TARGETED
   | AxisType;
 
+export interface SessionHistorySelection {
+  mode: SessionMode | null;
+  axis: AxisType | null;
+}
+
 export interface SessionHistoryQuery {
   mode?: SessionMode;
   axis?: AxisType;
   cursor?: string;
 }
 
+function isModeFilter(
+  filter: SessionHistoryFilter,
+): filter is SessionMode.FULL | SessionMode.TARGETED {
+  return filter === SessionMode.FULL || filter === SessionMode.TARGETED;
+}
+
+export function selectionFor(
+  filter: SessionHistoryFilter,
+): SessionHistorySelection {
+  if (filter === 'ALL') {
+    return { mode: null, axis: null };
+  }
+  if (isModeFilter(filter)) {
+    return { mode: filter, axis: null };
+  }
+  return { mode: SessionMode.TARGETED, axis: filter };
+}
+
 export function historyQueryFor(
   filter: SessionHistoryFilter,
 ): SessionHistoryQuery {
-  if (filter === 'ALL') {
-    return {};
+  const selection = selectionFor(filter);
+  return {
+    ...(selection.mode ? { mode: selection.mode } : {}),
+    ...(selection.axis ? { axis: selection.axis } : {}),
+  };
+}
+
+export function isChipActive(
+  filter: SessionHistoryFilter,
+  chip: SessionHistoryFilter,
+): boolean {
+  const selection = selectionFor(filter);
+  if (chip === 'ALL') {
+    return selection.mode === null;
   }
-  if (filter === SessionMode.FULL || filter === SessionMode.TARGETED) {
-    return { mode: filter };
+  if (isModeFilter(chip)) {
+    return selection.mode === chip;
   }
-  return { axis: filter };
+  return selection.axis === chip;
+}
+
+export function areAxisChipsEnabled(filter: SessionHistoryFilter): boolean {
+  return selectionFor(filter).mode !== SessionMode.FULL;
 }

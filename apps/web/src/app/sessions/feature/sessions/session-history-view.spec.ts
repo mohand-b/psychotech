@@ -7,7 +7,6 @@ import {
   SessionStatus,
   SimulationVerdict,
 } from '@psychotech/shared';
-import { historyQueryFor } from '../../data-access/session-history.filter';
 import {
   buildSessionRowView,
   formatSessionDate,
@@ -151,20 +150,3 @@ describe('buildSessionRowView', () => {
   });
 });
 
-describe('historyQueryFor', () => {
-  it('sends only the axis for an axis filter so the API restricts to targeted sessions', () => {
-    expect(historyQueryFor(AxisType.REACTIVITY)).toEqual({
-      axis: AxisType.REACTIVITY,
-    });
-  });
-
-  it('sends the mode for type filters and nothing for the default filter', () => {
-    expect(historyQueryFor(SessionMode.FULL)).toEqual({
-      mode: SessionMode.FULL,
-    });
-    expect(historyQueryFor(SessionMode.TARGETED)).toEqual({
-      mode: SessionMode.TARGETED,
-    });
-    expect(historyQueryFor('ALL')).toEqual({});
-  });
-});

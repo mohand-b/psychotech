@@ -13,7 +13,11 @@ import {
 } from '@psychotech/shared';
 import { ChevronDown } from 'lucide-angular';
 import { SessionHistoryFacade } from '../../data-access/session-history.facade';
-import { SessionHistoryFilter } from '../../data-access/session-history.filter';
+import {
+  SessionHistoryFilter,
+  areAxisChipsEnabled,
+  isChipActive,
+} from '../../data-access/session-history.filter';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
@@ -120,6 +124,18 @@ export class Sessions {
   constructor() {
     this.facade.load('ALL');
     this.facade.refreshCurrent();
+  }
+
+  protected readonly axisChipsEnabled = computed(() =>
+    areAxisChipsEnabled(this.filter()),
+  );
+
+  protected isActive(chip: SessionHistoryFilter): boolean {
+    return isChipActive(this.filter(), chip);
+  }
+
+  protected isDisabled(chip: FilterChipView): boolean {
+    return chip.axis !== null && !this.axisChipsEnabled();
   }
 
   protected selectFilter(filter: SessionHistoryFilter): void {
