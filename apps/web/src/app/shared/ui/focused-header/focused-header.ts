@@ -6,10 +6,12 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AxisType } from '@psychotech/shared';
+import {
+  AxisType,
+  EnergyStateDto,
+  SubscriptionTier,
+} from '@psychotech/shared';
 import { ArrowLeft, BookOpen, ShieldCheck, Timer, X } from 'lucide-angular';
-import { CoreFacade } from '../../../core/data-access/core.facade';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AxisLabel } from '../axis-label/axis-label';
 import {
   ChevronStep,
@@ -131,10 +133,9 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
   styleUrl: './focused-header.css',
 })
 export class FocusedHeader {
-  private readonly energyFacade = inject(EnergyFacade);
-  private readonly coreFacade = inject(CoreFacade);
-
   readonly title = input.required<string>();
+  readonly energy = input.required<EnergyStateDto | null>();
+  readonly tier = input.required<SubscriptionTier>();
   readonly discoveryTag = input(false);
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();
@@ -155,6 +156,4 @@ export class FocusedHeader {
   protected readonly discoveryIcon = BookOpen;
   protected readonly timerIcon = Timer;
   protected readonly closeIcon = X;
-  protected readonly energy = this.energyFacade.state;
-  protected readonly tier = this.coreFacade.tier;
 }

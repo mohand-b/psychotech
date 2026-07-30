@@ -1,6 +1,8 @@
 <div class="flex min-h-dvh flex-col">
   @if (focusedHeader(); as header) {
   <ui-focused-header
+    [energy]="energy()"
+    [tier]="tier()"
     [title]="header.title"
     [discoveryTag]="header.discoveryTag"
     [backLabel]="header.backLabel"
@@ -31,6 +33,10 @@
   <ui-navbar
     [hideMobile]="mobileFlow() !== null || hideMobileHeader()"
     [hideMobileTabs]="hideMobileNav()"
+    [user]="user()"
+    [energy]="energy()"
+    [tier]="tier()"
+    (logoutRequested)="logout()"
   />
   @if (mobileFlow(); as flow) {
   <header

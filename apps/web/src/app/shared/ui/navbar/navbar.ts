@@ -2,11 +2,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
   input,
+  output,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { SubscriptionTier } from '@psychotech/shared';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  EnergyStateDto,
+  SubscriptionTier,
+  UserProfileDto,
+} from '@psychotech/shared';
 import {
   House,
   List,
@@ -15,9 +19,6 @@ import {
   Target,
   TrendingUp,
 } from 'lucide-angular';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { EnergyChip } from '../energy-chip/energy-chip';
 import { Icon } from '../icon/icon';
 import { SectorChip } from '../sector-chip/sector-chip';
@@ -38,15 +39,11 @@ interface NavItem {
 export class Navbar {
   readonly hideMobile = input(false);
   readonly hideMobileTabs = input(false);
+  readonly user = input.required<UserProfileDto | null>();
+  readonly energy = input.required<EnergyStateDto | null>();
+  readonly tier = input.required<SubscriptionTier>();
+  readonly logoutRequested = output<void>();
 
-  private readonly authFacade = inject(AuthFacade);
-  private readonly energyFacade = inject(EnergyFacade);
-  private readonly coreFacade = inject(CoreFacade);
-  private readonly router = inject(Router);
-
-  protected readonly user = this.authFacade.currentUser;
-  protected readonly energy = this.energyFacade.state;
-  protected readonly tier = this.coreFacade.tier;
   protected readonly logOutIcon = LogOut;
 
   protected readonly navItems: readonly NavItem[] = [
@@ -69,9 +66,6 @@ export class Navbar {
   });
 
   protected logout(): void {
-    this.authFacade.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
+    this.logoutRequested.emit();
   }
 }
