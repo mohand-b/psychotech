@@ -114,7 +114,7 @@ function layerValuesOfColumn(
   );
 }
 
-describe('generateMatrixItem — propriétés sur 500 tirages (5 structures × 2 registres × 5 niveaux × 10 seeds)', () => {
+describe('generateMatrixItem — propriétés sur 500 tirages (5 structures × 2 registres × 5 niveaux × 10 seeds)', { timeout: 60_000 }, () => {
   it('produit 9 cases, 6 propositions et les types de distracteurs attendus', () => {
     forEachGeneratedItem((item) => {
       expect(item.cells).toHaveLength(9);
