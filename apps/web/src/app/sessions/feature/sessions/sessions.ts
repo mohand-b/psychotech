@@ -91,7 +91,7 @@ export class Sessions {
     {
       value: SessionMode.FULL,
       label: FULL_SESSION_LABEL_PLURAL,
-      shortLabel: FULL_SESSION_LABEL,
+      shortLabel: 'Examens',
       axis: null,
       pastelVar: null,
       pastelBorderVar: null,
