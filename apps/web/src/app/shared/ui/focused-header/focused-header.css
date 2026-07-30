@@ -235,7 +235,15 @@
 }
 
 @media (max-width: 767px) {
+  .focused-header__crumb:has(ui-axis-label) {
+    min-width: 0;
+    overflow: hidden;
+  }
+
   .focused-header__discovery {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
     font-size: 10.5px;
   }
 
