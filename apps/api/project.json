@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api/src",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
@@ -18,10 +19,12 @@
       }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{projectRoot}/{options.coverage.reportsDirectory}",
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
-        "configFile": "apps/api/vitest.config.ts"
+        "config": "./vitest.config.ts"
       }
     },
     "prisma-generate": {
@@ -87,6 +90,5 @@
         }
       }
     }
-  },
-  "tags": []
+  }
 }

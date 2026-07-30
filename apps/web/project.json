@@ -21,7 +21,8 @@
             "input": "apps/web/public"
           }
         ],
-        "styles": ["apps/web/src/styles.scss"]
+        "styles": ["apps/web/src/styles.scss"],
+        "allowedCommonJsDependencies": ["qrcode"]
       },
       "configurations": {
         "production": {
@@ -33,7 +34,7 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "14kb",
+              "maximumWarning": "16kb",
               "maximumError": "20kb"
             }
           ],

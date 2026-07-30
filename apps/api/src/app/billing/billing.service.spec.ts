@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -156,6 +157,7 @@ const SIGNATURE = 't=1,v1=abc';
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
   repository.registerEvent.mockResolvedValue(true);
   listStripeSubscriptions.mockResolvedValue({ data: [] });
   retrieveStripeCustomer.mockResolvedValue({
