@@ -42,7 +42,11 @@ function setup() {
     providers: [
       {
         provide: SubscriptionsApi,
-        useValue: { getBillingOverview, cancelSubscription, resumeSubscription },
+        useValue: {
+          getBillingOverview,
+          cancelSubscription,
+          resumeSubscription,
+        },
       },
       { provide: AuthFacade, useValue: { loadCurrentUser } },
     ],

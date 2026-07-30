@@ -22,9 +22,8 @@ import { LandingReveal } from '../landing-reveal.directive';
             mois d'attente avant de pouvoir retenter.
           </p>
           <p class="enjeu__text">
-            La plupart des candidats découvrent le format le jour J.
-            S'entraîner en conditions réelles transforme l'inconnu en terrain
-            familier.
+            La plupart des candidats découvrent le format le jour J. S'entraîner
+            en conditions réelles transforme l'inconnu en terrain familier.
           </p>
           <p class="enjeu__punch">La préparation fait la différence.</p>
         </div>

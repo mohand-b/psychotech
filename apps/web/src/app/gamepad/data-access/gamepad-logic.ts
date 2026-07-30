@@ -38,10 +38,16 @@ export function gamepadStickFromFrame(
 ): GamepadStickVector {
   return {
     x: applyGamepadDeadzone(
-      Math.max(-GAMEPAD_MAX_OVERDRIVE, Math.min(GAMEPAD_MAX_OVERDRIVE, frame.x)),
+      Math.max(
+        -GAMEPAD_MAX_OVERDRIVE,
+        Math.min(GAMEPAD_MAX_OVERDRIVE, frame.x),
+      ),
     ),
     y: applyGamepadDeadzone(
-      Math.max(-GAMEPAD_MAX_OVERDRIVE, Math.min(GAMEPAD_MAX_OVERDRIVE, frame.y)),
+      Math.max(
+        -GAMEPAD_MAX_OVERDRIVE,
+        Math.min(GAMEPAD_MAX_OVERDRIVE, frame.y),
+      ),
     ),
   };
 }
@@ -93,10 +99,7 @@ export function crankPointerAngle(
   return Math.atan2(pointY - centerY, pointX - centerX);
 }
 
-export function crankAngleDelta(
-  previousRad: number,
-  nextRad: number,
-): number {
+export function crankAngleDelta(previousRad: number, nextRad: number): number {
   let delta = nextRad - previousRad;
   while (delta > Math.PI) {
     delta -= 2 * Math.PI;

@@ -78,13 +78,7 @@ interface ResultWaitTheme {
         >
           <circle class="wait__track" cx="66" cy="66" r="60" />
           @if (!failed()) {
-            <circle
-              class="wait__arc"
-              cx="66"
-              cy="66"
-              r="60"
-              pathLength="100"
-            />
+            <circle class="wait__arc" cx="66" cy="66" r="60" pathLength="100" />
           }
         </svg>
         <ui-icon
@@ -105,10 +99,7 @@ interface ResultWaitTheme {
         <p class="wait__title">{{ title() }}</p>
         <p class="wait__legend">{{ legend() }}</p>
         @if (!failed()) {
-          <p
-            class="wait__patience"
-            [class.wait__patience--visible]="slow()"
-          >
+          <p class="wait__patience" [class.wait__patience--visible]="slow()">
             Encore un instant…
           </p>
         }

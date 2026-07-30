@@ -30,7 +30,9 @@ import { LandingReveal } from '../landing-reveal.directive';
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            <span class="platform__item-title">Conditions réelles d'examen</span>
+            <span class="platform__item-title"
+              >Conditions réelles d'examen</span
+            >
             <span class="platform__item-text"
               >Format, minutage et pression du test officiel, reproduits à
               l'identique.</span
@@ -51,7 +53,9 @@ import { LandingReveal } from '../landing-reveal.directive';
               <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
               <path d="m19 9-5 5-4-4-3 3"></path>
             </svg>
-            <span class="platform__item-title">Scoring calibré par secteur</span>
+            <span class="platform__item-title"
+              >Scoring calibré par secteur</span
+            >
             <span class="platform__item-text"
               >Seuil d'admissibilité, axes critiques et pondérations propres à
               votre épreuve.</span

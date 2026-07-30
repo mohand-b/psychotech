@@ -95,7 +95,9 @@ async function setup(responses: LogicItemAnswerDto[]): Promise<Setup> {
   return { fixture, element };
 }
 
-function dominoResponse(overrides: Partial<LogicItemAnswerDto>): LogicItemAnswerDto {
+function dominoResponse(
+  overrides: Partial<LogicItemAnswerDto>,
+): LogicItemAnswerDto {
   return {
     index: DOMINO_INDEX,
     answerIndex: null,
@@ -124,7 +126,9 @@ describe('LogicCorrection — rendu unifié des dominos', () => {
       }),
     ]);
 
-    const tiles = result.element.querySelectorAll('.corr-dom__seq .corr-dom__tile');
+    const tiles = result.element.querySelectorAll(
+      '.corr-dom__seq .corr-dom__tile',
+    );
     expect(tiles).toHaveLength(domino.visibleTiles.length + 1);
     expect(tiles[tiles.length - 1].classList).toContain(
       'corr-dom__tile--correct',
@@ -149,7 +153,9 @@ describe('LogicCorrection — rendu unifié des dominos', () => {
     expect(user).not.toBeNull();
     expect(user?.querySelector('.corr-dom__tile--user')).not.toBeNull();
     expect(user?.textContent).toContain('Votre réponse');
-    const tiles = result.element.querySelectorAll('.corr-dom__seq .corr-dom__tile');
+    const tiles = result.element.querySelectorAll(
+      '.corr-dom__seq .corr-dom__tile',
+    );
     expect(tiles).toHaveLength(domino.visibleTiles.length + 1);
   });
 

@@ -59,9 +59,11 @@ async function setup(
     getBillingConfig: vi
       .fn()
       .mockReturnValue(of({ publishableKey: 'pk_test_x' })),
-    createSubscription: vi.fn().mockReturnValue(
-      of({ clientSecret: 'pi_secret', kind: PaymentIntentKind.PAYMENT }),
-    ),
+    createSubscription: vi
+      .fn()
+      .mockReturnValue(
+        of({ clientSecret: 'pi_secret', kind: PaymentIntentKind.PAYMENT }),
+      ),
     getPromotionCode: vi.fn(),
     previewPlanChange: vi.fn().mockReturnValue(
       of({
@@ -142,7 +144,13 @@ async function setup(
   await fixture.whenStable();
   await new Promise((resolve) => setTimeout(resolve, 0));
   fixture.detectChanges();
-  return { fixture, subscriptionsFacade, stripePayment, navigate, navigateByUrl };
+  return {
+    fixture,
+    subscriptionsFacade,
+    stripePayment,
+    navigate,
+    navigateByUrl,
+  };
 }
 
 function text(fixture: { nativeElement: HTMLElement }, selector: string) {

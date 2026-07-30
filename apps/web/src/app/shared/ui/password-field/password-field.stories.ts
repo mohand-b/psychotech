@@ -27,7 +27,11 @@ type Story = StoryObj<PasswordField>;
 export const Default: Story = {};
 export const Filled: Story = { args: { value: 'super-secret' } };
 export const Confirmed: Story = {
-  args: { label: 'Confirmer le mot de passe', value: 'super-secret', valid: true },
+  args: {
+    label: 'Confirmer le mot de passe',
+    value: 'super-secret',
+    valid: true,
+  },
 };
 export const Error: Story = {
   args: { value: 'abc', error: 'Au moins 8 caractères' },

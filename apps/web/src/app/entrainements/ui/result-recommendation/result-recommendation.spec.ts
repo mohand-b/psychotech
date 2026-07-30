@@ -51,9 +51,9 @@ describe('ResultRecommendation', () => {
       3,
     );
     expect(fixture.nativeElement.querySelector('.reco__badge')).toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('.t-label').textContent,
-    ).toBe('Recommandations');
+    expect(fixture.nativeElement.querySelector('.t-label').textContent).toBe(
+      'Recommandations',
+    );
   });
 
   it('keeps the severity order produced by getAxisRecommendations', async () => {

@@ -238,7 +238,14 @@ let nextHatchId = 0;
           height="6"
           patternTransform="rotate(45)"
         >
-          <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.7" />
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="6"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
         </pattern>
       </defs>
 
@@ -284,11 +291,32 @@ let nextHatchId = 0;
               <circle cx="50" cy="50" r="42" class="stroke-only" />
             }
             @case (containers.SQUARE) {
-              <rect x="9" y="9" width="82" height="82" rx="2" class="stroke-only" />
+              <rect
+                x="9"
+                y="9"
+                width="82"
+                height="82"
+                rx="2"
+                class="stroke-only"
+              />
             }
             @case (containers.DOUBLE_SQUARE) {
-              <rect x="6" y="6" width="88" height="88" rx="2" class="stroke-only" />
-              <rect x="14" y="14" width="72" height="72" rx="1.5" class="stroke-only" />
+              <rect
+                x="6"
+                y="6"
+                width="88"
+                height="88"
+                rx="2"
+                class="stroke-only"
+              />
+              <rect
+                x="14"
+                y="14"
+                width="72"
+                height="72"
+                rx="1.5"
+                class="stroke-only"
+              />
             }
           }
 

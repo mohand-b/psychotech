@@ -51,8 +51,10 @@ function insideCanvas(placement: MotricityPoint): boolean {
   return (
     placement.x >= CANVAS_EDGE &&
     placement.y >= CANVAS_EDGE &&
-    placement.x + MOTRICITY_BADGE_WIDTH <= MOTRICITY_CANVAS_WIDTH - CANVAS_EDGE &&
-    placement.y + MOTRICITY_BADGE_HEIGHT <= MOTRICITY_CANVAS_HEIGHT - CANVAS_EDGE
+    placement.x + MOTRICITY_BADGE_WIDTH <=
+      MOTRICITY_CANVAS_WIDTH - CANVAS_EDGE &&
+    placement.y + MOTRICITY_BADGE_HEIGHT <=
+      MOTRICITY_CANVAS_HEIGHT - CANVAS_EDGE
   );
 }
 

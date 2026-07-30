@@ -40,9 +40,7 @@ async function setup(
   } = {},
 ) {
   const energyLoad = vi.fn(() => of(null));
-  const startFull = vi.fn(
-    options.startFull ?? (() => of({ id: 'session-1' })),
-  );
+  const startFull = vi.fn(options.startFull ?? (() => of({ id: 'session-1' })));
   await TestBed.configureTestingModule({
     imports: [SimulationStart],
     providers: [
@@ -149,9 +147,7 @@ describe('SimulationStart', () => {
       '.simb__cta button',
     ) as HTMLButtonElement;
     expect(locked.disabled).toBe(true);
-    expect(text(fixture)).toContain(
-      'Il vous faut 5 énergies, vous en avez 3.',
-    );
+    expect(text(fixture)).toContain('Il vous faut 5 énergies, vous en avez 3.');
     const link = fixture.nativeElement.querySelector('.simb__short-link');
     expect(link?.textContent).toContain('Recharger pour 1,00 €');
     expect(link?.getAttribute('href')).toBe('/recharge');

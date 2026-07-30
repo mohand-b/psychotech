@@ -318,9 +318,7 @@ describe('borderMarkers', () => {
     const runs = curveAboveBorderRuns(
       series.map((point) => point.deviationPct),
     );
-    const crossingMarkers = markers.filter(
-      (marker) => marker.kind !== 'TOUCH',
-    );
+    const crossingMarkers = markers.filter((marker) => marker.kind !== 'TOUCH');
     expect(crossingMarkers).toHaveLength(runs.length * 2);
   });
 });

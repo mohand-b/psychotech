@@ -438,5 +438,4 @@ export class Dashboard {
       this.router.navigate(['/entrainements/cible', slug]);
     }
   }
-
 }

@@ -7,7 +7,9 @@ import { ActionFooter } from './action-footer';
   imports: [ActionFooter, Button],
   template: `
     <ui-action-footer>
-      <ui-button color="brand" relief="mobile" block="mobile">Primaire</ui-button>
+      <ui-button color="brand" relief="mobile" block="mobile"
+        >Primaire</ui-button
+      >
       <ui-button
         color="neutral"
         appearance="outlined"
@@ -23,7 +25,9 @@ class Host {}
 
 describe('ActionFooter', () => {
   it('keeps the primary action first, the secondary next and the note last', async () => {
-    await TestBed.configureTestingModule({ imports: [Host] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [Host],
+    }).compileComponents();
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
@@ -38,13 +42,15 @@ describe('ActionFooter', () => {
     expect(buttons).toHaveLength(2);
     expect(buttons[0].textContent?.trim()).toBe('Primaire');
     expect(buttons[1].textContent?.trim()).toBe('Secondaire');
-    expect(footer.querySelector('.note')?.closest('.action-footer__actions')).toBe(
-      null,
-    );
+    expect(
+      footer.querySelector('.note')?.closest('.action-footer__actions'),
+    ).toBe(null);
   });
 
   it('applies the same mobile relief and mobile block classes to every action', async () => {
-    await TestBed.configureTestingModule({ imports: [Host] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [Host],
+    }).compileComponents();
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 

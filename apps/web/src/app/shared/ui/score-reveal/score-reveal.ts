@@ -1,11 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import {
-  DestroyRef,
-  Injectable,
-  Signal,
-  inject,
-  signal,
-} from '@angular/core';
+import { DestroyRef, Injectable, Signal, inject, signal } from '@angular/core';
 import { animate, spring } from 'motion';
 
 const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.7;

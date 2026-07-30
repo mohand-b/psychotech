@@ -146,12 +146,14 @@ async function setup(options: SetupOptions = {}) {
   const user = signal<UserProfileDto | null>(
     options.user ?? buildUser({ tier }),
   );
-  const updateProfile = vi.fn((payload: { firstName: string; lastName: string }) => {
-    const current = user();
-    const updated = buildUser({ ...current, ...payload, tier });
-    user.set(updated);
-    return of(updated);
-  });
+  const updateProfile = vi.fn(
+    (payload: { firstName: string; lastName: string }) => {
+      const current = user();
+      const updated = buildUser({ ...current, ...payload, tier });
+      user.set(updated);
+      return of(updated);
+    },
+  );
   const overview =
     options.billingOverview !== undefined
       ? options.billingOverview
@@ -166,9 +168,7 @@ async function setup(options: SetupOptions = {}) {
           })
         : buildBillingOverview({ tier });
   const billingOverview = signal<BillingOverviewDto | null>(overview);
-  const loadBillingOverview = vi.fn(() =>
-    overview ? of(overview) : of(null),
-  );
+  const loadBillingOverview = vi.fn(() => (overview ? of(overview) : of(null)));
   const cancelSubscription = vi.fn().mockReturnValue(of(undefined));
   const resumeSubscription = vi.fn().mockReturnValue(of(undefined));
   const listInvoices = vi.fn(() =>
@@ -250,7 +250,9 @@ function textOf(fixture: { nativeElement: HTMLElement }): string {
   return fixture.nativeElement.textContent ?? '';
 }
 
-function navButtons(fixture: { nativeElement: HTMLElement }): HTMLButtonElement[] {
+function navButtons(fixture: {
+  nativeElement: HTMLElement;
+}): HTMLButtonElement[] {
   return Array.from(
     (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
       '.profil__nav-item',
@@ -404,7 +406,9 @@ describe('Profile', () => {
     });
     navButtons(failing.fixture)[4].click();
     failing.fixture.detectChanges();
-    expect(textOf(failing.fixture)).toContain('Impossible de charger vos reçus.');
+    expect(textOf(failing.fixture)).toContain(
+      'Impossible de charger vos reçus.',
+    );
     expect(
       failing.fixture.nativeElement.querySelector('.profil__invoices-retry'),
     ).not.toBeNull();
@@ -421,9 +425,9 @@ describe('Profile', () => {
     expect(textOf(fixture)).toContain('8 caractères minimum');
     expect(textOf(fixture)).not.toContain('Un chiffre');
 
-    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
-      '.profil__input',
-    );
+    const fields = (
+      fixture.nativeElement as HTMLElement
+    ).querySelectorAll<HTMLInputElement>('.profil__input');
     fields[0].value = 'AncienSecret1';
     fields[0].dispatchEvent(new Event('input'));
     fields[1].value = 'NouveauSecret1';
@@ -462,9 +466,9 @@ describe('Profile', () => {
     navButtons(fixture)[1].click();
     fixture.detectChanges();
 
-    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
-      '.profil__input',
-    );
+    const fields = (
+      fixture.nativeElement as HTMLElement
+    ).querySelectorAll<HTMLInputElement>('.profil__input');
     fields[0].value = 'MauvaisActuel1';
     fields[0].dispatchEvent(new Event('input'));
     fields[1].value = 'NouveauSecret1';
@@ -489,9 +493,9 @@ describe('Profile', () => {
     navButtons(fixture)[1].click();
     fixture.detectChanges();
 
-    const fields = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>(
-      '.profil__input',
-    );
+    const fields = (
+      fixture.nativeElement as HTMLElement
+    ).querySelectorAll<HTMLInputElement>('.profil__input');
     fields[0].value = 'AncienSecret1';
     fields[0].dispatchEvent(new Event('input'));
     fields[1].value = 'court';
@@ -592,9 +596,9 @@ describe('Profile', () => {
     expect(textOf(fixture)).not.toContain('Prochaine facture');
 
     const reactivate = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
-        '.profil__plan-row button',
-      ),
+      (
+        fixture.nativeElement as HTMLElement
+      ).querySelectorAll<HTMLButtonElement>('.profil__plan-row button'),
     ).find((button) => button.textContent?.includes('Réactiver'));
     reactivate?.click();
     expect(resumeSubscription).toHaveBeenCalledTimes(1);

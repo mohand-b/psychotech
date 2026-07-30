@@ -74,8 +74,9 @@ export class Recharge {
   protected readonly energy = this.energyFacade.state;
   protected readonly phase = signal<RechargePhase>('buy');
   protected readonly payError = signal<string | null>(null);
-  protected readonly paymentOverview =
-    signal<PaymentMethodOverviewDto | null>(null);
+  protected readonly paymentOverview = signal<PaymentMethodOverviewDto | null>(
+    null,
+  );
 
   constructor() {
     this.subscriptionsFacade

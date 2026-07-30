@@ -83,9 +83,7 @@ export function formatSessionDuration(durationSec: number): string {
   return `${Math.max(1, Math.round(durationSec / 60))} min`;
 }
 
-export function formatSessionScore(
-  item: SessionHistoryItemDto,
-): string | null {
+export function formatSessionScore(item: SessionHistoryItemDto): string | null {
   if (item.score === null) {
     return null;
   }

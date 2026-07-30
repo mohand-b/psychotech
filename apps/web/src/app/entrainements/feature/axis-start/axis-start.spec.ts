@@ -138,7 +138,13 @@ async function setup(
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(AxisStart);
   fixture.detectChanges();
-  return { fixture, element: fixture.nativeElement, start, gamepad, energyLoad };
+  return {
+    fixture,
+    element: fixture.nativeElement,
+    start,
+    gamepad,
+    energyLoad,
+  };
 }
 
 function buildEnergyState(
@@ -192,9 +198,9 @@ describe('AxisStart - option Familles', () => {
     const result = await setup('logique');
     familySegments(result.element)[2].click();
     result.fixture.detectChanges();
-    expect(
-      familySegments(result.element)[2].getAttribute('aria-checked'),
-    ).toBe('true');
+    expect(familySegments(result.element)[2].getAttribute('aria-checked')).toBe(
+      'true',
+    );
 
     clickStart(result);
 
@@ -232,9 +238,7 @@ describe('AxisStart - option Familles', () => {
   it('pairs the phone gamepad from every motricity briefing, discovery included', async () => {
     const targeted = await setup('motricite');
     expect(targeted.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
-    expect(
-      targeted.element.querySelector('ui-gamepad-pairing'),
-    ).not.toBeNull();
+    expect(targeted.element.querySelector('ui-gamepad-pairing')).not.toBeNull();
 
     const discovery = await setup('motricite', true);
     expect(discovery.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
@@ -255,9 +259,7 @@ describe('AxisStart - option Familles', () => {
     expect(result.element.textContent).toContain(
       'La découverte est toujours identique et ne consomme aucune énergie.',
     );
-    expect(result.element.textContent?.toLowerCase()).not.toContain(
-      'tutoriel',
-    );
+    expect(result.element.textContent?.toLowerCase()).not.toContain('tutoriel');
   });
 });
 
@@ -268,9 +270,8 @@ describe('AxisStart - énergie', () => {
     });
 
     expect(
-      result.element.querySelector<HTMLButtonElement>(
-        '.axis-start__cta button',
-      )?.disabled,
+      result.element.querySelector<HTMLButtonElement>('.axis-start__cta button')
+        ?.disabled,
     ).toBe(true);
     expect(result.element.textContent).toContain(
       "Énergie épuisée pour aujourd'hui.",

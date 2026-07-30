@@ -1,11 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-type ResultMetricMarker =
-  | 'square'
-  | 'dot'
-  | 'outlined-dot'
-  | 'cross'
-  | 'line';
+type ResultMetricMarker = 'square' | 'dot' | 'outlined-dot' | 'cross' | 'line';
 
 export interface ResultMetricRow {
   label: string;

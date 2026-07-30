@@ -391,12 +391,10 @@ export class TrainingSessionFacade {
     if (!session || !axis) {
       return throwError(() => new Error('No active training session'));
     }
-    return this.api
-      .completeTargeted(session.id, axis, { axis, items })
-      .pipe(
-        this.recoverAlreadySubmitted(session.id),
-        tap((completed) => this.install(completed)),
-      );
+    return this.api.completeTargeted(session.id, axis, { axis, items }).pipe(
+      this.recoverAlreadySubmitted(session.id),
+      tap((completed) => this.install(completed)),
+    );
   }
 
   private recoverAlreadySubmitted(
@@ -436,12 +434,10 @@ export class TrainingSessionFacade {
     if (!session || !axis) {
       return throwError(() => new Error('No active training session'));
     }
-    return this.api
-      .completeTargeted(session.id, axis, { axis, trials })
-      .pipe(
-        this.recoverAlreadySubmitted(session.id),
-        tap((completed) => this.install(completed)),
-      );
+    return this.api.completeTargeted(session.id, axis, { axis, trials }).pipe(
+      this.recoverAlreadySubmitted(session.id),
+      tap((completed) => this.install(completed)),
+    );
   }
 
   completeTargetedMotricity(

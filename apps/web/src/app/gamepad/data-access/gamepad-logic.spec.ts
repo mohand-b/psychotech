@@ -100,20 +100,24 @@ describe('crankAngleDelta', () => {
 
 describe('crankValueFromVelocity', () => {
   it('maps one full turn per second to full speed and allows overdrive up to the cap', () => {
-    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC)).toBe(1);
+    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC)).toBe(
+      1,
+    );
     expect(
       crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 1.25),
     ).toBeCloseTo(1.25, 5);
-    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 3)).toBe(
-      GAMEPAD_MAX_OVERDRIVE,
-    );
-    expect(crankValueFromVelocity(-GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 2)).toBe(
-      -GAMEPAD_MAX_OVERDRIVE,
-    );
+    expect(
+      crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 3),
+    ).toBe(GAMEPAD_MAX_OVERDRIVE);
+    expect(
+      crankValueFromVelocity(-GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC * 2),
+    ).toBe(-GAMEPAD_MAX_OVERDRIVE);
   });
 
   it('is proportional below full speed and zero at rest', () => {
-    expect(crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC / 2)).toBeCloseTo(0.5, 5);
+    expect(
+      crankValueFromVelocity(GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC / 2),
+    ).toBeCloseTo(0.5, 5);
     expect(crankValueFromVelocity(0)).toBe(0);
   });
 });

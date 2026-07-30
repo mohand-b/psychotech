@@ -6,11 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  AxisType,
-  EnergyStateDto,
-  SubscriptionTier,
-} from '@psychotech/shared';
+import { AxisType, EnergyStateDto, SubscriptionTier } from '@psychotech/shared';
 import { ArrowLeft, BookOpen, ShieldCheck, Timer, X } from 'lucide-angular';
 import { AxisLabel } from '../axis-label/axis-label';
 import {

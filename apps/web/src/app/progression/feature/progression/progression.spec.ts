@@ -276,8 +276,8 @@ describe('Progression', () => {
       'Votre profil par axe se dessinera après votre premier examen blanc.',
     );
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
-    expect(
-      [...rows].every((row) => (row as HTMLButtonElement).disabled),
-    ).toBe(true);
+    expect([...rows].every((row) => (row as HTMLButtonElement).disabled)).toBe(
+      true,
+    );
   });
 });

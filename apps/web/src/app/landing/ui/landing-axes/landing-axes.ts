@@ -77,7 +77,9 @@ const LANDING_AXES: LandingAxis[] = [
       <div class="axes__inner">
         <div class="axes__head" appLandingReveal>
           <div class="axes__head-copy">
-            <span class="axes__eyebrow">Les axes d'entraînement disponibles</span>
+            <span class="axes__eyebrow"
+              >Les axes d'entraînement disponibles</span
+            >
             <h2 class="axes__title">Chaque capacité s'entraîne, une à une</h2>
           </div>
           <p class="axes__intro">

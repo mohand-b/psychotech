@@ -60,9 +60,12 @@ export class SubscriptionsApi {
   }
 
   getBillingOverview(reconcile: boolean): Observable<BillingOverviewDto> {
-    return this.http.get<BillingOverviewDto>(`${this.baseUrl}/billing/overview`, {
-      params: reconcile ? { reconcile: 'true' } : {},
-    });
+    return this.http.get<BillingOverviewDto>(
+      `${this.baseUrl}/billing/overview`,
+      {
+        params: reconcile ? { reconcile: 'true' } : {},
+      },
+    );
   }
 
   cancelSubscription(): Observable<SubscriptionDto> {

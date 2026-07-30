@@ -1,8 +1,5 @@
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
-import {
-  formatOverviewDate,
-  formatSignedGap,
-} from './trainings-overview-view';
+import { formatOverviewDate, formatSignedGap } from './trainings-overview-view';
 
 describe('formatFrenchDecimal', () => {
   it('renders the score with a french decimal comma', () => {

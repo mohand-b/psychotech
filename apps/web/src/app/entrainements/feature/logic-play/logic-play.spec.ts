@@ -85,7 +85,10 @@ async function setup(overrides: Partial<SessionDto> = {}): Promise<Setup> {
     of(buildSession({ ...overrides, status: SessionStatus.COMPLETED })),
   );
   const targetedResult = vi.fn(() =>
-    of({ sessionId: SESSION_ID, axis: AxisType.LOGIC } as TargetedAxisResultDto),
+    of({
+      sessionId: SESSION_ID,
+      axis: AxisType.LOGIC,
+    } as TargetedAxisResultDto),
   );
   await TestBed.configureTestingModule({
     imports: [LogicPlay],
@@ -124,10 +127,7 @@ async function setup(overrides: Partial<SessionDto> = {}): Promise<Setup> {
   return { fixture, element, completeTargeted, navigate };
 }
 
-function pressKey(
-  fixture: Setup['fixture'],
-  key: string,
-): void {
+function pressKey(fixture: Setup['fixture'], key: string): void {
   document.dispatchEvent(new KeyboardEvent('keydown', { key }));
   fixture.detectChanges();
 }
@@ -236,14 +236,10 @@ describe('LogicPlay (contenu v2)', () => {
     expect(face('.dom__face--top').classList).not.toContain(
       'dom__face--active',
     );
-    expect(face('.dom__face--bottom').classList).toContain(
-      'dom__face--active',
-    );
+    expect(face('.dom__face--bottom').classList).toContain('dom__face--active');
 
     pressKey(result.fixture, '2');
-    expect(face('.dom__face--bottom').classList).toContain(
-      'dom__face--filled',
-    );
+    expect(face('.dom__face--bottom').classList).toContain('dom__face--filled');
   });
 
   it('treats a domino item as answered only once both faces are set', async () => {
@@ -310,19 +306,19 @@ describe('LogicPlay (contenu v2)', () => {
 
     proposals[2].click();
     result.fixture.detectChanges();
-    expect(
-      result.element.querySelectorAll('.mx__prop')[2].classList,
-    ).toContain('mx__prop--selected');
+    expect(result.element.querySelectorAll('.mx__prop')[2].classList).toContain(
+      'mx__prop--selected',
+    );
 
     pressKey(result.fixture, 'd');
-    expect(
-      result.element.querySelectorAll('.mx__prop')[3].classList,
-    ).toContain('mx__prop--selected');
+    expect(result.element.querySelectorAll('.mx__prop')[3].classList).toContain(
+      'mx__prop--selected',
+    );
 
     pressKey(result.fixture, '1');
-    expect(
-      result.element.querySelectorAll('.mx__prop')[0].classList,
-    ).toContain('mx__prop--selected');
+    expect(result.element.querySelectorAll('.mx__prop')[0].classList).toContain(
+      'mx__prop--selected',
+    );
     expect(nextButton(result.element).disabled).toBe(false);
   });
 
@@ -412,9 +408,9 @@ describe('LogicPlay (contenu v2)', () => {
     expect(
       result.element.querySelectorAll('.dom__seq .dom__tile'),
     ).toHaveLength(item.domino.visibleTiles.length);
-    expect(
-      result.element.querySelectorAll('.dom__answer-tile'),
-    ).toHaveLength(1);
+    expect(result.element.querySelectorAll('.dom__answer-tile')).toHaveLength(
+      1,
+    );
   });
 
   it('shows the generic domino hint without the precise steps', async () => {
@@ -429,8 +425,9 @@ describe('LogicPlay (contenu v2)', () => {
       null,
       LOGIC_CONTENT_VERSION_V2,
     )[10];
-    const text =
-      result.element.querySelector('.hint__text')?.textContent?.trim();
+    const text = result.element
+      .querySelector('.hint__text')
+      ?.textContent?.trim();
     expect(text).toBe(dominoItem.rule.hintText);
     expect(text).not.toBe(dominoItem.rule.userText);
   });
@@ -467,9 +464,7 @@ const v3SequenceIndex = v3BlockOne.findIndex(
 );
 
 function padChipValue(element: HTMLElement): string {
-  return (
-    element.querySelector('.pad__chip-value')?.textContent?.trim() ?? ''
-  );
+  return element.querySelector('.pad__chip-value')?.textContent?.trim() ?? '';
 }
 
 describe('LogicPlay (triangles v3)', () => {
@@ -483,9 +478,9 @@ describe('LogicPlay (triangles v3)', () => {
   });
 
   it('alternates sequences and triangles inside the first block', async () => {
-    expect(v3BlockOne.every((item) => item.family === LogicFamily.NUMERIC)).toBe(
-      true,
-    );
+    expect(
+      v3BlockOne.every((item) => item.family === LogicFamily.NUMERIC),
+    ).toBe(true);
     expect(v3Triangles).toHaveLength(5);
     expect(v3SequenceIndex).not.toBe(-1);
 
@@ -581,9 +576,7 @@ describe('LogicPlay (triangles v3)', () => {
     result.fixture.detectChanges();
     expect(padChipValue(result.element)).toBe('78');
 
-    (
-      result.element.querySelector('.pad__clear') as HTMLButtonElement
-    ).click();
+    (result.element.querySelector('.pad__clear') as HTMLButtonElement).click();
     result.fixture.detectChanges();
     expect(padChipValue(result.element)).toBe('?');
   });
@@ -621,15 +614,13 @@ describe('LogicPlay (triangles v3)', () => {
 
     pressKey(result.fixture, 'h');
     const pop = result.element.querySelector('.hint__pop');
-    expect(pop?.textContent).toContain(
-      v3Triangles[0].item.rule.userText,
-    );
+    expect(pop?.textContent).toContain(v3Triangles[0].item.rule.userText);
 
     pressKey(result.fixture, 'Escape');
     expect(result.element.querySelector('.hint__pop')).toBeNull();
-    expect(
-      result.element.querySelector('.hint__bulb')?.classList,
-    ).toContain('hint__bulb--used');
+    expect(result.element.querySelector('.hint__bulb')?.classList).toContain(
+      'hint__bulb--used',
+    );
 
     goToItem(result, 39);
     pressKey(result.fixture, '1');
@@ -730,7 +721,10 @@ describe('LogicPlay (tutoriel mixte)', () => {
     expect(run?.axis).toBe(AxisType.LOGIC);
     if (run?.axis === AxisType.LOGIC) {
       expect(run.items).toHaveLength(5);
-      expect(run.items[1]).toMatchObject({ answerIndex: null, numericValue: 2 });
+      expect(run.items[1]).toMatchObject({
+        answerIndex: null,
+        numericValue: 2,
+      });
       expect(run.items[2]).toMatchObject({ dominoTop: 3, dominoBottom: 4 });
       expect(run.items[3]).toMatchObject({ answerIndex: 0 });
     }

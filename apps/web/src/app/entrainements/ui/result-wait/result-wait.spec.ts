@@ -62,9 +62,9 @@ describe('ResultWait', () => {
 
     fixture.componentRef.setInput('slow', true);
     fixture.detectChanges();
-    expect(
-      element.querySelector('.wait__patience')?.classList,
-    ).toContain('wait__patience--visible');
+    expect(element.querySelector('.wait__patience')?.classList).toContain(
+      'wait__patience--visible',
+    );
   });
 
   it('renders the error state without arc and emits retry once per click', () => {

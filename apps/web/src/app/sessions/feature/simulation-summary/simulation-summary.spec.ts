@@ -118,7 +118,10 @@ function buildSummary(
     },
     appreciation: {
       lead: [
-        { text: 'Votre score global dépasse le seuil Ferroviaire de ', value: false },
+        {
+          text: 'Votre score global dépasse le seuil Ferroviaire de ',
+          value: false,
+        },
         { text: '4,8', value: true },
         {
           text: ' points : avis favorable, avec une marge encore fragile.',
@@ -247,9 +250,7 @@ describe('SimulationSummary', () => {
     expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
       'Favorable',
     );
-    expect(stamp.querySelector('.stamp__sub').textContent.trim()).toBe(
-      'Juste',
-    );
+    expect(stamp.querySelector('.stamp__sub').textContent.trim()).toBe('Juste');
   });
 
   it('stamps SOLIDE from +15 over the threshold and EXCELLENT from +25', async () => {
@@ -386,12 +387,12 @@ describe('SimulationSummary', () => {
       fixture.nativeElement.querySelector('.bilan__observables'),
     ).toBeNull();
     const cards = fixture.nativeElement.querySelectorAll('.bilan__axis-card');
-    expect(
-      cards[3].classList.contains('bilan__axis-card--eliminatory'),
-    ).toBe(true);
-    expect(
-      cards[0].classList.contains('bilan__axis-card--eliminatory'),
-    ).toBe(false);
+    expect(cards[3].classList.contains('bilan__axis-card--eliminatory')).toBe(
+      true,
+    );
+    expect(cards[0].classList.contains('bilan__axis-card--eliminatory')).toBe(
+      false,
+    );
     expect(
       fixture.nativeElement.querySelector('.bilan__stamp').textContent,
     ).toContain('Défavorable');
@@ -412,12 +413,12 @@ describe('SimulationSummary', () => {
     const { fixture } = await setup(buildSummary());
     const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');
     expect(cards).toHaveLength(2);
-    expect(
-      cards[0].classList.contains('bilan__next-card--featured'),
-    ).toBe(true);
-    expect(
-      cards[1].classList.contains('bilan__next-card--featured'),
-    ).toBe(false);
+    expect(cards[0].classList.contains('bilan__next-card--featured')).toBe(
+      true,
+    );
+    expect(cards[1].classList.contains('bilan__next-card--featured')).toBe(
+      false,
+    );
     const ctas = fixture.nativeElement.querySelectorAll(
       '.bilan__next-cta button',
     );
@@ -438,9 +439,7 @@ describe('SimulationSummary', () => {
     expect(
       memoryFindings[0].querySelector('.bilan__next-action').textContent,
     ).toBe('Consolidez la mémoire de travail');
-    expect(
-      cards[1].querySelectorAll('.bilan__next-finding'),
-    ).toHaveLength(1);
+    expect(cards[1].querySelectorAll('.bilan__next-finding')).toHaveLength(1);
   });
 
   it('keeps a single accordion panel open at a time', async () => {
@@ -511,9 +510,6 @@ describe('SimulationSummary', () => {
 
     button.click();
 
-    expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/cible',
-      'memoire',
-    ]);
+    expect(navigate).toHaveBeenCalledWith(['/entrainements/cible', 'memoire']);
   });
 });

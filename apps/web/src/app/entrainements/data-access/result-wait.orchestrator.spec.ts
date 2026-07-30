@@ -152,9 +152,8 @@ describe('ResultWaitOrchestrator', () => {
   });
 
   it('navigates as soon as the data arrives once the minimum duration has elapsed', () => {
-    const { orchestrator, navigate, loadTargetedResult } = setup(
-      buildSession(),
-    );
+    const { orchestrator, navigate, loadTargetedResult } =
+      setup(buildSession());
     const prefetch = new Subject<TargetedAxisResultDto>();
     loadTargetedResult.mockReturnValue(prefetch.asObservable());
     orchestrator.submit({
@@ -214,9 +213,8 @@ describe('ResultWaitOrchestrator', () => {
   });
 
   it('never replays the completion when retrying a prefetch failure', () => {
-    const { orchestrator, navigate, loadTargetedResult } = setup(
-      buildSession(),
-    );
+    const { orchestrator, navigate, loadTargetedResult } =
+      setup(buildSession());
     loadTargetedResult.mockImplementationOnce(() =>
       throwError(() => new Error('down')),
     );
@@ -299,7 +297,11 @@ describe('ResultWaitOrchestrator', () => {
     expect(loadTargetedResult).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(RESULT_WAIT_MIN_DISPLAY_MS);
-    expect(navigate).toHaveBeenCalledWith(['/sessions', SESSION_ID, 'resultat']);
+    expect(navigate).toHaveBeenCalledWith([
+      '/sessions',
+      SESSION_ID,
+      'resultat',
+    ]);
   });
 
   it('reports the silent failure when a bypassed completion fails', () => {

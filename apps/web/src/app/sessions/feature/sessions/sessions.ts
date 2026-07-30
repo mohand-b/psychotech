@@ -151,10 +151,7 @@ export class Sessions {
 
   protected resume(session: CurrentSessionDto): void {
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate([
-        '/entrainements/examen-blanc/session',
-        session.id,
-      ]);
+      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
       return;
     }
     if (session.mode === SessionMode.TARGETED && session.axes.length > 0) {

@@ -307,8 +307,7 @@ export function borderMarkers(
     if (points[index].deviationPct !== borderPct) {
       continue;
     }
-    const before =
-      index > 0 && points[index - 1].deviationPct > borderPct;
+    const before = index > 0 && points[index - 1].deviationPct > borderPct;
     const after =
       index < points.length - 1 && points[index + 1].deviationPct > borderPct;
     const kind: TrajectoryBorderMarkerKind =

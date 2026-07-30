@@ -16,11 +16,17 @@ export class AuthApi {
   private readonly baseUrl = inject(API_BASE_URL);
 
   login(credentials: LoginDto): Observable<UserProfileDto> {
-    return this.http.post<UserProfileDto>(`${this.baseUrl}/auth/login`, credentials);
+    return this.http.post<UserProfileDto>(
+      `${this.baseUrl}/auth/login`,
+      credentials,
+    );
   }
 
   register(payload: RegisterDto): Observable<UserProfileDto> {
-    return this.http.post<UserProfileDto>(`${this.baseUrl}/auth/register`, payload);
+    return this.http.post<UserProfileDto>(
+      `${this.baseUrl}/auth/register`,
+      payload,
+    );
   }
 
   logout(): Observable<void> {

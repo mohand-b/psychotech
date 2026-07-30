@@ -49,8 +49,7 @@ describe('verdict colour single source', () => {
       const score = step / 10;
       for (const rule of [NON_CRITICAL, CRITICAL, null]) {
         const appearance = resolveVerdictAppearance(score, rule);
-        const colors =
-          colorsByLabel.get(appearance.label) ?? new Set<string>();
+        const colors = colorsByLabel.get(appearance.label) ?? new Set<string>();
         colors.add(appearance.colorVar);
         colorsByLabel.set(appearance.label, colors);
         const inks = inksByLabel.get(appearance.label) ?? new Set<string>();

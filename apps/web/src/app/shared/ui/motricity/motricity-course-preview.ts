@@ -52,7 +52,10 @@ import { formatPoints } from './svg-points';
       <polygon class="preview__corridor" [attr.points]="polygonPoints()" />
       <polyline class="preview__border" [attr.points]="leftSidePoints()" />
       <polyline class="preview__border" [attr.points]="rightSidePoints()" />
-      <polyline class="preview__centerline" [attr.points]="centerlinePoints()" />
+      <polyline
+        class="preview__centerline"
+        [attr.points]="centerlinePoints()"
+      />
       @for (wall of course().garageWalls; track $index) {
         <line
           class="preview__wall"
@@ -82,7 +85,9 @@ import { formatPoints } from './svg-points';
         </text>
       </g>
       <g
-        [attr.transform]="'translate(' + endBadge().x + ',' + endBadge().y + ')'"
+        [attr.transform]="
+          'translate(' + endBadge().x + ',' + endBadge().y + ')'
+        "
       >
         <rect
           class="preview__badge preview__badge--end"

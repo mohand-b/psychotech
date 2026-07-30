@@ -97,10 +97,7 @@ describe('MatrixCell', () => {
           (candidate) => candidate !== strokeAType,
         );
         const element = await renderCell({
-          ...createDefaultStrokeCell(
-            strokeAType,
-            strokeBType ?? strokeAType,
-          ),
+          ...createDefaultStrokeCell(strokeAType, strokeBType ?? strokeAType),
           strokeACount: count,
         });
         expect(element.querySelectorAll('path.stroke-path').length).toBe(

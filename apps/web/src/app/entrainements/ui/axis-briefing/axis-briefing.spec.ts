@@ -72,10 +72,7 @@ function render(
   fixture.componentRef.setInput('showOptions', options.showOptions ?? true);
   fixture.componentRef.setInput('showPairing', options.showPairing ?? false);
   fixture.componentRef.setInput('logicFamily', options.logicFamily ?? null);
-  fixture.componentRef.setInput(
-    'enabledOptions',
-    options.enabledOptions ?? [],
-  );
+  fixture.componentRef.setInput('enabledOptions', options.enabledOptions ?? []);
   fixture.detectChanges();
   return fixture;
 }
@@ -134,7 +131,10 @@ describe('AxisBriefing (gabarit unifié)', () => {
         content.summary.map(({ value }) => value),
       );
       expect(
-        texts(render(axis, { tutorial: true }), '.axis-briefing__summary-value'),
+        texts(
+          render(axis, { tutorial: true }),
+          '.axis-briefing__summary-value',
+        ),
       ).toEqual(content.discoverySummary.map(({ value }) => value));
     },
   );
@@ -150,12 +150,7 @@ describe('AxisBriefing (gabarit unifié)', () => {
     ) as HTMLElement;
     expect(desktop).not.toBeNull();
     expect(mobile).not.toBeNull();
-    expect(keycaps(desktop)).toEqual([
-      '0-9',
-      'ESPACE',
-      'RETOUR',
-      'ENTRÉE',
-    ]);
+    expect(keycaps(desktop)).toEqual(['0-9', 'ESPACE', 'RETOUR', 'ENTRÉE']);
     expect(keycaps(mobile)).toEqual(['0-9', 'Passer', '⌫', 'Valider']);
   });
 
@@ -182,34 +177,30 @@ describe('AxisBriefing (gabarit unifié)', () => {
     const tiles = element.querySelector(
       '.axis-briefing__mapping-tiles',
     ) as HTMLElement;
-    expect(keycaps(tiles)).toEqual([
-      'Bouton gauche',
-      'Bouton droit',
-      'Pédale',
-    ]);
+    expect(keycaps(tiles)).toEqual(['Bouton gauche', 'Bouton droit', 'Pédale']);
   });
 
   it('shows the options card with axis toggles on the targeted briefing only', () => {
     const targeted = render(AxisType.LOGIC);
-    expect(
-      targeted.nativeElement.querySelectorAll('ui-toggle'),
-    ).toHaveLength(2);
+    expect(targeted.nativeElement.querySelectorAll('ui-toggle')).toHaveLength(
+      2,
+    );
     expect(targeted.nativeElement.textContent).toContain(
       "Options d'entraînement",
     );
 
     const simulation = render(AxisType.LOGIC, { showOptions: false });
-    expect(
-      simulation.nativeElement.querySelectorAll('ui-toggle'),
-    ).toHaveLength(0);
+    expect(simulation.nativeElement.querySelectorAll('ui-toggle')).toHaveLength(
+      0,
+    );
     expect(simulation.nativeElement.textContent).not.toContain(
       "Options d'entraînement",
     );
 
     const discovery = render(AxisType.LOGIC, { tutorial: true });
-    expect(
-      discovery.nativeElement.querySelectorAll('ui-toggle'),
-    ).toHaveLength(0);
+    expect(discovery.nativeElement.querySelectorAll('ui-toggle')).toHaveLength(
+      0,
+    );
     expect(discovery.nativeElement.textContent).not.toContain(
       "Options d'entraînement",
     );
@@ -268,9 +259,7 @@ describe('AxisBriefing (gabarit unifié)', () => {
       '.axis-briefing__rows.axis-briefing__platform--desktop',
     ) as HTMLElement;
     expect(keycaps(matricesDesktop)).toEqual(['A-D', '1-4', 'ENTRÉE']);
-    expect(matrices.nativeElement.textContent).toContain(
-      'matrices uniquement',
-    );
+    expect(matrices.nativeElement.textContent).toContain('matrices uniquement');
   });
 
   it('reflects the no timer option in the first step and the summary', () => {
@@ -307,9 +296,9 @@ describe('AxisBriefing (gabarit unifié)', () => {
   it.each(CRITICAL_RAILWAY_AXES)(
     'tags the critical railway axis %s in the summary of both briefings',
     (axis: RailwayPlayableAxis) => {
-      expect(
-        texts(render(axis), '.axis-briefing__summary-critical'),
-      ).toEqual(['Axe critique']);
+      expect(texts(render(axis), '.axis-briefing__summary-critical')).toEqual([
+        'Axe critique',
+      ]);
       expect(
         texts(
           render(axis, { showOptions: false }),

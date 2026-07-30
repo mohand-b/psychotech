@@ -1,10 +1,5 @@
 import { SubscriptionTier } from '@psychotech/shared';
-import {
-  patchState,
-  signalStore,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
 interface CoreStoreState {
   tierOverride: SubscriptionTier | null;

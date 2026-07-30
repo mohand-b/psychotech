@@ -38,10 +38,7 @@ const USER: UserProfileDto = {
   createdAt: '2026-06-01T00:00:00.000Z',
 };
 
-function energyState(
-  tier: SubscriptionTier,
-  balance: number,
-): EnergyStateDto {
+function energyState(tier: SubscriptionTier, balance: number): EnergyStateDto {
   return {
     balance,
     capacity: 5,
@@ -68,11 +65,7 @@ function overviewWithData(): TrainingsOverviewDto {
     axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
       axis,
       bestScore:
-        axis === AxisType.REACTIVITY
-          ? 70
-          : axis === AxisType.MEMORY
-            ? 61
-            : 82,
+        axis === AxisType.REACTIVITY ? 70 : axis === AxisType.MEMORY ? 61 : 82,
       neverPlayed: false,
       isCriticalAxis: axis === AxisType.REACTIVITY,
       needsWork: axis === AxisType.MEMORY,
@@ -255,7 +248,9 @@ describe('Dashboard', () => {
   it('shows the unlimited plan without an upgrade link and with infinite energy', async () => {
     const { fixture } = await setup({ tier: SubscriptionTier.UNLIMITED });
     expect(textOf(fixture)).toContain('Illimité');
-    expect(textOf(fixture)).toContain('Énergie illimitée, sans quota journalier');
+    expect(textOf(fixture)).toContain(
+      'Énergie illimitée, sans quota journalier',
+    );
     expect(textOf(fixture)).not.toContain("Passer à l'Illimité");
     expect(textOf(fixture)).toContain('∞');
   });

@@ -1,10 +1,5 @@
 import { SessionDto } from '@psychotech/shared';
-import {
-  patchState,
-  signalStore,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
 interface TrainingSessionState {
   session: SessionDto | null;

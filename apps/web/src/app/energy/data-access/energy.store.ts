@@ -1,10 +1,5 @@
 import { EnergyStateDto } from '@psychotech/shared';
-import {
-  patchState,
-  signalStore,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
 interface EnergyStoreState {
   energy: EnergyStateDto | null;

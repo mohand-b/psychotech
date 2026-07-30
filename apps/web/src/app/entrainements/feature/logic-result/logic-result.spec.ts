@@ -39,7 +39,11 @@ function familyEntry(
 }
 
 const FULL_SESSION_FAMILIES: LogicFamilyResultDto[] = [
-  familyEntry(LogicFamily.NUMERIC, { correct: 9, ratePct: 90, marker: 'STRENGTH' }),
+  familyEntry(LogicFamily.NUMERIC, {
+    correct: 9,
+    ratePct: 90,
+    marker: 'STRENGTH',
+  }),
   familyEntry(LogicFamily.DOMINO, { correct: 7, ratePct: 70 }),
   familyEntry(LogicFamily.MATRIX_I, { correct: 6, attempted: 9, ratePct: 67 }),
   familyEntry(LogicFamily.MATRIX_II, {
@@ -166,9 +170,7 @@ describe('LogicResult (contenu v2)', () => {
     expect(text).not.toContain('Matrices');
     expect(text).not.toContain('Votre force');
     expect(text).not.toContain('À travailler');
-    expect(
-      fixture.nativeElement.querySelectorAll('.family').length,
-    ).toBe(1);
+    expect(fixture.nativeElement.querySelectorAll('.family').length).toBe(1);
   });
 
   it('keeps the record and renders the four family bars on a full v2 session', async () => {
@@ -213,15 +215,21 @@ describe('LogicResult (contenu v2)', () => {
       buildResult({
         logicFamily: LogicFamilyFilter.MATRIX,
         families: [
-          familyEntry(LogicFamily.MATRIX_I, { total: 20, correct: 15, ratePct: 75 }),
-          familyEntry(LogicFamily.MATRIX_II, { total: 20, correct: 12, ratePct: 60 }),
+          familyEntry(LogicFamily.MATRIX_I, {
+            total: 20,
+            correct: 15,
+            ratePct: 75,
+          }),
+          familyEntry(LogicFamily.MATRIX_II, {
+            total: 20,
+            correct: 12,
+            ratePct: 60,
+          }),
         ],
       }),
     );
     expect(boundaryCount(fixture)).toBe(1);
-    expect(
-      fixture.nativeElement.querySelectorAll('.family').length,
-    ).toBe(2);
+    expect(fixture.nativeElement.querySelectorAll('.family').length).toBe(2);
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('/20');
     expect(text).not.toContain('Votre force');

@@ -45,8 +45,8 @@ import {
       top: calc(-1 * var(--threshold-bar-overhang, 4px));
       width: 2px;
       height: calc(
-        var(--threshold-bar-height, 10px) +
-          2 * var(--threshold-bar-overhang, 4px)
+        var(--threshold-bar-height, 10px) + 2 *
+          var(--threshold-bar-overhang, 4px)
       );
       border-radius: 1px;
       background: var(--ink);

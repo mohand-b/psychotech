@@ -36,9 +36,7 @@ async function setup(
     load: vi.fn().mockImplementation(() => of(energyState())),
   };
   const subscriptionsFacade = {
-    createEnergyRefill: vi.fn(
-      options.refill ?? (() => of(undefined)),
-    ),
+    createEnergyRefill: vi.fn(options.refill ?? (() => of(undefined))),
     getPaymentMethodOverview: vi.fn().mockReturnValue(
       of({
         card: {

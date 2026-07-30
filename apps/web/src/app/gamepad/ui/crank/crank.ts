@@ -8,7 +8,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { crankAngleDelta, crankPointerAngle } from '../../data-access/gamepad-logic';
+import {
+  crankAngleDelta,
+  crankPointerAngle,
+} from '../../data-access/gamepad-logic';
 
 const VIEWBOX_SIZE = 160;
 const CENTER = VIEWBOX_SIZE / 2;
@@ -65,7 +68,8 @@ export class Crank {
   );
 
   private readonly handleAngle = signal(INITIAL_ANGLE_RAD);
-  private readonly surface = viewChild.required<ElementRef<SVGSVGElement>>('surface');
+  private readonly surface =
+    viewChild.required<ElementRef<SVGSVGElement>>('surface');
   private pointerId: number | null = null;
   private lastPointerAngle = 0;
 

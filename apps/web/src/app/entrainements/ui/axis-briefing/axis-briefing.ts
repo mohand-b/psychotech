@@ -237,9 +237,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
           </div>
         </section>
 
-        <section
-          class="axis-briefing__section axis-briefing__section--summary"
-        >
+        <section class="axis-briefing__section axis-briefing__section--summary">
           <span class="t-label">Résumé</span>
           <span class="axis-briefing__summary">
             @for (entry of summary(); track entry.label; let last = $last) {
@@ -335,8 +333,8 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
         >
           <span class="t-label">Manivelles tactiles</span>
           <p class="axis-briefing__cranks-text">
-            Les deux manivelles s'affichent sous le parcours, à portée de
-            pouce. Aucun appairage nécessaire sur mobile.
+            Les deux manivelles s'affichent sous le parcours, à portée de pouce.
+            Aucun appairage nécessaire sur mobile.
           </p>
         </article>
       }

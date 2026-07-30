@@ -1,7 +1,4 @@
-import {
-  PaymentMethodSummaryDto,
-  PaymentWalletType,
-} from '@psychotech/shared';
+import { PaymentMethodSummaryDto, PaymentWalletType } from '@psychotech/shared';
 
 const WALLET_LABELS: Record<PaymentWalletType, string> = {
   [PaymentWalletType.GOOGLE_PAY]: 'Google Pay',
@@ -40,9 +37,7 @@ export function buildPaymentMethodView(
   const wallet = card.wallet ? WALLET_LABELS[card.wallet] : null;
   return {
     badgeLabel: wallet ?? brand,
-    detailLabel: wallet
-      ? `${brand} •••• ${card.last4}`
-      : `•••• ${card.last4}`,
+    detailLabel: wallet ? `${brand} •••• ${card.last4}` : `•••• ${card.last4}`,
     expiryLabel: `${String(card.expMonth).padStart(2, '0')}/${String(
       card.expYear,
     ).slice(-2)}`,

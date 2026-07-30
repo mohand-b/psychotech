@@ -14,7 +14,11 @@ interface Pip {
 const PIP_COLUMNS = { left: 16, center: 30, right: 44 };
 
 function pipsFor(face: DominoFace, offsetY: number): Pip[] {
-  const rows = { top: offsetY + 10, middle: offsetY + 22, bottom: offsetY + 34 };
+  const rows = {
+    top: offsetY + 10,
+    middle: offsetY + 22,
+    bottom: offsetY + 34,
+  };
   const { left, center, right } = PIP_COLUMNS;
   switch (face) {
     case 0:
@@ -75,14 +79,24 @@ function pipsFor(face: DominoFace, offsetY: number): Pip[] {
         <text x="30" y="30" class="unknown">?</text>
       } @else {
         @for (pip of topPips(); track $index) {
-          <circle [attr.cx]="pip.cx" [attr.cy]="pip.cy" r="4.2" class="pip pip--top" />
+          <circle
+            [attr.cx]="pip.cx"
+            [attr.cy]="pip.cy"
+            r="4.2"
+            class="pip pip--top"
+          />
         }
       }
       @if (bottom() === null) {
         <text x="30" y="77" class="unknown">?</text>
       } @else {
         @for (pip of bottomPips(); track $index) {
-          <circle [attr.cx]="pip.cx" [attr.cy]="pip.cy" r="4.2" class="pip pip--bottom" />
+          <circle
+            [attr.cx]="pip.cx"
+            [attr.cy]="pip.cy"
+            r="4.2"
+            class="pip pip--bottom"
+          />
         }
       }
     </svg>

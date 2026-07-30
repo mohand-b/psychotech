@@ -1,11 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import {
-  Injectable,
-  Signal,
-  computed,
-  inject,
-  isDevMode,
-} from '@angular/core';
+import { Injectable, Signal, computed, inject, isDevMode } from '@angular/core';
 import { SubscriptionTier } from '@psychotech/shared';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { CoreStore } from './core.store';
@@ -53,9 +47,8 @@ export class CoreFacade {
   }
 
   private restoreDevTierOverride(): void {
-    const stored = this.document.defaultView?.localStorage?.getItem(
-      DEV_TIER_STORAGE_KEY,
-    );
+    const stored =
+      this.document.defaultView?.localStorage?.getItem(DEV_TIER_STORAGE_KEY);
     if (stored && this.isTier(stored)) {
       this.store.setTierOverride(stored);
     }

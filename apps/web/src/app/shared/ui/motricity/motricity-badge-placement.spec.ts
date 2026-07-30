@@ -30,7 +30,11 @@ function corridorClearance(
   return Math.min(
     ...course.segments.map(
       (segment) =>
-        rectToSegmentDistance(badgeRect(placement), segment.start, segment.end) -
+        rectToSegmentDistance(
+          badgeRect(placement),
+          segment.start,
+          segment.end,
+        ) -
         segment.width / 2,
     ),
   );
@@ -113,9 +117,7 @@ describe('motricity badge placement', () => {
     expect(badge.y + MOTRICITY_BADGE_HEIGHT).toBeLessThanOrEqual(
       MOTRICITY_CANVAS_HEIGHT,
     );
-    expect(
-      rectsOverlap(badgeRect(badge), grounded.garage),
-    ).toBe(false);
+    expect(rectsOverlap(badgeRect(badge), grounded.garage)).toBe(false);
   });
 
   it('keeps the end badge in canvas for an end zone stuck to the top edge', () => {

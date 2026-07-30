@@ -149,4 +149,3 @@ describe('buildSessionRowView', () => {
     expect(row.dotVar).toBe('var(--rating-good)');
   });
 });
-

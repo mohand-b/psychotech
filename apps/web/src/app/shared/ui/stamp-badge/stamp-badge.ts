@@ -94,8 +94,7 @@ export class StampBadge {
   readonly axisStamp = input<AxisStamp | null>(null);
 
   protected readonly unfavorable = computed(
-    () =>
-      this.simulationStamp()?.verdict === SimulationVerdict.UNFAVORABLE,
+    () => this.simulationStamp()?.verdict === SimulationVerdict.UNFAVORABLE,
   );
 
   protected readonly verdictLabel = computed(() => {

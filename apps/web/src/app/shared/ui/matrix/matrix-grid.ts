@@ -23,7 +23,11 @@ import { MatrixCell } from './matrix-cell';
           <ui-matrix-cell [cell]="cells()[8]" [size]="cellSize()" />
         </div>
       } @else {
-        <div class="slot slot--mystery" [style.width.px]="cellSize()" [style.height.px]="cellSize()">
+        <div
+          class="slot slot--mystery"
+          [style.width.px]="cellSize()"
+          [style.height.px]="cellSize()"
+        >
           <span class="t-mono">?</span>
         </div>
       }

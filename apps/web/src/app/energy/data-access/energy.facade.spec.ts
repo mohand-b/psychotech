@@ -30,9 +30,7 @@ describe('EnergyFacade — rechargement au changement de formule', () => {
 
   function setup(initialTier: SubscriptionTier | null): EnergyFacade {
     currentUser = signal<UserProfileDto | null>(
-      initialTier === null
-        ? null
-        : ({ tier: initialTier } as UserProfileDto),
+      initialTier === null ? null : ({ tier: initialTier } as UserProfileDto),
     );
     stateApi = vi.fn(() =>
       of(

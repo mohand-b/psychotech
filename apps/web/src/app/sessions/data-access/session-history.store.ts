@@ -3,12 +3,7 @@ import {
   SessionHistoryItemDto,
   SessionHistoryPageDto,
 } from '@psychotech/shared';
-import {
-  patchState,
-  signalStore,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { SessionHistoryFilter } from './session-history.filter';
 
 interface SessionHistoryState {

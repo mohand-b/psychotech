@@ -135,9 +135,9 @@ describe('TutorialSessionFacade', () => {
     ]);
     const first = items[0];
     const second = items[1];
-    expect(
-      first.family === LogicFamily.NUMERIC ? first.structure : null,
-    ).toBe(LogicNumericStructure.SEQUENCE);
+    expect(first.family === LogicFamily.NUMERIC ? first.structure : null).toBe(
+      LogicNumericStructure.SEQUENCE,
+    );
     expect(
       second.family === LogicFamily.NUMERIC ? second.structure : null,
     ).toBe(LogicNumericStructure.TRIANGLE);

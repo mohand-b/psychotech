@@ -10,10 +10,7 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
-import {
-  AxisType,
-  FULL_SESSION_LABEL_LOWER,
-} from '@psychotech/shared';
+import { AxisType, FULL_SESSION_LABEL_LOWER } from '@psychotech/shared';
 import { Check, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
@@ -351,10 +348,7 @@ export class ChevronStepper {
     }
     event.preventDefault();
     const lastIndex = this.decoratedSteps().length - 1;
-    const next = Math.min(
-      lastIndex,
-      Math.max(0, this.selectedIndex() + delta),
-    );
+    const next = Math.min(lastIndex, Math.max(0, this.selectedIndex() + delta));
     this.previewIndex.set(null);
     this.selectedIndex.set(next);
     this.stepButtons()[next]?.nativeElement.focus();

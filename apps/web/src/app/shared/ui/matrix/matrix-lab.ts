@@ -21,7 +21,8 @@ const PROPOSAL_KIND_LABELS: Record<MatrixProposalKind, string> = {
   [MatrixProposalKind.GRID_DUPLICATE]: 'Case déjà présente dans la grille',
   [MatrixProposalKind.WRONG_STEP]: 'Progression au mauvais pas',
   [MatrixProposalKind.WRONG_AXIS]: 'Règle lue sur le mauvais axe',
-  [MatrixProposalKind.MISSING_ELEMENT]: 'Superposition avec un élément manquant',
+  [MatrixProposalKind.MISSING_ELEMENT]:
+    'Superposition avec un élément manquant',
   [MatrixProposalKind.EXTRA_ELEMENT]: 'Élément parasite',
   [MatrixProposalKind.FIRST_CELL_ONLY]: 'Première case seule',
   [MatrixProposalKind.WRONG_LAYER_REMOVED]: 'Mauvaise couche retirée',

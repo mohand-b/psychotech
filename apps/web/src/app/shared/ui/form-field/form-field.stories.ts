@@ -9,7 +9,10 @@ const meta: Meta<FormField> = {
   argTypes: {
     label: { control: 'text' },
     placeholder: { control: 'text' },
-    type: { control: { type: 'select' }, options: ['text', 'email', 'password'] },
+    type: {
+      control: { type: 'select' },
+      options: ['text', 'email', 'password'],
+    },
     error: { control: 'text' },
     valid: { control: 'boolean' },
     value: { control: 'text' },

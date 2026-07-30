@@ -13,7 +13,10 @@ export function startOfWeek(date: Date): number {
   return startOfDay(date) - dayIndexFromMonday * DAY_MS;
 }
 
-export function daysSince(value: string | Date, now: Date = new Date()): number {
+export function daysSince(
+  value: string | Date,
+  now: Date = new Date(),
+): number {
   return Math.round((startOfDay(now) - startOfDay(new Date(value))) / DAY_MS);
 }
 

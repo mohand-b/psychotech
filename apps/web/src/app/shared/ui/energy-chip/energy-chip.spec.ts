@@ -29,9 +29,9 @@ describe('EnergyChip', () => {
     const fixture = await setup(buildState({ balance: 3 }));
     const value = fixture.nativeElement.querySelector('.chip__value');
     expect(value.textContent).toBe('3/5');
-    expect(
-      fixture.nativeElement.querySelector('.chip__max').textContent,
-    ).toBe('/5');
+    expect(fixture.nativeElement.querySelector('.chip__max').textContent).toBe(
+      '/5',
+    );
   });
 
   it('stays active while the balance is above zero', async () => {
@@ -44,9 +44,9 @@ describe('EnergyChip', () => {
     const fixture = await setup(buildState({ balance: 0 }));
     const chip = fixture.nativeElement.querySelector('.chip');
     expect(chip.classList.contains('chip--depleted')).toBe(true);
-    expect(fixture.nativeElement.querySelector('.chip__value').textContent).toBe(
-      '0/5',
-    );
+    expect(
+      fixture.nativeElement.querySelector('.chip__value').textContent,
+    ).toBe('0/5');
   });
 
   it('shows the infinity symbol for the unlimited tier', async () => {

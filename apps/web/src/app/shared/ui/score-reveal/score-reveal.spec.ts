@@ -156,9 +156,10 @@ describe('bounceFor', () => {
         true,
       ]);
       for (const entry of livelier) {
-        expect([target, target * entry.peakRatio > SCORE_REVEAL_CEILING]).toEqual(
-          [target, true],
-        );
+        expect([
+          target,
+          target * entry.peakRatio > SCORE_REVEAL_CEILING,
+        ]).toEqual([target, true]);
       }
     }
   });

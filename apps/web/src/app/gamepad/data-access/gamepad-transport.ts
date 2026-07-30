@@ -152,7 +152,8 @@ export class GamepadTransport {
       return;
     }
     const peerConnection = this.createPeerConnection();
-    peerConnection.ondatachannel = (event) => this.wireDataChannel(event.channel);
+    peerConnection.ondatachannel = (event) =>
+      this.wireDataChannel(event.channel);
     await peerConnection.setRemoteDescription({ type: 'offer', sdp });
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);

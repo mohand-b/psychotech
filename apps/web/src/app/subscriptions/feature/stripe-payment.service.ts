@@ -92,7 +92,11 @@ export class StripePaymentService {
 
   private intentOptions(amountCents: number) {
     return amountCents > 0
-      ? ({ mode: 'subscription', amount: amountCents, currency: 'eur' } as const)
+      ? ({
+          mode: 'subscription',
+          amount: amountCents,
+          currency: 'eur',
+        } as const)
       : ({ mode: 'setup', currency: 'eur' } as const);
   }
 

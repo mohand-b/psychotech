@@ -33,7 +33,8 @@ const LEGACY_FULL_SESSION_REDIRECTS: Route[] = [
   },
   {
     path: 'entrainements/simulation/session/:sessionId/correction/:axis',
-    redirectTo: 'entrainements/examen-blanc/session/:sessionId/correction/:axis',
+    redirectTo:
+      'entrainements/examen-blanc/session/:sessionId/correction/:axis',
   },
 ];
 

@@ -13,7 +13,9 @@ async function render(
   }> = {},
 ): Promise<ComponentFixture<Button>> {
   TestBed.resetTestingModule();
-  await TestBed.configureTestingModule({ imports: [Button] }).compileComponents();
+  await TestBed.configureTestingModule({
+    imports: [Button],
+  }).compileComponents();
   const fixture = TestBed.createComponent(Button);
   for (const [name, value] of Object.entries(inputs)) {
     fixture.componentRef.setInput(name, value);
@@ -64,13 +66,16 @@ describe('Button', () => {
   it.each([
     [true, 'ui-button--block', 'ui-button--block-mobile'],
     ['mobile' as const, 'ui-button--block-mobile', 'ui-button--block'],
-  ])('maps block %s to the host class %s only', async (block, expected, absent) => {
-    const fixture = await render({ block });
-    const host = fixture.nativeElement as HTMLElement;
+  ])(
+    'maps block %s to the host class %s only',
+    async (block, expected, absent) => {
+      const fixture = await render({ block });
+      const host = fixture.nativeElement as HTMLElement;
 
-    expect(host.classList.contains(expected)).toBe(true);
-    expect(host.classList.contains(absent)).toBe(false);
-  });
+      expect(host.classList.contains(expected)).toBe(true);
+      expect(host.classList.contains(absent)).toBe(false);
+    },
+  );
 
   it('disables the inner button while loading', async () => {
     const fixture = await render({ loading: true });
@@ -78,6 +83,8 @@ describe('Button', () => {
 
     expect(element.disabled).toBe(true);
     expect(element.classList.contains('ui-button--loading')).toBe(true);
-    expect(fixture.nativeElement.querySelector('.ui-button__spinner')).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.ui-button__spinner'),
+    ).not.toBeNull();
   });
 });

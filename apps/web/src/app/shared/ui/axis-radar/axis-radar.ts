@@ -188,4 +188,3 @@ function polygonPoints(pointFor: (index: number) => RadarPoint): string {
     .map(({ x, y }) => `${x},${y}`)
     .join(' ');
 }
-

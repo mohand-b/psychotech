@@ -24,8 +24,10 @@ describe('LandingReveal', () => {
   beforeEach(() => {
     observed = [];
     matchMediaMatches = false;
-    window.matchMedia = ((query: string) =>
-      ({ matches: matchMediaMatches, media: query })) as typeof window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: matchMediaMatches,
+      media: query,
+    })) as typeof window.matchMedia;
     window.IntersectionObserver = class {
       private readonly entry: ObservedEntry;
       constructor(

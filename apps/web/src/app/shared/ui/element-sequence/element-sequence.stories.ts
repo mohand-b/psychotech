@@ -39,7 +39,11 @@ export const Mixed: Story = {};
 export const ShapesOnly: Story = { args: { elements: SHAPES_SEQUENCE } };
 export const LongTrial: Story = {
   args: {
-    elements: [...MIXED_SEQUENCE, ...SHAPES_SEQUENCE, { kind: 'CHAR', value: '8' }],
+    elements: [
+      ...MIXED_SEQUENCE,
+      ...SHAPES_SEQUENCE,
+      { kind: 'CHAR', value: '8' },
+    ],
     size: 24,
   },
 };

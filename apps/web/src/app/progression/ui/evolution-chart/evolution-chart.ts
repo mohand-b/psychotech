@@ -88,7 +88,6 @@ interface ChartValueLabel {
   muted: boolean;
 }
 
-
 @Component({
   selector: 'ui-evolution-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -109,9 +109,7 @@ describe('ResultSummary', () => {
     async (score, word) => {
       const fixture = await setup({ score, previousBestScore: null });
       const stamp = fixture.nativeElement.querySelector('.summary__stamp');
-      expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(
-        word,
-      );
+      expect(stamp.querySelector('.stamp__main').textContent.trim()).toBe(word);
       expect(stamp.querySelector('.stamp__sub')).toBeNull();
     },
   );
@@ -160,9 +158,9 @@ describe('ResultSummary', () => {
     });
     const bar = fixture.nativeElement.querySelector('ui-threshold-bar');
 
-    expect(
-      textOf(fixture, '.summary__bar-threshold-label--desktop'),
-    ).toContain('Axe critique, seuil éliminatoire');
+    expect(textOf(fixture, '.summary__bar-threshold-label--desktop')).toContain(
+      'Axe critique, seuil éliminatoire',
+    );
     expect(textOf(fixture, '.summary__bar-threshold-value')).toBe('55');
     expect(bar.querySelector('.bar__marker').style.left).toBe('55%');
   });
@@ -256,9 +254,7 @@ describe('ResultSummary', () => {
       recordVisible: false,
     });
     expect(deltaText(fixture)).toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('.summary__best'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('.summary__best')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('record');
   });
 });

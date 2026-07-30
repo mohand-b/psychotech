@@ -8,7 +8,10 @@ import {
 } from '@angular/core';
 import { GamepadPairingDto } from '@psychotech/shared';
 import QRCode from 'qrcode';
-import { GamepadLatencyStats, gamepadControllerUrl } from '../../data-access/gamepad-logic';
+import {
+  GamepadLatencyStats,
+  gamepadControllerUrl,
+} from '../../data-access/gamepad-logic';
 
 const QR_SIZE_PX = 148;
 

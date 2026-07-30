@@ -106,7 +106,9 @@ export class SubscriptionsFacade {
     return this.authFacade.loadCurrentUser().pipe(
       map((user) => {
         if (!user) {
-          throw new Error('Cannot refresh the tier without an authenticated user');
+          throw new Error(
+            'Cannot refresh the tier without an authenticated user',
+          );
         }
         return user.tier;
       }),
@@ -114,8 +116,6 @@ export class SubscriptionsFacade {
   }
 
   private refreshBilling(): Observable<BillingOverviewDto> {
-    return this.refreshTier().pipe(
-      switchMap(() => this.loadBillingOverview()),
-    );
+    return this.refreshTier().pipe(switchMap(() => this.loadBillingOverview()));
   }
 }

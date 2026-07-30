@@ -64,6 +64,8 @@ export class Badge {
   });
 
   protected readonly classes = computed(() =>
-    this.axis() ? 'ui-badge ui-badge--axis' : `ui-badge ui-badge--${this.tone()}`,
+    this.axis()
+      ? 'ui-badge ui-badge--axis'
+      : `ui-badge ui-badge--${this.tone()}`,
   );
 }

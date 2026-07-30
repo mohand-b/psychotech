@@ -20,11 +20,10 @@ export const VERDICT_TONE_INK_VARS: Record<VerdictTone, string> = {
   [VerdictTone.BAD]: 'var(--rating-bad-ink)',
 };
 
-const SIMULATION_VERDICT_TONES: Record<SimulationVerdict, VerdictTone> =
-  {
-    [SimulationVerdict.FAVORABLE]: VerdictTone.GOOD,
-    [SimulationVerdict.UNFAVORABLE]: VerdictTone.BAD,
-  };
+const SIMULATION_VERDICT_TONES: Record<SimulationVerdict, VerdictTone> = {
+  [SimulationVerdict.FAVORABLE]: VerdictTone.GOOD,
+  [SimulationVerdict.UNFAVORABLE]: VerdictTone.BAD,
+};
 
 interface VerdictAppearance extends VerdictBand {
   colorVar: string;

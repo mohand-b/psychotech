@@ -30,7 +30,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       </div>
       <div class="footer__bottom">
         <div class="footer__bottom-inner">
-          <span class="footer__mention">© 2026 PsychoTech. Tous droits réservés.</span>
+          <span class="footer__mention"
+            >© 2026 PsychoTech. Tous droits réservés.</span
+          >
           <span class="footer__mention"
             >Conçu pour les candidats aux sélections professionnelles.</span
           >

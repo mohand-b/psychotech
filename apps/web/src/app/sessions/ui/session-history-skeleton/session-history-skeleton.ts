@@ -7,20 +7,28 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     <div class="skeleton">
       <span class="skeleton__block skeleton__chip"></span>
       <span class="skeleton__heading flex flex-col gap-1.5">
-        <span class="skeleton__block skeleton__line skeleton__line--title"></span>
+        <span
+          class="skeleton__block skeleton__line skeleton__line--title"
+        ></span>
         <span class="skeleton__block skeleton__line skeleton__line--sub"></span>
       </span>
       <span class="skeleton__block skeleton__line skeleton__line--date"></span>
-      <span class="skeleton__block skeleton__line skeleton__line--duration"></span>
+      <span
+        class="skeleton__block skeleton__line skeleton__line--duration"
+      ></span>
       <span class="skeleton__block skeleton__line skeleton__line--score"></span>
       <span class="skeleton__end">
-        <span class="skeleton__block skeleton__line skeleton__line--link"></span>
+        <span
+          class="skeleton__block skeleton__line skeleton__line--link"
+        ></span>
       </span>
     </div>
     <div class="skeletonm">
       <span class="skeleton__block skeletonm__icon"></span>
       <span class="skeletonm__text flex flex-col gap-1.5">
-        <span class="skeleton__block skeleton__line skeleton__line--title"></span>
+        <span
+          class="skeleton__block skeleton__line skeleton__line--title"
+        ></span>
         <span class="skeleton__block skeleton__line skeleton__line--sub"></span>
       </span>
       <span class="skeleton__block skeleton__line skeleton__line--score"></span>

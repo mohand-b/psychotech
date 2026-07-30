@@ -1,10 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import {
-  Sector,
-  SubscriptionTier,
-  UserProfileDto,
-} from '@psychotech/shared';
+import { Sector, SubscriptionTier, UserProfileDto } from '@psychotech/shared';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { CoreFacade } from './core.facade';
 

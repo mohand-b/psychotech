@@ -105,8 +105,7 @@ export class Progression {
   protected readonly fullSessionCountLabel = fullSessionCountLabel;
 
   protected readonly threshold = computed(
-    () =>
-      this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? 70,
+    () => this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? 70,
   );
 
   protected readonly subtitleDate = computed(() => {
@@ -194,7 +193,9 @@ export class Progression {
             (a, b) => (b.currentScore ?? 0) - (a.currentScore ?? 0),
           )[0]
         : null;
-    return axes.map((axis) => this.buildRow(axis, critical, weakest, strongest));
+    return axes.map((axis) =>
+      this.buildRow(axis, critical, weakest, strongest),
+    );
   });
 
   private buildRow(

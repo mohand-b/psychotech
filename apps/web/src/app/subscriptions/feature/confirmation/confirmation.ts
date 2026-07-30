@@ -51,9 +51,7 @@ export class SubscriptionConfirmation {
     );
     const currentTier = this.authFacade.currentUser()?.tier;
     const fromTier =
-      currentTier && currentTier !== SubscriptionTier.FREE
-        ? currentTier
-        : null;
+      currentTier && currentTier !== SubscriptionTier.FREE ? currentTier : null;
     const plan = fromQuery ?? fromTier;
     if (!plan) {
       this.plan = SubscriptionTier.ESSENTIAL;

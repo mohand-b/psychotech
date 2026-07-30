@@ -74,5 +74,4 @@ export class SessionsApi {
       `${this.baseUrl}/sessions/${sessionId}/summary`,
     );
   }
-
 }

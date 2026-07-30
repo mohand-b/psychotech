@@ -14,9 +14,7 @@ interface RenderOptions {
   steps?: readonly ChevronStep[];
 }
 
-function render(
-  options: RenderOptions = {},
-): ComponentFixture<ChevronStepper> {
+function render(options: RenderOptions = {}): ComponentFixture<ChevronStepper> {
   const fixture = TestBed.createComponent(ChevronStepper);
   fixture.componentRef.setInput('mode', options.mode ?? 'progress');
   fixture.componentRef.setInput('variant', options.variant ?? 'full');
@@ -40,9 +38,9 @@ function numbers(fixture: ComponentFixture<ChevronStepper>): string[] {
 }
 
 function labels(fixture: ComponentFixture<ChevronStepper>): string[] {
-  return Array.from(
-    fixture.nativeElement.querySelectorAll('.step__label'),
-  ).map((node) => (node as HTMLElement).textContent?.trim() ?? '');
+  return Array.from(fixture.nativeElement.querySelectorAll('.step__label')).map(
+    (node) => (node as HTMLElement).textContent?.trim() ?? '',
+  );
 }
 
 function activeIndexOf(fixture: ComponentFixture<ChevronStepper>): number {
@@ -83,9 +81,9 @@ describe('ChevronStepper', () => {
 
     it('renders non-interactive steps without selection behavior', () => {
       const fixture = render({ currentIndex: 1 });
-      expect(fixture.nativeElement.querySelectorAll('button.step')).toHaveLength(
-        0,
-      );
+      expect(
+        fixture.nativeElement.querySelectorAll('button.step'),
+      ).toHaveLength(0);
       expect(activeIndexOf(fixture)).toBe(-1);
     });
 
