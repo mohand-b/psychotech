@@ -2,8 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
-  inject,
   input,
   model,
 } from '@angular/core';
@@ -28,7 +26,6 @@ import {
   LayoutGrid,
   LucideIconData,
 } from 'lucide-angular';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Keycap } from '../../../shared/ui/keycap/keycap';
@@ -348,10 +345,9 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
   styleUrl: './axis-briefing.css',
 })
 export class AxisBriefing {
-  private readonly catalogFacade = inject(CatalogFacade);
-
   readonly axis = input.required<AxisType>();
   readonly sector = input.required<Sector>();
+  readonly criticalAxis = input(false);
   readonly showOptions = input(true);
   readonly tutorial = input(false);
   readonly showPairing = input(false);
@@ -362,20 +358,9 @@ export class AxisBriefing {
     () => AXIS_PRESENTATION[this.axis()],
   );
 
-  protected readonly showCriticalChip = computed(() => {
-    if (this.tutorial()) {
-      return false;
-    }
-    const referential = this.catalogFacade.sectorReferential();
-    return (
-      referential?.axes.find((entry) => entry.code === this.axis())
-        ?.isCritical ?? false
-    );
-  });
-
-  constructor() {
-    effect(() => this.catalogFacade.loadSectorReferential(this.sector()));
-  }
+  protected readonly showCriticalChip = computed(
+    () => !this.tutorial() && this.criticalAxis(),
+  );
 
   protected readonly content = computed(
     () => AXIS_BRIEFING_CONTENT[this.axis() as RailwayPlayableAxis],

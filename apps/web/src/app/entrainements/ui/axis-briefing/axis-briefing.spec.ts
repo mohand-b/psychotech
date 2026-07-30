@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   AxisType,
@@ -8,7 +7,6 @@ import {
   SectorReferentialDto,
   TrainingOptionId,
 } from '@psychotech/shared';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AxisBriefing } from './axis-briefing';
 import { AXIS_BRIEFING_CONTENT } from './axis-briefing-content';
 
@@ -56,6 +54,12 @@ interface RenderOptions {
   enabledOptions?: TrainingOptionId[];
 }
 
+function isCriticalRailwayAxis(axis: RailwayPlayableAxis): boolean {
+  return (
+    REFERENTIAL.axes.find((entry) => entry.code === axis)?.isCritical ?? false
+  );
+}
+
 function render(
   axis: RailwayPlayableAxis,
   options: RenderOptions = {},
@@ -63,6 +67,7 @@ function render(
   const fixture = TestBed.createComponent(AxisBriefing);
   fixture.componentRef.setInput('axis', axis);
   fixture.componentRef.setInput('sector', Sector.RAILWAY);
+  fixture.componentRef.setInput('criticalAxis', isCriticalRailwayAxis(axis));
   fixture.componentRef.setInput('tutorial', options.tutorial ?? false);
   fixture.componentRef.setInput('showOptions', options.showOptions ?? true);
   fixture.componentRef.setInput('showPairing', options.showPairing ?? false);
@@ -92,15 +97,6 @@ describe('AxisBriefing (gabarit unifié)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AxisBriefing],
-      providers: [
-        {
-          provide: CatalogFacade,
-          useValue: {
-            sectorReferential: signal(REFERENTIAL),
-            loadSectorReferential: vi.fn(),
-          },
-        },
-      ],
     }).compileComponents();
   });
 

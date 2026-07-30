@@ -33,6 +33,7 @@ import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
+import { sectorReferentialFor } from '../sector-referential';
 import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 
 @Component({
@@ -73,6 +74,12 @@ export class AxisStart {
 
   protected readonly sector = computed(
     () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
+  );
+  private readonly referential = sectorReferentialFor(this.sector);
+  protected readonly criticalAxis = computed(
+    () =>
+      this.referential()?.axes.find((entry) => entry.code === this.axis)
+        ?.isCritical ?? false,
   );
 
   protected readonly unlimited = computed(

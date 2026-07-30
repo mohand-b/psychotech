@@ -10,7 +10,6 @@ import {
   MOTRICITY_CANVAS_WIDTH,
   MOTRICITY_CURSOR_RADIUS,
   MotricityCourse,
-  MotricityPoint,
 } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 import {

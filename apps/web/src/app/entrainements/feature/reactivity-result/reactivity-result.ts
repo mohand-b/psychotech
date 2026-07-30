@@ -29,6 +29,7 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
+import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { ReactivityTrChart } from '../../ui/reactivity-tr-chart/reactivity-tr-chart';
 
@@ -61,6 +62,10 @@ export class ReactivityResult {
 
   protected readonly axis = AxisType.REACTIVITY;
   protected readonly result = signal<TargetedReactivityResultDto | null>(null);
+
+  protected readonly referential = sectorReferentialFor(
+    computed(() => this.result()?.sector ?? null),
+  );
 
   constructor() {
     this.facade

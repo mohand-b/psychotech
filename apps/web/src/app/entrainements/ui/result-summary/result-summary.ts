@@ -3,7 +3,6 @@ import {
   Component,
   afterNextRender,
   computed,
-  effect,
   inject,
   input,
 } from '@angular/core';
@@ -17,7 +16,6 @@ import {
   roundToTenth,
 } from '@psychotech/shared';
 import { TriangleAlert } from 'lucide-angular';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -49,7 +47,6 @@ interface AxisGapView {
   styleUrl: './result-summary.css',
 })
 export class ResultSummary {
-  private readonly catalogFacade = inject(CatalogFacade);
   private readonly reveal = inject(ScoreReveal);
 
   protected readonly revealedScore = this.reveal.value;
@@ -69,6 +66,7 @@ export class ResultSummary {
   readonly sector = input.required<Sector>();
   readonly completedAt = input.required<string>();
   readonly recordVisible = input(true);
+  readonly referential = input.required<SectorReferentialDto | null>();
 
   protected readonly alertIcon = TriangleAlert;
   protected readonly eliminatoryNote = ELIMINATORY_AXIS_VERDICT_NOTE;
@@ -89,10 +87,6 @@ export class ResultSummary {
     const previous = this.previousBestScore();
     return previous === null ? null : this.score() - previous;
   });
-
-  private readonly referential = computed(() =>
-    this.catalogFacade.sectorReferential(),
-  );
 
   private readonly axisEntry = computed(() =>
     this.referential()?.axes.find((entry) => entry.code === this.axis()),
@@ -142,7 +136,6 @@ export class ResultSummary {
   protected readonly fillTo = computed(() => this.presentation().plainVar);
 
   constructor() {
-    effect(() => this.catalogFacade.loadSectorReferential(this.sector()));
     afterNextRender(() => this.reveal.start(this.score()));
   }
 

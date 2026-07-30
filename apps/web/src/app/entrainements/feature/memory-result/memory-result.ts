@@ -31,6 +31,7 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
+import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 
 @Component({
@@ -62,6 +63,10 @@ export class MemoryResult {
 
   protected readonly axis = AxisType.MEMORY;
   protected readonly result = signal<TargetedMemoryResultDto | null>(null);
+
+  protected readonly referential = sectorReferentialFor(
+    computed(() => this.result()?.sector ?? null),
+  );
 
   constructor() {
     this.facade.loadTargetedResult(this.sessionId, AxisType.MEMORY).subscribe({

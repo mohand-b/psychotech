@@ -1,7 +1,5 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AxisType, Sector, SectorReferentialDto } from '@psychotech/shared';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { ResultSummary } from './result-summary';
 
 const REFERENTIAL: SectorReferentialDto = {
@@ -39,15 +37,6 @@ async function setup(inputs: {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [ResultSummary],
-    providers: [
-      {
-        provide: CatalogFacade,
-        useValue: {
-          sectorReferential: signal(REFERENTIAL),
-          loadSectorReferential: vi.fn(),
-        },
-      },
-    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(ResultSummary);
   fixture.componentRef.setInput('axis', inputs.axis ?? AxisType.LOGIC);
@@ -62,6 +51,7 @@ async function setup(inputs: {
   fixture.componentRef.setInput('sector', Sector.RAILWAY);
   fixture.componentRef.setInput('completedAt', '2026-07-16T10:00:00.000Z');
   fixture.componentRef.setInput('recordVisible', inputs.recordVisible ?? true);
+  fixture.componentRef.setInput('referential', REFERENTIAL);
   fixture.detectChanges();
   return fixture;
 }

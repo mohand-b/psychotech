@@ -22,6 +22,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
+import { sectorReferentialFor } from '../sector-referential';
 
 @Component({
   selector: 'app-simulation-briefing',
@@ -46,6 +47,16 @@ export class SimulationBriefing {
   protected readonly sector = computed(
     () => this.facade.session()?.sector ?? Sector.RAILWAY,
   );
+  private readonly referential = sectorReferentialFor(
+    computed(() => this.facade.session()?.sector ?? null),
+  );
+  protected readonly criticalAxis = computed(() => {
+    const axis = this.axis();
+    return axis
+      ? (this.referential()?.axes.find((entry) => entry.code === axis)
+          ?.isCritical ?? false)
+      : false;
+  });
 
   protected readonly motricityAxis = computed(
     () => this.axis() === AxisType.MOTOR_SKILLS,

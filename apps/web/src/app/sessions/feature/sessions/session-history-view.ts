@@ -16,7 +16,6 @@ import {
   DAY_MS,
   capitalize,
   formatSessionDate,
-  startOfDay,
   startOfWeek,
 } from '../../../shared/util/format-session-date';
 
