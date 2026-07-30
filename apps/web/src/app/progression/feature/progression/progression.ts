@@ -229,16 +229,19 @@ export class Progression {
             : axis.axis === strongest?.axis
               ? 'Votre point fort'
               : null;
+    const presentation = AXIS_PRESENTATION[axis.axis];
     return {
       axis: axis.axis,
-      presentation: AXIS_PRESENTATION[axis.axis],
+      presentation,
       tag,
       tagColorVar:
         tag === 'Votre point fort'
           ? 'var(--success-text)'
           : tag === 'Pas encore joué'
             ? 'var(--label)'
-            : 'var(--warning-text)',
+            : critical.has(axis.axis)
+              ? presentation.textVar
+              : 'var(--warning-text)',
       score: axis.currentScore === null ? null : Math.round(axis.currentScore),
       deltaLabel:
         delta === null ? null : `${delta >= 0 ? '+' : '−'}${Math.abs(delta)}`,
