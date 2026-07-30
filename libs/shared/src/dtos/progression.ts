@@ -36,6 +36,7 @@ export interface EvolutionPointDto {
   date: string;
   globalScore: number;
   band: ScoreBand;
+  isEliminated: boolean;
 }
 
 export interface AxisSparklinePointDto {
