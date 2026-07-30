@@ -8,7 +8,6 @@
 import { Router } from '@angular/router';
 import {
   AxisProgressStatus,
-  AxisType,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,

@@ -13,7 +13,6 @@ import {
 import { DominoFace } from '../exercises/domino/domino-item';
 import {
   AxisMetrics,
-  MotorSkillsCourseRecap,
   MotorSkillsMetrics,
   SimulationVerdict,
   TrainingOptionId,

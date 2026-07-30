@@ -15,7 +15,6 @@ import {
   buildEnergyState,
   canAfford,
   isDailyResetDue,
-  refilledBalance,
 } from './energy.logic';
 import { toDbReason } from './energy.mappers';
 import { EnergyRepository } from './energy.repository';

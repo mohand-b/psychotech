@@ -48,7 +48,7 @@ describe('LandingReveal', () => {
       disconnect() {
         this.entry.disconnected = true;
       }
-      unobserve() {}
+      unobserve = (): void => undefined;
       takeRecords() {
         return [];
       }

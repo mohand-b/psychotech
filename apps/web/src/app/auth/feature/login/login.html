@@ -6,7 +6,11 @@
     </p>
   </div>
 
-  <div class="auth__fields" (keydown.enter)="submitOnEnter($event)">
+  <div
+    class="auth__fields"
+    tabindex="-1"
+    (keydown.enter)="submitOnEnter($event)"
+  >
     <ui-form-field
       label="Email"
       type="email"

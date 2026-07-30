@@ -23,8 +23,12 @@
   >
     <div
       class="duo__pitch"
+      role="button"
+      tabindex="0"
+      [attr.aria-expanded]="panel() === 'sim'"
       [class.duo__pitch--closed]="panel() !== 'sim' && !isFree()"
       (click)="openPanel('sim')"
+      (keydown.enter)="openPanel('sim')"
     >
       <div class="duo__pitch-head">
         <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
@@ -34,6 +38,7 @@
           class="duo__hint duo__hint--sim"
           [class.duo__hint--hidden]="panel() === 'sim'"
           aria-label="Déplier le détail"
+          tabindex="-1"
         >
           <ui-icon [img]="chevronRightIcon" [size]="15" />
         </button>
@@ -268,8 +273,12 @@
 
     <div
       class="duo__pitch"
+      role="button"
+      tabindex="0"
+      [attr.aria-expanded]="panel() === 'cible'"
       [class.duo__pitch--closed]="panel() !== 'cible' && !isFree()"
       (click)="openPanel('cible')"
+      (keydown.enter)="openPanel('cible')"
     >
       <div class="duo__pitch-head">
         @if (!isFree()) {
@@ -278,6 +287,7 @@
           class="duo__hint duo__hint--cible"
           [class.duo__hint--hidden]="panel() === 'cible'"
           aria-label="Déplier le détail"
+          tabindex="-1"
         >
           <ui-icon [img]="chevronLeftIcon" [size]="15" />
         </button>

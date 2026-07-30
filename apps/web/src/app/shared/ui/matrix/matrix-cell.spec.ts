@@ -12,7 +12,6 @@ import {
   MATRIX_SYMBOLS,
   MatrixCellSpec,
   MatrixContainer,
-  MatrixDecor,
   MatrixRegister,
   MatrixStructure,
   MatrixSymbol,

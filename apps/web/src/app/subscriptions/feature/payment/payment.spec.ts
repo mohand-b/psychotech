@@ -157,7 +157,7 @@ function text(fixture: { nativeElement: HTMLElement }, selector: string) {
   return (
     fixture.nativeElement
       .querySelector(selector)
-      ?.textContent?.replace(/ /g, ' ')
+      ?.textContent?.replace(/\u00A0/g, ' ')
       .trim() ?? ''
   );
 }
@@ -167,7 +167,7 @@ function texts(
   selector: string,
 ): string[] {
   return Array.from(fixture.nativeElement.querySelectorAll(selector)).map(
-    (node) => node.textContent?.replace(/[ ]/g, ' ').trim() ?? '',
+    (node) => node.textContent?.replace(/[\u00A0]/g, ' ').trim() ?? '',
   );
 }
 

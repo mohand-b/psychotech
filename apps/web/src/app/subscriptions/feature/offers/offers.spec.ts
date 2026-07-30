@@ -77,7 +77,7 @@ async function setup(tier: SubscriptionTier, options: SetupOptions = {}) {
 
 function texts(element: HTMLElement, selector: string): string[] {
   return Array.from(element.querySelectorAll(selector)).map(
-    (node) => node.textContent?.replace(/ /g, ' ').trim() ?? '',
+    (node) => node.textContent?.replace(/\u00A0/g, ' ').trim() ?? '',
   );
 }
 

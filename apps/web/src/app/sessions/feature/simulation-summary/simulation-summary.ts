@@ -15,7 +15,6 @@ import {
   ELIMINATORY_AXIS_VERDICT_NOTE,
   FULL_SESSION_REPORT_LABEL,
   SimulationAxisSummaryDto,
-  SimulationSummaryDto,
   SimulationThresholdKind,
   SimulationWeaknessDto,
   TargetedAxisResultDto,

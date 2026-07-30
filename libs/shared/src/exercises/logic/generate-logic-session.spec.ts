@@ -9,7 +9,12 @@ import {
   generateLogicSession,
   generateLogicTutorial,
 } from './generate-logic-session';
-import { LogicNumericStructure, LogicItem } from './logic-item';
+import {
+  LogicNumericStructure,
+  LogicItem,
+  NumericLogicItem,
+  TriangleLogicItem,
+} from './logic-item';
 import {
   LOGIC_CONTENT_VERSION_V2,
   LOGIC_CONTENT_VERSION_V3,
@@ -366,11 +371,17 @@ describe('catalogue épuré en version de contenu 4', () => {
     'interleaved-double-fibonacci',
   ];
 
-  function numericItemsOf(seed: string, contentVersion: number) {
+  function numericItemsOf(
+    seed: string,
+    contentVersion: number,
+  ): (NumericLogicItem | TriangleLogicItem)[] {
     return generateLogicSession(
       seed,
       LogicFamilyFilter.NUMERIC,
       contentVersion,
+    ).filter(
+      (item): item is NumericLogicItem | TriangleLogicItem =>
+        item.family === LogicFamily.NUMERIC,
     );
   }
 

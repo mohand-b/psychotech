@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
 import {
   AXIS_TRAINING,
   CurrentSessionDto,
-  FULL_SESSION_LABEL,
   FULL_SESSION_LABEL_PLURAL,
   RailwayPlayableAxis,
   SessionMode,

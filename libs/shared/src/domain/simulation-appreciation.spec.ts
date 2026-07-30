@@ -6,7 +6,6 @@ import {
 } from './simulation-appreciation';
 import {
   SimulationAxisOutcome,
-  SimulationThresholdKind,
   buildSimulationSummary,
 } from './simulation-summary';
 
