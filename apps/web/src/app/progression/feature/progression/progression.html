@@ -230,7 +230,10 @@
             @if (radarLastDate(); as lastDate) {
               <span class="prog__radar-legend-item">
                 <span class="prog__legend-line"></span>
-                Dernier {{ fullSessionLabelLower }}, {{ lastDate }}
+                Dernier {{ fullSessionLabelLower }}, le
+                <span class="t-mono prog__radar-legend-date">{{
+                  lastDate
+                }}</span>
               </span>
             }
           </div>

@@ -152,7 +152,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 24px;
-  max-width: 620px;
+  max-width: 760px;
   padding: 88px 64px 64px 80px;
 }
 
@@ -183,6 +183,7 @@
   font: 600 clamp(34px, 4.4vw, 60px) / 1.05 var(--landing-font-display);
   letter-spacing: -0.02em;
   color: var(--landing-text);
+  text-wrap: balance;
 }
 
 .hero__subtitle {

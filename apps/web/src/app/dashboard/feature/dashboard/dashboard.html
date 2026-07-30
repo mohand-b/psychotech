@@ -239,8 +239,9 @@
                 >
               </div>
             </div>
-            <span class="home__result-date t-mono"
-              >{{ fullSessionLabel }} · {{ result.dateLabel }}</span
+            <span class="home__result-date"
+              >{{ fullSessionLabel }} ·
+              <span class="t-mono">{{ result.dateLabel }}</span></span
             >
           </div>
         } @else if (overviewPending()) {
