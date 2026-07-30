@@ -24,7 +24,6 @@ import {
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
-import { Icon } from '../../../shared/ui/icon/icon';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { CurrentSessionBanner } from '../../ui/current-session-banner/current-session-banner';
 import { SessionHistoryRow } from '../../ui/session-history-row/session-history-row';
@@ -57,7 +56,6 @@ interface RowGroupView {
     AxisLabel,
     Button,
     CurrentSessionBanner,
-    Icon,
     SessionHistoryRow,
     SessionHistorySkeleton,
   ],
