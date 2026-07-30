@@ -9,8 +9,50 @@ import { describe, expect, it } from 'vitest';
 import {
   activePlayDurationSec,
   computeStreakUpdate,
+  resolveHistoryScope,
   resolveSessionAxes,
 } from './sessions.logic';
+
+describe('resolveHistoryScope', () => {
+  it('leaves an unfiltered scope untouched', () => {
+    expect(resolveHistoryScope({})).toEqual({
+      mode: undefined,
+      axis: undefined,
+    });
+  });
+
+  it.each([SessionMode.FULL, SessionMode.TARGETED])(
+    'keeps a bare %s mode filter untouched',
+    (mode) => {
+      expect(resolveHistoryScope({ mode })).toEqual({ mode, axis: undefined });
+    },
+  );
+
+  it('couples a bare axis filter to targeted sessions', () => {
+    expect(resolveHistoryScope({ axis: AxisType.LOGIC })).toEqual({
+      mode: SessionMode.TARGETED,
+      axis: AxisType.LOGIC,
+    });
+  });
+
+  it('keeps an axis filter already scoped to targeted sessions', () => {
+    expect(
+      resolveHistoryScope({
+        mode: SessionMode.TARGETED,
+        axis: AxisType.MEMORY,
+      }),
+    ).toEqual({ mode: SessionMode.TARGETED, axis: AxisType.MEMORY });
+  });
+
+  it('refuses an axis filter on full sessions', () => {
+    expect(() =>
+      resolveHistoryScope({
+        mode: SessionMode.FULL,
+        axis: AxisType.REACTIVITY,
+      }),
+    ).toThrow(BadRequestException);
+  });
+});
 
 describe('resolveSessionAxes', () => {
   it('covers the five axes in order for a full session', () => {

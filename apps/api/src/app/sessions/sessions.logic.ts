@@ -11,6 +11,23 @@ import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util'
 
 export const SESSION_HISTORY_PAGE_SIZE = 10;
 
+export interface HistoryScope {
+  mode?: SessionMode;
+  axis?: AxisType;
+}
+
+export function resolveHistoryScope(scope: HistoryScope): HistoryScope {
+  if (!scope.axis) {
+    return { mode: scope.mode, axis: undefined };
+  }
+  if (scope.mode === SessionMode.FULL) {
+    throw new BadRequestException(
+      'An axis filter only applies to targeted sessions',
+    );
+  }
+  return { mode: SessionMode.TARGETED, axis: scope.axis };
+}
+
 export function sessionUntimed(session: {
   trainingOptions: string[];
 }): boolean {

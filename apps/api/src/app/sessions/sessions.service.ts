@@ -86,6 +86,7 @@ import {
   SESSION_HISTORY_PAGE_SIZE,
   axisContentFullyPlayed,
   computeStreakUpdate,
+  resolveHistoryScope,
   resolveSessionAxes,
   sessionUntimed,
 } from './sessions.logic';
@@ -672,8 +673,7 @@ export class SessionsService {
     query: ListSessionsQuery,
   ): Promise<SessionHistoryPageDto> {
     const rows = await this.repository.listHistory(userId, {
-      mode: query.mode,
-      axis: query.axis,
+      ...resolveHistoryScope(query),
       cursor: query.cursor,
       take: SESSION_HISTORY_PAGE_SIZE + 1,
     });

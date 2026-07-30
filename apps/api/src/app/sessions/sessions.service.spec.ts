@@ -1293,7 +1293,20 @@ describe('SessionsService.results', () => {
 });
 
 describe('SessionsService.list', () => {
-  it('scopes an axis filter to targeted sessions when both filters are given', async () => {
+  it('forces the targeted mode on an axis filter even when the caller omits it', async () => {
+    repository.listHistory.mockResolvedValue([]);
+
+    await service.list('user-1', { axis: AxisType.LOGIC });
+
+    expect(repository.listHistory).toHaveBeenCalledWith('user-1', {
+      mode: SessionMode.TARGETED,
+      axis: AxisType.LOGIC,
+      cursor: undefined,
+      take: 11,
+    });
+  });
+
+  it('keeps the axis filter when the caller already asks for targeted sessions', async () => {
     repository.listHistory.mockResolvedValue([]);
 
     await service.list('user-1', {
@@ -1307,6 +1320,16 @@ describe('SessionsService.list', () => {
       cursor: undefined,
       take: 11,
     });
+  });
+
+  it('rejects an axis filter combined with full sessions', async () => {
+    await expect(
+      service.list('user-1', {
+        mode: SessionMode.FULL,
+        axis: AxisType.LOGIC,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.listHistory).not.toHaveBeenCalled();
   });
 
   it('returns a next cursor only when an extra row exists beyond the page', async () => {
