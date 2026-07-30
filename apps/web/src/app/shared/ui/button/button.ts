@@ -231,6 +231,7 @@ export type ButtonSize = 'md' | 'lg';
       cursor: not-allowed;
     }
     .ui-button--outlined:disabled {
+      background: var(--card);
       border-color: var(--border);
     }
     .ui-button--solid.ui-button--relief:disabled {
