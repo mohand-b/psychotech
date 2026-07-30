@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   AxisType,
@@ -52,19 +54,13 @@ interface AdviceItem {
 @Component({
   selector: 'app-simulation-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ActionFooter,
-    BoltIcon,
-    Button,
-    ChevronStepper,
-    Icon,
-    RouterLink,
-  ],
+  imports: [ActionFooter, BoltIcon, Button, ChevronStepper, Icon, RouterLink],
   templateUrl: './simulation-start.html',
   styleUrl: './simulation-start.css',
 })
 export class SimulationStart {
   private readonly authFacade = inject(AuthFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
@@ -127,8 +123,7 @@ export class SimulationStart {
 
   protected readonly energyShort = computed(
     () =>
-      !this.unlimited() &&
-      this.energyFacade.state()?.canStartFull === false,
+      !this.unlimited() && this.energyFacade.state()?.canStartFull === false,
   );
 
   protected readonly balance = computed(
@@ -162,15 +157,24 @@ export class SimulationStart {
       return;
     }
     this.starting.set(true);
-    this.trainingSessionFacade.startFull().subscribe({
-      next: (session) =>
-        this.router.navigate(['/entrainements/examen-blanc/session', session.id]),
-      error: (error: unknown) => {
-        this.starting.set(false);
-        if (isEnergyInsufficientError(error)) {
-          this.energyFacade.load().subscribe({ error: () => undefined });
-        }
-      },
-    });
+    this.trainingSessionFacade
+      .startFull()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (session) =>
+          this.router.navigate([
+            '/entrainements/examen-blanc/session',
+            session.id,
+          ]),
+        error: (error: unknown) => {
+          this.starting.set(false);
+          if (isEnergyInsufficientError(error)) {
+            this.energyFacade
+              .load()
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({ error: () => undefined });
+          }
+        },
+      });
   }
 }

@@ -2,10 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ArrowRight } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
@@ -23,6 +25,7 @@ import { emailErrorMessage } from '../email-validation';
 })
 export class Login {
   private readonly authFacade = inject(AuthFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
   protected readonly arrowIcon = ArrowRight;
@@ -61,6 +64,7 @@ export class Login {
     }
     this.authFacade
       .login({ email: this.email(), password: this.password() })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.router.navigate(['/dashboard']),
         error: (error: unknown) =>

@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -156,27 +157,19 @@ export class MotricityPlay {
   });
   protected readonly polygonPoints = computed(() => {
     const course = this.course();
-    return course
-      ? formatPoints(course.polygon)
-      : '';
+    return course ? formatPoints(course.polygon) : '';
   });
   protected readonly leftSidePoints = computed(() => {
     const course = this.course();
-    return course
-      ? formatPoints(course.leftSide)
-      : '';
+    return course ? formatPoints(course.leftSide) : '';
   });
   protected readonly rightSidePoints = computed(() => {
     const course = this.course();
-    return course
-      ? formatPoints(course.rightSide)
-      : '';
+    return course ? formatPoints(course.rightSide) : '';
   });
   protected readonly centerlinePoints = computed(() => {
     const course = this.course();
-    return course
-      ? formatPoints(course.centerline)
-      : '';
+    return course ? formatPoints(course.centerline) : '';
   });
 
   private live: MotricityLiveState = createMotricityLiveState();
@@ -215,10 +208,13 @@ export class MotricityPlay {
     if (active?.id === this.sessionId) {
       this.handleLoaded(active);
     } else {
-      this.facade.load(this.sessionId).subscribe({
-        next: (session) => this.handleLoaded(session),
-        error: () => this.router.navigate(['/entrainements']),
-      });
+      this.facade
+        .load(this.sessionId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (session) => this.handleLoaded(session),
+          error: () => this.router.navigate(['/entrainements']),
+        });
     }
   }
 

@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisFinding,
@@ -49,6 +51,7 @@ import { MotricityTrajectoryChart } from '../../ui/motricity-trajectory-chart/mo
 })
 export class MotricityResult {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -69,6 +72,7 @@ export class MotricityResult {
   constructor() {
     this.facade
       .loadTargetedResult(this.sessionId, AxisType.MOTOR_SKILLS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.axis === AxisType.MOTOR_SKILLS) {

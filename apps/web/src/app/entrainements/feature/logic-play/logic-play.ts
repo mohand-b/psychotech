@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -97,6 +99,7 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
 })
 export class LogicPlay {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly resultWait = inject(ResultWaitOrchestrator);
@@ -121,9 +124,7 @@ export class LogicPlay {
   protected readonly countingDown = signal(true);
   protected readonly currentIndex = signal(0);
   protected readonly answers = signal<Record<number, number>>({});
-  protected readonly numericAnswers = signal<Record<number, number | null>>(
-    {},
-  );
+  protected readonly numericAnswers = signal<Record<number, number | null>>({});
   protected readonly dominoAnswers = signal<Record<number, DominoAnswer>>({});
   protected readonly activeFace = signal<DominoAnswerFace>('top');
   protected readonly submitting = signal(false);
@@ -227,8 +228,7 @@ export class LogicPlay {
     );
   });
   protected readonly unansweredCount = computed(
-    () =>
-      this.items().filter((_, index) => !this.answeredAt(index)).length,
+    () => this.items().filter((_, index) => !this.answeredAt(index)).length,
   );
   protected readonly currentAnswered = computed(() =>
     this.answeredAt(this.currentIndex()),
@@ -256,10 +256,13 @@ export class LogicPlay {
     if (active?.id === this.sessionId) {
       this.handleLoaded(active);
     } else {
-      this.facade.load(this.sessionId).subscribe({
-        next: (session) => this.handleLoaded(session),
-        error: () => this.router.navigate(['/entrainements']),
-      });
+      this.facade
+        .load(this.sessionId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (session) => this.handleLoaded(session),
+          error: () => this.router.navigate(['/entrainements']),
+        });
     }
     effect(() => {
       if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {

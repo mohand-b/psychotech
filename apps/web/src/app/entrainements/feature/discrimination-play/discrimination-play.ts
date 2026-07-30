@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Signal,
   WritableSignal,
@@ -11,6 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -47,6 +49,7 @@ const SEQUENCE_SIZE = 28;
 })
 export class DiscriminationPlay {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly resultWait = inject(ResultWaitOrchestrator);
@@ -135,10 +138,13 @@ export class DiscriminationPlay {
     if (active?.id === this.sessionId) {
       this.handleLoaded(active);
     } else {
-      this.facade.load(this.sessionId).subscribe({
-        next: (session) => this.handleLoaded(session),
-        error: () => this.router.navigate(['/entrainements']),
-      });
+      this.facade
+        .load(this.sessionId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (session) => this.handleLoaded(session),
+          error: () => this.router.navigate(['/entrainements']),
+        });
     }
   }
 

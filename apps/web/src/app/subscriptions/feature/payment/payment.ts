@@ -126,9 +126,7 @@ export class Payment {
       return;
     }
     this.mode = 'change';
-    if (
-      this.authFacade.currentUser()?.subscription?.pendingTier === plan
-    ) {
+    if (this.authFacade.currentUser()?.subscription?.pendingTier === plan) {
       this.router.navigate(['/abonnements']);
       return;
     }
@@ -325,6 +323,7 @@ export class Payment {
     this.subscriptionsFacade
       .previewPlanChange(this.plan)
       .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (preview) => this.changePreview.set(preview),
         error: () => this.changePreviewFailed.set(true),
@@ -337,16 +336,19 @@ export class Payment {
     }
     this.changing.set(true);
     this.changeError.set(false);
-    this.subscriptionsFacade.changePlan(this.plan).subscribe({
-      next: () =>
-        this.router.navigate(['/abonnement-confirme'], {
-          queryParams: { offre: PLAN_SLUGS[this.plan], mode: 'changement' },
-        }),
-      error: () => {
-        this.changing.set(false);
-        this.changeError.set(true);
-      },
-    });
+    this.subscriptionsFacade
+      .changePlan(this.plan)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () =>
+          this.router.navigate(['/abonnement-confirme'], {
+            queryParams: { offre: PLAN_SLUGS[this.plan], mode: 'changement' },
+          }),
+        error: () => {
+          this.changing.set(false);
+          this.changeError.set(true);
+        },
+      });
   }
 
   private async setupPaymentElement(): Promise<void> {
@@ -392,6 +394,7 @@ export class Payment {
         finalize(() => this.applying.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (promotion) => {
           this.promotion.set(promotion);

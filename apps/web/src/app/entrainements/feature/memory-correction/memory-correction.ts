@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AXIS_TRAINING,
@@ -80,6 +82,7 @@ interface AnswerCell {
 })
 export class MemoryCorrection {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -102,14 +105,17 @@ export class MemoryCorrection {
   protected readonly clockIcon = Clock;
 
   constructor() {
-    this.facade.loadTargetedResult(this.sessionId, AxisType.MEMORY).subscribe({
-      next: (result) => {
-        if (result.axis === AxisType.MEMORY) {
-          this.result.set(result);
-        }
-      },
-      error: () => this.router.navigate(['/entrainements']),
-    });
+    this.facade
+      .loadTargetedResult(this.sessionId, AxisType.MEMORY)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (result.axis === AxisType.MEMORY) {
+            this.result.set(result);
+          }
+        },
+        error: () => this.router.navigate(['/entrainements']),
+      });
   }
 
   protected readonly sequences = computed(() => {

@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -102,6 +104,7 @@ interface DominoUserAnswer {
 })
 export class LogicCorrection {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -117,16 +120,18 @@ export class LogicCorrection {
   protected readonly result = signal<TargetedLogicResultDto | null>(null);
   protected readonly currentIndex = signal(0);
 
-
   constructor() {
-    this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
-      next: (result) => {
-        if (result.axis === AxisType.LOGIC) {
-          this.result.set(result);
-        }
-      },
-      error: () => this.router.navigate(['/entrainements']),
-    });
+    this.facade
+      .loadTargetedResult(this.sessionId, AxisType.LOGIC)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (result.axis === AxisType.LOGIC) {
+            this.result.set(result);
+          }
+        },
+        error: () => this.router.navigate(['/entrainements']),
+      });
   }
 
   protected readonly items = computed(() => {
@@ -142,9 +147,7 @@ export class LogicCorrection {
 
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
     const result = this.result();
-    return result
-      ? scoreLogicSession(this.items(), result.items).statuses
-      : [];
+    return result ? scoreLogicSession(this.items(), result.items).statuses : [];
   });
 
   protected readonly dots = computed<StatusBandEntry[]>(() =>
@@ -188,8 +191,8 @@ export class LogicCorrection {
       : null;
   });
 
-  protected readonly triangleUserView =
-    computed<TriangleDisplayValues | null>(() => {
+  protected readonly triangleUserView = computed<TriangleDisplayValues | null>(
+    () => {
       const item = this.triangleItem();
       const value = this.responseByIndex().get(
         this.currentIndex(),
@@ -208,7 +211,8 @@ export class LogicCorrection {
         missing.slot,
         value,
       );
-    });
+    },
+  );
 
   protected readonly dominoItem = computed(() => {
     const item = this.currentItem();

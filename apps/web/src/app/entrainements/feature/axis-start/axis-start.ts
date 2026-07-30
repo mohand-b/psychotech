@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AxisType,
@@ -148,6 +149,7 @@ export class AxisStart {
     this.starting.set(true);
     this.trainingSessionFacade
       .startTargeted(this.axis, this.targetedOptions())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (session) =>
           this.router.navigate([
@@ -159,7 +161,10 @@ export class AxisStart {
         error: (error: unknown) => {
           this.starting.set(false);
           if (isEnergyInsufficientError(error)) {
-            this.energyFacade.load().subscribe({ error: () => undefined });
+            this.energyFacade
+              .load()
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({ error: () => undefined });
           }
         },
       });

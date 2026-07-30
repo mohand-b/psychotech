@@ -197,6 +197,7 @@ export class Profile {
     this.subscriptionsFacade
       .loadBillingOverview(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
     if (this.tier() !== SubscriptionTier.FREE) {
       this.loadInvoices();
@@ -217,16 +218,19 @@ export class Profile {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.cancelSubscription().subscribe({
-      next: () => {
-        this.managing.set(false);
-        this.confirmingCancel.set(false);
-      },
-      error: () => {
-        this.managing.set(false);
-        this.confirmingCancel.set(false);
-      },
-    });
+    this.subscriptionsFacade
+      .cancelSubscription()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.managing.set(false);
+          this.confirmingCancel.set(false);
+        },
+        error: () => {
+          this.managing.set(false);
+          this.confirmingCancel.set(false);
+        },
+      });
   }
 
   protected resumeSubscription(): void {
@@ -234,10 +238,13 @@ export class Profile {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.resumeSubscription().subscribe({
-      next: () => this.managing.set(false),
-      error: () => this.managing.set(false),
-    });
+    this.subscriptionsFacade
+      .resumeSubscription()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.managing.set(false),
+        error: () => this.managing.set(false),
+      });
   }
 
   protected loadInvoices(): void {
@@ -245,6 +252,7 @@ export class Profile {
     this.invoices.set(null);
     this.subscriptionsFacade
       .listInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (invoices) => this.invoices.set(invoices),
@@ -470,7 +478,9 @@ export class Profile {
       description: renewal
         ? `La résiliation prend effet le ${renewal}, fin de la période payée. Votre progression est conservée.`
         : 'La résiliation prend effet à la fin de la période payée. Votre progression est conservée.',
-      ctaLabel: this.confirmingCancel() ? 'Confirmer la résiliation' : 'Résilier',
+      ctaLabel: this.confirmingCancel()
+        ? 'Confirmer la résiliation'
+        : 'Résilier',
     };
   });
 
@@ -588,6 +598,7 @@ export class Profile {
         firstName: this.firstName().trim(),
         lastName: this.lastName().trim(),
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.saving.set(false);
@@ -605,6 +616,7 @@ export class Profile {
         currentPassword: this.currentPassword(),
         newPassword: this.newPassword(),
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.saving.set(false);
@@ -646,10 +658,12 @@ export class Profile {
   }
 
   protected logout(): void {
-    this.authFacade.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
+    this.authFacade
+      .logout()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigate(['/login']),
+        error: () => this.router.navigate(['/login']),
+      });
   }
-
 }

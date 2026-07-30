@@ -1,8 +1,5 @@
 import { Injectable, Signal, inject } from '@angular/core';
-import {
-  CurrentSessionDto,
-  SessionHistoryItemDto,
-} from '@psychotech/shared';
+import { CurrentSessionDto, SessionHistoryItemDto } from '@psychotech/shared';
 import {
   SessionHistoryFilter,
   historyQueryFor,
@@ -21,6 +18,7 @@ export class SessionHistoryFacade {
   readonly loading: Signal<boolean> = this.store.loading;
   readonly loadingMore: Signal<boolean> = this.store.loadingMore;
   readonly current: Signal<CurrentSessionDto | null> = this.store.current;
+  readonly error: Signal<unknown> = this.store.error;
 
   load(filter: SessionHistoryFilter): void {
     this.store.startLoading(filter);
@@ -48,7 +46,10 @@ export class SessionHistoryFacade {
     this.api.current().subscribe({
       next: (current) => this.store.setCurrent(current),
       error: (err: unknown) => {
-        console.error('[SessionHistoryFacade] current session refresh failed', err);
+        console.error(
+          '[SessionHistoryFacade] current session refresh failed',
+          err,
+        );
         this.store.setCurrent(null);
       },
     });

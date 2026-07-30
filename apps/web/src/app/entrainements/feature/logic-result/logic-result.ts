@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisFinding,
@@ -61,6 +63,7 @@ import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
 })
 export class LogicResult {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -79,14 +82,17 @@ export class LogicResult {
   );
 
   constructor() {
-    this.facade.loadTargetedResult(this.sessionId, AxisType.LOGIC).subscribe({
-      next: (result) => {
-        if (result.axis === AxisType.LOGIC) {
-          this.result.set(result);
-        }
-      },
-      error: () => this.router.navigate(['/entrainements']),
-    });
+    this.facade
+      .loadTargetedResult(this.sessionId, AxisType.LOGIC)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (result.axis === AxisType.LOGIC) {
+            this.result.set(result);
+          }
+        },
+        error: () => this.router.navigate(['/entrainements']),
+      });
   }
 
   private readonly items = computed<LogicItem[] | null>(() => {

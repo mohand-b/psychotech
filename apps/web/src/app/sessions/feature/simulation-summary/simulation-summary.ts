@@ -1,11 +1,13 @@
 ﻿import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -33,7 +35,10 @@ import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance'
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { AxisRadar, AxisRadarEntry } from '../../../shared/ui/axis-radar/axis-radar';
+import {
+  AxisRadar,
+  AxisRadarEntry,
+} from '../../../shared/ui/axis-radar/axis-radar';
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
 import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
@@ -60,6 +65,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
 })
 export class SimulationSummary {
   private readonly facade = inject(SimulationSummaryFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly reveal = inject(ScoreReveal);
@@ -85,9 +91,12 @@ export class SimulationSummary {
   >({});
 
   constructor() {
-    this.facade.loadSummary(this.sessionId).subscribe({
-      error: () => this.router.navigate(['/sessions']),
-    });
+    this.facade
+      .loadSummary(this.sessionId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.router.navigate(['/sessions']),
+      });
     effect(() => {
       const summary = this.summary();
       if (summary) {
@@ -194,19 +203,22 @@ export class SimulationSummary {
       return;
     }
     this.loadingAxis.set(axis);
-    this.facade.loadAxisDetail(this.sessionId, axis).subscribe({
-      next: (detail) => {
-        this.details.update((current) => ({ ...current, [axis]: detail }));
-        if (this.loadingAxis() === axis) {
-          this.loadingAxis.set(null);
-        }
-      },
-      error: () => {
-        if (this.loadingAxis() === axis) {
-          this.loadingAxis.set(null);
-        }
-      },
-    });
+    this.facade
+      .loadAxisDetail(this.sessionId, axis)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (detail) => {
+          this.details.update((current) => ({ ...current, [axis]: detail }));
+          if (this.loadingAxis() === axis) {
+            this.loadingAxis.set(null);
+          }
+        },
+        error: () => {
+          if (this.loadingAxis() === axis) {
+            this.loadingAxis.set(null);
+          }
+        },
+      });
   }
 
   protected buttonColorFor(axis: AxisType): ButtonColor {

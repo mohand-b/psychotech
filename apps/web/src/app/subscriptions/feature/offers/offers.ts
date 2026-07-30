@@ -69,9 +69,11 @@ export class Offers {
     this.subscriptionsFacade
       .refreshTier()
       .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
     this.subscriptionsFacade
       .loadBillingOverview(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
   }
@@ -105,8 +107,7 @@ export class Offers {
   protected readonly isPaidCurrent = computed(() => {
     const tier = this.tier();
     return (
-      tier === SubscriptionTier.ESSENTIAL ||
-      tier === SubscriptionTier.UNLIMITED
+      tier === SubscriptionTier.ESSENTIAL || tier === SubscriptionTier.UNLIMITED
     );
   });
 
@@ -238,10 +239,13 @@ export class Offers {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.cancelPlanChange().subscribe({
-      next: () => this.managing.set(false),
-      error: () => this.managing.set(false),
-    });
+    this.subscriptionsFacade
+      .cancelPlanChange()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.managing.set(false),
+        error: () => this.managing.set(false),
+      });
   }
 
   protected cancelSubscription(): void {
@@ -253,16 +257,19 @@ export class Offers {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.cancelSubscription().subscribe({
-      next: () => {
-        this.managing.set(false);
-        this.pendingCancel.set(false);
-      },
-      error: () => {
-        this.managing.set(false);
-        this.pendingCancel.set(false);
-      },
-    });
+    this.subscriptionsFacade
+      .cancelSubscription()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.managing.set(false);
+          this.pendingCancel.set(false);
+        },
+        error: () => {
+          this.managing.set(false);
+          this.pendingCancel.set(false);
+        },
+      });
   }
 
   protected resumeSubscription(): void {
@@ -270,10 +277,13 @@ export class Offers {
       return;
     }
     this.managing.set(true);
-    this.subscriptionsFacade.resumeSubscription().subscribe({
-      next: () => this.managing.set(false),
-      error: () => this.managing.set(false),
-    });
+    this.subscriptionsFacade
+      .resumeSubscription()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.managing.set(false),
+        error: () => this.managing.set(false),
+      });
   }
 
   protected cancelLabel(): string {

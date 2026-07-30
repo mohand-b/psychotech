@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisFinding,
@@ -50,6 +52,7 @@ import { ReactivityTrChart } from '../../ui/reactivity-tr-chart/reactivity-tr-ch
 })
 export class ReactivityResult {
   private readonly facade = inject(TrainingSessionFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -70,6 +73,7 @@ export class ReactivityResult {
   constructor() {
     this.facade
       .loadTargetedResult(this.sessionId, AxisType.REACTIVITY)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.axis === AxisType.REACTIVITY) {

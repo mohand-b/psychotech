@@ -2,11 +2,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   linkedSignal,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   PASSWORD_MIN_LENGTH,
@@ -47,6 +49,7 @@ interface SectorOption {
 })
 export class Register {
   private readonly authFacade = inject(AuthFacade);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly router = inject(Router);
 
@@ -179,6 +182,7 @@ export class Register {
         lastName: this.lastName(),
         currentSector: this.sector() as Sector,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.router.navigate(['/dashboard']),
         error: (error: unknown) =>

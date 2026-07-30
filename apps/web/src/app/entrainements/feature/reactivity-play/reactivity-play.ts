@@ -9,6 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -157,10 +158,13 @@ export class ReactivityPlay {
     if (active?.id === this.sessionId) {
       this.handleLoaded(active);
     } else {
-      this.facade.load(this.sessionId).subscribe({
-        next: (session) => this.handleLoaded(session),
-        error: () => this.router.navigate(['/entrainements']),
-      });
+      this.facade
+        .load(this.sessionId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (session) => this.handleLoaded(session),
+          error: () => this.router.navigate(['/entrainements']),
+        });
     }
     this.destroyRef.onDestroy(() => {
       this.stopTicker();
