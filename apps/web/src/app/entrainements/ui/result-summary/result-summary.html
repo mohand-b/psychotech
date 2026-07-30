@@ -18,7 +18,7 @@
   </div>
   <ui-axis-label class="summary__chip" [axis]="axis()" />
   <div class="summary__score">
-    <span class="summary__score-value t-mono">{{ score() }}</span>
+    <span class="summary__score-value t-mono">{{ displayedScore() }}</span>
     <span class="summary__score-max t-mono">/100</span>
     @if (recordVisible()) { @if (delta(); as d) { @if (d !== 0) {
     <span
@@ -29,7 +29,12 @@
     >
     } } }
   </div>
-  <ui-stamp-badge class="summary__stamp" [axisStamp]="stamp()" />
+  <ui-stamp-badge
+    class="summary__stamp"
+    [class.verdict-stamp-strike]="stampStrike()"
+    [class.verdict-stamp-pending]="!stampVisible()"
+    [axisStamp]="stamp()"
+  />
   @if (recordVisible()) {
   <p class="summary__best">
     Meilleur score sur cet axe :
@@ -39,7 +44,7 @@
   @if (threshold(); as t) {
   <div class="summary__bar-block">
     <ui-threshold-bar
-      [value]="score()"
+      [value]="revealedScore()"
       [threshold]="t.value"
       [style.--threshold-bar-fill-from]="fillFrom()"
       [style.--threshold-bar-fill-to]="fillTo()"

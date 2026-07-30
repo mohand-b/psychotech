@@ -18,13 +18,18 @@
             <span class="bilan__score-max t-mono">/100</span>
           </span>
           @if (stamp(); as s) {
-            <ui-stamp-badge class="bilan__stamp" [simulationStamp]="s" />
+            <ui-stamp-badge
+              class="bilan__stamp"
+              [class.verdict-stamp-strike]="stampStrike()"
+              [class.verdict-stamp-pending]="!stampVisible()"
+              [simulationStamp]="s"
+            />
           }
         </div>
 
         <div class="bilan__bar-block">
           <ui-threshold-bar
-            [value]="s.globalScore"
+            [value]="revealedScore()"
             [threshold]="s.admissibilityThreshold"
           />
           <div class="bilan__bar-captions">

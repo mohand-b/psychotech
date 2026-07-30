@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -20,6 +21,7 @@ import { formatDayTime } from '../../../shared/ui/format-duration';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
+import { ScoreReveal } from '../../../shared/ui/score-reveal/score-reveal';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 
@@ -39,11 +41,21 @@ export interface AxisGapView {
   selector: 'ui-result-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AxisLabel, Icon, StampBadge, ThresholdBar],
+  providers: [ScoreReveal],
   templateUrl: './result-summary.html',
   styleUrl: './result-summary.css',
 })
 export class ResultSummary {
   private readonly catalogFacade = inject(CatalogFacade);
+  private readonly reveal = inject(ScoreReveal);
+
+  protected readonly revealedScore = this.reveal.value;
+  protected readonly stampVisible = this.reveal.stampVisible;
+  protected readonly stampStrike = this.reveal.stampStrike;
+
+  protected readonly displayedScore = computed(() =>
+    Math.round(this.reveal.value()),
+  );
 
   readonly axis = input.required<AxisType>();
   readonly score = input.required<number>();
@@ -124,6 +136,7 @@ export class ResultSummary {
 
   constructor() {
     effect(() => this.catalogFacade.loadSectorReferential(this.sector()));
+    afterNextRender(() => this.reveal.start(this.score()));
   }
 
   protected readonly bestSuffix = computed(() => {

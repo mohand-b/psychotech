@@ -2,6 +2,7 @@
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -26,6 +27,7 @@ import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { ScoreReveal } from '../../../shared/ui/score-reveal/score-reveal';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
@@ -50,6 +52,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
     ThresholdBar,
     ThresholdGauge,
   ],
+  providers: [ScoreReveal],
   templateUrl: './simulation-summary.html',
   styleUrl: './simulation-summary.css',
 })
@@ -57,6 +60,11 @@ export class SimulationSummary {
   private readonly facade = inject(SimulationSummaryFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly reveal = inject(ScoreReveal);
+
+  protected readonly revealedScore = this.reveal.value;
+  protected readonly stampVisible = this.reveal.stampVisible;
+  protected readonly stampStrike = this.reveal.stampStrike;
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
@@ -77,6 +85,12 @@ export class SimulationSummary {
     this.facade.loadSummary(this.sessionId).subscribe({
       next: (summary) => this.summary.set(summary),
       error: () => this.router.navigate(['/sessions']),
+    });
+    effect(() => {
+      const summary = this.summary();
+      if (summary) {
+        this.reveal.start(summary.globalScore);
+      }
     });
   }
 
@@ -108,7 +122,7 @@ export class SimulationSummary {
 
   protected readonly scoreLabel = computed(() => {
     const summary = this.summary();
-    return summary ? formatFrenchDecimal(summary.globalScore) : '';
+    return summary ? formatFrenchDecimal(this.reveal.value()) : '';
   });
 
   protected readonly stamp = computed(() => {
