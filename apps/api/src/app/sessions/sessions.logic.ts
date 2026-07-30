@@ -11,7 +11,7 @@ import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util'
 
 export const SESSION_HISTORY_PAGE_SIZE = 10;
 
-export interface HistoryScope {
+interface HistoryScope {
   mode?: SessionMode;
   axis?: AxisType;
 }
@@ -132,7 +132,7 @@ export function resolveSessionAxes(mode: SessionMode, axis?: AxisType): AxisType
   return [axis];
 }
 
-export interface StreakState {
+interface StreakState {
   current: number;
   longest: number;
   lastActivityDate: Date | null;

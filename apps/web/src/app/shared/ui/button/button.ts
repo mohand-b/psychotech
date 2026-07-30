@@ -17,9 +17,9 @@ export type ButtonColor =
   | 'reactivity'
   | 'motor';
 
-export type ButtonAppearance = 'solid' | 'outlined' | 'ghost';
+type ButtonAppearance = 'solid' | 'outlined' | 'ghost';
 
-export type ButtonSize = 'md' | 'lg';
+type ButtonSize = 'md' | 'lg';
 
 @Component({
   selector: 'ui-button',

@@ -10,7 +10,7 @@ import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserWithSubscription } from '../users/users.repository';
 
-export interface CreateAccountData {
+interface CreateAccountData {
   email: string;
   passwordHash: string;
   firstName: string;

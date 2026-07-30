@@ -8,7 +8,7 @@ export type UserWithSubscription = User & {
   subscription: Subscription | null;
 };
 
-export interface ProfileUpdate {
+interface ProfileUpdate {
   firstName?: string;
   lastName?: string;
   locale?: string;

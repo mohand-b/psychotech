@@ -1,6 +1,6 @@
 const NODE_ENVIRONMENTS = ['development', 'test', 'production'] as const;
 
-export type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
+type NodeEnvironment = (typeof NODE_ENVIRONMENTS)[number];
 
 const DEFAULT_NODE_ENVIRONMENT: NodeEnvironment = 'development';
 

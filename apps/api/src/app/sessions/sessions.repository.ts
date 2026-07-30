@@ -29,12 +29,12 @@ import {
   SessionWithRelations,
 } from './sessions.mappers';
 
-export interface CompleteSessionResult {
+interface CompleteSessionResult {
   session: SessionWithRelations;
   unlockedBadges: BadgeDto[];
 }
 
-export interface CreateSessionParams {
+interface CreateSessionParams {
   userId: string;
   mode: SessionMode;
   sector: Sector;
@@ -48,13 +48,13 @@ export interface CreateSessionParams {
   axes: AxisType[];
 }
 
-export interface SectorWeight {
+interface SectorWeight {
   axis: AxisType;
   coefficient: number;
   isCritical: boolean;
 }
 
-export interface SectorConfigData {
+interface SectorConfigData {
   isActive: boolean;
   admissibilityThreshold: number;
   vigilanceThreshold: number;
@@ -62,7 +62,7 @@ export interface SectorConfigData {
   weights: SectorWeight[];
 }
 
-export interface CompleteFullSessionAxisParams {
+interface CompleteFullSessionAxisParams {
   sessionId: string;
   axis: AxisType;
   rawResult: AxisRawResultDto;
@@ -80,7 +80,7 @@ export interface AxisBestInput {
   sessionAxisId: string;
 }
 
-export interface CompleteSessionParams {
+interface CompleteSessionParams {
   sessionId: string;
   userId: string;
   globalScore: number;
@@ -94,7 +94,7 @@ export interface CompleteSessionParams {
   streak: { current: number; longest: number; lastActivityDate: Date };
 }
 
-export interface CompleteTargetedSessionParams {
+interface CompleteTargetedSessionParams {
   sessionId: string;
   userId: string;
   axis: AxisType;
@@ -107,16 +107,16 @@ export interface CompleteTargetedSessionParams {
   streak: { current: number; longest: number; lastActivityDate: Date };
 }
 
-export type TargetedAxisRow = Prisma.SessionAxisGetPayload<{
+type TargetedAxisRow = Prisma.SessionAxisGetPayload<{
   include: { session: true };
 }>;
 
-export interface StreakContext {
+interface StreakContext {
   timezone: string;
   streak: { current: number; longest: number; lastActivityDate: Date | null } | null;
 }
 
-export interface ListHistoryFilter {
+interface ListHistoryFilter {
   mode?: SessionMode;
   axis?: AxisType;
   cursor?: string;

@@ -52,9 +52,9 @@ export enum MatrixFill {
   SOLID = 'SOLID',
 }
 
-export type MatrixRotation = 0 | 45 | 90;
+type MatrixRotation = 0 | 45 | 90;
 
-export type MatrixCount = 1 | 2 | 3 | 4;
+type MatrixCount = 1 | 2 | 3 | 4;
 
 export enum MatrixStrokeType {
   ARC = 'ARC',

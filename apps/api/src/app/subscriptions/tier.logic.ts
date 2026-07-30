@@ -1,6 +1,6 @@
 import { SubscriptionStatus, SubscriptionTier } from '@psychotech/shared';
 
-export interface EffectiveTierInput {
+interface EffectiveTierInput {
   tier: SubscriptionTier;
   status: SubscriptionStatus;
 }

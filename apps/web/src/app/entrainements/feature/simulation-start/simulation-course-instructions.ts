@@ -1,6 +1,6 @@
 import { AxisType, RailwayPlayableAxis } from '@psychotech/shared';
 
-export interface SimulationCourseEntry {
+interface SimulationCourseEntry {
   instruction: string;
   duration: string;
 }

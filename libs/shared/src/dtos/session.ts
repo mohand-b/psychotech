@@ -98,8 +98,6 @@ export interface MotricityCourseTrajectoryDto {
   jitterMs?: number;
 }
 
-export type MotricityCourseResultDto = MotorSkillsCourseRecap;
-
 export type MotricityRawResultDto = MotorSkillsMetrics;
 
 export interface DiscriminationRawResultDto {

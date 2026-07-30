@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Badge, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface BadgeCumulativeState {
+interface BadgeCumulativeState {
   completedSessions: number;
   hasCompletedFullSession: boolean;
   bestGlobalScore: number | null;

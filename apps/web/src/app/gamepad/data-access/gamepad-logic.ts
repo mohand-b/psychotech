@@ -118,7 +118,7 @@ export function crankValueFromVelocity(radPerSec: number): number {
 }
 
 export const GAMEPAD_CRANK_SPEED_SMOOTHING = 0.35;
-export const GAMEPAD_CRANK_REST_EPSILON = 0.02;
+const GAMEPAD_CRANK_REST_EPSILON = 0.02;
 
 export function crankSmoothedSpeed(
   previous: number,

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-export type ResultMetricMarker =
+type ResultMetricMarker =
   | 'square'
   | 'dot'
   | 'outlined-dot'

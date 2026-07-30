@@ -4,12 +4,12 @@ import { LogicRuleItem } from './logic-rule-item';
 
 export type LogicItemStatus = 'CORRECT' | 'WRONG' | 'SKIPPED' | 'UNREACHED';
 
-export const LOGIC_PRECISION_WEIGHT = 0.85;
-export const LOGIC_COVERAGE_WEIGHT = 0.15;
+const LOGIC_PRECISION_WEIGHT = 0.85;
+const LOGIC_COVERAGE_WEIGHT = 0.15;
 
-export const SCORE_EXCELLENT_MIN = 80;
-export const SCORE_ACCEPTABLE_MIN = 70;
-export const SCORE_FRAGILE_MIN = 60;
+const SCORE_EXCELLENT_MIN = 80;
+const SCORE_ACCEPTABLE_MIN = 70;
+const SCORE_FRAGILE_MIN = 60;
 
 export interface LogicSessionScore {
   score: number;

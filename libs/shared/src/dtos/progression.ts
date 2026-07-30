@@ -12,12 +12,6 @@ export interface AxisBestDto {
   achievedAt: string;
 }
 
-export interface StreakDto {
-  current: number;
-  longest: number;
-  lastActivityDate: string | null;
-}
-
 export interface ProgressionStatsDto {
   currentStreak: number;
   longestStreak: number;

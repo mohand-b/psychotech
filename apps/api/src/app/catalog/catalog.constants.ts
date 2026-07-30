@@ -1,6 +1,6 @@
 import { AxisType } from '@psychotech/shared';
 
-export interface AxisDescriptor {
+interface AxisDescriptor {
   label: string;
   description: string;
 }

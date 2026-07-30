@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { animate, spring } from 'motion';
 
-export const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.7;
+const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.7;
 export const SCORE_REVEAL_CEILING = 100;
 
 interface BounceStep {

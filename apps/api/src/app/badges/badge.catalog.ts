@@ -11,7 +11,7 @@ export interface BadgeEvaluationState {
   flawlessVisualDiscrimination: boolean;
 }
 
-export interface BadgeDefinition {
+interface BadgeDefinition {
   code: string;
   name: string;
   description: string;

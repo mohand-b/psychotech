@@ -4,7 +4,7 @@ import { DAY_MS, startOfDay } from '../../../shared/util/format-session-date';
 
 export type TrainingsPanel = 'sim' | 'cible';
 
-export interface AxisOverviewCopy {
+interface AxisOverviewCopy {
   description: string;
   mobileDescription: string;
 }

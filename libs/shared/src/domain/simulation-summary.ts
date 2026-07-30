@@ -17,12 +17,12 @@ export interface SimulationAxisOutcome {
   isCritical: boolean;
 }
 
-export interface SimulationSummaryThresholds {
+interface SimulationSummaryThresholds {
   vigilanceThreshold: number;
   eliminatoryThreshold: number;
 }
 
-export interface SimulationStrengthDto {
+interface SimulationStrengthDto {
   axis: AxisType;
   score: number;
   band: ScoreBand;
@@ -37,7 +37,7 @@ export interface SimulationWeaknessDto {
   thresholdValue: number;
 }
 
-export interface SimulationSummaryRecommendationDto {
+interface SimulationSummaryRecommendationDto {
   axis: AxisType;
   findings: AxisFinding[];
 }

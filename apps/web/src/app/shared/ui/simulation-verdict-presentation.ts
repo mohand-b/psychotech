@@ -4,7 +4,7 @@ import {
   simulationVerdictInkVar,
 } from './verdict-appearance';
 
-export interface SimulationVerdictPresentation {
+interface SimulationVerdictPresentation {
   label: string;
   colorVar: string;
   inkVar: string;

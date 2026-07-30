@@ -14,8 +14,8 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Icon } from '../../../shared/ui/icon/icon';
 
-export const AXIS_COUNTDOWN_START = 3;
-export const AXIS_COUNTDOWN_TICK_MS = 1000;
+const AXIS_COUNTDOWN_START = 3;
+const AXIS_COUNTDOWN_TICK_MS = 1000;
 
 @Component({
   selector: 'ui-axis-countdown',

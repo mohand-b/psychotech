@@ -25,7 +25,7 @@ import { Shape } from '../shape/shape';
             [shape]="element.shape"
             [rotation]="element.rotation"
             [size]="shapeSize()"
-            [strokeWidth]="shapeStrokeWidth()"
+            [strokeWidth]="shapeStrokeWidth"
           />
         }
       }
@@ -50,7 +50,6 @@ export class ElementSequence {
   readonly elements = input.required<DiscriminationElement[]>();
   readonly size = input(28);
   readonly gap = input(10);
-  readonly shapeStrokeWidth = input(3.4);
-
+  protected readonly shapeStrokeWidth = 3.4;
   protected readonly shapeSize = computed(() => Math.round(this.size() * 0.78));
 }

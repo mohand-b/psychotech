@@ -13,11 +13,11 @@ export enum AxisStampWord {
   ELIMINATORY = 'ELIMINATORY',
 }
 
-export const AXIS_STAMP_EXCELLENT_MIN = 95;
-export const AXIS_STAMP_SOLID_MIN = 85;
-export const AXIS_STAMP_GOOD_MIN = 70;
-export const AXIS_STAMP_FRAGILE_MIN = 60;
-export const AXIS_STAMP_WEAK_MIN = 0;
+const AXIS_STAMP_EXCELLENT_MIN = 95;
+const AXIS_STAMP_SOLID_MIN = 85;
+const AXIS_STAMP_GOOD_MIN = 70;
+const AXIS_STAMP_FRAGILE_MIN = 60;
+const AXIS_STAMP_WEAK_MIN = 0;
 export const AXIS_STAMP_MAX = 100;
 
 export const VERDICT_GOOD_MIN = AXIS_STAMP_GOOD_MIN;

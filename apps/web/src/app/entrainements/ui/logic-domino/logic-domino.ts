@@ -13,7 +13,7 @@ import { RuleHint } from '../rule-hint/rule-hint';
 
 export type DominoAnswerFace = 'top' | 'bottom';
 
-export const DOMINO_FACES: readonly DominoFace[] = [0, 1, 2, 3, 4, 5, 6];
+const DOMINO_FACES: readonly DominoFace[] = [0, 1, 2, 3, 4, 5, 6];
 
 @Component({
   selector: 'ui-logic-domino',

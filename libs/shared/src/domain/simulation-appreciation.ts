@@ -11,12 +11,12 @@ import {
   SimulationSummarySelectionDto,
 } from './simulation-summary';
 
-export interface AppreciationSegment {
+interface AppreciationSegment {
   text: string;
   value: boolean;
 }
 
-export interface SimulationPriorityDto {
+interface SimulationPriorityDto {
   axis: AxisType;
   label: string;
 }
@@ -35,7 +35,7 @@ export interface SimulationAppreciationContext {
   isEliminated: boolean;
 }
 
-export const AXIS_PRIORITY_LABELS: Record<RailwayPlayableAxis, string> = {
+const AXIS_PRIORITY_LABELS: Record<RailwayPlayableAxis, string> = {
   [AxisType.LOGIC]: 'Renforcer les suites logiques',
   [AxisType.MEMORY]: 'Travailler la restitution en ordre inversé',
   [AxisType.VISUAL_DISCRIMINATION]: 'Fiabiliser la comparaison des séquences',

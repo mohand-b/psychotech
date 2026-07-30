@@ -5,11 +5,11 @@ import { MemorySequence, expectedMemoryAnswer } from './memory-sequence';
 export type MemoryPositionState = 'PLACED' | 'MISPLACED' | 'ABSENT' | 'EMPTY';
 export type MemorySequenceStatus = 'PERFECT' | 'FAILED' | 'TIMED_OUT';
 
-export const MEMORY_PLACED_POINTS = 1;
-export const MEMORY_MISPLACED_POINTS = 0.3;
-export const MEMORY_INTRUSION_PENALTY = -0.2;
-export const MEMORY_NORMAL_PHASE_WEIGHT = 0.4;
-export const MEMORY_INVERSE_PHASE_WEIGHT = 0.6;
+const MEMORY_PLACED_POINTS = 1;
+const MEMORY_MISPLACED_POINTS = 0.3;
+const MEMORY_INTRUSION_PENALTY = -0.2;
+const MEMORY_NORMAL_PHASE_WEIGHT = 0.4;
+const MEMORY_INVERSE_PHASE_WEIGHT = 0.6;
 
 export interface MemorySequenceResult {
   status: MemorySequenceStatus;

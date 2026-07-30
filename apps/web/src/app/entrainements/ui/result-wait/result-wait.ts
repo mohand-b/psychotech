@@ -14,7 +14,7 @@ import { ChartColumn, RotateCw, TriangleAlert } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 
-export const RESULT_WAIT_TRACK_COLORS: Record<RailwayPlayableAxis, string> = {
+const RESULT_WAIT_TRACK_COLORS: Record<RailwayPlayableAxis, string> = {
   [AxisType.LOGIC]: '#D5E3FC',
   [AxisType.MEMORY]: '#E5DBFD',
   [AxisType.VISUAL_DISCRIMINATION]: '#CAF0E3',

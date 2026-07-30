@@ -3,16 +3,16 @@ import {
   MotricityTimelinePoint,
 } from '@psychotech/shared';
 
-export const TRAJECTORY_BASELINE_BUCKET_MS = 500;
-export const TRAJECTORY_BASELINE_SMOOTH_HALF_MS = 1500;
-export const TRAJECTORY_CONTACT_BELL_HALF_MS = 1000;
-export const TRAJECTORY_CONTACT_BELL_MIN_SPAN_RATIO = 0.01;
-export const TRAJECTORY_EXIT_EASE_MS = 1000;
+const TRAJECTORY_BASELINE_BUCKET_MS = 500;
+const TRAJECTORY_BASELINE_SMOOTH_HALF_MS = 1500;
+const TRAJECTORY_CONTACT_BELL_HALF_MS = 1000;
+const TRAJECTORY_CONTACT_BELL_MIN_SPAN_RATIO = 0.01;
+const TRAJECTORY_EXIT_EASE_MS = 1000;
 export const TRAJECTORY_EXIT_CEILING_PCT = 108;
-export const TRAJECTORY_EXIT_DOME_FLOOR_RATIO = 0.25;
-export const TRAJECTORY_CONTACT_MERGE_MS = 1500;
-export const TRAJECTORY_EXIT_MERGE_MS = 1000;
-export const TRAJECTORY_BORDER_PCT = 100;
+const TRAJECTORY_EXIT_DOME_FLOOR_RATIO = 0.25;
+const TRAJECTORY_CONTACT_MERGE_MS = 1500;
+const TRAJECTORY_EXIT_MERGE_MS = 1000;
+const TRAJECTORY_BORDER_PCT = 100;
 export const TRAJECTORY_DISPLAY_CLAMP_PCT = 110;
 
 export interface TrajectoryExitWindow {
@@ -197,7 +197,7 @@ function exitRamp(tMs: number, window: TrajectoryExitWindow): number {
   return cosineBell(distance, TRAJECTORY_EXIT_EASE_MS);
 }
 
-export function contactBellHalfMs(totalMs: number): number {
+function contactBellHalfMs(totalMs: number): number {
   return Math.max(
     TRAJECTORY_CONTACT_BELL_HALF_MS,
     totalMs * TRAJECTORY_CONTACT_BELL_MIN_SPAN_RATIO,
@@ -293,7 +293,7 @@ export function insertBorderCrossings(
 
 export type TrajectoryBorderMarkerKind = 'TOUCH' | 'EXIT_START' | 'EXIT_END';
 
-export interface TrajectoryBorderMarker {
+interface TrajectoryBorderMarker {
   tMs: number;
   kind: TrajectoryBorderMarkerKind;
 }
@@ -318,7 +318,7 @@ export function borderMarkers(
   return markers;
 }
 
-export interface CurveRun {
+interface CurveRun {
   from: number;
   to: number;
 }

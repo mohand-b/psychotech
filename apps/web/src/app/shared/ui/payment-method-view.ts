@@ -16,7 +16,7 @@ const CARD_BRAND_LABELS: Record<string, string> = {
   cartes_bancaires: 'Cartes Bancaires',
 };
 
-export interface PaymentMethodView {
+interface PaymentMethodView {
   badgeLabel: string;
   detailLabel: string;
   expiryLabel: string;

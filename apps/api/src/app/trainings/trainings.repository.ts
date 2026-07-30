@@ -10,7 +10,7 @@ import { AxisType, Sector, SessionMode, SessionStatus } from '@psychotech/shared
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface TrainingsSectorConfig {
+interface TrainingsSectorConfig {
   vigilanceThreshold: number;
   weights: { axis: AxisType; coefficient: number; order: number }[];
 }

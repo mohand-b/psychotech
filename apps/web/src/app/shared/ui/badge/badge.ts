@@ -7,7 +7,7 @@ import {
 import { AxisType } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 
-export type BadgeTone = 'brand' | 'neutral';
+type BadgeTone = 'brand' | 'neutral';
 
 @Component({
   selector: 'ui-badge',

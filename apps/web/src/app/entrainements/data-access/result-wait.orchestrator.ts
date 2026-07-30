@@ -10,14 +10,14 @@ import { TUTORIAL_SESSION_ID } from './tutorial-session.facade';
 export const RESULT_WAIT_MIN_DISPLAY_MS = 1200;
 export const RESULT_WAIT_SLOW_HINT_MS = 5000;
 
-export type ResultWaitPhase =
+type ResultWaitPhase =
   | 'idle'
   | 'completing'
   | 'prefetching'
   | 'failed-complete'
   | 'failed-prefetch';
 
-export interface AxisCompletionRequest {
+interface AxisCompletionRequest {
   axis: AxisType;
   complete: () => Observable<SessionDto>;
   onSilentFailure: () => void;

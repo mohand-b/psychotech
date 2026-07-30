@@ -29,7 +29,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class LogicItemAnswerRequest implements LogicItemAnswerDto {
+class LogicItemAnswerRequest implements LogicItemAnswerDto {
   @IsInt()
   @Min(0)
   index!: number;
@@ -73,7 +73,7 @@ const MEMORY_INPUT_ALLOWED_VALUES: readonly (number | null)[] = [
   ...Array.from({ length: 10 }, (_, digit) => digit),
 ];
 
-export class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
+class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
   @IsInt()
   @Min(0)
   index!: number;
@@ -90,7 +90,7 @@ export class MemorySequenceAnswerRequest implements MemorySequenceAnswerDto {
   timedOut!: boolean;
 }
 
-export class DiscriminationTrialAnswerRequest
+class DiscriminationTrialAnswerRequest
   implements DiscriminationTrialAnswerDto
 {
   @IsInt()
@@ -106,7 +106,7 @@ export class DiscriminationTrialAnswerRequest
   timeMs!: number;
 }
 
-export class ReactivityStimulusAnswerRequest
+class ReactivityStimulusAnswerRequest
   implements ReactivityStimulusAnswerDto
 {
   @IsInt()
@@ -128,13 +128,13 @@ export class ReactivityStimulusAnswerRequest
   trMs!: number | null;
 }
 
-export class ReactivityWaitPressRequest implements ReactivityWaitPressDto {
+class ReactivityWaitPressRequest implements ReactivityWaitPressDto {
   @IsInt()
   @Min(0)
   atMs!: number;
 }
 
-export class MotricitySampleRequest implements MotricitySampleDto {
+class MotricitySampleRequest implements MotricitySampleDto {
   @IsInt()
   @Min(0)
   t!: number;
@@ -146,7 +146,7 @@ export class MotricitySampleRequest implements MotricitySampleDto {
   y!: number;
 }
 
-export class MotricityCourseTrajectoryRequest
+class MotricityCourseTrajectoryRequest
   implements MotricityCourseTrajectoryDto
 {
   @IsInt()

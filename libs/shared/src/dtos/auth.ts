@@ -19,12 +19,3 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
 }
-
-export interface RefreshTokenDto {
-  refreshToken: string;
-}
-
-export interface AuthTokensDto {
-  accessToken: string;
-  refreshToken: string;
-}

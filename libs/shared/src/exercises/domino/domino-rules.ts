@@ -11,7 +11,7 @@ export function mod7(value: number): DominoFace {
   return (((value % 7) + 7) % 7) as DominoFace;
 }
 
-export type DominoWrapDirection = 'up' | 'down';
+type DominoWrapDirection = 'up' | 'down';
 
 function wrapDirection(
   previous: DominoFace,
@@ -73,7 +73,7 @@ function buildHalfSequence(
   return { values, hasWrap };
 }
 
-export interface BuiltDominoSequence {
+interface BuiltDominoSequence {
   tiles: DominoTile[];
   hasWrap: boolean;
 }
@@ -224,12 +224,12 @@ function halfStepAtTransition(
   }
 }
 
-export interface DominoTransitionSteps {
+interface DominoTransitionSteps {
   top: number | null;
   bottom: number | null;
 }
 
-export function dominoTransitionSteps(
+function dominoTransitionSteps(
   spec: DominoRuleSpec,
   tiles: readonly DominoTile[],
 ): DominoTransitionSteps[] {
@@ -257,7 +257,7 @@ export function dominoTransitionSteps(
   return transitions;
 }
 
-export interface DominoFaceWrapDirections {
+interface DominoFaceWrapDirections {
   top: DominoWrapDirection | null;
   bottom: DominoWrapDirection | null;
 }
@@ -336,7 +336,7 @@ function halfId(rule: DominoHalfRule): string {
 const WRAP_UP_CLAUSE = ' Après le 6, on revient à 0.';
 const WRAP_DOWN_CLAUSE = ' Sous le 0, on repart de 6.';
 
-export interface DominoWrapMentions {
+interface DominoWrapMentions {
   up: boolean;
   down: boolean;
 }

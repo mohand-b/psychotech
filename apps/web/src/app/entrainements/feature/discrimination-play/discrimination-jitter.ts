@@ -10,7 +10,7 @@ export interface JitterZoneMetrics {
   contentHeight: number;
 }
 
-export interface JitterPlacement {
+interface JitterPlacement {
   x: number;
   y: number;
   scale: number;

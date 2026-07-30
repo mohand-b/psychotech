@@ -33,45 +33,45 @@ export interface GamepadJoinMessage {
   token: string;
 }
 
-export interface GamepadJoinedMessage {
+interface GamepadJoinedMessage {
   type: 'joined';
   role: GamepadPeerRole;
   peerPresent: boolean;
 }
 
-export interface GamepadPeerJoinedMessage {
+interface GamepadPeerJoinedMessage {
   type: 'peer-joined';
   role: GamepadPeerRole;
 }
 
-export interface GamepadPeerLeftMessage {
+interface GamepadPeerLeftMessage {
   type: 'peer-left';
   role: GamepadPeerRole;
 }
 
-export interface GamepadOfferMessage {
+interface GamepadOfferMessage {
   type: 'offer';
   sdp: string;
 }
 
-export interface GamepadAnswerMessage {
+interface GamepadAnswerMessage {
   type: 'answer';
   sdp: string;
 }
 
-export interface GamepadIceMessage {
+interface GamepadIceMessage {
   type: 'ice';
   candidate: string;
   sdpMid: string | null;
   sdpMLineIndex: number | null;
 }
 
-export interface GamepadRelayMessage {
+interface GamepadRelayMessage {
   type: 'relay';
   payload: GamepadChannelMessage;
 }
 
-export interface GamepadErrorMessage {
+interface GamepadErrorMessage {
   type: 'error';
   code: GamepadSignalErrorCode;
 }
@@ -95,13 +95,13 @@ export interface GamepadInputFrame {
   y: number;
 }
 
-export interface GamepadPingMessage {
+interface GamepadPingMessage {
   kind: 'ping';
   id: number;
   t: number;
 }
 
-export interface GamepadPongMessage {
+interface GamepadPongMessage {
   kind: 'pong';
   id: number;
   t: number;
@@ -109,14 +109,14 @@ export interface GamepadPongMessage {
 
 export type GamepadHapticEffect = 'CONTACT' | 'EXIT';
 
-export interface GamepadHapticMessage {
+interface GamepadHapticMessage {
   kind: 'haptic';
   effect: GamepadHapticEffect;
 }
 
 export type GamepadSessionPhase = 'WAITING' | 'ACTIVE' | 'SUSPENDED' | 'FINISHED';
 
-export interface GamepadPhaseMessage {
+interface GamepadPhaseMessage {
   kind: 'phase';
   phase: GamepadSessionPhase;
 }

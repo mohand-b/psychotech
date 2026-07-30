@@ -12,9 +12,9 @@ const DEFAULT_COOKIE_SECURE = true;
 const DEFAULT_COOKIE_SAME_SITE: CookieSameSite = 'lax';
 const COOKIE_SAME_SITE_VALUES: readonly CookieSameSite[] = ['lax', 'strict', 'none'];
 
-export type CookieSameSite = 'lax' | 'strict' | 'none';
+type CookieSameSite = 'lax' | 'strict' | 'none';
 
-export interface AuthConfig {
+interface AuthConfig {
   accessSecret: string;
   refreshSecret: string;
   accessTtlSeconds: number;

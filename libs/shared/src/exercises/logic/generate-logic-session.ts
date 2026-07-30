@@ -24,7 +24,6 @@ import {
 } from './logic-item';
 
 export const LOGIC_SESSION_LEVELS: readonly LogicDifficulty[] = [1, 2, 3, 4, 5];
-export const LOGIC_FAMILY_BLOCK_SIZE = 10;
 export const LOGIC_SESSION_SIZE = 40;
 export const LOGIC_SESSION_MAX_POINTS = 120;
 export const LOGIC_MATRIX_CHOICE_COUNT = 4;

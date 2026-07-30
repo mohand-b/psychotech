@@ -27,19 +27,19 @@ import {
 
 export type BriefingArrow = 'up' | 'down' | 'left' | 'right';
 
-export interface BriefingCommandPart {
+interface BriefingCommandPart {
   key?: string;
   arrow?: BriefingArrow;
   button?: string;
   text?: string;
 }
 
-export interface BriefingCommandRow {
+interface BriefingCommandRow {
   icon: LucideIconData;
   parts: BriefingCommandPart[];
 }
 
-export interface BriefingSignalMapping {
+interface BriefingSignalMapping {
   colorVar: string;
   shape: 'round' | 'square';
   label: string;
@@ -48,17 +48,17 @@ export interface BriefingSignalMapping {
   mobileButton: string;
 }
 
-export interface BriefingSummaryEntry {
+interface BriefingSummaryEntry {
   value: string;
   label: string;
 }
 
-export interface BriefingEvaluatedChip {
+interface BriefingEvaluatedChip {
   icon: LucideIconData;
   label: string;
 }
 
-export interface AxisBriefingContent {
+interface AxisBriefingContent {
   tagline: string;
   steps: string[];
   desktopRows: BriefingCommandRow[];

@@ -6,14 +6,14 @@ import {
   DiscriminationSessionScore,
 } from './discrimination-scoring';
 
-export const DISCRIMINATION_BIAS_MIN_ERRORS = 2;
-export const DISCRIMINATION_BIAS_RATIO = 2;
-export const DISCRIMINATION_RUSH_TIME_RATIO = 0.7;
-export const DISCRIMINATION_RUSH_MIN_WRONG = 2;
-export const DISCRIMINATION_SLOW_UNANSWERED_RATIO = 0.1;
-export const DISCRIMINATION_SLOW_MAX_WRONG = 1;
-export const DISCRIMINATION_DROP_MIN_LATE_ERRORS = 2;
-export const DISCRIMINATION_DROP_RATIO = 2;
+const DISCRIMINATION_BIAS_MIN_ERRORS = 2;
+const DISCRIMINATION_BIAS_RATIO = 2;
+const DISCRIMINATION_RUSH_TIME_RATIO = 0.7;
+const DISCRIMINATION_RUSH_MIN_WRONG = 2;
+const DISCRIMINATION_SLOW_UNANSWERED_RATIO = 0.1;
+const DISCRIMINATION_SLOW_MAX_WRONG = 1;
+const DISCRIMINATION_DROP_MIN_LATE_ERRORS = 2;
+const DISCRIMINATION_DROP_RATIO = 2;
 
 function isWrong(outcome: DiscriminationOutcome): boolean {
   return outcome === 'FALSE_POSITIVE' || outcome === 'FALSE_NEGATIVE';

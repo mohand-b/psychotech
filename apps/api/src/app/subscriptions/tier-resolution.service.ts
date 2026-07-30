@@ -9,7 +9,7 @@ import { mapEnumValue } from '../common/enum.util';
 import { BillingConfig } from '../config/billing.config';
 import { resolveEffectiveTier } from './tier.logic';
 
-export interface SubscriptionTierSource {
+interface SubscriptionTierSource {
   tier: DbSubscriptionTier;
   status: DbSubscriptionStatus;
 }

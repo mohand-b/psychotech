@@ -19,7 +19,7 @@ export interface TriangleMissing {
   slot: TriangleSlot;
 }
 
-export interface TriangleRule {
+interface TriangleRule {
   id: string;
   userText: string;
 }

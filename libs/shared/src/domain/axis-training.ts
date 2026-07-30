@@ -1,17 +1,17 @@
 import { AxisTimerModel, AxisType, MemoryPhase } from '../enums';
 
-export interface GlobalAxisTimer {
+interface GlobalAxisTimer {
   model: AxisTimerModel.GLOBAL;
   durationSec: number;
 }
 
-export interface PerExerciseAxisTimer {
+interface PerExerciseAxisTimer {
   model: AxisTimerModel.PER_EXERCISE;
 }
 
-export type AxisTimer = GlobalAxisTimer | PerExerciseAxisTimer;
+type AxisTimer = GlobalAxisTimer | PerExerciseAxisTimer;
 
-export interface MemorySequenceConfig {
+interface MemorySequenceConfig {
   phase: MemoryPhase;
   length: number;
 }
@@ -59,7 +59,7 @@ export interface ReactivityTraining extends BaseAxisTraining {
   anticipationThresholdMs: number;
 }
 
-export interface MotorSkillsTraining extends BaseAxisTraining {
+interface MotorSkillsTraining extends BaseAxisTraining {
   axis: AxisType.MOTOR_SKILLS;
   timer: PerExerciseAxisTimer;
   secondsPerCourse: number;

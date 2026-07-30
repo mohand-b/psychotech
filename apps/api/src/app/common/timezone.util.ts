@@ -1,10 +1,10 @@
-export interface CalendarDay {
+interface CalendarDay {
   year: number;
   month: number;
   day: number;
 }
 
-export function localCalendarDay(date: Date, timezone: string): CalendarDay {
+function localCalendarDay(date: Date, timezone: string): CalendarDay {
   const parts = zonedParts(date, timezone, {
     year: 'numeric',
     month: '2-digit',

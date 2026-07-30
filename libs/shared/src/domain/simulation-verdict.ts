@@ -10,19 +10,19 @@ export enum SimulationVerdictReasonKind {
   GLOBAL_SCORE_BELOW_THRESHOLD = 'GLOBAL_SCORE_BELOW_THRESHOLD',
 }
 
-export interface SimulationVerdictEliminatoryReason {
+interface SimulationVerdictEliminatoryReason {
   kind: SimulationVerdictReasonKind.ELIMINATORY_AXES;
   axes: AxisType[];
   eliminatoryThreshold: number;
 }
 
-export interface SimulationVerdictScoreReason {
+interface SimulationVerdictScoreReason {
   kind: SimulationVerdictReasonKind.GLOBAL_SCORE_BELOW_THRESHOLD;
   gap: number;
   admissibilityThreshold: number;
 }
 
-export type SimulationVerdictReason =
+type SimulationVerdictReason =
   | SimulationVerdictEliminatoryReason
   | SimulationVerdictScoreReason;
 
@@ -31,13 +31,13 @@ export interface SimulationVerdictDto {
   reason: SimulationVerdictReason | null;
 }
 
-export interface SimulationVerdictAxisInput {
+interface SimulationVerdictAxisInput {
   axis: AxisType;
   score: number;
   isCritical: boolean;
 }
 
-export interface SimulationVerdictInput {
+interface SimulationVerdictInput {
   globalScore: number;
   admissibilityThreshold: number;
   eliminatoryThreshold: number;

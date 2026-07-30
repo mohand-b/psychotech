@@ -9,7 +9,7 @@ export enum LogicNumericStructure {
   TRIANGLE = 'TRIANGLE',
 }
 
-export interface LogicItemRule {
+interface LogicItemRule {
   id: string;
   userText: string;
   hintText?: string;
@@ -56,7 +56,7 @@ export type LogicItem =
   | DominoLogicItem
   | MatrixLogicItem;
 
-export interface LegacyLogicItemShape {
+interface LegacyLogicItemShape {
   index: number;
   ruleId: string;
   difficulty: LogicDifficulty;

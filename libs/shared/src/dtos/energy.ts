@@ -1,10 +1,4 @@
-import { EnergyLedgerReason, SubscriptionTier } from '../enums';
-
-export interface EnergyWalletDto {
-  balance: number;
-  capacity: number;
-  lastResetAt: string;
-}
+import { SubscriptionTier } from '../enums';
 
 export interface EnergyStateDto {
   balance: number;
@@ -13,12 +7,4 @@ export interface EnergyStateDto {
   resetsAt: string;
   canStartFull: boolean;
   canStartAxis: boolean;
-}
-
-export interface EnergyLedgerEntryDto {
-  delta: number;
-  reason: EnergyLedgerReason;
-  balanceAfter: number;
-  sessionId: string | null;
-  createdAt: string;
 }

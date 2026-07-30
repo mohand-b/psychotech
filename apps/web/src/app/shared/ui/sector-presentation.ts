@@ -8,7 +8,7 @@ import {
   TrainFront,
 } from 'lucide-angular';
 
-export interface SectorPresentation {
+interface SectorPresentation {
   label: string;
   icon: LucideIconData;
 }

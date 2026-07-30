@@ -8,7 +8,7 @@ import {
 
 const TOKEN_BYTE_LENGTH = 24;
 
-export interface GamepadPairingRecord {
+interface GamepadPairingRecord {
   token: string;
   code: string;
   sessionId: string;
@@ -17,7 +17,7 @@ export interface GamepadPairingRecord {
   consumedAt: number | null;
 }
 
-export type GamepadPairingClaim =
+type GamepadPairingClaim =
   | { ok: true; record: GamepadPairingRecord }
   | { ok: false; error: GamepadSignalErrorCode };
 

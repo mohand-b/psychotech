@@ -9,22 +9,22 @@ import {
   RadarAxisScore,
 } from './progression.logic';
 
-export interface StreakSummary {
+interface StreakSummary {
   current: number;
   longest: number;
 }
 
-export interface SessionCounts {
+interface SessionCounts {
   full: number;
   targeted: number;
 }
 
-export interface BestFullSession {
+interface BestFullSession {
   globalScore: number;
   completedAt: Date | null;
 }
 
-export interface BoundaryFullSession {
+interface BoundaryFullSession {
   globalScore: number | null;
   completedAt: Date | null;
   axes: RadarAxisScore[];

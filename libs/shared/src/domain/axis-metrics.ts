@@ -6,20 +6,20 @@ export interface LogicFamilyMetricsEntry {
   timeMs: number;
 }
 
-export interface LogicMetrics {
+interface LogicMetrics {
   axis: AxisType.LOGIC;
   pointsEarned: number;
   itemsProcessed: number;
   familyBreakdown?: LogicFamilyMetricsEntry[];
 }
 
-export interface MemoryMetrics {
+interface MemoryMetrics {
   axis: AxisType.MEMORY;
   maxLengthNormal: number;
   maxLengthInverse: number;
 }
 
-export interface VisualDiscriminationMetrics {
+interface VisualDiscriminationMetrics {
   axis: AxisType.VISUAL_DISCRIMINATION;
   truePositives: number;
   trueNegatives: number;
@@ -28,7 +28,7 @@ export interface VisualDiscriminationMetrics {
   identicalPairs: number;
 }
 
-export interface ReactivityMetrics {
+interface ReactivityMetrics {
   axis: AxisType.REACTIVITY;
   meanReactionTimeMs: number;
   reactionTimeSd: number;
@@ -50,7 +50,7 @@ export interface MotricityCourseTimeline {
   points: MotricityTimelinePoint[];
 }
 
-export type MotricityErrorEventType = 'CONTACT' | 'EXIT';
+type MotricityErrorEventType = 'CONTACT' | 'EXIT';
 
 export interface MotricityErrorEvent {
   courseIndex: number;

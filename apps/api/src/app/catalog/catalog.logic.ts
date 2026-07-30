@@ -13,7 +13,7 @@ export interface SectorRecord {
   isActive: boolean;
 }
 
-export interface SectorAxisWeightRecord {
+interface SectorAxisWeightRecord {
   axis: AxisType;
   coefficient: number;
   isCritical: boolean;

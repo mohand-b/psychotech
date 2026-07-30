@@ -2,19 +2,19 @@ import { MotorSkillsMetrics } from '../../domain/axis-metrics';
 import { RecommendationPriority } from '../../enums';
 import { AxisFinding, sortFindingsBySeverity } from '../axis-findings';
 
-export const MOTRICITY_DIAG_CONCENTRATION_RATIO = 0.5;
-export const MOTRICITY_DIAG_MIN_EXITS = 2;
-export const MOTRICITY_ASYMMETRY_RATIO = 2;
-export const MOTRICITY_ASYMMETRY_MIN_ERRORS = 3;
-export const MOTRICITY_CASCADE_WINDOW_MS = 5000;
-export const MOTRICITY_CASCADE_MIN_EVENTS = 2;
-export const MOTRICITY_LAST_THIRD_RATIO = 2 / 3;
-export const MOTRICITY_LAST_THIRD_CONCENTRATION_RATIO = 0.5;
-export const MOTRICITY_LAST_THIRD_MIN_ERRORS = 3;
-export const MOTRICITY_CLEAN_ERRORS_MAX = 2;
-export const MOTRICITY_SLOW_COURSE_SEC = 75;
-export const MOTRICITY_FAST_COURSE_SEC = 55;
-export const MOTRICITY_DIRTY_ERRORS_MIN = 6;
+const MOTRICITY_DIAG_CONCENTRATION_RATIO = 0.5;
+const MOTRICITY_DIAG_MIN_EXITS = 2;
+const MOTRICITY_ASYMMETRY_RATIO = 2;
+const MOTRICITY_ASYMMETRY_MIN_ERRORS = 3;
+const MOTRICITY_CASCADE_WINDOW_MS = 5000;
+const MOTRICITY_CASCADE_MIN_EVENTS = 2;
+const MOTRICITY_LAST_THIRD_RATIO = 2 / 3;
+const MOTRICITY_LAST_THIRD_CONCENTRATION_RATIO = 0.5;
+const MOTRICITY_LAST_THIRD_MIN_ERRORS = 3;
+const MOTRICITY_CLEAN_ERRORS_MAX = 2;
+const MOTRICITY_SLOW_COURSE_SEC = 75;
+const MOTRICITY_FAST_COURSE_SEC = 55;
+const MOTRICITY_DIRTY_ERRORS_MIN = 6;
 
 function diagonalExits(metrics: MotorSkillsMetrics): AxisFinding | null {
   const exits = metrics.events.filter((event) => event.type === 'EXIT');

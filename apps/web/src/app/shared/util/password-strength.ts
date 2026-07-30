@@ -5,7 +5,7 @@ export type PasswordStrengthLevel =
   | 'strong'
   | 'robust';
 
-export interface PasswordStrength {
+interface PasswordStrength {
   score: 0 | 1 | 2 | 3 | 4;
   level: PasswordStrengthLevel;
 }

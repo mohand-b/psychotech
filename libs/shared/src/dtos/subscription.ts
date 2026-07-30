@@ -10,7 +10,3 @@ export interface SubscriptionDto {
   canceledAt: string | null;
   pendingTier: PaidTier | null;
 }
-
-export interface UpdateSubscriptionDto {
-  tier: SubscriptionTier;
-}

@@ -10,7 +10,7 @@ import {
 import { Type } from 'class-transformer';
 import { IsArray, IsEnum, IsOptional, ValidateNested } from 'class-validator';
 
-export class TargetedSessionOptionsRequest implements TargetedSessionOptionsDto {
+class TargetedSessionOptionsRequest implements TargetedSessionOptionsDto {
   @IsArray()
   @IsEnum(TrainingOptionId, { each: true })
   enabledOptions!: TrainingOptionId[];

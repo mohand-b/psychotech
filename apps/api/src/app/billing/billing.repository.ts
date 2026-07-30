@@ -9,7 +9,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface SubscriptionUpsert {
+interface SubscriptionUpsert {
   stripeSubscriptionId: string;
   tier: SubscriptionTier;
   status: SubscriptionStatus;

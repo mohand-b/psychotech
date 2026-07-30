@@ -1,4 +1,4 @@
-export interface SessionCountdown {
+interface SessionCountdown {
   remainingSec: number;
   fraction: number;
 }

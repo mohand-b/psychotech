@@ -50,7 +50,7 @@ export function priceForPlan(plan: PaidTier, catalog: PriceCatalog): string {
     : catalog.priceUnlimited;
 }
 
-export interface PromotionCoupon {
+interface PromotionCoupon {
   percent_off: number | null;
   amount_off: number | null;
   currency: string | null;

@@ -8,11 +8,6 @@ export interface BadgeDto {
   icon: string;
 }
 
-export interface UserBadgeDto {
-  badge: BadgeDto;
-  unlockedAt: string;
-}
-
 export interface BadgeStatusDto {
   badge: BadgeDto;
   unlocked: boolean;

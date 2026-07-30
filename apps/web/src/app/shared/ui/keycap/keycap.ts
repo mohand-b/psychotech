@@ -6,7 +6,7 @@ import {
 import { LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 
-export type KeycapVariant = 'key' | 'button';
+type KeycapVariant = 'key' | 'button';
 
 @Component({
   selector: 'ui-keycap',

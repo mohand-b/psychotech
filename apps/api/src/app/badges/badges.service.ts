@@ -6,7 +6,7 @@ import { evaluateUnlockedBadges } from './badge.logic';
 import { buildBadgeCollection, toBadgeDto } from './badges.mappers';
 import { BadgesRepository } from './badges.repository';
 
-export interface BadgeCompletionContext {
+interface BadgeCompletionContext {
   currentStreak: number;
   flawlessVisualDiscrimination: boolean;
 }

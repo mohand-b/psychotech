@@ -10,11 +10,11 @@ export const ELIMINATORY_AXIS_VERDICT_NOTE =
   `En ${FULL_SESSION_LABEL_LOWER}, un axe critique sous son seuil éliminatoire ` +
   `rend l'avis défavorable quel que soit le score global.`;
 
-export const DISCOVERY_SESSION_LABEL = 'Mode découverte';
-export const DISCOVERY_SESSION_LABEL_LOWER = 'mode découverte';
+const DISCOVERY_SESSION_LABEL = 'Mode découverte';
+const DISCOVERY_SESSION_LABEL_LOWER = 'mode découverte';
 
 export const TARGETED_SESSION_LABEL = 'Entraînement ciblé';
-export const TARGETED_SESSION_LABEL_LOWER = 'entraînement ciblé';
+const TARGETED_SESSION_LABEL_LOWER = 'entraînement ciblé';
 export const TARGETED_SESSION_LABEL_PLURAL = 'Entraînements ciblés';
 
 export const SESSION_MODE_LABELS: Record<SessionMode, string> = {

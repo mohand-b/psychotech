@@ -6,7 +6,7 @@ export type SessionHistoryFilter =
   | SessionMode.TARGETED
   | AxisType;
 
-export interface SessionHistorySelection {
+interface SessionHistorySelection {
   mode: SessionMode | null;
   axis: AxisType | null;
 }

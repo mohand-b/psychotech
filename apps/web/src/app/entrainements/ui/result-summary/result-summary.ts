@@ -27,14 +27,14 @@ import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
 
-export interface AxisThresholdView {
+interface AxisThresholdView {
   value: number;
   isCritical: boolean;
   desktopLabel: string;
   mobileLabel: string;
 }
 
-export interface AxisGapView {
+interface AxisGapView {
   above: boolean;
   label: string;
 }
