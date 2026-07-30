@@ -221,6 +221,10 @@ export type ButtonSize = 'md' | 'lg';
     .ui-button--ghost.ui-button--relief:disabled {
       border-bottom-color: transparent;
     }
+    .ui-button:focus-visible {
+      outline: 2px solid var(--btn-fill, var(--brand));
+      outline-offset: 2px;
+    }
     .ui-button:disabled {
       background: var(--surface-muted);
       color: var(--text-disabled);

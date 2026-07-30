@@ -101,6 +101,7 @@
 
 .rowm {
   display: none;
+  position: relative;
   align-items: center;
   gap: 12px;
   padding: 13px 16px;
@@ -139,6 +140,12 @@
 .rowm__chevron {
   display: inline-flex;
   color: var(--label);
+}
+
+.rowm__chevron::before {
+  content: '';
+  position: absolute;
+  inset: 0;
 }
 
 @media (max-width: 767px) {

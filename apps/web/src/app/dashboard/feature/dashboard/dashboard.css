@@ -841,6 +841,7 @@
 
   .home__radar-seg {
     padding: 8px 12px;
+    min-height: 44px;
   }
 
   .home__weak {
