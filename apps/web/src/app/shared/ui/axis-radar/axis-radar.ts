@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { AxisType } from '@psychotech/shared';
+import { AxisType, roundToTenth } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 
 export interface AxisRadarEntry {
@@ -178,8 +178,8 @@ export class AxisRadar {
 function pointAt(index: number, fraction: number): RadarPoint {
   const angle = (index * 2 * Math.PI) / 5;
   return {
-    x: round1(CENTER_X + RADIUS * fraction * Math.sin(angle)),
-    y: round1(CENTER_Y - RADIUS * fraction * Math.cos(angle)),
+    x: roundToTenth(CENTER_X + RADIUS * fraction * Math.sin(angle)),
+    y: roundToTenth(CENTER_Y - RADIUS * fraction * Math.cos(angle)),
   };
 }
 
@@ -189,6 +189,3 @@ function polygonPoints(pointFor: (index: number) => RadarPoint): string {
     .join(' ');
 }
 
-function round1(value: number): number {
-  return Math.round(value * 10) / 10;
-}

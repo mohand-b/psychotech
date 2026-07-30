@@ -1,6 +1,10 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
-import { DAY_MS, startOfDay } from '../../../shared/util/format-session-date';
+import {
+  DAY_MS,
+  formatTimeOfDay,
+  startOfDay,
+} from '../../../shared/util/format-session-date';
 
 export type TrainingsPanel = 'sim' | 'cible';
 
@@ -65,10 +69,7 @@ export function formatSignedGap(
 
 export function formatOverviewDate(iso: string, now: Date): string {
   const date = new Date(iso);
-  const time = date.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const time = formatTimeOfDay(date);
   const dayDiff = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);
   if (dayDiff === 0) {
     return `Aujourd'hui, ${time}`;

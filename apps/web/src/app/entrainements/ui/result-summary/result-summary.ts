@@ -14,6 +14,7 @@ import {
   ELIMINATORY_AXIS_VERDICT_NOTE,
   TARGETED_SESSION_LABEL,
   buildAxisStamp,
+  roundToTenth,
 } from '@psychotech/shared';
 import { TriangleAlert } from 'lucide-angular';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
@@ -128,7 +129,7 @@ export class ResultSummary {
     if (!threshold) {
       return null;
     }
-    const value = Math.round((this.score() - threshold.value) * 10) / 10;
+    const value = roundToTenth(this.score() - threshold.value);
     const above = value >= 0;
     const formatted = formatFrenchDecimal(value);
     return {

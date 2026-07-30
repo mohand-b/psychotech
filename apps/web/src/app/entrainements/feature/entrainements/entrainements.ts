@@ -1,7 +1,6 @@
 ﻿import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   afterNextRender,
   computed,
   inject,
@@ -50,6 +49,7 @@ import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
+import { tickingNow } from '../ticking-now';
 import {
   AXIS_OVERVIEW_COPY,
   SignedGap,
@@ -112,7 +112,6 @@ export class Entrainements {
   private readonly facade = inject(TrainingsOverviewFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly checkIcon = CircleCheckBig;
   protected readonly chevronRightIcon = ChevronRight;
@@ -166,7 +165,7 @@ export class Entrainements {
     () => this.tier() === SubscriptionTier.ESSENTIAL,
   );
 
-  private readonly now = signal(new Date());
+  private readonly now = tickingNow(REFRESH_INTERVAL_MS);
 
   protected readonly rechargeLabel = computed(() => {
     const resetsAt = this.energyFacade.state()?.resetsAt;
@@ -178,11 +177,6 @@ export class Entrainements {
     afterNextRender(() => {
       requestAnimationFrame(() => this.animationsReady.set(true));
     });
-    const intervalId = setInterval(
-      () => this.now.set(new Date()),
-      REFRESH_INTERVAL_MS,
-    );
-    this.destroyRef.onDestroy(() => clearInterval(intervalId));
   }
 
   protected readonly axisRows = computed<AxisRowView[]>(() => {

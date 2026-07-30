@@ -37,6 +37,7 @@ import { AxisRadar, AxisRadarEntry } from '../../../shared/ui/axis-radar/axis-ra
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
 import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
 
 @Component({
@@ -114,12 +115,7 @@ export class SimulationSummary {
 
   protected readonly contextTime = computed(() => {
     const summary = this.summary();
-    return summary
-      ? new Date(summary.completedAt).toLocaleTimeString('fr-FR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '';
+    return summary ? formatTimeOfDay(new Date(summary.completedAt)) : '';
   });
 
   protected readonly scoreLabel = computed(() => {

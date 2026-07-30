@@ -14,6 +14,7 @@ import {
   Sector,
   SessionMode,
   fullSessionCountLabel,
+  roundToTenth,
 } from '@psychotech/shared';
 import { ChevronRight } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -31,7 +32,12 @@ import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { formatSessionDate } from '../../../shared/util/format-session-date';
+import { formatDayMonth } from '../../../shared/util/format-day-month-year';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import {
+  daysSince,
+  formatSessionDate,
+} from '../../../shared/util/format-session-date';
 import { ProgressionFacade } from '../../data-access/progression.facade';
 import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
 
@@ -52,27 +58,8 @@ interface AxisRowView {
   clickable: boolean;
 }
 
-function formatGlobalScore(value: number): string {
-  return value.toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-}
-
-function formatDayMonth(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-  });
-}
-
 function relativeDayLabel(iso: string): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const dayMs = 86_400_000;
-  const startOfDay = (value: Date) =>
-    new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
-  const diff = Math.round((startOfDay(now) - startOfDay(date)) / dayMs);
+  const diff = daysSince(iso);
   if (diff === 0) {
     return "aujourd'hui";
   }
@@ -132,7 +119,7 @@ export class Progression {
     const last = evolution[evolution.length - 1];
     return last
       ? {
-          scoreLabel: formatGlobalScore(last.globalScore),
+          scoreLabel: formatFrenchDecimal(last.globalScore),
           dateLabel: formatSessionDate(last.date, this.now),
         }
       : null;
@@ -142,7 +129,7 @@ export class Progression {
     const stats = this.progression()?.stats;
     return stats?.bestGlobalScore != null
       ? {
-          scoreLabel: formatGlobalScore(stats.bestGlobalScore),
+          scoreLabel: formatFrenchDecimal(stats.bestGlobalScore),
           dateLabel: stats.bestGlobalScoreAt
             ? formatDayMonth(stats.bestGlobalScoreAt)
             : null,
@@ -162,13 +149,12 @@ export class Progression {
     ) {
       return null;
     }
-    const delta =
-      Math.round((last.globalScore - stats.firstGlobalScore) * 10) / 10;
+    const delta = roundToTenth(last.globalScore - stats.firstGlobalScore);
     return {
-      deltaLabel: `${delta >= 0 ? '+' : '−'}${formatGlobalScore(Math.abs(delta))}`,
+      deltaLabel: `${delta >= 0 ? '+' : '−'}${formatFrenchDecimal(Math.abs(delta))}`,
       positive: delta >= 0,
-      fromLabel: formatGlobalScore(stats.firstGlobalScore),
-      toLabel: formatGlobalScore(last.globalScore),
+      fromLabel: formatFrenchDecimal(stats.firstGlobalScore),
+      toLabel: formatFrenchDecimal(last.globalScore),
     };
   });
 

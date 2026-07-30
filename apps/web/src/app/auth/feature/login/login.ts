@@ -12,8 +12,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { FormField } from '../../../shared/ui/form-field/form-field';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
 import { AuthFacade } from '../../data-access/auth.facade';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { emailErrorMessage } from '../email-validation';
 
 @Component({
   selector: 'app-login',
@@ -34,15 +33,9 @@ export class Login {
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
 
-  protected readonly emailError = computed(() => {
-    if (!this.submitted()) {
-      return null;
-    }
-    if (this.email().trim() === '') {
-      return 'Adresse email requise';
-    }
-    return EMAIL_PATTERN.test(this.email()) ? null : 'Adresse email invalide';
-  });
+  protected readonly emailError = computed(() =>
+    this.submitted() ? emailErrorMessage(this.email()) : null,
+  );
   protected readonly passwordError = computed(() =>
     this.submitted() && this.password() === '' ? 'Mot de passe requis' : null,
   );

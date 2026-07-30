@@ -11,6 +11,7 @@ import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-v
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 import { axisSlug } from '../../../shared/util/axis-slug';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
   DAY_MS,
   capitalize,
@@ -90,10 +91,7 @@ export function formatSessionScore(
     return null;
   }
   if (item.mode === SessionMode.FULL) {
-    return item.score.toLocaleString('fr-FR', {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
+    return formatFrenchDecimal(item.score);
   }
   return `${Math.round(item.score)}`;
 }

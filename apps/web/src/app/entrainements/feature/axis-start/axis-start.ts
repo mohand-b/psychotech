@@ -33,8 +33,7 @@ import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { axisButtonColor } from '../../ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
-
-const COUNTDOWN_TICK_MS = 30_000;
+import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 
 @Component({
   selector: 'app-axis-start',
@@ -64,7 +63,7 @@ export class AxisStart {
   protected readonly enabledOptions = signal<TrainingOptionId[]>([]);
   protected readonly logicFamily = signal<LogicFamilyFilter | null>(null);
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
-  private readonly now = signal(new Date());
+  private readonly now = tickingNow(COUNTDOWN_TICK_MS);
 
   protected readonly axis =
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
@@ -105,11 +104,6 @@ export class AxisStart {
         queryParams: { panel: 'cible' },
       });
     }
-    const intervalId = setInterval(
-      () => this.now.set(new Date()),
-      COUNTDOWN_TICK_MS,
-    );
-    this.destroyRef.onDestroy(() => clearInterval(intervalId));
     if (this.showPairing) {
       this.destroyRef.onDestroy(() => {
         if (!this.leavingTowardsPlay()) {

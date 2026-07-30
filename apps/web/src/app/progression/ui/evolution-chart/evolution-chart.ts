@@ -7,6 +7,9 @@ import {
 } from '@angular/core';
 import { EvolutionPointDto } from '@psychotech/shared';
 import { fullSessionVerdictColorVar } from '../../../shared/ui/verdict-appearance';
+import { formatDayMonth } from '../../../shared/util/format-day-month-year';
+import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { daysSince } from '../../../shared/util/format-session-date';
 
 interface ChartGeometry {
   viewWidth: number;
@@ -85,12 +88,6 @@ interface ChartValueLabel {
   muted: boolean;
 }
 
-function formatGlobalScore(value: number): string {
-  return value.toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-}
 
 @Component({
   selector: 'ui-evolution-chart',
@@ -327,7 +324,7 @@ export class EvolutionChart {
         ),
         radius: last ? geometry.lastPointRadius : geometry.pointRadius,
         strokeWidth: last ? geometry.lastPointStroke : 1.5,
-        title: `${formatGlobalScore(point.globalScore)} · ouvrir le bilan`,
+        title: `${formatFrenchDecimal(point.globalScore)} · ouvrir le bilan`,
       };
     });
   });
@@ -348,21 +345,21 @@ export class EvolutionChart {
       labels.push({
         x: this.xFor(maxIndex),
         y: this.yFor(points[maxIndex].globalScore) - 15,
-        text: formatGlobalScore(points[maxIndex].globalScore),
+        text: formatFrenchDecimal(points[maxIndex].globalScore),
         muted: false,
       });
     }
     labels.push({
       x: this.xFor(lastIndex),
       y: this.yFor(points[lastIndex].globalScore) - 15,
-      text: formatGlobalScore(points[lastIndex].globalScore),
+      text: formatFrenchDecimal(points[lastIndex].globalScore),
       muted: false,
     });
     if (this.g.showFirstValue && points.length > 1 && maxIndex !== 0) {
       labels.push({
         x: this.xFor(0),
         y: this.yFor(points[0].globalScore) + 22,
-        text: formatGlobalScore(points[0].globalScore),
+        text: formatFrenchDecimal(points[0].globalScore),
         muted: true,
       });
     }
@@ -384,17 +381,12 @@ export class EvolutionChart {
 }
 
 function formatChartDate(iso: string): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const dayMs = 86_400_000;
-  const startOfDay = (value: Date) =>
-    new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
-  const diff = Math.round((startOfDay(now) - startOfDay(date)) / dayMs);
+  const diff = daysSince(iso);
   if (diff === 0) {
     return "Aujourd'hui";
   }
   if (diff === 1) {
     return 'Hier';
   }
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  return formatDayMonth(iso);
 }

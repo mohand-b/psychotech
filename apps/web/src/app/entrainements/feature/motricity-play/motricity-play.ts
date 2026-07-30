@@ -41,6 +41,7 @@ import {
   motricityEndBadgePlacement,
   motricityStartBadgePlacement,
 } from '../../../shared/ui/motricity/motricity-badge-placement';
+import { formatPoints } from '../../../shared/ui/motricity/svg-points';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
@@ -156,33 +157,25 @@ export class MotricityPlay {
   protected readonly polygonPoints = computed(() => {
     const course = this.course();
     return course
-      ? course.polygon
-          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-          .join(' ')
+      ? formatPoints(course.polygon)
       : '';
   });
   protected readonly leftSidePoints = computed(() => {
     const course = this.course();
     return course
-      ? course.leftSide
-          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-          .join(' ')
+      ? formatPoints(course.leftSide)
       : '';
   });
   protected readonly rightSidePoints = computed(() => {
     const course = this.course();
     return course
-      ? course.rightSide
-          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-          .join(' ')
+      ? formatPoints(course.rightSide)
       : '';
   });
   protected readonly centerlinePoints = computed(() => {
     const course = this.course();
     return course
-      ? course.centerline
-          .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-          .join(' ')
+      ? formatPoints(course.centerline)
       : '';
   });
 
@@ -430,9 +423,7 @@ export class MotricityPlay {
         break;
       }
     }
-    return points
-      .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-      .join(' ');
+    return formatPoints(points);
   }
 
   private updateCrankSpeeds(deltaMs: number): void {

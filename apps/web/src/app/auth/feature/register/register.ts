@@ -23,14 +23,13 @@ import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-mete
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { passwordsMatch } from '../../../shared/util/password-match';
 import { AuthFacade } from '../../data-access/auth.facade';
+import { emailErrorMessage } from '../email-validation';
 
 interface SectorOption {
   value: string;
   label: string;
   disabled: boolean;
 }
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 @Component({
   selector: 'app-register',
@@ -119,15 +118,9 @@ export class Register {
   protected readonly lastNameError = computed(() =>
     this.submitted() && this.lastName().trim() === '' ? 'Nom requis' : null,
   );
-  protected readonly emailError = computed(() => {
-    if (!this.submitted()) {
-      return null;
-    }
-    if (this.email().trim() === '') {
-      return 'Adresse email requise';
-    }
-    return EMAIL_PATTERN.test(this.email()) ? null : 'Adresse email invalide';
-  });
+  protected readonly emailError = computed(() =>
+    this.submitted() ? emailErrorMessage(this.email()) : null,
+  );
   protected readonly passwordError = computed(() => {
     if (!this.submitted()) {
       return null;

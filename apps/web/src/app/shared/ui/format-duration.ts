@@ -1,3 +1,5 @@
+import { formatFrenchDecimal } from '../util/format-number';
+
 export function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -5,10 +7,5 @@ export function formatDuration(totalSeconds: number): string {
 }
 
 export function formatSecondsTenths(milliseconds: number): string {
-  const seconds = (milliseconds / 1000).toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
-  return `${seconds} s`;
+  return `${formatFrenchDecimal(milliseconds / 1000)} s`;
 }
-

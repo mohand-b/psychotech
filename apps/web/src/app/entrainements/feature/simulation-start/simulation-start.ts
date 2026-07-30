@@ -40,10 +40,10 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
+import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
-const COUNTDOWN_TICK_MS = 30_000;
 
 interface AdviceItem {
   icon: LucideIconData;
@@ -70,14 +70,13 @@ export class SimulationStart {
   private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly heroIcon = Layers;
   protected readonly durationIcon = Timer;
 
   protected readonly starting = signal(false);
-  private readonly now = signal(new Date());
+  private readonly now = tickingNow(COUNTDOWN_TICK_MS);
 
   protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
@@ -122,14 +121,6 @@ export class SimulationStart {
     { icon: Clock, text: 'Prévoyez environ 25 minutes sans interruption.' },
     { icon: BellOff, text: 'Coupez vos notifications pour rester concentré.' },
   ];
-
-  constructor() {
-    const intervalId = setInterval(
-      () => this.now.set(new Date()),
-      COUNTDOWN_TICK_MS,
-    );
-    this.destroyRef.onDestroy(() => clearInterval(intervalId));
-  }
 
   protected readonly unlimited = computed(
     () => this.coreFacade.tier() === SubscriptionTier.UNLIMITED,

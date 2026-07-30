@@ -13,6 +13,7 @@ import {
 } from '@psychotech/shared';
 import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
 import { formatDuration } from '../../shared/ui/format-duration';
+import { formatFrenchDecimal } from '../../shared/util/format-number';
 import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from './logic-status';
 import { ResultMetricRow } from './result-metrics/result-metrics';
 import { TimeChartEntry } from './time-chart/time-chart';
@@ -25,10 +26,7 @@ const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
 };
 
 function frenchSeconds(valueMs: number): string {
-  return (valueMs / 1000).toLocaleString('fr-FR', {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
+  return formatFrenchDecimal(valueMs / 1000);
 }
 
 export function buildLogicMetricRows(

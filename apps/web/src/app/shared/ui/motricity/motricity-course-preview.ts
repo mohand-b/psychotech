@@ -19,12 +19,7 @@ import {
   motricityEndBadgePlacement,
   motricityStartBadgePlacement,
 } from './motricity-badge-placement';
-
-function formatPoints(points: readonly MotricityPoint[]): string {
-  return points
-    .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
-    .join(' ');
-}
+import { formatPoints } from './svg-points';
 
 @Component({
   selector: 'ui-motricity-course-preview',
