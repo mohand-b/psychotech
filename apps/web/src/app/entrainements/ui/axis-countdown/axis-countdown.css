@@ -26,10 +26,16 @@
   stroke-linecap: round;
   stroke-dasharray: 339.3;
   stroke-dashoffset: 339.3;
-  animation: countdown-ring 1s linear forwards;
+  animation: countdown-ring-odd 1s linear forwards;
 }
 
-@keyframes countdown-ring {
+@keyframes countdown-ring-odd {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes countdown-ring-even {
   to {
     stroke-dashoffset: 0;
   }

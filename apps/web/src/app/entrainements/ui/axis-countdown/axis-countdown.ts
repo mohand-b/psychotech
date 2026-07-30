@@ -34,12 +34,16 @@ const AXIS_COUNTDOWN_TICK_MS = 1000;
       <ui-axis-label class="countdown__chip" [axis]="axis()" />
 
       <div class="countdown__stage overlay-stage">
-        @for (tick of ringKey(); track tick) {
-          <svg class="countdown__ring" viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="countdown__ring-track" cx="60" cy="60" r="54" />
-            <circle class="countdown__ring-progress" cx="60" cy="60" r="54" />
-          </svg>
-        }
+        <svg class="countdown__ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="countdown__ring-track" cx="60" cy="60" r="54" />
+          <circle
+            class="countdown__ring-progress"
+            cx="60"
+            cy="60"
+            r="54"
+            [style.animation-name]="ringAnimation()"
+          />
+        </svg>
         <span class="countdown__digit">{{ value() }}</span>
       </div>
 
@@ -63,7 +67,9 @@ export class AxisCountdown {
 
   protected readonly arrowIcon = ArrowRight;
   protected readonly value = signal(AXIS_COUNTDOWN_START);
-  protected readonly ringKey = computed(() => [this.value()]);
+  protected readonly ringAnimation = computed(() =>
+    this.value() % 2 === 0 ? 'countdown-ring-even' : 'countdown-ring-odd',
+  );
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],
