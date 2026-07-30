@@ -6,6 +6,7 @@ export * from './axis-meta';
 export * from './axis-training';
 export * from './axis-tutorial';
 export * from './sector-axes';
+export * from './session-vocabulary';
 export * from './simulation-appreciation';
 export * from './simulation-summary';
 export * from './simulation-verdict';
