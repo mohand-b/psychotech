@@ -38,7 +38,7 @@ interface ChartDot {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ChartTouchTips],
   templateUrl: './reactivity-tr-chart.html',
-  styleUrl: './reactivity-tr-chart.css',
+  styleUrls: ['../chart-base.css', './reactivity-tr-chart.css'],
 })
 export class ReactivityTrChart {
   readonly points = input.required<ReactivityStimulusPoint[]>();

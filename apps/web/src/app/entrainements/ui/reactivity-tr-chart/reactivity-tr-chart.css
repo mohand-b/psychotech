@@ -1,13 +1,3 @@
-:host {
-  display: block;
-}
-
-.chart {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .chart__phase-labels {
   display: flex;
   font-size: 10px;
@@ -18,18 +8,6 @@
 .chart__phase-labels span {
   flex: 1;
   text-align: center;
-}
-
-.chart__frame {
-  display: flex;
-}
-
-.chart__plot {
-  position: relative;
-  flex: 1;
-  height: 180px;
-  border-bottom: 1px solid var(--border);
-  overflow: visible;
 }
 
 .chart__band--middle {
@@ -77,12 +55,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.chart__dot-slot {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
 .chart__dot {
   position: absolute;
   left: 0;
@@ -118,43 +90,6 @@
   border-radius: 0;
   font: 600 13px/1 var(--font-ui);
   color: var(--text-disabled);
-}
-
-@media (hover: hover) {
-  .chart__dot-slot:hover .chart__tip {
-    display: block;
-  }
-}
-
-.chart__dot-slot.tip-open .chart__tip {
-  display: block;
-}
-
-@media (pointer: coarse) {
-  .chart__dot-slot::after {
-    content: '';
-    position: absolute;
-    left: -9px;
-    top: -9px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.chart__tip {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  transform: translateX(-50%);
-  display: none;
-  padding: 5px 8px;
-  border-radius: var(--radius-badge);
-  background: var(--ink);
-  color: var(--card);
-  font: 500 11px/14px var(--font-ui);
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10;
 }
 
 .chart__x-axis {

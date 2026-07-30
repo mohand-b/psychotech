@@ -61,6 +61,7 @@ function randomSeed(): string {
       }
     </div>
   `,
+  styleUrls: ['../lab-toolbar.css'],
   styles: `
     .lab {
       display: flex;
@@ -70,55 +71,6 @@ function randomSeed(): string {
       background: var(--bg);
       border-radius: 12px;
       max-width: 900px;
-    }
-    .lab__controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-    .lab__generate {
-      padding: 10px 18px;
-      background: var(--brand);
-      color: #fff;
-      font: 700 14px/18px var(--font-ui);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .lab__generate:hover {
-      background: var(--brand-hover);
-    }
-    .lab__field {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .lab__field-label {
-      font: 600 11px/14px var(--font-ui);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--label);
-    }
-    .lab__seed {
-      width: 150px;
-      padding: 8px 10px;
-      font-size: 13px;
-      border: 1px solid var(--border-hover);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--ink);
-    }
-    .lab__chip {
-      padding: 8px 12px;
-      background: var(--card);
-      color: var(--text-secondary);
-      font: 600 13px/16px var(--font-ui);
-      border: 1px solid var(--border-hover);
-      border-radius: 8px;
-      cursor: pointer;
     }
     .lab__course {
       display: flex;

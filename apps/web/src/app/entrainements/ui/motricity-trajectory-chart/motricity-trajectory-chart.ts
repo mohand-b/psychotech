@@ -51,7 +51,7 @@ const MARKER_LABELS: Record<TrajectoryBorderMarkerKind, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ChartTouchTips],
   templateUrl: './motricity-trajectory-chart.html',
-  styleUrl: './motricity-trajectory-chart.css',
+  styleUrls: ['../chart-base.css', './motricity-trajectory-chart.css'],
 })
 export class MotricityTrajectoryChart {
   readonly metrics = input.required<MotorSkillsMetrics>();
