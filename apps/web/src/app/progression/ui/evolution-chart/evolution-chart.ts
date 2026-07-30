@@ -6,7 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { EvolutionPointDto } from '@psychotech/shared';
-import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
+import { fullSessionVerdictColorVar } from '../../../shared/ui/verdict-appearance';
 
 interface ChartGeometry {
   viewWidth: number;
@@ -321,7 +321,10 @@ export class EvolutionChart {
         sessionId: point.sessionId,
         x: this.xFor(index),
         y: this.yFor(point.globalScore),
-        colorVar: resolveVerdictAppearance(point.globalScore).colorVar,
+        colorVar: fullSessionVerdictColorVar(
+          point.globalScore,
+          point.isEliminated,
+        ),
         radius: last ? geometry.lastPointRadius : geometry.pointRadius,
         strokeWidth: last ? geometry.lastPointStroke : 1.5,
         title: `${formatGlobalScore(point.globalScore)} · ouvrir le bilan`,

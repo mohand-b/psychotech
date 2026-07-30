@@ -53,6 +53,9 @@
               >
             }
           </div>
+          @if (showsEliminatoryNote()) {
+            <p class="bilan__eliminatory-note">{{ eliminatoryNote }}</p>
+          }
         </div>
       </div>
 

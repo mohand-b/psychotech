@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  ELIMINATORY_AXIS_VERDICT_NOTE,
   LogicFamily,
   RecommendationPriority,
   ScoreBand,
@@ -289,6 +290,27 @@ describe('SimulationSummary', () => {
     expect(stamp.querySelector('.stamp__sub').textContent).toContain(
       'Éliminatoire',
     );
+  });
+
+  it('explains why an above-threshold examen blanc is still unfavorable', async () => {
+    const eliminated = buildSummary({
+      globalScore: 78,
+      admissibilityGap: 8,
+      isEliminated: true,
+      isAdmissible: false,
+    });
+    const { fixture } = await setup(eliminated);
+    const note = fixture.nativeElement.querySelector(
+      '.bilan__eliminatory-note',
+    );
+    expect(note.textContent.trim()).toBe(ELIMINATORY_AXIS_VERDICT_NOTE);
+  });
+
+  it('hides the eliminatory explanation when no axis is eliminatory', async () => {
+    const { fixture } = await setup(buildSummary({ globalScore: 78 }));
+    expect(
+      fixture.nativeElement.querySelector('.bilan__eliminatory-note'),
+    ).toBeNull();
   });
 
   it('renders appreciation paragraphs with mono value segments and the priority line', async () => {

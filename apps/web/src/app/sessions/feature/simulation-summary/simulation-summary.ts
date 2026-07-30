@@ -10,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
   FULL_SESSION_LABEL,
+  ELIMINATORY_AXIS_VERDICT_NOTE,
   FULL_SESSION_REPORT_LABEL,
   SimulationAxisSummaryDto,
   SimulationSummaryDto,
@@ -73,6 +74,7 @@ export class SimulationSummary {
   protected readonly markerIcon = Lightbulb;
   protected readonly presentations = AXIS_PRESENTATION;
   protected readonly reportLabel = FULL_SESSION_REPORT_LABEL;
+  protected readonly eliminatoryNote = ELIMINATORY_AXIS_VERDICT_NOTE;
 
   protected readonly summary = signal<SimulationSummaryDto | null>(null);
   protected readonly openAxis = signal<AxisType | null>(null);
@@ -147,6 +149,15 @@ export class SimulationSummary {
       ? `+${formatFrenchDecimal(summary.admissibilityGap)} au-dessus`
       : `${formatFrenchDecimal(summary.admissibilityGap)} en dessous`;
     return { above, label };
+  });
+
+  protected readonly showsEliminatoryNote = computed(() => {
+    const summary = this.summary();
+    return (
+      summary !== null &&
+      summary.isEliminated &&
+      summary.globalScore >= summary.admissibilityThreshold
+    );
   });
 
   protected readonly radarEntries = computed<AxisRadarEntry[]>(() => {

@@ -43,6 +43,15 @@ export function resolveVerdictAppearance(
   };
 }
 
+export function fullSessionVerdictColorVar(
+  score: number,
+  isEliminated: boolean,
+): string {
+  return isEliminated
+    ? VERDICT_TONE_COLOR_VARS[VerdictTone.BAD]
+    : resolveVerdictAppearance(score).colorVar;
+}
+
 export function verdictWordInkVar(word: AxisStampWord): string {
   return VERDICT_TONE_INK_VARS[VERDICT_WORD_PRESENTATION[word].tone];
 }

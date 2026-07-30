@@ -11,6 +11,7 @@ import {
   AxisType,
   SectorReferentialDto,
   Sector,
+  ELIMINATORY_AXIS_VERDICT_NOTE,
   TARGETED_SESSION_LABEL,
   buildAxisStamp,
 } from '@psychotech/shared';
@@ -69,6 +70,7 @@ export class ResultSummary {
   readonly recordVisible = input(true);
 
   protected readonly alertIcon = TriangleAlert;
+  protected readonly eliminatoryNote = ELIMINATORY_AXIS_VERDICT_NOTE;
 
   protected readonly presentation = computed(
     () => AXIS_PRESENTATION[this.axis()],

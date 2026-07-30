@@ -73,18 +73,21 @@ function populatedProgression(): ProgressionDto {
         date: '2026-04-14T10:00:00.000Z',
         globalScore: 64.2,
         band: ScoreBand.FRAGILE,
+        isEliminated: false,
       },
       {
         sessionId: 'sim-2',
         date: '2026-06-02T18:00:00.000Z',
         globalScore: 78.2,
         band: ScoreBand.ACCEPTABLE,
+        isEliminated: false,
       },
       {
         sessionId: 'sim-3',
         date: '2026-07-15T19:42:00.000Z',
         globalScore: 74.8,
         band: ScoreBand.ACCEPTABLE,
+        isEliminated: false,
       },
     ],
     axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
@@ -209,6 +212,23 @@ describe('Progression', () => {
     expect(desktop.querySelectorAll('circle')).toHaveLength(3);
     expect(desktop.querySelector('polyline')).not.toBeNull();
     expect(textOf(fixture)).toContain("Seuil d'admissibilité Ferroviaire 70");
+  });
+
+  it('paints an eliminated simulation red even above the admissibility threshold', async () => {
+    const progression = populatedProgression();
+    const admitted = progression.evolution[1];
+    const eliminated = progression.evolution[2];
+    eliminated.isEliminated = true;
+    expect(admitted.globalScore).toBeGreaterThan(70);
+    expect(eliminated.globalScore).toBeGreaterThan(70);
+
+    const { fixture } = await setup(progression);
+    const dots = fixture.nativeElement.querySelectorAll(
+      '.prog__chart-desktop circle',
+    ) as NodeListOf<SVGCircleElement>;
+
+    expect(dots[1].getAttribute('fill')).toBe('var(--rating-good)');
+    expect(dots[2].getAttribute('fill')).toBe('var(--rating-bad)');
   });
 
   it('opens the report of a simulation from a curve point', async () => {
