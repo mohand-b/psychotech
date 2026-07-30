@@ -418,8 +418,7 @@
     gap: 14px;
   }
 
-  .pay__promo-input,
-  .pay__promo-apply {
+  .pay__promo-input {
     height: 48px;
   }
 

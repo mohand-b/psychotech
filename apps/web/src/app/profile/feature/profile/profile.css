@@ -893,11 +893,6 @@
     font-size: 12.5px;
   }
 
-  .profil__footer--form .profil__action-cancel,
-  .profil__footer--form .profil__action-save {
-    min-height: 48px;
-  }
-
   .profil__footer-actions {
     gap: 8px;
   }

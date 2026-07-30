@@ -443,8 +443,6 @@
 
   .rech__pay {
     flex: 1 1 100%;
-    justify-content: center;
-    min-height: 48px;
   }
 
   .rech__upsell {

@@ -763,19 +763,6 @@
     gap: 12px;
   }
 
-  .home__cta-primary {
-    height: 48px;
-    padding: 0 16px;
-    font-size: 15px;
-    border-radius: 10px;
-    gap: 8px;
-    border-bottom: 3px solid var(--brand-relief);
-  }
-
-  .home__cta-primary:active {
-    border-bottom-color: transparent;
-  }
-
   .home__day-foot {
     text-align: center;
   }
@@ -875,17 +862,6 @@
 
   .home__weak-name {
     font-size: 16px;
-  }
-
-  .home__cta-outline {
-    height: 48px;
-    padding: 0 16px;
-    border-radius: 10px;
-    border-bottom-width: 3px;
-  }
-
-  .home__cta-outline:active {
-    border-bottom-width: 1px;
   }
 
   .home__weak-empty {

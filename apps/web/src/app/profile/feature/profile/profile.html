@@ -492,6 +492,7 @@
                 class="profil__action-cancel"
                 appearance="outlined"
                 color="neutral"
+                block="mobile"
                 [disabled]="!formDirty()"
                 (click)="cancel()"
               >
@@ -500,6 +501,7 @@
               <ui-button
                 class="profil__action-save"
                 color="brand"
+                block="mobile"
                 [disabled]="!formCanSave()"
                 (click)="save()"
               >
