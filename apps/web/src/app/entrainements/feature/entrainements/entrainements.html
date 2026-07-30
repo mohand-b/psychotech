@@ -40,14 +40,14 @@
         }
       </div>
       <div class="duo__titleblock">
-        <h2 class="duo__name">Simulation complète</h2>
+        <h2 class="duo__name">{{ fullSessionLabel }}</h2>
         <span class="duo__desc"
           >Tous les axes enchaînés dans les conditions réelles de l'examen, avec un
           avis d'admissibilité en fin de session.</span
         >
       </div>
       <div class="duo__checks duo__checks--sim">
-        @for (item of simulationFeatures; track item) {
+        @for (item of fullSessionFeatures; track item) {
         <span class="duo__check">
           <ui-icon [img]="checkIcon" [size]="15" />
           {{ item }}
@@ -73,7 +73,7 @@
           [iconEnd]="arrowRightIcon"
           (click)="startSimulation()"
         >
-          Accéder à la simulation
+          Accéder à l'examen blanc
         </ui-button>
         }
       </div>
@@ -90,7 +90,7 @@
           <span class="duo__offer-badge">Gratuit</span>
         </span>
         <span class="duo__offer-hint"
-          >Les simulations et entraînements ciblés sont réservés aux formules
+          >Les examens blancs et entraînements ciblés sont réservés aux formules
           payantes. Le mode découverte reste en libre accès, ci-dessous.</span
         >
       </div>
@@ -167,7 +167,7 @@
         } @else if (overviewLoaded()) {
         <span class="duo__empty-title">Pas encore de bilan</span>
         <span class="duo__empty-hint"
-          >Votre bilan s'affichera ici après votre première simulation complète,
+          >Votre bilan s'affichera ici après votre premier examen blanc,
           avec votre score, l'avis d'admissibilité et votre position vs le seuil
           d'admissibilité de votre secteur.</span
         >
@@ -331,14 +331,14 @@
     <section class="trainm__sim">
       <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
       <div class="trainm__titleblock">
-        <h2 class="trainm__name">Simulation complète</h2>
+        <h2 class="trainm__name">{{ fullSessionLabel }}</h2>
         <span class="trainm__desc"
           >Tous les axes enchaînés dans les conditions réelles de l'examen, avec un
           avis d'admissibilité en fin de session.</span
         >
       </div>
       <div class="trainm__checks">
-        @for (item of simulationFeatures; track item) {
+        @for (item of fullSessionFeatures; track item) {
         <span class="trainm__check trainm__check--sim">
           <ui-icon [img]="checkIcon" [size]="14" />
           {{ item }}
@@ -365,7 +365,7 @@
         [iconEnd]="arrowRightIcon"
         (click)="startSimulation()"
       >
-        Accéder à la simulation
+        Accéder à l'examen blanc
       </ui-button>
       }
     </section>
@@ -418,7 +418,7 @@
             <span class="duo__offer-badge">Gratuit</span>
           </span>
           <span class="duo__offer-hint trainm__offer-hint"
-            >Les simulations et entraînements ciblés sont réservés aux formules
+            >Les examens blancs et entraînements ciblés sont réservés aux formules
             payantes. Le mode découverte reste en libre accès, ci-dessous.</span
           >
         </div>

@@ -216,7 +216,7 @@ describe('Entrainements', () => {
     const { fixture, navigate } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
     (element.querySelector('.duo__cta button') as HTMLButtonElement).click();
-    expect(navigate).toHaveBeenCalledWith(['/entrainements/simulation']);
+    expect(navigate).toHaveBeenCalledWith(['/entrainements/examen-blanc']);
   });
 
   it('links every tutorial card to the axis tutorial flow', async () => {

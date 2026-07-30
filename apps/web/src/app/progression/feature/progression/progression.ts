@@ -8,8 +8,12 @@ import { Router } from '@angular/router';
 import {
   AxisProgressionDto,
   AxisType,
+  FULL_SESSION_LABEL,
+  FULL_SESSION_LABEL_LOWER,
+  FULL_SESSION_LABEL_PLURAL_LOWER,
   Sector,
   SessionMode,
+  fullSessionCountLabel,
 } from '@psychotech/shared';
 import { ChevronRight } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -107,6 +111,11 @@ export class Progression {
   protected readonly skeletonKpis = [0, 1, 2, 3];
 
   protected readonly sectorLabel = SECTOR_PRESENTATION[this.sector].label;
+  protected readonly fullSessionLabel = FULL_SESSION_LABEL;
+  protected readonly fullSessionLabelLower = FULL_SESSION_LABEL_LOWER;
+  protected readonly fullSessionLabelPluralLower =
+    FULL_SESSION_LABEL_PLURAL_LOWER;
+  protected readonly fullSessionCountLabel = fullSessionCountLabel;
 
   protected readonly threshold = computed(
     () =>

@@ -15,7 +15,7 @@
   @if (loaded()) {
     <section class="prog__card prog__kpis">
       <div class="prog__kpi">
-        <span class="prog__kpi-label">Dernière simulation</span>
+        <span class="prog__kpi-label">Dernier {{ fullSessionLabelLower }}</span>
         @if (lastSimulation(); as last) {
           <span class="prog__kpi-value-row">
             <span class="prog__kpi-value t-mono">{{ last.scoreLabel }}</span>
@@ -24,7 +24,7 @@
           <span class="prog__kpi-sub">{{ last.dateLabel }}</span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Aucune simulation complétée</span>
+          <span class="prog__kpi-sub">Aucun {{ fullSessionLabelLower }} terminé</span>
         }
       </div>
       <div class="prog__kpi">
@@ -38,13 +38,13 @@
           </span>
           <span class="prog__kpi-sub">
             @if (best.dateLabel) {
-              Simulation du
+              {{ fullSessionLabel }} du
               <span class="t-mono">{{ best.dateLabel }}</span>
             }
           </span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Après votre première simulation</span>
+          <span class="prog__kpi-sub">Après votre premier {{ fullSessionLabelLower }}</span>
         }
       </div>
       <div class="prog__kpi">
@@ -65,7 +65,7 @@
           </span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Dès votre deuxième simulation</span>
+          <span class="prog__kpi-sub">Dès votre deuxième {{ fullSessionLabelLower }}</span>
         }
       </div>
       <div class="prog__kpi">
@@ -74,7 +74,7 @@
           <span class="prog__kpi-value t-mono">{{ counts.total }}</span>
           <span class="prog__kpi-sub">
             <span class="t-mono">{{ counts.full }}</span>
-            simulation{{ counts.full > 1 ? 's' : '' }} ·
+            {{ fullSessionCountLabel(counts.full) }} ·
             <span class="t-mono">{{ counts.targeted }}</span>&ngsp;
             <span class="prog__kpi-sub-long"
               >entraînement{{ counts.targeted > 1 ? 's' : '' }} ciblé{{
@@ -91,7 +91,7 @@
 
     <section class="prog__card prog__curve">
       <div class="prog__curve-head">
-        <span class="t-label">Score global, 10 dernières simulations</span>
+        <span class="t-label">Score global, 10 derniers {{ fullSessionLabelPluralLower }}</span>
         <span class="prog__legend">
           <span class="prog__legend-item">
             <span class="prog__legend-line"></span>
@@ -118,20 +118,26 @@
           (pointSelected)="openSession($event)"
         />
         <span class="prog__caption prog__caption-desktop"
-          >La couleur de chaque point reprend l'avis de la simulation. Les
-          entraînements ciblés n'apparaissent pas dans cette courbe.</span
+          >La couleur de chaque point reprend l'avis de l'{{
+            fullSessionLabelLower
+          }}. Les entraînements ciblés n'apparaissent pas dans cette
+          courbe.</span
         >
         <span class="prog__caption prog__caption-mobile"
           >Pointillé&nbsp;: seuil d'admissibilité {{ sectorLabel }}
           <span class="t-mono">{{ threshold() }}</span
-          >. La couleur des points reprend l'avis de la simulation.</span
+          >. La couleur des points reprend l'avis de l'{{
+            fullSessionLabelLower
+          }}.</span
         >
       } @else {
         <div class="prog__curve-empty">
-          <span class="prog__empty-title">Aucune simulation pour l'instant</span>
+          <span class="prog__empty-title"
+            >Aucun {{ fullSessionLabelLower }} pour l'instant</span
+          >
           <span class="prog__caption"
-            >Vos simulations complètes dessineront ici votre courbe de score
-            global.</span
+            >Vos {{ fullSessionLabelPluralLower }} dessineront ici votre courbe de
+            score global.</span
           >
         </div>
       }
@@ -204,7 +210,9 @@
       </section>
 
       <section class="prog__card prog__radar">
-        <span class="t-label">Première vs dernière simulation</span>
+        <span class="t-label"
+          >Premier vs dernier {{ fullSessionLabelLower }}</span
+        >
         @if (radarLast().length > 0) {
           <div class="prog__radar-box">
             <ui-axis-radar [entries]="radarLast()" [baseline]="radarFirst()" />
@@ -213,7 +221,7 @@
             @if (radarFirst().length > 0 && radarFirstDate(); as firstDate) {
               <span class="prog__radar-legend-item">
                 <span class="prog__legend-dash prog__legend-dash--muted"></span>
-                Première simulation, le
+                Premier {{ fullSessionLabelLower }}, le
                 <span class="t-mono prog__radar-legend-date">{{
                   firstDate
                 }}</span>
@@ -222,7 +230,7 @@
             @if (radarLastDate(); as lastDate) {
               <span class="prog__radar-legend-item">
                 <span class="prog__legend-line"></span>
-                Dernière simulation, {{ lastDate }}
+                Dernier {{ fullSessionLabelLower }}, {{ lastDate }}
               </span>
             }
           </div>
@@ -241,8 +249,9 @@
             <ui-axis-radar [entries]="[]" />
           </div>
           <span class="prog__caption"
-            >Votre profil par axe se dessinera après votre première
-            simulation.</span
+            >Votre profil par axe se dessinera après votre premier {{
+              fullSessionLabelLower
+            }}.</span
           >
         }
       </section>

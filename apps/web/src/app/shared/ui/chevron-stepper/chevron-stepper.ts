@@ -10,7 +10,10 @@ import {
   signal,
   viewChildren,
 } from '@angular/core';
-import { AxisType } from '@psychotech/shared';
+import {
+  AxisType,
+  FULL_SESSION_LABEL_LOWER,
+} from '@psychotech/shared';
 import { Check, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
@@ -280,8 +283,8 @@ export class ChevronStepper {
 
   protected readonly navLabel = computed(() =>
     this.isExplorer()
-      ? 'Parcours de la simulation'
-      : 'Progression de la simulation',
+      ? `Parcours de l'${FULL_SESSION_LABEL_LOWER}`
+      : `Progression de l'${FULL_SESSION_LABEL_LOWER}`,
   );
 
   private readonly effectiveSteps = computed<ChevronStep[]>(() => {

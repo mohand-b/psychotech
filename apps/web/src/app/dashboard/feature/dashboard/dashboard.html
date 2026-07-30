@@ -44,7 +44,7 @@
                 <span class="home__day-title">
                   {{
                     sessionIsFull()
-                      ? 'Reprenez votre simulation'
+                      ? 'Reprenez votre examen blanc'
                       : 'Reprenez votre entraînement ciblé'
                   }}
                 </span>
@@ -101,7 +101,7 @@
               @case ('new') {
                 <span class="home__day-title">Découvrez votre niveau, axe par axe</span>
                 <span class="home__day-sub"
-                  >Une simulation complète établit votre score de référence et
+                  >Un examen blanc établit votre score de référence et
                   votre position vs le seuil d'admissibilité
                   {{ sectorPresentation().label }}, ou commencez en douceur par
                   un axe ciblé.</span
@@ -237,7 +237,7 @@
               </div>
             </div>
             <span class="home__result-date t-mono"
-              >Simulation complète · {{ result.dateLabel }}</span
+              >{{ fullSessionLabel }} · {{ result.dateLabel }}</span
             >
           </div>
         } @else if (overviewPending()) {
@@ -317,7 +317,7 @@
           <div class="home__radar-body home__radar-body--empty">
             <ui-axis-radar [entries]="[]" />
             <span class="home__radar-caption"
-              >Votre profil se dessinera après votre première simulation.</span
+              >Votre profil se dessinera après votre premier examen blanc.</span
             >
           </div>
         }

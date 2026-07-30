@@ -193,7 +193,7 @@ describe('Progression', () => {
     const text = textOf(fixture);
     expect(text).toContain('74,8');
     expect(text).toContain('78,2');
-    expect(text).toContain('Simulation du');
+    expect(text).toContain('Examen blanc du');
     expect(text).toContain('2 juin');
     expect(text).toContain('+10,6');
     expect(text).toContain('De 64,2 à 74,8');
@@ -248,12 +248,12 @@ describe('Progression', () => {
   it('renders sober empty states for an account without completed sessions', async () => {
     const { fixture } = await setup(emptyProgression());
     const text = textOf(fixture);
-    expect(text).toContain('Aucune simulation complétée');
-    expect(text).toContain('Dès votre deuxième simulation');
-    expect(text).toContain("Aucune simulation pour l'instant");
+    expect(text).toContain('Aucun examen blanc terminé');
+    expect(text).toContain('Dès votre deuxième examen blanc');
+    expect(text).toContain("Aucun examen blanc pour l'instant");
     expect(text).toContain('Pas encore joué');
     expect(text).toContain(
-      'Votre profil par axe se dessinera après votre première simulation.',
+      'Votre profil par axe se dessinera après votre premier examen blanc.',
     );
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
     expect(

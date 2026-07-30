@@ -8,6 +8,8 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
+  FULL_SESSION_LABEL,
+  FULL_SESSION_REPORT_LABEL,
   SimulationAxisSummaryDto,
   SimulationSummaryDto,
   SimulationThresholdKind,
@@ -62,6 +64,7 @@ export class SimulationSummary {
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;
   protected readonly presentations = AXIS_PRESENTATION;
+  protected readonly reportLabel = FULL_SESSION_REPORT_LABEL;
 
   protected readonly summary = signal<SimulationSummaryDto | null>(null);
   protected readonly openAxis = signal<AxisType | null>(null);
@@ -90,7 +93,7 @@ export class SimulationSummary {
     const dayLabel = formatSessionDate(summary.completedAt, new Date()).split(
       ' · ',
     )[0];
-    return `Simulation complète · ${this.sectorLabel()} · ${dayLabel}, `;
+    return `${FULL_SESSION_LABEL} · ${this.sectorLabel()} · ${dayLabel}, `;
   });
 
   protected readonly contextTime = computed(() => {
@@ -196,7 +199,7 @@ export class SimulationSummary {
 
   protected reviewAxis(axis: AxisType): void {
     this.router.navigate([
-      '/entrainements/simulation/session',
+      '/entrainements/examen-blanc/session',
       this.sessionId,
       'correction',
       axisSlug(axis),
@@ -204,7 +207,7 @@ export class SimulationSummary {
   }
 
   protected newTraining(): void {
-    this.router.navigate(['/entrainements/simulation']);
+    this.router.navigate(['/entrainements/examen-blanc']);
   }
 
   protected back(): void {

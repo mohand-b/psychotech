@@ -13,8 +13,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AxisType,
   FULL_SESSION_AXIS_ORDER,
-  SECTOR_LABELS,
+  FULL_SESSION_LABEL,
   Sector,
+  SECTOR_LABELS,
   SimulationStamp,
   SubscriptionTier,
   TrainingsLastSimulationDto,
@@ -121,8 +122,9 @@ export class Entrainements {
   protected readonly lockIcon = Lock;
   protected readonly graduationIcon = GraduationCap;
   protected readonly playIcon = Play;
+  protected readonly fullSessionLabel = FULL_SESSION_LABEL;
 
-  protected readonly simulationFeatures = [
+  protected readonly fullSessionFeatures = [
     'Notation pondérée par secteur',
     "Conditions réelles d'examen",
     'Analyse globale et par axe',
@@ -244,7 +246,7 @@ export class Entrainements {
   }
 
   protected startSimulation(): void {
-    this.router.navigate(['/entrainements/simulation']);
+    this.router.navigate(['/entrainements/examen-blanc']);
   }
 
   private toLastSimulationView(

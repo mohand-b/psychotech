@@ -43,10 +43,10 @@ describe('ResultWait', () => {
     expect(element.querySelector('.wait__retry')).toBeNull();
   });
 
-  it('renders the simulation loading state with the brand chip', () => {
+  it('renders the full session loading state with the brand chip', () => {
     const { element } = create({ simulation: true });
     expect(element.querySelector('.wait__chip')?.textContent).toContain(
-      'Simulation complète',
+      'Examen blanc',
     );
     expect(element.textContent).toContain('Préparation de votre bilan');
     expect(element.textContent).toContain(

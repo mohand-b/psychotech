@@ -81,7 +81,7 @@ function text(fixture: { nativeElement: HTMLElement }): string {
 describe('SimulationStart', () => {
   it('briefs the full session with its cost and starts it', async () => {
     const { fixture, startFull, navigate } = await setup();
-    expect(text(fixture)).toContain('Simulation complète');
+    expect(text(fixture)).toContain('Examen blanc');
     expect(text(fixture)).toContain('Comment ça se passe');
     expect(text(fixture)).toContain('axes en Ferroviaire');
     expect(text(fixture)).toContain('notation pondérée Ferroviaire');
@@ -94,7 +94,7 @@ describe('SimulationStart', () => {
     cta.click();
     expect(startFull).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/simulation/session',
+      '/entrainements/examen-blanc/session',
       'session-1',
     ]);
   });

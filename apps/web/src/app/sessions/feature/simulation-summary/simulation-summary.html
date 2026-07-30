@@ -3,7 +3,7 @@
     <header class="bilan__hero">
       <div class="bilan__hero-main">
         <div class="bilan__hero-head">
-          <span class="t-label">Bilan de simulation</span>
+          <span class="t-label">{{ reportLabel }}</span>
           <p class="bilan__context">
             {{ contextPrefix()
             }}<span class="bilan__context-time t-mono">{{
@@ -177,7 +177,7 @@
               }
             } @else {
               <p class="bilan__side-empty">
-                Aucun axe au-dessus de 80 sur cette simulation.
+                Aucun axe au-dessus de 80 sur cet examen blanc.
               </p>
             }
           </div>
@@ -217,7 +217,7 @@
               }
             } @else {
               <p class="bilan__side-empty">
-                Aucun axe sous un seuil sur cette simulation.
+                Aucun axe sous un seuil sur cet examen blanc.
               </p>
             }
           </div>
@@ -358,7 +358,7 @@
         Retour aux entraînements
       </ui-button>
       <p actionFooterNote class="bilan__note">
-        Chaque simulation génère de nouvelles épreuves.
+        Chaque examen blanc génère de nouvelles épreuves.
       </p>
     </ui-action-footer>
   }

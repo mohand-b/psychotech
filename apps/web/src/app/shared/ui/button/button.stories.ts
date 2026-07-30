@@ -67,7 +67,7 @@ type Story = StoryObj<ButtonStoryArgs>;
 
 export const Brand: Story = {};
 export const Green: Story = {
-  args: { color: 'green', label: 'Lancer la simulation' },
+  args: { color: 'green', label: "Lancer l'examen blanc" },
 };
 export const Outlined: Story = {
   args: { color: 'neutral', appearance: 'outlined', label: 'Voir le détail' },
@@ -82,7 +82,12 @@ export const OutlinedColored: Story = {
   args: { color: 'logic', appearance: 'outlined', label: 'Logique' },
 };
 export const Large: Story = {
-  args: { size: 'lg', relief: true, showArrow: true, label: 'Lancer la simulation' },
+  args: {
+    size: 'lg',
+    relief: true,
+    showArrow: true,
+    label: "Lancer l'examen blanc",
+  },
 };
 export const WithArrow: Story = {
   args: { showArrow: true, label: 'Continuer' },

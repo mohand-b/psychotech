@@ -17,7 +17,7 @@ import { LandingReveal } from '../landing-reveal.directive';
             <span class="how__num how__num--active t-mono">01</span>
             <span class="how__step-title">Choisissez votre séance</span>
             <span class="how__step-text"
-              >Une simulation complète de l'épreuve de votre secteur, ou un
+              >Un examen blanc de l'épreuve de votre secteur, ou un
               entraînement ciblé sur l'axe de votre choix.</span
             >
           </div>

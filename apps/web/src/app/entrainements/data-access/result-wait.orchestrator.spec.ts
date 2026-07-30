@@ -274,7 +274,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.active()).toBe(false);
     expect(loadSummary).not.toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/simulation/session',
+      '/entrainements/examen-blanc/session',
       SESSION_ID,
     ]);
   });

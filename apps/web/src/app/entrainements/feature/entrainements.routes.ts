@@ -1,5 +1,5 @@
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
-import { AxisType } from '@psychotech/shared';
+import { AxisType, FULL_SESSION_LABEL } from '@psychotech/shared';
 import { AXIS_SLUGS } from '../../shared/util/axis-slug';
 import {
   tutorialPlayResetGuard,
@@ -15,6 +15,27 @@ function simulationAxisMatcher(axis: AxisType): CanMatchFn {
   return (_route: Route, segments: UrlSegment[]) =>
     segments[5]?.path === AXIS_SLUGS[axis];
 }
+
+const LEGACY_FULL_SESSION_REDIRECTS: Route[] = [
+  {
+    path: 'entrainements/simulation',
+    pathMatch: 'full',
+    redirectTo: 'entrainements/examen-blanc',
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId',
+    pathMatch: 'full',
+    redirectTo: 'entrainements/examen-blanc/session/:sessionId',
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    redirectTo: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
+  },
+  {
+    path: 'entrainements/simulation/session/:sessionId/correction/:axis',
+    redirectTo: 'entrainements/examen-blanc/session/:sessionId/correction/:axis',
+  },
+];
 
 const simulationBriefingHeader = {
   stepper: true,
@@ -160,10 +181,10 @@ export const entrainementsRoutes: Route[] = [
       import('./tutorial-end/tutorial-end').then((m) => m.TutorialEnd),
   },
   {
-    path: 'entrainements/simulation',
+    path: 'entrainements/examen-blanc',
     data: {
       focusedHeader: {
-        title: 'Simulation complète',
+        title: FULL_SESSION_LABEL,
         backLabel: 'Entraînements',
         backLink: '/entrainements',
         closeLink: '/entrainements',
@@ -176,7 +197,7 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId',
+    path: 'entrainements/examen-blanc/session/:sessionId',
     data: { focusedHeader: simulationBriefingHeader },
     loadComponent: () =>
       import('./simulation-briefing/simulation-briefing').then(
@@ -184,21 +205,21 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.LOGIC)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./logic-play/logic-play').then((m) => m.LogicPlay),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.MEMORY)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./memory-play/memory-play').then((m) => m.MemoryPlay),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.VISUAL_DISCRIMINATION)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
@@ -207,21 +228,21 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.REACTIVITY)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./reactivity-play/reactivity-play').then((m) => m.ReactivityPlay),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/axe/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.MOTOR_SKILLS)],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/correction/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/correction/:axis',
     canMatch: [simulationAxisMatcher(AxisType.LOGIC)],
     data: { simulation: true, focusedHeader: simulationCorrectionHeader },
     loadComponent: () =>
@@ -230,7 +251,7 @@ export const entrainementsRoutes: Route[] = [
       ),
   },
   {
-    path: 'entrainements/simulation/session/:sessionId/correction/:axis',
+    path: 'entrainements/examen-blanc/session/:sessionId/correction/:axis',
     canMatch: [simulationAxisMatcher(AxisType.MEMORY)],
     data: { simulation: true, focusedHeader: simulationCorrectionHeader },
     loadComponent: () =>
@@ -409,4 +430,5 @@ export const entrainementsRoutes: Route[] = [
         (m) => m.DiscriminationPlay,
       ),
   },
+  ...LEGACY_FULL_SESSION_REDIRECTS,
 ];

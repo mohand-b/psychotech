@@ -11,9 +11,10 @@ import {
   AxisType,
   ENERGY_PACK_PRICE_EUR,
   FULL_SESSION_AXIS_ORDER,
+  FULL_SESSION_LABEL,
   RailwayPlayableAxis,
-  SESSION_ENERGY_COST,
   Sector,
+  SESSION_ENERGY_COST,
   SessionMode,
   SubscriptionTier,
 } from '@psychotech/shared';
@@ -71,6 +72,7 @@ export class SimulationStart {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly heroIcon = Layers;
   protected readonly durationIcon = Timer;
 
@@ -172,7 +174,7 @@ export class SimulationStart {
     this.starting.set(true);
     this.trainingSessionFacade.startFull().subscribe({
       next: (session) =>
-        this.router.navigate(['/entrainements/simulation/session', session.id]),
+        this.router.navigate(['/entrainements/examen-blanc/session', session.id]),
       error: (error: unknown) => {
         this.starting.set(false);
         if (isEnergyInsufficientError(error)) {

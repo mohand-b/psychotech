@@ -11,6 +11,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   BillingInvoiceDto,
+  FULL_SESSION_LABEL_LOWER,
+  FULL_SESSION_LABEL_PLURAL_LOWER,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
   InvoiceStatus,
   PASSWORD_MIN_LENGTH,
@@ -94,12 +96,12 @@ const PLAN_COPY: Record<
   },
   [SubscriptionTier.ESSENTIAL]: {
     name: PLAN_LABELS[SubscriptionTier.ESSENTIAL],
-    description: '5 énergies par jour : une simulation complète ou cinq axes.',
+    description: `5 énergies par jour : un ${FULL_SESSION_LABEL_LOWER} ou cinq axes.`,
     energy: '5 par jour',
   },
   [SubscriptionTier.UNLIMITED]: {
     name: PLAN_LABELS[SubscriptionTier.UNLIMITED],
-    description: 'Énergie illimitée, tous les axes et toutes les simulations.',
+    description: `Énergie illimitée, tous les axes et tous les ${FULL_SESSION_LABEL_PLURAL_LOWER}.`,
     energy: 'Illimitée',
   },
 };

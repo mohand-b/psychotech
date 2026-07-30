@@ -290,13 +290,13 @@ describe('Dashboard', () => {
     expect(textOf(fixture)).toContain("Aucun résultat pour l'instant");
     expect(textOf(fixture)).toContain('À découvrir');
     expect(textOf(fixture)).toContain(
-      'Votre profil se dessinera après votre première simulation.',
+      'Votre profil se dessinera après votre premier examen blanc.',
     );
   });
 
   it('renders the running session with its progress stepper and resumes it', async () => {
     const { fixture, navigate } = await setup({ current: fullSession() });
-    expect(textOf(fixture)).toContain('Reprenez votre simulation');
+    expect(textOf(fixture)).toContain('Reprenez votre examen blanc');
     expect(textOf(fixture)).toContain('3/5');
     expect(
       fixture.nativeElement.querySelectorAll('.home__day-stepper .step'),
@@ -306,7 +306,7 @@ describe('Dashboard', () => {
     ) as HTMLButtonElement;
     cta.click();
     expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/simulation/session',
+      '/entrainements/examen-blanc/session',
       'session-live',
     ]);
   });

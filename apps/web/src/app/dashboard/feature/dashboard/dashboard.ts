@@ -10,6 +10,7 @@ import {
   AxisProgressStatus,
   AxisType,
   FULL_SESSION_AXIS_ORDER,
+  FULL_SESSION_LABEL,
   RailwayPlayableAxis,
   Sector,
   SessionMode,
@@ -115,6 +116,7 @@ export class Dashboard {
   protected readonly planIcon = Gem;
   protected readonly discoverIcon = Target;
   protected readonly statuses = AxisProgressStatus;
+  protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly tiers = SubscriptionTier;
 
   protected readonly radarMode = signal<RadarMode>('derniere');
@@ -191,7 +193,7 @@ export class Dashboard {
       return 'Votre compte est prêt. Lancez votre première session pour établir votre profil sur les axes de votre secteur.';
     }
     if (this.variant() === 'session') {
-      return 'Vous avez une simulation en cours : reprenez là où vous vous êtes arrêté.';
+      return `Vous avez un ${FULL_SESSION_LABEL.toLowerCase()} en cours : reprenez là où vous vous êtes arrêté.`;
     }
     if (this.free()) {
       return 'Découvrez les épreuves avec le mode découverte, en libre accès.';
@@ -396,7 +398,7 @@ export class Dashboard {
       return;
     }
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate(['/entrainements/simulation/session', session.id]);
+      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
       return;
     }
     if (session.axes.length > 0) {

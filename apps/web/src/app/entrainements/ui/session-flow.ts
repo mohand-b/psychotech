@@ -30,5 +30,5 @@ export function afterAxisSubmitRoute(
   if (session.status === SessionStatus.COMPLETED) {
     return ['/sessions', session.id, 'resultat'];
   }
-  return ['/entrainements/simulation/session', session.id];
+  return ['/entrainements/examen-blanc/session', session.id];
 }

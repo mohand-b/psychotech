@@ -8,8 +8,11 @@ import { Router } from '@angular/router';
 import {
   AXIS_TRAINING,
   CurrentSessionDto,
+  FULL_SESSION_LABEL,
+  FULL_SESSION_LABEL_PLURAL,
   RailwayPlayableAxis,
   SessionMode,
+  TARGETED_SESSION_LABEL_PLURAL,
 } from '@psychotech/shared';
 import { ChevronDown } from 'lucide-angular';
 import { SessionHistoryFacade } from '../../data-access/session-history.facade';
@@ -87,8 +90,8 @@ export class Sessions {
     },
     {
       value: SessionMode.FULL,
-      label: 'Simulations complètes',
-      shortLabel: 'Simulations',
+      label: FULL_SESSION_LABEL_PLURAL,
+      shortLabel: FULL_SESSION_LABEL,
       axis: null,
       pastelVar: null,
       pastelBorderVar: null,
@@ -96,7 +99,7 @@ export class Sessions {
     },
     {
       value: SessionMode.TARGETED,
-      label: 'Entraînements ciblés',
+      label: TARGETED_SESSION_LABEL_PLURAL,
       shortLabel: 'Ciblés',
       axis: null,
       pastelVar: null,
@@ -151,7 +154,7 @@ export class Sessions {
   protected resume(session: CurrentSessionDto): void {
     if (session.mode === SessionMode.FULL) {
       this.router.navigate([
-        '/entrainements/simulation/session',
+        '/entrainements/examen-blanc/session',
         session.id,
       ]);
       return;

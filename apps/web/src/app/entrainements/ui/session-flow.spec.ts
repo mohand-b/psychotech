@@ -88,7 +88,7 @@ describe('afterAxisSubmitRoute', () => {
         buildSession({ currentAxisIndex: 1 }),
         AxisType.LOGIC,
       ),
-    ).toEqual(['/entrainements/simulation/session', 'session-1']);
+    ).toEqual(['/entrainements/examen-blanc/session', 'session-1']);
   });
 
   it('routes a completed simulation to the session results', () => {

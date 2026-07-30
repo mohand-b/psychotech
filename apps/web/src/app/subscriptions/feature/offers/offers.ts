@@ -9,6 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
+  FULL_SESSION_LABEL,
   PaidTier,
   SubscriptionStatus,
   SubscriptionTier,
@@ -190,8 +191,8 @@ export class Offers {
       mobile: [DASH, mono('5'), mono('∞')],
     },
     {
-      label: 'Simulation complète',
-      mobileLabel: 'Coût simulation',
+      label: FULL_SESSION_LABEL,
+      mobileLabel: 'Coût examen blanc',
       desktop: [DASH, mono('5 énergies'), mono('Illimité')],
       mobile: [DASH, mono('5'), mono('∞')],
     },

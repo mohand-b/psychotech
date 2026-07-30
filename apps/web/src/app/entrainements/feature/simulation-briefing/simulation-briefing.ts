@@ -84,7 +84,7 @@ export class SimulationBriefing {
       return;
     }
     this.router.navigate([
-      '/entrainements/simulation/session',
+      '/entrainements/examen-blanc/session',
       this.sessionId,
       'axe',
       axisSlug(axis),
@@ -93,7 +93,7 @@ export class SimulationBriefing {
 
   private leavingTowardsAxisPlay(): boolean {
     return this.router.url.startsWith(
-      `/entrainements/simulation/session/${this.sessionId}/axe/`,
+      `/entrainements/examen-blanc/session/${this.sessionId}/axe/`,
     );
   }
 

@@ -8,6 +8,7 @@ import {
 import {
   AxisProgressStatus,
   CurrentSessionDto,
+  SESSION_MODE_LABELS,
   SessionMode,
 } from '@psychotech/shared';
 import { Play, RotateCcw } from 'lucide-angular';
@@ -40,8 +41,8 @@ export class CurrentSessionBanner {
     () => this.session().mode === SessionMode.FULL,
   );
 
-  protected readonly modeLabel = computed(() =>
-    this.isFull() ? 'Simulation complète' : 'Entraînement ciblé',
+  protected readonly modeLabel = computed(
+    () => SESSION_MODE_LABELS[this.session().mode],
   );
 
   protected readonly targetedAxis = computed(

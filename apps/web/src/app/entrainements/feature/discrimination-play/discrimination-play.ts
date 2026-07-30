@@ -201,7 +201,7 @@ export class DiscriminationPlay {
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/simulation/session', session.id]);
+      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
       return;
     }
     this.loaded.set(true);

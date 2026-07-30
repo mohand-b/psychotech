@@ -5,7 +5,11 @@ import {
   input,
   output,
 } from '@angular/core';
-import { AxisType, RailwayPlayableAxis } from '@psychotech/shared';
+import {
+  AxisType,
+  FULL_SESSION_LABEL,
+  RailwayPlayableAxis,
+} from '@psychotech/shared';
 import { ChartColumn, RotateCw, TriangleAlert } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -137,7 +141,7 @@ export class ResultWait {
         deep: 'var(--brand-hover)',
         chipBorder: 'var(--brand-pastel-bd)',
         track: SIMULATION_TRACK_COLOR,
-        chipLabel: 'Simulation complète',
+        chipLabel: FULL_SESSION_LABEL,
       };
     }
     const presentation = AXIS_PRESENTATION[this.axis()];
