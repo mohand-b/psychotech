@@ -58,6 +58,7 @@ import {
   generateLegacyLogicSession,
   computeLogicFamilyAggregates,
   generateLogicSession,
+  roundToTenth,
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
@@ -778,8 +779,7 @@ export class SessionsService {
         axes: outcomes,
       }),
       admissibilityThreshold: session.sectorThreshold,
-      admissibilityGap:
-        Math.round((globalScore - session.sectorThreshold) * 10) / 10,
+      admissibilityGap: roundToTenth(globalScore - session.sectorThreshold),
       eliminatoryAxes,
       axes,
       selection,

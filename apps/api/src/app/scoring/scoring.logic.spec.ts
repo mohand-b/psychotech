@@ -5,7 +5,6 @@ import {
   SessionThresholds,
   buildRecommendations,
   evaluateSession,
-  scoreBand,
   weightedGlobalScore,
 } from './scoring.logic';
 
@@ -14,17 +13,6 @@ const RAILWAY_THRESHOLDS: SessionThresholds = {
   vigilanceThreshold: 65,
   eliminatoryThreshold: 55,
 };
-
-describe('scoreBand', () => {
-  it('maps scores to bands at the documented thresholds', () => {
-    expect(scoreBand(80)).toBe(ScoreBand.EXCELLENT);
-    expect(scoreBand(79.9)).toBe(ScoreBand.ACCEPTABLE);
-    expect(scoreBand(70)).toBe(ScoreBand.ACCEPTABLE);
-    expect(scoreBand(69.9)).toBe(ScoreBand.FRAGILE);
-    expect(scoreBand(60)).toBe(ScoreBand.FRAGILE);
-    expect(scoreBand(59.9)).toBe(ScoreBand.INSUFFICIENT);
-  });
-});
 
 describe('weightedGlobalScore', () => {
   it('averages axis scores weighted by the sector coefficients', () => {

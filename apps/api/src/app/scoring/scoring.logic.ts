@@ -1,14 +1,13 @@
 import {
+  AXIS_META,
   AxisType,
   RecommendationDto,
   RecommendationPriority,
   ScoreBand,
+  avisFromScore,
+  roundToTenth,
 } from '@psychotech/shared';
-import {
-  AXIS_LABELS,
-  SCORE_BAND_THRESHOLDS,
-  SCORE_MIN,
-} from './scoring.constants';
+import { SCORE_MIN } from './scoring.constants';
 
 export interface AxisScore {
   axis: AxisType;
@@ -37,19 +36,6 @@ const PRIORITY_RANK: Record<RecommendationPriority, number> = {
   [RecommendationPriority.LOW]: 2,
 };
 
-export function scoreBand(score: number): ScoreBand {
-  if (score >= SCORE_BAND_THRESHOLDS.excellent) {
-    return ScoreBand.EXCELLENT;
-  }
-  if (score >= SCORE_BAND_THRESHOLDS.acceptable) {
-    return ScoreBand.ACCEPTABLE;
-  }
-  if (score >= SCORE_BAND_THRESHOLDS.fragile) {
-    return ScoreBand.FRAGILE;
-  }
-  return ScoreBand.INSUFFICIENT;
-}
-
 export function weightedGlobalScore(scores: AxisScore[]): number {
   const totalCoefficient = scores.reduce((sum, entry) => sum + entry.coefficient, 0);
   if (totalCoefficient === 0) {
@@ -59,7 +45,7 @@ export function weightedGlobalScore(scores: AxisScore[]): number {
     (sum, entry) => sum + entry.score * entry.coefficient,
     0,
   );
-  return round(weighted / totalCoefficient);
+  return roundToTenth(weighted / totalCoefficient);
 }
 
 export function evaluateSession(
@@ -74,7 +60,7 @@ export function evaluateSession(
     !isEliminated && globalScore >= thresholds.admissibilityThreshold;
   return {
     globalScore,
-    globalBand: scoreBand(globalScore),
+    globalBand: avisFromScore(globalScore),
     isAdmissible,
     isEliminated,
     recommendations: buildRecommendations(scores, thresholds),
@@ -103,7 +89,7 @@ function recommendationFor(
   entry: AxisScore,
   thresholds: SessionThresholds,
 ): RecommendationDto | null {
-  const axisLabel = AXIS_LABELS[entry.axis];
+  const axisLabel = AXIS_META[entry.axis].label;
   if (entry.isCritical && entry.score < thresholds.eliminatoryThreshold) {
     return {
       axis: entry.axis,
@@ -129,8 +115,4 @@ function recommendationFor(
     };
   }
   return null;
-}
-
-function round(value: number): number {
-  return Math.round(value * 10) / 10;
 }

@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { AxisProgressionDto, AxisType, ProgressionDto } from '@psychotech/shared';
+import {
+  AxisProgressionDto,
+  AxisType,
+  FULL_SESSION_AXIS_ORDER,
+  ProgressionDto,
+} from '@psychotech/shared';
 import {
   PROGRESSION_AXIS_HISTORY_LIMIT,
-  PROGRESSION_AXIS_ORDER,
   PROGRESSION_DELTA_WINDOW_DAYS,
   PROGRESSION_EVOLUTION_LIMIT,
   PROGRESSION_SPARKLINE_LIMIT,
@@ -61,11 +65,11 @@ export class ProgressionService {
       radar: {
         first: buildRadarScores(
           firstFullSession?.axes ?? null,
-          PROGRESSION_AXIS_ORDER,
+          FULL_SESSION_AXIS_ORDER,
         ),
         last: buildRadarScores(
           lastFullSession?.axes ?? null,
-          PROGRESSION_AXIS_ORDER,
+          FULL_SESSION_AXIS_ORDER,
         ),
       },
     };
@@ -73,7 +77,7 @@ export class ProgressionService {
 
   private buildAxes(userId: string, now: Date): Promise<AxisProgressionDto[]> {
     return Promise.all(
-      PROGRESSION_AXIS_ORDER.map((axis) => this.buildAxisProgression(userId, axis, now)),
+      FULL_SESSION_AXIS_ORDER.map((axis) => this.buildAxisProgression(userId, axis, now)),
     );
   }
 

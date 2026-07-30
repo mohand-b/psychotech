@@ -1,6 +1,9 @@
+import { AXIS_TRAINING, AxisType } from '@psychotech/shared';
 import { isJsonRecord, readJsonNumber } from '../common/json.util';
-import { VISUAL_TOTAL_TRIALS } from '../scoring/scoring.constants';
 import { BADGE_DEFINITIONS, BadgeEvaluationState } from './badge.catalog';
+
+const VISUAL_TOTAL_TRIALS =
+  AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION].exerciseCount;
 
 export function evaluateUnlockedBadges(
   state: BadgeEvaluationState,

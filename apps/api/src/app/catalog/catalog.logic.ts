@@ -1,11 +1,12 @@
 import {
   AxisCatalogDto,
   AxisType,
+  FULL_SESSION_AXIS_ORDER,
   Sector,
   SectorReferentialDto,
   SectorSummaryDto,
 } from '@psychotech/shared';
-import { AXIS_CATALOG, CATALOG_AXIS_ORDER } from './catalog.constants';
+import { AXIS_CATALOG } from './catalog.constants';
 
 export interface SectorRecord {
   code: Sector;
@@ -66,7 +67,7 @@ export function buildSectorReferential(
 }
 
 export function buildAxisCatalog(): AxisCatalogDto[] {
-  return CATALOG_AXIS_ORDER.map((axis) => ({
+  return FULL_SESSION_AXIS_ORDER.map((axis) => ({
     code: axis,
     label: AXIS_CATALOG[axis].label,
     description: AXIS_CATALOG[axis].description,

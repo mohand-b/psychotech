@@ -1,11 +1,11 @@
 import {
   AxisFeaturedMetric,
   AxisType,
+  FULL_SESSION_AXIS_ORDER,
   ScoreBand,
   SessionMode,
 } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
-import { PROGRESSION_AXIS_ORDER } from './progression.constants';
 import {
   AxisTimelinePoint,
   buildEvolutionCurve,
@@ -149,7 +149,7 @@ describe('buildRadarScores', () => {
           { axis: AxisType.LOGIC, score: 80 },
           { axis: AxisType.MEMORY, score: null },
         ],
-        PROGRESSION_AXIS_ORDER,
+        FULL_SESSION_AXIS_ORDER,
       ),
     ).toEqual([
       { axis: AxisType.LOGIC, score: 80 },
@@ -161,7 +161,7 @@ describe('buildRadarScores', () => {
   });
 
   it('returns null scores for every axis when there is no session', () => {
-    expect(buildRadarScores(null, PROGRESSION_AXIS_ORDER)).toEqual([
+    expect(buildRadarScores(null, FULL_SESSION_AXIS_ORDER)).toEqual([
       { axis: AxisType.LOGIC, score: null },
       { axis: AxisType.MEMORY, score: null },
       { axis: AxisType.VISUAL_DISCRIMINATION, score: null },

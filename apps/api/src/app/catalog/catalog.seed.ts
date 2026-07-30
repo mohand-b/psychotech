@@ -1,5 +1,14 @@
 import { AxisType, PrismaClient, Sector } from '@prisma/client';
+import {
+  SECTOR_LABELS,
+  Sector as SharedSector,
+} from '@psychotech/shared';
+import { mapEnumValue } from '../common/enum.util';
 import { BADGE_DEFINITIONS } from '../badges/badge.catalog';
+
+function sectorLabel(sector: Sector): string {
+  return SECTOR_LABELS[mapEnumValue(SharedSector, sector)];
+}
 
 const CRITICAL_COEFFICIENT_THRESHOLD = 1.2;
 
@@ -10,14 +19,6 @@ const RAILWAY_THRESHOLDS = {
 } as const;
 
 const PROVISIONAL_ADMISSIBILITY_THRESHOLD = 70;
-
-const SECTOR_LABELS: Record<Sector, string> = {
-  RAILWAY: 'Ferroviaire',
-  AVIATION: 'Aérien',
-  SECURITY: 'Sécurité',
-  DRIVING: 'Conduite',
-  HEALTHCARE: 'Santé',
-};
 
 const RAILWAY_AXES: { axis: AxisType; coefficient: number; order: number }[] = [
   { axis: AxisType.LOGIC, coefficient: 1.0, order: 0 },
@@ -37,7 +38,7 @@ async function seedRailway(prisma: PrismaClient): Promise<void> {
   await prisma.sectorConfig.upsert({
     where: { sector: Sector.RAILWAY },
     update: {
-      label: SECTOR_LABELS.RAILWAY,
+      label: sectorLabel(Sector.RAILWAY),
       isActive: true,
       admissibilityThreshold: RAILWAY_THRESHOLDS.admissibility,
       vigilanceThreshold: RAILWAY_THRESHOLDS.vigilance,
@@ -45,7 +46,7 @@ async function seedRailway(prisma: PrismaClient): Promise<void> {
     },
     create: {
       sector: Sector.RAILWAY,
-      label: SECTOR_LABELS.RAILWAY,
+      label: sectorLabel(Sector.RAILWAY),
       isActive: true,
       admissibilityThreshold: RAILWAY_THRESHOLDS.admissibility,
       vigilanceThreshold: RAILWAY_THRESHOLDS.vigilance,
@@ -72,10 +73,10 @@ async function seedInactiveSectors(prisma: PrismaClient): Promise<void> {
   for (const sector of inactiveSectors) {
     await prisma.sectorConfig.upsert({
       where: { sector },
-      update: { label: SECTOR_LABELS[sector], isActive: false },
+      update: { label: sectorLabel(sector), isActive: false },
       create: {
         sector,
-        label: SECTOR_LABELS[sector],
+        label: sectorLabel(sector),
         isActive: false,
         admissibilityThreshold: PROVISIONAL_ADMISSIBILITY_THRESHOLD,
       },

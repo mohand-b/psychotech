@@ -7,6 +7,7 @@ import {
   RadarAxisScoreDto,
   ScoreBand,
   SessionMode,
+  roundToTenth,
 } from '@psychotech/shared';
 import { isJsonRecord, readJsonNumber } from '../common/json.util';
 import { MS_PER_DAY } from './progression.constants';
@@ -72,7 +73,7 @@ export function computeDeltaOverWindow(
       break;
     }
   }
-  return roundToOneDecimal(current.score - baseline.score);
+  return roundToTenth(current.score - baseline.score);
 }
 
 export function extractFeaturedMetric(
@@ -108,14 +109,10 @@ export function extractFeaturedMetric(
 
 export function buildRadarScores(
   axisScores: RadarAxisScore[] | null,
-  axisOrder: AxisType[],
+  axisOrder: readonly AxisType[],
 ): RadarAxisScoreDto[] {
   return axisOrder.map((axis) => {
     const match = axisScores?.find((entry) => entry.axis === axis);
     return { axis, score: match ? match.score : null };
   });
-}
-
-function roundToOneDecimal(value: number): number {
-  return Math.round(value * 10) / 10;
 }
