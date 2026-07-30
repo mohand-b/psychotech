@@ -29,7 +29,7 @@
           [routerLink]="authenticated() ? '/dashboard' : '/register'"
           class="hero__cta hero__animate"
         >
-          <span>{{ authenticated() ? 'Accéder à mon espace' : 'Créer un compte' }}</span>
+          <span>{{ ctaLabel() }}</span>
           <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
         </a>
         <div class="hero__axes-group hero__animate">
@@ -135,7 +135,7 @@
           [routerLink]="authenticated() ? '/dashboard' : '/register'"
           class="hero__stacked-cta"
         >
-          {{ authenticated() ? 'Accéder à mon espace' : 'Créer un compte' }}
+          {{ ctaLabel() }}
           <ui-icon [img]="arrowIcon" [size]="16" [strokeWidth]="2" />
         </a>
         <a href="#fonctionnement" class="hero__stacked-secondary">

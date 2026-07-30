@@ -2,6 +2,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   inject,
@@ -62,6 +63,10 @@ export class LandingHero {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly arrowIcon = ArrowRight;
+
+  protected readonly ctaLabel = computed(() =>
+    this.authenticated() ? 'Continuer ma préparation' : 'Commencer gratuitement',
+  );
   protected readonly playIcon = CirclePlay;
   protected readonly railwayAxes: readonly HeroAxis[] = axesFor(Sector.RAILWAY);
 
