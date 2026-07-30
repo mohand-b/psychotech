@@ -74,7 +74,7 @@
 
 .duo__pitch--closed {
   cursor: pointer;
-  background: #fcfcfd;
+  background: var(--surface-hover);
 }
 
 .duo__pitch-head {
@@ -265,7 +265,7 @@
 }
 
 .duo__chip--energy-cible .duo__chip-value {
-  color: #3a9433;
+  color: var(--secondary-label);
 }
 
 .duo__cta {
@@ -304,7 +304,7 @@
 }
 
 .duo__panel:has(.duo__panel-inner--sim) {
-  background: #fafafe;
+  background: color-mix(in srgb, var(--brand) 3%, var(--card));
 }
 
 .duo__panel:has(.duo__panel-inner--cible) {
@@ -492,7 +492,7 @@
 
 .duo__axes-sep {
   height: 1px;
-  background: #eef3ec;
+  background: var(--secondary-pastel-bd);
 }
 
 .duo__axis {

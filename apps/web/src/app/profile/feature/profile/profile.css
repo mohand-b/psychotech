@@ -205,7 +205,7 @@
 .profil__password-check {
   gap: 7px;
   font: 400 12.5px/1.4 var(--font-ui);
-  color: var(--text-disabled);
+  color: var(--label);
 }
 
 .profil__password-check--met {

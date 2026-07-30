@@ -118,7 +118,7 @@
   align-items: center;
   gap: 5px;
   font: 400 12px/1.4 var(--font-ui);
-  color: var(--text-disabled);
+  color: var(--label);
 }
 
 .home__day-energy-value {
@@ -223,7 +223,7 @@
 
 .home__day-foot {
   font: 400 11.5px/1.4 var(--font-ui);
-  color: var(--text-disabled);
+  color: var(--label);
 }
 
 .home__plan {

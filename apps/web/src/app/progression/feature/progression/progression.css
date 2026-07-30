@@ -192,7 +192,7 @@
 
 .prog__axes-window {
   font: 400 12px/1.4 var(--font-ui);
-  color: var(--text-disabled);
+  color: var(--label);
 }
 
 .prog__axis-row {

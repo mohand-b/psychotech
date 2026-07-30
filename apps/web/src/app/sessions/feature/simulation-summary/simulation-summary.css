@@ -148,7 +148,7 @@
 }
 
 .bilan__axis-card--eliminatory {
-  border-color: #f9c6c6;
+  border-color: var(--axis-motor-pastel-bd);
 }
 
 .bilan__axis-row {
@@ -164,7 +164,7 @@
 }
 
 .bilan__axis-card--eliminatory .bilan__axis-row {
-  background: #fffbfb;
+  background: color-mix(in srgb, var(--danger) 3%, var(--card));
 }
 
 .bilan__axis-row:hover {

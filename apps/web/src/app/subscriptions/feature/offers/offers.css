@@ -259,7 +259,7 @@
 .cmp__row--head {
   padding: 16px 28px;
   border-bottom: 1px solid var(--border);
-  background: #fafbfc;
+  background: var(--surface-hover);
 }
 
 .cmp__label-head {
