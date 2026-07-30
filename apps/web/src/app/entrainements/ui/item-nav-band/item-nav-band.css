@@ -115,7 +115,7 @@
 }
 
 .band__group--active {
-  background: rgba(59, 130, 246, 0.08);
+  background: color-mix(in srgb, var(--band-accent) 8%, transparent);
 }
 
 .band__seg {
@@ -140,7 +140,7 @@
 }
 
 .band__seg--skipped {
-  background: #dce0e5;
+  background: var(--border-hover);
 }
 
 .band__seg--skipped::after {
@@ -270,7 +270,7 @@
   }
 
   .band__group--active {
-    background: rgba(59, 130, 246, 0.08);
+    background: color-mix(in srgb, var(--band-accent) 8%, transparent);
   }
 
   .band__seg {

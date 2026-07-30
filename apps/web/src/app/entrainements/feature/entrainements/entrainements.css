@@ -308,7 +308,7 @@
 }
 
 .duo__panel:has(.duo__panel-inner--cible) {
-  background: #fafdf9;
+  background: color-mix(in srgb, var(--secondary-dark) 3%, var(--card));
 }
 
 .duo__panel-inner {
@@ -668,7 +668,7 @@
 }
 
 .trainm__pitch {
-  background: #fafdf9;
+  background: color-mix(in srgb, var(--secondary-dark) 3%, var(--card));
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   padding: 18px;

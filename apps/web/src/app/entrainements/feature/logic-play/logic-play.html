@@ -191,7 +191,7 @@
         </ui-button>
         <ui-button
           class="play__next-compact"
-          color="brand"
+          [color]="buttonColor"
           [block]="true"
           [showArrow]="!isLastItem()"
           [disabled]="locked() || (!currentAnswered() && !isLastItem())"

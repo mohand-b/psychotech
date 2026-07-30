@@ -63,7 +63,7 @@
   <div class="te__actions">
     <ui-button
       class="te__primary-desktop"
-      color="brand"
+      [color]="primaryColor()"
       [iconEnd]="arrowIcon"
       [routerLink]="primaryLink()"
     >
@@ -79,7 +79,7 @@
     </ui-button>
     <ui-button
       class="te__primary-mobile"
-      color="brand"
+      [color]="primaryColor()"
       size="lg"
       [relief]="'mobile'"
       [block]="true"

@@ -32,6 +32,8 @@ import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
+import { ButtonColor } from '../../../shared/ui/button/button';
+import { axisButtonColor } from '../../ui/axis-button-color';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialRunResult } from '../../data-access/tutorial-run.store';
 import { formatOverviewDate } from '../entrainements/trainings-overview-view';
@@ -209,6 +211,10 @@ export class TutorialEnd {
 
   protected readonly primaryLink = computed(() =>
     this.isFree() ? ['/abonnements'] : this.targetedLink,
+  );
+
+  protected readonly primaryColor = computed<ButtonColor>(() =>
+    this.isFree() || this.axis === null ? 'brand' : axisButtonColor(this.axis),
   );
 
   protected readonly metricRows = computed<TutorialMetricRow[]>(() => {

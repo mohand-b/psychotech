@@ -32,7 +32,7 @@
 }
 
 .choices__item:hover:not(:disabled) {
-  border-color: #9dc2f9;
+  border-color: color-mix(in srgb, var(--axis-plain) 45%, var(--card));
 }
 
 .choices__item:focus-visible {

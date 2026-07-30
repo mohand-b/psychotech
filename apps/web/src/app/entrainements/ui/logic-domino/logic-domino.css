@@ -33,7 +33,7 @@
   flex-direction: column;
   width: 52px;
   background: var(--card);
-  border: 1.5px solid #dce0e5;
+  border: 1.5px solid var(--border-hover);
   border-radius: var(--radius-button);
 }
 
@@ -46,7 +46,7 @@
 
 .dom__split {
   height: 1.5px;
-  background: #dce0e5;
+  background: var(--border-hover);
   margin: 0 7px;
 }
 
@@ -100,8 +100,8 @@
 .dom__face--active {
   border-style: solid;
   border-color: var(--axis-plain);
-  background: #f5f9ff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  background: color-mix(in srgb, var(--axis-pastel) 40%, var(--card));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--axis-plain) 14%, transparent);
   z-index: 2;
 }
 
@@ -196,8 +196,8 @@
 }
 
 .dom__key:hover {
-  border-color: #9dc2f9;
-  background: #f5f9ff;
+  border-color: color-mix(in srgb, var(--axis-plain) 45%, var(--card));
+  background: color-mix(in srgb, var(--axis-pastel) 40%, var(--card));
 }
 
 .dom__key:focus-visible {

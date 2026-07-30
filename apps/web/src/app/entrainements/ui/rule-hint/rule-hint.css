@@ -36,7 +36,7 @@
 }
 
 .hint__bulb--used {
-  color: #6c9bee;
+  color: color-mix(in srgb, var(--axis-text) 70%, var(--card));
 }
 
 .hint__bulb--used svg {
@@ -54,7 +54,7 @@
   z-index: 30;
   width: var(--hint-pop-width, 316px);
   background: var(--axis-pastel);
-  border: 1px solid #d3e3fc;
+  border: 1px solid var(--axis-pastel-bd);
   border-radius: var(--radius-button);
   padding: 10px 10px 10px 13px;
   box-shadow: 0 6px 16px rgba(20, 24, 40, 0.1);
@@ -68,8 +68,8 @@
   width: 10px;
   height: 10px;
   background: var(--axis-pastel);
-  border-right: 1px solid #d3e3fc;
-  border-bottom: 1px solid #d3e3fc;
+  border-right: 1px solid var(--axis-pastel-bd);
+  border-bottom: 1px solid var(--axis-pastel-bd);
   transform: rotate(45deg);
 }
 
@@ -157,7 +157,7 @@
     width: 36px;
     height: 4px;
     border-radius: 2px;
-    background: #dce0e5;
+    background: var(--border-hover);
   }
 
   .hint__line {

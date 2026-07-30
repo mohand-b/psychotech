@@ -38,7 +38,7 @@
   height: 46px;
   border: 2px dashed var(--axis-pastel-bd);
   border-radius: var(--radius-button);
-  background: #f8fbff;
+  background: color-mix(in srgb, var(--axis-pastel) 40%, var(--card));
 }
 
 .seq__unknown-value {
