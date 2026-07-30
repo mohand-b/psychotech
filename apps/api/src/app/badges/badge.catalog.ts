@@ -1,4 +1,5 @@
 import { BadgeCategory } from '@prisma/client';
+import { FULL_SESSION_LABEL_LOWER } from '@psychotech/shared';
 
 export interface BadgeEvaluationState {
   currentStreak: number;
@@ -101,8 +102,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     code: 'VOLUME_FIRST_SIMULATION',
-    name: 'Première simulation',
-    description: 'Terminez votre première simulation complète.',
+    name: `Premier ${FULL_SESSION_LABEL_LOWER}`,
+    description: `Terminez votre premier ${FULL_SESSION_LABEL_LOWER}.`,
     category: BadgeCategory.VOLUME,
     icon: 'rocket',
     isUnlocked: (state) => state.hasCompletedFullSession,
