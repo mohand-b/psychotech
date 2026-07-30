@@ -52,6 +52,12 @@ export function logicAnswerCorrect(
   return response.answerIndex === item.answerIndex;
 }
 
+function indexResponses(
+  responses: LogicItemAnswerDto[],
+): Map<number, LogicItemAnswerDto> {
+  return new Map(responses.map((response) => [response.index, response]));
+}
+
 function statusFor(
   item: LogicItem,
   response: LogicItemAnswerDto | undefined,
@@ -69,9 +75,7 @@ export function scoreLogicSession(
   items: LogicItem[],
   responses: LogicItemAnswerDto[],
 ): LogicSessionScore {
-  const responseByIndex = new Map(
-    responses.map((response) => [response.index, response]),
-  );
+  const responseByIndex = indexResponses(responses);
   const statuses = items.map((item) =>
     statusFor(item, responseByIndex.get(item.index)),
   );
@@ -98,9 +102,7 @@ export function computeLogicFamilyAggregates(
   responses: LogicItemAnswerDto[],
   familyFilter: LogicFamilyFilter | null,
 ): LogicFamilyResultDto[] {
-  const responseByIndex = new Map(
-    responses.map((response) => [response.index, response]),
-  );
+  const responseByIndex = indexResponses(responses);
   const byFamily = new Map<LogicFamily, LogicFamilyResultDto>();
   for (const item of items) {
     const entry = byFamily.get(item.family) ?? {
@@ -162,9 +164,7 @@ export function computeLogicFamilyBreakdown(
   items: LogicItem[],
   responses: LogicItemAnswerDto[],
 ): LogicFamilyMetricsEntry[] {
-  const responseByIndex = new Map(
-    responses.map((response) => [response.index, response]),
-  );
+  const responseByIndex = indexResponses(responses);
   const byFamily = new Map<LogicFamily, LogicFamilyMetricsEntry>();
   for (const item of items) {
     const entry = byFamily.get(item.family) ?? {

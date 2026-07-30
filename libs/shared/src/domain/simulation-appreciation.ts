@@ -5,6 +5,7 @@ import {
   crossAxisFindingFamilies,
 } from '../exercises/axis-findings';
 import { AXIS_META } from './axis-meta';
+import { roundToTenth } from './rounding';
 import { RailwayPlayableAxis } from './axis-training';
 import {
   SimulationAxisOutcome,
@@ -62,7 +63,7 @@ function mono(value: string): AppreciationSegment {
 }
 
 function frenchDecimal(value: number): string {
-  return (Math.round(value * 10) / 10).toFixed(1).replace('.', ',');
+  return roundToTenth(value).toFixed(1).replace('.', ',');
 }
 
 function labelOf(axis: AxisType): string {

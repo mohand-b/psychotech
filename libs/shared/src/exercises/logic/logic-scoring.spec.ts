@@ -112,10 +112,13 @@ describe('avisFromScore', () => {
   it('maps scores to the shared bands at the 80/70/60 thresholds', () => {
     expect(avisFromScore(100)).toBe(ScoreBand.EXCELLENT);
     expect(avisFromScore(80)).toBe(ScoreBand.EXCELLENT);
+    expect(avisFromScore(79.9)).toBe(ScoreBand.ACCEPTABLE);
     expect(avisFromScore(79)).toBe(ScoreBand.ACCEPTABLE);
     expect(avisFromScore(70)).toBe(ScoreBand.ACCEPTABLE);
+    expect(avisFromScore(69.9)).toBe(ScoreBand.FRAGILE);
     expect(avisFromScore(69)).toBe(ScoreBand.FRAGILE);
     expect(avisFromScore(60)).toBe(ScoreBand.FRAGILE);
+    expect(avisFromScore(59.9)).toBe(ScoreBand.INSUFFICIENT);
     expect(avisFromScore(59)).toBe(ScoreBand.INSUFFICIENT);
     expect(avisFromScore(0)).toBe(ScoreBand.INSUFFICIENT);
   });
