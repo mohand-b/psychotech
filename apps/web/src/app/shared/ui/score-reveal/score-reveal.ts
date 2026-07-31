@@ -28,9 +28,9 @@ export function visualDurationFor(climbDistance: number): number {
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
 // La vitesse fixe vaut pour la montée, qui est la progression. Les rebonds
-// sont une stabilisation : ils ralentissent d'un retournement à l'autre, sinon
-// le dernier ne durerait que quelques dizaines de millisecondes et clignoterait.
-const SCORE_REVEAL_SWING_MS: readonly number[] = [520, 420, 340, 280];
+// sont une stabilisation, avec leur propre rythme : ces durées sont celles
+// qui ont été retenues à l'œil, à ne pas rallonger.
+const SCORE_REVEAL_SWING_MS: readonly number[] = [300, 240, 190, 160];
 
 // En deçà, il ne reste plus assez de place sous 0 ou au-dessus de 100 pour que
 // le balancement se voie : la note monte alors d'un trait.

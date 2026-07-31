@@ -305,13 +305,13 @@ describe('rythme des rebonds', () => {
     });
   });
 
-  it('never lets a swing flash by under a fifth of a second', () => {
+  it('keeps every swing long enough to be seen', () => {
     for (const target of [20, 50, 82, 95]) {
       const { times, durationSec } = revealPathFor(target);
       const legs = times
         .slice(1)
         .map((time, index) => (time - times[index]) * durationSec);
-      expect([target, legs.slice(1).every((leg) => leg >= 0.2)]).toEqual([
+      expect([target, legs.slice(1).every((leg) => leg >= 0.15)]).toEqual([
         target,
         true,
       ]);
