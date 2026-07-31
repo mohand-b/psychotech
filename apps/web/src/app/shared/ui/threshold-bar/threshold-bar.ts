@@ -23,7 +23,8 @@ import {
       position: relative;
       display: block;
       height: var(--threshold-bar-height, 10px);
-      --threshold-bar-settle-duration: 460ms;
+      --threshold-bar-settle-duration: 900ms;
+      --threshold-bar-settle-peak: 0.5;
     }
     .bar__track {
       position: absolute;
@@ -58,14 +59,20 @@ import {
     }
     :host(.is-settled) .bar__settle {
       animation: threshold-bar-settle var(--threshold-bar-settle-duration)
-        ease-out;
+        cubic-bezier(0.4, 0, 0.4, 1);
     }
     @keyframes threshold-bar-settle {
       0% {
         opacity: 0;
       }
-      30% {
-        opacity: 1;
+      25% {
+        opacity: calc(var(--threshold-bar-settle-peak) * 0.7);
+      }
+      45% {
+        opacity: var(--threshold-bar-settle-peak);
+      }
+      70% {
+        opacity: calc(var(--threshold-bar-settle-peak) * 0.45);
       }
       100% {
         opacity: 0;

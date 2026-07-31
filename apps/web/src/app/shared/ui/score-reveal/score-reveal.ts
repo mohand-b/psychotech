@@ -42,7 +42,10 @@ const SCORE_REVEAL_SWING_PEAK_FACTOR = 1.5;
 // le balancement se voie : la note monte alors d'un trait.
 const SCORE_REVEAL_MIN_SWING_SCALE = 0.4;
 
-const SCORE_REVEAL_PULSE_MS = 460;
+// Doit couvrir `--threshold-bar-settle-duration` de ui-threshold-bar : le voile
+// d'éclaircissement s'éteint quand ce drapeau retombe, et le tampon ne frappe
+// qu'après, une fois la barre revenue à sa couleur.
+const SCORE_REVEAL_SETTLE_MS = 900;
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -201,14 +204,14 @@ export class ScoreReveal {
   }
 
   private finish(target: number): void {
-    this.settle(target);
-    this.stampStruck.set(true);
+    this.animatedValue.set(target);
     this.settlePulsing.set(true);
-    const pulseId = window.setTimeout(
-      () => this.settlePulsing.set(false),
-      SCORE_REVEAL_PULSE_MS,
-    );
-    this.destroyRef.onDestroy(() => window.clearTimeout(pulseId));
+    const settleId = window.setTimeout(() => {
+      this.settlePulsing.set(false);
+      this.settle(target);
+      this.stampStruck.set(true);
+    }, SCORE_REVEAL_SETTLE_MS);
+    this.destroyRef.onDestroy(() => window.clearTimeout(settleId));
   }
 
   private settle(target: number): void {
