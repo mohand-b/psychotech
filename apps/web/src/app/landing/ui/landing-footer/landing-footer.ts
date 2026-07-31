@@ -1,8 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
 
 @Component({
   selector: 'app-landing-footer',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
   template: `
     <footer class="footer">
       <div class="footer__grid">
@@ -23,9 +26,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
         </div>
         <div class="footer__col">
           <span class="footer__col-title">Légal</span>
-          <a class="footer__link">Mentions légales</a>
-          <a class="footer__link">Confidentialité</a>
-          <a class="footer__link">CGV</a>
+          @for (entry of legalLinks; track entry.path) {
+            <a class="footer__link" [routerLink]="entry.path">{{
+              entry.tabLabel
+            }}</a>
+          }
         </div>
       </div>
       <div class="footer__bottom">
@@ -141,4 +146,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     }
   `,
 })
-export class LandingFooter {}
+export class LandingFooter {
+  protected readonly legalLinks = LEGAL_DOCUMENTS;
+}
