@@ -1,6 +1,6 @@
 export const CRANK_SPEED_GAIN_MIN = 1;
 
-export const CRANK_SPEED_GAIN_MAX = 1.3;
+export const CRANK_SPEED_GAIN_MAX = 1.55;
 
 export const CRANK_SPEED_GAIN_SMOOTHING = 0.18;
 

@@ -29,7 +29,10 @@ describe('crankSpeedGainTarget', () => {
   });
 
   it('barely moves near rest so slow cranking keeps pixel precision', () => {
-    expect(crankSpeedGainTarget(0.1)).toBeLessThan(1.01);
+    const range = CRANK_SPEED_GAIN_MAX - CRANK_SPEED_GAIN_MIN;
+    expect(crankSpeedGainTarget(0.1) - CRANK_SPEED_GAIN_MIN).toBeLessThan(
+      range * 0.05,
+    );
   });
 });
 
