@@ -27,10 +27,15 @@ export function visualDurationFor(climbDistance: number): number {
 // ressort n'y arrive pas, son amplitude étant liée à son nombre d'oscillations.
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
-// La vitesse fixe vaut pour la montée, qui est la progression. Les rebonds
-// sont une stabilisation, avec leur propre rythme : ces durées sont celles
-// qui ont été retenues à l'œil, à ne pas rallonger.
-const SCORE_REVEAL_SWING_MS: readonly number[] = [300, 240, 190, 160];
+// Les rebonds n'ont pas de durée propre : elle se déduit de leur distance à la
+// même vitesse que la montée. Un rebond deux fois plus court dure donc deux
+// fois moins longtemps, et la barre ne s'emballe jamais en fin de course.
+const SCORE_REVEAL_MIN_SWING_SEC = 0.16;
+
+// Un adoucissement aux deux bouts fait culminer la vitesse au-dessus de sa
+// moyenne ; on rallonge le rebond d'autant pour que ce pic reste la vitesse de
+// montée, et non le double.
+const SCORE_REVEAL_SWING_PEAK_FACTOR = 1.5;
 
 // En deçà, il ne reste plus assez de place sous 0 ou au-dessus de 100 pour que
 // le balancement se voie : la note monte alors d'un trait.
@@ -71,10 +76,10 @@ function climbShape(progress: number): number {
   return SCORE_REVEAL_CLIMB_LINEAR_PART + rest * eased;
 }
 
-function easeInOut(progress: number): number {
-  return progress < 0.5
-    ? 4 * progress * progress * progress
-    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+// Vitesse nulle aux deux extrémités, sans le creux d'une cubique : le pic ne
+// vaut qu'une fois et demie la moyenne, contre deux fois pour un easeInOut.
+function swingShape(progress: number): number {
+  return progress * progress * (3 - 2 * progress);
 }
 
 /**
@@ -96,7 +101,7 @@ export function valueAt(path: RevealPath, progress: number): number {
   const span = times[upper] - spanStart;
   const local = span === 0 ? 1 : (progress - spanStart) / span;
   const from = keyframes[upper - 1];
-  const shaped = upper === 1 ? climbShape(local) : easeInOut(local);
+  const shaped = upper === 1 ? climbShape(local) : swingShape(local);
   return from + (keyframes[upper] - from) * shaped;
 }
 
@@ -123,7 +128,12 @@ export function revealPathFor(target: number): RevealPath {
     legs[0] / SCORE_REVEAL_POINTS_PER_SEC,
   );
   const legsSec = legs.map((leg, index) =>
-    index === 0 ? climbSec : SCORE_REVEAL_SWING_MS[index - 1] / 1000,
+    index === 0
+      ? climbSec
+      : Math.max(
+          SCORE_REVEAL_MIN_SWING_SEC,
+          (SCORE_REVEAL_SWING_PEAK_FACTOR * leg) / SCORE_REVEAL_POINTS_PER_SEC,
+        ),
   );
   const totalSec = legsSec.reduce((sum, leg) => sum + leg, 0);
 
