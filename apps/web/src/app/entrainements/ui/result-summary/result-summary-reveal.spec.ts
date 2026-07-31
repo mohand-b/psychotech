@@ -74,8 +74,8 @@ function barWidthOf(fixture: ComponentFixture<ResultSummary>): number {
   const fill = fixture.nativeElement.querySelector(
     'ui-threshold-bar .bar__fill',
   ) as HTMLElement;
-  const hidden = /inset\(0 ([\d.]+)% 0 0/.exec(fill.style.clipPath);
-  return hidden ? 100 - Number.parseFloat(hidden[1]) : Number.NaN;
+  const scaled = /scaleX\(([\d.]+)\)/.exec(fill.style.transform);
+  return scaled ? Number.parseFloat(scaled[1]) * 100 : Number.NaN;
 }
 
 describe('ResultSummary reveal wiring', () => {

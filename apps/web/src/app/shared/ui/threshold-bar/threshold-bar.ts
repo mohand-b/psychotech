@@ -9,10 +9,9 @@ import {
   selector: 'ui-threshold-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span
-      class="bar__fill"
-      [style.clip-path]="'inset(0 ' + (100 - clampedValue()) + '% 0 0 round 999px)'"
-    ></span>
+    <span class="bar__fill" [style.transform]="fillTransform()">
+      <span class="bar__paint" [style.transform]="paintTransform()"></span>
+    </span>
     <span class="bar__marker" [style.left.%]="threshold()"></span>
   `,
   styles: `
@@ -27,13 +26,22 @@ import {
       position: absolute;
       inset: 0;
       border-radius: inherit;
+      overflow: hidden;
+      transform-origin: left center;
+      will-change: transform;
+    }
+    .bar__paint {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      will-change: transform;
       background: linear-gradient(
         90deg,
         var(--threshold-bar-fill-from, var(--brand-loading)),
         var(--threshold-bar-fill-to, var(--brand-hover))
       );
     }
-    .bar__fill::after {
+    .bar__paint::after {
       content: '';
       position: absolute;
       top: 2px;
@@ -63,4 +71,15 @@ export class ThresholdBar {
   protected readonly clampedValue = computed(() =>
     Math.min(100, Math.max(0, this.value())),
   );
+
+  // Deux transformations composées par le GPU : le remplissage se met à
+  // l'échelle, la peinture compense pour que le dégradé reste immobile.
+  protected readonly fillTransform = computed(
+    () => `scaleX(${this.clampedValue() / 100})`,
+  );
+
+  protected readonly paintTransform = computed(() => {
+    const filled = this.clampedValue();
+    return filled === 0 ? 'scaleX(1)' : `scaleX(${100 / filled})`;
+  });
 }
