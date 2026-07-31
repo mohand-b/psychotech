@@ -15,6 +15,7 @@ import {
   LegalDocumentId,
   legalDocumentById,
 } from '../../data/legal-documents';
+import { Button } from '../../../shared/ui/button/button';
 import { LegalDocumentView } from '../legal-document/legal-document';
 
 const FOCUSABLE =
@@ -23,7 +24,7 @@ const FOCUSABLE =
 @Component({
   selector: 'ui-legal-overlay',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LegalDocumentView],
+  imports: [Button, LegalDocumentView],
   templateUrl: './legal-overlay.html',
   styleUrl: './legal-overlay.css',
   host: {
