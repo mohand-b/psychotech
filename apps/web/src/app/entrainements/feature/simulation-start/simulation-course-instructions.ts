@@ -22,7 +22,7 @@ export const SIMULATION_COURSE: Record<
   [AxisType.VISUAL_DISCRIMINATION]: {
     instruction:
       'Deux suites de caractères s’affichent côte à côte : décidez au plus vite si elles sont identiques ou différentes.',
-    duration: '~3 min',
+    duration: '~2 min',
   },
   [AxisType.REACTIVITY]: {
     instruction:

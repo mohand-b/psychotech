@@ -132,7 +132,7 @@ export const AXIS_TRAINING: {
   },
   [AxisType.VISUAL_DISCRIMINATION]: {
     axis: AxisType.VISUAL_DISCRIMINATION,
-    timer: { model: AxisTimerModel.GLOBAL, durationSec: 180 },
+    timer: { model: AxisTimerModel.GLOBAL, durationSec: 120 },
     exerciseCount: 36,
     increasingDifficulty: true,
     minSequenceLength: 5,

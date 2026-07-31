@@ -5,7 +5,7 @@ import { axisMaxDurationSec } from './axis-training';
 describe('axisMaxDurationSec', () => {
   it('reprend le chrono global des axes qui en ont un', () => {
     expect(axisMaxDurationSec(AxisType.LOGIC)).toBe(600);
-    expect(axisMaxDurationSec(AxisType.VISUAL_DISCRIMINATION)).toBe(180);
+    expect(axisMaxDurationSec(AxisType.VISUAL_DISCRIMINATION)).toBe(120);
     expect(axisMaxDurationSec(AxisType.REACTIVITY)).toBe(120);
   });
 
