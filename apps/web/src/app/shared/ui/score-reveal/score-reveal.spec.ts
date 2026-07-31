@@ -3,7 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import {
   SCORE_REVEAL_CEILING,
   ScoreReveal,
-  bounceFor,
+  revealPathFor,
+  swingScaleFor,
   visualDurationFor,
 } from './score-reveal';
 
@@ -144,37 +145,6 @@ describe('ScoreReveal single trigger', () => {
   }, 12000);
 });
 
-describe('bounceFor', () => {
-  it('keeps the liveliest bounce whose peak still fits under the ceiling', () => {
-    for (const target of [0, 40, 82, 90, 95, 99, 100]) {
-      expect([target, target * peakRatioOf(bounceFor(target))]).toEqual([
-        target,
-        expect.closeTo(target * peakRatioOf(bounceFor(target)), 5),
-      ]);
-      expect(target * peakRatioOf(bounceFor(target))).toBeLessThanOrEqual(
-        SCORE_REVEAL_CEILING + 0.001,
-      );
-    }
-  });
-
-  it('gives a full score no bounce at all', () => {
-    expect(bounceFor(100)).toBe(0);
-  });
-});
-
-function peakRatioOf(bounce: number): number {
-  const ratios: Record<number, number> = {
-    0.7: 1.372,
-    0.62: 1.275,
-    0.45: 1.126,
-    0.35: 1.068,
-    0.25: 1.028,
-    0.15: 1.006,
-    0: 1,
-  };
-  return ratios[bounce] ?? 1;
-}
-
 describe('visualDurationFor', () => {
   it('keeps the same climbing speed whatever the score', () => {
     const rateOf = (target: number) => target / visualDurationFor(target);
@@ -189,5 +159,39 @@ describe('visualDurationFor', () => {
   it('keeps a floor so a very low score stays readable', () => {
     expect(visualDurationFor(0)).toBeGreaterThan(0);
     expect(visualDurationFor(2)).toBe(visualDurationFor(0));
+  });
+});
+
+describe('revealPathFor', () => {
+  it('swings twice around the score and ends on the score itself', () => {
+    const { keyframes } = revealPathFor(50);
+
+    expect(keyframes[0]).toBe(0);
+    expect(keyframes[keyframes.length - 1]).toBe(50);
+    const swings = keyframes.slice(1, -1);
+    expect(swings.filter((value) => value > 50)).toHaveLength(2);
+    expect(swings.filter((value) => value < 50)).toHaveLength(2);
+  });
+
+  it('keeps the same swing amplitude whatever the score', () => {
+    expect(revealPathFor(20).keyframes[1] - 20).toBeCloseTo(
+      revealPathFor(80).keyframes[1] - 80,
+      5,
+    );
+  });
+
+  it('never leaves the zero to hundred range', () => {
+    for (const target of [0, 1, 5, 50, 95, 97, 99, 100]) {
+      const { keyframes } = revealPathFor(target);
+      expect(Math.max(...keyframes)).toBeLessThanOrEqual(100);
+      expect(Math.min(...keyframes)).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it('drops the swing when the score is too high or too low to hold it', () => {
+    expect(swingScaleFor(100)).toBe(0);
+    expect(swingScaleFor(0)).toBe(0);
+    expect(swingScaleFor(50)).toBe(1);
+    expect(revealPathFor(100).keyframes).toEqual([0, 100]);
   });
 });
