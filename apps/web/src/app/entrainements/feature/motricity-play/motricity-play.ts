@@ -16,6 +16,8 @@ import {
   MOTRICITY_CANVAS_WIDTH,
   MOTRICITY_CURSOR_RADIUS,
   MOTRICITY_CURSOR_SPEED_UNITS_PER_SEC,
+  CRANK_SPEED_GAIN_MIN,
+  smoothCrankSpeedGain,
   MOTRICITY_SAMPLE_INTERVAL_MS,
   MotricityCourse,
   MotricityCourseTrajectoryDto,
@@ -182,6 +184,7 @@ export class MotricityPlay {
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
   private hasSubmitted = false;
+  private crankGain = CRANK_SPEED_GAIN_MIN;
   private crankPendingXRad = 0;
   private crankPendingYRad = 0;
   private usedTouchCranks = false;
@@ -297,6 +300,7 @@ export class MotricityPlay {
     this.majorErrors.set(0);
     this.crankSpeedX.set(0);
     this.crankSpeedY.set(0);
+    this.crankGain = CRANK_SPEED_GAIN_MIN;
     this.crankPendingXRad = 0;
     this.crankPendingYRad = 0;
     this.gamepad.beginCourseLatencyWindow();
@@ -456,7 +460,12 @@ export class MotricityPlay {
     } else if (this.crankSpeedX() !== 0 || this.crankSpeedY() !== 0) {
       inputX = this.crankSpeedX();
       inputY = this.crankSpeedY();
-      speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, Math.hypot(inputX, inputY));
+      const cranked = Math.hypot(inputX, inputY);
+      this.crankGain = smoothCrankSpeedGain(this.crankGain, cranked);
+      speedFactor = Math.min(
+        GAMEPAD_MAX_OVERDRIVE,
+        cranked * this.crankGain,
+      );
     } else {
       return;
     }
