@@ -7,24 +7,21 @@ export const LEGAL_DOMAIN = 'psychotechtraining.com';
 export interface LegalCompanyInfo {
   legalName: string;
   legalForm: string;
-  shareCapitalEur: string;
   headOfficeAddress: string;
-  registryCity: string;
-  registryNumber: string;
-  vatNumber: string;
   publicationDirector: string;
 }
 
 export const LEGAL_COMPANY: LegalCompanyInfo = {
-  legalName: '',
-  legalForm: '',
-  shareCapitalEur: '',
-  headOfficeAddress: '',
-  registryCity: '',
-  registryNumber: '',
-  vatNumber: '',
-  publicationDirector: '',
+  legalName: 'Mohand Boudjema',
+  legalForm: 'Entrepreneur individuel (micro-entreprise)',
+  headOfficeAddress: '3 chemin des Bessons, 13014 Marseille',
+  publicationDirector: 'Mohand Boudjema',
 };
+
+export const LEGAL_REGISTRATION = 'SIREN 853 905 149';
+
+// Franchise en base de TVA : aucun numéro intracommunautaire à publier.
+export const LEGAL_VAT_MENTION = 'TVA non applicable, article 293 B du CGI';
 
 export interface LegalContactInfo {
   general: string;
@@ -33,37 +30,38 @@ export interface LegalContactInfo {
 }
 
 export const LEGAL_CONTACT: LegalContactInfo = {
-  general: `contact@${LEGAL_DOMAIN}`,
-  privacy: `confidentialite@${LEGAL_DOMAIN}`,
+  general: 'contact@mohandb.dev',
+  privacy: 'contact@mohandb.dev',
   replyDelay: 'deux jours ouvrés',
 };
 
 export interface LegalProviderInfo {
   name: string;
   purpose: string;
+}
+
+export interface LegalHostingProviderInfo extends LegalProviderInfo {
   legalName: string;
   address: string;
 }
 
-export const LEGAL_HOSTING_PROVIDER: LegalProviderInfo = {
+export const LEGAL_HOSTING_PROVIDER: LegalHostingProviderInfo = {
   name: 'Railway',
   purpose: 'Hébergement de l’application et de la base de données',
-  legalName: '',
-  address: '',
+  legalName:
+    'Railway Corporation (société de droit de l’État du Delaware, États-Unis)',
+  address:
+    '548 Market St PMB 68956, San Francisco, California 94104, États-Unis',
 };
 
 export const LEGAL_PAYMENT_PROVIDER: LegalProviderInfo = {
   name: 'Stripe',
   purpose: 'Traitement des paiements et de la facturation',
-  legalName: '',
-  address: '',
 };
 
 export const LEGAL_DNS_PROVIDER: LegalProviderInfo = {
   name: 'Cloudflare',
   purpose: 'Gestion du domaine et des DNS',
-  legalName: '',
-  address: '',
 };
 
 // Le service ne dépose que des cookies strictement nécessaires (session, CSRF).

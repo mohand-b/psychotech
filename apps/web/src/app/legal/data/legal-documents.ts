@@ -14,7 +14,9 @@ import {
   LEGAL_MEDIATOR_NAME,
   LEGAL_PAYMENT_PROVIDER,
   LEGAL_PRICE_CHANGE_NOTICE_DAYS,
+  LEGAL_REGISTRATION,
   LEGAL_TERMS_CHANGE_NOTICE_DAYS,
+  LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
   SubscriptionTier,
 } from '@psychotech/shared';
@@ -96,33 +98,26 @@ const MENTIONS_LEGALES: LegalDocument = {
           kind: 'text',
           runs: [
             { text: 'Le site et l’application PsychoTech sont édités par ' },
-            value(LEGAL_COMPANY.legalName, 'raison sociale'),
+            value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', ' },
-            value(LEGAL_COMPANY.legalForm, 'forme juridique'),
-            { text: ' au capital de ' },
-            value(LEGAL_COMPANY.shareCapitalEur, 'montant'),
-            { text: ' euros.' },
+            value(LEGAL_COMPANY.legalForm, 'statut'),
+            { text: '.' },
           ],
         },
         {
           kind: 'facts',
           rows: [
             {
-              label: 'Siège social',
+              label: 'Adresse',
               value: value(LEGAL_COMPANY.headOfficeAddress, 'adresse complète'),
             },
             {
-              label: 'RCS',
-              value: value(
-                LEGAL_COMPANY.registryNumber
-                  ? `${LEGAL_COMPANY.registryCity} ${LEGAL_COMPANY.registryNumber}`
-                  : '',
-                'ville et numéro',
-              ),
+              label: 'Immatriculation',
+              value: value(LEGAL_REGISTRATION, 'numéro d’immatriculation'),
             },
             {
-              label: 'TVA intracommunautaire',
-              value: value(LEGAL_COMPANY.vatNumber, 'numéro de TVA'),
+              label: 'TVA',
+              value: { text: LEGAL_VAT_MENTION },
             },
             {
               label: 'Contact',
@@ -145,7 +140,7 @@ const MENTIONS_LEGALES: LegalDocument = {
             { text: 'Le directeur de la publication est ' },
             value(LEGAL_COMPANY.publicationDirector, 'prénom et nom'),
             {
-              text: ', en qualité de représentant légal de la société éditrice.',
+              text: ', en qualité d’éditeur du site.',
             },
           ],
         },
@@ -182,7 +177,7 @@ const MENTIONS_LEGALES: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'L’ensemble du service, sa structure, ses textes, son identité visuelle, ses exercices et les énoncés qui les composent sont protégés par le droit de la propriété intellectuelle et demeurent la propriété exclusive de la société éditrice.',
+              text: 'L’ensemble du service, sa structure, ses textes, son identité visuelle, ses exercices et les énoncés qui les composent sont protégés par le droit de la propriété intellectuelle et demeurent la propriété exclusive de l’éditeur.',
             },
           ],
         },
@@ -245,7 +240,7 @@ const CONFIDENTIALITE: LegalDocument = {
             {
               text: 'Le responsable du traitement de vos données personnelles est ',
             },
-            value(LEGAL_COMPANY.legalName, 'raison sociale'),
+            value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', dont les coordonnées figurent dans les ' },
             { text: 'mentions légales', href: '/mentions-legales' },
             { text: '.' },
