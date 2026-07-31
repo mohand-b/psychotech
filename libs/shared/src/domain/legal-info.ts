@@ -66,6 +66,9 @@ export const LEGAL_DNS_PROVIDER: LegalProviderInfo = {
   address: '',
 };
 
+// Le service ne dépose que des cookies strictement nécessaires (session, CSRF).
+// Ajouter un pixel publicitaire ou un outil de mesure d'audience rendrait
+// obligatoires une section cookies révisée ET un bandeau de consentement.
 export const LEGAL_PROVIDERS: readonly LegalProviderInfo[] = [
   LEGAL_HOSTING_PROVIDER,
   LEGAL_PAYMENT_PROVIDER,
