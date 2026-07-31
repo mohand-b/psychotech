@@ -27,8 +27,6 @@ export function visualDurationFor(climbDistance: number): number {
 // ressort n'y arrive pas, son amplitude étant liée à son nombre d'oscillations.
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
-const SCORE_REVEAL_SWING_MS: readonly number[] = [300, 240, 190, 160];
-
 // En deçà, il ne reste plus assez de place sous 0 ou au-dessus de 100 pour que
 // le balancement se voie : la note monte alors d'un trait.
 const SCORE_REVEAL_MIN_SWING_SCALE = 0.4;
@@ -53,18 +51,10 @@ export function swingScaleFor(target: number): number {
   return scale < SCORE_REVEAL_MIN_SWING_SCALE ? 0 : scale;
 }
 
-function easeInOut(progress: number): number {
-  return progress < 0.5
-    ? 4 * progress * progress * progress
-    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-}
-
 /**
- * Valeur affichée à un instant donné du parcours, segment par segment. La
- * montée initiale est linéaire : c'est la seule façon de tenir une vitesse de
- * progression réellement constante, une courbe d'accélération la ferait
- * pointer à près du triple du rythme voulu en son milieu. Seuls les
- * balancements, courts, sont adoucis à leurs extrémités.
+ * Valeur affichée à un instant donné du parcours. Tout est linéaire et chaque
+ * segment dure sa distance divisée par la vitesse : la note avance au même
+ * nombre de points par seconde du départ à la pose, montée comme rebonds.
  */
 export function valueAt(path: RevealPath, progress: number): number {
   const { keyframes, times } = path;
@@ -80,8 +70,7 @@ export function valueAt(path: RevealPath, progress: number): number {
   const span = times[upper] - spanStart;
   const local = span === 0 ? 1 : (progress - spanStart) / span;
   const from = keyframes[upper - 1];
-  const shaped = upper === 1 ? local : easeInOut(local);
-  return from + (keyframes[upper] - from) * shaped;
+  return from + (keyframes[upper] - from) * local;
 }
 
 interface RevealPath {
@@ -93,27 +82,29 @@ interface RevealPath {
 export function revealPathFor(target: number): RevealPath {
   const scale = swingScaleFor(target);
   const swings = scale === 0 ? [] : SCORE_REVEAL_SWINGS;
-  const firstPeak = target + (swings[0] ?? 0) * scale;
-  const climbMs = visualDurationFor(firstPeak) * 1000;
-  const stepsMs = swings.map((_, index) => SCORE_REVEAL_SWING_MS[index]);
-  const totalMs = climbMs + stepsMs.reduce((sum, step) => sum + step, 0);
-
-  const keyframes = [0];
-  const times = [0];
-  let elapsed = climbMs;
-  keyframes.push(target + (swings[0] ?? 0) * scale);
-  times.push(elapsed / totalMs);
-  swings.slice(1).forEach((swing, index) => {
-    elapsed += stepsMs[index];
-    keyframes.push(target + swing * scale);
-    times.push(elapsed / totalMs);
-  });
+  const keyframes = [0, target + (swings[0] ?? 0) * scale];
+  swings.slice(1).forEach((swing) => keyframes.push(target + swing * scale));
   if (swings.length > 0) {
     keyframes.push(target);
-    times.push(1);
   }
 
-  return { keyframes, times, durationSec: totalMs / 1000 };
+  const legs = keyframes
+    .slice(1)
+    .map((value, index) => Math.abs(value - keyframes[index]));
+  const totalSec = Math.max(
+    SCORE_REVEAL_MIN_DURATION_SEC,
+    legs.reduce((sum, leg) => sum + leg, 0) / SCORE_REVEAL_POINTS_PER_SEC,
+  );
+
+  const times = [0];
+  let travelled = 0;
+  const distance = legs.reduce((sum, leg) => sum + leg, 0);
+  legs.forEach((leg) => {
+    travelled += leg;
+    times.push(distance === 0 ? 1 : travelled / distance);
+  });
+
+  return { keyframes, times, durationSec: totalSec };
 }
 
 @Injectable()
