@@ -242,21 +242,37 @@ describe('valueAt', () => {
 });
 
 describe('régularité de la montée', () => {
-  it('holds the very same instant speed all along the climb', () => {
-    for (const target of [20, 50, 82, 95]) {
-      const path = revealPathFor(target);
-      const climbEnd = path.times[1];
-      const speeds: number[] = [];
-      for (let step = 0; step < 20; step += 1) {
-        const from = (climbEnd * step) / 20;
-        const to = (climbEnd * (step + 1)) / 20;
-        const seconds = (to - from) * path.durationSec;
-        speeds.push((valueAt(path, to) - valueAt(path, from)) / seconds);
-      }
-      const slowest = Math.min(...speeds);
-      const fastest = Math.max(...speeds);
-      expect([target, fastest - slowest < 0.5]).toEqual([target, true]);
+  const climbSpeeds = (target: number, upTo: number) => {
+    const path = revealPathFor(target);
+    const climbEnd = path.times[1];
+    const speeds: number[] = [];
+    for (let step = 0; step < 16; step += 1) {
+      const from = (climbEnd * upTo * step) / 16;
+      const to = (climbEnd * upTo * (step + 1)) / 16;
+      const seconds = (to - from) * path.durationSec;
+      speeds.push((valueAt(path, to) - valueAt(path, from)) / seconds);
     }
+    return speeds;
+  };
+
+  it('holds one steady speed over the constant part of the climb', () => {
+    for (const target of [20, 50, 82, 95]) {
+      const speeds = climbSpeeds(target, 0.75);
+      const spread = Math.max(...speeds) - Math.min(...speeds);
+      expect([target, spread < 0.5]).toEqual([target, true]);
+    }
+  });
+
+  it('slows down at the very top so the turn is not a dead stop', () => {
+    const path = revealPathFor(82);
+    const climbEnd = path.times[1];
+    const stepBefore = climbEnd * 0.995;
+    const cruising = climbSpeeds(82, 0.75)[0];
+    const seconds = (climbEnd - stepBefore) * path.durationSec;
+    const arriving =
+      (valueAt(path, climbEnd) - valueAt(path, stepBefore)) / seconds;
+
+    expect(arriving).toBeLessThan(cruising * 0.25);
   });
 });
 

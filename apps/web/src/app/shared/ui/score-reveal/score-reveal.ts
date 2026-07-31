@@ -56,6 +56,21 @@ export function swingScaleFor(target: number): number {
   return scale < SCORE_REVEAL_MIN_SWING_SCALE ? 0 : scale;
 }
 
+// Fraction de la montée parcourue à vitesse constante ; au-delà, la note
+// décélère jusqu'à s'arrêter au sommet. Sans cela elle y arriverait à pleine
+// vitesse et le premier rebond repartirait d'un arrêt net, en pleine inversion.
+const SCORE_REVEAL_CLIMB_LINEAR_PART = 0.8;
+
+function climbShape(progress: number): number {
+  if (progress < SCORE_REVEAL_CLIMB_LINEAR_PART) {
+    return progress;
+  }
+  const rest = 1 - SCORE_REVEAL_CLIMB_LINEAR_PART;
+  const local = (progress - SCORE_REVEAL_CLIMB_LINEAR_PART) / rest;
+  const eased = local + local * local - local * local * local;
+  return SCORE_REVEAL_CLIMB_LINEAR_PART + rest * eased;
+}
+
 function easeInOut(progress: number): number {
   return progress < 0.5
     ? 4 * progress * progress * progress
@@ -81,7 +96,7 @@ export function valueAt(path: RevealPath, progress: number): number {
   const span = times[upper] - spanStart;
   const local = span === 0 ? 1 : (progress - spanStart) / span;
   const from = keyframes[upper - 1];
-  const shaped = upper === 1 ? local : easeInOut(local);
+  const shaped = upper === 1 ? climbShape(local) : easeInOut(local);
   return from + (keyframes[upper] - from) * shaped;
 }
 
