@@ -72,6 +72,7 @@ export class SimulationSummary {
   protected readonly revealedScore = this.reveal.value;
   protected readonly stampVisible = this.reveal.stampVisible;
   protected readonly stampStrike = this.reveal.stampStrike;
+  protected readonly settlePulse = this.reveal.settlePulse;
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';

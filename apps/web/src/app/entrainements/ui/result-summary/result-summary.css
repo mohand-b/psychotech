@@ -236,20 +236,3 @@
     font-size: 13px;
   }
 }
-
-.summary__bar--settled {
-  display: block;
-  animation: summary-bar-settle 420ms ease-out;
-}
-
-@keyframes summary-bar-settle {
-  0% {
-    filter: none;
-  }
-  35% {
-    filter: brightness(1.22) saturate(1.12);
-  }
-  100% {
-    filter: none;
-  }
-}

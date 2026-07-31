@@ -8,10 +8,12 @@ import {
 @Component({
   selector: 'ui-threshold-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.is-settled]': 'settled()' },
   template: `
     <span class="bar__track">
       <span class="bar__fill" [style.clipPath]="fillClip()">
         <span class="bar__shine" [style.right]="shineEnd()"></span>
+        <span class="bar__settle"></span>
       </span>
     </span>
     <span class="bar__marker" [style.left.%]="threshold()"></span>
@@ -21,6 +23,7 @@ import {
       position: relative;
       display: block;
       height: var(--threshold-bar-height, 10px);
+      --threshold-bar-settle-duration: 460ms;
     }
     .bar__track {
       position: absolute;
@@ -47,6 +50,27 @@ import {
       border-radius: 999px;
       background: var(--relief-shine);
     }
+    .bar__settle {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: var(--relief-shine);
+    }
+    :host(.is-settled) .bar__settle {
+      animation: threshold-bar-settle var(--threshold-bar-settle-duration)
+        ease-out;
+    }
+    @keyframes threshold-bar-settle {
+      0% {
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
     .bar__marker {
       position: absolute;
       top: calc(-1 * var(--threshold-bar-overhang, 4px));
@@ -63,6 +87,7 @@ import {
 export class ThresholdBar {
   readonly value = input.required<number>();
   readonly threshold = input.required<number>();
+  readonly settled = input(false);
 
   protected readonly clampedValue = computed(() =>
     Math.min(100, Math.max(0, this.value())),
