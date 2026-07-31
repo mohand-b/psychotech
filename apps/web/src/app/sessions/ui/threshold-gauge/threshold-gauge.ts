@@ -4,6 +4,8 @@ import {
   computed,
   input,
 } from '@angular/core';
+import { AxisType } from '@psychotech/shared';
+import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 
 @Component({
@@ -47,12 +49,17 @@ import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance'
 export class ThresholdGauge {
   readonly score = input.required<number>();
   readonly eliminatoryThreshold = input<number | null>(null);
+  readonly axis = input<AxisType | null>(null);
 
   protected readonly clampedScore = computed(() =>
     Math.min(100, Math.max(0, this.score())),
   );
 
   protected readonly fillVar = computed(() => {
+    const axis = this.axis();
+    if (axis !== null) {
+      return AXIS_PRESENTATION[axis].plainVar;
+    }
     const eliminatory = this.eliminatoryThreshold();
     return resolveVerdictAppearance(
       this.score(),
