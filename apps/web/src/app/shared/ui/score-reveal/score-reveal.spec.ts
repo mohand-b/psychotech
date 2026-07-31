@@ -74,12 +74,12 @@ describe('ScoreReveal phases', () => {
     expect(seen[seen.length - 1]).toBe(82);
   }, 12000);
 
-  it('climbs to the target without ever going back down', async () => {
+  it('climbs smoothly to the target without overshoot nor step back', async () => {
     const reveal = setup(false);
     const seen: number[] = [];
 
     reveal.start(82);
-    for (let frame = 0; frame < 140; frame += 1) {
+    for (let frame = 0; frame < 120; frame += 1) {
       await new Promise((resolve) => setTimeout(resolve, 45));
       seen.push(reveal.value());
     }
@@ -87,10 +87,10 @@ describe('ScoreReveal phases', () => {
     expect(Math.max(...seen)).toBeLessThanOrEqual(82);
     expect(seen[seen.length - 1]).toBe(82);
 
-    const drops = seen.filter(
+    const stepsBack = seen.filter(
       (current, index) => index > 0 && current < seen[index - 1] - 0.01,
     );
-    expect(drops).toEqual([]);
+    expect(stepsBack).toEqual([]);
   }, 14000);
 
   it('settles on the target then strikes the stamp', async () => {

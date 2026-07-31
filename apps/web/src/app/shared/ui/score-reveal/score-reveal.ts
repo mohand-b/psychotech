@@ -2,10 +2,11 @@ import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, Signal, inject, signal } from '@angular/core';
 import { animate, spring } from 'motion';
 
-const SCORE_REVEAL_VISUAL_DURATION_SEC = 2.6;
+const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.8;
 
-// Ressort sans oscillation : la note monte d'un trait puis décélère jusqu'à
-// sa valeur finale. Aucun dépassement, donc aucune redescente en fin de course.
+// Aucun dépassement : la note monte vite puis décélère jusqu'à sa valeur.
+// Tout dépassement devrait être défait, et ce retour en arrière est à la fois
+// une rupture de vitesse à l'écran et une baisse de note pour le candidat.
 const SCORE_REVEAL_BOUNCE = 0;
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
