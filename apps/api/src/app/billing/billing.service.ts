@@ -48,12 +48,6 @@ import {
 import { BillingRepository } from './billing.repository';
 import { STRIPE_CLIENT } from './stripe.client';
 
-const HANDLED_SUBSCRIPTION_EVENTS = [
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted',
-] as const;
-
 const PAYMENT_METHOD_UPDATE_PURPOSE = 'payment_method_update';
 
 const ENERGY_REFILL_PURPOSE = 'energy_refill';
@@ -768,13 +762,15 @@ export class BillingService {
       return;
     }
     if (event.type === 'payment_intent.succeeded') {
-      await this.applyEnergyRefill(event.data.object as Stripe.PaymentIntent);
+      await this.applyEnergyRefill(event.data.object);
       return;
     }
     if (
-      (HANDLED_SUBSCRIPTION_EVENTS as readonly string[]).includes(event.type)
+      event.type === 'customer.subscription.created' ||
+      event.type === 'customer.subscription.updated' ||
+      event.type === 'customer.subscription.deleted'
     ) {
-      await this.applySubscription(event.data.object as Stripe.Subscription);
+      await this.applySubscription(event.data.object);
     }
   }
 

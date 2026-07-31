@@ -8,6 +8,7 @@ import {
   GamepadJoinMessage,
   GamepadPeerRole,
   GamepadSignalMessage,
+  parseGamepadSignalMessage,
 } from '@psychotech/shared';
 import { GamepadPairingService } from './gamepad-pairing.service';
 
@@ -170,10 +171,7 @@ export class GamepadGateway
 
   private parseMessage(data: unknown): GamepadSignalMessage | null {
     try {
-      const parsed = JSON.parse(String(data)) as GamepadSignalMessage;
-      return typeof parsed === 'object' && parsed !== null && 'type' in parsed
-        ? parsed
-        : null;
+      return parseGamepadSignalMessage(JSON.parse(String(data)));
     } catch {
       return null;
     }
