@@ -292,10 +292,12 @@ describe('Dashboard', () => {
   it('renders the running session with its progress stepper and resumes it', async () => {
     const { fixture, navigate } = await setup({ current: fullSession() });
     expect(textOf(fixture)).toContain('Reprenez votre examen blanc');
-    expect(textOf(fixture)).toContain('3/5');
     expect(
       fixture.nativeElement.querySelectorAll('.home__day-stepper .step'),
     ).toHaveLength(5);
+    expect(
+      fixture.nativeElement.querySelectorAll('.home__day-dot-item'),
+    ).toHaveLength(0);
     const cta = fixture.nativeElement.querySelector(
       '.home__cta-primary',
     ) as HTMLButtonElement;

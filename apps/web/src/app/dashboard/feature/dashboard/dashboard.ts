@@ -55,11 +55,6 @@ import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
 
-interface SessionChipView {
-  presentation: AxisPresentation;
-  status: AxisProgressStatus;
-}
-
 interface WeakAxisView {
   presentation: AxisPresentation;
   tag: string;
@@ -245,17 +240,6 @@ export class Dashboard {
     () => this.current()?.mode === SessionMode.FULL,
   );
 
-  protected readonly sessionChips = computed<SessionChipView[]>(() => {
-    const session = this.current();
-    if (!session || session.mode !== SessionMode.FULL) {
-      return [];
-    }
-    return session.axes.map((axis) => ({
-      presentation: AXIS_PRESENTATION[axis.axis],
-      status: axis.status,
-    }));
-  });
-
   protected readonly sessionSteps = computed<ChevronStep[]>(() => {
     const session = this.current();
     if (!session || session.mode !== SessionMode.FULL) {
@@ -271,17 +255,6 @@ export class Dashboard {
             : 'todo',
     }));
   });
-
-  protected readonly sessionDoneCount = computed(
-    () =>
-      this.current()?.axes.filter(
-        (axis) => axis.status === AxisProgressStatus.DONE,
-      ).length ?? 0,
-  );
-
-  protected readonly sessionAxisTotal = computed(
-    () => this.current()?.axes.length ?? 0,
-  );
 
   protected readonly targetedAxis = computed(() => {
     const session = this.current();

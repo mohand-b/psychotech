@@ -49,39 +49,7 @@
                   }}
                 </span>
                 @if (sessionIsFull()) {
-                  <div class="home__day-meta home__day-meta--mobile">
-                    <span class="home__day-dots-wrap">
-                      <span class="home__day-dots">
-                        @for (
-                          chip of sessionChips();
-                          track chip.presentation.label
-                        ) {
-                          <span
-                            class="home__day-dot-item"
-                            [class.home__day-dot-item--current]="
-                              chip.status === statuses.CURRENT
-                            "
-                            [style.background]="
-                              chip.status === statuses.DONE
-                                ? chip.presentation.plainVar
-                                : chip.status === statuses.CURRENT
-                                  ? chip.presentation.pastelVar
-                                  : 'var(--border)'
-                            "
-                            [style.border-color]="
-                              chip.status === statuses.CURRENT
-                                ? chip.presentation.plainVar
-                                : null
-                            "
-                          ></span>
-                        }
-                      </span>
-                      <span class="home__day-count t-mono"
-                        >{{ sessionDoneCount() }}/{{ sessionAxisTotal() }}</span
-                      >
-                    </span>
-                  </div>
-                  <div class="home__day-meta home__day-meta--desktop">
+                  <div class="home__day-meta">
                     <ui-chevron-stepper
                       class="home__day-stepper"
                       variant="mini"
