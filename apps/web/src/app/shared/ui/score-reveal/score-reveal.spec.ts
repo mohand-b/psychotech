@@ -164,6 +164,7 @@ describe('bounceFor', () => {
 
 function peakRatioOf(bounce: number): number {
   const ratios: Record<number, number> = {
+    0.7: 1.372,
     0.62: 1.275,
     0.45: 1.126,
     0.35: 1.068,

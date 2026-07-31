@@ -44,6 +44,7 @@
   @if (threshold(); as t) {
   <div class="summary__bar-block">
     <ui-threshold-bar
+      [class.summary__bar--settled]="settlePulse()"
       [value]="revealedScore()"
       [threshold]="t.value"
       [style.--threshold-bar-fill-from]="fillFrom()"

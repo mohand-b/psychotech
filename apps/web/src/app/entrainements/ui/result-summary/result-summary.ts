@@ -52,6 +52,7 @@ export class ResultSummary {
   protected readonly revealedScore = this.reveal.value;
   protected readonly stampVisible = this.reveal.stampVisible;
   protected readonly stampStrike = this.reveal.stampStrike;
+  protected readonly settlePulse = this.reveal.settlePulse;
 
   protected readonly displayedScore = computed(() =>
     Math.round(this.reveal.value()),

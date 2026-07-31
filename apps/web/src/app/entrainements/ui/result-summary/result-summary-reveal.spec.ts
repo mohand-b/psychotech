@@ -26,6 +26,7 @@ interface RevealStub {
   value: WritableSignal<number>;
   stampVisible: WritableSignal<boolean>;
   stampStrike: WritableSignal<boolean>;
+  settlePulse: WritableSignal<boolean>;
   start: ReturnType<typeof vi.fn>;
 }
 
@@ -37,6 +38,7 @@ async function setup(): Promise<{
     value: signal(0),
     stampVisible: signal(false),
     stampStrike: signal(false),
+    settlePulse: signal(false),
     start: vi.fn(),
   };
   TestBed.resetTestingModule();
