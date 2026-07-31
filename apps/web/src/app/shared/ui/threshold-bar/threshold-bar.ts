@@ -9,7 +9,11 @@ import {
   selector: 'ui-threshold-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="bar__fill" [style.clipPath]="fillClip()"></span>
+    <span class="bar__track">
+      <span class="bar__fill" [style.clipPath]="fillClip()">
+        <span class="bar__shine"></span>
+      </span>
+    </span>
     <span class="bar__marker" [style.left.%]="threshold()"></span>
   `,
   styles: `
@@ -17,13 +21,17 @@ import {
       position: relative;
       display: block;
       height: var(--threshold-bar-height, 10px);
-      border-radius: calc(var(--threshold-bar-height, 10px) / 2);
+    }
+    .bar__track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      overflow: hidden;
       background: var(--surface-muted);
     }
     .bar__fill {
       position: absolute;
       inset: 0;
-      border-radius: inherit;
       will-change: clip-path;
       background: linear-gradient(
         90deg,
@@ -31,14 +39,13 @@ import {
         var(--threshold-bar-fill-to, var(--brand-hover))
       );
     }
-    .bar__fill::after {
-      content: '';
+    .bar__shine {
       position: absolute;
-      top: 2px;
-      left: 5px;
-      right: 5px;
-      height: 2px;
-      border-radius: 1px;
+      top: 20%;
+      height: 20%;
+      left: calc(var(--threshold-bar-height, 10px) / 2);
+      right: calc(var(--threshold-bar-height, 10px) / 2);
+      border-radius: 999px;
       background: var(--relief-shine);
     }
     .bar__marker {
