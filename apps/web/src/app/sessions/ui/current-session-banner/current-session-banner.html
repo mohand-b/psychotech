@@ -36,6 +36,7 @@
         color="brand"
         relief="mobile"
         [icon]="ctaIcon()"
+        [attr.aria-label]="ctaLabel()"
         (click)="resumeRequested.emit()"
       >
         <span class="banner__action-label">{{ ctaLabel() }}</span>
