@@ -20,9 +20,6 @@ export const SinglePrimary: Story = {
         <ui-button color="brand" size="lg" relief="mobile" block="mobile">
           Commencer la session
         </ui-button>
-        <p actionFooterNote style="margin:0;font:400 13px/18px var(--font-ui);color:var(--label);text-align:center">
-          Le chronomètre démarre après le décompte.
-        </p>
       </ui-action-footer>
     `,
   }),
@@ -43,9 +40,6 @@ export const PrimaryThenSecondary: Story = {
         >
           Retour aux entraînements
         </ui-button>
-        <p actionFooterNote style="margin:0;font:400 13px/18px var(--font-ui);color:var(--label);text-align:center">
-          Chaque simulation génère de nouvelles épreuves.
-        </p>
       </ui-action-footer>
     `,
   }),

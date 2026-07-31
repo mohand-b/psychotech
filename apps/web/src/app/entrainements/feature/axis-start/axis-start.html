@@ -22,6 +22,27 @@
     }
   </ui-axis-briefing>
 
+  @if (tutorial) {
+  <p class="axis-start__note">
+    La découverte est toujours identique et ne consomme aucune énergie.
+  </p>
+  } @if (energyLocked()) {
+  <p class="axis-start__note axis-start__note--short">
+    Énergie épuisée pour aujourd'hui.
+    <a class="axis-start__recharge-link" routerLink="/recharge"
+      >Recharger pour {{ rechargePriceLabel }}</a
+    >
+    @if (rechargeCountdown(); as countdown) {
+      <span class="axis-start__note-dot">·</span>
+      <span
+        >ou attendez la recharge dans
+        <span class="axis-start__note-countdown t-mono">{{
+          countdown
+        }}</span></span
+      >
+    }
+  </p>
+  }
   <ui-action-footer>
     <ui-button
       class="axis-start__cta"
@@ -43,26 +64,5 @@
         } }
       </span>
     </ui-button>
-    @if (tutorial) {
-    <p actionFooterNote class="axis-start__note">
-      La découverte est toujours identique et ne consomme aucune énergie.
-    </p>
-    } @if (energyLocked()) {
-    <p actionFooterNote class="axis-start__note axis-start__note--short">
-      Énergie épuisée pour aujourd'hui.
-      <a class="axis-start__recharge-link" routerLink="/recharge"
-        >Recharger pour {{ rechargePriceLabel }}</a
-      >
-      @if (rechargeCountdown(); as countdown) {
-        <span class="axis-start__note-dot">·</span>
-        <span
-          >ou attendez la recharge dans
-          <span class="axis-start__note-countdown t-mono">{{
-            countdown
-          }}</span></span
-        >
-      }
-    </p>
-    }
   </ui-action-footer>
 </section>

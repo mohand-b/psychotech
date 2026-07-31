@@ -32,24 +32,15 @@ import { Button } from '../../../shared/ui/button/button';
       >
         {{ backLabel() }}
       </ui-button>
-      <p actionFooterNote class="actions__footnote t-support">
-        {{ footnote() }}
-      </p>
     </ui-action-footer>
   `,
   styles: `
     :host {
       display: block;
     }
-    .actions__footnote {
-      margin: 0;
-      text-align: center;
-      color: var(--label);
-    }
   `,
 })
 export class ResultActions {
-  readonly footnote = input.required<string>();
   readonly backLabel = input.required<string>();
   readonly newTraining = output<void>();
   readonly back = output<void>();

@@ -17,14 +17,13 @@ import { ActionFooter } from './action-footer';
         block="mobile"
         >Secondaire</ui-button
       >
-      <p actionFooterNote class="note">Note de bas de page</p>
     </ui-action-footer>
   `,
 })
 class Host {}
 
 describe('ActionFooter', () => {
-  it('keeps the primary action first, the secondary next and the note last', async () => {
+  it('keeps the primary action first and the secondary next, with no slot below', async () => {
     await TestBed.configureTestingModule({
       imports: [Host],
     }).compileComponents();
@@ -42,9 +41,7 @@ describe('ActionFooter', () => {
     expect(buttons).toHaveLength(2);
     expect(buttons[0].textContent?.trim()).toBe('Primaire');
     expect(buttons[1].textContent?.trim()).toBe('Secondaire');
-    expect(
-      footer.querySelector('.note')?.closest('.action-footer__actions'),
-    ).toBe(null);
+    expect(footer.querySelector('[actionFooterNote]')).toBe(null);
   });
 
   it('applies the same mobile relief and mobile block classes to every action', async () => {

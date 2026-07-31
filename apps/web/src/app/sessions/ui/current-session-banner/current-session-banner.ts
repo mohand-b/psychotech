@@ -57,11 +57,6 @@ export class CurrentSessionBanner {
     this.isFull() ? Play : RotateCcw,
   );
 
-  protected readonly resumeMention = computed(() =>
-    this.isFull()
-      ? "Reprend au début de l'axe en cours"
-      : 'Reprend depuis le début, mêmes exercices',
-  );
 
   protected readonly steps = computed<ChevronStep[]>(() =>
     this.session().axes.map(({ axis, status }) => ({
