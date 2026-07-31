@@ -60,9 +60,11 @@ function easeInOut(progress: number): number {
 }
 
 /**
- * Valeur affichée à un instant donné du parcours, segment par segment. On
- * interpole nous-mêmes plutôt que de confier les images-clés au moteur : la
- * montée part ainsi toujours de zéro, sans dépendre de sa lecture des bornes.
+ * Valeur affichée à un instant donné du parcours, segment par segment. La
+ * montée initiale est linéaire : c'est la seule façon de tenir une vitesse de
+ * progression réellement constante, une courbe d'accélération la ferait
+ * pointer à près du triple du rythme voulu en son milieu. Seuls les
+ * balancements, courts, sont adoucis à leurs extrémités.
  */
 export function valueAt(path: RevealPath, progress: number): number {
   const { keyframes, times } = path;
@@ -78,7 +80,8 @@ export function valueAt(path: RevealPath, progress: number): number {
   const span = times[upper] - spanStart;
   const local = span === 0 ? 1 : (progress - spanStart) / span;
   const from = keyframes[upper - 1];
-  return from + (keyframes[upper] - from) * easeInOut(local);
+  const shaped = upper === 1 ? local : easeInOut(local);
+  return from + (keyframes[upper] - from) * shaped;
 }
 
 interface RevealPath {

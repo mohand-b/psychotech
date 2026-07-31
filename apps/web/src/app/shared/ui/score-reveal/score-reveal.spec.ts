@@ -240,3 +240,22 @@ describe('valueAt', () => {
     expect(valueAt(path, 0.02)).toBeLessThan(10);
   });
 });
+
+describe('régularité de la montée', () => {
+  it('holds the very same instant speed all along the climb', () => {
+    for (const target of [20, 50, 82, 95]) {
+      const path = revealPathFor(target);
+      const climbEnd = path.times[1];
+      const speeds: number[] = [];
+      for (let step = 0; step < 20; step += 1) {
+        const from = (climbEnd * step) / 20;
+        const to = (climbEnd * (step + 1)) / 20;
+        const seconds = (to - from) * path.durationSec;
+        speeds.push((valueAt(path, to) - valueAt(path, from)) / seconds);
+      }
+      const slowest = Math.min(...speeds);
+      const fastest = Math.max(...speeds);
+      expect([target, fastest - slowest < 0.5]).toEqual([target, true]);
+    }
+  });
+});
