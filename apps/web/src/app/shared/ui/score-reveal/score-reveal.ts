@@ -53,6 +53,34 @@ export function swingScaleFor(target: number): number {
   return scale < SCORE_REVEAL_MIN_SWING_SCALE ? 0 : scale;
 }
 
+function easeInOut(progress: number): number {
+  return progress < 0.5
+    ? 4 * progress * progress * progress
+    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+}
+
+/**
+ * Valeur affichée à un instant donné du parcours, segment par segment. On
+ * interpole nous-mêmes plutôt que de confier les images-clés au moteur : la
+ * montée part ainsi toujours de zéro, sans dépendre de sa lecture des bornes.
+ */
+export function valueAt(path: RevealPath, progress: number): number {
+  const { keyframes, times } = path;
+  if (progress <= 0) {
+    return keyframes[0];
+  }
+  if (progress >= 1) {
+    return keyframes[keyframes.length - 1];
+  }
+  const index = times.findIndex((time, at) => at > 0 && progress <= time);
+  const upper = index === -1 ? keyframes.length - 1 : index;
+  const spanStart = times[upper - 1];
+  const span = times[upper] - spanStart;
+  const local = span === 0 ? 1 : (progress - spanStart) / span;
+  const from = keyframes[upper - 1];
+  return from + (keyframes[upper] - from) * easeInOut(local);
+}
+
 interface RevealPath {
   keyframes: number[];
   times: number[];
@@ -123,12 +151,11 @@ export class ScoreReveal {
     try {
       this.stampShown.set(false);
       const path = revealPathFor(target);
-      const [first, ...rest] = path.keyframes;
-      const controls = animate(first, rest.length > 0 ? rest : [target], {
+      const controls = animate(0, 1, {
         duration: path.durationSec,
-        times: path.times,
-        ease: 'easeInOut',
-        onUpdate: (current: number) => this.animatedValue.set(current),
+        ease: 'linear',
+        onUpdate: (progress: number) =>
+          this.animatedValue.set(valueAt(path, progress)),
         onComplete: () => this.finish(target),
       });
       this.stopAnimation = () => controls.stop();

@@ -4,6 +4,7 @@ import {
   SCORE_REVEAL_CEILING,
   ScoreReveal,
   revealPathFor,
+  valueAt,
   swingScaleFor,
   visualDurationFor,
 } from './score-reveal';
@@ -215,3 +216,27 @@ describe('vitesse de montée', () => {
 function keyframeStart(target: number): number {
   return revealPathFor(target).keyframes[0];
 }
+
+describe('valueAt', () => {
+  it('starts the reveal at zero and reaches the score at the end', () => {
+    const path = revealPathFor(82);
+
+    expect(valueAt(path, 0)).toBe(0);
+    expect(valueAt(path, 1)).toBe(82);
+  });
+
+  it('spends the whole climb below the first peak', () => {
+    const path = revealPathFor(82);
+    const climbEnd = path.times[1];
+
+    expect(valueAt(path, climbEnd * 0.25)).toBeLessThan(40);
+    expect(valueAt(path, climbEnd * 0.5)).toBeLessThan(70);
+    expect(valueAt(path, climbEnd)).toBeCloseTo(path.keyframes[1], 5);
+  });
+
+  it('never jumps straight to the neighbourhood of the score', () => {
+    const path = revealPathFor(82);
+
+    expect(valueAt(path, 0.02)).toBeLessThan(10);
+  });
+});
