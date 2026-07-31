@@ -6,7 +6,7 @@ export const SCORE_REVEAL_CEILING = 100;
 
 // Vitesse de montée constante : une note de 20 et une note de 90 progressent
 // au même rythme, la seconde prend simplement plus de temps à se révéler.
-const SCORE_REVEAL_POINTS_PER_SEC = 28;
+const SCORE_REVEAL_POINTS_PER_SEC = 45;
 
 const SCORE_REVEAL_MIN_DURATION_SEC = 0.5;
 

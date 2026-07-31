@@ -9,7 +9,10 @@ import {
   selector: 'ui-threshold-bar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="bar__fill" [style.width.%]="clampedValue()"></span>
+    <span
+      class="bar__fill"
+      [style.clip-path]="'inset(0 ' + (100 - clampedValue()) + '% 0 0 round 999px)'"
+    ></span>
     <span class="bar__marker" [style.left.%]="threshold()"></span>
   `,
   styles: `
@@ -22,7 +25,7 @@ import {
     }
     .bar__fill {
       position: absolute;
-      inset: 0 auto 0 0;
+      inset: 0;
       border-radius: inherit;
       background: linear-gradient(
         90deg,
