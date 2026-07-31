@@ -19,7 +19,7 @@ export const SCORE_REVEAL_CEILING = 100;
 
 // Le dépassement est borné en points, pas seulement sous 100 : voir sa note
 // grimper bien au-dessus avant de retomber donne de faux espoirs.
-const SCORE_REVEAL_MAX_OVERSHOOT_POINTS = 4;
+const SCORE_REVEAL_MAX_OVERSHOOT_POINTS = 8;
 
 interface BounceStep {
   bounce: number;
