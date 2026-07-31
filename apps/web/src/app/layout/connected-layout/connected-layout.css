@@ -2,13 +2,18 @@
   display: block;
 }
 
+.shell {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
 .content {
   background: var(--bg);
 }
 
 @media (max-width: 767px) {
   .content--nav-clearance {
-    padding-bottom: calc(64px + var(--safe-bottom));
+    padding-bottom: var(--bottom-nav-height);
   }
 }
 

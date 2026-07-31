@@ -100,15 +100,10 @@ export class ThresholdBar {
     Math.min(100, Math.max(0, this.value())),
   );
 
-  // Découpe plutôt que mise à l'échelle : le dégradé reste calé sur la piste et
-  // les arrondis gardent leur rayon, qu'un scaleX aplatirait en ellipse.
   protected readonly fillClip = computed(
     () => `inset(0 ${100 - this.clampedValue()}% 0 0 round 999px)`,
   );
 
-  // Le reflet s'arrête au début de la calotte de progression, avec le même
-  // dégagement qu'à gauche : sans cela il court jusqu'au bord rempli et s'y
-  // fait trancher à vif par la découpe.
   protected readonly shineEnd = computed(
     () =>
       `calc(${100 - this.clampedValue()}% + var(--threshold-bar-height, 10px) / 2)`,

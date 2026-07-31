@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 65px);
-  min-height: calc(100dvh - 65px);
+  min-height: calc(100svh - 65px);
   padding-bottom: 24px;
 }
 
@@ -180,7 +180,7 @@
 
 @media (max-width: 767px) {
   .discri {
-    min-height: calc(100dvh - 65px - var(--safe-top));
+    min-height: calc(100svh - 65px - var(--safe-top));
     padding-bottom: 0;
   }
 

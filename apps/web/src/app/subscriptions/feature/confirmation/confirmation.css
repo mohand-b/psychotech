@@ -1,5 +1,5 @@
 .confirm {
-  min-height: calc(100dvh - 120px);
+  min-height: calc(100svh - 120px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +135,7 @@
 @media (max-width: 767px) {
   .confirm {
     padding: 32px 16px;
-    min-height: calc(100dvh - 160px);
+    min-height: calc(100svh - 160px);
   }
 
   .confirm__title {

@@ -7,7 +7,7 @@
 .legal {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100svh;
   background: var(--card);
   color: var(--ink);
   font-family: var(--font-ui);

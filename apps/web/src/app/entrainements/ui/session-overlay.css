@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
   padding: calc(24px + var(--safe-top)) calc(24px + var(--safe-right))
     calc(24px + var(--safe-bottom)) calc(24px + var(--safe-left));
 }

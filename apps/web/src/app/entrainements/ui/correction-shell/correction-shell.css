@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 65px);
-  min-height: calc(100dvh - 65px);
+  min-height: calc(100svh - 65px);
 }
 
 .shell__content {
@@ -63,7 +63,7 @@
   }
 
   .shell {
-    min-height: calc(100dvh - 65px - var(--safe-top));
+    min-height: calc(100svh - 65px - var(--safe-top));
   }
 
   .shell__card {

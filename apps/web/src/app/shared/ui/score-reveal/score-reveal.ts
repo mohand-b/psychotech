@@ -4,17 +4,10 @@ import { animate } from 'motion';
 
 export const SCORE_REVEAL_CEILING = 100;
 
-// Vitesse de montée constante : une note de 20 et une note de 90 progressent
-// au même rythme, la seconde prend simplement plus de temps à se révéler.
 const SCORE_REVEAL_POINTS_PER_SEC = 45;
 
 const SCORE_REVEAL_MIN_DURATION_SEC = 0.5;
 
-/**
- * Durée de la montée initiale, calculée sur la distance réellement parcourue
- * depuis zéro : la note grimpe au même nombre de points par seconde, qu'elle
- * s'arrête à 20 ou à 90.
- */
 export function visualDurationFor(climbDistance: number): number {
   return Math.max(
     SCORE_REVEAL_MIN_DURATION_SEC,
@@ -22,29 +15,14 @@ export function visualDurationFor(climbDistance: number): number {
   );
 }
 
-// Écarts en points autour de la note, et non en pourcentage : deux allers-
-// retours amortis qui se terminent en montant, quelle que soit la note. Un
-// ressort n'y arrive pas, son amplitude étant liée à son nombre d'oscillations.
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
-// Tous les rebonds partagent une même période, comme un ressort réel dont
-// l'amplitude s'amortit sans que le rythme change. Les caler sur leur distance
-// les raccourcirait au fil de l'amortissement, ce qui s'entend comme une
-// accélération en fin de course.
 const SCORE_REVEAL_MIN_SWING_SEC = 0.24;
 
-// Un adoucissement aux deux bouts fait culminer la vitesse au-dessus de sa
-// moyenne ; on rallonge le rebond d'autant pour que ce pic reste la vitesse de
-// montée, et non le double.
 const SCORE_REVEAL_SWING_PEAK_FACTOR = 1.5;
 
-// En deçà, il ne reste plus assez de place sous 0 ou au-dessus de 100 pour que
-// le balancement se voie : la note monte alors d'un trait.
 const SCORE_REVEAL_MIN_SWING_SCALE = 0.4;
 
-// Doit couvrir `--threshold-bar-settle-duration` de ui-threshold-bar : le voile
-// d'éclaircissement s'éteint quand ce drapeau retombe, et le tampon ne frappe
-// qu'après, une fois la barre revenue à sa couleur.
 const SCORE_REVEAL_SETTLE_MS = 900;
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
@@ -52,10 +30,6 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const MAX_SWING_UP = Math.max(...SCORE_REVEAL_SWINGS);
 const MAX_SWING_DOWN = Math.abs(Math.min(...SCORE_REVEAL_SWINGS));
 
-/**
- * Réduit les écarts quand la note est trop haute ou trop basse pour les
- * contenir, et renvoie 0 quand il n'y a plus assez de place pour balancer.
- */
 export function swingScaleFor(target: number): number {
   const room = Math.min(
     (SCORE_REVEAL_CEILING - target) / MAX_SWING_UP,
@@ -65,9 +39,6 @@ export function swingScaleFor(target: number): number {
   return scale < SCORE_REVEAL_MIN_SWING_SCALE ? 0 : scale;
 }
 
-// Fraction de la montée parcourue à vitesse constante ; au-delà, la note
-// décélère jusqu'à s'arrêter au sommet. Sans cela elle y arriverait à pleine
-// vitesse et le premier rebond repartirait d'un arrêt net, en pleine inversion.
 const SCORE_REVEAL_CLIMB_LINEAR_PART = 0.8;
 
 function climbShape(progress: number): number {
@@ -80,17 +51,10 @@ function climbShape(progress: number): number {
   return SCORE_REVEAL_CLIMB_LINEAR_PART + rest * eased;
 }
 
-// Vitesse nulle aux deux extrémités, sans le creux d'une cubique : le pic ne
-// vaut qu'une fois et demie la moyenne, contre deux fois pour un easeInOut.
 function swingShape(progress: number): number {
   return progress * progress * (3 - 2 * progress);
 }
 
-/**
- * Valeur affichée à un instant donné du parcours. La montée est linéaire, donc
- * à vitesse constante ; les rebonds sont adoucis à leurs extrémités, ce qui
- * annule la vitesse à chaque retournement au lieu d'y casser la trajectoire.
- */
 export function valueAt(path: RevealPath, progress: number): number {
   const { keyframes, times } = path;
   if (progress <= 0) {
@@ -174,10 +138,6 @@ export class ScoreReveal {
     this.destroyRef.onDestroy(() => this.teardown());
   }
 
-  /**
-   * Settles on the target first: a frozen or failed animation still leaves the
-   * final score and stamp on screen.
-   */
   start(target: number): void {
     if (this.started) {
       return;
