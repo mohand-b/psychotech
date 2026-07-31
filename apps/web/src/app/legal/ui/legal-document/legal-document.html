@@ -1,0 +1,127 @@
+<article class="legal-doc">
+  @for (section of document().sections; track section.anchor; let i = $index) {
+    <section class="legal-doc__section" [id]="section.anchor">
+      <span class="legal-doc__section-head">
+        <span class="legal-doc__section-number t-mono">{{
+          sectionNumber(i)
+        }}</span>
+        <h2 class="legal-doc__section-title">{{ section.title }}</h2>
+      </span>
+
+      @for (block of section.blocks; track $index) {
+        @switch (block.kind) {
+          @case ('text') {
+            <p class="legal-doc__text">
+              @for (run of block.runs; track $index) {
+                @if (run.href) {
+                  @if (run.href.startsWith('mailto:')) {
+                    <a class="legal-doc__link" [href]="run.href">{{
+                      run.text
+                    }}</a>
+                  } @else {
+                    <a class="legal-doc__link" [routerLink]="run.href">{{
+                      run.text
+                    }}</a>
+                  }
+                } @else if (run.todo) {
+                  <span class="legal-doc__todo">{{ run.text }}</span>
+                } @else {
+                  <span>{{ run.text }}</span>
+                }
+              }
+            </p>
+          }
+          @case ('facts') {
+            <div class="legal-doc__table">
+              @for (row of block.rows; track row.label) {
+                <span class="legal-doc__facts-row">
+                  <span class="legal-doc__facts-label">{{ row.label }}</span>
+                  @if (row.value.href) {
+                    <a class="legal-doc__link" [href]="row.value.href">{{
+                      row.value.text
+                    }}</a>
+                  } @else if (row.value.todo) {
+                    <span class="legal-doc__todo legal-doc__todo--cell">{{
+                      row.value.text
+                    }}</span>
+                  } @else {
+                    <span>{{ row.value.text }}</span>
+                  }
+                </span>
+              }
+            </div>
+          }
+          @case ('grid') {
+            <div class="legal-doc__table">
+              <span
+                class="legal-doc__grid-row legal-doc__grid-row--head"
+                [class.legal-doc__grid-row--three]="block.head.length === 3"
+              >
+                @for (cell of block.head; track $index) {
+                  <span>{{ cell }}</span>
+                }
+              </span>
+              @for (row of block.rows; track $index) {
+                <span
+                  class="legal-doc__grid-row"
+                  [class.legal-doc__grid-row--three]="row.length === 3"
+                >
+                  @for (cell of row; track $index) {
+                    <span
+                      [class.legal-doc__grid-lead]="$first"
+                      [class.legal-doc__grid-value]="!$first"
+                      >{{ cell }}</span
+                    >
+                  }
+                </span>
+              }
+            </div>
+          }
+          @case ('rules') {
+            <div class="legal-doc__table">
+              @for (item of block.allowed; track item) {
+                <span class="legal-doc__rule">
+                  <svg
+                    class="legal-doc__rule-icon legal-doc__rule-icon--allowed"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>{{ item }}</span>
+                </span>
+              }
+              @for (item of block.forbidden; track item) {
+                <span class="legal-doc__rule">
+                  <svg
+                    class="legal-doc__rule-icon legal-doc__rule-icon--forbidden"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                  <span>{{ item }}</span>
+                </span>
+              }
+            </div>
+          }
+        }
+      }
+    </section>
+  }
+</article>

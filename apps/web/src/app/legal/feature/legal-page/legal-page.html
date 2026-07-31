@@ -1,0 +1,90 @@
+<div class="legal">
+  <header class="legal__header">
+    <div class="legal__header-inner">
+      <a class="legal__logo" routerLink="/"
+        >Psycho<span class="legal__logo-accent">Tech</span></a
+      >
+      <span class="legal__spacer"></span>
+      <a class="legal__back" routerLink="/">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        </svg>
+        Retour au site
+      </a>
+    </div>
+  </header>
+
+  <main class="legal__main">
+    <div class="legal__intro">
+      <span class="legal__eyebrow">Informations légales</span>
+      <h1 class="legal__title">{{ document().title }}</h1>
+      <span class="legal__updated"
+        >Dernière mise à jour : {{ lastUpdated }}</span
+      >
+    </div>
+
+    <nav class="legal__tabs" aria-label="Documents légaux">
+      @for (entry of documents; track entry.id) {
+        <a
+          class="legal__tab"
+          [class.legal__tab--active]="entry.id === document().id"
+          [routerLink]="entry.path"
+          [attr.aria-current]="entry.id === document().id ? 'page' : null"
+          >{{ entry.tabLabel }}</a
+        >
+      }
+    </nav>
+
+    @if (showTodoNotice()) {
+      <div class="legal__notice">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+        <span
+          >Les valeurs surlignées restent à compléter et à faire valider par
+          votre conseil juridique avant la mise en ligne.</span
+        >
+      </div>
+    }
+
+    <ui-legal-document [document]="document()" />
+  </main>
+
+  <footer class="legal__footer">
+    <div class="legal__footer-inner">
+      <span class="legal__footer-copy"
+        >© 2026 PsychoTech. Tous droits réservés.</span
+      >
+      <nav class="legal__footer-links" aria-label="Informations légales">
+        @for (entry of documents; track entry.id) {
+          <a class="legal__footer-link" [routerLink]="entry.path">{{
+            entry.tabLabel
+          }}</a>
+        }
+      </nav>
+    </div>
+  </footer>
+</div>

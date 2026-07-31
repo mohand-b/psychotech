@@ -33,8 +33,8 @@ export interface LegalContactInfo {
 }
 
 export const LEGAL_CONTACT: LegalContactInfo = {
-  general: '',
-  privacy: '',
+  general: `contact@${LEGAL_DOMAIN}`,
+  privacy: `confidentialite@${LEGAL_DOMAIN}`,
   replyDelay: 'deux jours ouvrés',
 };
 
@@ -73,6 +73,8 @@ export const LEGAL_PROVIDERS: readonly LegalProviderInfo[] = [
 ];
 
 export const LEGAL_DATA_HOSTING_REGION = '';
+
+export const LEGAL_DATA_REQUEST_MAX_DELAY = 'un mois';
 
 export const LEGAL_MEDIATOR_NAME = '';
 
