@@ -1,7 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import {
+  SCORE_REVEAL_CEILING,
   ScoreReveal,
+  bounceFor,
+  visualDurationFor,
 } from './score-reveal';
 
 function setup(reducedMotion: boolean): ScoreReveal {
@@ -70,11 +73,11 @@ describe('ScoreReveal phases', () => {
     }
 
     expect(Math.min(...seen)).toBeLessThan(82);
-    expect(Math.max(...seen)).toBeLessThanOrEqual(82);
+    expect(Math.max(...seen)).toBeGreaterThan(82);
     expect(seen[seen.length - 1]).toBe(82);
   }, 12000);
 
-  it('climbs smoothly to the target without overshoot nor step back', async () => {
+  it('oscillates around the target before it settles', async () => {
     const reveal = setup(false);
     const seen: number[] = [];
 
@@ -84,13 +87,22 @@ describe('ScoreReveal phases', () => {
       seen.push(reveal.value());
     }
 
-    expect(Math.max(...seen)).toBeLessThanOrEqual(82);
+    expect(Math.max(...seen)).toBeGreaterThan(82);
+    expect(Math.min(...seen)).toBeLessThan(82);
     expect(seen[seen.length - 1]).toBe(82);
+  }, 14000);
 
-    const stepsBack = seen.filter(
-      (current, index) => index > 0 && current < seen[index - 1] - 0.01,
-    );
-    expect(stepsBack).toEqual([]);
+  it('never lets the reveal display a score above the ceiling', async () => {
+    const reveal = setup(false);
+    const seen: number[] = [];
+
+    reveal.start(SCORE_REVEAL_CEILING);
+    for (let frame = 0; frame < 90; frame += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 45));
+      seen.push(reveal.value());
+    }
+
+    expect(Math.max(...seen)).toBeLessThanOrEqual(SCORE_REVEAL_CEILING);
   }, 14000);
 
   it('settles on the target then strikes the stamp', async () => {
@@ -130,4 +142,51 @@ describe('ScoreReveal single trigger', () => {
 
     expect(reveal.value()).toBe(64);
   }, 12000);
+});
+
+describe('bounceFor', () => {
+  it('keeps the liveliest bounce whose peak still fits under the ceiling', () => {
+    for (const target of [0, 40, 82, 90, 95, 99, 100]) {
+      expect([target, target * peakRatioOf(bounceFor(target))]).toEqual([
+        target,
+        expect.closeTo(target * peakRatioOf(bounceFor(target)), 5),
+      ]);
+      expect(target * peakRatioOf(bounceFor(target))).toBeLessThanOrEqual(
+        SCORE_REVEAL_CEILING + 0.001,
+      );
+    }
+  });
+
+  it('gives a full score no bounce at all', () => {
+    expect(bounceFor(100)).toBe(0);
+  });
+});
+
+function peakRatioOf(bounce: number): number {
+  const ratios: Record<number, number> = {
+    0.62: 1.275,
+    0.45: 1.126,
+    0.35: 1.068,
+    0.25: 1.028,
+    0.15: 1.006,
+    0: 1,
+  };
+  return ratios[bounce] ?? 1;
+}
+
+describe('visualDurationFor', () => {
+  it('keeps the same climbing speed whatever the score', () => {
+    const rateOf = (target: number) => target / visualDurationFor(target);
+    expect(rateOf(90)).toBeCloseTo(rateOf(60), 5);
+    expect(rateOf(60)).toBeCloseTo(rateOf(30), 5);
+  });
+
+  it('lets a high score simply take longer', () => {
+    expect(visualDurationFor(90)).toBeGreaterThan(visualDurationFor(30));
+  });
+
+  it('keeps a floor so a very low score stays readable', () => {
+    expect(visualDurationFor(0)).toBeGreaterThan(0);
+    expect(visualDurationFor(2)).toBe(visualDurationFor(0));
+  });
 });

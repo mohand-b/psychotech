@@ -228,7 +228,7 @@ describe('ResultSummary', () => {
     ).toBe(false);
   });
 
-  it('paints the threshold bar with the identity gradient of the axis', async () => {
+  it('runs the bar gradient from the light shade to the dense one', async () => {
     const fixture = await setup({
       score: 72,
       previousBestScore: null,
@@ -239,10 +239,10 @@ describe('ResultSummary', () => {
     ) as HTMLElement;
 
     expect(bar.style.getPropertyValue('--threshold-bar-fill-from')).toBe(
-      'var(--axis-reactivity-text)',
+      'var(--axis-reactivity)',
     );
     expect(bar.style.getPropertyValue('--threshold-bar-fill-to')).toBe(
-      'var(--axis-reactivity)',
+      'var(--axis-reactivity-text)',
     );
   });
 

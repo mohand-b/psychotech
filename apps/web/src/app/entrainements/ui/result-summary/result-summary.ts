@@ -132,8 +132,8 @@ export class ResultSummary {
     };
   });
 
-  protected readonly fillFrom = computed(() => this.presentation().textVar);
-  protected readonly fillTo = computed(() => this.presentation().plainVar);
+  protected readonly fillFrom = computed(() => this.presentation().plainVar);
+  protected readonly fillTo = computed(() => this.presentation().textVar);
 
   constructor() {
     afterNextRender(() => this.reveal.start(this.score()));

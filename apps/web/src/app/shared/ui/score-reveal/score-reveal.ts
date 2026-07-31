@@ -2,12 +2,45 @@ import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, Signal, inject, signal } from '@angular/core';
 import { animate, spring } from 'motion';
 
-const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.8;
+// Vitesse de montée constante : une note de 20 et une note de 90 progressent
+// au même rythme, la seconde prend simplement plus de temps à se révéler.
+const SCORE_REVEAL_POINTS_PER_SEC = 55;
 
-// Aucun dépassement : la note monte vite puis décélère jusqu'à sa valeur.
-// Tout dépassement devrait être défait, et ce retour en arrière est à la fois
-// une rupture de vitesse à l'écran et une baisse de note pour le candidat.
-const SCORE_REVEAL_BOUNCE = 0;
+const SCORE_REVEAL_MIN_DURATION_SEC = 0.5;
+
+export function visualDurationFor(target: number): number {
+  return Math.max(
+    SCORE_REVEAL_MIN_DURATION_SEC,
+    target / SCORE_REVEAL_POINTS_PER_SEC,
+  );
+}
+
+export const SCORE_REVEAL_CEILING = 100;
+
+interface BounceStep {
+  bounce: number;
+  peakRatio: number;
+}
+
+// Dépassements mesurés sur le ressort ; ils ne dépendent que du rebond, pas
+// de la durée. Le plus vivant tient deux allers-retours qui s'amortissent.
+// On retient le plus vivant dont le pic tient encore sous 100, pour que la
+// note oscille autour de sa valeur sans jamais afficher un score impossible.
+const SCORE_REVEAL_BOUNCE_STEPS: readonly BounceStep[] = [
+  { bounce: 0.62, peakRatio: 1.275 },
+  { bounce: 0.45, peakRatio: 1.126 },
+  { bounce: 0.35, peakRatio: 1.068 },
+  { bounce: 0.25, peakRatio: 1.028 },
+  { bounce: 0.15, peakRatio: 1.006 },
+  { bounce: 0, peakRatio: 1 },
+];
+
+export function bounceFor(target: number): number {
+  const fitting = SCORE_REVEAL_BOUNCE_STEPS.find(
+    (step) => target * step.peakRatio <= SCORE_REVEAL_CEILING,
+  );
+  return fitting?.bounce ?? 0;
+}
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -48,8 +81,8 @@ export class ScoreReveal {
       this.stampShown.set(false);
       const controls = animate(0, target, {
         type: spring,
-        visualDuration: SCORE_REVEAL_VISUAL_DURATION_SEC,
-        bounce: SCORE_REVEAL_BOUNCE,
+        visualDuration: visualDurationFor(target),
+        bounce: bounceFor(target),
         onUpdate: (current: number) => this.animatedValue.set(current),
         onComplete: () => {
           this.settle(target);
