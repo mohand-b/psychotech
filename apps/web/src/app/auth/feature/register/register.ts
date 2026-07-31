@@ -25,6 +25,8 @@ import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-mete
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { passwordsMatch } from '../../../shared/util/password-match';
 import { AuthFacade } from '../../data-access/auth.facade';
+import { LegalDocumentId } from '../../../legal/data/legal-documents';
+import { LegalOverlay } from '../../../legal/ui/legal-overlay/legal-overlay';
 import { emailErrorMessage } from '../email-validation';
 
 interface SectorOption {
@@ -43,6 +45,7 @@ interface SectorOption {
     Icon,
     PasswordField,
     PasswordStrengthMeter,
+    LegalOverlay,
   ],
   templateUrl: './register.html',
   styleUrls: ['../auth-panel.css', './register.css'],
@@ -67,6 +70,10 @@ export class Register {
   protected readonly email = signal('');
   protected readonly password = signal('');
   protected readonly confirmation = signal('');
+
+  protected readonly legalDocumentId = signal<LegalDocumentId | null>(null);
+  protected readonly legalAnchor = signal<string | null>(null);
+  private legalTrigger: HTMLElement | null = null;
 
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
@@ -146,6 +153,33 @@ export class Register {
       ? null
       : 'Les mots de passe ne correspondent pas';
   });
+
+  protected openLegal(
+    event: MouseEvent,
+    documentId: LegalDocumentId,
+    anchor: string,
+  ): void {
+    if (
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
+    }
+    event.preventDefault();
+    this.legalTrigger = event.currentTarget as HTMLElement;
+    this.legalAnchor.set(anchor);
+    this.legalDocumentId.set(documentId);
+  }
+
+  protected closeLegal(): void {
+    this.legalDocumentId.set(null);
+    this.legalAnchor.set(null);
+    this.legalTrigger?.focus();
+    this.legalTrigger = null;
+  }
 
   protected submitOnEnter(event: Event): void {
     if (!(event instanceof KeyboardEvent) || event.key !== 'Enter') {

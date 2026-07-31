@@ -188,9 +188,19 @@
           </button>
           <span class="register__cgu-text"
             >J'accepte les
-            <span class="register__cgu-link">conditions d'utilisation</span
+            <a
+              class="register__cgu-link"
+              href="/cgu"
+              (click)="openLegal($event, 'cgu', 'cgu')"
+              >conditions d'utilisation</a
             ><span class="register__cgu-privacy">
-              et la politique de confidentialité.</span
+              et la
+              <a
+                class="register__cgu-link"
+                href="/confidentialite"
+                (click)="openLegal($event, 'confidentialite', 'responsable')"
+                >politique de confidentialité</a
+              >.</span
             ></span
           >
         </span>
@@ -259,3 +269,9 @@
   </span>
 </div>
 }
+
+<ui-legal-overlay
+  [documentId]="legalDocumentId()"
+  [anchor]="legalAnchor()"
+  (closed)="closeLegal()"
+/>
