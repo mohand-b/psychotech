@@ -260,18 +260,45 @@ describe('régularité de la montée', () => {
   });
 });
 
-describe('vitesse sur tout le parcours', () => {
-  it('runs every leg, climb and swings alike, at the same speed', () => {
+describe('rythme des rebonds', () => {
+  const speedsOf = (target: number) => {
+    const { keyframes, times, durationSec } = revealPathFor(target);
+    return keyframes.slice(1).map((value, index) => {
+      const leg = Math.abs(value - keyframes[index]);
+      const seconds = (times[index + 1] - times[index]) * durationSec;
+      return leg / seconds;
+    });
+  };
+
+  it('settles slower than it climbs, so the swings stay readable', () => {
     for (const target of [20, 50, 82, 95]) {
-      const { keyframes, times, durationSec } = revealPathFor(target);
-      const speeds = keyframes.slice(1).map((value, index) => {
-        const leg = Math.abs(value - keyframes[index]);
-        const seconds = (times[index + 1] - times[index]) * durationSec;
-        return leg / seconds;
-      });
-      const slowest = Math.min(...speeds);
-      const fastest = Math.max(...speeds);
-      expect([target, fastest - slowest < 0.5]).toEqual([target, true]);
+      const [climb, ...swings] = speedsOf(target);
+      expect([target, swings.every((swing) => swing < climb)]).toEqual([
+        target,
+        true,
+      ]);
+    }
+  });
+
+  it('slows down from one reversal to the next', () => {
+    const [, ...swings] = speedsOf(82);
+    swings.forEach((swing, index) => {
+      if (index > 0) {
+        expect(swing).toBeLessThan(swings[index - 1]);
+      }
+    });
+  });
+
+  it('never lets a swing flash by under a fifth of a second', () => {
+    for (const target of [20, 50, 82, 95]) {
+      const { times, durationSec } = revealPathFor(target);
+      const legs = times
+        .slice(1)
+        .map((time, index) => (time - times[index]) * durationSec);
+      expect([target, legs.slice(1).every((leg) => leg >= 0.2)]).toEqual([
+        target,
+        true,
+      ]);
     }
   });
 });

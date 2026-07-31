@@ -27,6 +27,11 @@ export function visualDurationFor(climbDistance: number): number {
 // ressort n'y arrive pas, son amplitude étant liée à son nombre d'oscillations.
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
+// La vitesse fixe vaut pour la montée, qui est la progression. Les rebonds
+// sont une stabilisation : ils ralentissent d'un retournement à l'autre, sinon
+// le dernier ne durerait que quelques dizaines de millisecondes et clignoterait.
+const SCORE_REVEAL_SWING_MS: readonly number[] = [520, 420, 340, 280];
+
 // En deçà, il ne reste plus assez de place sous 0 ou au-dessus de 100 pour que
 // le balancement se voie : la note monte alors d'un trait.
 const SCORE_REVEAL_MIN_SWING_SCALE = 0.4;
@@ -51,10 +56,16 @@ export function swingScaleFor(target: number): number {
   return scale < SCORE_REVEAL_MIN_SWING_SCALE ? 0 : scale;
 }
 
+function easeInOut(progress: number): number {
+  return progress < 0.5
+    ? 4 * progress * progress * progress
+    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+}
+
 /**
- * Valeur affichée à un instant donné du parcours. Tout est linéaire et chaque
- * segment dure sa distance divisée par la vitesse : la note avance au même
- * nombre de points par seconde du départ à la pose, montée comme rebonds.
+ * Valeur affichée à un instant donné du parcours. La montée est linéaire, donc
+ * à vitesse constante ; les rebonds sont adoucis à leurs extrémités, ce qui
+ * annule la vitesse à chaque retournement au lieu d'y casser la trajectoire.
  */
 export function valueAt(path: RevealPath, progress: number): number {
   const { keyframes, times } = path;
@@ -70,7 +81,8 @@ export function valueAt(path: RevealPath, progress: number): number {
   const span = times[upper] - spanStart;
   const local = span === 0 ? 1 : (progress - spanStart) / span;
   const from = keyframes[upper - 1];
-  return from + (keyframes[upper] - from) * local;
+  const shaped = upper === 1 ? local : easeInOut(local);
+  return from + (keyframes[upper] - from) * shaped;
 }
 
 interface RevealPath {
@@ -91,17 +103,20 @@ export function revealPathFor(target: number): RevealPath {
   const legs = keyframes
     .slice(1)
     .map((value, index) => Math.abs(value - keyframes[index]));
-  const totalSec = Math.max(
+  const climbSec = Math.max(
     SCORE_REVEAL_MIN_DURATION_SEC,
-    legs.reduce((sum, leg) => sum + leg, 0) / SCORE_REVEAL_POINTS_PER_SEC,
+    legs[0] / SCORE_REVEAL_POINTS_PER_SEC,
   );
+  const legsSec = legs.map((leg, index) =>
+    index === 0 ? climbSec : SCORE_REVEAL_SWING_MS[index - 1] / 1000,
+  );
+  const totalSec = legsSec.reduce((sum, leg) => sum + leg, 0);
 
   const times = [0];
-  let travelled = 0;
-  const distance = legs.reduce((sum, leg) => sum + leg, 0);
-  legs.forEach((leg) => {
-    travelled += leg;
-    times.push(distance === 0 ? 1 : travelled / distance);
+  let elapsed = 0;
+  legsSec.forEach((leg) => {
+    elapsed += leg;
+    times.push(elapsed / totalSec);
   });
 
   return { keyframes, times, durationSec: totalSec };
