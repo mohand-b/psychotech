@@ -10,6 +10,7 @@ import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import {
   ChangePasswordDto,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
+  LEGAL_TERMS_VERSION,
   LoginDto,
   RegisterDto,
   UserProfileDto,
@@ -63,6 +64,8 @@ export class AuthService {
       timezone: input.timezone ?? DEFAULT_TIMEZONE,
       locale: input.locale,
       currentSector: input.currentSector,
+      termsVersion: LEGAL_TERMS_VERSION,
+      termsAcceptedAt: new Date(),
     });
     return this.issueSession(user);
   }

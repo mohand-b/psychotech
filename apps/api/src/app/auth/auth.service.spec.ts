@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Sector } from '@psychotech/shared';
+import { LEGAL_TERMS_VERSION, Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import {
@@ -98,6 +98,8 @@ describe('AuthService.register', () => {
       timezone: 'Europe/Paris',
       locale: undefined,
       currentSector: Sector.RAILWAY,
+      termsVersion: LEGAL_TERMS_VERSION,
+      termsAcceptedAt: expect.any(Date),
     });
     expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
       'user-1',

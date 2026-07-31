@@ -18,6 +18,8 @@ interface CreateAccountData {
   timezone: string;
   currentSector: Sector;
   locale?: string;
+  termsVersion: string;
+  termsAcceptedAt: Date;
 }
 
 const INITIAL_ENERGY_BALANCE = 5;
@@ -53,6 +55,8 @@ export class AuthRepository {
           timezone: data.timezone,
           locale: data.locale,
           currentSector: mapEnumValue(DbSector, data.currentSector),
+          termsVersion: data.termsVersion,
+          termsAcceptedAt: data.termsAcceptedAt,
           energyWallet: {
             create: {
               balance: INITIAL_ENERGY_BALANCE,
