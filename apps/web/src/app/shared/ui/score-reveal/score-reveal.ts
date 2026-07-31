@@ -27,10 +27,11 @@ export function visualDurationFor(climbDistance: number): number {
 // ressort n'y arrive pas, son amplitude étant liée à son nombre d'oscillations.
 const SCORE_REVEAL_SWINGS: readonly number[] = [6, -4, 2.5, -1.2];
 
-// Les rebonds n'ont pas de durée propre : elle se déduit de leur distance à la
-// même vitesse que la montée. Un rebond deux fois plus court dure donc deux
-// fois moins longtemps, et la barre ne s'emballe jamais en fin de course.
-const SCORE_REVEAL_MIN_SWING_SEC = 0.16;
+// Tous les rebonds partagent une même période, comme un ressort réel dont
+// l'amplitude s'amortit sans que le rythme change. Les caler sur leur distance
+// les raccourcirait au fil de l'amortissement, ce qui s'entend comme une
+// accélération en fin de course.
+const SCORE_REVEAL_MIN_SWING_SEC = 0.24;
 
 // Un adoucissement aux deux bouts fait culminer la vitesse au-dessus de sa
 // moyenne ; on rallonge le rebond d'autant pour que ce pic reste la vitesse de
@@ -127,13 +128,14 @@ export function revealPathFor(target: number): RevealPath {
     SCORE_REVEAL_MIN_DURATION_SEC,
     legs[0] / SCORE_REVEAL_POINTS_PER_SEC,
   );
+  const widestSwing = Math.max(0, ...legs.slice(1));
+  const swingSec = Math.max(
+    SCORE_REVEAL_MIN_SWING_SEC,
+    (SCORE_REVEAL_SWING_PEAK_FACTOR * widestSwing) /
+      SCORE_REVEAL_POINTS_PER_SEC,
+  );
   const legsSec = legs.map((leg, index) =>
-    index === 0
-      ? climbSec
-      : Math.max(
-          SCORE_REVEAL_MIN_SWING_SEC,
-          (SCORE_REVEAL_SWING_PEAK_FACTOR * leg) / SCORE_REVEAL_POINTS_PER_SEC,
-        ),
+    index === 0 ? climbSec : swingSec,
   );
   const totalSec = legsSec.reduce((sum, leg) => sum + leg, 0);
 
