@@ -11,7 +11,7 @@ import {
   template: `
     <span class="bar__track">
       <span class="bar__fill" [style.clipPath]="fillClip()">
-        <span class="bar__shine"></span>
+        <span class="bar__shine" [style.right]="shineEnd()"></span>
       </span>
     </span>
     <span class="bar__marker" [style.left.%]="threshold()"></span>
@@ -44,7 +44,6 @@ import {
       top: 20%;
       height: 20%;
       left: calc(var(--threshold-bar-height, 10px) / 2);
-      right: calc(var(--threshold-bar-height, 10px) / 2);
       border-radius: 999px;
       background: var(--relief-shine);
     }
@@ -73,5 +72,13 @@ export class ThresholdBar {
   // les arrondis gardent leur rayon, qu'un scaleX aplatirait en ellipse.
   protected readonly fillClip = computed(
     () => `inset(0 ${100 - this.clampedValue()}% 0 0 round 999px)`,
+  );
+
+  // Le reflet s'arrête au début de la calotte de progression, avec le même
+  // dégagement qu'à gauche : sans cela il court jusqu'au bord rempli et s'y
+  // fait trancher à vif par la découpe.
+  protected readonly shineEnd = computed(
+    () =>
+      `calc(${100 - this.clampedValue()}% + var(--threshold-bar-height, 10px) / 2)`,
   );
 }
