@@ -12,11 +12,21 @@ import { TrainingsService } from './trainings.service';
 const RAILWAY_CONFIG = {
   vigilanceThreshold: 65,
   weights: [
-    { axis: AxisType.LOGIC, coefficient: 1.0, order: 0 },
-    { axis: AxisType.MEMORY, coefficient: 1.2, order: 1 },
-    { axis: AxisType.VISUAL_DISCRIMINATION, coefficient: 1.2, order: 2 },
-    { axis: AxisType.REACTIVITY, coefficient: 1.4, order: 3 },
-    { axis: AxisType.MOTOR_SKILLS, coefficient: 1.0, order: 4 },
+    { axis: AxisType.LOGIC, coefficient: 1.0, order: 0, isCritical: false },
+    { axis: AxisType.MEMORY, coefficient: 1.2, order: 1, isCritical: true },
+    {
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      coefficient: 1.2,
+      order: 2,
+      isCritical: true,
+    },
+    { axis: AxisType.REACTIVITY, coefficient: 1.4, order: 3, isCritical: true },
+    {
+      axis: AxisType.MOTOR_SKILLS,
+      coefficient: 1.0,
+      order: 4,
+      isCritical: false,
+    },
   ],
 };
 
@@ -120,7 +130,7 @@ describe('TrainingsService', () => {
       axis: AxisType.MEMORY,
       bestScore: null,
       neverPlayed: true,
-      isCriticalAxis: false,
+      isCriticalAxis: true,
       needsWork: false,
     });
   });
@@ -153,7 +163,7 @@ describe('TrainingsService', () => {
       needsWork: false,
     });
     expect(byAxis.get(AxisType.MEMORY)).toMatchObject({
-      isCriticalAxis: false,
+      isCriticalAxis: true,
       needsWork: true,
     });
     expect(byAxis.get(AxisType.LOGIC)).toMatchObject({

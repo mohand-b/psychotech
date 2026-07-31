@@ -6,7 +6,6 @@ import {
   TrainingsAxisOverviewDto,
   TrainingsLastSimulationDto,
   TrainingsOverviewDto,
-  isVeryCriticalAxisCoefficient,
   simulationVerdictFromAdmissibility,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
@@ -41,7 +40,7 @@ export class TrainingsService {
           axis: weight.axis,
           bestScore,
           neverPlayed: !played.has(weight.axis),
-          isCriticalAxis: isVeryCriticalAxisCoefficient(weight.coefficient),
+          isCriticalAxis: weight.isCritical,
           needsWork:
             bestScore !== null && bestScore < config.vigilanceThreshold,
         };

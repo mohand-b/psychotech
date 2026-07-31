@@ -12,7 +12,12 @@ import { PrismaService } from '../prisma/prisma.service';
 
 interface TrainingsSectorConfig {
   vigilanceThreshold: number;
-  weights: { axis: AxisType; coefficient: number; order: number }[];
+  weights: {
+    axis: AxisType;
+    coefficient: number;
+    order: number;
+    isCritical: boolean;
+  }[];
 }
 
 @Injectable()
@@ -24,7 +29,12 @@ export class TrainingsRepository {
       where: { sector: mapEnumValue(DbSector, sector) },
       include: {
         axisWeights: {
-          select: { axis: true, coefficient: true, order: true },
+          select: {
+            axis: true,
+            coefficient: true,
+            order: true,
+            isCritical: true,
+          },
         },
       },
     });
@@ -37,6 +47,7 @@ export class TrainingsRepository {
         axis: mapEnumValue(AxisType, weight.axis),
         coefficient: weight.coefficient,
         order: weight.order,
+        isCritical: weight.isCritical,
       })),
     };
   }
