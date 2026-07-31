@@ -1,6 +1,7 @@
 :host {
   display: block;
   --legal-shell: 900px;
+  --legal-shell-wide: 1152px;
 }
 
 .legal {
@@ -19,26 +20,23 @@
 }
 
 .legal__header-inner {
-  max-width: var(--legal-shell);
+  max-width: var(--legal-shell-wide);
   margin: 0 auto;
   padding: 0 24px;
   height: 64px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 .legal__logo {
-  font-family: var(--landing-font-display);
-  font-weight: 600;
-  font-size: 19px;
-  letter-spacing: -0.02em;
+  font: 700 22px/1 var(--font-display);
   color: var(--landing-text);
   text-decoration: none;
 }
 
 .legal__logo-accent {
-  color: var(--landing-accent-soft);
+  color: var(--brand);
 }
 
 .legal__spacer {
@@ -154,7 +152,7 @@
 }
 
 .legal__footer-inner {
-  max-width: var(--legal-shell);
+  max-width: var(--legal-shell-wide);
   margin: 0 auto;
   padding: 24px;
   display: flex;

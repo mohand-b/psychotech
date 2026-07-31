@@ -2,41 +2,13 @@ import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, Signal, inject, signal } from '@angular/core';
 import { animate, spring } from 'motion';
 
-const SCORE_REVEAL_VISUAL_DURATION_SEC = 1.7;
-export const SCORE_REVEAL_CEILING = 100;
+const SCORE_REVEAL_VISUAL_DURATION_SEC = 2.6;
 
-interface BounceStep {
-  bounce: number;
-  peakRatio: number;
-}
-
-/**
- * Measured peak of the spring for each bounce, as a ratio of its target. The
- * liveliest bounce whose peak still fits under the ceiling is picked, so the
- * note never has to be clamped in the middle of the wobble.
- */
-export const SCORE_REVEAL_BOUNCE_STEPS: readonly BounceStep[] = [
-  { bounce: 0.62, peakRatio: 1.275 },
-  { bounce: 0.55, peakRatio: 1.205 },
-  { bounce: 0.48, peakRatio: 1.148 },
-  { bounce: 0.4, peakRatio: 1.095 },
-  { bounce: 0.32, peakRatio: 1.054 },
-  { bounce: 0.24, peakRatio: 1.025 },
-  { bounce: 0.16, peakRatio: 1.008 },
-  { bounce: 0, peakRatio: 1 },
-];
-
-const LEAST_BOUNCE =
-  SCORE_REVEAL_BOUNCE_STEPS[SCORE_REVEAL_BOUNCE_STEPS.length - 1].bounce;
+// Ressort sans oscillation : la note monte d'un trait puis décélère jusqu'à
+// sa valeur finale. Aucun dépassement, donc aucune redescente en fin de course.
+const SCORE_REVEAL_BOUNCE = 0;
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
-
-export function bounceFor(target: number): number {
-  const fitting = SCORE_REVEAL_BOUNCE_STEPS.find(
-    (step) => target * step.peakRatio <= SCORE_REVEAL_CEILING,
-  );
-  return fitting?.bounce ?? LEAST_BOUNCE;
-}
 
 @Injectable()
 export class ScoreReveal {
@@ -76,7 +48,7 @@ export class ScoreReveal {
       const controls = animate(0, target, {
         type: spring,
         visualDuration: SCORE_REVEAL_VISUAL_DURATION_SEC,
-        bounce: bounceFor(target),
+        bounce: SCORE_REVEAL_BOUNCE,
         onUpdate: (current: number) => this.animatedValue.set(current),
         onComplete: () => {
           this.settle(target);

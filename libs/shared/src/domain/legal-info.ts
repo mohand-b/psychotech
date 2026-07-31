@@ -73,13 +73,13 @@ export const LEGAL_PROVIDERS: readonly LegalProviderInfo[] = [
   LEGAL_DNS_PROVIDER,
 ];
 
-export const LEGAL_DATA_HOSTING_REGION = '';
+// Phrase complète, insérée telle quelle dans les mentions légales.
+// Véracité conditionnée à la signature du DPA Railway (railway.com/legal/dpa),
+// qui intègre les clauses contractuelles types de la Commission européenne.
+export const LEGAL_DATA_HOSTING_REGION =
+  'Les données sont hébergées par Railway dans des centres de données situés aux États-Unis. Ce transfert hors de l’Union européenne est encadré par les clauses contractuelles types de la Commission européenne, intégrées à l’accord de traitement des données conclu avec l’hébergeur.';
 
 export const LEGAL_DATA_REQUEST_MAX_DELAY = 'un mois';
-
-export const LEGAL_MEDIATOR_NAME = '';
-
-export const LEGAL_MEDIATOR_CONTACT = '';
 
 export const LEGAL_INACTIVE_ACCOUNT_RETENTION = '3 ans, après relance';
 

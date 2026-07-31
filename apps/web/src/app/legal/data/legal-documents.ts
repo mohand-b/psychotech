@@ -10,8 +10,6 @@ import {
   LEGAL_HOSTING_PROVIDER,
   LEGAL_INACTIVE_ACCOUNT_RETENTION,
   LEGAL_LIABILITY_WINDOW_MONTHS,
-  LEGAL_MEDIATOR_CONTACT,
-  LEGAL_MEDIATOR_NAME,
   LEGAL_PAYMENT_PROVIDER,
   LEGAL_PRICE_CHANGE_NOTICE_DAYS,
   LEGAL_REGISTRATION,
@@ -24,10 +22,6 @@ import {
   SUBSCRIPTION_MONTHLY_PRICES,
   formatEuroAmount,
 } from '../../shared/util/subscription-prices';
-
-const LEGAL_MEDIATOR_LABEL = [LEGAL_MEDIATOR_NAME, LEGAL_MEDIATOR_CONTACT]
-  .filter((entry) => entry.length > 0)
-  .join(', ');
 
 export type LegalDocumentId =
   | 'mentions-legales'
@@ -75,9 +69,7 @@ function value(text: string, fallback: string): LegalRun {
 }
 
 const HOSTING_REGION_SENTENCE: LegalRun = LEGAL_DATA_HOSTING_REGION
-  ? {
-      text: ` Les données sont hébergées dans la région suivante : ${LEGAL_DATA_HOSTING_REGION}. Lorsque cette région se situe hors de l’Union européenne, le transfert est encadré par les garanties contractuelles prévues par le RGPD.`,
-    }
+  ? { text: ` ${LEGAL_DATA_HOSTING_REGION}` }
   : todo(
       'Région d’hébergement des données à préciser, avec, le cas échéant, les garanties encadrant un transfert hors Union européenne.',
     );
@@ -619,7 +611,7 @@ const CGV: LegalDocument = {
     },
     {
       anchor: 'reclamation',
-      title: 'Réclamation et médiation',
+      title: 'Réclamation',
       blocks: [
         {
           kind: 'text',
@@ -629,13 +621,6 @@ const CGV: LegalDocument = {
               text: LEGAL_CONTACT.general,
               href: `mailto:${LEGAL_CONTACT.general}`,
             },
-            {
-              text: '. À défaut d’accord, vous pouvez recourir gratuitement au médiateur de la consommation ',
-            },
-            value(
-              LEGAL_MEDIATOR_LABEL,
-              'médiateur de la consommation : nom et coordonnées',
-            ),
             {
               text: '. Les présentes conditions sont soumises au droit français.',
             },
