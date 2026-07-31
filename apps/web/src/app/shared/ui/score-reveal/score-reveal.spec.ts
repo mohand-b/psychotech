@@ -195,3 +195,23 @@ describe('revealPathFor', () => {
     expect(revealPathFor(100).keyframes).toEqual([0, 100]);
   });
 });
+
+describe('vitesse de montée', () => {
+  it('climbs from zero at the same points per second whatever the score', () => {
+    const rateOf = (target: number) => {
+      const { keyframes, times, durationSec } = revealPathFor(target);
+      const climbSec = times[1] * durationSec;
+      return keyframes[1] / climbSec;
+    };
+
+    expect(keyframeStart(20)).toBe(0);
+    expect(keyframeStart(82)).toBe(0);
+    expect(rateOf(20)).toBeCloseTo(rateOf(50), 3);
+    expect(rateOf(50)).toBeCloseTo(rateOf(82), 3);
+    expect(rateOf(82)).toBeCloseTo(rateOf(95), 3);
+  });
+});
+
+function keyframeStart(target: number): number {
+  return revealPathFor(target).keyframes[0];
+}

@@ -10,10 +10,15 @@ const SCORE_REVEAL_POINTS_PER_SEC = 28;
 
 const SCORE_REVEAL_MIN_DURATION_SEC = 0.5;
 
-export function visualDurationFor(target: number): number {
+/**
+ * Durée de la montée initiale, calculée sur la distance réellement parcourue
+ * depuis zéro : la note grimpe au même nombre de points par seconde, qu'elle
+ * s'arrête à 20 ou à 90.
+ */
+export function visualDurationFor(climbDistance: number): number {
   return Math.max(
     SCORE_REVEAL_MIN_DURATION_SEC,
-    target / SCORE_REVEAL_POINTS_PER_SEC,
+    climbDistance / SCORE_REVEAL_POINTS_PER_SEC,
   );
 }
 
@@ -55,9 +60,10 @@ interface RevealPath {
 }
 
 export function revealPathFor(target: number): RevealPath {
-  const climbMs = visualDurationFor(target) * 1000;
   const scale = swingScaleFor(target);
   const swings = scale === 0 ? [] : SCORE_REVEAL_SWINGS;
+  const firstPeak = target + (swings[0] ?? 0) * scale;
+  const climbMs = visualDurationFor(firstPeak) * 1000;
   const stepsMs = swings.map((_, index) => SCORE_REVEAL_SWING_MS[index]);
   const totalMs = climbMs + stepsMs.reduce((sum, step) => sum + step, 0);
 
