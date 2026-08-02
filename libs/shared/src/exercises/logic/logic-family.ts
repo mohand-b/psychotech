@@ -4,6 +4,7 @@ export const LOGIC_CONTENT_VERSION_V1 = 1;
 export const LOGIC_CONTENT_VERSION_V2 = 2;
 export const LOGIC_CONTENT_VERSION_V3 = 3;
 export const LOGIC_CONTENT_VERSION_V4 = 4;
+export const LOGIC_CONTENT_VERSION_V5 = 6;
 
 export const LOGIC_FAMILY_LABELS: Record<LogicFamily, string> = {
   [LogicFamily.NUMERIC]: 'Numérique',

@@ -19,6 +19,7 @@ import {
   LOGIC_CONTENT_VERSION_V2,
   LOGIC_CONTENT_VERSION_V3,
   LOGIC_CONTENT_VERSION_V4,
+  LOGIC_CONTENT_VERSION_V5,
 } from './logic-family';
 import { TriangleSlot } from '../triangle';
 import {
@@ -433,5 +434,22 @@ describe('catalogue épuré en version de contenu 4', () => {
         (item) => item.triangle.missing.slot !== TriangleSlot.CENTER,
       ),
     ).toBe(true);
+  });
+});
+
+
+describe('content version 6 rule pool', () => {
+  it('retires alternating-multiply-add for new sessions and keeps it for older ones', () => {
+    const v5 = generateLogicSession('pool-v5', null, LOGIC_CONTENT_VERSION_V5);
+    const v5Rules = new Set(v5.map((item) => item.rule.id));
+    expect(v5Rules.has('alternating-multiply-add')).toBe(false);
+
+    const sessions = ['a', 'b', 'c', 'd', 'e'].map((seed) =>
+      generateLogicSession(`pool-v4-${seed}`, null, 5),
+    );
+    const v4Rules = new Set(
+      sessions.flat().map((item) => item.rule.id),
+    );
+    expect(v4Rules.has('alternating-multiply-add')).toBe(true);
   });
 });

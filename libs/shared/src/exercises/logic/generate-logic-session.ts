@@ -11,6 +11,7 @@ import { buildLogicChoices } from './logic-choices';
 import {
   LOGIC_CONTENT_VERSION_V3,
   LOGIC_CONTENT_VERSION_V4,
+  LOGIC_CONTENT_VERSION_V5,
   logicFamiliesForFilter,
 } from './logic-family';
 import { LogicDifficulty } from './logic-rule-item';
@@ -67,12 +68,16 @@ const RETIRED_SEQUENCE_RULE_IDS = new Set([
   'interleaved-double-fibonacci',
 ]);
 
+const RETIRED_SEQUENCE_RULE_IDS_V5 = new Set(['alternating-multiply-add']);
+
 function sequenceRulePool(level: LogicDifficulty, contentVersion: number) {
   return LOGIC_RULES.filter(
     (rule) =>
       rule.difficulty === level &&
       (contentVersion < LOGIC_CONTENT_VERSION_V4 ||
-        !RETIRED_SEQUENCE_RULE_IDS.has(rule.id)),
+        !RETIRED_SEQUENCE_RULE_IDS.has(rule.id)) &&
+      (contentVersion < LOGIC_CONTENT_VERSION_V5 ||
+        !RETIRED_SEQUENCE_RULE_IDS_V5.has(rule.id)),
   );
 }
 
@@ -287,6 +292,8 @@ export function generateLogicSession(
           const domino = generateDominoItem({
             level: Math.min(level, DOMINO_MAX_LEVEL) as DominoLevel,
             seed: itemSeed,
+            rejectPeriodicSequences:
+              contentVersion >= LOGIC_CONTENT_VERSION_V5,
           });
           items.push({
             index,

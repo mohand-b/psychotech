@@ -1,0 +1,1 @@
+export const SESSION_CONTENT_VERSION = 6;

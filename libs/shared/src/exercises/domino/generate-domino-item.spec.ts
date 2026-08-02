@@ -432,3 +432,32 @@ describe('buildDominoRule — formulations utilisateur', () => {
     );
   });
 });
+
+describe('rejectPeriodicSequences', () => {
+  it('never produces a visible sequence that repeats a full cycle', () => {
+    for (let run = 0; run < 60; run += 1) {
+      for (const level of [1, 2, 3, 4] as const) {
+        const item = generateDominoItem({
+          level,
+          seed: `anti-cycle-${run}`,
+          rejectPeriodicSequences: true,
+        });
+        const visible = item.visibleTiles;
+        for (
+          let period = 1;
+          period <= Math.floor(visible.length / 2);
+          period += 1
+        ) {
+          const periodic = visible
+            .slice(period)
+            .every(
+              (tile, position) =>
+                tile.top === visible[position].top &&
+                tile.bottom === visible[position].bottom,
+            );
+          expect(periodic).toBe(false);
+        }
+      }
+    }
+  });
+});

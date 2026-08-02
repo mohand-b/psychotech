@@ -21,6 +21,7 @@ import {
 export interface GenerateDominoItemOptions {
   level: DominoLevel;
   seed: string;
+  rejectPeriodicSequences?: boolean;
 }
 
 const MAX_GENERATION_ATTEMPTS = 80;
@@ -188,6 +189,30 @@ function shadowRuleContradicts(
   );
 }
 
+function hasVisiblePeriodicCycle(
+  visibleTiles: readonly DominoTile[],
+): boolean {
+  for (
+    let period = 1;
+    period <= Math.floor(visibleTiles.length / 2);
+    period += 1
+  ) {
+    let periodic = true;
+    for (let index = period; index < visibleTiles.length; index += 1) {
+      const tile = visibleTiles[index];
+      const earlier = visibleTiles[index - period];
+      if (tile.top !== earlier.top || tile.bottom !== earlier.bottom) {
+        periodic = false;
+        break;
+      }
+    }
+    if (periodic) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function isDegenerate(visibleTiles: readonly DominoTile[]): boolean {
   const first = visibleTiles[0];
   return visibleTiles.every(
@@ -230,6 +255,12 @@ export function generateDominoItem(
       continue;
     }
     if (level <= 3 && isDegenerate(visibleTiles)) {
+      continue;
+    }
+    if (
+      options.rejectPeriodicSequences === true &&
+      hasVisiblePeriodicCycle(visibleTiles)
+    ) {
       continue;
     }
     if (shadowRuleContradicts(visibleTiles, answer)) {
