@@ -18,6 +18,7 @@ import {
   SimulationVerdictReasonKind,
   TrainingOptionId,
   MOTRICITY_CONTENT_VERSION_V2,
+  SESSION_CONTENT_VERSION,
   generateMotricityCourses,
   scoreMotricitySession,
 } from '@psychotech/shared';
@@ -428,7 +429,7 @@ describe('SessionsService.start', () => {
 
     expect(repository.createSession).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentVersion: MOTRICITY_CONTENT_VERSION_V2,
+        contentVersion: SESSION_CONTENT_VERSION,
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
       expect.any(Function),
