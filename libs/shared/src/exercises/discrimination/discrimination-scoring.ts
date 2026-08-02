@@ -7,12 +7,13 @@ export type DiscriminationOutcome =
   | 'FALSE_POSITIVE'
   | 'FALSE_NEGATIVE';
 
-const DISCRIMINATION_PRECISION_WEIGHT = 0.7;
-const DISCRIMINATION_SPEED_WEIGHT = 0.3;
-const DISCRIMINATION_SPEED_BEST_MS = 300;
-const DISCRIMINATION_SPEED_WORST_MS = 1500;
-const DISCRIMINATION_FP_PENALTY_THRESHOLD_PCT = 20;
-const DISCRIMINATION_FP_PENALTY_FACTOR = 0.5;
+export const DISCRIMINATION_PRECISION_WEIGHT = 0.55;
+export const DISCRIMINATION_COVERAGE_WEIGHT = 0.2;
+export const DISCRIMINATION_SPEED_WEIGHT = 0.25;
+export const DISCRIMINATION_SPEED_BEST_MS = 1500;
+export const DISCRIMINATION_SPEED_WORST_MS = 5400;
+export const DISCRIMINATION_FP_PENALTY_THRESHOLD_PCT = 20;
+export const DISCRIMINATION_FP_PENALTY_FACTOR = 0.5;
 
 export interface DiscriminationSessionScore {
   score: number;
@@ -71,8 +72,11 @@ export function scoreDiscriminationSession(
   ).length;
   const identicalCount = trials.filter(({ identical }) => identical).length;
 
+  const answeredCount = entries.filter(({ answered }) => answered).length;
   const precision =
-    trials.length === 0 ? 0 : (correctCount / trials.length) * 100;
+    answeredCount === 0 ? 0 : (correctCount / answeredCount) * 100;
+  const coverage =
+    trials.length === 0 ? 0 : (answeredCount / trials.length) * 100;
   const correctTimes = entries
     .filter(({ outcome, timeMs }) => isCorrect(outcome) && timeMs !== null)
     .map(({ timeMs }) => timeMs as number);
@@ -102,6 +106,7 @@ export function scoreDiscriminationSession(
       Math.max(
         0,
         DISCRIMINATION_PRECISION_WEIGHT * precision +
+          DISCRIMINATION_COVERAGE_WEIGHT * coverage +
           DISCRIMINATION_SPEED_WEIGHT * speed -
           penalty,
       ),

@@ -76,7 +76,9 @@ describe('scoreDiscriminationSession', () => {
     ]);
     expect(fastCorrect.correctAnswerAvgMs).toBe(300);
     expect(fastCorrect.avgAnswerTimeMs).toBe(Math.round(20_900 / 4));
-    expect(fastCorrect.score).toBe(Math.round(0.7 * 75 + 0.3 * 100));
+    expect(fastCorrect.score).toBe(
+      Math.round(0.55 * 75 + 0.2 * 100 + 0.25 * 100),
+    );
   });
 
   it('triggers the false-alarm penalty only above the threshold', () => {
@@ -87,7 +89,9 @@ describe('scoreDiscriminationSession', () => {
         answer(index, index < 2 ? 'DIFFERENT' : 'IDENTICAL', 300),
       ),
     );
-    expect(twoFalseAlarms.score).toBe(Math.round(0.7 * 80 + 0.3 * 100));
+    expect(twoFalseAlarms.score).toBe(
+      Math.round(0.55 * 80 + 0.2 * 100 + 0.25 * 100),
+    );
 
     const fourFalseAlarms = scoreDiscriminationSession(
       trials,
@@ -96,7 +100,7 @@ describe('scoreDiscriminationSession', () => {
       ),
     );
     expect(fourFalseAlarms.score).toBe(
-      Math.round(0.7 * 60 + 0.3 * 100 - (40 - 20) * 0.5),
+      Math.round(0.55 * 60 + 0.2 * 100 + 0.25 * 100 - (40 - 20) * 0.5),
     );
   });
 
