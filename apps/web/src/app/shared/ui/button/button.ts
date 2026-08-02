@@ -213,14 +213,6 @@ type ButtonSize = 'md' | 'lg';
       background: transparent;
       color: var(--text-disabled);
     }
-    .ui-button--ghost.ui-button--relief {
-      border-bottom: 3px solid var(--btn-outline-border);
-      padding-bottom: calc(var(--btn-pad-y) - 3px);
-    }
-    .ui-button--ghost.ui-button--relief:active:not(:disabled),
-    .ui-button--ghost.ui-button--relief:disabled {
-      border-bottom-color: transparent;
-    }
     .ui-button:focus-visible {
       outline: 2px solid var(--btn-fill, var(--brand));
       outline-offset: 2px;
@@ -274,14 +266,6 @@ type ButtonSize = 'md' | 'lg';
       .ui-button--outlined.ui-button--relief-mobile:disabled {
         border-bottom-width: 1px;
         padding-bottom: calc(var(--btn-pad-y) - 1px);
-      }
-      .ui-button--ghost.ui-button--relief-mobile {
-        border-bottom: 3px solid var(--btn-outline-border);
-        padding-bottom: calc(var(--btn-pad-y) - 3px);
-      }
-      .ui-button--ghost.ui-button--relief-mobile:active:not(:disabled),
-      .ui-button--ghost.ui-button--relief-mobile:disabled {
-        border-bottom-color: transparent;
       }
     }
     @keyframes ui-button-spin {
