@@ -16,12 +16,7 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BoltIcon],
   template: `
-    @if (free()) {
-      <span class="chip chip--free">
-        <ui-bolt class="chip__bolt" [size]="14" [filled]="false" />
-        <span class="chip__label">Découverte</span>
-      </span>
-    } @else if (unlimited()) {
+    @if (unlimited()) {
       <span class="chip">
         <ui-bolt class="chip__bolt" [size]="14" />
         <span class="chip__value chip__value--infinity">∞</span>
@@ -68,11 +63,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
       font-size: 17px;
       line-height: 13px;
     }
-    .chip__label {
-      font: 600 13px/1 var(--font-ui);
-      letter-spacing: 0.02em;
-      color: var(--brand);
-    }
     .chip--depleted {
       background: var(--bg);
     }
@@ -84,15 +74,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
     }
     .chip--depleted .chip__max {
       opacity: 0.7;
-    }
-    .chip--free {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-    }
-    .chip--free .chip__bolt,
-    .chip--free .chip__label {
-      color: var(--label);
     }
     .chip--short {
       background: var(--danger-pastel);
@@ -109,14 +90,8 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
         border-radius: 8px;
         padding: 6px 10px;
       }
-      .chip--free {
-        padding: 5px 10px;
-      }
       .chip__value {
         font-size: 12.5px;
-      }
-      .chip__label {
-        font-size: 12px;
       }
     }
   `,
@@ -138,7 +113,9 @@ export class EnergyChip {
   protected readonly unlimited = computed(
     () => this.effectiveTier() === SubscriptionTier.UNLIMITED,
   );
-  protected readonly balance = computed(() => this.state()?.balance ?? 0);
+  protected readonly balance = computed(() =>
+    this.free() ? 0 : (this.state()?.balance ?? 0),
+  );
   protected readonly depleted = computed(() => this.balance() === 0);
   protected readonly short = computed(() => {
     const cost = this.requiredCost();
