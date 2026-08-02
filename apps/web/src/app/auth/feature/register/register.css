@@ -449,15 +449,6 @@
     font-size: 13.5px;
   }
 
-  .register__cgu-link {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  .register__cgu-privacy {
-    display: none;
-  }
-
   .register__step-foot .auth__footer,
   .register__step--form .auth__footer {
     padding-top: 16px;

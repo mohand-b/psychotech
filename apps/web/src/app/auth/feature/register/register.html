@@ -86,7 +86,6 @@
             size="lg"
             [block]="true"
             [iconEnd]="arrowIcon"
-            [relief]="'mobile'"
             [disabled]="!sector()"
             (click)="goToStep(2)"
           >
@@ -193,15 +192,14 @@
               href="/cgu"
               (click)="openLegal($event, 'cgu', 'cgu')"
               >conditions d'utilisation</a
-            ><span class="register__cgu-privacy">
-              et la
-              <a
-                class="register__cgu-link"
-                href="/confidentialite"
-                (click)="openLegal($event, 'confidentialite', 'responsable')"
-                >politique de confidentialité</a
-              >.</span
-            ></span
+            >
+            et la
+            <a
+              class="register__cgu-link"
+              href="/confidentialite"
+              (click)="openLegal($event, 'confidentialite', 'responsable')"
+              >politique de confidentialité</a
+            >.</span
           >
         </span>
       </div>
@@ -232,7 +230,6 @@
           size="lg"
           [block]="true"
           [iconEnd]="arrowIcon"
-          [relief]="'mobile'"
           [loading]="pending()"
           (click)="submit()"
         >
