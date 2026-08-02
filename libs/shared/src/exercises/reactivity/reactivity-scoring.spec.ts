@@ -102,7 +102,7 @@ describe('scoreReactivitySession', () => {
   });
 
   it('feeds the stability term with the returned intra-phase deviation, never a global one', () => {
-    const times = [400, 420, 410, 700, 720, 710, 1000, 1020, 1010];
+    const times = [400, 420, 410, 800, 820, 810, 1400, 1420, 1410];
     const appearAts = [
       3000, 15000, 30000, 45000, 60000, 75000, 85000, 100000, 115000,
     ];
