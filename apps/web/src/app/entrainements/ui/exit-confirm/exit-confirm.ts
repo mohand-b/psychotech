@@ -23,7 +23,6 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
       <ui-button
         color="neutral"
         appearance="outlined"
-        relief="mobile"
         block="mobile"
         (click)="continueRequested.emit()"
       >
@@ -31,7 +30,6 @@ import { Button, ButtonColor } from '../../../shared/ui/button/button';
       </ui-button>
       <ui-button
         [color]="color()"
-        relief="mobile"
         block="mobile"
         [loading]="leaving()"
         (click)="quitRequested.emit()"

@@ -57,10 +57,11 @@ describe('Button', () => {
     expect(element.classList.contains(absent)).toBe(false);
   });
 
-  it('carries no relief class by default', async () => {
+  it('carries the mobile relief by default', async () => {
     const element = inner(await render());
 
-    expect(element.className).not.toContain('relief');
+    expect(element.className).toContain('ui-button--relief-mobile');
+    expect(element.className).not.toContain('ui-button--relief ');
   });
 
   it.each([

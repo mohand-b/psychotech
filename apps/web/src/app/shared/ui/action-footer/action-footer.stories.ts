@@ -17,7 +17,7 @@ export const SinglePrimary: Story = {
   render: () => ({
     template: `
       <ui-action-footer>
-        <ui-button color="brand" size="lg" relief="mobile" block="mobile">
+        <ui-button color="brand" size="lg" block="mobile">
           Commencer la session
         </ui-button>
       </ui-action-footer>
@@ -29,13 +29,12 @@ export const PrimaryThenSecondary: Story = {
   render: () => ({
     template: `
       <ui-action-footer>
-        <ui-button color="brand" relief="mobile" block="mobile">
+        <ui-button color="brand" block="mobile">
           Nouvel entraînement
         </ui-button>
         <ui-button
           color="neutral"
           appearance="outlined"
-          relief="mobile"
           block="mobile"
         >
           Retour aux entraînements

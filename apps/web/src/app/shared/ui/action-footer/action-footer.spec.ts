@@ -7,13 +7,12 @@ import { ActionFooter } from './action-footer';
   imports: [ActionFooter, Button],
   template: `
     <ui-action-footer>
-      <ui-button color="brand" relief="mobile" block="mobile"
+      <ui-button color="brand" block="mobile"
         >Primaire</ui-button
       >
       <ui-button
         color="neutral"
         appearance="outlined"
-        relief="mobile"
         block="mobile"
         >Secondaire</ui-button
       >

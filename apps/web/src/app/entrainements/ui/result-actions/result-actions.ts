@@ -16,7 +16,6 @@ import { Button } from '../../../shared/ui/button/button';
     <ui-action-footer>
       <ui-button
         color="brand"
-        relief="mobile"
         block="mobile"
         [icon]="playIcon"
         (click)="newTraining.emit()"
@@ -26,7 +25,6 @@ import { Button } from '../../../shared/ui/button/button';
       <ui-button
         color="neutral"
         appearance="outlined"
-        relief="mobile"
         block="mobile"
         (click)="back.emit()"
       >

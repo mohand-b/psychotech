@@ -295,7 +295,7 @@ export class Button {
   readonly color = input<ButtonColor>('brand');
   readonly appearance = input<ButtonAppearance>('solid');
   readonly size = input<ButtonSize>('md');
-  readonly relief = input<boolean | 'mobile'>(false);
+  readonly relief = input<boolean | 'mobile'>('mobile');
   readonly block = input<boolean | 'mobile'>(false);
   readonly disabled = input(false);
   readonly loading = input(false);
