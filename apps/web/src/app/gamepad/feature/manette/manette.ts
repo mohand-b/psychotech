@@ -11,7 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { GAMEPAD_PAIRING_CODE_LENGTH } from '@psychotech/shared';
 import { GamepadControllerFacade } from '../../data-access/gamepad-controller.facade';
 import { Button } from '../../../shared/ui/button/button';
-import { Crank } from '../../ui/crank/crank';
+import { Crank } from '../../../shared/ui/crank/crank';
 
 interface StateChip {
   label: string;

@@ -11,9 +11,9 @@ import {
   TargetedDiscriminationResultDto,
   TargetedLogicResultDto,
 } from '@psychotech/shared';
-import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
-import { formatDuration } from '../../shared/ui/format-duration';
-import { formatFrenchDecimal } from '../../shared/util/format-number';
+import { AXIS_PRESENTATION } from './axis-presentation';
+import { formatDuration } from './format-duration';
+import { formatFrenchDecimal } from '../util/format-number';
 import { LOGIC_STATUS_COLORS, LOGIC_STATUS_LABELS } from './logic-status';
 import { ResultMetricRow } from './result-metrics/result-metrics';
 import { TimeChartEntry } from './time-chart/time-chart';

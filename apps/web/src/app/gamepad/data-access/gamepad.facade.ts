@@ -25,7 +25,7 @@ import {
   gamepadLatencyStats,
   gamepadSignalingUrl,
   gamepadStickFromFrame,
-} from './gamepad-logic';
+} from '../../shared/util/gamepad-logic';
 import { GamepadTransport } from './gamepad-transport';
 import { GamepadApi } from './gamepad.api';
 

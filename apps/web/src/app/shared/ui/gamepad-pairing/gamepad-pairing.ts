@@ -11,7 +11,7 @@ import QRCode from 'qrcode';
 import {
   GamepadLatencyStats,
   gamepadControllerUrl,
-} from '../../data-access/gamepad-logic';
+} from '../../util/gamepad-logic';
 
 const QR_SIZE_PX = 148;
 

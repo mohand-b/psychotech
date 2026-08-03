@@ -20,8 +20,8 @@ import {
 import {
   logicFamilyBoundaries,
   logicItemsForResult,
-} from '../../../entrainements/ui/logic-result-items';
-import { ResultFamilyBars } from '../../../entrainements/ui/result-family-bars/result-family-bars';
+} from '../../../shared/ui/logic-result-items';
+import { ResultFamilyBars } from '../../../shared/ui/result-family-bars/result-family-bars';
 import {
   buildDiscriminationChartEntries,
   buildDiscriminationMetricRows,
@@ -30,15 +30,15 @@ import {
   buildMemoryMetricRows,
   buildMotricityMetricRows,
   buildReactivityMetricRows,
-} from '../../../entrainements/ui/axis-result-content';
-import { MemoryReliabilityChart } from '../../../entrainements/ui/memory-reliability-chart/memory-reliability-chart';
-import { MotricityTrajectoryChart } from '../../../entrainements/ui/motricity-trajectory-chart/motricity-trajectory-chart';
-import { ReactivityTrChart } from '../../../entrainements/ui/reactivity-tr-chart/reactivity-tr-chart';
-import { ResultMetricRow } from '../../../entrainements/ui/result-metrics/result-metrics';
+} from '../../../shared/ui/axis-result-content';
+import { MemoryReliabilityChart } from '../../../shared/ui/memory-reliability-chart/memory-reliability-chart';
+import { MotricityTrajectoryChart } from '../../../shared/ui/motricity-trajectory-chart/motricity-trajectory-chart';
+import { ReactivityTrChart } from '../../../shared/ui/reactivity-tr-chart/reactivity-tr-chart';
+import { ResultMetricRow } from '../../../shared/ui/result-metrics/result-metrics';
 import {
   TimeChart,
   TimeChartEntry,
-} from '../../../entrainements/ui/time-chart/time-chart';
+} from '../../../shared/ui/time-chart/time-chart';
 import { ListChecks } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
 

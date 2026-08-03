@@ -25,7 +25,7 @@ import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
-import { axisButtonColor } from '../../ui/axis-button-color';
+import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { simulationCurrentAxis } from '../../ui/session-flow';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';

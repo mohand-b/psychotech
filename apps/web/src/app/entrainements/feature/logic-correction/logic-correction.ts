@@ -39,11 +39,11 @@ import { MATRIX_PROPOSAL_LETTERS } from '../../ui/logic-matrix/logic-matrix';
 import {
   LOGIC_STATUS_COLORS,
   LOGIC_STATUS_LABELS,
-} from '../../ui/logic-status';
+} from '../../../shared/ui/logic-status';
 import {
   logicFamilyBoundaries,
   logicItemsForResult,
-} from '../../ui/logic-result-items';
+} from '../../../shared/ui/logic-result-items';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,

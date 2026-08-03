@@ -14,7 +14,7 @@ import {
   CorrectionStatusBand,
   StatusBandEntry,
 } from '../correction-status-band/correction-status-band';
-import { axisButtonColor } from '../axis-button-color';
+import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 
 @Component({
   selector: 'ui-correction-shell',

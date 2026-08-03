@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { formatSecondsTenths } from '../../../shared/ui/format-duration';
+import { formatSecondsTenths } from '../format-duration';
 import { ChartTouchTips } from '../chart-touch-tips.directive';
 
 export interface TimeChartEntry {

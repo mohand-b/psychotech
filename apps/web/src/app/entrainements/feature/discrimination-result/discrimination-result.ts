@@ -24,19 +24,19 @@ import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
   buildDiscriminationChartEntries,
   buildDiscriminationMetricRows,
-} from '../../ui/axis-result-content';
+} from '../../../shared/ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
   ResultMetrics,
-} from '../../ui/result-metrics/result-metrics';
+} from '../../../shared/ui/result-metrics/result-metrics';
 import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
-import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
+import { TimeChart, TimeChartEntry } from '../../../shared/ui/time-chart/time-chart';
 
 @Component({
   selector: 'app-discrimination-result',

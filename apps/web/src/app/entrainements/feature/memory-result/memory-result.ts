@@ -22,13 +22,13 @@ import {
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
-import { buildMemoryMetricRows } from '../../ui/axis-result-content';
-import { MemoryReliabilityChart } from '../../ui/memory-reliability-chart/memory-reliability-chart';
+import { buildMemoryMetricRows } from '../../../shared/ui/axis-result-content';
+import { MemoryReliabilityChart } from '../../../shared/ui/memory-reliability-chart/memory-reliability-chart';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
   ResultMetrics,
-} from '../../ui/result-metrics/result-metrics';
+} from '../../../shared/ui/result-metrics/result-metrics';
 import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';

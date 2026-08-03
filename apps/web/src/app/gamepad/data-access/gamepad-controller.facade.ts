@@ -7,7 +7,7 @@ import {
   GamepadHapticEffect,
   GamepadSignalErrorCode,
 } from '@psychotech/shared';
-import { crankSmoothedSpeed, gamepadSignalingUrl } from './gamepad-logic';
+import { crankSmoothedSpeed, gamepadSignalingUrl } from '../../shared/util/gamepad-logic';
 import { GamepadTransport } from './gamepad-transport';
 
 export type GamepadControllerView =

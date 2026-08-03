@@ -9,8 +9,8 @@ import {
   LogicFamilyResultDto,
   LogicFamilyResultMarker,
 } from '@psychotech/shared';
-import { formatDuration } from '../../../shared/ui/format-duration';
-import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
+import { formatDuration } from '../format-duration';
+import { resolveVerdictAppearance } from '../verdict-appearance';
 
 const MARKER_LABELS: Record<LogicFamilyResultMarker, string> = {
   STRENGTH: 'Votre force',

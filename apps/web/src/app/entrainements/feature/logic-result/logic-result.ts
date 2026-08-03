@@ -25,25 +25,25 @@ import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
   buildLogicChartEntries,
   buildLogicMetricRows,
-} from '../../ui/axis-result-content';
+} from '../../../shared/ui/axis-result-content';
 import {
   logicAnalyzerItems,
   logicFamilyBoundaries,
   logicItemsForResult,
-} from '../../ui/logic-result-items';
+} from '../../../shared/ui/logic-result-items';
 import { ResultActions } from '../../ui/result-actions/result-actions';
-import { ResultFamilyBars } from '../../ui/result-family-bars/result-family-bars';
+import { ResultFamilyBars } from '../../../shared/ui/result-family-bars/result-family-bars';
 import {
   ResultMetricRow,
   ResultMetrics,
-} from '../../ui/result-metrics/result-metrics';
+} from '../../../shared/ui/result-metrics/result-metrics';
 import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
-import { TimeChart, TimeChartEntry } from '../../ui/time-chart/time-chart';
+import { TimeChart, TimeChartEntry } from '../../../shared/ui/time-chart/time-chart';
 
 @Component({
   selector: 'app-logic-result',

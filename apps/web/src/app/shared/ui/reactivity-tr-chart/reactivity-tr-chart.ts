@@ -12,7 +12,7 @@ import {
   ReactivityTrendPoint,
   ReactivityWaitPressDto,
 } from '@psychotech/shared';
-import { formatDuration } from '../../../shared/ui/format-duration';
+import { formatDuration } from '../format-duration';
 import { ChartTouchTips } from '../chart-touch-tips.directive';
 
 const Y_MIN_DOMAIN_MS = 650;

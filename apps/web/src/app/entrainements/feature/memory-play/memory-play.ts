@@ -23,7 +23,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisButtonColor } from '../../ui/axis-button-color';
+import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';

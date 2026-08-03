@@ -16,12 +16,12 @@ import {
   SessionStatus,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
-import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
+import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { Button } from '../../../shared/ui/button/button';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { axisButtonColor } from '../../ui/axis-button-color';
+import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { sectorReferentialFor } from '../sector-referential';
 

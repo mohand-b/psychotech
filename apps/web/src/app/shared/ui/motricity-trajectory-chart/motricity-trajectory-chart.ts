@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { MotorSkillsMetrics } from '@psychotech/shared';
-import { formatDuration } from '../../../shared/ui/format-duration';
+import { formatDuration } from '../format-duration';
 import { ChartTouchTips } from '../chart-touch-tips.directive';
 import {
   CurvePoint,

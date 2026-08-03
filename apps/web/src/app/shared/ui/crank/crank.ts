@@ -11,7 +11,7 @@ import {
 import {
   crankAngleDelta,
   crankPointerAngle,
-} from '../../data-access/gamepad-logic';
+} from '../../util/gamepad-logic';
 
 const VIEWBOX_SIZE = 160;
 const CENTER = VIEWBOX_SIZE / 2;

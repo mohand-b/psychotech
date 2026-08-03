@@ -32,9 +32,9 @@ import {
   motricityCursorZone,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
-import { crankSmoothedSpeed } from '../../../gamepad/data-access/gamepad-logic';
-import { Crank } from '../../../gamepad/ui/crank/crank';
-import { GamepadPairing } from '../../../gamepad/ui/gamepad-pairing/gamepad-pairing';
+import { crankSmoothedSpeed } from '../../../shared/util/gamepad-logic';
+import { Crank } from '../../../shared/ui/crank/crank';
+import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Button } from '../../../shared/ui/button/button';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';

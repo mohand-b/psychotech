@@ -21,19 +21,19 @@ import {
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
-import { buildReactivityMetricRows } from '../../ui/axis-result-content';
+import { buildReactivityMetricRows } from '../../../shared/ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
   ResultMetricRow,
   ResultMetrics,
-} from '../../ui/result-metrics/result-metrics';
+} from '../../../shared/ui/result-metrics/result-metrics';
 import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
-import { ReactivityTrChart } from '../../ui/reactivity-tr-chart/reactivity-tr-chart';
+import { ReactivityTrChart } from '../../../shared/ui/reactivity-tr-chart/reactivity-tr-chart';
 
 @Component({
   selector: 'app-reactivity-result',

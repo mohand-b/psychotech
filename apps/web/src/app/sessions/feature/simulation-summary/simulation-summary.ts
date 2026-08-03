@@ -21,7 +21,7 @@ import {
   buildSimulationStamp,
 } from '@psychotech/shared';
 import { Lightbulb, Play } from 'lucide-angular';
-import { axisButtonColor } from '../../../entrainements/ui/axis-button-color';
+import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';

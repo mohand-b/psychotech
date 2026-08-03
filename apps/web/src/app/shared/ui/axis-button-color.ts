@@ -1,5 +1,5 @@
 import { AxisType } from '@psychotech/shared';
-import { ButtonColor } from '../../shared/ui/button/button';
+import { ButtonColor } from './button/button';
 
 const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
   [AxisType.LOGIC]: 'logic',
