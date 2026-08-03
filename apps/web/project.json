@@ -8,7 +8,9 @@
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/web",
@@ -21,8 +23,12 @@
             "input": "apps/web/public"
           }
         ],
-        "styles": ["apps/web/src/styles.scss"],
-        "allowedCommonJsDependencies": ["qrcode"]
+        "styles": [
+          "apps/web/src/styles.scss"
+        ],
+        "allowedCommonJsDependencies": [
+          "qrcode"
+        ]
       },
       "configurations": {
         "production": {
@@ -64,9 +70,6 @@
         }
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {
@@ -98,7 +101,9 @@
     },
     "build-storybook": {
       "executor": "@storybook/angular:build-storybook",
-      "outputs": ["{options.outputDir}"],
+      "outputs": [
+        "{options.outputDir}"
+      ],
       "options": {
         "outputDir": "dist/storybook/web",
         "configDir": "apps/web/.storybook",
@@ -113,7 +118,9 @@
     },
     "static-storybook": {
       "executor": "@nx/web:file-server",
-      "dependsOn": ["build-storybook"],
+      "dependsOn": [
+        "build-storybook"
+      ],
       "options": {
         "buildTarget": "web:build-storybook",
         "staticFilePath": "dist/storybook/web",
