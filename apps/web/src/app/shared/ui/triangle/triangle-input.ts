@@ -131,8 +131,8 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
         background 0.1s ease;
     }
     .pad__key:hover {
-      border-color: #9dc2f9;
-      background: #f5f9ff;
+      border-color: var(--triangle-key-active-bd);
+      background: var(--triangle-key-active-bg);
     }
     .pad__key:focus-visible {
       outline: 2px solid var(--axis-logic);

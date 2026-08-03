@@ -14,7 +14,7 @@
 .pairing__qr {
   border: 1px solid var(--border);
   border-radius: var(--radius-badge);
-  background: #ffffff;
+  background: var(--card);
 }
 
 .pairing__hint {

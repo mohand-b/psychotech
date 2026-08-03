@@ -15,14 +15,14 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 
 const RESULT_WAIT_TRACK_COLORS: Record<RailwayPlayableAxis, string> = {
-  [AxisType.LOGIC]: '#D5E3FC',
-  [AxisType.MEMORY]: '#E5DBFD',
-  [AxisType.VISUAL_DISCRIMINATION]: '#CAF0E3',
-  [AxisType.REACTIVITY]: '#FDEBCF',
-  [AxisType.MOTOR_SKILLS]: '#FBD6D6',
+  [AxisType.LOGIC]: 'var(--axis-logic-track)',
+  [AxisType.MEMORY]: 'var(--axis-memory-track)',
+  [AxisType.VISUAL_DISCRIMINATION]: 'var(--axis-discrimination-track)',
+  [AxisType.REACTIVITY]: 'var(--axis-reactivity-track)',
+  [AxisType.MOTOR_SKILLS]: 'var(--axis-motor-track)',
 };
 
-const SIMULATION_TRACK_COLOR = '#E0D7FD';
+const SIMULATION_TRACK_COLOR = 'var(--brand-track)';
 
 interface ResultWaitTheme {
   pastel: string;

@@ -96,7 +96,7 @@ import { LandingReveal } from '../landing-reveal.directive';
       align-items: center;
       gap: 8px;
       background: var(--landing-accent);
-      color: #ffffff;
+      color: var(--landing-text);
       font: 600 16px/22px var(--landing-font-ui);
       text-decoration: none;
       padding: 16px 28px;

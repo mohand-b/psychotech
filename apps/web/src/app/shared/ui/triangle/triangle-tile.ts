@@ -102,7 +102,7 @@ function toPercent(value: number, extent: number): string {
     }
     .value--slot.value--unknown {
       border-style: dashed;
-      background: #f8fbff;
+      background: var(--triangle-face-bg);
       color: var(--triangle-accent, var(--axis-logic));
     }
     @media (max-width: 767px) {

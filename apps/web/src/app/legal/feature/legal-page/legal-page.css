@@ -130,13 +130,13 @@
   display: flex;
   align-items: flex-start;
   gap: 11px;
-  background: #f8f6ff;
+  background: var(--legal-notice-bg);
   border: 1px solid var(--axis-memory-pastel-bd);
   border-radius: 12px;
   padding: 14px 16px;
   font-size: 13px;
   line-height: 1.6;
-  color: #4b3fa8;
+  color: var(--legal-notice-ink);
 }
 
 .legal__notice svg {

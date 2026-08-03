@@ -87,6 +87,22 @@
   --stripe-brand: #635bff;
 
   --relief-shine: rgba(255, 255, 255, 0.32);
+
+  --brand-track: #e0d7fd;
+  --axis-logic-track: #d5e3fc;
+  --axis-memory-track: #e5dbfd;
+  --axis-discrimination-track: #caf0e3;
+  --axis-reactivity-track: #fdebcf;
+  --axis-motor-track: #fbd6d6;
+
+  --triangle-key-active-bd: #9dc2f9;
+  --triangle-key-active-bg: #f5f9ff;
+  --triangle-face-bg: #f8fbff;
+
+  --legal-notice-bg: #f8f6ff;
+  --legal-notice-ink: #4b3fa8;
+  --legal-anchor: #5a3bd6;
+  --legal-table-bg: #fafbfc;
   --scrollbar-thumb-inverse: rgba(255, 255, 255, 0.24);
 
   --font-display: 'Baloo 2', sans-serif;

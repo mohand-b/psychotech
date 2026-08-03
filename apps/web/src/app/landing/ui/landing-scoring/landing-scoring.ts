@@ -97,7 +97,7 @@ import { LandingReveal } from '../landing-reveal.directive';
               height="21"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#fbc979"
+              stroke="var(--landing-warm)"
               stroke-width="1.8"
               stroke-linecap="round"
               stroke-linejoin="round"
