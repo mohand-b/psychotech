@@ -4,9 +4,11 @@
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
+import { Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
+  BadgeEvent,
+  BadgeId,
   ControlModality,
   MotorSkillsMetrics,
   ScoreBand,
@@ -123,7 +125,7 @@ const repository = {
 };
 
 const scoringService = { evaluateSession: vi.fn() };
-const badgesService = { evaluateAndUnlockWithin: vi.fn() };
+const badgesService = { evaluateWithin: vi.fn() };
 const energyService = { spendWithin: vi.fn() };
 
 const service = new SessionsService(
@@ -206,6 +208,7 @@ describe('SessionsService.start', () => {
         axes: [AxisType.LOGIC],
       }),
       expect.any(Function),
+      expect.any(Function),
     );
     expect(energyService.spendWithin).toHaveBeenCalledWith(
       'tx-client',
@@ -247,6 +250,7 @@ describe('SessionsService.start', () => {
     expect(repository.createSession).toHaveBeenLastCalledWith(
       expect.objectContaining({ mode: SessionMode.TUTORIAL, energyCost: 0 }),
       undefined,
+      undefined,
     );
     expect(energyService.spendWithin).not.toHaveBeenCalled();
   });
@@ -269,6 +273,7 @@ describe('SessionsService.start', () => {
         helpEnabled: true,
         trainingOptions: [TrainingOptionId.LOGIC_HELP],
       }),
+      expect.any(Function),
       expect.any(Function),
     );
   });
@@ -297,6 +302,7 @@ describe('SessionsService.start', () => {
         ],
       }),
       expect.any(Function),
+      expect.any(Function),
     );
   });
 
@@ -318,6 +324,7 @@ describe('SessionsService.start', () => {
         helpEnabled: false,
         trainingOptions: [TrainingOptionId.NO_TIMER],
       }),
+      expect.any(Function),
       expect.any(Function),
     );
   });
@@ -397,6 +404,7 @@ describe('SessionsService.start', () => {
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
       expect.any(Function),
+      expect.any(Function),
     );
   });
 
@@ -454,9 +462,10 @@ describe('SessionsService.completeAxis (targeted)', () => {
 
   it('stores raw answers as metrics and completes the session without scoring', async () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-    );
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+      newBadges: [],
+    });
 
     const result = await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
@@ -470,6 +479,7 @@ describe('SessionsService.completeAxis (targeted)', () => {
         rawResult: { axis: AxisType.LOGIC, items: answers(40) },
         excludeFromBest: false,
       }),
+      expect.any(Function),
     );
     expect(result.status).toBe('COMPLETED');
   });
@@ -484,9 +494,10 @@ describe('SessionsService.completeAxis (targeted)', () => {
         axisResults: [buildAxis()],
       }),
     );
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-    );
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
@@ -495,6 +506,7 @@ describe('SessionsService.completeAxis (targeted)', () => {
 
     expect(repository.completeTargetedSession).toHaveBeenCalledWith(
       expect.objectContaining({ excludeFromBest: true }),
+      expect.any(Function),
     );
   });
 
@@ -507,9 +519,10 @@ describe('SessionsService.completeAxis (targeted)', () => {
         axisResults: [buildAxis()],
       }),
     );
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-    );
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
@@ -518,6 +531,7 @@ describe('SessionsService.completeAxis (targeted)', () => {
 
     expect(repository.completeTargetedSession).toHaveBeenCalledWith(
       expect.objectContaining({ excludeFromBest: true }),
+      expect.any(Function),
     );
   });
 
@@ -594,9 +608,10 @@ describe('SessionsService.completeAxis (targeted)', () => {
 
   it('accepts a completion once the active play time reaches the timer, even with unanswered items', async () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-    );
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
       axis: AxisType.LOGIC,
@@ -631,13 +646,14 @@ describe('SessionsService.completeAxis (memory)', () => {
 
   it('stores raw sequence answers as metrics without scoring', async () => {
     repository.findUserSession.mockResolvedValue(memorySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MEMORY' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
       axis: AxisType.MEMORY,
@@ -648,6 +664,7 @@ describe('SessionsService.completeAxis (memory)', () => {
         axis: AxisType.MEMORY,
         rawResult: { axis: AxisType.MEMORY, sequences: sequenceAnswers },
       }),
+      expect.any(Function),
     );
   });
 
@@ -702,13 +719,14 @@ describe('SessionsService.completeAxis (discrimination)', () => {
 
   it('stores raw trial answers as metrics without scoring', async () => {
     repository.findUserSession.mockResolvedValue(discriminationSession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'VISUAL_DISCRIMINATION' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis(
       'user-1',
@@ -724,6 +742,7 @@ describe('SessionsService.completeAxis (discrimination)', () => {
           trials: trialAnswers,
         },
       }),
+      expect.any(Function),
     );
   });
 
@@ -785,13 +804,14 @@ describe('SessionsService.completeAxis (reactivity)', () => {
 
   it('accepts a completion once the transmitted active play time reaches the trial duration', async () => {
     repository.findUserSession.mockResolvedValue(reactivitySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'REACTIVITY' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.REACTIVITY, {
       axis: AxisType.REACTIVITY,
@@ -945,10 +965,10 @@ describe('SessionsService.completeAxis (full simulation)', () => {
       timezone: 'Europe/Paris',
       streak: null,
     });
-    badgesService.evaluateAndUnlockWithin.mockResolvedValue([]);
+    badgesService.evaluateWithin.mockResolvedValue([]);
     repository.completeSession.mockResolvedValue({
       session: completedSession,
-      unlockedBadges: [],
+      newBadges: [],
     });
 
     const result = await service.completeAxis(
@@ -1503,13 +1523,14 @@ describe('SessionsService.completeAxis (motricity)', () => {
 
   it('accepts a fully crossed session and persists the shared recomputed score', async () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
@@ -1537,18 +1558,20 @@ describe('SessionsService.completeAxis (motricity)', () => {
           ),
         }),
       }),
+      expect.any(Function),
     );
   });
 
   it('persists the control modality and the per-course latency observables', async () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
@@ -1570,18 +1593,20 @@ describe('SessionsService.completeAxis (motricity)', () => {
           ]),
         }),
       }),
+      expect.any(Function),
     );
   });
 
   it('accepts a course stopped by the timer', async () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
@@ -1597,13 +1622,14 @@ describe('SessionsService.completeAxis (motricity)', () => {
 
   it('persists the derived timeline, events and modality inside the metrics', async () => {
     repository.findUserSession.mockResolvedValue(motricitySession());
-    repository.completeTargetedSession.mockResolvedValue(
-      buildSession({
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
         mode: 'TARGETED',
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-    );
+      newBadges: [],
+    });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
       axis: AxisType.MOTOR_SKILLS,
@@ -2043,13 +2069,7 @@ describe('SessionsService.current', () => {
 
 describe('SessionsService.complete', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
-  const unlockedBadge = {
-    code: 'VOLUME_FIRST_SIMULATION',
-    name: 'PremiÃ¨re simulation',
-    description: 'Terminez votre premiÃ¨re simulation complÃ¨te.',
-    category: BadgeCategory.VOLUME,
-    icon: 'rocket',
-  };
+  const wonBadge = { badgeId: BadgeId.EXAM_FIRST, energyReward: 0 };
 
   it('rejects the completion of a simulation while an axis is missing', async () => {
     repository.findUserSession.mockResolvedValue(
@@ -2092,13 +2112,13 @@ describe('SessionsService.complete', () => {
       timezone: 'Europe/Paris',
       streak: null,
     });
-    badgesService.evaluateAndUnlockWithin.mockResolvedValue([unlockedBadge]);
+    badgesService.evaluateWithin.mockResolvedValue([wonBadge]);
     repository.completeSession.mockImplementation(
       async (
         _params: unknown,
-        unlockBadges: (client: Prisma.TransactionClient) => Promise<unknown>,
+        evaluateBadges: (client: Prisma.TransactionClient) => Promise<unknown>,
       ) => {
-        const unlockedBadges = await unlockBadges({} as Prisma.TransactionClient);
+        const newBadges = await evaluateBadges({} as Prisma.TransactionClient);
         return {
           session: buildSession({
             status: 'COMPLETED',
@@ -2106,19 +2126,24 @@ describe('SessionsService.complete', () => {
             globalBand: 'ACCEPTABLE',
             axisResults: [scoredAxis],
           }),
-          unlockedBadges,
+          newBadges,
         };
       },
     );
 
     const result = await service.complete('user-1', sessionId);
 
-    expect(badgesService.evaluateAndUnlockWithin).toHaveBeenCalledTimes(1);
-    expect(badgesService.evaluateAndUnlockWithin).toHaveBeenCalledWith(
+    expect(badgesService.evaluateWithin).toHaveBeenCalledTimes(1);
+    expect(badgesService.evaluateWithin).toHaveBeenCalledWith(
       expect.anything(),
       'user-1',
-      { currentStreak: 1, flawlessVisualDiscrimination: false },
+      BadgeEvent.SESSION_COMPLETED,
+      {
+        mode: SessionMode.FULL,
+        axes: [{ axis: AxisType.LOGIC, score: 75 }],
+        simulation: { verdictFavorable: true },
+      },
     );
-    expect(result.unlockedBadges).toEqual([unlockedBadge]);
+    expect(result.newBadges).toEqual([wonBadge]);
   });
 });

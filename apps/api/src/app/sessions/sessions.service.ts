@@ -15,6 +15,7 @@ import {
   ControlModality,
   CurrentSessionDto,
   DiscriminationRawResultDto,
+  BadgeEvent,
   DiscriminationTrialAnswerDto,
   EMAIL_NOT_VERIFIED_ERROR_CODE,
   EnergyLedgerReason,
@@ -71,7 +72,6 @@ import {
   TrainingOptionId,
   trainingOptionsForAxis,
 } from '@psychotech/shared';
-import { isFlawlessVisualMetrics } from '../badges/badge.logic';
 import { BadgesService } from '../badges/badges.service';
 import { mapEnumValue } from '../common/enum.util';
 import { energyCost } from '../energy/energy.logic';
@@ -176,6 +176,16 @@ export class SessionsService {
               createdSessionId,
             )
         : undefined,
+      request.mode !== SessionMode.TUTORIAL
+        ? async (client) => {
+            await this.badgesService.evaluateWithin(
+              client,
+              userId,
+              BadgeEvent.SESSION_STARTED,
+              null,
+            );
+          }
+        : undefined,
     );
     return toSessionDto(session);
   }
@@ -218,23 +228,36 @@ export class SessionsService {
       completedAt,
       streakContext.timezone,
     );
-    const completed = await this.repository.completeTargetedSession({
-      sessionId,
-      userId,
-      axis,
-      rawResult,
-      score,
-      excludeFromBest: session.logicFamily != null || sessionUntimed(session),
-      controlModality: request.controlModality ?? null,
-      startedAt: target.startedAt ?? session.startedAt,
-      completedAt,
-      streak: {
-        current: streak.current,
-        longest: streak.longest,
-        lastActivityDate: completedAt,
+    const completed = await this.repository.completeTargetedSession(
+      {
+        sessionId,
+        userId,
+        axis,
+        rawResult,
+        score,
+        excludeFromBest: session.logicFamily != null || sessionUntimed(session),
+        controlModality: request.controlModality ?? null,
+        startedAt: target.startedAt ?? session.startedAt,
+        completedAt,
+        streak: {
+          current: streak.current,
+          longest: streak.longest,
+          lastActivityDate: completedAt,
+        },
       },
-    });
-    return toSessionDto(completed);
+      (client) =>
+        this.badgesService.evaluateWithin(
+          client,
+          userId,
+          BadgeEvent.SESSION_COMPLETED,
+          {
+            mode: SessionMode.TARGETED,
+            axes: score ? [{ axis, score: score.normalizedScore }] : [],
+            simulation: null,
+          },
+        ),
+    );
+    return toSessionDto(completed.session, completed.newBadges);
   }
 
   private async assertEmailVerified(userId: string): Promise<void> {
@@ -624,14 +647,6 @@ export class SessionsService {
       now,
       streakContext.timezone,
     );
-    const visualResult = session.axisResults.find(
-      (result) =>
-        !result.skipped &&
-        mapEnumValue(AxisType, result.axis) === AxisType.VISUAL_DISCRIMINATION,
-    );
-    const flawlessVisualDiscrimination = visualResult
-      ? isFlawlessVisualMetrics(visualResult.metrics)
-      : false;
     const completed = await this.repository.completeSession(
       {
         sessionId,
@@ -651,12 +666,21 @@ export class SessionsService {
         },
       },
       (client) =>
-        this.badgesService.evaluateAndUnlockWithin(client, userId, {
-          currentStreak: streak.current,
-          flawlessVisualDiscrimination,
-        }),
+        this.badgesService.evaluateWithin(
+          client,
+          userId,
+          BadgeEvent.SESSION_COMPLETED,
+          {
+            mode: SessionMode.FULL,
+            axes: axisBests.map((best) => ({
+              axis: best.axis,
+              score: best.score,
+            })),
+            simulation: { verdictFavorable: evaluation.isAdmissible },
+          },
+        ),
     );
-    return toSessionResultDto(completed.session, completed.unlockedBadges);
+    return toSessionResultDto(completed.session, completed.newBadges);
   }
 
   async suspend(userId: string, sessionId: string): Promise<SessionDto> {

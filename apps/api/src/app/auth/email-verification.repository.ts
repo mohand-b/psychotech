@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EmailVerification, EnergyLedgerReason } from '@prisma/client';
+import { EmailVerification, EnergyLedgerReason, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type VerificationOutcome =
@@ -43,6 +43,7 @@ export class EmailVerificationRepository {
     userId: string,
     grantAmount: number,
     now: Date,
+    onVerified?: (client: Prisma.TransactionClient) => Promise<void>,
   ): Promise<VerificationOutcome> {
     return this.prisma.$transaction(async (tx) => {
       const consumed = await tx.emailVerification.updateMany({
@@ -73,6 +74,9 @@ export class EmailVerificationRepository {
           ref: verificationId,
         },
       });
+      if (onVerified) {
+        await onVerified(tx);
+      }
       return 'VERIFIED_WITH_GRANT';
     });
   }

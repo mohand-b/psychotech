@@ -1,27 +1,38 @@
-import { Badge } from '@prisma/client';
-import { BadgeCategory, BadgeDto, BadgeStatusDto } from '@psychotech/shared';
-import { mapEnumValue } from '../common/enum.util';
+import { BadgeRarity, UserBadge } from '@prisma/client';
+import {
+  BadgeConditionStateDto,
+  BadgeDefinition,
+  BadgeFacts,
+  BadgeStatusDto,
+} from '@psychotech/shared';
 
-export function toBadgeDto(badge: Badge): BadgeDto {
+export const RARITY_VISIBILITY_THRESHOLD = 100;
+
+export function toBadgeStatusDto(
+  definition: BadgeDefinition,
+  earned: UserBadge | null,
+  rarity: BadgeRarity | null,
+  facts: BadgeFacts | null,
+): BadgeStatusDto {
+  const conditions: BadgeConditionStateDto[] = definition.conditions.map(
+    (condition) => ({
+      id: condition.id,
+      label: condition.label,
+      met: earned !== null || (facts !== null && condition.met(facts)),
+    }),
+  );
   return {
-    code: badge.code,
-    name: badge.name,
-    description: badge.description,
-    category: mapEnumValue(BadgeCategory, badge.category),
-    icon: badge.icon,
+    badgeId: definition.id,
+    earnedAt: earned?.earnedAt.toISOString() ?? null,
+    acknowledgedAt: earned?.acknowledgedAt?.toISOString() ?? null,
+    conditions,
+    rarityPercent: rarityPercent(rarity),
   };
 }
 
-export function buildBadgeCollection(
-  catalog: Badge[],
-  unlockDates: Map<string, Date>,
-): BadgeStatusDto[] {
-  return catalog.map((badge) => {
-    const unlockedAt = unlockDates.get(badge.code);
-    return {
-      badge: toBadgeDto(badge),
-      unlocked: unlockedAt !== undefined,
-      unlockedAt: unlockedAt ? unlockedAt.toISOString() : null,
-    };
-  });
+function rarityPercent(rarity: BadgeRarity | null): number | null {
+  if (!rarity || rarity.eligibleCount < RARITY_VISIBILITY_THRESHOLD) {
+    return null;
+  }
+  return Math.round((rarity.earnedCount / rarity.eligibleCount) * 100);
 }

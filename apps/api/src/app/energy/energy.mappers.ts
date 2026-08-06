@@ -8,6 +8,7 @@ const DB_REASON_BY_SHARED: Record<EnergyLedgerReason, DbEnergyLedgerReason> = {
   [EnergyLedgerReason.REFUND]: DbEnergyLedgerReason.REFUND,
   [EnergyLedgerReason.ADMIN_GRANT]: DbEnergyLedgerReason.ADMIN_GRANT,
   [EnergyLedgerReason.SIGNUP_GRANT]: DbEnergyLedgerReason.SIGNUP_GRANT,
+  [EnergyLedgerReason.BADGE_REWARD]: DbEnergyLedgerReason.BADGE_REWARD,
   [EnergyLedgerReason.PURCHASE]: DbEnergyLedgerReason.PURCHASE,
 };
 

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import { EmailVerification, User } from '@prisma/client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BadgesService } from '../badges/badges.service';
 import { AuthRepository } from './auth.repository';
 import { EmailVerificationRepository } from './email-verification.repository';
 import { EmailVerificationService } from './email-verification.service';
@@ -58,6 +59,8 @@ const repository = {
 
 const authRepository = { findById: vi.fn() };
 
+const badgesService = { evaluateWithin: vi.fn() };
+
 const mailer = { send: vi.fn() };
 
 const configService = {
@@ -70,6 +73,7 @@ const configService = {
 const service = new EmailVerificationService(
   repository as unknown as EmailVerificationRepository,
   authRepository as unknown as AuthRepository,
+  badgesService as unknown as BadgesService,
   mailer,
   configService,
 );
@@ -93,6 +97,7 @@ describe('EmailVerificationService.verify', () => {
       'user-1',
       5,
       expect.any(Date),
+      expect.any(Function),
     );
   });
 

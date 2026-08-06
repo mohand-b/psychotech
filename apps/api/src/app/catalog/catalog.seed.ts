@@ -4,7 +4,6 @@ import {
   Sector as SharedSector,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
-import { BADGE_DEFINITIONS } from '../badges/badge.catalog';
 
 function sectorLabel(sector: Sector): string {
   return SECTOR_LABELS[mapEnumValue(SharedSector, sector)];
@@ -31,7 +30,6 @@ const RAILWAY_AXES: { axis: AxisType; coefficient: number; order: number }[] = [
 export async function seedCatalog(prisma: PrismaClient): Promise<void> {
   await seedRailway(prisma);
   await seedInactiveSectors(prisma);
-  await seedBadges(prisma);
 }
 
 async function seedRailway(prisma: PrismaClient): Promise<void> {
@@ -84,23 +82,3 @@ async function seedInactiveSectors(prisma: PrismaClient): Promise<void> {
   }
 }
 
-async function seedBadges(prisma: PrismaClient): Promise<void> {
-  for (const badge of BADGE_DEFINITIONS) {
-    await prisma.badge.upsert({
-      where: { code: badge.code },
-      update: {
-        name: badge.name,
-        description: badge.description,
-        category: badge.category,
-        icon: badge.icon,
-      },
-      create: {
-        code: badge.code,
-        name: badge.name,
-        description: badge.description,
-        category: badge.category,
-        icon: badge.icon,
-      },
-    });
-  }
-}

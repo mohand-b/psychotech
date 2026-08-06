@@ -18,7 +18,7 @@ import {
   TrainingOptionId,
 } from '../domain';
 import { ReactivityCommand } from '../exercises/reactivity/reactivity-stimulus';
-import { BadgeDto } from './badge';
+import { NewBadgeDto } from './badge';
 
 export interface TargetedSessionOptionsDto {
   enabledOptions: TrainingOptionId[];
@@ -227,6 +227,7 @@ export interface SessionDto {
   completedAt: string | null;
   abandonedAt: string | null;
   controlModality: ControlModality | null;
+  newBadges?: NewBadgeDto[];
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
 }
@@ -277,6 +278,6 @@ export interface SessionResultDto {
   sectorThreshold: number;
   axisResults: SessionAxisResultDto[];
   recommendations: RecommendationDto[];
-  unlockedBadges: BadgeDto[];
+  newBadges: NewBadgeDto[];
   completedAt: string | null;
 }

@@ -12,7 +12,7 @@ import {
 import {
   AxisRawResultDto,
   AxisType,
-  BadgeDto,
+  NewBadgeDto,
   ControlModality,
   RecommendationDto,
   ScoreBand,
@@ -30,7 +30,7 @@ import {
 
 interface CompleteSessionResult {
   session: SessionWithRelations;
-  unlockedBadges: BadgeDto[];
+  newBadges: NewBadgeDto[];
 }
 
 interface CreateSessionParams {
@@ -132,6 +132,7 @@ export class SessionsRepository {
       client: Prisma.TransactionClient,
       sessionId: string,
     ) => Promise<void>,
+    afterCreateWithinTx?: (client: Prisma.TransactionClient) => Promise<void>,
   ): Promise<SessionWithRelations> {
     return this.prisma.$transaction(async (tx) => {
       await this.abandonUnfinishedSessions(tx, params.userId, new Date());
@@ -157,6 +158,9 @@ export class SessionsRepository {
       });
       if (spendWithinTx) {
         await spendWithinTx(tx, created.id);
+      }
+      if (afterCreateWithinTx) {
+        await afterCreateWithinTx(tx);
       }
       return tx.session.findUniqueOrThrow({
         where: { id: created.id },
@@ -260,7 +264,7 @@ export class SessionsRepository {
 
   async completeSession(
     params: CompleteSessionParams,
-    unlockBadges: (client: Prisma.TransactionClient) => Promise<BadgeDto[]>,
+    evaluateBadges: (client: Prisma.TransactionClient) => Promise<NewBadgeDto[]>,
   ): Promise<CompleteSessionResult> {
     return this.prisma.$transaction(async (tx) => {
       await tx.session.update({
@@ -303,18 +307,22 @@ export class SessionsRepository {
           lastActivityDate: params.streak.lastActivityDate,
         },
       });
-      const unlockedBadges = await unlockBadges(tx);
+      const newBadges = await evaluateBadges(tx);
       const session = await tx.session.findUniqueOrThrow({
         where: { id: params.sessionId },
         include: SESSION_INCLUDE,
       });
-      return { session, unlockedBadges };
+      return { session, newBadges };
     });
   }
 
   async completeTargetedSession(
     params: CompleteTargetedSessionParams,
-  ): Promise<SessionWithRelations> {
+    evaluateBadges: (
+      client: Prisma.TransactionClient,
+      session: SessionWithRelations,
+    ) => Promise<NewBadgeDto[]>,
+  ): Promise<CompleteSessionResult> {
     return this.prisma.$transaction(async (tx) => {
       await tx.sessionAxis.update({
         where: {
@@ -374,7 +382,8 @@ export class SessionsRepository {
           lastActivityDate: params.streak.lastActivityDate,
         },
       });
-      return session;
+      const newBadges = await evaluateBadges(tx, session);
+      return { session, newBadges };
     });
   }
 

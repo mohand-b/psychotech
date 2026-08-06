@@ -5,5 +5,6 @@ export enum EnergyLedgerReason {
   REFUND = 'REFUND',
   ADMIN_GRANT = 'ADMIN_GRANT',
   SIGNUP_GRANT = 'SIGNUP_GRANT',
+  BADGE_REWARD = 'BADGE_REWARD',
   PURCHASE = 'PURCHASE',
 }

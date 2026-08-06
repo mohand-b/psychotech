@@ -4,7 +4,7 @@ import {
   AxisProgressStatus,
   AxisRawResultDto,
   AxisType,
-  BadgeDto,
+  NewBadgeDto,
   ControlModality,
   CurrentSessionDto,
   LogicFamilyFilter,
@@ -33,13 +33,17 @@ export type SessionWithRelations = Prisma.SessionGetPayload<{
   include: typeof SESSION_INCLUDE;
 }>;
 
-export function toSessionDto(session: SessionWithRelations): SessionDto {
+export function toSessionDto(
+  session: SessionWithRelations,
+  newBadges?: NewBadgeDto[],
+): SessionDto {
   const mode = mapEnumValue(SessionMode, session.mode);
   const status = mapEnumValue(SessionStatus, session.status);
   const exposeAxisScores =
     mode !== SessionMode.FULL || status === SessionStatus.COMPLETED;
   return {
     id: session.id,
+    ...(newBadges ? { newBadges } : {}),
     mode,
     sector: mapEnumValue(Sector, session.sector),
     status,
@@ -76,7 +80,7 @@ export function toSessionDto(session: SessionWithRelations): SessionDto {
 
 export function toSessionResultDto(
   session: SessionWithRelations,
-  unlockedBadges: BadgeDto[] = [],
+  newBadges: NewBadgeDto[] = [],
 ): SessionResultDto {
   return {
     sessionId: session.id,
@@ -92,7 +96,7 @@ export function toSessionResultDto(
       toAxisResultDto(axis, true),
     ),
     recommendations: session.recommendations.map(toRecommendationDto),
-    unlockedBadges,
+    newBadges,
     completedAt: session.completedAt ? session.completedAt.toISOString() : null,
   };
 }

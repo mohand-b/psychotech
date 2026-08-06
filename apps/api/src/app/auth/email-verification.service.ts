@@ -3,10 +3,12 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import {
+  BadgeEvent,
   ResendVerificationResponseDto,
   SIGNUP_ENERGY_GRANT,
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
+import { BadgesService } from '../badges/badges.service';
 import { MailConfig } from '../config/mail.config';
 import { MAILER, MailerPort } from '../mail/mailer.port';
 import { AuthRepository } from './auth.repository';
@@ -28,6 +30,7 @@ export class EmailVerificationService {
   constructor(
     private readonly repository: EmailVerificationRepository,
     private readonly authRepository: AuthRepository,
+    private readonly badgesService: BadgesService,
     @Inject(MAILER) private readonly mailer: MailerPort,
     configService: ConfigService,
   ) {
@@ -94,6 +97,14 @@ export class EmailVerificationService {
       record.userId,
       SIGNUP_ENERGY_GRANT,
       now,
+      async (client) => {
+        await this.badgesService.evaluateWithin(
+          client,
+          record.userId,
+          BadgeEvent.ACCOUNT_VERIFIED,
+          null,
+        );
+      },
     );
     if (outcome === 'VERIFIED_WITH_GRANT') {
       return { outcome: 'VERIFIED', grantedEnergy: SIGNUP_ENERGY_GRANT };

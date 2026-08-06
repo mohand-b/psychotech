@@ -55,6 +55,7 @@ enum EnergyLedgerReason {
   REFUND
   ADMIN_GRANT
   SIGNUP_GRANT
+  BADGE_REWARD
   PURCHASE
 }
 
@@ -64,11 +65,27 @@ enum RecommendationPriority {
   LOW
 }
 
-enum BadgeCategory {
-  STREAK
-  PERFORMANCE
-  VOLUME
-  MASTERY
+enum BadgeId {
+  LOGIC_PROGRESSION
+  LOGIC_EXCELLENCE
+  LOGIC_PERFECTION
+  MEMORY_PROGRESSION
+  MEMORY_EXCELLENCE
+  MEMORY_PERFECTION
+  DISCRIMINATION_PROGRESSION
+  DISCRIMINATION_EXCELLENCE
+  DISCRIMINATION_PERFECTION
+  REACTIVITY_PROGRESSION
+  REACTIVITY_EXCELLENCE
+  REACTIVITY_PERFECTION
+  MOTOR_PROGRESSION
+  MOTOR_EXCELLENCE
+  MOTOR_PERFECTION
+  EXAM_FIRST
+  EXAM_FAVORABLE
+  EXAM_SOLID
+  FIRST_STEPS
+  SECTOR_MASTERY
 }
 
 enum ControlModality {
@@ -88,11 +105,12 @@ model User {
   timezone         String   @default("Europe/Paris")
   currentSector    Sector   @default(RAILWAY)
   stripeCustomerId String?   @unique
-  termsVersion     String?
-  termsAcceptedAt  DateTime?
-  emailVerifiedAt  DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  termsVersion         String?
+  termsAcceptedAt      DateTime?
+  emailVerifiedAt      DateTime?
+  tutorialDiscoveredAt DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   energyWallet      EnergyWallet?
   emailVerification EmailVerification?
@@ -222,25 +240,22 @@ model Streak {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Badge {
-  id          String        @id @default(uuid())
-  code        String        @unique
-  name        String
-  description String
-  category    BadgeCategory
-  icon        String
-  users       UserBadge[]
-}
-
 model UserBadge {
-  id         String   @id @default(uuid())
-  userId     String
-  badgeId    String
-  unlockedAt DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  id             String    @id @default(uuid())
+  userId         String
+  badgeId        BadgeId
+  earnedAt       DateTime  @default(now())
+  acknowledgedAt DateTime?
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
+}
+
+model BadgeRarity {
+  badgeId       BadgeId  @id
+  eligibleCount Int
+  earnedCount   Int
+  computedAt    DateTime
 }
 
 model SectorConfig {

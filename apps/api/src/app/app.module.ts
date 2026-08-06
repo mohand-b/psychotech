@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -29,6 +30,7 @@ import { webAppServingImports } from './config/web-app-serving';
       validate: validateEnvironment,
     }),
     ...webAppServingImports(),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     BillingModule,

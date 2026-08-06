@@ -7,7 +7,6 @@ export * from './score-band';
 export * from './energy-ledger-reason';
 export * from './energy-pack-id';
 export * from './recommendation-priority';
-export * from './badge-category';
 export * from './memory-phase';
 export * from './axis-featured-metric';
 export * from './axis-timer-model';
