@@ -1,7 +1,6 @@
 import { AxisType, Sector, SessionMode } from '../../enums';
 import { SECTOR_AXES } from '../sector-axes';
 import {
-  BadgeAxisPerfectionFacts,
   BadgeCondition,
   BadgeDefinition,
   BadgeEvent,
@@ -14,7 +13,7 @@ import {
 
 export const BADGE_PROGRESSION_THRESHOLD = 70;
 export const BADGE_EXCELLENCE_THRESHOLD = 85;
-export const BADGE_MEMORY_SPAN_TARGET = 8;
+export const BADGE_PERFECTION_SCORE = 100;
 export const BADGE_SECTOR_THRESHOLD = 70;
 export const BADGE_EXAM_AXIS_FLOOR = 70;
 
@@ -25,28 +24,22 @@ export const SECTOR_BADGE_NAMES: Record<Sector, string> = {
   [Sector.RAILWAY]: 'Sur les rails',
 };
 
-function bestScoreCondition(axis: AxisType, threshold: number): BadgeCondition {
+function bestScoreCondition(
+  axis: AxisType,
+  threshold: number,
+  label: string,
+): BadgeCondition {
   return {
     id: `best-${threshold}`,
-    label: `Meilleur score ≥ ${threshold}`,
+    label,
     met: (facts) => (facts.bestScores[axis] ?? 0) >= threshold,
   };
-}
-
-function perfectionFactsFor(
-  facts: BadgeFacts,
-  axis: AxisType,
-): BadgeAxisPerfectionFacts | null {
-  const entry = facts.session?.axes.find((candidate) => candidate.axis === axis);
-  return entry?.perfection ?? null;
 }
 
 function axisBadges(
   axis: AxisType,
   ids: readonly [BadgeId, BadgeId, BadgeId],
   names: readonly [string, string, string],
-  perfectionLabel: string,
-  perfectionMet: (facts: BadgeFacts) => boolean,
 ): BadgeDefinition[] {
   const common = {
     family: BadgeFamily.AXIS,
@@ -61,14 +54,26 @@ function axisBadges(
       id: ids[0],
       tier: BadgeTier.BRONZE,
       displayName: names[0],
-      conditions: [bestScoreCondition(axis, BADGE_PROGRESSION_THRESHOLD)],
+      conditions: [
+        bestScoreCondition(
+          axis,
+          BADGE_PROGRESSION_THRESHOLD,
+          `Meilleur score ≥ ${BADGE_PROGRESSION_THRESHOLD}`,
+        ),
+      ],
     },
     {
       ...common,
       id: ids[1],
       tier: BadgeTier.SILVER,
       displayName: names[1],
-      conditions: [bestScoreCondition(axis, BADGE_EXCELLENCE_THRESHOLD)],
+      conditions: [
+        bestScoreCondition(
+          axis,
+          BADGE_EXCELLENCE_THRESHOLD,
+          `Meilleur score ≥ ${BADGE_EXCELLENCE_THRESHOLD}`,
+        ),
+      ],
     },
     {
       ...common,
@@ -76,100 +81,63 @@ function axisBadges(
       tier: BadgeTier.GOLD,
       displayName: names[2],
       conditions: [
-        { id: 'perfection', label: perfectionLabel, met: perfectionMet },
+        bestScoreCondition(
+          axis,
+          BADGE_PERFECTION_SCORE,
+          `Score parfait de ${BADGE_PERFECTION_SCORE}`,
+        ),
       ],
     },
   ];
 }
 
-const LOGIC_BADGES = axisBadges(
-  AxisType.LOGIC,
-  [BadgeId.LOGIC_PROGRESSION, BadgeId.LOGIC_EXCELLENCE, BadgeId.LOGIC_PERFECTION],
-  ['Déclic', 'Implacable', 'Infaillible'],
-  'Toutes les réponses justes, aucun timeout',
-  (facts) => {
-    const perfection = perfectionFactsFor(facts, AxisType.LOGIC);
-    return (
-      perfection?.kind === AxisType.LOGIC &&
-      perfection.itemCount > 0 &&
-      perfection.correctCount === perfection.itemCount
-    );
-  },
-);
-
-const MEMORY_BADGES = axisBadges(
-  AxisType.MEMORY,
-  [
-    BadgeId.MEMORY_PROGRESSION,
-    BadgeId.MEMORY_EXCELLENCE,
-    BadgeId.MEMORY_PERFECTION,
-  ],
-  ['Mémoire vive', "Mémoire d'acier", 'Empan 8'],
-  'Une séquence de 8 éléments restituée, ordre normal ou inversé',
-  (facts) => {
-    const perfection = perfectionFactsFor(facts, AxisType.MEMORY);
-    return (
-      perfection?.kind === AxisType.MEMORY &&
-      perfection.longestPerfectLength >= BADGE_MEMORY_SPAN_TARGET
-    );
-  },
-);
-
-const DISCRIMINATION_BADGES = axisBadges(
-  AxisType.VISUAL_DISCRIMINATION,
-  [
-    BadgeId.DISCRIMINATION_PROGRESSION,
-    BadgeId.DISCRIMINATION_EXCELLENCE,
-    BadgeId.DISCRIMINATION_PERFECTION,
-  ],
-  ['Bon œil', 'Œil de lynx', 'Vigie'],
-  'Zéro fausse alerte, zéro cible manquée',
-  (facts) => {
-    const perfection = perfectionFactsFor(
-      facts,
-      AxisType.VISUAL_DISCRIMINATION,
-    );
-    return (
-      perfection?.kind === AxisType.VISUAL_DISCRIMINATION &&
-      perfection.falseAlarmCount === 0 &&
-      perfection.missedTargetCount === 0
-    );
-  },
-);
-
-const REACTIVITY_BADGES = axisBadges(
-  AxisType.REACTIVITY,
-  [
-    BadgeId.REACTIVITY_PROGRESSION,
-    BadgeId.REACTIVITY_EXCELLENCE,
-    BadgeId.REACTIVITY_PERFECTION,
-  ],
-  ['Bons réflexes', 'Au quart de tour', 'Sang-froid'],
-  'Zéro anticipation, zéro omission, zéro mauvaise commande',
-  (facts) => {
-    const perfection = perfectionFactsFor(facts, AxisType.REACTIVITY);
-    return (
-      perfection?.kind === AxisType.REACTIVITY &&
-      perfection.anticipationCount === 0 &&
-      perfection.omissionCount === 0 &&
-      perfection.wrongCommandCount === 0
-    );
-  },
-);
-
-const MOTOR_BADGES = axisBadges(
-  AxisType.MOTOR_SKILLS,
-  [BadgeId.MOTOR_PROGRESSION, BadgeId.MOTOR_EXCELLENCE, BadgeId.MOTOR_PERFECTION],
-  ['Prise en main', 'Main sûre', 'Millimétré'],
-  'Parcours terminé sans aucune sortie de couloir',
-  (facts) => {
-    const perfection = perfectionFactsFor(facts, AxisType.MOTOR_SKILLS);
-    return (
-      perfection?.kind === AxisType.MOTOR_SKILLS &&
-      perfection.corridorExitCount === 0
-    );
-  },
-);
+const AXIS_BADGES: BadgeDefinition[] = [
+  ...axisBadges(
+    AxisType.LOGIC,
+    [
+      BadgeId.LOGIC_PROGRESSION,
+      BadgeId.LOGIC_EXCELLENCE,
+      BadgeId.LOGIC_PERFECTION,
+    ],
+    ['Déclic', 'Implacable', 'Infaillible'],
+  ),
+  ...axisBadges(
+    AxisType.MEMORY,
+    [
+      BadgeId.MEMORY_PROGRESSION,
+      BadgeId.MEMORY_EXCELLENCE,
+      BadgeId.MEMORY_PERFECTION,
+    ],
+    ['Mémoire vive', "Mémoire d'acier", 'Mémoire absolue'],
+  ),
+  ...axisBadges(
+    AxisType.VISUAL_DISCRIMINATION,
+    [
+      BadgeId.DISCRIMINATION_PROGRESSION,
+      BadgeId.DISCRIMINATION_EXCELLENCE,
+      BadgeId.DISCRIMINATION_PERFECTION,
+    ],
+    ['Bon œil', 'Œil de lynx', 'Vigie'],
+  ),
+  ...axisBadges(
+    AxisType.REACTIVITY,
+    [
+      BadgeId.REACTIVITY_PROGRESSION,
+      BadgeId.REACTIVITY_EXCELLENCE,
+      BadgeId.REACTIVITY_PERFECTION,
+    ],
+    ['Bons réflexes', 'Au quart de tour', 'Sang-froid'],
+  ),
+  ...axisBadges(
+    AxisType.MOTOR_SKILLS,
+    [
+      BadgeId.MOTOR_PROGRESSION,
+      BadgeId.MOTOR_EXCELLENCE,
+      BadgeId.MOTOR_PERFECTION,
+    ],
+    ['Prise en main', 'Main sûre', 'Millimétré'],
+  ),
+];
 
 function completedSimulation(facts: BadgeFacts): boolean {
   return (
@@ -227,12 +195,11 @@ const EXAM_BADGES: BadgeDefinition[] = [
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
     conditions: [
       {
-        id: 'favorable-solid',
-        label: 'Verdict favorable avec qualificatif Solide',
+        id: 'favorable',
+        label: 'Verdict favorable',
         met: (facts) =>
           completedSimulation(facts) &&
-          facts.session?.simulation?.verdictFavorable === true &&
-          facts.session.simulation.qualifierAtLeastSolid,
+          facts.session?.simulation?.verdictFavorable === true,
       },
       {
         id: 'no-axis-under-70',
@@ -304,11 +271,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
 ];
 
 export const BADGE_CATALOG: readonly BadgeDefinition[] = [
-  ...LOGIC_BADGES,
-  ...MEMORY_BADGES,
-  ...DISCRIMINATION_BADGES,
-  ...REACTIVITY_BADGES,
-  ...MOTOR_BADGES,
+  ...AXIS_BADGES,
   ...EXAM_BADGES,
   ...TRANSVERSE_BADGES,
 ];

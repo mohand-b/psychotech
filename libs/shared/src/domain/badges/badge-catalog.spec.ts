@@ -41,7 +41,6 @@ function facts(overrides: Partial<BadgeFacts> = {}): BadgeFacts {
 function simulationSession(
   axisScores: number[],
   verdictFavorable: boolean,
-  qualifierAtLeastSolid: boolean,
 ): BadgeFacts['session'] {
   const axes = [
     AxisType.LOGIC,
@@ -52,12 +51,11 @@ function simulationSession(
   ].map((axis, index) => ({
     axis,
     score: axisScores[index],
-    perfection: null,
   }));
   return {
     mode: SessionMode.FULL,
     axes,
-    simulation: { verdictFavorable, qualifierAtLeastSolid },
+    simulation: { verdictFavorable },
   };
 }
 
@@ -121,84 +119,22 @@ describe('axis threshold badges', () => {
 });
 
 describe('axis perfection badges', () => {
-  it('awards Infaillible only on a full-marks logic session', () => {
+  it('awards the gold badge only on a perfect best score of 100', () => {
     const infaillible = badge(BadgeId.LOGIC_PERFECTION);
-    const session = (correctCount: number): BadgeFacts['session'] => ({
-      mode: SessionMode.TARGETED,
-      axes: [
-        {
-          axis: AxisType.LOGIC,
-          score: 50,
-          perfection: {
-            kind: AxisType.LOGIC,
-            itemCount: 40,
-            correctCount,
-          },
-        },
-      ],
-      simulation: null,
-    });
-    expect(badgeEarned(infaillible, facts({ session: session(40) }))).toBe(true);
-    expect(badgeEarned(infaillible, facts({ session: session(39) }))).toBe(
-      false,
-    );
-    expect(badgeEarned(infaillible, facts())).toBe(false);
-  });
-
-  it('awards Empan 8 from the longest perfect restitution', () => {
-    const empan = badge(BadgeId.MEMORY_PERFECTION);
-    const session = (length: number): BadgeFacts['session'] => ({
-      mode: SessionMode.TARGETED,
-      axes: [
-        {
-          axis: AxisType.MEMORY,
-          score: 40,
-          perfection: {
-            kind: AxisType.MEMORY,
-            longestPerfectLength: length,
-          },
-        },
-      ],
-      simulation: null,
-    });
-    expect(badgeEarned(empan, facts({ session: session(8) }))).toBe(true);
-    expect(badgeEarned(empan, facts({ session: session(7) }))).toBe(false);
-  });
-
-  it('awards Sang-froid only on a flawless reactivity session', () => {
-    const sangFroid = badge(BadgeId.REACTIVITY_PERFECTION);
-    const session = (
-      anticipationCount: number,
-      omissionCount: number,
-      wrongCommandCount: number,
-    ): BadgeFacts['session'] => ({
-      mode: SessionMode.TARGETED,
-      axes: [
-        {
-          axis: AxisType.REACTIVITY,
-          score: 55,
-          perfection: {
-            kind: AxisType.REACTIVITY,
-            anticipationCount,
-            omissionCount,
-            wrongCommandCount,
-          },
-        },
-      ],
-      simulation: null,
-    });
-    expect(badgeEarned(sangFroid, facts({ session: session(0, 0, 0) }))).toBe(
-      true,
-    );
-    expect(badgeEarned(sangFroid, facts({ session: session(1, 0, 0) }))).toBe(
-      false,
-    );
-    expect(badgeEarned(sangFroid, facts({ session: session(0, 1, 0) }))).toBe(
-      false,
-    );
-    expect(badgeEarned(sangFroid, facts({ session: session(0, 0, 1) }))).toBe(
-      false,
-    );
+    const memoireAbsolue = badge(BadgeId.MEMORY_PERFECTION);
+    expect(
+      badgeEarned(infaillible, facts({ bestScores: { [AxisType.LOGIC]: 99 } })),
+    ).toBe(false);
+    expect(
+      badgeEarned(infaillible, facts({ bestScores: { [AxisType.LOGIC]: 100 } })),
+    ).toBe(true);
+    expect(memoireAbsolue.displayName).toBe('Mémoire absolue');
+    expect(
+      badgeEarned(
+        memoireAbsolue,
+        facts({ bestScores: { [AxisType.MEMORY]: 100 } }),
+      ),
+    ).toBe(true);
   });
 });
 
@@ -208,30 +144,30 @@ describe('exam badges', () => {
     expect(
       badgeEarned(
         bapteme,
-        facts({ session: simulationSession([10, 10, 10, 10, 10], false, false) }),
+        facts({ session: simulationSession([10, 10, 10, 10, 10], false) }),
       ),
     ).toBe(true);
     expect(badgeEarned(bapteme, facts())).toBe(false);
   });
 
-  it('awards Sans réserve only when favorable, solid and no axis under 70', () => {
+  it('awards Sans réserve when favorable with no axis under 70', () => {
     const sansReserve = badge(BadgeId.EXAM_SOLID);
     expect(
       badgeEarned(
         sansReserve,
-        facts({ session: simulationSession([80, 85, 78, 90, 72], true, true) }),
+        facts({ session: simulationSession([80, 85, 78, 90, 72], true) }),
       ),
     ).toBe(true);
     expect(
       badgeEarned(
         sansReserve,
-        facts({ session: simulationSession([80, 85, 69, 90, 72], true, true) }),
+        facts({ session: simulationSession([80, 85, 69, 90, 72], true) }),
       ),
     ).toBe(false);
     expect(
       badgeEarned(
         sansReserve,
-        facts({ session: simulationSession([80, 85, 78, 90, 72], true, false) }),
+        facts({ session: simulationSession([80, 85, 78, 90, 72], false) }),
       ),
     ).toBe(false);
   });

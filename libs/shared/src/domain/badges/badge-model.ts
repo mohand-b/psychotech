@@ -55,51 +55,14 @@ export interface BadgeUserFacts {
   sessionStarted: boolean;
 }
 
-export interface LogicPerfectionFacts {
-  kind: AxisType.LOGIC;
-  itemCount: number;
-  correctCount: number;
-}
-
-export interface MemoryPerfectionFacts {
-  kind: AxisType.MEMORY;
-  longestPerfectLength: number;
-}
-
-export interface DiscriminationPerfectionFacts {
-  kind: AxisType.VISUAL_DISCRIMINATION;
-  falseAlarmCount: number;
-  missedTargetCount: number;
-}
-
-export interface ReactivityPerfectionFacts {
-  kind: AxisType.REACTIVITY;
-  anticipationCount: number;
-  omissionCount: number;
-  wrongCommandCount: number;
-}
-
-export interface MotorPerfectionFacts {
-  kind: AxisType.MOTOR_SKILLS;
-  corridorExitCount: number;
-}
-
-export type BadgeAxisPerfectionFacts =
-  | LogicPerfectionFacts
-  | MemoryPerfectionFacts
-  | DiscriminationPerfectionFacts
-  | ReactivityPerfectionFacts
-  | MotorPerfectionFacts;
 
 export interface BadgeSessionAxisFacts {
   axis: AxisType;
   score: number;
-  perfection: BadgeAxisPerfectionFacts | null;
 }
 
 export interface BadgeSimulationFacts {
   verdictFavorable: boolean;
-  qualifierAtLeastSolid: boolean;
 }
 
 export interface BadgeSessionFacts {
