@@ -968,7 +968,7 @@ describe('SessionsService.completeAxis (full simulation)', () => {
     badgesService.evaluateWithin.mockResolvedValue([]);
     repository.completeSession.mockResolvedValue({
       session: completedSession,
-      newBadges: [],
+      newBadges: [{ badgeId: BadgeId.EXAM_FIRST, energyReward: 0 }],
     });
 
     const result = await service.completeAxis(
@@ -987,6 +987,9 @@ describe('SessionsService.completeAxis (full simulation)', () => {
     expect(repository.completeSession).toHaveBeenCalledTimes(1);
     expect(result.status).toBe('COMPLETED');
     expect(result.axisResults[0].normalizedScore).toBe(70);
+    expect(result.newBadges).toEqual([
+      { badgeId: BadgeId.EXAM_FIRST, energyReward: 0 },
+    ]);
   });
 });
 

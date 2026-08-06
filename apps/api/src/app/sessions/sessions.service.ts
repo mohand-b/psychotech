@@ -303,8 +303,11 @@ export class SessionsService {
     });
     const updated = await this.loadOwnedSession(session.id, userId);
     if (updated.axisResults.every((result) => result.completedAt !== null)) {
-      await this.complete(userId, session.id);
-      return toSessionDto(await this.loadOwnedSession(session.id, userId));
+      const result = await this.complete(userId, session.id);
+      return toSessionDto(
+        await this.loadOwnedSession(session.id, userId),
+        result.newBadges,
+      );
     }
     return toSessionDto(updated);
   }
