@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../dist/out-tsc/api-tools",
+    "module": "commonjs",
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "baseUrl": "../../..",
+    "paths": {
+      "@psychotech/shared": ["./libs/shared/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts", "../src/**/*.ts"],
+  "exclude": ["../src/**/*.spec.ts"]
+}
