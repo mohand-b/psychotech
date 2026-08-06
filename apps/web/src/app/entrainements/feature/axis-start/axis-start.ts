@@ -18,6 +18,7 @@ import {
   TrainingOptionId,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
@@ -48,6 +49,7 @@ import { sectorReferentialFor } from '../sector-referential';
 export class AxisStart {
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly authFacade = inject(AuthFacade);
+  private readonly badgesFacade = inject(BadgesFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
@@ -92,6 +94,9 @@ export class AxisStart {
   protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
 
   constructor() {
+    if (this.tutorial) {
+      this.badgesFacade.notifyTutorialDiscovered();
+    }
     if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
       this.router.navigate(['/entrainements'], {
         queryParams: { panel: 'cible' },

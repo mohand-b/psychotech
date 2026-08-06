@@ -1,0 +1,113 @@
+<div class="badges__head">
+  <h1 class="t-page-title">Badges</h1>
+  <p class="badges__subtitle">
+    Votre collection avance avec vos résultats. Certains badges créditent votre
+    solde d'énergie.
+  </p>
+</div>
+
+@if (board(); as view) {
+  <section class="badges__summary">
+    <div class="badges__summary-block badges__summary-collection">
+      <span class="t-label">Collection</span>
+      <span class="badges__summary-line">
+        <span class="badges__summary-value t-mono">{{
+          view.summary.earnedCount
+        }}</span>
+        <span class="badges__summary-caption"
+          >sur {{ view.summary.total }} badges</span
+        >
+      </span>
+      <span class="badges__bar">
+        <span
+          class="badges__bar-fill"
+          [style.width.%]="view.summary.progressPercent"
+        ></span>
+      </span>
+    </div>
+    <span class="badges__summary-divider"></span>
+    <div class="badges__summary-block">
+      <span class="t-label">Énergie</span>
+      <span class="badges__summary-line">
+        <span class="badges__summary-value badges__summary-value--energy t-mono"
+          >+{{ view.summary.energyEarned }}</span
+        >
+        <span class="badges__summary-caption">énergies créditées</span>
+      </span>
+      @if (view.summary.energyRemaining > 0) {
+        <span class="badges__summary-note"
+          >Encore +{{ view.summary.energyRemaining }} à gagner</span
+        >
+      }
+    </div>
+    <span class="badges__summary-divider"></span>
+    <div class="badges__summary-block badges__summary-closest">
+      <span class="t-label">Le plus proche</span>
+      @if (view.summary.closest; as closest) {
+        <span class="badges__closest">
+          <ui-badge-art
+            class="badges__closest-art"
+            [src]="closest.assetPath"
+            [alt]="closest.name"
+            [locked]="true"
+          />
+          <span class="badges__closest-text">
+            <span class="badges__closest-name">{{ closest.name }}</span>
+            · {{ closest.hint }}
+            @if (closest.gainLabel) {
+              <span class="badges__closest-gain t-mono">{{
+                closest.gainLabel
+              }}</span>
+            }
+          </span>
+        </span>
+      } @else {
+        <span class="badges__summary-note">Collection complète</span>
+      }
+    </div>
+  </section>
+
+  <section class="badges__board">
+    <div class="badges__family">
+      <div class="badges__family-head">
+        <h2 class="badges__family-title">Axes</h2>
+        <span class="badges__family-sub"
+          >Le palier le plus haut de chaque axe, et la suite de l'échelle</span
+        >
+      </div>
+      <div class="badges__family-rows">
+        @for (card of view.axisCards; track card.label) {
+          <ui-badge-tier-row [card]="card" />
+        }
+      </div>
+    </div>
+    <div class="badges__family">
+      <div class="badges__family-head">
+        <h2 class="badges__family-title">{{ fullSessionLabel }}</h2>
+        <span class="badges__family-sub"
+          >Les cinq axes enchaînés, trois paliers</span
+        >
+      </div>
+      <div class="badges__family-rows">
+        <ui-badge-tier-row [card]="view.examCard" />
+      </div>
+    </div>
+    <div class="badges__family">
+      <div class="badges__family-head">
+        <h2 class="badges__family-title">Transverses</h2>
+        <span class="badges__family-sub">Un seul état, tous axes confondus</span>
+      </div>
+      <div class="badges__family-rows badges__family-rows--transverse">
+        @for (badge of view.transverse; track badge.badgeId) {
+          <ui-badge-transverse-row [badge]="badge" />
+        }
+      </div>
+    </div>
+  </section>
+
+  <p class="badges__footnote">
+    La part des candidats n'apparaît que lorsque suffisamment de comptes sont
+    concernés. Besoin d'énergie tout de suite ?
+    <a class="badges__footnote-link" routerLink="/energie">Voir les packs</a>.
+  </p>
+}

@@ -20,6 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
@@ -80,6 +81,7 @@ interface Setup {
   start: ReturnType<typeof vi.fn>;
   gamepad: ReturnType<typeof gamepadFacadeStub>;
   energyLoad: ReturnType<typeof vi.fn>;
+  notifyTutorialDiscovered: ReturnType<typeof vi.fn>;
 }
 
 interface SetupOptions {
@@ -97,10 +99,12 @@ async function setup(
   const start = vi.fn(options.startResult ?? (() => of(buildSession())));
   const gamepad = gamepadFacadeStub();
   const energyLoad = vi.fn(() => of(null));
+  const notifyTutorialDiscovered = vi.fn();
   await TestBed.configureTestingModule({
     imports: [AxisStart],
     providers: [
       provideRouter([]),
+      { provide: BadgesFacade, useValue: { notifyTutorialDiscovered } },
       { provide: GamepadFacade, useValue: gamepad },
       { provide: SessionsApi, useValue: { start, get: vi.fn() } },
       {
@@ -144,6 +148,7 @@ async function setup(
     start,
     gamepad,
     energyLoad,
+    notifyTutorialDiscovered,
   };
 }
 
@@ -257,6 +262,18 @@ describe('AxisStart - option Familles', () => {
       'La découverte est toujours identique et ne consomme aucune énergie.',
     );
     expect(result.element.textContent?.toLowerCase()).not.toContain('tutoriel');
+  });
+});
+
+describe('AxisStart - badge tutoriel', () => {
+  it('signals the discovered tutorial when the briefing opens in discovery mode', async () => {
+    const result = await setup('logique', true);
+    expect(result.notifyTutorialDiscovered).toHaveBeenCalledTimes(1);
+  });
+
+  it('signals nothing outside the discovery mode', async () => {
+    const result = await setup('logique');
+    expect(result.notifyTutorialDiscovered).not.toHaveBeenCalled();
   });
 });
 

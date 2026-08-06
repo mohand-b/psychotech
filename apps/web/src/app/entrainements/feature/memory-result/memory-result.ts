@@ -19,7 +19,9 @@ import {
   getAxisRecommendations,
   scoreMemorySession,
 } from '@psychotech/shared';
+import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import { buildMemoryMetricRows } from '../../../shared/ui/axis-result-content';
@@ -40,6 +42,7 @@ import { ResultTiming } from '../../ui/result-timing/result-timing';
   selector: 'app-memory-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BadgeUnlock,
     MemoryReliabilityChart,
     ResultActions,
     ResultMetrics,
@@ -63,6 +66,7 @@ export class MemoryResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
+  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
 
   protected readonly axis = AxisType.MEMORY;
   protected readonly result = signal<TargetedMemoryResultDto | null>(null);

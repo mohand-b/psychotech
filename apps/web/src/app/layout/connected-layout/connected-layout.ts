@@ -23,6 +23,7 @@ import {
 } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
+import { BadgeCelebration } from '../../badges/feature/badge-celebration/badge-celebration';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';
@@ -81,7 +82,14 @@ interface FocusedHeaderView {
 @Component({
   selector: 'app-connected-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisLabel, RouterLink, RouterOutlet, Navbar, FocusedHeader],
+  imports: [
+    AxisLabel,
+    BadgeCelebration,
+    RouterLink,
+    RouterOutlet,
+    Navbar,
+    FocusedHeader,
+  ],
   templateUrl: './connected-layout.html',
   styleUrl: './connected-layout.css',
 })

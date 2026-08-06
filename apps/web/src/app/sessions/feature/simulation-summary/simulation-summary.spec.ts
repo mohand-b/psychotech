@@ -8,11 +8,13 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  BadgeId,
   ELIMINATORY_AXIS_VERDICT_NOTE,
   LogicFamily,
   RecommendationPriority,
   ScoreBand,
   Sector,
+  SessionDto,
   SimulationSummaryDto,
   SimulationThresholdKind,
   SimulationVerdict,
@@ -20,7 +22,9 @@ import {
   TargetedLogicResultDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
+import { TrainingSessionFacade } from '../../data-access/training-session.facade';
 import { SimulationSummary } from './simulation-summary';
 
 const AXIS_ORDER = [
@@ -205,6 +209,7 @@ const LOGIC_DETAIL: TargetedLogicResultDto = {
 async function setup(
   summary: SimulationSummaryDto,
   detail: TargetedLogicResultDto = LOGIC_DETAIL,
+  activeSession: SessionDto | null = null,
 ) {
   const summarySignal = signal<SimulationSummaryDto | null>(null);
   const facade = {
@@ -215,11 +220,17 @@ async function setup(
     }),
     loadAxisDetail: vi.fn().mockReturnValue(of(detail)),
   };
+  const acknowledgeAll = vi.fn();
   await TestBed.configureTestingModule({
     imports: [SimulationSummary],
     providers: [
       provideRouter([]),
       { provide: SimulationSummaryFacade, useValue: facade },
+      {
+        provide: TrainingSessionFacade,
+        useValue: { session: signal(activeSession) },
+      },
+      { provide: BadgesFacade, useValue: { acknowledgeAll } },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -232,7 +243,7 @@ async function setup(
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   fixture.detectChanges();
-  return { fixture, facade, navigate };
+  return { fixture, facade, navigate, acknowledgeAll };
 }
 
 describe('SimulationSummary', () => {
@@ -500,6 +511,32 @@ describe('SimulationSummary', () => {
     expect(element.querySelector('ui-result-family-bars')).toBeNull();
     expect(element.textContent).not.toContain('Par famille');
     expect(element.querySelector('ui-time-chart')).not.toBeNull();
+  });
+
+  it('reveals and acknowledges the badges earned by the completed examen blanc', async () => {
+    const newBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, energyReward: 2 }];
+    const activeSession = {
+      id: 'session-1',
+      sector: Sector.RAILWAY,
+      newBadges,
+    } as SessionDto;
+    const { fixture, acknowledgeAll } = await setup(
+      buildSummary(),
+      LOGIC_DETAIL,
+      activeSession,
+    );
+    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
+    expect(section).not.toBeNull();
+    expect(section.textContent).toContain('Badge débloqué');
+    expect(section.textContent).toContain('Apte');
+    expect(section.textContent).toContain('+2 énergies');
+    expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
+  });
+
+  it('hides the badge section when nothing new was earned', async () => {
+    const { fixture, acknowledgeAll } = await setup(buildSummary());
+    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
+    expect(acknowledgeAll).not.toHaveBeenCalled();
   });
 
   it('navigates to the targeted preparation of the recommended axis', async () => {

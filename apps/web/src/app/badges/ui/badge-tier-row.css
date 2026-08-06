@@ -1,0 +1,198 @@
+:host {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 32px;
+  padding: 18px 32px 22px;
+}
+
+:host(:not(:first-child)) {
+  border-top: 1px solid var(--divider-soft);
+}
+
+.tier-row__hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tier-row__hero-art {
+  --badge-art-size: 88px;
+}
+
+.tier-row__hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tier-row__context {
+  font: 600 11px/1.4 var(--font-ui);
+  color: var(--label);
+}
+
+.tier-row__name-line {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.tier-row__name {
+  font: 600 16px/1.4 var(--font-ui);
+  color: var(--ink);
+}
+
+.tier-row__tier {
+  font: 700 9.5px/1.4 var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tier-row__date {
+  font: 600 12px/1.4 var(--font-ui);
+  color: var(--success-text);
+}
+
+.tier-row__max {
+  font: 600 11px/1.4 var(--font-ui);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.tier-row__none {
+  font: 400 12px/1.4 var(--font-ui);
+  color: var(--label);
+}
+
+.tier-row__rarity {
+  font: 400 10.5px/1.4 var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.tier-row__steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+}
+
+.tier-row__step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tier-row__step-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tier-row__step-art {
+  --badge-art-size: 32px;
+}
+
+.tier-row__step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.tier-row__step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tier-row__step-tier {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-disabled);
+}
+
+.tier-row__step-name {
+  font: 600 13px/1.4 var(--font-ui);
+  color: var(--ink);
+}
+
+.tier-row__step-sub {
+  font: 400 11.5px/1.5 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.tier-row__step-sub--earned {
+  font-weight: 600;
+  color: var(--success-text);
+}
+
+.tier-row__step--far .tier-row__step-sub {
+  color: var(--text-disabled);
+}
+
+@media (max-width: 767px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .tier-row__hero {
+    gap: 14px;
+  }
+
+  .tier-row__hero-art {
+    --badge-art-size: 62px;
+  }
+
+  .tier-row__name {
+    font-size: 14.5px;
+  }
+
+  .tier-row__date {
+    font-size: 11.5px;
+  }
+
+  .tier-row__none {
+    font-size: 11.5px;
+  }
+
+  .tier-row__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    border-top: 1px solid var(--divider-soft);
+    padding-top: 10px;
+  }
+
+  .tier-row__step {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .tier-row__step-art {
+    --badge-art-size: 26px;
+  }
+
+  .tier-row__step-line {
+    display: none;
+  }
+
+  .tier-row__step-body {
+    gap: 2px;
+  }
+
+  .tier-row__step-tier {
+    font-size: 9.5px;
+  }
+
+  .tier-row__step-sub {
+    font-size: 11px;
+  }
+}

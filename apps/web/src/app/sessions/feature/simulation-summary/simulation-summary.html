@@ -66,6 +66,10 @@
       </div>
     </header>
 
+    @if (unlockedBadges.length > 0) {
+      <ui-badge-unlock [badges]="unlockedBadges" />
+    }
+
     <div class="bilan__columns">
       <div class="bilan__axes">
         <span class="t-label bilan__section-label">Détail par axe</span>

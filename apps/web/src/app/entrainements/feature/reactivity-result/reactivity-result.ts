@@ -18,7 +18,9 @@ import {
   getAxisRecommendations,
   scoreReactivitySession,
 } from '@psychotech/shared';
+import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import { buildReactivityMetricRows } from '../../../shared/ui/axis-result-content';
@@ -39,6 +41,7 @@ import { ReactivityTrChart } from '../../../shared/ui/reactivity-tr-chart/reacti
   selector: 'app-reactivity-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BadgeUnlock,
     ReactivityTrChart,
     ResultActions,
     ResultMetrics,
@@ -62,6 +65,7 @@ export class ReactivityResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
+  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
 
   protected readonly axis = AxisType.REACTIVITY;
   protected readonly result = signal<TargetedReactivityResultDto | null>(null);

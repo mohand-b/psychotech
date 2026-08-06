@@ -21,7 +21,9 @@ import {
   buildSimulationStamp,
 } from '@psychotech/shared';
 import { Lightbulb, Play } from 'lucide-angular';
+import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
@@ -53,6 +55,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
     AppIcon,
     AxisLabel,
     AxisRadar,
+    BadgeUnlock,
     Button,
     Icon,
     SimulationAxisDetail,
@@ -78,6 +81,7 @@ export class SimulationSummary {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
+  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
 
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;

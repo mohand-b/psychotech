@@ -18,7 +18,9 @@ import {
   getAxisRecommendations,
   scoreDiscriminationSession,
 } from '@psychotech/shared';
+import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
@@ -42,6 +44,7 @@ import { TimeChart, TimeChartEntry } from '../../../shared/ui/time-chart/time-ch
   selector: 'app-discrimination-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BadgeUnlock,
     ResultActions,
     ResultMetrics,
     ResultPage,
@@ -65,6 +68,7 @@ export class DiscriminationResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
+  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
 
   protected readonly axis = AxisType.VISUAL_DISCRIMINATION;
   protected readonly result = signal<TargetedDiscriminationResultDto | null>(

@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import {
   AxisType,
+  BadgeId,
   LOGIC_CONTENT_VERSION_V1,
   LOGIC_CONTENT_VERSION_V2,
   LogicFamily,
@@ -14,12 +15,17 @@ import {
   LogicFamilyResultDto,
   ScoreBand,
   Sector,
+  SessionDto,
+  SessionMode,
+  SessionStatus,
   TargetedLogicResultDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
+import { TrainingSessionStore } from '../../../sessions/data-access/training-session.store';
 import { LogicResult } from './logic-result';
 
 function familyEntry(
@@ -97,10 +103,50 @@ function buildResult(
   };
 }
 
-async function setup(
+function buildCompletedSession(
+  overrides: Partial<SessionDto> = {},
+): SessionDto {
+  return {
+    id: 'session-1',
+    mode: SessionMode.TARGETED,
+    sector: Sector.RAILWAY,
+    status: SessionStatus.COMPLETED,
+    seed: 'seed-1',
+    contentVersion: LOGIC_CONTENT_VERSION_V2,
+    logicFamily: null,
+    options: { enabledOptions: [] },
+    energyCost: 1,
+    currentAxisIndex: 0,
+    globalScore: null,
+    globalBand: null,
+    isAdmissible: null,
+    isEliminated: null,
+    sectorThreshold: 70,
+    startedAt: '2026-07-16T10:00:00.000Z',
+    completedAt: '2026-07-16T10:10:00.000Z',
+    abandonedAt: null,
+    controlModality: null,
+    axisResults: [],
+    recommendations: [],
+    ...overrides,
+  };
+}
+
+interface SetupOptions {
+  activeSession?: SessionDto;
+}
+
+interface Setup {
+  fixture: ComponentFixture<LogicResult>;
+  acknowledgeAll: ReturnType<typeof vi.fn>;
+}
+
+async function setupWithBadges(
   result: TargetedLogicResultDto,
-): Promise<ComponentFixture<LogicResult>> {
+  options: SetupOptions = {},
+): Promise<Setup> {
   TestBed.resetTestingModule();
+  const acknowledgeAll = vi.fn();
   await TestBed.configureTestingModule({
     imports: [LogicResult],
     providers: [
@@ -113,6 +159,7 @@ async function setup(
           targetedResult: vi.fn(() => of(result)),
         },
       },
+      { provide: BadgesFacade, useValue: { acknowledgeAll } },
       { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
       {
         provide: AuthFacade,
@@ -126,11 +173,20 @@ async function setup(
       },
     ],
   }).compileComponents();
+  if (options.activeSession) {
+    TestBed.inject(TrainingSessionStore).setSession(options.activeSession);
+  }
   const router = TestBed.inject(Router);
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(LogicResult);
   fixture.detectChanges();
-  return fixture;
+  return { fixture, acknowledgeAll };
+}
+
+async function setup(
+  result: TargetedLogicResultDto,
+): Promise<ComponentFixture<LogicResult>> {
+  return (await setupWithBadges(result)).fixture;
 }
 
 function boundaryCount(fixture: ComponentFixture<LogicResult>): number {
@@ -239,5 +295,53 @@ describe('LogicResult (contenu v2)', () => {
   it('draws no separator for a single-family session', async () => {
     const fixture = await setup(buildResult());
     expect(boundaryCount(fixture)).toBe(0);
+  });
+});
+
+describe('LogicResult - badges débloqués', () => {
+  const newBadges = [
+    { badgeId: BadgeId.LOGIC_PROGRESSION, energyReward: 0 },
+    { badgeId: BadgeId.FIRST_STEPS, energyReward: 5 },
+  ];
+
+  it('reveals the earned badges with their textual gain and acknowledges them', async () => {
+    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+      activeSession: buildCompletedSession({ newBadges }),
+    });
+    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
+    expect(section).not.toBeNull();
+    expect(section.textContent).toContain('Badges débloqués');
+    expect(section.textContent).toContain('Déclic');
+    expect(section.textContent).toContain('Premiers pas');
+    expect(section.textContent).toContain('+5 énergies');
+    expect(section.querySelector('svg')).toBeNull();
+    expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
+  });
+
+  it('shows the singular heading for a single badge', async () => {
+    const { fixture } = await setupWithBadges(buildResult(), {
+      activeSession: buildCompletedSession({
+        newBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, energyReward: 0 }],
+      }),
+    });
+    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
+    expect(section.textContent).toContain('Badge débloqué');
+    expect(section.textContent).not.toContain('Badges débloqués');
+  });
+
+  it('hides the section and acknowledges nothing without new badges', async () => {
+    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+      activeSession: buildCompletedSession(),
+    });
+    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
+    expect(acknowledgeAll).not.toHaveBeenCalled();
+  });
+
+  it('hides the section when the stored session is not the displayed one', async () => {
+    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+      activeSession: buildCompletedSession({ id: 'session-2', newBadges }),
+    });
+    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
+    expect(acknowledgeAll).not.toHaveBeenCalled();
   });
 });

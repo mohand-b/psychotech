@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard } from '../auth/data-access/auth.guard';
+import { badgesRoutes } from '../badges/feature/badges.routes';
 import { dashboardRoutes } from '../dashboard/feature/dashboard.routes';
 import { energyRoutes } from '../energy/feature/energy.routes';
 import { entrainementsRoutes } from '../entrainements/feature/entrainements.routes';
@@ -16,6 +17,7 @@ export const connectedRoutes: Route[] = [
         (m) => m.ConnectedLayout,
       ),
     children: [
+      ...badgesRoutes,
       ...dashboardRoutes,
       ...energyRoutes,
       ...entrainementsRoutes,

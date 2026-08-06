@@ -16,7 +16,9 @@ import {
   analyzeMotricity,
   getAxisRecommendations,
 } from '@psychotech/shared';
+import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import { buildMotricityMetricRows } from '../../../shared/ui/axis-result-content';
@@ -37,6 +39,7 @@ import { MotricityTrajectoryChart } from '../../../shared/ui/motricity-trajector
   selector: 'app-motricity-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    BadgeUnlock,
     MotricityTrajectoryChart,
     ResultActions,
     ResultMetrics,
@@ -61,6 +64,7 @@ export class MotricityResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
+  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
 
   protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly result = signal<TargetedMotricityResultDto | null>(null);

@@ -1,0 +1,80 @@
+@if (card(); as view) {
+  <div class="tier-row__hero">
+    <ui-badge-art
+      class="tier-row__hero-art"
+      [src]="view.hero.assetPath"
+      [alt]="view.hero.name ?? view.label"
+      [locked]="view.hero.locked"
+    />
+    <div class="tier-row__hero-text">
+      <span class="tier-row__context">{{ view.label }}</span>
+      @if (view.hero.name) {
+        <span class="tier-row__name-line">
+          <span class="tier-row__name">{{ view.hero.name }}</span>
+          @if (view.hero.tierName) {
+            <span
+              class="tier-row__tier"
+              [style.color]="view.hero.tierColorVar"
+              >{{ view.hero.tierName }}</span
+            >
+          }
+        </span>
+      }
+      @if (view.hero.dateLabel) {
+        <span class="tier-row__date">{{ view.hero.dateLabel }}</span>
+      }
+      @if (view.hero.maxTier) {
+        <span class="tier-row__max">Palier maximal</span>
+      }
+      @if (view.hero.noneYet) {
+        <span class="tier-row__none">Aucun palier obtenu pour le moment</span>
+      }
+      @if (view.hero.rarityLabel) {
+        <span class="tier-row__rarity">{{ view.hero.rarityLabel }}</span>
+      }
+    </div>
+  </div>
+  <div class="tier-row__steps">
+    @for (step of view.steps; track step.badgeId; let last = $last) {
+      <div
+        class="tier-row__step"
+        [class.tier-row__step--far]="!step.earned && !step.next"
+      >
+        <span class="tier-row__step-head">
+          <ui-badge-art
+            class="tier-row__step-art"
+            [src]="step.assetPath"
+            [alt]="step.name ?? step.tierLine"
+            [locked]="!step.earned"
+          />
+          @if (!last) {
+            <span class="tier-row__step-line"></span>
+          }
+        </span>
+        <div class="tier-row__step-body">
+          <span
+            class="tier-row__step-tier t-mono"
+            [style.color]="step.earned ? step.tierColorVar : null"
+            >{{ step.tierLine }}</span
+          >
+          @if (step.name) {
+            <span class="tier-row__step-name">{{ step.name }}</span>
+          }
+          @if (step.sub) {
+            <span
+              class="tier-row__step-sub"
+              [class.tier-row__step-sub--earned]="step.earned"
+              >{{ step.sub }}</span
+            >
+          }
+          @if (step.conditions) {
+            <ui-badge-conditions
+              [intro]="step.conditionsIntro"
+              [conditions]="step.conditions"
+            />
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

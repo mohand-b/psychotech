@@ -34,6 +34,10 @@
   <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
   }
 
+  @if (unlockedBadges.length > 0) {
+  <ui-badge-unlock [badges]="unlockedBadges" />
+  }
+
   <ui-result-actions
     (newTraining)="newTraining()"
     [backLabel]="backLabel"
