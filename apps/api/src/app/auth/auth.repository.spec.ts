@@ -50,7 +50,7 @@ describe('AuthRepository.createAccount', () => {
         timezone: 'Europe/Paris',
         locale: undefined,
         currentSector: 'RAILWAY',
-        energyWallet: { create: { balance: 5 } },
+        energyWallet: { create: { balance: 0 } },
       },
     });
   });

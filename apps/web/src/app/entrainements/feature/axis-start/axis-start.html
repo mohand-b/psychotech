@@ -26,7 +26,14 @@
   <p class="axis-start__note">
     La découverte est toujours identique et ne consomme aucune énergie.
   </p>
-  } @if (energyLocked()) {
+  } @if (emailUnverified()) {
+  <p class="axis-start__note axis-start__note--short">
+    Vérifiez votre adresse e-mail pour lancer une séance.
+    <a class="axis-start__recharge-link" routerLink="/verification-email"
+      >Vérifier mon adresse</a
+    >
+  </p>
+  } @else if (energyLocked()) {
   <p class="axis-start__note axis-start__note--short">
     Vous n'avez plus assez d'énergie.
     <a class="axis-start__recharge-link" routerLink="/energie"
@@ -41,7 +48,7 @@
       size="lg"
       block="mobile"
       [loading]="starting()"
-      [disabled]="energyLocked()"
+      [disabled]="emailUnverified() || energyLocked()"
       (click)="start()"
     >
       <span class="axis-start__cta-content">

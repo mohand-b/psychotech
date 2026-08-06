@@ -1,0 +1,43 @@
+<div class="auth__panel">
+  <div class="auth__head">
+    <h1 class="auth__title">Vérifiez votre adresse e-mail</h1>
+    <p class="auth__subtitle">
+      Un lien de confirmation a été envoyé à
+      <span class="verification-pending__email">{{ email() }}</span
+      >. Il est valable 24&nbsp;heures.
+    </p>
+  </div>
+
+  @if (resendState.resent()) {
+  <span class="verification-pending__status verification-pending__status--sent" role="status"
+    >E-mail renvoyé.</span
+  >
+  } @else if (resendState.cooldownSeconds(); as seconds) {
+  <span class="verification-pending__status" role="status"
+    >Vous pourrez renvoyer un e-mail dans {{ seconds }}&nbsp;s</span
+  >
+  }
+
+  <div class="auth__actions">
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [loading]="resendState.sending()"
+      [disabled]="resendState.cooldownSeconds() !== null"
+      (click)="resendState.resend()"
+    >
+      Renvoyer l'e-mail
+    </ui-button>
+  </div>
+
+  <div class="auth__footer">
+    <button
+      type="button"
+      class="auth__footer-link verification-pending__logout"
+      (click)="logout()"
+    >
+      Se déconnecter
+    </button>
+  </div>
+</div>

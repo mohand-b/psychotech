@@ -109,6 +109,10 @@ export class SimulationStart {
     { icon: BellOff, text: 'Coupez vos notifications pour rester concentré.' },
   ];
 
+  protected readonly emailUnverified = computed(
+    () => this.authFacade.currentUser()?.emailVerifiedAt === null,
+  );
+
   protected readonly energyShort = computed(
     () => this.energyFacade.state()?.canStartFull === false,
   );
@@ -133,7 +137,7 @@ export class SimulationStart {
   }
 
   protected start(): void {
-    if (this.starting() || this.energyShort()) {
+    if (this.starting() || this.emailUnverified() || this.energyShort()) {
       return;
     }
     this.starting.set(true);

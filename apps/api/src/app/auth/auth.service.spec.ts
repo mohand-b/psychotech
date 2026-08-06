@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UsersRepository } from '../users/users.repository';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
+import { EmailVerificationService } from './email-verification.service';
 import { PasswordHasher } from './password.service';
 import { TokenService } from './token.service';
 
@@ -49,11 +50,14 @@ const tokenService = {
 };
 const usersRepository = { isSectorActive: vi.fn() };
 
+const emailVerification = { sendInitialVerification: vi.fn() };
+
 const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
   tokenService as unknown as TokenService,
   usersRepository as unknown as UsersRepository,
+  emailVerification as unknown as EmailVerificationService,
 );
 
 beforeEach(() => {
@@ -96,6 +100,7 @@ describe('AuthService.register', () => {
       'user-1',
       'hashed-refresh-token',
     );
+    expect(emailVerification.sendInitialVerification).toHaveBeenCalledTimes(1);
     expect(result.tokens).toEqual({
       accessToken: 'access-token',
       refreshToken: 'refresh-token',

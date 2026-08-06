@@ -1,6 +1,7 @@
 ﻿import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { BadgeCategory, Prisma, SessionAxis } from '@prisma/client';
@@ -107,6 +108,7 @@ function walk(
 
 const repository = {
   createSession: vi.fn(),
+  findUserEmailVerifiedAt: vi.fn(),
   findUserSession: vi.fn(),
   findSectorConfig: vi.fn(),
   findStreakContext: vi.fn(),
@@ -141,14 +143,31 @@ const SECTOR_CONFIG = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  repository.findUserEmailVerifiedAt.mockResolvedValue(
+    new Date('2026-08-06T10:00:00Z'),
+  );
   repository.findStreakContext.mockResolvedValue({
     timezone: 'Europe/Paris',
     streak: null,
   });
 });
 
-describe('SessionsService.start tutorials', () => {
-  it('creates a tutorial session at zero energy cost', async () => {
+describe('SessionsService.start email gate', () => {
+  it('rejects an energy-consuming session for an unverified account', async () => {
+    repository.findUserEmailVerifiedAt.mockResolvedValue(null);
+
+    await expect(
+      service.start('user-1', {
+        mode: SessionMode.TARGETED,
+        sector: Sector.RAILWAY,
+        axis: AxisType.LOGIC,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(repository.createSession).not.toHaveBeenCalled();
+  });
+
+  it('keeps tutorials open for an unverified account', async () => {
+    repository.findUserEmailVerifiedAt.mockResolvedValue(null);
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
     repository.createSession.mockResolvedValue(
       buildSession({ mode: 'TUTORIAL', energyCost: 0 }),

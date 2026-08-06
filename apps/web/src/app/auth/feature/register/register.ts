@@ -218,7 +218,7 @@ export class Register {
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/dashboard']),
+        next: () => this.router.navigate(['/verification-email']),
         error: (error: unknown) =>
           this.serverError.set(this.toServerError(error)),
       });

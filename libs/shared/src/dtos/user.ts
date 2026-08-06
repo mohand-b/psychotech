@@ -8,6 +8,7 @@ export interface UserProfileDto {
   locale: string;
   timezone: string;
   currentSector: Sector;
+  emailVerifiedAt: string | null;
   createdAt: string;
 }
 

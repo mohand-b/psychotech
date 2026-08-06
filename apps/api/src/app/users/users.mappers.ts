@@ -11,6 +11,7 @@ export function toUserProfileDto(user: User): UserProfileDto {
     locale: user.locale,
     timezone: user.timezone,
     currentSector: mapEnumValue(Sector, user.currentSector),
+    emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
     createdAt: user.createdAt.toISOString(),
   };
 }

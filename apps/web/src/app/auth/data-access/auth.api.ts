@@ -4,8 +4,11 @@ import {
   ChangePasswordDto,
   LoginDto,
   RegisterDto,
+  ResendVerificationResponseDto,
   UpdateUserProfileDto,
   UserProfileDto,
+  VerifyEmailRequestDto,
+  VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -49,6 +52,20 @@ export class AuthApi {
     return this.http.post<UserProfileDto>(
       `${this.baseUrl}/auth/password`,
       payload,
+    );
+  }
+
+  verifyEmail(payload: VerifyEmailRequestDto): Observable<VerifyEmailResponseDto> {
+    return this.http.post<VerifyEmailResponseDto>(
+      `${this.baseUrl}/auth/email/verify`,
+      payload,
+    );
+  }
+
+  resendVerification(): Observable<ResendVerificationResponseDto> {
+    return this.http.post<ResendVerificationResponseDto>(
+      `${this.baseUrl}/auth/email/resend`,
+      {},
     );
   }
 }

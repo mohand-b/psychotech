@@ -31,6 +31,7 @@ async function setup(
   options: {
     energyState?: EnergyStateDto | null;
     startFull?: () => Observable<{ id: string }>;
+    emailVerifiedAt?: string | null;
   } = {},
 ) {
   const energyLoad = vi.fn(() => of(null));
@@ -41,7 +42,15 @@ async function setup(
       provideRouter([]),
       {
         provide: AuthFacade,
-        useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
+        useValue: {
+          currentUser: () => ({
+            currentSector: Sector.RAILWAY,
+            emailVerifiedAt:
+              options.emailVerifiedAt === undefined
+                ? '2026-07-01T00:00:00.000Z'
+                : options.emailVerifiedAt,
+          }),
+        },
       },
       {
         provide: EnergyFacade,
@@ -163,5 +172,25 @@ describe('SimulationStart', () => {
       fixture.nativeElement.querySelector('.simb__cta') as HTMLButtonElement
     ).click();
     expect(energyLoad).toHaveBeenCalled();
+  });
+
+  it('locks the launch with a verification path when the email is unverified', async () => {
+    const { fixture, startFull } = await setup({
+      emailVerifiedAt: null,
+      energyState: buildEnergyState({ balance: 0, canStartFull: false }),
+    });
+    const locked = fixture.nativeElement.querySelector(
+      '.simb__cta button',
+    ) as HTMLButtonElement;
+    expect(locked.disabled).toBe(true);
+    expect(text(fixture)).toContain(
+      'Vérifiez votre adresse e-mail pour lancer une séance.',
+    );
+    const link = fixture.nativeElement.querySelector('.simb__short-link');
+    expect(link?.getAttribute('href')).toBe('/verification-email');
+    expect(text(fixture)).not.toContain('Il vous faut');
+
+    locked.click();
+    expect(startFull).not.toHaveBeenCalled();
   });
 });

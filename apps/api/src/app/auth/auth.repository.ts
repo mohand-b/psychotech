@@ -16,7 +16,7 @@ interface CreateAccountData {
   termsAcceptedAt: Date;
 }
 
-const INITIAL_ENERGY_BALANCE = 5;
+const INITIAL_ENERGY_BALANCE = 0;
 
 @Injectable()
 export class AuthRepository {

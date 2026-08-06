@@ -85,6 +85,7 @@ interface Setup {
 interface SetupOptions {
   energyState?: EnergyStateDto | null;
   startResult?: () => Observable<SessionDto>;
+  emailVerifiedAt?: string | null;
 }
 
 async function setup(
@@ -111,7 +112,15 @@ async function setup(
       },
       {
         provide: AuthFacade,
-        useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
+        useValue: {
+          currentUser: () => ({
+            currentSector: Sector.RAILWAY,
+            emailVerifiedAt:
+              options.emailVerifiedAt === undefined
+                ? '2026-07-01T00:00:00.000Z'
+                : options.emailVerifiedAt,
+          }),
+        },
       },
       {
         provide: ActivatedRoute,
@@ -301,5 +310,42 @@ describe('AxisStart - énergie', () => {
     clickStart(result);
 
     expect(result.energyLoad).toHaveBeenCalled();
+  });
+});
+
+describe('AxisStart - vérification e-mail', () => {
+  it('locks the launch with a verification path when the email is unverified', async () => {
+    const result = await setup('logique', false, {
+      emailVerifiedAt: null,
+      energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
+    });
+
+    expect(
+      result.element.querySelector<HTMLButtonElement>('.axis-start__cta button')
+        ?.disabled,
+    ).toBe(true);
+    expect(result.element.textContent).toContain(
+      'Vérifiez votre adresse e-mail pour lancer une séance.',
+    );
+    const link = result.element.querySelector('.axis-start__recharge-link');
+    expect(link?.getAttribute('href')).toBe('/verification-email');
+    expect(result.element.textContent).not.toContain(
+      "Vous n'avez plus assez d'énergie.",
+    );
+
+    clickStart(result);
+    expect(result.start).not.toHaveBeenCalled();
+  });
+
+  it('keeps the discovery mode open for an unverified account', async () => {
+    const result = await setup('logique', true, { emailVerifiedAt: null });
+
+    expect(
+      result.element.querySelector<HTMLButtonElement>('.axis-start__cta button')
+        ?.disabled,
+    ).toBe(false);
+    expect(result.element.textContent).not.toContain(
+      'Vérifiez votre adresse e-mail',
+    );
   });
 });

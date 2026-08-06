@@ -4,8 +4,10 @@ import {
   ChangePasswordDto,
   LoginDto,
   RegisterDto,
+  ResendVerificationResponseDto,
   UpdateUserProfileDto,
   UserProfileDto,
+  VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import {
   Observable,
@@ -62,6 +64,14 @@ export class AuthFacade {
     return this.api
       .changePassword(payload)
       .pipe(tap((user) => this.store.setCurrentUser(user)));
+  }
+
+  verifyEmail(token: string): Observable<VerifyEmailResponseDto> {
+    return this.api.verifyEmail({ token });
+  }
+
+  resendVerification(): Observable<ResendVerificationResponseDto> {
+    return this.api.resendVerification();
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {

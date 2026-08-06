@@ -19,3 +19,23 @@ export interface ChangePasswordDto {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface VerifyEmailRequestDto {
+  token: string;
+}
+
+export type EmailVerificationOutcome =
+  | 'VERIFIED'
+  | 'ALREADY_VERIFIED'
+  | 'INVALID'
+  | 'EXPIRED';
+
+export interface VerifyEmailResponseDto {
+  outcome: EmailVerificationOutcome;
+  grantedEnergy: number;
+}
+
+export interface ResendVerificationResponseDto {
+  sent: boolean;
+  retryAfterSeconds: number | null;
+}

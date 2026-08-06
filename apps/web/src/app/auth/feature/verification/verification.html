@@ -1,0 +1,78 @@
+<div class="auth__panel">
+  <div class="auth__head">
+    <h1 class="auth__title">{{ title() }}</h1>
+    <p class="auth__subtitle">{{ subtitle() }}</p>
+  </div>
+
+  @if (state() === 'VERIFIED') {
+  <span class="verification__energy">
+    <ui-bolt [size]="14" />
+    <span class="t-mono">{{ grantedEnergy() }}</span>
+    <span>énergies créditées</span>
+  </span>
+  }
+
+  @if (state() === 'VERIFIED' || state() === 'ALREADY_VERIFIED') {
+  <div class="auth__actions">
+    @if (isAuthenticated()) {
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [iconEnd]="arrowIcon"
+      (click)="goToTraining()"
+    >
+      Commencer l'entraînement
+    </ui-button>
+    } @else {
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [iconEnd]="arrowIcon"
+      (click)="goToLogin()"
+    >
+      Se connecter
+    </ui-button>
+    }
+  </div>
+  }
+
+  @if (state() === 'EXPIRED') {
+  @if (isAuthenticated()) {
+  @if (resendState.resent()) {
+  <span class="verification__status verification__status--sent" role="status"
+    >E-mail renvoyé.</span
+  >
+  } @else if (resendState.cooldownSeconds(); as seconds) {
+  <span class="verification__status" role="status"
+    >Vous pourrez renvoyer un e-mail dans {{ seconds }}&nbsp;s</span
+  >
+  }
+  <div class="auth__actions">
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [loading]="resendState.sending()"
+      [disabled]="resendState.cooldownSeconds() !== null"
+      (click)="resendState.resend()"
+    >
+      Renvoyer l'e-mail
+    </ui-button>
+  </div>
+  } @else {
+  <div class="auth__actions">
+    <ui-button
+      color="brand"
+      size="lg"
+      [block]="true"
+      [iconEnd]="arrowIcon"
+      (click)="goToLogin()"
+    >
+      Se connecter
+    </ui-button>
+  </div>
+  }
+  }
+</div>

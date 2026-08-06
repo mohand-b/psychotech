@@ -25,6 +25,7 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
     locale: 'fr-FR',
     timezone: 'Europe/Paris',
     currentSector: Sector.RAILWAY,
+    emailVerifiedAt: '2026-04-14T00:00:00.000Z',
     createdAt: '2026-04-14T00:00:00.000Z',
     ...overrides,
   };

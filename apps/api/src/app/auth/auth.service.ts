@@ -18,6 +18,7 @@ import {
 } from '@psychotech/shared';
 import { toUserProfileDto } from '../users/users.mappers';
 import { UsersRepository } from '../users/users.repository';
+import { EmailVerificationService } from './email-verification.service';
 import { AuthTokens } from './auth.cookie.service';
 import { AuthRepository } from './auth.repository';
 import { PasswordHasher } from './password.service';
@@ -41,6 +42,7 @@ export class AuthService {
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
     private readonly usersRepository: UsersRepository,
+    private readonly emailVerification: EmailVerificationService,
   ) {}
 
   async register(input: RegisterDto): Promise<AuthResult> {
@@ -63,6 +65,7 @@ export class AuthService {
       termsVersion: LEGAL_TERMS_VERSION,
       termsAcceptedAt: new Date(),
     });
+    await this.emailVerification.sendInitialVerification(user);
     return this.issueSession(user);
   }
 

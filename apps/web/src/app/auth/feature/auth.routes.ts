@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { guestGuard } from '../data-access/auth.guard';
+import { authGuard, guestGuard } from '../data-access/auth.guard';
 
 export const authRoutes: Route[] = [
   {
@@ -17,6 +17,19 @@ export const authRoutes: Route[] = [
         canMatch: [guestGuard],
         loadComponent: () =>
           import('./register/register').then((m) => m.Register),
+      },
+      {
+        path: 'verification',
+        loadComponent: () =>
+          import('./verification/verification').then((m) => m.Verification),
+      },
+      {
+        path: 'verification-email',
+        canMatch: [authGuard],
+        loadComponent: () =>
+          import('./verification-pending/verification-pending').then(
+            (m) => m.VerificationPending,
+          ),
       },
     ],
   },

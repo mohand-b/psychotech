@@ -15,6 +15,7 @@ import { SessionsModule } from './sessions/sessions.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
+import { mailConfig } from './config/mail.config';
 import { billingConfig } from './config/billing.config';
 import { validateEnvironment } from './config/environment.validation';
 import { webAppServingImports } from './config/web-app-serving';
@@ -24,7 +25,7 @@ import { webAppServingImports } from './config/web-app-serving';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: 'apps/api/.env',
-      load: [authConfig, billingConfig],
+      load: [authConfig, billingConfig, mailConfig],
       validate: validateEnvironment,
     }),
     ...webAppServingImports(),
