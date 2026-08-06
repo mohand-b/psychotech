@@ -1,5 +1,4 @@
 import {
-  ENERGY_PACK_PRICE_EUR,
   LEGAL_ACCOUNTING_RETENTION,
   LEGAL_COMPANY,
   LEGAL_CONNECTION_LOG_RETENTION,
@@ -17,7 +16,6 @@ import {
   LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
 } from '@psychotech/shared';
-import { formatEuroAmount } from '../../shared/util/format-euro';
 
 export type LegalDocumentId =
   | 'mentions-legales'
@@ -505,7 +503,7 @@ const CGV: LegalDocument = {
             [
               'Recharge',
               'Rétablit votre énergie du jour, réservé à la formule Essentiel',
-              `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`,
+              '1,00 €',
             ],
           ],
         },

@@ -33,8 +33,6 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
 function buildEnergy(): EnergyStateDto {
   return {
     balance: 5,
-    capacity: 5,
-    resetsAt: '2026-07-26T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
   };

@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';

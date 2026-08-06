@@ -1,28 +1,361 @@
 .energie {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  gap: 32px;
+  max-width: 1020px;
 }
 
 .energie__head {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.energie__balance {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--brand);
+.energie__intro {
+  font: 400 14.5px / 1.55 var(--font-ui);
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0;
 }
 
-.energie__value {
-  font: 700 32px/1 var(--font-mono);
+.energie__solde {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  align-items: stretch;
+}
+
+.energie__solde-main {
+  flex: 1;
+  gap: 16px;
+  padding: 24px 32px;
+}
+
+.energie__solde-main > span:last-child {
+  gap: 4px;
+}
+
+.energie__solde-tile {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-panel);
+  background: var(--brand-pastel);
+  color: var(--brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.energie__solde-line {
+  gap: 8px;
+}
+
+.energie__solde-value {
+  font: 600 40px/1 var(--font-mono);
   color: var(--ink);
 }
 
-.energie__reassurance {
+.energie__solde-unit {
   font: 400 14px/20px var(--font-ui);
   color: var(--text-secondary);
+}
+
+.energie__solde-note {
+  font: 400 12.5px/18px var(--font-ui);
+  color: var(--label);
+}
+
+.energie__solde-divider {
+  width: 1px;
+  background: var(--divider-soft);
+  margin: 20px 0;
+}
+
+.energie__solde-uses {
+  flex: 1;
+  gap: 12px;
+  padding: 24px 32px;
+  justify-content: center;
+}
+
+.energie__use {
+  gap: 10px;
+}
+
+.energie__use-cost {
+  gap: 4px;
+  min-width: 44px;
+  color: var(--brand);
+}
+
+.energie__use-cost .t-mono {
+  font: 600 15px/20px var(--font-mono);
+  color: var(--ink);
+}
+
+.energie__use-text {
+  font: 400 13.5px/20px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__recharge {
+  gap: 16px;
+}
+
+.energie__recharge-head {
+  gap: 12px;
+}
+
+.energie__recharge-title {
+  font: 700 20px/24px var(--font-display);
+  color: var(--ink);
+}
+
+.energie__recharge-hint {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--label);
+}
+
+.energie__packs {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.energie__pack {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  gap: 8px;
+  text-align: center;
+}
+
+.energie__pack--featured {
+  border: 2px solid var(--brand);
+  box-shadow: var(--shadow-raised);
+}
+
+.energie__pack-flag {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--brand);
+  color: var(--card);
+  font: 700 10.5px/14px var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.energie__pack-title {
+  font: 700 18px/24px var(--font-display);
+  color: var(--ink);
+}
+
+.energie__pack-amount {
+  gap: 8px;
+  color: var(--brand);
+  padding-top: 8px;
+}
+
+.energie__pack-amount .t-mono {
+  font: 600 42px/1 var(--font-mono);
+  color: var(--ink);
+}
+
+.energie__pack-desc {
+  font: 400 12.5px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__pack-unit {
+  font: 400 11.5px/16px var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.energie__pack-cta {
+  width: 100%;
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.energie__reassurances {
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.energie__reassurance {
+  gap: 8px;
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__reassurance ui-icon {
+  color: var(--success-text);
+}
+
+.energie__confirmation {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 48px 32px;
+  gap: 12px;
+  text-align: center;
+}
+
+.energie__confirmation-title {
+  font: 700 20px/26px var(--font-display);
+  color: var(--ink);
+}
+
+.energie__confirmation-text {
+  font: 400 14px/22px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__checkout {
+  display: none;
+  gap: 16px;
+}
+
+.energie__checkout--open {
+  display: flex;
+}
+
+.energie__back {
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: 600 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.energie__back:hover {
+  color: var(--ink);
+}
+
+.energie__checkout-host {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  min-height: 480px;
+}
+
+.energie__badges {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 24px 32px;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.energie__badges-copy {
+  flex: 1;
+  min-width: 250px;
+  gap: 8px;
+}
+
+.energie__badges-title {
+  font: 700 19px/24px var(--font-display);
+  color: var(--ink);
+}
+
+.energie__badges-text {
+  font: 400 13px / 1.55 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__badges-link {
+  gap: 8px;
+  font: 600 13.5px/18px var(--font-ui);
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.energie__badges-link:hover {
+  color: var(--brand);
+}
+
+.energie__badges-tiles {
+  gap: 16px;
+  align-items: stretch;
+}
+
+.energie__badge-tile {
+  gap: 8px;
+  background: var(--surface-hover);
+  border: 1px solid var(--divider-soft);
+  border-radius: var(--radius-card);
+  padding: 16px 20px;
+  min-width: 128px;
+}
+
+.energie__badge-tile img {
+  width: 58px;
+  height: 58px;
+}
+
+.energie__badge-name {
+  font: 600 12.5px/18px var(--font-ui);
+  color: var(--ink);
+}
+
+.energie__badge-gain {
+  font: 600 12.5px/16px var(--font-mono);
+  color: var(--brand-hover);
+}
+
+@media (max-width: 767px) {
+  .energie {
+    gap: 24px;
+  }
+
+  .energie__solde {
+    flex-direction: column;
+  }
+
+  .energie__solde-divider {
+    width: auto;
+    height: 1px;
+    margin: 0 24px;
+  }
+
+  .energie__solde-main,
+  .energie__solde-uses {
+    padding: 20px 24px;
+  }
+
+  .energie__packs {
+    grid-template-columns: 1fr;
+  }
+
+  .energie__pack--featured {
+    order: -1;
+  }
+
+  .energie__reassurances {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .energie__badges {
+    padding: 20px 24px;
+  }
+
+  .energie__badges-tiles {
+    flex-wrap: wrap;
+  }
 }

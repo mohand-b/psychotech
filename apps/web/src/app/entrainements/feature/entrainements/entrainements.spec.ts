@@ -8,7 +8,6 @@ import {
 } from '@angular/router';
 import {
   AxisType,
-  EnergyStateDto,
   ScoreBand,
   Sector,
   SimulationVerdict,
@@ -16,7 +15,6 @@ import {
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import { Entrainements } from './entrainements';
 
@@ -76,16 +74,6 @@ function buildOverview(
   };
 }
 
-function buildEnergy(): EnergyStateDto {
-  return {
-    balance: 5,
-    capacity: 5,
-    resetsAt: '2026-07-13T00:00:00',
-    canStartFull: true,
-    canStartAxis: true,
-  };
-}
-
 async function setup(
   overview: TrainingsOverviewDto | null,
   options: {
@@ -112,10 +100,6 @@ async function setup(
             currentSector: Sector.RAILWAY,
           }),
         },
-      },
-      {
-        provide: EnergyFacade,
-        useValue: { state: signal(buildEnergy()) },
       },
       {
         provide: ActivatedRoute,
@@ -229,11 +213,15 @@ describe('Entrainements', () => {
     expect(element.querySelectorAll('.tut__try')).toHaveLength(5);
   });
 
-  it('shows the recharge countdown from the energy reset time', async () => {
+  it('keeps the footnote free of any recharge countdown', async () => {
     const { fixture } = await setup(buildOverview());
-    expect(
-      text(fixture.nativeElement.querySelector('.trainings__footnote')),
-    ).toContain('Recharge complète dans 7 h 42, à minuit.');
+    const footnote = text(
+      fixture.nativeElement.querySelector('.trainings__footnote'),
+    );
+    expect(footnote).toContain(
+      "Chaque entraînement génère de nouveaux exercices. L'énergie est débitée au lancement.",
+    );
+    expect(footnote).not.toContain('Recharge complète dans');
   });
 
   describe('loaders', () => {

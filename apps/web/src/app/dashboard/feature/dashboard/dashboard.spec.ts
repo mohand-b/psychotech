@@ -37,8 +37,6 @@ const USER: UserProfileDto = {
 function energyState(balance: number): EnergyStateDto {
   return {
     balance,
-    capacity: 5,
-    resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: balance >= 5,
     canStartAxis: balance >= 1,
   };
@@ -203,8 +201,14 @@ describe('Dashboard', () => {
     const { fixture } = await setup();
     expect(textOf(fixture)).toContain('Bonjour Mohand');
     expect(textOf(fixture)).toContain("C'est le moment de vous entraîner");
-    expect(textOf(fixture)).toContain('Énergie pleine');
-    expect(textOf(fixture)).toContain('5/5');
+    expect(textOf(fixture)).toContain('Énergie disponible');
+    expect(
+      fixture.nativeElement.querySelector('.home__day-energy-value')
+        ?.textContent,
+    ).toBe('5');
+    expect(textOf(fixture)).toContain(
+      'Vous avez de quoi lancer un examen blanc complet.',
+    );
   });
 
   it('says bonsoir outside the five to eighteen local window', async () => {
@@ -239,16 +243,23 @@ describe('Dashboard', () => {
 
   it('adapts the training subtitle to the remaining energy', async () => {
     const partial = await setup({ balance: 2 });
-    expect(textOf(partial.fixture)).toContain(
-      "Il vous reste 2 énergies aujourd'hui.",
+    expect(textOf(partial.fixture)).toContain('Il vous reste 2 énergies.');
+
+    TestBed.resetTestingModule();
+    const large = await setup({ balance: 42 });
+    expect(textOf(large.fixture)).toContain(
+      'Vous avez de quoi lancer un examen blanc complet.',
     );
 
     TestBed.resetTestingModule();
     const depleted = await setup({ balance: 0 });
     expect(textOf(depleted.fixture)).toContain('Énergie épuisée');
-    expect(textOf(depleted.fixture)).toContain(
-      'Votre énergie du jour est épuisée.',
+    expect(textOf(depleted.fixture)).toContain("Vous n'avez plus d'énergie.");
+    const link = depleted.fixture.nativeElement.querySelector(
+      '.home__day-sub a',
     );
+    expect(link?.textContent).toContain("Recharger l'énergie");
+    expect(link?.getAttribute('href')).toBe('/energie');
   });
 
   it('renders the new-account variant with its empty states', async () => {

@@ -910,11 +910,6 @@
   color: var(--text-disabled);
 }
 
-.trainings__footnote-countdown {
-  font-weight: 600;
-  color: var(--brand-hover);
-}
-
 .trainm__locked {
   display: inline-flex;
   align-items: center;

@@ -28,19 +28,10 @@
   </p>
   } @if (energyLocked()) {
   <p class="axis-start__note axis-start__note--short">
-    Énergie épuisée pour aujourd'hui.
+    Vous n'avez plus assez d'énergie.
     <a class="axis-start__recharge-link" routerLink="/energie"
-      >Recharger pour {{ rechargePriceLabel }}</a
+      >Recharger l'énergie</a
     >
-    @if (rechargeCountdown(); as countdown) {
-    <span class="axis-start__note-dot">·</span>
-    <span
-      >ou attendez la recharge dans
-      <span class="axis-start__note-countdown t-mono"
-        >{{ countdown }}</span
-      ></span
-    >
-    }
   </p>
   }
   <ui-action-footer>

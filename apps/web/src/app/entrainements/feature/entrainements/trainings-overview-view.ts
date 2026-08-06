@@ -36,18 +36,6 @@ export const AXIS_OVERVIEW_COPY: Partial<Record<AxisType, AxisOverviewCopy>> = {
   },
 };
 
-export function formatRechargeCountdown(resetsAt: string, now: Date): string {
-  const minutes = Math.max(
-    1,
-    Math.round((new Date(resetsAt).getTime() - now.getTime()) / 60_000),
-  );
-  const hours = Math.floor(minutes / 60);
-  const remaining = minutes % 60;
-  return hours > 0
-    ? `${hours} h ${String(remaining).padStart(2, '0')}`
-    : `${remaining} min`;
-}
-
 export interface SignedGap {
   label: string;
   above: boolean;

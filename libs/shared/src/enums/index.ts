@@ -5,6 +5,7 @@ export * from './session-status';
 export * from './axis-progress-status';
 export * from './score-band';
 export * from './energy-ledger-reason';
+export * from './energy-pack-id';
 export * from './recommendation-priority';
 export * from './badge-category';
 export * from './memory-phase';

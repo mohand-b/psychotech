@@ -31,7 +31,6 @@ import {
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import {
   AXIS_PRESENTATION,
   AxisPresentation,
@@ -46,17 +45,13 @@ import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
-import { tickingNow } from '../ticking-now';
 import {
   AXIS_OVERVIEW_COPY,
   SignedGap,
   TrainingsPanel,
   formatOverviewDate,
-  formatRechargeCountdown,
   formatSignedGap,
 } from './trainings-overview-view';
-
-const REFRESH_INTERVAL_MS = 60_000;
 
 interface AxisRowView {
   axis: AxisType;
@@ -104,7 +99,6 @@ interface LastSimulationView {
 })
 export class Entrainements {
   private readonly authFacade = inject(AuthFacade);
-  private readonly energyFacade = inject(EnergyFacade);
   private readonly facade = inject(TrainingsOverviewFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -150,14 +144,6 @@ export class Entrainements {
   protected readonly sectorLabel = SECTOR_LABELS[this.sector];
 
   protected readonly animationsReady = signal(false);
-
-
-  private readonly now = tickingNow(REFRESH_INTERVAL_MS);
-
-  protected readonly rechargeLabel = computed(() => {
-    const resetsAt = this.energyFacade.state()?.resetsAt;
-    return resetsAt ? formatRechargeCountdown(resetsAt, this.now()) : null;
-  });
 
   constructor() {
     this.facade.load(this.sector);

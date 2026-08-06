@@ -4,10 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import {
-  ENERGY_CAPACITY,
-  EnergyStateDto,
-} from '@psychotech/shared';
+import { EnergyStateDto } from '@psychotech/shared';
 import { BoltIcon } from '../bolt-icon/bolt-icon';
 
 @Component({
@@ -21,9 +18,7 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
       [class.chip--short]="short()"
     >
       <ui-bolt class="chip__bolt" [size]="14" />
-      <span class="chip__value"
-        >{{ balance() }}<span class="chip__max">/{{ capacity }}</span></span
-      >
+      <span class="chip__value">{{ balance() }}</span>
     </span>
   `,
   styles: `
@@ -46,11 +41,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
       font-variant-numeric: tabular-nums;
       color: var(--brand-hover);
     }
-    .chip__max {
-      font-size: 10.5px;
-      font-weight: 500;
-      opacity: 0.6;
-    }
     .chip--depleted {
       background: var(--bg);
     }
@@ -59,9 +49,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
     }
     .chip--depleted .chip__value {
       color: var(--label);
-    }
-    .chip--depleted .chip__max {
-      opacity: 0.7;
     }
     .chip--short {
       background: var(--danger-pastel);
@@ -87,9 +74,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
 export class EnergyChip {
   readonly state = input<EnergyStateDto | null>(null);
   readonly requiredCost = input<number | null>(null);
-
-  protected readonly capacity = ENERGY_CAPACITY;
-
 
   protected readonly balance = computed(() => this.state()?.balance ?? 0);
   protected readonly depleted = computed(() => this.balance() === 0);

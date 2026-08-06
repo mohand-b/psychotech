@@ -21,8 +21,6 @@ function buildEnergyState(
 ): EnergyStateDto {
   return {
     balance: 5,
-    capacity: 5,
-    resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
     ...overrides,
@@ -139,9 +137,9 @@ describe('SimulationStart', () => {
     expect(locked.disabled).toBe(true);
     expect(text(fixture)).toContain('Il vous faut 5 énergies, vous en avez 3.');
     const link = fixture.nativeElement.querySelector('.simb__short-link');
-    expect(link?.textContent).toContain('Recharger pour 1,00 €');
+    expect(link?.textContent).toContain("Recharger l'énergie");
     expect(link?.getAttribute('href')).toBe('/energie');
-    expect(text(fixture)).toContain('ou attendez la recharge dans');
+    expect(text(fixture)).not.toContain('recharge dans');
     (locked as HTMLElement).click();
     expect(startFull).not.toHaveBeenCalled();
   });

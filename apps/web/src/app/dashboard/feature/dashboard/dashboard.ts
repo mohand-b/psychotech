@@ -5,12 +5,13 @@
   inject,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   AxisProgressStatus,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,
+  SESSION_ENERGY_COST,
   Sector,
   SessionMode,
   SimulationStamp,
@@ -82,6 +83,7 @@ interface LastResultView {
     Button,
     ChevronStepper,
     Icon,
+    RouterLink,
     SectorChip,
     Skeleton,
     StampBadge,
@@ -159,10 +161,6 @@ export class Dashboard {
   );
 
   private readonly balance = computed(() => this.energy()?.balance ?? 0);
-  private readonly fullEnergy = computed(() => {
-    const energy = this.energy();
-    return energy !== null && energy.balance >= energy.capacity;
-  });
 
   protected readonly greeting = computed(() => {
     const firstName = this.authFacade.currentUser()?.firstName ?? '';
@@ -181,27 +179,24 @@ export class Dashboard {
     return 'Chaque session vous rapproche de la sélection.';
   });
 
-  protected readonly energyLabel = computed(() => {
-    if (this.fullEnergy()) {
-      return 'Énergie pleine';
-    }
-    return this.balance() === 0 ? 'Énergie épuisée' : 'Énergie restante';
-  });
+  protected readonly energyLabel = computed(() =>
+    this.balance() === 0 ? 'Énergie épuisée' : 'Énergie disponible',
+  );
 
   protected readonly energyValue = computed(() => {
     const energy = this.energy();
-    return energy ? `${energy.balance}/${energy.capacity}` : null;
+    return energy ? `${energy.balance}` : null;
   });
 
-  protected readonly trainSub = computed(() => {
-    if (this.fullEnergy()) {
-      return 'Votre énergie du jour est pleine. Une séance suffit pour progresser, même courte.';
-    }
-    if (this.balance() === 0) {
-      return 'Votre énergie du jour est épuisée. Elle revient à minuit, et vous pouvez la recharger sans attendre.';
-    }
+  protected readonly trainSub = computed<string | null>(() => {
     const balance = this.balance();
-    return `Il vous reste ${balance} énergie${balance > 1 ? 's' : ''} aujourd'hui. Une séance suffit pour progresser, même courte.`;
+    if (balance >= SESSION_ENERGY_COST[SessionMode.FULL]) {
+      return 'Vous avez de quoi lancer un examen blanc complet.';
+    }
+    if (balance > 0) {
+      return `Il vous reste ${balance} énergie${balance > 1 ? 's' : ''}. Une séance suffit pour progresser, même courte.`;
+    }
+    return null;
   });
 
   protected readonly sessionIsFull = computed(

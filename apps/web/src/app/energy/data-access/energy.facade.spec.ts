@@ -9,8 +9,6 @@ import { EnergyFacade } from './energy.facade';
 function energyState(balance: number): EnergyStateDto {
   return {
     balance,
-    capacity: 5,
-    resetsAt: '2026-07-26T22:00:00.000Z',
     canStartFull: balance >= 5,
     canStartAxis: balance >= 1,
   };

@@ -40,16 +40,6 @@
   text-decoration: underline;
 }
 
-.axis-start__note-dot {
-  color: var(--text-disabled);
-}
-
-.axis-start__note-countdown {
-  font-size: 0.78125rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
 @media (max-width: 767px) {
   .axis-start {
     gap: 0.75rem;

@@ -10,7 +10,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AxisType,
-  ENERGY_PACK_PRICE_EUR,
   LogicFamilyFilter,
   SESSION_ENERGY_COST,
   Sector,
@@ -28,12 +27,9 @@ import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
-import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
-import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
 import { sectorReferentialFor } from '../sector-referential';
-import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 
 @Component({
   selector: 'app-axis-start',
@@ -62,7 +58,6 @@ export class AxisStart {
   protected readonly enabledOptions = signal<TrainingOptionId[]>([]);
   protected readonly logicFamily = signal<LogicFamilyFilter | null>(null);
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
-  private readonly now = tickingNow(COUNTDOWN_TICK_MS);
 
   protected readonly axis =
     axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
@@ -84,13 +79,6 @@ export class AxisStart {
     () =>
       !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
   );
-
-  protected readonly rechargePriceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;
-
-  protected readonly rechargeCountdown = computed(() => {
-    const resetsAt = this.energyFacade.state()?.resetsAt;
-    return resetsAt ? formatRechargeCountdown(resetsAt, this.now()) : null;
-  });
 
   protected readonly gamepadPairing = this.gamepad.pairing;
   protected readonly gamepadConnected = this.gamepad.connected;

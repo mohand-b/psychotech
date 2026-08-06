@@ -17,8 +17,6 @@ const mockUser: UserProfileDto = {
 
 const energyState = (balance: number): EnergyStateDto => ({
   balance,
-  capacity: 5,
-  resetsAt: '2026-06-28T00:00:00.000Z',
   canStartFull: balance >= 5,
   canStartAxis: balance >= 1,
 });
@@ -38,7 +36,7 @@ const meta: Meta<Navbar> = {
   parameters: { layout: 'fullscreen' },
   args: {
     user: mockUser,
-    energy: energyState(4),
+    energy: energyState(5),
   },
   decorators: [
     applicationConfig({

@@ -114,16 +114,7 @@
   @if (energyShort()) {
   <span class="simb__short flex items-center">
     Il vous faut {{ energyCost }} énergies, vous en avez {{ balance() }}.
-    <a class="simb__short-link" routerLink="/energie"
-      >Recharger pour {{ rechargePriceLabel }}</a
-    >
-    @if (rechargeCountdown(); as countdown) {
-    <span class="simb__summary-dot">·</span>
-    <span
-      >ou attendez la recharge dans
-      <span class="simb__short-countdown t-mono">{{ countdown }}</span></span
-    >
-    }
+    <a class="simb__short-link" routerLink="/energie">Recharger l'énergie</a>
   </span>
   }
   <ui-action-footer>

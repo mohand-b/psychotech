@@ -127,11 +127,6 @@
   color: var(--brand-hover);
 }
 
-.home__day-energy-value--infinity {
-  font-size: 17px;
-  line-height: 12px;
-}
-
 .home__day-first {
   font: 600 12px/1.4 var(--font-ui);
   color: var(--brand-hover);

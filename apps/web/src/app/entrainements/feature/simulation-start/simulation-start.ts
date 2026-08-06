@@ -10,7 +10,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
   AxisType,
-  ENERGY_PACK_PRICE_EUR,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,
@@ -37,9 +36,6 @@ import { Button } from '../../../shared/ui/button/button';
 import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
-import { formatEuroAmount } from '../../../shared/util/format-euro';
-import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
-import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
@@ -68,7 +64,6 @@ export class SimulationStart {
   protected readonly durationIcon = Timer;
 
   protected readonly starting = signal(false);
-  private readonly now = tickingNow(COUNTDOWN_TICK_MS);
 
   protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
@@ -121,13 +116,6 @@ export class SimulationStart {
   protected readonly balance = computed(
     () => this.energyFacade.state()?.balance ?? 0,
   );
-
-  protected readonly rechargePriceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;
-
-  protected readonly rechargeCountdown = computed(() => {
-    const resetsAt = this.energyFacade.state()?.resetsAt;
-    return resetsAt ? formatRechargeCountdown(resetsAt, this.now()) : null;
-  });
 
   protected onAxisExplored(axis: AxisType): void {
     const next = axis as RailwayPlayableAxis;

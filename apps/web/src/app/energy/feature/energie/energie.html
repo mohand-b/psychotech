@@ -1,11 +1,178 @@
-<section class="page-shell energie">
-  <header class="energie__head">
-    <span class="t-label">Votre énergie</span>
-    <span class="energie__balance">
-      <ui-bolt [size]="22" />
-      <span class="energie__value t-mono">{{ balance() }}</span>
-    </span>
+<section class="page-shell energie flex flex-col">
+  <header class="energie__head flex flex-col">
+    <h1 class="t-page-title">Votre énergie</h1>
+    <p class="energie__intro">
+      Rechargez en une fois, ou gagnez de l'énergie avec les badges. Elle n'est
+      débitée que lorsque vous lancez une séance.
+    </p>
   </header>
-  <p class="energie__reassurance">Vos énergies n'expirent jamais.</p>
-  <p class="energie__reassurance">Aucun abonnement, aucune reconduction.</p>
+
+  <section class="energie__solde flex">
+    <div class="energie__solde-main flex items-center">
+      <span class="energie__solde-tile">
+        <ui-bolt [size]="30" [filled]="true" />
+      </span>
+      <span class="flex flex-col">
+        <span class="t-label">Solde actuel</span>
+        <span class="energie__solde-line flex items-baseline">
+          <span class="energie__solde-value t-mono">{{ balance() }}</span>
+          <span class="energie__solde-unit">énergies disponibles</span>
+        </span>
+        <span class="energie__solde-note">Sans date d'expiration</span>
+      </span>
+    </div>
+    <span class="energie__solde-divider"></span>
+    <div class="energie__solde-uses flex flex-col">
+      <span class="t-label">Ce que ça permet</span>
+      <span class="energie__use flex items-center">
+        <span class="energie__use-cost flex items-center">
+          <span class="t-mono">{{ targetedCost }}</span>
+          <ui-bolt [size]="12" [filled]="true" />
+        </span>
+        <span class="energie__use-text">Une session ciblée sur un axe</span>
+      </span>
+      <span class="energie__use flex items-center">
+        <span class="energie__use-cost flex items-center">
+          <span class="t-mono">{{ fullCost }}</span>
+          <ui-bolt [size]="12" [filled]="true" />
+        </span>
+        <span class="energie__use-text">Un examen blanc complet</span>
+      </span>
+    </div>
+  </section>
+
+  @if (view() === 'packs') {
+    <section class="energie__recharge flex flex-col">
+      <div class="energie__recharge-head flex items-baseline">
+        <span class="energie__recharge-title">Recharger</span>
+        <span class="energie__recharge-hint">Paiement unique, à la carte</span>
+      </div>
+      <div class="energie__packs grid">
+        @for (pack of packs; track pack.id) {
+          <article
+            class="energie__pack flex flex-col items-center"
+            [class.energie__pack--featured]="pack.featured"
+          >
+            @if (pack.featured) {
+              <span class="energie__pack-flag">Le plus choisi</span>
+            }
+            <span class="energie__pack-title">{{ pack.title }}</span>
+            <span class="energie__pack-amount flex items-center">
+              <span class="t-mono">{{ pack.energyAmount }}</span>
+              <ui-bolt [size]="21" [filled]="true" />
+            </span>
+            <span class="energie__pack-desc">{{ pack.description }}</span>
+            <span class="energie__pack-unit">{{ pack.unitPriceLabel }}</span>
+            <div class="energie__pack-cta">
+              <ui-button
+                color="brand"
+                size="lg"
+                [block]="true"
+                [appearance]="pack.featured ? 'solid' : 'outlined'"
+                (click)="selectPack(pack.id)"
+              >
+                {{ pack.ctaLabel }}
+              </ui-button>
+            </div>
+          </article>
+        }
+      </div>
+      <div class="energie__reassurances flex justify-center">
+        <span class="energie__reassurance flex items-center">
+          <ui-icon [img]="shieldIcon" [size]="15" />
+          Vos énergies n'expirent jamais
+        </span>
+        <span class="energie__reassurance flex items-center">
+          <ui-icon [img]="banIcon" [size]="15" />
+          Aucun abonnement, aucune reconduction
+        </span>
+        <span class="energie__reassurance flex items-center">
+          <ui-icon [img]="cardIcon" [size]="15" />
+          Paiement sécurisé, reçu par e-mail
+        </span>
+      </div>
+    </section>
+  }
+
+  @if (view() === 'confirmation') {
+    <section class="energie__confirmation flex flex-col items-center">
+      @switch (confirmation()) {
+        @case ('pending') {
+          <span class="energie__confirmation-title">Paiement en cours de confirmation…</span>
+          <span class="energie__confirmation-text"
+            >Votre énergie sera créditée dans quelques secondes.</span
+          >
+        }
+        @case ('credited') {
+          <span class="energie__confirmation-title">Énergie créditée</span>
+          <span class="energie__confirmation-text"
+            >Votre solde est à jour. Bon entraînement.</span
+          >
+          <ui-button color="brand" size="md" routerLink="/entrainements">
+            Reprendre l'entraînement
+          </ui-button>
+        }
+        @case ('incomplete') {
+          <span class="energie__confirmation-title">Paiement non finalisé</span>
+          <span class="energie__confirmation-text"
+            >Le paiement n'a pas abouti. Aucune somme n'a été débitée.</span
+          >
+          <ui-button color="brand" size="md" (click)="backToPacks()">
+            Revenir aux packs
+          </ui-button>
+        }
+        @case ('error') {
+          <span class="energie__confirmation-title">Confirmation en attente</span>
+          <span class="energie__confirmation-text"
+            >Le crédit peut prendre quelques instants. Votre solde se mettra à
+            jour automatiquement.</span
+          >
+          <ui-button color="brand" size="md" (click)="backToPacks()">
+            Revenir aux packs
+          </ui-button>
+        }
+      }
+    </section>
+  }
+
+  <section
+    class="energie__checkout flex flex-col"
+    [class.energie__checkout--open]="view() === 'checkout'"
+  >
+    <button type="button" class="energie__back flex items-center" (click)="backToPacks()">
+      <ui-icon [img]="arrowLeftIcon" [size]="15" />
+      Revenir aux packs
+    </button>
+    @if (checkoutError()) {
+      <span class="energie__confirmation-text"
+        >Le paiement n'a pas pu être préparé. Réessayez dans un instant.</span
+      >
+    }
+    <div class="energie__checkout-host" #checkoutHost></div>
+  </section>
+
+  @if (view() === 'packs') {
+    <section class="energie__badges flex items-center">
+      <div class="energie__badges-copy flex flex-col">
+        <span class="energie__badges-title">Ou gagnez de l'énergie</span>
+        <span class="energie__badges-text"
+          >Certains badges créditent votre solde dès leur obtention, sans rien
+          payer.</span
+        >
+        <a class="energie__badges-link flex items-center" routerLink="/badges">
+          Voir tous les badges
+          <ui-icon [img]="arrowRightIcon" [size]="14" />
+        </a>
+      </div>
+      <div class="energie__badges-tiles flex">
+        @for (badge of rewardBadges; track badge.name) {
+          <span class="energie__badge-tile flex flex-col items-center">
+            <img [src]="badge.asset" [alt]="badge.name" />
+            <span class="energie__badge-name">{{ badge.name }}</span>
+            <span class="energie__badge-gain t-mono">{{ badge.gainLabel }}</span>
+          </span>
+        }
+      </div>
+    </section>
+  }
 </section>

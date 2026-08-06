@@ -24,11 +24,7 @@
                 >{{ energyLabel()
                 }}@if (energyValue(); as value) {
                   <span class="home__day-energy-sep">·</span>
-                  <span
-                    class="home__day-energy-value t-mono"
-                    [class.home__day-energy-value--infinity]="value === '∞'"
-                    >{{ value }}</span
-                  >
+                  <span class="home__day-energy-value t-mono">{{ value }}</span>
                 }</span
               >
             }
@@ -64,7 +60,16 @@
               }
               @case ('train') {
                 <span class="home__day-title">C'est le moment de vous entraîner</span>
-                <span class="home__day-sub">{{ trainSub() }}</span>
+                @if (trainSub(); as sub) {
+                  <span class="home__day-sub">{{ sub }}</span>
+                } @else {
+                  <span class="home__day-sub"
+                    >Vous n'avez plus d'énergie.
+                    <a class="t-inline-action" routerLink="/energie"
+                      >Recharger l'énergie</a
+                    ></span
+                  >
+                }
               }
               @case ('new') {
                 <span class="home__day-title">Découvrez votre niveau, axe par axe</span>

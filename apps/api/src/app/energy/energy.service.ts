@@ -9,28 +9,20 @@ import {
   EnergyLedgerReason,
   EnergyStateDto,
 } from '@psychotech/shared';
-import {
-  buildEnergyState,
-  canAfford,
-  isDailyResetDue,
-} from './energy.logic';
+import { buildEnergyState, canAfford } from './energy.logic';
 import { toDbReason } from './energy.mappers';
 import { EnergyRepository } from './energy.repository';
-
-interface FreshWallet {
-  balance: number;
-  capacity: number;
-  timezone: string;
-}
 
 @Injectable()
 export class EnergyService {
   constructor(private readonly repository: EnergyRepository) {}
 
   async getState(userId: string): Promise<EnergyStateDto> {
-    const now = new Date();
-    const wallet = await this.ensureFreshWallet(userId, now);
-    return buildEnergyState(wallet, now);
+    const wallet = await this.repository.findWallet(userId);
+    if (!wallet) {
+      throw new NotFoundException('Energy wallet not found');
+    }
+    return buildEnergyState(wallet.balance);
   }
 
   async spend(
@@ -39,13 +31,15 @@ export class EnergyService {
     reason: EnergyLedgerReason,
     sessionId?: string,
   ): Promise<EnergyStateDto> {
-    const now = new Date();
-    const wallet = await this.ensureFreshWallet(userId, now);
+    const wallet = await this.repository.findWallet(userId);
+    if (!wallet) {
+      throw new NotFoundException('Energy wallet not found');
+    }
     if (!canAfford({ balance: wallet.balance, cost })) {
       throw this.insufficientEnergy(wallet.balance, cost);
     }
     if (cost === 0) {
-      return buildEnergyState(wallet, now);
+      return buildEnergyState(wallet.balance);
     }
     const updated = await this.repository.spend(
       userId,
@@ -53,7 +47,7 @@ export class EnergyService {
       toDbReason(reason),
       sessionId,
     );
-    return buildEnergyState({ ...wallet, balance: updated.balance }, now);
+    return buildEnergyState(updated.balance);
   }
 
   async spendWithin(
@@ -63,24 +57,12 @@ export class EnergyService {
     reason: EnergyLedgerReason,
     sessionId?: string,
   ): Promise<void> {
-    const now = new Date();
-    const context = await this.repository.findEnergyContextWithin(client, userId);
-    if (!context) {
+    const wallet = await this.repository.findWalletWithin(client, userId);
+    if (!wallet) {
       throw new NotFoundException('Energy wallet not found');
     }
-    let balance = context.wallet.balance;
-    if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
-      const reset = await this.repository.resetWithin(
-        client,
-        userId,
-        context.wallet.capacity,
-        now,
-        context.wallet.balance,
-      );
-      balance = reset.balance;
-    }
-    if (!canAfford({ balance, cost })) {
-      throw this.insufficientEnergy(balance, cost);
+    if (!canAfford({ balance: wallet.balance, cost })) {
+      throw this.insufficientEnergy(wallet.balance, cost);
     }
     if (cost === 0) {
       return;
@@ -94,18 +76,8 @@ export class EnergyService {
     );
   }
 
-  async creditPurchasedRefill(
-    userId: string,
-    ref?: string,
-  ): Promise<EnergyStateDto> {
-    const now = new Date();
-    const wallet = await this.ensureFreshWallet(userId, now);
-    const updated = await this.repository.creditToCapacity(
-      userId,
-      toDbReason(EnergyLedgerReason.PURCHASE),
-      ref,
-    );
-    return buildEnergyState({ ...wallet, balance: updated.balance }, now);
+  hasCreditForRef(userId: string, ref: string): Promise<boolean> {
+    return this.repository.hasLedgerRef(userId, ref);
   }
 
   private insufficientEnergy(
@@ -117,33 +89,5 @@ export class EnergyService {
       balance,
       cost,
     });
-  }
-
-  private async ensureFreshWallet(
-    userId: string,
-    now: Date,
-  ): Promise<FreshWallet> {
-    const context = await this.repository.findEnergyContext(userId);
-    if (!context) {
-      throw new NotFoundException('Energy wallet not found');
-    }
-    if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
-      const reset = await this.repository.applyDailyReset(
-        userId,
-        context.wallet.capacity,
-        now,
-        context.wallet.balance,
-      );
-      return {
-        balance: reset.balance,
-        capacity: reset.capacity,
-        timezone: context.timezone,
-      };
-    }
-    return {
-      balance: context.wallet.balance,
-      capacity: context.wallet.capacity,
-      timezone: context.timezone,
-    };
   }
 }

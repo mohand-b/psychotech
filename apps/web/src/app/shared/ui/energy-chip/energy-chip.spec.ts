@@ -5,8 +5,6 @@ import { EnergyChip } from './energy-chip';
 function buildState(overrides: Partial<EnergyStateDto> = {}): EnergyStateDto {
   return {
     balance: 5,
-    capacity: 5,
-    resetsAt: '2026-07-13T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
     ...overrides,
@@ -28,13 +26,11 @@ async function setup(
 }
 
 describe('EnergyChip', () => {
-  it('renders the balance in X/5 format with a muted max', async () => {
-    const fixture = await setup(buildState({ balance: 3 }));
+  it('renders the balance alone, without any maximum suffix', async () => {
+    const fixture = await setup(buildState({ balance: 37 }));
     const value = fixture.nativeElement.querySelector('.chip__value');
-    expect(value.textContent).toBe('3/5');
-    expect(fixture.nativeElement.querySelector('.chip__max').textContent).toBe(
-      '/5',
-    );
+    expect(value.textContent).toBe('37');
+    expect(fixture.nativeElement.querySelector('.chip__max')).toBeNull();
   });
 
   it('stays active while the balance is above zero', async () => {
@@ -49,7 +45,7 @@ describe('EnergyChip', () => {
     expect(chip.classList.contains('chip--depleted')).toBe(true);
     expect(
       fixture.nativeElement.querySelector('.chip__value').textContent,
-    ).toBe('0/5');
+    ).toBe('0');
   });
 
   it('flags the shortage when the required cost exceeds the balance', async () => {

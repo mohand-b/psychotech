@@ -143,8 +143,6 @@ function buildEnergyState(
 ): EnergyStateDto {
   return {
     balance: 5,
-    capacity: 5,
-    resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
     ...overrides,
@@ -264,12 +262,13 @@ describe('AxisStart - énergie', () => {
         ?.disabled,
     ).toBe(true);
     expect(result.element.textContent).toContain(
-      "Énergie épuisée pour aujourd'hui.",
+      "Vous n'avez plus assez d'énergie.",
     );
     const link = result.element.querySelector('.axis-start__recharge-link');
-    expect(link?.textContent).toContain('Recharger pour 1,00 €');
+    expect(link?.textContent).toContain("Recharger l'énergie");
     expect(link?.getAttribute('href')).toBe('/energie');
-    expect(result.element.textContent).toContain('ou attendez la recharge');
+    expect(result.element.textContent).not.toContain('recharge dans');
+    expect(result.element.textContent).not.toContain("pour aujourd'hui");
   });
 
   it('shows the energy cost on the launch call to action', async () => {

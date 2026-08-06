@@ -17,7 +17,6 @@ interface CreateAccountData {
 }
 
 const INITIAL_ENERGY_BALANCE = 5;
-const INITIAL_ENERGY_CAPACITY = 5;
 
 @Injectable()
 export class AuthRepository {
@@ -45,10 +44,7 @@ export class AuthRepository {
           termsVersion: data.termsVersion,
           termsAcceptedAt: data.termsAcceptedAt,
           energyWallet: {
-            create: {
-              balance: INITIAL_ENERGY_BALANCE,
-              capacity: INITIAL_ENERGY_CAPACITY,
-            },
+            create: { balance: INITIAL_ENERGY_BALANCE },
           },
         },
       }),
