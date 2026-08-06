@@ -31,6 +31,7 @@ import {
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
 import {
   AXIS_PRESENTATION,
   AxisPresentation,
@@ -84,6 +85,7 @@ interface LastSimulationView {
   selector: 'app-entrainements',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AppIcon,
     BoltIcon,
     Button,
     Icon,

@@ -6,15 +6,15 @@ import {
 import {
   Activity,
   ArrowLeftRight,
-  Brain,
   CircleCheck,
   Crosshair,
   Gauge,
   Keyboard,
+  Lightbulb,
+  ListOrdered,
   LucideIconData,
   MousePointerClick,
   Pointer,
-  Puzzle,
   Repeat,
   RotateCw,
   ShieldCheck,
@@ -22,7 +22,6 @@ import {
   Spline,
   Target,
   Timer,
-  Zap,
 } from 'lucide-angular';
 
 export type BriefingArrow = 'up' | 'down' | 'left' | 'right';
@@ -232,7 +231,7 @@ export const AXIS_BRIEFING_CONTENT: Record<
     desktopRows: LOGIC_DESKTOP_ROWS.ALL,
     mobileRows: LOGIC_MOBILE_ROWS.ALL,
     evaluated: [
-      { icon: Puzzle, label: 'Déduction de règles' },
+      { icon: Lightbulb, label: 'Déduction de règles' },
       { icon: Timer, label: 'Gestion du temps' },
       { icon: Activity, label: 'Régularité par famille' },
     ],
@@ -301,7 +300,7 @@ export const AXIS_BRIEFING_CONTENT: Record<
       },
     ],
     evaluated: [
-      { icon: Brain, label: 'Rétention' },
+      { icon: ListOrdered, label: 'Rétention' },
       { icon: ArrowLeftRight, label: 'Manipulation (ordre inversé)' },
       { icon: Crosshair, label: 'Précision de position' },
     ],
@@ -396,7 +395,7 @@ export const AXIS_BRIEFING_CONTENT: Record<
       },
     ],
     evaluated: [
-      { icon: Zap, label: 'Vitesse de réaction' },
+      { icon: Gauge, label: 'Vitesse de réaction' },
       { icon: Activity, label: 'Régularité' },
       { icon: CircleCheck, label: 'Justesse des commandes' },
     ],

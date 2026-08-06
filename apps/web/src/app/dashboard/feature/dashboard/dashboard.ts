@@ -8,6 +8,7 @@
 import { Router, RouterLink } from '@angular/router';
 import {
   AxisProgressStatus,
+  AxisType,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,
@@ -32,6 +33,7 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
+import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -54,6 +56,7 @@ type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
 
 interface WeakAxisView {
+  axis: AxisType;
   presentation: AxisPresentation;
   tag: string;
   tagColorVar: string;
@@ -77,6 +80,7 @@ interface LastResultView {
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    AppIcon,
     AxisLabel,
     AxisRadar,
     BoltIcon,
@@ -291,6 +295,7 @@ export class Dashboard {
     )[0];
     const presentation = AXIS_PRESENTATION[weakest.axis];
     return {
+      axis: weakest.axis,
       presentation,
       tag: weakest.isCriticalAxis
         ? `Axe critique du ${this.sectorPresentation().label.toLowerCase()}`

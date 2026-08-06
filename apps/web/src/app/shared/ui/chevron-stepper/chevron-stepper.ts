@@ -11,7 +11,8 @@ import {
   viewChildren,
 } from '@angular/core';
 import { AxisType, FULL_SESSION_LABEL_LOWER } from '@psychotech/shared';
-import { Check, LucideIconData } from 'lucide-angular';
+import { Check } from 'lucide-angular';
+import { AppIcon } from '../app-icon/app-icon';
 import { Icon } from '../icon/icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 
@@ -31,7 +32,6 @@ interface DecoratedStep {
   state: StepState;
   number: string;
   label: string;
-  icon: LucideIconData;
   pastelVar: string;
   textVar: string;
   accentVar: string;
@@ -40,7 +40,7 @@ interface DecoratedStep {
 @Component({
   selector: 'ui-chevron-stepper',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, NgTemplateOutlet],
+  imports: [AppIcon, Icon, NgTemplateOutlet],
   template: `
     <nav [class]="navClasses()" [attr.aria-label]="navLabel()">
       @for (
@@ -101,11 +101,11 @@ interface DecoratedStep {
 
     <ng-template #stepContent let-step>
       <span class="step__number">{{ step.number }}</span>
-      <ui-icon
-        [img]="step.state === 'done' ? checkIcon : step.icon"
-        [size]="14"
-        [strokeWidth]="step.state === 'done' ? 2.5 : 2"
-      />
+      @if (step.state === 'done') {
+        <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.5" />
+      } @else {
+        <ui-app-icon [glyph]="step.axis" [size]="14" />
+      }
       @if (variant() === 'full') {
         <span class="step__label">{{ step.label }}</span>
       }
@@ -308,7 +308,6 @@ export class ChevronStepper {
         state: step.state,
         number: String(index + 1).padStart(2, '0'),
         label: presentation.shortLabel,
-        icon: presentation.icon,
         pastelVar: presentation.pastelVar,
         textVar: presentation.textVar,
         accentVar: presentation.plainVar,

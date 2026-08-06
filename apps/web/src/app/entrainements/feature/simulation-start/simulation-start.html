@@ -1,7 +1,7 @@
 <section class="page-shell simb flex flex-col items-center">
   <header class="simb__hero flex flex-col items-center">
     <span class="simb__hero-icon">
-      <ui-icon [img]="heroIcon" [size]="44" [strokeWidth]="1.8" />
+      <ui-app-icon glyph="examen" [size]="44" />
     </span>
     <h1 class="simb__title">{{ fullSessionLabel }}</h1>
     <span class="simb__subtitle"
@@ -52,11 +52,7 @@
               class="simb__axis-icon"
               [style.color]="presentations[axis].textVar"
             >
-              <ui-icon
-                [img]="presentations[axis].icon"
-                [size]="26"
-                [strokeWidth]="1.8"
-              />
+              <ui-app-icon [glyph]="axis" [size]="26" />
             </span>
             <div class="simb__axis-text flex flex-col flex-1 min-w-0">
               <div class="flex items-center justify-between">

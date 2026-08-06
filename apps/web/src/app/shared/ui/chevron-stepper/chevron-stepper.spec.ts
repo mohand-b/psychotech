@@ -115,7 +115,10 @@ describe('ChevronStepper', () => {
       const fixture = render({ variant: 'mini', currentIndex: 2 });
       expect(labels(fixture)).toEqual([]);
       expect(numbers(fixture)).toHaveLength(5);
-      expect(fixture.nativeElement.querySelectorAll('ui-icon')).toHaveLength(5);
+      expect(fixture.nativeElement.querySelectorAll('ui-icon')).toHaveLength(2);
+      expect(
+        fixture.nativeElement.querySelectorAll('ui-app-icon'),
+      ).toHaveLength(3);
       expect(stepElements(fixture)[0].getAttribute('aria-label')).toBe(
         'Logique',
       );

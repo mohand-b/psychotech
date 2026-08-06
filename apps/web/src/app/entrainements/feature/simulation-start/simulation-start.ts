@@ -20,7 +20,6 @@ import {
 import {
   BellOff,
   Clock,
-  Layers,
   LucideIconData,
   Timer,
   VolumeX,
@@ -30,6 +29,7 @@ import { isEnergyInsufficientError } from '../../../energy/data-access/energy-er
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
+import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -48,7 +48,15 @@ interface AdviceItem {
 @Component({
   selector: 'app-simulation-start',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ActionFooter, BoltIcon, Button, ChevronStepper, Icon, RouterLink],
+  imports: [
+    ActionFooter,
+    AppIcon,
+    BoltIcon,
+    Button,
+    ChevronStepper,
+    Icon,
+    RouterLink,
+  ],
   templateUrl: './simulation-start.html',
   styleUrl: './simulation-start.css',
 })
@@ -60,7 +68,6 @@ export class SimulationStart {
   private readonly router = inject(Router);
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
-  protected readonly heroIcon = Layers;
   protected readonly durationIcon = Timer;
 
   protected readonly starting = signal(false);

@@ -1,21 +1,8 @@
 import { AXIS_META, AxisType } from '@psychotech/shared';
-import {
-  BookOpen,
-  Brain,
-  Calculator,
-  Hand,
-  LucideIconData,
-  Puzzle,
-  Rotate3d,
-  ScanEye,
-  Target,
-  Zap,
-} from 'lucide-angular';
 
 export interface AxisPresentation {
   label: string;
   shortLabel: string;
-  icon: LucideIconData;
   plainVar: string;
   pastelVar: string;
   pastelBorderVar: string;
@@ -26,24 +13,11 @@ const AXIS_SHORT_LABELS: Partial<Record<AxisType, string>> = {
   [AxisType.VISUAL_DISCRIMINATION]: 'Discrimination',
 };
 
-const AXIS_ICONS: Record<AxisType, LucideIconData> = {
-  [AxisType.LOGIC]: Puzzle,
-  [AxisType.MEMORY]: Brain,
-  [AxisType.VISUAL_DISCRIMINATION]: ScanEye,
-  [AxisType.REACTIVITY]: Zap,
-  [AxisType.MOTOR_SKILLS]: Hand,
-  [AxisType.ATTENTION]: Target,
-  [AxisType.NUMERICAL]: Calculator,
-  [AxisType.VERBAL]: BookOpen,
-  [AxisType.SPATIAL]: Rotate3d,
-};
-
 function buildPresentation(axis: AxisType): AxisPresentation {
   const meta = AXIS_META[axis];
   return {
     label: meta.label,
     shortLabel: AXIS_SHORT_LABELS[axis] ?? meta.label,
-    icon: AXIS_ICONS[axis],
     plainVar: `var(${meta.colorToken})`,
     pastelVar: `var(${meta.colorToken}-pastel)`,
     pastelBorderVar: `var(${meta.colorToken}-pastel-bd)`,

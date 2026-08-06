@@ -4,7 +4,7 @@
       <ui-axis-label [axis]="axis" />
     } @else {
       <span class="row__simulation-chip">
-        <ui-icon [img]="simulationIcon" [size]="16" />
+        <ui-app-icon glyph="examen" [size]="16" />
         <span>{{ view().axisCount }} axes</span>
       </span>
     }
@@ -43,13 +43,13 @@
   </span>
 </div>
 <div class="rowm" [class.row--abandoned]="view().abandoned">
-  @if (axisPresentation(); as presentation) {
-    <span class="rowm__icon" [style.color]="presentation.plainVar">
-      <ui-icon [img]="presentation.icon" [size]="18" />
+  @if (view().axis; as axis) {
+    <span class="rowm__icon" [style.color]="axisPlainVar()">
+      <ui-app-icon [glyph]="axis" [size]="18" />
     </span>
   } @else {
     <span class="rowm__icon rowm__icon--simulation">
-      <ui-icon [img]="simulationIcon" [size]="18" />
+      <ui-app-icon glyph="examen" [size]="18" />
     </span>
   }
   <span class="rowm__text flex flex-col">

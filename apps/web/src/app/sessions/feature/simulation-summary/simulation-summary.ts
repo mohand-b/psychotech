@@ -24,6 +24,7 @@ import { Lightbulb, Play } from 'lucide-angular';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
+import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
@@ -49,6 +50,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ActionFooter,
+    AppIcon,
     AxisLabel,
     AxisRadar,
     Button,

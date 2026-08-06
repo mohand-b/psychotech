@@ -13,17 +13,34 @@ import { RouterLink } from '@angular/router';
 import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, CirclePlay, LucideIconData } from 'lucide-angular';
+import {
+  ArrowRight,
+  BookOpen,
+  Calculator,
+  CirclePlay,
+  LucideIconData,
+  Rotate3d,
+  Target,
+} from 'lucide-angular';
+import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const AXIS_FALLBACK_ICONS: Partial<Record<AxisType, LucideIconData>> = {
+  [AxisType.ATTENTION]: Target,
+  [AxisType.NUMERICAL]: Calculator,
+  [AxisType.VERBAL]: BookOpen,
+  [AxisType.SPATIAL]: Rotate3d,
+};
+
 interface HeroAxis {
+  axis: AxisType;
   label: string;
   shortLabel: string;
-  icon: LucideIconData;
+  fallbackIcon: LucideIconData | null;
   colorVar: string;
 }
 
@@ -40,9 +57,10 @@ function axesFor(sector: Sector): HeroAxis[] {
   return SECTOR_AXES[sector].map((axis: AxisType) => {
     const presentation = AXIS_PRESENTATION[axis];
     return {
+      axis,
       label: presentation.label,
       shortLabel: presentation.label.split(' ')[0],
-      icon: presentation.icon,
+      fallbackIcon: AXIS_FALLBACK_ICONS[axis] ?? null,
       colorVar: presentation.plainVar,
     };
   });
@@ -51,7 +69,7 @@ function axesFor(sector: Sector): HeroAxis[] {
 @Component({
   selector: 'app-landing-hero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon],
+  imports: [AppIcon, RouterLink, Icon],
   templateUrl: './landing-hero.html',
   styleUrl: './landing-hero.css',
 })
