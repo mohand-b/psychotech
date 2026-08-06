@@ -1,23 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  BillingPeriod,
-  Prisma,
-  Subscription,
-  SubscriptionStatus,
-  SubscriptionTier,
-  User,
-} from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-
-interface SubscriptionUpsert {
-  stripeSubscriptionId: string;
-  tier: SubscriptionTier;
-  status: SubscriptionStatus;
-  currentPeriodEnd: Date | null;
-  cancelAtPeriodEnd: boolean;
-  canceledAt: Date | null;
-  pendingTier: SubscriptionTier | null;
-}
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
@@ -49,10 +32,6 @@ export class BillingRepository {
     });
   }
 
-  findSubscriptionByUserId(userId: string): Promise<Subscription | null> {
-    return this.prisma.subscription.findUnique({ where: { userId } });
-  }
-
   async registerEvent(eventId: string): Promise<boolean> {
     try {
       await this.prisma.stripeEvent.create({ data: { id: eventId } });
@@ -66,17 +45,5 @@ export class BillingRepository {
       }
       throw error;
     }
-  }
-
-  async upsertSubscription(
-    userId: string,
-    data: SubscriptionUpsert,
-  ): Promise<void> {
-    const values = { ...data, billingPeriod: BillingPeriod.MONTHLY };
-    await this.prisma.subscription.upsert({
-      where: { userId },
-      update: values,
-      create: { userId, ...values },
-    });
   }
 }

@@ -12,7 +12,6 @@ import { GamepadModule } from './gamepad/gamepad.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { SessionsModule } from './sessions/sessions.module';
-import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
@@ -39,7 +38,6 @@ import { webAppServingImports } from './config/web-app-serving';
     GamepadModule,
     ScoringModule,
     SessionsModule,
-    SubscriptionsModule,
     TrainingsModule,
     ProgressionModule,
     BadgesModule,

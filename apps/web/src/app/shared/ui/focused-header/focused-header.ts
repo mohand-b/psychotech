@@ -5,7 +5,7 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AxisType, EnergyStateDto, SubscriptionTier } from '@psychotech/shared';
+import { AxisType, EnergyStateDto } from '@psychotech/shared';
 import { ArrowLeft, BookOpen, ShieldCheck, Timer, X } from 'lucide-angular';
 import { AxisLabel } from '../axis-label/axis-label';
 import {
@@ -87,7 +87,6 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
           @if (showEnergy()) {
             <ui-energy-chip
               [state]="energy()"
-              [tier]="tier()"
               [requiredCost]="energyCost()"
             />
             @if (duration() || closeLink()) {
@@ -130,7 +129,6 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
 export class FocusedHeader {
   readonly title = input.required<string>();
   readonly energy = input.required<EnergyStateDto | null>();
-  readonly tier = input.required<SubscriptionTier>();
   readonly discoveryTag = input(false);
   readonly backLabel = input.required<string>();
   readonly backLink = input.required<string>();

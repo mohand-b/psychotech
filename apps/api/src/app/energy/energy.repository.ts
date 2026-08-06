@@ -3,14 +3,13 @@ import {
   EnergyLedgerReason,
   EnergyWallet,
   Prisma,
-  Subscription,
+  
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { refilledBalance } from './energy.logic';
 
 export interface EnergyContext {
   wallet: EnergyWallet;
-  subscription: Subscription | null;
   timezone: string;
 }
 
@@ -108,7 +107,7 @@ export class EnergyRepository {
   ): Promise<EnergyContext | null> {
     const user = await client.user.findUnique({
       where: { id: userId },
-      include: { energyWallet: true, subscription: true },
+      include: { energyWallet: true },
     });
     if (!user) {
       return null;
@@ -118,7 +117,6 @@ export class EnergyRepository {
       (await client.energyWallet.create({ data: { userId } }));
     return {
       wallet,
-      subscription: user.subscription,
       timezone: user.timezone,
     };
   }

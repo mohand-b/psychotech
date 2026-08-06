@@ -14,10 +14,10 @@
     <div class="simb__section flex flex-col">
       <span class="t-label">Comment ça se passe</span>
       @for (step of howItGoes; track step; let index = $index) {
-        <div class="simb__step flex">
-          <span class="simb__step-number t-mono">{{ index + 1 }}</span>
-          <span class="simb__step-text">{{ step }}</span>
-        </div>
+      <div class="simb__step flex">
+        <span class="simb__step-number t-mono">{{ index + 1 }}</span>
+        <span class="simb__step-text">{{ step }}</span>
+      </div>
       }
     </div>
 
@@ -39,49 +39,45 @@
         />
         <div class="simb__panel-viewport">
           @for (axis of exploredKeys(); track axis) {
-            <div
-              class="simb__axis-panel flex items-center"
-              [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
-              [class.simb__axis-panel--backward]="
+          <div
+            class="simb__axis-panel flex items-center"
+            [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
+            [class.simb__axis-panel--backward]="
                 panelDirection() === 'backward'
               "
-              [animate.leave]="panelLeaveClass()"
-              [style.background]="presentations[axis].pastelVar"
+            [animate.leave]="panelLeaveClass()"
+            [style.background]="presentations[axis].pastelVar"
+          >
+            <span
+              class="simb__axis-icon"
+              [style.color]="presentations[axis].textVar"
             >
-              <span
-                class="simb__axis-icon"
-                [style.color]="presentations[axis].textVar"
-              >
-                <ui-icon
-                  [img]="presentations[axis].icon"
-                  [size]="26"
-                  [strokeWidth]="1.8"
-                />
-              </span>
-              <div class="simb__axis-text flex flex-col flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <span
-                    class="simb__axis-name"
-                    [style.color]="presentations[axis].textVar"
-                    >{{ presentations[axis].label }}</span
-                  >
-                  <span
-                    class="simb__axis-duration flex items-center"
-                    [style.color]="presentations[axis].textVar"
-                  >
-                    <ui-icon
-                      [img]="durationIcon"
-                      [size]="13"
-                      [strokeWidth]="2"
-                    />
-                    <span class="t-mono">{{ course[axis].duration }}</span>
-                  </span>
-                </div>
-                <span class="simb__axis-instruction">{{
-                  course[axis].instruction
-                }}</span>
+              <ui-icon
+                [img]="presentations[axis].icon"
+                [size]="26"
+                [strokeWidth]="1.8"
+              />
+            </span>
+            <div class="simb__axis-text flex flex-col flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span
+                  class="simb__axis-name"
+                  [style.color]="presentations[axis].textVar"
+                  >{{ presentations[axis].label }}</span
+                >
+                <span
+                  class="simb__axis-duration flex items-center"
+                  [style.color]="presentations[axis].textVar"
+                >
+                  <ui-icon [img]="durationIcon" [size]="13" [strokeWidth]="2" />
+                  <span class="t-mono">{{ course[axis].duration }}</span>
+                </span>
               </div>
+              <span class="simb__axis-instruction"
+                >{{ course[axis].instruction }}</span
+              >
             </div>
+          </div>
           }
         </div>
       </div>
@@ -90,12 +86,12 @@
     <div class="simb__section simb__section--divided flex flex-col">
       <span class="t-label">Avant de commencer</span>
       @for (item of adviceItems; track item.text) {
-        <div class="simb__advice flex items-center">
-          <span class="simb__advice-icon">
-            <ui-icon [img]="item.icon" [size]="14" [strokeWidth]="1.8" />
-          </span>
-          <span class="simb__advice-text">{{ item.text }}</span>
-        </div>
+      <div class="simb__advice flex items-center">
+        <span class="simb__advice-icon">
+          <ui-icon [img]="item.icon" [size]="14" [strokeWidth]="1.8" />
+        </span>
+        <span class="simb__advice-text">{{ item.text }}</span>
+      </div>
       }
     </div>
 
@@ -115,22 +111,21 @@
     </div>
   </div>
 
-    @if (energyShort()) {
-      <span class="simb__short flex items-center">
-        Il vous faut {{ energyCost }} énergies, vous en avez {{ balance() }}.
-        <a class="simb__short-link" routerLink="/recharge"
-          >Recharger pour {{ rechargePriceLabel }}</a
-        >
-        @if (rechargeCountdown(); as countdown) {
-          <span class="simb__summary-dot">·</span>
-          <span
-            >ou attendez la recharge dans
-            <span class="simb__short-countdown t-mono">{{ countdown }}</span
-            ></span
-          >
-        }
-      </span>
+  @if (energyShort()) {
+  <span class="simb__short flex items-center">
+    Il vous faut {{ energyCost }} énergies, vous en avez {{ balance() }}.
+    <a class="simb__short-link" routerLink="/energie"
+      >Recharger pour {{ rechargePriceLabel }}</a
+    >
+    @if (rechargeCountdown(); as countdown) {
+    <span class="simb__summary-dot">·</span>
+    <span
+      >ou attendez la recharge dans
+      <span class="simb__short-countdown t-mono">{{ countdown }}</span></span
+    >
     }
+  </span>
+  }
   <ui-action-footer>
     <ui-button
       class="simb__cta"
@@ -143,13 +138,11 @@
     >
       <span class="simb__cta-content">
         Commencer la session
-        @if (!unlimited()) {
-          <span class="simb__cta-sep"></span>
-          <span class="simb__cta-cost flex items-center">
-            <ui-bolt [size]="13" />
-            <span class="t-mono">{{ energyCost }}</span>
-          </span>
-        }
+        <span class="simb__cta-sep"></span>
+        <span class="simb__cta-cost flex items-center">
+          <ui-bolt [size]="13" />
+          <span class="t-mono">{{ energyCost }}</span>
+        </span>
       </span>
     </ui-button>
   </ui-action-footer>

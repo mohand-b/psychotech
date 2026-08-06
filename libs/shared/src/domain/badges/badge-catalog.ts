@@ -20,7 +20,7 @@ export const BADGE_EXAM_AXIS_FLOOR = 70;
 export const FIRST_STEPS_REWARD = 5;
 export const EXAM_FAVORABLE_REWARD = 2;
 
-export const SECTOR_BADGE_NAMES: Record<Sector, string> = {
+export const SECTOR_BADGE_NAMES: Partial<Record<Sector, string>> = {
   [Sector.RAILWAY]: 'Sur les rails',
 };
 
@@ -285,7 +285,7 @@ export function badgeDisplayName(
   sector: Sector,
 ): string {
   return definition.id === BadgeId.SECTOR_MASTERY
-    ? SECTOR_BADGE_NAMES[sector]
+    ? (SECTOR_BADGE_NAMES[sector] ?? definition.displayName)
     : definition.displayName;
 }
 

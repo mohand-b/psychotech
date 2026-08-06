@@ -6,11 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import {
-  EnergyStateDto,
-  SubscriptionTier,
-  UserProfileDto,
-} from '@psychotech/shared';
+import { EnergyStateDto, UserProfileDto } from '@psychotech/shared';
 import {
   House,
   List,
@@ -41,7 +37,6 @@ export class Navbar {
   readonly hideMobileTabs = input(false);
   readonly user = input.required<UserProfileDto | null>();
   readonly energy = input.required<EnergyStateDto | null>();
-  readonly tier = input.required<SubscriptionTier>();
   readonly logoutRequested = output<void>();
 
   protected readonly logOutIcon = LogOut;
@@ -57,13 +52,7 @@ export class Navbar {
     () => this.user()?.currentSector ?? null,
   );
 
-  protected readonly energyLink = computed(() => {
-    const tier = this.tier();
-    if (tier === SubscriptionTier.ESSENTIAL) {
-      return '/recharge';
-    }
-    return tier === SubscriptionTier.FREE ? '/abonnements' : null;
-  });
+  protected readonly energyLink = computed(() => '/energie');
 
   protected logout(): void {
     this.logoutRequested.emit();

@@ -15,13 +15,11 @@ import {
   SessionMode,
   SessionStatus,
   StartSessionDto,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
@@ -86,7 +84,6 @@ interface Setup {
 
 interface SetupOptions {
   energyState?: EnergyStateDto | null;
-  tier?: SubscriptionTier;
   startResult?: () => Observable<SessionDto>;
 }
 
@@ -110,12 +107,6 @@ async function setup(
         useValue: {
           load: energyLoad,
           state: signal(options.energyState ?? null),
-        },
-      },
-      {
-        provide: CoreFacade,
-        useValue: {
-          tier: signal(options.tier ?? SubscriptionTier.ESSENTIAL),
         },
       },
       {
@@ -153,7 +144,6 @@ function buildEnergyState(
   return {
     balance: 5,
     capacity: 5,
-    tier: SubscriptionTier.ESSENTIAL,
     resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
@@ -278,18 +268,18 @@ describe('AxisStart - énergie', () => {
     );
     const link = result.element.querySelector('.axis-start__recharge-link');
     expect(link?.textContent).toContain('Recharger pour 1,00 €');
-    expect(link?.getAttribute('href')).toBe('/recharge');
+    expect(link?.getAttribute('href')).toBe('/energie');
     expect(result.element.textContent).toContain('ou attendez la recharge');
   });
 
-  it('hides the energy cost on the cta for the unlimited tier', async () => {
+  it('shows the energy cost on the launch call to action', async () => {
     const result = await setup('logique', false, {
-      tier: SubscriptionTier.UNLIMITED,
-      energyState: buildEnergyState({ tier: SubscriptionTier.UNLIMITED }),
+      energyState: buildEnergyState(),
     });
     const button = result.element.querySelector('ui-button button');
     expect(button?.textContent).toContain('Commencer');
-    expect(button?.querySelector('ui-bolt')).toBeNull();
+    expect(button?.textContent).toContain("l'entraînement");
+    expect(button?.querySelector('ui-bolt')).not.toBeNull();
   });
 
   it('handles the backend insufficient-energy refusal by reloading the balance', async () => {

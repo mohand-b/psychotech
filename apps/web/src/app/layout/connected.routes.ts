@@ -6,7 +6,6 @@ import { entrainementsRoutes } from '../entrainements/feature/entrainements.rout
 import { profileRoutes } from '../profile/feature/profile.routes';
 import { progressionRoutes } from '../progression/feature/progression.routes';
 import { sessionsRoutes } from '../sessions/feature/sessions.routes';
-import { subscriptionsRoutes } from '../subscriptions/feature/subscriptions.routes';
 
 export const connectedRoutes: Route[] = [
   {
@@ -23,7 +22,6 @@ export const connectedRoutes: Route[] = [
       ...sessionsRoutes,
       ...profileRoutes,
       ...progressionRoutes,
-      ...subscriptionsRoutes,
       { path: '**', redirectTo: 'dashboard' },
     ],
   },

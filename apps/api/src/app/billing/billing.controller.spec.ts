@@ -22,30 +22,9 @@ describe('BillingController.handleWebhook guards', () => {
     ).toBe(true);
   });
 
-  it('keeps subscription management behind the auth guard', () => {
+  it('keeps the billing config behind the auth guard', () => {
     expect(
-      Reflect.getMetadata(
-        IS_PUBLIC_KEY,
-        BillingController.prototype.createSubscription,
-      ),
-    ).toBeUndefined();
-    expect(
-      Reflect.getMetadata(
-        IS_PUBLIC_KEY,
-        BillingController.prototype.cancelSubscription,
-      ),
-    ).toBeUndefined();
-    expect(
-      Reflect.getMetadata(
-        IS_PUBLIC_KEY,
-        BillingController.prototype.createPaymentMethodSetup,
-      ),
-    ).toBeUndefined();
-    expect(
-      Reflect.getMetadata(
-        IS_PUBLIC_KEY,
-        BillingController.prototype.getBillingOverview,
-      ),
+      Reflect.getMetadata(IS_PUBLIC_KEY, BillingController.prototype.getConfig),
     ).toBeUndefined();
   });
 });

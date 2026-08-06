@@ -8,12 +8,10 @@ import {
   EnergyStateDto,
   FULL_SESSION_AXIS_ORDER,
   Sector,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { SimulationStart } from './simulation-start';
@@ -24,7 +22,6 @@ function buildEnergyState(
   return {
     balance: 5,
     capacity: 5,
-    tier: SubscriptionTier.ESSENTIAL,
     resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: true,
     canStartAxis: true,
@@ -35,7 +32,6 @@ function buildEnergyState(
 async function setup(
   options: {
     energyState?: EnergyStateDto | null;
-    tier?: SubscriptionTier;
     startFull?: () => Observable<{ id: string }>;
   } = {},
 ) {
@@ -48,12 +44,6 @@ async function setup(
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
-      },
-      {
-        provide: CoreFacade,
-        useValue: {
-          tier: signal(options.tier ?? SubscriptionTier.ESSENTIAL),
-        },
       },
       {
         provide: EnergyFacade,
@@ -150,24 +140,10 @@ describe('SimulationStart', () => {
     expect(text(fixture)).toContain('Il vous faut 5 énergies, vous en avez 3.');
     const link = fixture.nativeElement.querySelector('.simb__short-link');
     expect(link?.textContent).toContain('Recharger pour 1,00 €');
-    expect(link?.getAttribute('href')).toBe('/recharge');
+    expect(link?.getAttribute('href')).toBe('/energie');
     expect(text(fixture)).toContain('ou attendez la recharge dans');
     (locked as HTMLElement).click();
     expect(startFull).not.toHaveBeenCalled();
-  });
-
-  it('hides the energy cost for the unlimited tier', async () => {
-    const { fixture } = await setup({
-      tier: SubscriptionTier.UNLIMITED,
-      energyState: buildEnergyState({ tier: SubscriptionTier.UNLIMITED }),
-    });
-    const cta = fixture.nativeElement.querySelector(
-      '.simb__cta',
-    ) as HTMLElement;
-    expect(cta.querySelector('ui-bolt')).toBeNull();
-    expect((cta.querySelector('button') as HTMLButtonElement).disabled).toBe(
-      false,
-    );
   });
 
   it('handles the backend insufficient-energy refusal by reloading the balance', async () => {

@@ -161,7 +161,6 @@ describe('EnergyRepository.findEnergyContext', () => {
           id: 'user-1',
           timezone: 'Europe/Paris',
           energyWallet: null,
-          subscription: null,
         }),
       },
       energyWallet: { create: vi.fn().mockResolvedValue(created) },

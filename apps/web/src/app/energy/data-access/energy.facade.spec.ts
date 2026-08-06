@@ -1,45 +1,32 @@
 import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import {
-  EnergyStateDto,
-  SubscriptionTier,
-  UserProfileDto,
-} from '@psychotech/shared';
+import { EnergyStateDto, UserProfileDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyApi } from './energy.api';
 import { EnergyFacade } from './energy.facade';
 
-function energyState(
-  tier: SubscriptionTier,
-  canStartAxis: boolean,
-): EnergyStateDto {
+function energyState(balance: number): EnergyStateDto {
   return {
-    balance: 5,
+    balance,
     capacity: 5,
-    tier,
     resetsAt: '2026-07-26T22:00:00.000Z',
-    canStartFull: canStartAxis,
-    canStartAxis,
+    canStartFull: balance >= 5,
+    canStartAxis: balance >= 1,
   };
 }
 
-describe('EnergyFacade — rechargement au changement de formule', () => {
+describe('EnergyFacade — synchronisation avec la session utilisateur', () => {
   let currentUser: WritableSignal<UserProfileDto | null>;
   let stateApi: ReturnType<typeof vi.fn>;
 
-  function setup(initialTier: SubscriptionTier | null): EnergyFacade {
+  function setup(initialUserId: string | null): EnergyFacade {
     currentUser = signal<UserProfileDto | null>(
-      initialTier === null ? null : ({ tier: initialTier } as UserProfileDto),
+      initialUserId === null
+        ? null
+        : ({ id: initialUserId } as UserProfileDto),
     );
-    stateApi = vi.fn(() =>
-      of(
-        energyState(
-          currentUser()?.tier ?? SubscriptionTier.FREE,
-          currentUser()?.tier === SubscriptionTier.ESSENTIAL,
-        ),
-      ),
-    );
+    stateApi = vi.fn(() => of(energyState(5)));
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthFacade, useValue: { currentUser } },
@@ -53,21 +40,33 @@ describe('EnergyFacade — rechargement au changement de formule', () => {
     TestBed.resetTestingModule();
   });
 
-  it('recharge l’état quand la formule passe de FREE à ESSENTIAL, sans reload', () => {
-    const facade = setup(SubscriptionTier.FREE);
+  it('charge l’état à la connexion de l’utilisateur, sans reload', () => {
+    const facade = setup(null);
+    TestBed.tick();
+    expect(stateApi).not.toHaveBeenCalled();
+    expect(facade.state()).toBeNull();
+
+    currentUser.set({ id: 'user-1' } as UserProfileDto);
+    TestBed.tick();
+
+    expect(stateApi).toHaveBeenCalledTimes(1);
+    expect(facade.state()?.balance).toBe(5);
+  });
+
+  it('recharge l’état quand un autre utilisateur se connecte', () => {
+    const facade = setup('user-1');
     TestBed.tick();
     expect(stateApi).toHaveBeenCalledTimes(1);
-    expect(facade.state()?.canStartAxis).toBe(false);
 
-    currentUser.set({ tier: SubscriptionTier.ESSENTIAL } as UserProfileDto);
+    currentUser.set({ id: 'user-2' } as UserProfileDto);
     TestBed.tick();
 
     expect(stateApi).toHaveBeenCalledTimes(2);
-    expect(facade.state()?.canStartAxis).toBe(true);
+    expect(facade.state()).not.toBeNull();
   });
 
   it('vide l’état quand l’utilisateur se déconnecte', () => {
-    const facade = setup(SubscriptionTier.ESSENTIAL);
+    const facade = setup('user-1');
     TestBed.tick();
     expect(facade.state()).not.toBeNull();
 

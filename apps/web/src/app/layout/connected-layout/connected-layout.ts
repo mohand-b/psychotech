@@ -23,7 +23,6 @@ import {
 } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../core/data-access/core.facade';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';
@@ -88,7 +87,6 @@ interface FocusedHeaderView {
 })
 export class ConnectedLayout {
   private readonly authFacade = inject(AuthFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
@@ -96,7 +94,6 @@ export class ConnectedLayout {
 
   protected readonly user = this.authFacade.currentUser;
   protected readonly energy = this.energyFacade.state;
-  protected readonly tier = this.coreFacade.tier;
 
   protected readonly focusedHeader = signal<FocusedHeaderView | null>(
     this.readFocusedHeader(),

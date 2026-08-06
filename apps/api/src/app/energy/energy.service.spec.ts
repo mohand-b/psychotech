@@ -1,18 +1,13 @@
 import { ForbiddenException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   EnergyLedgerReason as DbEnergyLedgerReason,
   EnergyWallet,
-  Subscription,
-  SubscriptionTier as DbSubscriptionTier,
 } from '@prisma/client';
 import {
   ENERGY_INSUFFICIENT_ERROR_CODE,
   EnergyLedgerReason,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { EnergyContext, EnergyRepository } from './energy.repository';
 import { EnergyService } from './energy.service';
 
@@ -28,26 +23,10 @@ function buildWallet(overrides: Partial<EnergyWallet> = {}): EnergyWallet {
   };
 }
 
-function buildSubscription(overrides: Partial<Subscription> = {}): Subscription {
-  return {
-    id: 'subscription-1',
-    userId: 'user-1',
-    tier: DbSubscriptionTier.ESSENTIAL,
-    status: 'ACTIVE',
-    billingPeriod: null,
-    currentPeriodEnd: null,
-    cancelAtPeriodEnd: false,
-    stripeSubscriptionId: null,
-    createdAt: new Date('2026-06-13T08:00:00Z'),
-    updatedAt: new Date('2026-06-13T08:00:00Z'),
-    ...overrides,
-  };
-}
 
 function buildContext(overrides: Partial<EnergyContext> = {}): EnergyContext {
   return {
     wallet: buildWallet(),
-    subscription: buildSubscription(),
     timezone: 'UTC',
     ...overrides,
   };
@@ -60,14 +39,7 @@ const repository = {
   creditToCapacity: vi.fn(),
 };
 
-const tierResolution = new TierResolutionService({
-  getOrThrow: () => ({ enabled: true }),
-} as unknown as ConfigService);
-
-const service = new EnergyService(
-  repository as unknown as EnergyRepository,
-  tierResolution,
-);
+const service = new EnergyService(repository as unknown as EnergyRepository);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -99,27 +71,10 @@ describe('EnergyService.spend', () => {
     expect(state.balance).toBe(0);
   });
 
-  it('does not debit the unlimited tier', async () => {
-    repository.findEnergyContext.mockResolvedValue(
-      buildContext({
-        wallet: buildWallet({ balance: 5 }),
-        subscription: buildSubscription({ tier: DbSubscriptionTier.UNLIMITED }),
-      }),
-    );
-
-    const state = await service.spend('user-1', 5, EnergyLedgerReason.SESSION_SPENT);
-
-    expect(repository.spend).not.toHaveBeenCalled();
-    expect(state.balance).toBe(5);
-    expect(state.tier).toBe(SubscriptionTier.UNLIMITED);
-  });
 
   it('does not debit a zero-cost tutorial', async () => {
     repository.findEnergyContext.mockResolvedValue(
-      buildContext({
-        subscription: buildSubscription({ tier: DbSubscriptionTier.FREE }),
-        wallet: buildWallet({ balance: 5 }),
-      }),
+      buildContext({ wallet: buildWallet({ balance: 5 }) }),
     );
 
     await service.spend('user-1', 0, EnergyLedgerReason.SESSION_SPENT);
@@ -202,7 +157,6 @@ describe('EnergyService lazy daily reset', () => {
 
     expect(repository.applyDailyReset).not.toHaveBeenCalled();
     expect(state.balance).toBe(3);
-    expect(state.tier).toBe(SubscriptionTier.ESSENTIAL);
   });
 
   it('never clamps a purchased balance above capacity on the daily refill', async () => {

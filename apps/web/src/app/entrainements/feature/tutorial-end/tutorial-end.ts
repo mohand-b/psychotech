@@ -11,7 +11,6 @@ import {
   MOTRICITY_TUTORIAL_START_WIDTH,
   SECTOR_LABELS,
   Sector,
-  SubscriptionTier,
   TUTORIAL_SEED,
   generateDiscriminationSession,
   generateLogicTutorial,
@@ -27,7 +26,6 @@ import {
 } from '@psychotech/shared';
 import { ArrowRight, Check } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -176,7 +174,6 @@ export class TutorialEnd {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly runFacade = inject(TutorialRunFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly authFacade = inject(AuthFacade);
 
   protected readonly arrowIcon = ArrowRight;
@@ -201,21 +198,12 @@ export class TutorialEnd {
     ? ['/entrainements/cible', axisSlug(this.axis)]
     : ['/entrainements'];
 
-  protected readonly isFree = computed(
-    () => this.coreFacade.tier() === SubscriptionTier.FREE,
-  );
+  protected readonly primaryLabel = 'Entraînement ciblé';
 
-  protected readonly primaryLabel = computed(() =>
-    this.isFree() ? 'Découvrir les offres' : 'Entraînement ciblé',
-  );
+  protected readonly primaryLink = this.targetedLink;
 
-  protected readonly primaryLink = computed(() =>
-    this.isFree() ? ['/abonnements'] : this.targetedLink,
-  );
-
-  protected readonly primaryColor = computed<ButtonColor>(() =>
-    this.isFree() || this.axis === null ? 'brand' : axisButtonColor(this.axis),
-  );
+  protected readonly primaryColor: ButtonColor =
+    this.axis === null ? 'brand' : axisButtonColor(this.axis);
 
   protected readonly metricRows = computed<TutorialMetricRow[]>(() => {
     const result = this.runFacade.result();

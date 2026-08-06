@@ -1,4 +1,4 @@
-import { SessionMode, SubscriptionTier } from '@psychotech/shared';
+import { SessionMode } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
   buildEnergyState,
@@ -30,21 +30,15 @@ describe('refilledBalance', () => {
 });
 
 describe('canAfford', () => {
-  it('always grants access for the unlimited tier whatever the balance', () => {
-    expect(canAfford({ tier: SubscriptionTier.UNLIMITED, balance: 0, cost: 5 })).toBe(true);
+  it('compares balance against cost', () => {
+    expect(canAfford({ balance: 5, cost: 5 })).toBe(true);
+    expect(canAfford({ balance: 4, cost: 5 })).toBe(false);
+    expect(canAfford({ balance: 1, cost: 1 })).toBe(true);
+    expect(canAfford({ balance: 0, cost: 1 })).toBe(false);
   });
 
-  it('restricts the free tier to zero-cost tutorials', () => {
-    expect(canAfford({ tier: SubscriptionTier.FREE, balance: 5, cost: 0 })).toBe(true);
-    expect(canAfford({ tier: SubscriptionTier.FREE, balance: 5, cost: 1 })).toBe(false);
-    expect(canAfford({ tier: SubscriptionTier.FREE, balance: 5, cost: 5 })).toBe(false);
-  });
-
-  it('compares balance against cost for the essential tier', () => {
-    expect(canAfford({ tier: SubscriptionTier.ESSENTIAL, balance: 5, cost: 5 })).toBe(true);
-    expect(canAfford({ tier: SubscriptionTier.ESSENTIAL, balance: 4, cost: 5 })).toBe(false);
-    expect(canAfford({ tier: SubscriptionTier.ESSENTIAL, balance: 1, cost: 1 })).toBe(true);
-    expect(canAfford({ tier: SubscriptionTier.ESSENTIAL, balance: 0, cost: 1 })).toBe(false);
+  it('always affords zero-cost tutorials', () => {
+    expect(canAfford({ balance: 0, cost: 0 })).toBe(true);
   });
 });
 
@@ -95,38 +89,29 @@ describe('nextLocalMidnight', () => {
 describe('buildEnergyState', () => {
   const now = new Date('2026-06-13T10:00:00Z');
 
-  it('blocks full and axis starts for the free tier', () => {
-    const state = buildEnergyState(
-      { balance: 5, capacity: 5, tier: SubscriptionTier.FREE, timezone: 'Europe/Paris' },
-      now,
-    );
-    expect(state.canStartFull).toBe(false);
-    expect(state.canStartAxis).toBe(false);
-    expect(state.resetsAt).toBe('2026-06-13T22:00:00.000Z');
-  });
-
-  it('allows starts for the essential tier according to the balance', () => {
+  it('allows starts according to the balance', () => {
     const full = buildEnergyState(
-      { balance: 5, capacity: 5, tier: SubscriptionTier.ESSENTIAL, timezone: 'UTC' },
+      { balance: 5, capacity: 5, timezone: 'UTC' },
       now,
     );
     expect(full.canStartFull).toBe(true);
     expect(full.canStartAxis).toBe(true);
 
     const depleted = buildEnergyState(
-      { balance: 0, capacity: 5, tier: SubscriptionTier.ESSENTIAL, timezone: 'UTC' },
+      { balance: 0, capacity: 5, timezone: 'UTC' },
       now,
     );
     expect(depleted.canStartFull).toBe(false);
     expect(depleted.canStartAxis).toBe(false);
   });
 
-  it('allows every start for the unlimited tier', () => {
+  it('blocks a full start when only an axis is affordable', () => {
     const state = buildEnergyState(
-      { balance: 0, capacity: 5, tier: SubscriptionTier.UNLIMITED, timezone: 'UTC' },
+      { balance: 4, capacity: 5, timezone: 'Europe/Paris' },
       now,
     );
-    expect(state.canStartFull).toBe(true);
+    expect(state.canStartFull).toBe(false);
     expect(state.canStartAxis).toBe(true);
+    expect(state.resetsAt).toBe('2026-06-13T22:00:00.000Z');
   });
 });

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
-import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthCookieService } from './auth.cookie.service';
@@ -13,7 +12,7 @@ import { PasswordHasher } from './password.service';
 import { TokenService } from './token.service';
 
 @Module({
-  imports: [JwtModule.register({}), SubscriptionsModule, UsersModule],
+  imports: [JwtModule.register({}), UsersModule],
   controllers: [AuthController],
   providers: [
     AuthService,

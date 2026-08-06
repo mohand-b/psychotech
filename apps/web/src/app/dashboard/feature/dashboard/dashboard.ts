@@ -14,13 +14,11 @@ import {
   Sector,
   SessionMode,
   SimulationStamp,
-  SubscriptionTier,
   axisMaxDurationSec,
   buildSimulationStamp,
 } from '@psychotech/shared';
-import { ArrowRight, Gem, Play, Target } from 'lucide-angular';
+import { ArrowRight, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
@@ -50,7 +48,6 @@ import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
-import { PLAN_LABELS } from '../../../shared/util/plan-labels';
 
 type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
@@ -96,7 +93,6 @@ interface LastResultView {
 })
 export class Dashboard {
   private readonly authFacade = inject(AuthFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly overviewFacade = inject(TrainingsOverviewFacade);
   private readonly progressionFacade = inject(ProgressionFacade);
@@ -107,11 +103,9 @@ export class Dashboard {
 
   protected readonly playIcon = Play;
   protected readonly arrowIcon = ArrowRight;
-  protected readonly planIcon = Gem;
   protected readonly discoverIcon = Target;
   protected readonly statuses = AxisProgressStatus;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
-  protected readonly tiers = SubscriptionTier;
 
   protected readonly radarMode = signal<RadarMode>('derniere');
 
@@ -120,7 +114,6 @@ export class Dashboard {
     this.sessionHistoryFacade.refreshCurrent();
   }
 
-  protected readonly tier = this.coreFacade.tier;
   protected readonly overviewLoaded = computed(
     () => this.overviewFacade.overview() !== null,
   );
@@ -165,10 +158,6 @@ export class Dashboard {
     this.current() !== null ? 'session' : this.isNew() ? 'new' : 'train',
   );
 
-  private readonly unlimited = computed(
-    () => this.tier() === SubscriptionTier.UNLIMITED,
-  );
-  private readonly free = computed(() => this.tier() === SubscriptionTier.FREE);
   private readonly balance = computed(() => this.energy()?.balance ?? 0);
   private readonly fullEnergy = computed(() => {
     const energy = this.energy();
@@ -189,19 +178,10 @@ export class Dashboard {
     if (this.variant() === 'session') {
       return `Vous avez un ${FULL_SESSION_LABEL.toLowerCase()} en cours : reprenez là où vous vous êtes arrêté.`;
     }
-    if (this.free()) {
-      return 'Découvrez les épreuves avec le mode découverte, en libre accès.';
-    }
     return 'Chaque session vous rapproche de la sélection.';
   });
 
   protected readonly energyLabel = computed(() => {
-    if (this.free()) {
-      return 'Mode découverte en libre accès';
-    }
-    if (this.unlimited()) {
-      return 'Énergie illimitée';
-    }
     if (this.fullEnergy()) {
       return 'Énergie pleine';
     }
@@ -209,23 +189,11 @@ export class Dashboard {
   });
 
   protected readonly energyValue = computed(() => {
-    if (this.free()) {
-      return null;
-    }
-    if (this.unlimited()) {
-      return '∞';
-    }
     const energy = this.energy();
     return energy ? `${energy.balance}/${energy.capacity}` : null;
   });
 
   protected readonly trainSub = computed(() => {
-    if (this.free()) {
-      return 'Le mode découverte de chaque axe est en libre accès pour découvrir les épreuves.';
-    }
-    if (this.unlimited()) {
-      return 'Votre énergie est illimitée : enchaînez les séances autant que vous le souhaitez.';
-    }
     if (this.fullEnergy()) {
       return 'Votre énergie du jour est pleine. Une séance suffit pour progresser, même courte.';
     }
@@ -262,23 +230,6 @@ export class Dashboard {
       ? (session.axes[0]?.axis ?? null)
       : null;
   });
-
-  protected readonly planName = computed(() => {
-    return PLAN_LABELS[this.tier()];
-  });
-
-  protected readonly planDesc = computed(() => {
-    const tier = this.tier();
-    return tier === SubscriptionTier.FREE
-      ? 'Mode découverte de chaque axe, en libre accès'
-      : tier === SubscriptionTier.UNLIMITED
-        ? 'Énergie illimitée, sans quota journalier'
-        : '5 énergies par jour, rechargées à minuit';
-  });
-
-  protected readonly canUpgrade = computed(
-    () => this.tier() === SubscriptionTier.ESSENTIAL,
-  );
 
   protected readonly lastResult = computed<LastResultView | null>(() => {
     const simulation = this.overview()?.lastSimulation ?? null;
@@ -400,9 +351,6 @@ export class Dashboard {
     this.router.navigate(['/progression']);
   }
 
-  protected openOffers(): void {
-    this.router.navigate(['/abonnements']);
-  }
 
   protected workWeakAxis(): void {
     const slug = this.weakAxis()?.slug;

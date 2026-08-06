@@ -15,7 +15,7 @@ const BADGE_TIER_SLUGS: Record<BadgeTier, string> = {
   [BadgeTier.GOLD]: 'or',
 };
 
-const BADGE_SECTOR_SLUGS: Record<Sector, string> = {
+const BADGE_SECTOR_SLUGS: Partial<Record<Sector, string>> = {
   [Sector.RAILWAY]: 'ferroviaire',
 };
 
@@ -27,7 +27,8 @@ export function badgeAssetPath(
     return 'badges/badge-premiers-pas.svg';
   }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
-    return `badges/badge-secteur-${BADGE_SECTOR_SLUGS[sector]}.svg`;
+    const slug = BADGE_SECTOR_SLUGS[sector] ?? 'ferroviaire';
+    return `badges/badge-secteur-${slug}.svg`;
   }
   const tier = definition.tier ?? BadgeTier.BRONZE;
   const metal = BADGE_TIER_SLUGS[tier];

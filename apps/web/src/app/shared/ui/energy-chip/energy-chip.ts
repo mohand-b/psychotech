@@ -7,7 +7,6 @@ import {
 import {
   ENERGY_CAPACITY,
   EnergyStateDto,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import { BoltIcon } from '../bolt-icon/bolt-icon';
 
@@ -16,23 +15,16 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BoltIcon],
   template: `
-    @if (unlimited()) {
-      <span class="chip">
-        <ui-bolt class="chip__bolt" [size]="14" />
-        <span class="chip__value chip__value--infinity">∞</span>
-      </span>
-    } @else {
-      <span
-        class="chip"
-        [class.chip--depleted]="depleted() && !short()"
-        [class.chip--short]="short()"
+    <span
+      class="chip"
+      [class.chip--depleted]="depleted() && !short()"
+      [class.chip--short]="short()"
+    >
+      <ui-bolt class="chip__bolt" [size]="14" />
+      <span class="chip__value"
+        >{{ balance() }}<span class="chip__max">/{{ capacity }}</span></span
       >
-        <ui-bolt class="chip__bolt" [size]="14" />
-        <span class="chip__value"
-          >{{ balance() }}<span class="chip__max">/{{ capacity }}</span></span
-        >
-      </span>
-    }
+    </span>
   `,
   styles: `
     :host {
@@ -58,10 +50,6 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
       font-size: 10.5px;
       font-weight: 500;
       opacity: 0.6;
-    }
-    .chip__value--infinity {
-      font-size: 17px;
-      line-height: 13px;
     }
     .chip--depleted {
       background: var(--bg);
@@ -98,33 +86,17 @@ import { BoltIcon } from '../bolt-icon/bolt-icon';
 })
 export class EnergyChip {
   readonly state = input<EnergyStateDto | null>(null);
-  readonly tier = input<SubscriptionTier | null>(null);
   readonly requiredCost = input<number | null>(null);
 
   protected readonly capacity = ENERGY_CAPACITY;
 
-  private readonly effectiveTier = computed(
-    () => this.tier() ?? this.state()?.tier ?? null,
-  );
 
-  protected readonly free = computed(
-    () => this.effectiveTier() === SubscriptionTier.FREE,
-  );
-  protected readonly unlimited = computed(
-    () => this.effectiveTier() === SubscriptionTier.UNLIMITED,
-  );
-  protected readonly balance = computed(() =>
-    this.free() ? 0 : (this.state()?.balance ?? 0),
-  );
+  protected readonly balance = computed(() => this.state()?.balance ?? 0);
   protected readonly depleted = computed(() => this.balance() === 0);
   protected readonly short = computed(() => {
     const cost = this.requiredCost();
     return (
-      cost !== null &&
-      this.state() !== null &&
-      !this.free() &&
-      !this.unlimited() &&
-      this.balance() < cost
+      cost !== null && this.state() !== null && this.balance() < cost
     );
   });
 }

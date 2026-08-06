@@ -1,22 +1,24 @@
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
   convertToParamMap,
   provideRouter,
 } from '@angular/router';
-import { AxisType, SubscriptionTier } from '@psychotech/shared';
-import { CoreFacade } from '../../../core/data-access/core.facade';
+import { AxisType, Sector } from '@psychotech/shared';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialEnd } from './tutorial-end';
 
-async function setup(tier: SubscriptionTier) {
+async function setup() {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [TutorialEnd],
     providers: [
       provideRouter([]),
-      { provide: CoreFacade, useValue: { tier: signal(tier) } },
+      {
+        provide: AuthFacade,
+        useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
+      },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -79,7 +81,7 @@ function buttonLabels(element: HTMLElement): string[] {
 
 describe('TutorialEnd', () => {
   it('shows local observables without any /100 score', async () => {
-    const fixture = await setup(SubscriptionTier.FREE);
+    const fixture = await setup();
     const element: HTMLElement = fixture.nativeElement;
     const text = element.textContent ?? '';
     expect(text).toContain('Découverte terminée');
@@ -88,15 +90,8 @@ describe('TutorialEnd', () => {
     expect(text).not.toContain('/100');
   });
 
-  it('offers the subscriptions page to discovery users', async () => {
-    const fixture = await setup(SubscriptionTier.FREE);
-    const labels = buttonLabels(fixture.nativeElement);
-    expect(labels).toContain('Découvrir les offres');
-    expect(labels).toContain('Découvrir un autre axe');
-  });
-
-  it('offers the targeted training to paying users', async () => {
-    const fixture = await setup(SubscriptionTier.ESSENTIAL);
+  it('offers the targeted training and another axis to discover', async () => {
+    const fixture = await setup();
     const labels = buttonLabels(fixture.nativeElement);
     expect(labels).toContain('Entraînement ciblé');
     expect(labels).toContain('Découvrir un autre axe');

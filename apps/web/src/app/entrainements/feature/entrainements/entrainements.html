@@ -16,23 +16,19 @@
     <ui-sector-chip class="trainings__sector" [sector]="sector" />
   </div>
 
-  <section
-    class="duo"
-    [class.duo--animate]="animationsReady()"
-    [class.duo--free]="isFree()"
-  >
+  <section class="duo" [class.duo--animate]="animationsReady()">
     <div
       class="duo__pitch"
       role="button"
       tabindex="0"
       [attr.aria-expanded]="panel() === 'sim'"
-      [class.duo__pitch--closed]="panel() !== 'sim' && !isFree()"
+      [class.duo__pitch--closed]="panel() !== 'sim'"
       (click)="openPanel('sim')"
       (keydown.enter)="openPanel('sim')"
     >
       <div class="duo__pitch-head">
         <span class="duo__eyebrow duo__eyebrow--sim">Épreuve de référence</span>
-        @if (!isFree()) {
+
         <button
           type="button"
           class="duo__hint duo__hint--sim"
@@ -42,13 +38,12 @@
         >
           <ui-icon [img]="chevronRightIcon" [size]="15" />
         </button>
-        }
       </div>
       <div class="duo__titleblock">
         <h2 class="duo__name">{{ fullSessionLabel }}</h2>
         <span class="duo__desc"
-          >Tous les axes enchaînés dans les conditions réelles de l'examen, avec un
-          avis d'admissibilité en fin de session.</span
+          >Tous les axes enchaînés dans les conditions réelles de l'examen, avec
+          un avis d'admissibilité en fin de session.</span
         >
       </div>
       <div class="duo__checks duo__checks--sim">
@@ -66,12 +61,6 @@
         </span>
       </div>
       <div class="duo__cta">
-        @if (isFree()) {
-        <span class="duo__locked">
-          <ui-icon [img]="lockIcon" [size]="14" />
-          Réservé aux formules payantes
-        </span>
-        } @else {
         <ui-button
           color="brand"
           size="lg"
@@ -80,42 +69,9 @@
         >
           Accéder à l'examen blanc
         </ui-button>
-        }
       </div>
     </div>
 
-    @if (isFree()) {
-    <div class="duo__offer">
-      <span class="duo__offer-tile">
-        <ui-icon [img]="lockIcon" [size]="20" />
-      </span>
-      <div class="duo__offer-copy">
-        <span class="duo__offer-title-row">
-          <span class="duo__offer-title">Vous êtes en offre Découverte</span>
-          <span class="duo__offer-badge">Gratuit</span>
-        </span>
-        <span class="duo__offer-hint"
-          >Les examens blancs et entraînements ciblés sont réservés aux formules
-          payantes. Le mode découverte reste en libre accès, ci-dessous.</span
-        >
-      </div>
-      <ui-button
-        color="brand"
-        size="md"
-        [iconEnd]="arrowRightIcon"
-        routerLink="/abonnements"
-      >
-        Voir les offres
-      </ui-button>
-      <span class="duo__offer-prices"
-        >Essentiel
-        <span class="t-mono">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>/mois ·
-        Illimité
-        <span class="t-mono">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span
-        >/mois</span
-      >
-    </div>
-    } @else {
     <div class="duo__panel" [class.duo__panel--open]="panel() === 'sim'">
       <div class="duo__panel-inner duo__panel-inner--sim">
         <span class="duo__label">Votre dernier bilan</span>
@@ -172,8 +128,8 @@
         } @else if (overviewLoaded()) {
         <span class="duo__empty-title">Pas encore de bilan</span>
         <span class="duo__empty-hint"
-          >Votre bilan s'affichera ici après votre premier examen blanc,
-          avec votre score, l'avis d'admissibilité et votre position vs le seuil
+          >Votre bilan s'affichera ici après votre premier examen blanc, avec
+          votre score, l'avis d'admissibilité et votre position vs le seuil
           d'admissibilité de votre secteur.</span
         >
         } @else {
@@ -202,33 +158,30 @@
           <span class="duo__label">Meilleur score</span>
         </div>
         <span class="duo__axes-sep"></span>
-        @if (overviewPending()) {
-          @for (row of skeletonAxisRows; track row; let last = $last) {
-            <div class="duo__axis duo__axis--skeleton">
-              <ui-skeleton class="duo__skeleton-tile" />
-              <span class="duo__axis-copy">
-                <ui-skeleton class="duo__skeleton-axis-name" />
-                <ui-skeleton class="duo__skeleton-axis-desc" />
-              </span>
-              <ui-skeleton class="duo__skeleton-axis-score" />
-            </div>
-            @if (!last) {
-              <span class="duo__axes-sep"></span>
-            }
-          }
-        } @else if (overviewError()) {
-          <span class="duo__empty-hint"
-            >Impossible de charger vos axes.
-            <button
-              type="button"
-              class="t-inline-action duo__retry"
-              (click)="retryOverview()"
-            >
-              Réessayer
-            </button></span
+        @if (overviewPending()) { @for (row of skeletonAxisRows; track row; let
+        last = $last) {
+        <div class="duo__axis duo__axis--skeleton">
+          <ui-skeleton class="duo__skeleton-tile" />
+          <span class="duo__axis-copy">
+            <ui-skeleton class="duo__skeleton-axis-name" />
+            <ui-skeleton class="duo__skeleton-axis-desc" />
+          </span>
+          <ui-skeleton class="duo__skeleton-axis-score" />
+        </div>
+        @if (!last) {
+        <span class="duo__axes-sep"></span>
+        } } } @else if (overviewError()) {
+        <span class="duo__empty-hint"
+          >Impossible de charger vos axes.
+          <button
+            type="button"
+            class="t-inline-action duo__retry"
+            (click)="retryOverview()"
           >
-        }
-        @for (row of axisRows(); track row.axis; let last = $last) {
+            Réessayer
+          </button></span
+        >
+        } @for (row of axisRows(); track row.axis; let last = $last) {
         <a class="duo__axis" [routerLink]="row.link">
           <span
             class="duo__axis-tile"
@@ -269,19 +222,17 @@
         } }
       </div>
     </div>
-    }
 
     <div
       class="duo__pitch"
       role="button"
       tabindex="0"
       [attr.aria-expanded]="panel() === 'cible'"
-      [class.duo__pitch--closed]="panel() !== 'cible' && !isFree()"
+      [class.duo__pitch--closed]="panel() !== 'cible'"
       (click)="openPanel('cible')"
       (keydown.enter)="openPanel('cible')"
     >
       <div class="duo__pitch-head">
-        @if (!isFree()) {
         <button
           type="button"
           class="duo__hint duo__hint--cible"
@@ -291,7 +242,7 @@
         >
           <ui-icon [img]="chevronLeftIcon" [size]="15" />
         </button>
-        }
+
         <div class="duo__eyebrow-group">
           <span class="duo__eyebrow duo__eyebrow--cible"
             >Entraînement ciblé</span
@@ -321,18 +272,11 @@
         </span>
       </div>
       <div class="duo__cta">
-        @if (isFree()) {
-        <span class="duo__locked">
-          <ui-icon [img]="lockIcon" [size]="14" />
-          Réservé aux formules payantes
-        </span>
-        } @else {
         <button type="button" class="duo__foot-link">
           <ui-icon [img]="arrowLeftIcon" [size]="14" />
           {{ panel() === 'cible' ? 'Choisissez votre axe ci-contre' : 'Voir les
           axes' }}
         </button>
-        }
       </div>
     </div>
   </section>
@@ -343,8 +287,8 @@
       <div class="trainm__titleblock">
         <h2 class="trainm__name">{{ fullSessionLabel }}</h2>
         <span class="trainm__desc"
-          >Tous les axes enchaînés dans les conditions réelles de l'examen, avec un
-          avis d'admissibilité en fin de session.</span
+          >Tous les axes enchaînés dans les conditions réelles de l'examen, avec
+          un avis d'admissibilité en fin de session.</span
         >
       </div>
       <div class="trainm__checks">
@@ -361,12 +305,7 @@
           <span class="duo__chip-value t-mono">5</span>
         </span>
       </div>
-      @if (isFree()) {
-      <span class="trainm__locked">
-        <ui-icon [img]="lockIcon" [size]="14" />
-        Réservé aux formules payantes
-      </span>
-      } @else {
+
       <ui-button
         color="brand"
         size="lg"
@@ -377,7 +316,6 @@
       >
         Accéder à l'examen blanc
       </ui-button>
-      }
     </section>
 
     <section class="trainm__cible">
@@ -409,47 +347,8 @@
             <span class="duo__chip-value t-mono">1</span>
           </span>
         </div>
-        @if (isFree()) {
-        <span class="trainm__locked">
-          <ui-icon [img]="lockIcon" [size]="14" />
-          Réservé aux formules payantes
-        </span>
-        }
       </div>
 
-      @if (isFree()) {
-      <div class="trainm__offer">
-        <span class="duo__offer-tile trainm__offer-tile">
-          <ui-icon [img]="lockIcon" [size]="19" />
-        </span>
-        <div class="duo__offer-copy">
-          <span class="duo__offer-title-row">
-            <span class="duo__offer-title">Vous êtes en offre Découverte</span>
-            <span class="duo__offer-badge">Gratuit</span>
-          </span>
-          <span class="duo__offer-hint trainm__offer-hint"
-            >Les examens blancs et entraînements ciblés sont réservés aux formules
-            payantes. Le mode découverte reste en libre accès, ci-dessous.</span
-          >
-        </div>
-        <ui-button
-          color="brand"
-          size="lg"
-          [block]="true"
-          routerLink="/abonnements"
-          [iconEnd]="arrowRightIcon"
-        >
-          Voir les offres
-        </ui-button>
-        <span class="duo__offer-prices trainm__offer-prices"
-          >Essentiel
-          <span class="t-mono">{{ prices[tiers.ESSENTIAL] }}&nbsp;€</span>/mois
-          · Illimité
-          <span class="t-mono">{{ prices[tiers.UNLIMITED] }}&nbsp;€</span
-          >/mois</span
-        >
-      </div>
-      } @else {
       <div class="trainm__axes">
         @for (row of axisRows(); track row.axis) {
         <a class="trainm__axis" [routerLink]="row.link">
@@ -494,7 +393,6 @@
         </a>
         }
       </div>
-      }
 
       <span class="trainm__note"
         >Chaque entraînement génère de nouveaux exercices. L'énergie est débitée
@@ -505,7 +403,7 @@
 
   <span class="trainings__footnote"
     >Chaque entraînement génère de nouveaux exercices. L'énergie est débitée au
-    lancement.@if (isEssential() && rechargeLabel(); as recharge) {
+    lancement.@if (rechargeLabel(); as recharge) {
     <span>
       Recharge complète dans
       <span class="trainings__footnote-countdown t-mono">{{ recharge }}</span>,

@@ -12,12 +12,10 @@ import {
   Sector,
   SessionMode,
   SimulationVerdict,
-  SubscriptionTier,
   TrainingsOverviewDto,
   UserProfileDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
@@ -33,16 +31,13 @@ const USER: UserProfileDto = {
   locale: 'fr-FR',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
-  tier: SubscriptionTier.ESSENTIAL,
-  subscription: null,
   createdAt: '2026-06-01T00:00:00.000Z',
 };
 
-function energyState(tier: SubscriptionTier, balance: number): EnergyStateDto {
+function energyState(balance: number): EnergyStateDto {
   return {
     balance,
     capacity: 5,
-    tier,
     resetsAt: '2026-07-17T00:00:00.000Z',
     canStartFull: balance >= 5,
     canStartAxis: balance >= 1,
@@ -128,7 +123,6 @@ function fullSession(): CurrentSessionDto {
 }
 
 interface SetupOptions {
-  tier?: SubscriptionTier;
   balance?: number;
   overview?: TrainingsOverviewDto | null;
   progression?: ProgressionDto | null;
@@ -137,7 +131,6 @@ interface SetupOptions {
 }
 
 async function setup(options: SetupOptions = {}) {
-  const tier = options.tier ?? SubscriptionTier.ESSENTIAL;
   const overview =
     options.overview === undefined ? overviewWithData() : options.overview;
   const overviewFacade = {
@@ -165,11 +158,10 @@ async function setup(options: SetupOptions = {}) {
     providers: [
       provideRouter([]),
       { provide: AuthFacade, useValue: { currentUser: signal(USER) } },
-      { provide: CoreFacade, useValue: { tier: signal(tier) } },
       {
         provide: EnergyFacade,
         useValue: {
-          state: signal(energyState(tier, options.balance ?? 5)),
+          state: signal(energyState(options.balance ?? 5)),
         },
       },
       { provide: SessionHistoryFacade, useValue: sessionHistoryFacade },
@@ -237,51 +229,36 @@ describe('Dashboard', () => {
     expect(navigate).toHaveBeenCalledWith(['/entrainements']);
   });
 
-  it('shows the essential plan with an upgrade link', async () => {
+  it('keeps the selection subtitle while training data exists', async () => {
     const { fixture } = await setup();
-    expect(textOf(fixture)).toContain('Essentiel');
-    expect(textOf(fixture)).toContain('5 énergies par jour');
-    expect(textOf(fixture)).toContain("Passer à l'Illimité");
-    expect(textOf(fixture)).toContain('Gérer ma formule');
-  });
-
-  it('shows the unlimited plan without an upgrade link and with infinite energy', async () => {
-    const { fixture } = await setup({ tier: SubscriptionTier.UNLIMITED });
-    expect(textOf(fixture)).toContain('Illimité');
     expect(textOf(fixture)).toContain(
-      'Énergie illimitée, sans quota journalier',
-    );
-    expect(textOf(fixture)).not.toContain("Passer à l'Illimité");
-    expect(textOf(fixture)).toContain('∞');
-  });
-
-  it('keeps the selection subtitle on every paying tier', async () => {
-    const unlimited = await setup({ tier: SubscriptionTier.UNLIMITED });
-    expect(textOf(unlimited.fixture)).toContain(
       'Chaque session vous rapproche de la sélection.',
     );
-    expect(textOf(unlimited.fixture)).not.toContain('à vous de choisir');
+    expect(textOf(fixture)).not.toContain('à vous de choisir');
+  });
+
+  it('adapts the training subtitle to the remaining energy', async () => {
+    const partial = await setup({ balance: 2 });
+    expect(textOf(partial.fixture)).toContain(
+      "Il vous reste 2 énergies aujourd'hui.",
+    );
 
     TestBed.resetTestingModule();
-    const essentialFull = await setup();
-    expect(textOf(essentialFull.fixture)).toContain(
-      'Chaque session vous rapproche de la sélection.',
+    const depleted = await setup({ balance: 0 });
+    expect(textOf(depleted.fixture)).toContain('Énergie épuisée');
+    expect(textOf(depleted.fixture)).toContain(
+      'Votre énergie du jour est épuisée.',
     );
-    expect(textOf(essentialFull.fixture)).not.toContain('à vous de choisir');
   });
 
-  it('renders the new-account variant with the free plan and empty states', async () => {
+  it('renders the new-account variant with its empty states', async () => {
     const { fixture } = await setup({
-      tier: SubscriptionTier.FREE,
       overview: emptyOverview(),
       progression: null,
     });
     expect(textOf(fixture)).toContain('Bienvenue Mohand');
     expect(textOf(fixture)).toContain('Découvrez votre niveau, axe par axe');
     expect(textOf(fixture)).toContain('Lancer ma première session');
-    expect(textOf(fixture)).toContain('Découverte');
-    expect(textOf(fixture)).toContain('Gratuit');
-    expect(textOf(fixture)).toContain('Découvrir les offres');
     expect(textOf(fixture)).toContain("Aucun résultat pour l'instant");
     expect(textOf(fixture)).toContain('À découvrir');
     expect(textOf(fixture)).toContain(

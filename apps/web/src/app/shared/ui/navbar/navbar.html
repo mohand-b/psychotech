@@ -20,10 +20,10 @@
     <div class="flex items-center gap-4">
       @if (energyLink(); as link) {
         <a [routerLink]="link" class="energy-link" aria-label="Votre énergie">
-          <ui-energy-chip [state]="energy()" [tier]="tier()" />
+          <ui-energy-chip [state]="energy()" />
         </a>
       } @else {
-        <ui-energy-chip [state]="energy()" [tier]="tier()" />
+        <ui-energy-chip [state]="energy()" />
       }
       <span class="separator"></span>
       @if (user(); as current) {
@@ -59,10 +59,10 @@
       }
       @if (energyLink(); as link) {
         <a [routerLink]="link" class="energy-link" aria-label="Votre énergie">
-          <ui-energy-chip [state]="energy()" [tier]="tier()" />
+          <ui-energy-chip [state]="energy()" />
         </a>
       } @else {
-        <ui-energy-chip [state]="energy()" [tier]="tier()" />
+        <ui-energy-chip [state]="energy()" />
       }
       @if (user(); as current) {
         <a

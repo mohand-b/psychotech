@@ -14,13 +14,17 @@ function buildUser(): User {
     locale: 'fr',
     timezone: 'Europe/Paris',
     currentSector: 'RAILWAY',
+    stripeCustomerId: null,
+    termsVersion: null,
+    termsAcceptedAt: null,
+    emailVerifiedAt: null,
     createdAt: new Date('2026-06-13T10:00:00Z'),
     updatedAt: new Date('2026-06-13T10:00:00Z'),
   };
 }
 
 describe('AuthRepository.createAccount', () => {
-  it('creates the user, the energy wallet and the subscription in one transaction', async () => {
+  it('creates the user and the energy wallet in one transaction', async () => {
     const tx = { user: { create: vi.fn().mockResolvedValue(buildUser()) } };
     const prisma = {
       $transaction: vi.fn((callback: (client: typeof tx) => unknown) => callback(tx)),
@@ -38,7 +42,6 @@ describe('AuthRepository.createAccount', () => {
 
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(tx.user.create).toHaveBeenCalledWith({
-      include: { subscription: true },
       data: {
         email: 'alice@example.com',
         passwordHash: 'hashed-password',
@@ -48,7 +51,6 @@ describe('AuthRepository.createAccount', () => {
         locale: undefined,
         currentSector: 'RAILWAY',
         energyWallet: { create: { balance: 5, capacity: 5 } },
-        subscription: { create: { tier: 'FREE', status: 'ACTIVE' } },
       },
     });
   });

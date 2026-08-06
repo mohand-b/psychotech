@@ -16,7 +16,6 @@ import {
   Sector,
   SECTOR_LABELS,
   SimulationStamp,
-  SubscriptionTier,
   TrainingsLastSimulationDto,
   buildSimulationStamp,
 } from '@psychotech/shared';
@@ -32,7 +31,6 @@ import {
 } from 'lucide-angular';
 import { map } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import {
   AXIS_PRESENTATION,
@@ -47,7 +45,6 @@ import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
-import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import { tickingNow } from '../ticking-now';
 import {
@@ -107,7 +104,6 @@ interface LastSimulationView {
 })
 export class Entrainements {
   private readonly authFacade = inject(AuthFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly facade = inject(TrainingsOverviewFacade);
   private readonly route = inject(ActivatedRoute);
@@ -155,15 +151,6 @@ export class Entrainements {
 
   protected readonly animationsReady = signal(false);
 
-  protected readonly tier = this.coreFacade.tier;
-  protected readonly tiers = SubscriptionTier;
-  protected readonly prices = SUBSCRIPTION_MONTHLY_PRICES;
-  protected readonly isFree = computed(
-    () => this.tier() === SubscriptionTier.FREE,
-  );
-  protected readonly isEssential = computed(
-    () => this.tier() === SubscriptionTier.ESSENTIAL,
-  );
 
   private readonly now = tickingNow(REFRESH_INTERVAL_MS);
 
@@ -233,9 +220,6 @@ export class Entrainements {
   }
 
   protected openPanel(panel: TrainingsPanel): void {
-    if (this.isFree()) {
-      return;
-    }
     this.panel.set(panel);
   }
 

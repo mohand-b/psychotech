@@ -12,12 +12,10 @@ import {
   ScoreBand,
   Sector,
   SimulationVerdict,
-  SubscriptionTier,
   TrainingsOverviewDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import { Entrainements } from './entrainements';
@@ -78,11 +76,10 @@ function buildOverview(
   };
 }
 
-function buildEnergy(tier: SubscriptionTier): EnergyStateDto {
+function buildEnergy(): EnergyStateDto {
   return {
     balance: 5,
     capacity: 5,
-    tier,
     resetsAt: '2026-07-13T00:00:00',
     canStartFull: true,
     canStartAxis: true,
@@ -93,11 +90,9 @@ async function setup(
   overview: TrainingsOverviewDto | null,
   options: {
     queryParams?: Record<string, string>;
-    tier?: SubscriptionTier;
     error?: unknown;
   } = {},
 ) {
-  const tier = options.tier ?? SubscriptionTier.ESSENTIAL;
   const facade = {
     overview: signal(overview),
     loading: signal(false),
@@ -118,10 +113,9 @@ async function setup(
           }),
         },
       },
-      { provide: CoreFacade, useValue: { tier: signal(tier) } },
       {
         provide: EnergyFacade,
-        useValue: { state: signal(buildEnergy(tier)) },
+        useValue: { state: signal(buildEnergy()) },
       },
       {
         provide: ActivatedRoute,
@@ -229,83 +223,17 @@ describe('Entrainements', () => {
     );
   });
 
-  it('keeps the discovery band on paying plans', async () => {
+  it('keeps the discovery band with one try per axis', async () => {
     const { fixture } = await setup(buildOverview());
     const element: HTMLElement = fixture.nativeElement;
     expect(element.querySelectorAll('.tut__try')).toHaveLength(5);
   });
 
-  it('shows the recharge countdown for the essential plan only', async () => {
-    const essential = await setup(buildOverview(), {
-      tier: SubscriptionTier.ESSENTIAL,
-    });
+  it('shows the recharge countdown from the energy reset time', async () => {
+    const { fixture } = await setup(buildOverview());
     expect(
-      text(
-        essential.fixture.nativeElement.querySelector('.trainings__footnote'),
-      ),
+      text(fixture.nativeElement.querySelector('.trainings__footnote')),
     ).toContain('Recharge complète dans 7 h 42, à minuit.');
-
-    TestBed.resetTestingModule();
-    const unlimited = await setup(buildOverview(), {
-      tier: SubscriptionTier.UNLIMITED,
-    });
-    expect(
-      text(
-        unlimited.fixture.nativeElement.querySelector('.trainings__footnote'),
-      ),
-    ).not.toContain('Recharge complète');
-  });
-
-  describe('offre Découverte', () => {
-    it('replaces the sliding panels with the central offer block', async () => {
-      const { fixture } = await setup(buildOverview(), {
-        tier: SubscriptionTier.FREE,
-      });
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.querySelector('.duo__offer')).not.toBeNull();
-      expect(element.querySelector('.duo__panel')).toBeNull();
-      expect(element.querySelector('.duo__hint')).toBeNull();
-      expect(text(element.querySelector('.duo__offer-title'))).toBe(
-        'Vous êtes en offre Découverte',
-      );
-      expect(
-        element
-          .querySelector('.duo__offer ui-button')
-          ?.getAttribute('routerlink'),
-      ).toBe('/abonnements');
-    });
-
-    it('locks both pitches symmetrically and disables the panel toggle', async () => {
-      const { fixture } = await setup(buildOverview(), {
-        tier: SubscriptionTier.FREE,
-      });
-      const element: HTMLElement = fixture.nativeElement;
-      const locked = element.querySelectorAll('.duo__locked');
-      expect(locked).toHaveLength(2);
-      expect(element.querySelector('.duo__cta button')).toBeNull();
-      const pitches = element.querySelectorAll<HTMLElement>('.duo__pitch');
-      pitches[1].click();
-      fixture.detectChanges();
-      expect(element.querySelector('.duo__panel--open')).toBeNull();
-    });
-
-    it('locks both mobile pitch cards and shows the offer card', async () => {
-      const { fixture } = await setup(buildOverview(), {
-        tier: SubscriptionTier.FREE,
-      });
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.querySelectorAll('.trainm__locked')).toHaveLength(2);
-      expect(element.querySelector('.trainm__offer')).not.toBeNull();
-      expect(element.querySelectorAll('.trainm__axis')).toHaveLength(0);
-    });
-
-    it('keeps the tutorial band available', async () => {
-      const { fixture } = await setup(buildOverview(), {
-        tier: SubscriptionTier.FREE,
-      });
-      const element: HTMLElement = fixture.nativeElement;
-      expect(element.querySelectorAll('.tut__card')).toHaveLength(5);
-    });
   });
 
   describe('loaders', () => {

@@ -1,10 +1,5 @@
 import { provideRouter, Routes } from '@angular/router';
-import {
-  EnergyStateDto,
-  Sector,
-  SubscriptionTier,
-  UserProfileDto,
-} from '@psychotech/shared';
+import { EnergyStateDto, Sector, UserProfileDto } from '@psychotech/shared';
 import { applicationConfig } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { Navbar } from './navbar';
@@ -17,18 +12,12 @@ const mockUser: UserProfileDto = {
   locale: 'fr',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
-  tier: SubscriptionTier.ESSENTIAL,
-  subscription: null,
   createdAt: '2026-06-27T08:00:00.000Z',
 };
 
-const energyState = (
-  balance: number,
-  tier: SubscriptionTier = SubscriptionTier.ESSENTIAL,
-): EnergyStateDto => ({
+const energyState = (balance: number): EnergyStateDto => ({
   balance,
   capacity: 5,
-  tier,
   resetsAt: '2026-06-28T00:00:00.000Z',
   canStartFull: balance >= 5,
   canStartAxis: balance >= 1,
@@ -50,7 +39,6 @@ const meta: Meta<Navbar> = {
   args: {
     user: mockUser,
     energy: energyState(4),
-    tier: SubscriptionTier.ESSENTIAL,
   },
   decorators: [
     applicationConfig({
@@ -66,13 +54,6 @@ export const Desktop: Story = {};
 
 export const DesktopEpuise: Story = {
   args: { energy: energyState(0) },
-};
-
-export const DesktopIllimite: Story = {
-  args: {
-    energy: energyState(5, SubscriptionTier.UNLIMITED),
-    tier: SubscriptionTier.UNLIMITED,
-  },
 };
 
 export const Mobile: Story = {

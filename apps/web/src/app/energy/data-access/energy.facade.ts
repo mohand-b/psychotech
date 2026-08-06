@@ -18,17 +18,17 @@ export class EnergyFacade {
   private readonly store = inject(EnergyStore);
   private readonly authFacade = inject(AuthFacade);
 
-  private readonly currentTier = computed(
-    () => this.authFacade.currentUser()?.tier ?? null,
+  private readonly currentUserId = computed(
+    () => this.authFacade.currentUser()?.id ?? null,
   );
 
   readonly state: Signal<EnergyStateDto | null> = this.store.energy;
 
   constructor() {
     effect(() => {
-      const tier = this.currentTier();
+      const userId = this.currentUserId();
       untracked(() => {
-        if (tier === null) {
+        if (userId === null) {
           this.store.setEnergy(null);
           return;
         }

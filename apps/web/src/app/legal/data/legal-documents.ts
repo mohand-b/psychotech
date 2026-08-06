@@ -16,12 +16,8 @@ import {
   LEGAL_TERMS_CHANGE_NOTICE_DAYS,
   LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
-  SubscriptionTier,
 } from '@psychotech/shared';
-import {
-  SUBSCRIPTION_MONTHLY_PRICES,
-  formatEuroAmount,
-} from '../../shared/util/subscription-prices';
+import { formatEuroAmount } from '../../shared/util/format-euro';
 
 export type LegalDocumentId =
   | 'mentions-legales'
@@ -499,12 +495,12 @@ const CGV: LegalDocument = {
             [
               'Essentiel',
               'Cinq énergies par jour, bilans et progression complets',
-              `${SUBSCRIPTION_MONTHLY_PRICES[SubscriptionTier.ESSENTIAL]} €/mois`,
+              '8,99 €/mois',
             ],
             [
               'Illimité',
               'Énergie illimitée, sessions et entraînements sans restriction',
-              `${SUBSCRIPTION_MONTHLY_PRICES[SubscriptionTier.UNLIMITED]} €/mois`,
+              '14,99 €/mois',
             ],
             [
               'Recharge',

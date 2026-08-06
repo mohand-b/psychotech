@@ -4,15 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UpdateUserProfileDto, UserProfileDto } from '@psychotech/shared';
-import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import { toUserProfileDto } from './users.mappers';
 import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly repository: UsersRepository,
-    private readonly tierResolution: TierResolutionService,
+    private readonly repository: UsersRepository
   ) {}
 
   async getProfile(userId: string): Promise<UserProfileDto> {
@@ -20,7 +18,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return toUserProfileDto(user, this.tierResolution.resolve(user.subscription));
+    return toUserProfileDto(user);
   }
 
   async updateProfile(
@@ -40,6 +38,6 @@ export class UsersService {
       timezone: update.timezone,
       currentSector: update.currentSector,
     });
-    return toUserProfileDto(user, this.tierResolution.resolve(user.subscription));
+    return toUserProfileDto(user);
   }
 }

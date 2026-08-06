@@ -1,14 +1,11 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Sector, SubscriptionTier } from '@psychotech/shared';
+import { User } from '@prisma/client';
+import { Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TierResolutionService } from '../subscriptions/tier-resolution.service';
-import { UsersRepository, UserWithSubscription } from './users.repository';
+import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
 
-function buildUser(
-  overrides: Partial<UserWithSubscription> = {},
-): UserWithSubscription {
+function buildUser(overrides: Partial<User> = {}): User {
   return {
     id: 'user-1',
     email: 'alice@example.com',
@@ -20,7 +17,9 @@ function buildUser(
     timezone: 'Europe/Paris',
     currentSector: 'RAILWAY',
     stripeCustomerId: null,
-    subscription: null,
+    termsVersion: null,
+    termsAcceptedAt: null,
+    emailVerifiedAt: null,
     createdAt: new Date('2026-06-13T10:00:00Z'),
     updatedAt: new Date('2026-06-13T10:00:00Z'),
     ...overrides,
@@ -33,14 +32,7 @@ const repository = {
   isSectorActive: vi.fn(),
 };
 
-const tierResolution = new TierResolutionService({
-  getOrThrow: () => ({ enabled: true }),
-} as unknown as ConfigService);
-
-const service = new UsersService(
-  repository as unknown as UsersRepository,
-  tierResolution,
-);
+const service = new UsersService(repository as unknown as UsersRepository);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -59,8 +51,6 @@ describe('UsersService.getProfile', () => {
       lastName: 'Martin',
       timezone: 'Europe/Paris',
       currentSector: Sector.RAILWAY,
-      tier: SubscriptionTier.FREE,
-      subscription: null,
     });
   });
 

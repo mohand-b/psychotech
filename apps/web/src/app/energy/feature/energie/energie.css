@@ -1,0 +1,28 @@
+.energie {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.energie__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.energie__balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brand);
+}
+
+.energie__value {
+  font: 700 32px/1 var(--font-mono);
+  color: var(--ink);
+}
+
+.energie__reassurance {
+  font: 400 14px/20px var(--font-ui);
+  color: var(--text-secondary);
+}

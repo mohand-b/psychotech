@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Sector as DbSector, Subscription, User } from '@prisma/client';
+import { Sector as DbSector, User } from '@prisma/client';
 import { Sector } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
-
-export type UserWithSubscription = User & {
-  subscription: Subscription | null;
-};
 
 interface ProfileUpdate {
   firstName?: string;
@@ -20,17 +16,14 @@ interface ProfileUpdate {
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findById(userId: string): Promise<UserWithSubscription | null> {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      include: { subscription: true },
-    });
+  findById(userId: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { id: userId } });
   }
 
   updateProfile(
     userId: string,
     update: ProfileUpdate,
-  ): Promise<UserWithSubscription> {
+  ): Promise<User> {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -42,7 +35,6 @@ export class UsersRepository {
           ? mapEnumValue(DbSector, update.currentSector)
           : undefined,
       },
-      include: { subscription: true },
     });
   }
 

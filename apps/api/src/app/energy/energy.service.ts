@@ -8,9 +8,7 @@ import {
   ENERGY_INSUFFICIENT_ERROR_CODE,
   EnergyLedgerReason,
   EnergyStateDto,
-  SubscriptionTier,
 } from '@psychotech/shared';
-import { TierResolutionService } from '../subscriptions/tier-resolution.service';
 import {
   buildEnergyState,
   canAfford,
@@ -22,16 +20,12 @@ import { EnergyRepository } from './energy.repository';
 interface FreshWallet {
   balance: number;
   capacity: number;
-  tier: SubscriptionTier;
   timezone: string;
 }
 
 @Injectable()
 export class EnergyService {
-  constructor(
-    private readonly repository: EnergyRepository,
-    private readonly tierResolution: TierResolutionService,
-  ) {}
+  constructor(private readonly repository: EnergyRepository) {}
 
   async getState(userId: string): Promise<EnergyStateDto> {
     const now = new Date();
@@ -47,10 +41,10 @@ export class EnergyService {
   ): Promise<EnergyStateDto> {
     const now = new Date();
     const wallet = await this.ensureFreshWallet(userId, now);
-    if (!canAfford({ tier: wallet.tier, balance: wallet.balance, cost })) {
+    if (!canAfford({ balance: wallet.balance, cost })) {
       throw this.insufficientEnergy(wallet.balance, cost);
     }
-    if (wallet.tier === SubscriptionTier.UNLIMITED || cost === 0) {
+    if (cost === 0) {
       return buildEnergyState(wallet, now);
     }
     const updated = await this.repository.spend(
@@ -74,7 +68,6 @@ export class EnergyService {
     if (!context) {
       throw new NotFoundException('Energy wallet not found');
     }
-    const tier = this.tierResolution.resolve(context.subscription);
     let balance = context.wallet.balance;
     if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
       const reset = await this.repository.resetWithin(
@@ -86,10 +79,10 @@ export class EnergyService {
       );
       balance = reset.balance;
     }
-    if (!canAfford({ tier, balance, cost })) {
+    if (!canAfford({ balance, cost })) {
       throw this.insufficientEnergy(balance, cost);
     }
-    if (tier === SubscriptionTier.UNLIMITED || cost === 0) {
+    if (cost === 0) {
       return;
     }
     await this.repository.spendWithin(
@@ -134,7 +127,6 @@ export class EnergyService {
     if (!context) {
       throw new NotFoundException('Energy wallet not found');
     }
-    const tier = this.tierResolution.resolve(context.subscription);
     if (isDailyResetDue(context.wallet.lastResetAt, now, context.timezone)) {
       const reset = await this.repository.applyDailyReset(
         userId,
@@ -145,14 +137,12 @@ export class EnergyService {
       return {
         balance: reset.balance,
         capacity: reset.capacity,
-        tier,
         timezone: context.timezone,
       };
     }
     return {
       balance: context.wallet.balance,
       capacity: context.wallet.capacity,
-      tier,
       timezone: context.timezone,
     };
   }

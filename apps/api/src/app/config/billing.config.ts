@@ -6,30 +6,19 @@ export interface BillingConfig {
   secretKey?: string;
   publishableKey?: string;
   webhookSecret?: string;
-  priceEssential?: string;
-  priceUnlimited?: string;
-  priceEnergyPack?: string;
 }
 
 export const billingConfig = registerAs('billing', (): BillingConfig => {
   const secretKey = readOptional('STRIPE_SECRET_KEY');
   const publishableKey = readOptional('STRIPE_PUBLISHABLE_KEY');
   const webhookSecret = readOptional('STRIPE_WEBHOOK_SECRET');
-  const priceEssential = readOptional('STRIPE_PRICE_ESSENTIAL');
-  const priceUnlimited = readOptional('STRIPE_PRICE_UNLIMITED');
-  const priceEnergyPack = readOptional('STRIPE_PRICE_ENERGY_PACK');
   return {
     enabled:
       secretKey !== undefined &&
       publishableKey !== undefined &&
-      webhookSecret !== undefined &&
-      priceEssential !== undefined &&
-      priceUnlimited !== undefined,
+      webhookSecret !== undefined,
     secretKey,
     publishableKey,
     webhookSecret,
-    priceEssential,
-    priceUnlimited,
-    priceEnergyPack,
   };
 });

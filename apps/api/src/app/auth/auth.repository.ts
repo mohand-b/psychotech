@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Sector as DbSector,
-  SubscriptionStatus,
-  SubscriptionTier,
-  User,
-} from '@prisma/client';
+import { Sector as DbSector, User } from '@prisma/client';
 import { Sector } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserWithSubscription } from '../users/users.repository';
 
 interface CreateAccountData {
   email: string;
@@ -29,24 +23,17 @@ const INITIAL_ENERGY_CAPACITY = 5;
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(email: string): Promise<UserWithSubscription | null> {
-    return this.prisma.user.findUnique({
-      where: { email },
-      include: { subscription: true },
-    });
+  findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
-  findById(id: string): Promise<UserWithSubscription | null> {
-    return this.prisma.user.findUnique({
-      where: { id },
-      include: { subscription: true },
-    });
+  findById(id: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
-  createAccount(data: CreateAccountData): Promise<UserWithSubscription> {
+  createAccount(data: CreateAccountData): Promise<User> {
     return this.prisma.$transaction((tx) =>
       tx.user.create({
-        include: { subscription: true },
         data: {
           email: data.email,
           passwordHash: data.passwordHash,
@@ -61,12 +48,6 @@ export class AuthRepository {
             create: {
               balance: INITIAL_ENERGY_BALANCE,
               capacity: INITIAL_ENERGY_CAPACITY,
-            },
-          },
-          subscription: {
-            create: {
-              tier: SubscriptionTier.FREE,
-              status: SubscriptionStatus.ACTIVE,
             },
           },
         },

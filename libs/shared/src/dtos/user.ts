@@ -1,5 +1,4 @@
-import { Sector, SubscriptionTier } from '../enums';
-import { SubscriptionDto } from './subscription';
+import { Sector } from '../enums';
 
 export interface UserProfileDto {
   id: string;
@@ -9,8 +8,6 @@ export interface UserProfileDto {
   locale: string;
   timezone: string;
   currentSector: Sector;
-  tier: SubscriptionTier;
-  subscription: SubscriptionDto | null;
   createdAt: string;
 }
 

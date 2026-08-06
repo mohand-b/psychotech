@@ -15,12 +15,10 @@ import {
   SESSION_ENERGY_COST,
   Sector,
   SessionMode,
-  SubscriptionTier,
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
@@ -30,7 +28,7 @@ import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
-import { formatEuroAmount } from '../../../shared/util/subscription-prices';
+import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
@@ -54,7 +52,6 @@ import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 export class AxisStart {
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly authFacade = inject(AuthFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
@@ -83,15 +80,9 @@ export class AxisStart {
         ?.isCritical ?? false,
   );
 
-  protected readonly unlimited = computed(
-    () => this.coreFacade.tier() === SubscriptionTier.UNLIMITED,
-  );
-
   protected readonly energyLocked = computed(
     () =>
-      !this.tutorial &&
-      !this.unlimited() &&
-      this.energyFacade.state()?.canStartAxis === false,
+      !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
   );
 
   protected readonly rechargePriceLabel = `${formatEuroAmount(ENERGY_PACK_PRICE_EUR)} €`;

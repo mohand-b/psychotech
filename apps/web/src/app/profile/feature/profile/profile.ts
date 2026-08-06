@@ -10,50 +10,34 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
-  BillingInvoiceDto,
-  FULL_SESSION_LABEL_LOWER,
-  FULL_SESSION_LABEL_PLURAL_LOWER,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
-  InvoiceStatus,
   PASSWORD_MIN_LENGTH,
   Sector,
-  SubscriptionStatus,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ArrowLeft,
   Check,
-  CreditCard,
   Lock,
   LogOut,
   LucideIconData,
-  ShieldCheck,
   User,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
-import { SubscriptionsFacade } from '../../../subscriptions/data-access/subscriptions.facade';
-import { PLAN_SLUGS } from '../../../subscriptions/plan-slug';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
-import { buildPaymentMethodView } from '../../../shared/ui/payment-method-view';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
-import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
-import { PLAN_LABELS } from '../../../shared/util/plan-labels';
-import { formatEuroAmount } from '../../../shared/util/subscription-prices';
 import { passwordsMatch } from '../../../shared/util/password-match';
-import { SUBSCRIPTION_MONTHLY_PRICES } from '../../../shared/util/subscription-prices';
 import { inputValue } from '../../../shared/util/input-value';
 
-type ProfileSection = 'account' | 'security' | 'sector' | 'plan' | 'billing';
+type ProfileSection = 'account' | 'security' | 'sector';
 
 interface ProfileSectionMeta {
   title: string;
@@ -75,61 +59,12 @@ const SECTION_META: Record<ProfileSection, ProfileSectionMeta> = {
     description:
       'Le secteur définit vos épreuves et la pondération de vos scores.',
   },
-  plan: {
-    title: 'Abonnement',
-    description: 'Votre formule actuelle, son renouvellement et son évolution.',
-  },
-  billing: {
-    title: 'Facturation',
-    description: 'Moyen de paiement et reçus émis.',
-  },
 };
 
-const PLAN_COPY: Record<
-  SubscriptionTier,
-  { name: string; description: string; energy: string }
-> = {
-  [SubscriptionTier.FREE]: {
-    name: PLAN_LABELS[SubscriptionTier.FREE],
-    description: 'Mode découverte de chaque axe, sans évaluation enregistrée.',
-    energy: 'Mode découverte seul',
-  },
-  [SubscriptionTier.ESSENTIAL]: {
-    name: PLAN_LABELS[SubscriptionTier.ESSENTIAL],
-    description: `5 énergies par jour : un ${FULL_SESSION_LABEL_LOWER} ou cinq axes.`,
-    energy: '5 par jour',
-  },
-  [SubscriptionTier.UNLIMITED]: {
-    name: PLAN_LABELS[SubscriptionTier.UNLIMITED],
-    description: `Énergie illimitée, tous les axes et tous les ${FULL_SESSION_LABEL_PLURAL_LOWER}.`,
-    energy: 'Illimitée',
-  },
-};
 
 const SAVED_STATUS_DURATION_MS = 3200;
 
-const INVOICE_STATUS_PRESENTATION: Record<
-  InvoiceStatus,
-  { label: string; colorVar: string }
-> = {
-  [InvoiceStatus.PAID]: { label: 'Payée', colorVar: 'var(--success-text)' },
-  [InvoiceStatus.OPEN]: { label: 'À régler', colorVar: 'var(--warning-text)' },
-  [InvoiceStatus.VOID]: { label: 'Annulée', colorVar: 'var(--label)' },
-  [InvoiceStatus.UNCOLLECTIBLE]: {
-    label: 'Impayée',
-    colorVar: 'var(--danger-text)',
-  },
-};
 
-interface InvoiceRowView {
-  id: string;
-  dateLabel: string;
-  label: string;
-  amountLabel: string;
-  statusLabel: string;
-  statusColorVar: string;
-  url: string | null;
-}
 
 @Component({
   selector: 'app-profile',
@@ -141,7 +76,6 @@ interface InvoiceRowView {
     Icon,
     PasswordStrengthMeter,
     RouterLink,
-    Skeleton,
   ],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
@@ -150,37 +84,25 @@ interface InvoiceRowView {
 export class Profile {
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly progressionFacade = inject(ProgressionFacade);
-  private readonly subscriptionsFacade = inject(SubscriptionsFacade);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly accountIcon = User;
   protected readonly securityIcon = Lock;
-  protected readonly planIcon = ShieldCheck;
-  protected readonly billingIcon = CreditCard;
   protected readonly logoutIcon = LogOut;
   protected readonly checkIcon = Check;
   protected readonly backIcon = ArrowLeft;
 
   protected readonly readValue = inputValue;
-  protected readonly tiers = SubscriptionTier;
 
   protected readonly user = this.authFacade.currentUser;
-  protected readonly tier = this.coreFacade.tier;
   protected readonly energy = this.energyFacade.state;
 
   protected readonly section = signal<ProfileSection>('account');
   protected readonly saved = signal(false);
   protected readonly saving = signal(false);
-  protected readonly billing = this.subscriptionsFacade.billingOverview;
-  protected readonly billingLoading = this.subscriptionsFacade.billingLoading;
-  protected readonly managing = signal(false);
-  protected readonly confirmingCancel = signal(false);
-  protected readonly invoices = signal<BillingInvoiceDto[] | null>(null);
-  protected readonly invoicesError = signal(false);
   private savedTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly firstName = linkedSignal(
@@ -194,14 +116,6 @@ export class Profile {
   protected readonly securityError = signal<string | null>(null);
 
   constructor() {
-    this.subscriptionsFacade
-      .loadBillingOverview(true)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ error: () => undefined });
-    if (this.tier() !== SubscriptionTier.FREE) {
-      this.loadInvoices();
-    }
     this.destroyRef.onDestroy(() => {
       if (this.savedTimer) {
         clearTimeout(this.savedTimer);
@@ -209,59 +123,8 @@ export class Profile {
     });
   }
 
-  protected cancelSubscription(): void {
-    if (this.managing()) {
-      return;
-    }
-    if (!this.confirmingCancel()) {
-      this.confirmingCancel.set(true);
-      return;
-    }
-    this.managing.set(true);
-    this.subscriptionsFacade
-      .cancelSubscription()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.managing.set(false);
-          this.confirmingCancel.set(false);
-        },
-        error: () => {
-          this.managing.set(false);
-          this.confirmingCancel.set(false);
-        },
-      });
-  }
 
-  protected resumeSubscription(): void {
-    if (this.managing()) {
-      return;
-    }
-    this.managing.set(true);
-    this.subscriptionsFacade
-      .resumeSubscription()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.managing.set(false),
-        error: () => this.managing.set(false),
-      });
-  }
 
-  protected loadInvoices(): void {
-    this.invoicesError.set(false);
-    this.invoices.set(null);
-    this.subscriptionsFacade
-      .listInvoices()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (invoices) => this.invoices.set(invoices),
-        error: () => {
-          this.invoices.set([]);
-          this.invoicesError.set(true);
-        },
-      });
-  }
 
   protected readonly meta = computed(() => SECTION_META[this.section()]);
 
@@ -278,15 +141,7 @@ export class Profile {
           label: 'Secteur',
           icon: SECTOR_PRESENTATION[sector].icon,
         },
-        { id: 'plan', label: 'Abonnement', icon: this.planIcon },
       ];
-    if (this.tier() !== SubscriptionTier.FREE) {
-      items.push({
-        id: 'billing',
-        label: 'Facturation',
-        icon: this.billingIcon,
-      });
-    }
     return items;
   });
 
@@ -299,12 +154,11 @@ export class Profile {
     return current ? `${current.firstName} ${current.lastName}` : '';
   });
 
-  protected readonly plan = computed(() => PLAN_COPY[this.tier()]);
 
   protected readonly railSubtitle = computed(() => {
     const current = this.user();
     return current
-      ? `${this.plan().name} · ${SECTOR_PRESENTATION[current.currentSector].label}`
+      ? SECTOR_PRESENTATION[current.currentSector].label
       : '';
   });
 
@@ -391,122 +245,16 @@ export class Profile {
     }));
   });
 
-  protected readonly planPrice = computed<{
-    label: string;
-    mono: boolean;
-    period: string | null;
-  }>(() => {
-    const tier = this.tier();
-    if (tier === SubscriptionTier.FREE) {
-      return { label: 'Gratuit', mono: false, period: null };
-    }
-    const monthlyAmount = this.billing()?.monthlyAmount;
-    const amount =
-      monthlyAmount !== null && monthlyAmount !== undefined
-        ? formatEuroAmount(monthlyAmount / 100)
-        : SUBSCRIPTION_MONTHLY_PRICES[tier];
-    return { label: `${amount} €`, mono: true, period: 'par mois' };
-  });
 
-  protected readonly renewalLabel = computed(() => {
-    const periodEnd = this.billing()?.currentPeriodEnd;
-    return periodEnd ? formatDayMonthYear(periodEnd) : null;
-  });
 
-  protected readonly planBillingLabel = computed(() =>
-    this.tier() === SubscriptionTier.FREE ? 'Aucune' : 'Mensuelle',
-  );
 
-  protected readonly subscriptionEnding = computed(
-    () => this.billing()?.cancelAtPeriodEnd === true,
-  );
 
-  protected readonly paymentPastDue = computed(
-    () => this.billing()?.status === SubscriptionStatus.PAST_DUE,
-  );
 
-  protected readonly planRenewMeta = computed<{
-    label: string;
-    value: string;
-  } | null>(() => {
-    if (this.tier() === SubscriptionTier.FREE) {
-      return { label: 'Durée', value: 'Sans limite' };
-    }
-    const renewal = this.renewalLabel();
-    if (!renewal) {
-      return null;
-    }
-    return this.subscriptionEnding()
-      ? { label: "Accès jusqu'au", value: renewal }
-      : { label: 'Prochain renouvellement', value: renewal };
-  });
 
-  protected readonly planCta = computed<{ label: string; link: string }>(() => {
-    const tier = this.tier();
-    if (tier === SubscriptionTier.FREE) {
-      return { label: 'Choisir une formule', link: '/abonnements' };
-    }
-    if (tier === SubscriptionTier.ESSENTIAL) {
-      return {
-        label: "Passer à l'Illimité",
-        link: `/paiement/${PLAN_SLUGS[SubscriptionTier.UNLIMITED]}`,
-      };
-    }
-    return { label: "Changer d'offre", link: '/abonnements' };
-  });
 
-  protected readonly cancelRow = computed<{
-    title: string;
-    description: string;
-    ctaLabel: string;
-  } | null>(() => {
-    if (this.tier() === SubscriptionTier.FREE) {
-      return null;
-    }
-    const renewal = this.renewalLabel();
-    if (this.subscriptionEnding()) {
-      return {
-        title: 'Résiliation programmée',
-        description: renewal
-          ? `Accès jusqu'au ${renewal}. Vous pouvez réactiver votre abonnement jusqu'à cette date, votre progression est conservée.`
-          : "Accès conservé jusqu'à la fin de la période payée. Vous pouvez réactiver votre abonnement jusque-là, votre progression est conservée.",
-        ctaLabel: 'Réactiver',
-      };
-    }
-    return {
-      title: 'Résilier mon abonnement',
-      description: renewal
-        ? `La résiliation prend effet le ${renewal}, fin de la période payée. Votre progression est conservée.`
-        : 'La résiliation prend effet à la fin de la période payée. Votre progression est conservée.',
-      ctaLabel: this.confirmingCancel()
-        ? 'Confirmer la résiliation'
-        : 'Résilier',
-    };
-  });
 
-  protected readonly methodView = computed(() => {
-    const card = this.billing()?.paymentMethod ?? null;
-    return card ? buildPaymentMethodView(card) : null;
-  });
 
-  protected readonly nextInvoiceLabel = computed(() => {
-    const iso = this.billing()?.nextInvoiceDate;
-    return iso ? formatDayMonthYear(iso) : null;
-  });
 
-  protected readonly invoiceRows = computed<InvoiceRowView[]>(() =>
-    (this.invoices() ?? []).map((invoice) => ({
-      id: invoice.id,
-      dateLabel: new Date(invoice.createdAt).toLocaleDateString('fr-FR'),
-      label: invoice.tier
-        ? `${PLAN_LABELS[invoice.tier]}, mensuel`
-        : 'Abonnement',
-      amountLabel: `${formatEuroAmount(invoice.amount / 100)} €`,
-      statusLabel: INVOICE_STATUS_PRESENTATION[invoice.status].label,
-      statusColorVar: INVOICE_STATUS_PRESENTATION[invoice.status].colorVar,
-      url: invoice.url,
-    })),
-  );
 
   protected readonly status = computed<{
     text: string;
@@ -544,33 +292,12 @@ export class Profile {
         tone: 'idle',
       };
     }
-    if (this.tier() === SubscriptionTier.FREE) {
-      return { text: 'Aucune facturation en cours', tone: 'idle' };
-    }
-    if (this.paymentPastDue()) {
-      return { text: 'Paiement en échec', tone: 'error' };
-    }
-    if (this.subscriptionEnding()) {
-      const renewal = this.renewalLabel();
-      return {
-        text: renewal ? `Votre abonnement prend fin le ${renewal}` : '',
-        tone: 'idle',
-      };
-    }
-    if (section === 'billing') {
-      return { text: 'Aucun paiement en attente', tone: 'idle' };
-    }
-    const invoice = this.nextInvoiceLabel();
-    return {
-      text: invoice ? `Prochaine facture le ${invoice}` : '',
-      tone: 'idle',
-    };
+    return { text: '', tone: 'idle' };
   });
 
   protected open(section: ProfileSection): void {
     this.section.set(section);
     this.saved.set(false);
-    this.confirmingCancel.set(false);
     this.cancel();
   }
 

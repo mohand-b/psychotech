@@ -120,44 +120,6 @@
         </div>
       </section>
 
-      <section class="home__card home__plan">
-        <div class="home__card-head">
-          <span class="t-label">Votre formule</span>
-          @if (tier() === tiers.FREE) {
-            <span class="home__plan-badge">Gratuit</span>
-          }
-        </div>
-        <div class="home__plan-main">
-          <span class="home__plan-icon">
-            <ui-icon [img]="planIcon" [size]="20" />
-          </span>
-          <div class="home__plan-copy">
-            <span class="home__plan-name">{{ planName() }}</span>
-            <span class="home__plan-desc">{{ planDesc() }}</span>
-          </div>
-        </div>
-        @if (tier() === tiers.FREE) {
-          <div class="home__plan-foot home__plan-foot--discover">
-            <button class="home__link" (click)="openOffers()">
-              Découvrir les offres
-              <ui-icon [img]="arrowIcon" [size]="13" />
-            </button>
-            <span class="home__plan-note">Aucun paiement requis pour commencer.</span>
-          </div>
-        } @else {
-          <div class="home__plan-foot">
-            <button class="home__link-muted" (click)="openOffers()">
-              Gérer ma formule
-            </button>
-            @if (canUpgrade()) {
-              <button class="home__link" (click)="openOffers()">
-                Passer à l'Illimité
-                <ui-icon [img]="arrowIcon" [size]="13" />
-              </button>
-            }
-          </div>
-        }
-      </section>
 
       <section class="home__card home__result">
         <div class="home__card-head">

@@ -5,9 +5,7 @@
     </a>
     <span class="profilm__bar-title">Mon profil</span>
     <span class="profilm__bar-spacer"></span>
-    @if (tier() !== tiers.FREE) {
-      <ui-energy-chip [state]="energy()" [tier]="tier()" />
-    }
+    <ui-energy-chip [state]="energy()" />
   </div>
   <div class="profilm__tabs flex">
     @for (item of navItems(); track item.id) {
@@ -29,7 +27,7 @@
     <h1 class="t-page-title">Mon profil</h1>
     <span class="profil__subtitle"
       >Vos informations, votre secteur de préparation et votre
-      abonnement.</span
+      compte.</span
     >
   </div>
 
@@ -78,28 +76,6 @@
           <span class="profil__section-desc">{{ meta().description }}</span>
         </div>
 
-        @if (
-          paymentPastDue() && (section() === 'plan' || section() === 'billing')
-        ) {
-          <div class="profil__alert flex items-center">
-            <span class="profil__alert-copy flex flex-col">
-              <span class="profil__alert-title">Paiement en échec</span>
-              <span class="profil__alert-desc"
-                >Le dernier prélèvement n'a pas abouti. Votre accès est conservé
-                le temps de régulariser.</span
-              >
-            </span>
-            <ui-button
-              class="profil__cta-secondary"
-              appearance="outlined"
-              color="neutral"
-              routerLink="/paiement/carte"
-              [queryParams]="{ retour: '/profil' }"
-            >
-              Mettre à jour le moyen de paiement
-            </ui-button>
-          </div>
-        }
 
         @switch (section()) {
           @case ('account') {
@@ -256,219 +232,8 @@
               >
             </div>
           }
-          @case ('plan') {
-            <div class="profil__section-body flex flex-col">
-              <div class="profil__plan-top flex">
-                <span class="profil__plan-name-block flex flex-col">
-                  <span class="profil__plan-name-row flex items-center">
-                    <span class="profil__plan-name">{{ plan().name }}</span>
-                    @if (subscriptionEnding()) {
-                      <ui-badge tone="neutral">Résiliation programmée</ui-badge>
-                    }
-                  </span>
-                  <span class="profil__plan-desc">{{
-                    plan().description
-                  }}</span>
-                </span>
-                <span class="profil__plan-price flex items-baseline">
-                  <span
-                    class="profil__plan-amount"
-                    [class.t-mono]="planPrice().mono"
-                    >{{ planPrice().label }}</span
-                  >
-                  @if (planPrice().period; as period) {
-                    <span class="profil__plan-period">{{ period }}</span>
-                  }
-                </span>
-              </div>
-              <div class="profil__metas">
-                <span class="profil__meta flex flex-col">
-                  <span class="t-label">Énergie du jour</span>
-                  <span class="profil__meta-value">{{ plan().energy }}</span>
-                </span>
-                <span class="profil__meta flex flex-col">
-                  <span class="t-label">Facturation</span>
-                  <span class="profil__meta-value">{{
-                    planBillingLabel()
-                  }}</span>
-                </span>
-                @if (planRenewMeta(); as renewMeta) {
-                  <span class="profil__meta flex flex-col">
-                    <span class="t-label">{{ renewMeta.label }}</span>
-                    <span class="profil__meta-value">{{ renewMeta.value }}</span>
-                  </span>
-                }
-                @if (methodView(); as method) {
-                  <span class="profil__meta flex flex-col">
-                    <span class="t-label">Moyen de paiement</span>
-                    <span class="profil__meta-value t-mono">{{
-                      method.detailLabel
-                    }}</span>
-                  </span>
-                }
-              </div>
-              <div class="profil__plan-actions flex items-center">
-                <ui-button
-                  class="profil__cta"
-                  color="brand"
-                  [routerLink]="planCta().link"
-                  >{{ planCta().label }}</ui-button
-                >
-                @if (planCta().link !== '/abonnements') {
-                  <ui-button
-                    class="profil__cta-secondary"
-                    appearance="outlined"
-                    color="neutral"
-                    routerLink="/abonnements"
-                    >Comparer les offres</ui-button
-                  >
-                }
-              </div>
-              @if (cancelRow(); as cancel) {
-                <div class="profil__plan-row flex items-center">
-                  <span class="profil__plan-row-copy flex flex-col">
-                    <span class="profil__plan-row-title">{{
-                      cancel.title
-                    }}</span>
-                    <span class="profil__plan-row-desc">{{
-                      cancel.description
-                    }}</span>
-                  </span>
-                  <ui-button
-                    class="profil__plan-row-cta"
-                    appearance="outlined"
-                    color="neutral"
-                    [class.profil__plan-row-cta--danger]="!subscriptionEnding()"
-                    (click)="
-                      subscriptionEnding()
-                        ? resumeSubscription()
-                        : cancelSubscription()
-                    "
-                  >
-                    {{ cancel.ctaLabel }}
-                  </ui-button>
-                </div>
-              } @else {
-                <span class="profil__plan-free-note"
-                  >L'offre Découverte est gratuite et sans limite de durée :
-                  vous accédez au mode découverte de chaque axe. Les examens blancs
-                  complètes, les entraînements ciblés et le suivi de progression
-                  nécessitent une formule payante.</span
-                >
-              }
-            </div>
-          }
-          @case ('billing') {
-            <div class="profil__section-body flex flex-col">
-              @if (billingLoading()) {
-                <div class="profil__billing-card flex items-center">
-                  <ui-skeleton class="profil__skeleton-badge" />
-                  <span class="profil__billing-copy flex flex-col">
-                    <ui-skeleton class="profil__skeleton-detail" />
-                    <ui-skeleton class="profil__skeleton-exp" />
-                  </span>
-                  <ui-skeleton class="profil__skeleton-cta" />
-                </div>
-              } @else if (methodView(); as method) {
-                <div class="profil__billing-card flex items-center">
-                  <span class="profil__billing-badge">{{
-                    method.badgeLabel
-                  }}</span>
-                  <span class="profil__billing-copy flex flex-col">
-                    <span class="profil__billing-detail t-mono">{{
-                      method.detailLabel
-                    }}</span>
-                    <span class="profil__billing-exp"
-                      >Expire {{ method.expiryLabel }}</span
-                    >
-                  </span>
-                  <ui-button
-                    class="profil__cta-secondary"
-                    appearance="outlined"
-                    color="neutral"
-                    routerLink="/paiement/carte"
-                    [queryParams]="{ retour: '/profil' }"
-                    >Modifier</ui-button
-                  >
-                </div>
-              } @else {
-                <span class="profil__billing-empty"
-                  >Aucun moyen de paiement enregistré.</span
-                >
-              }
-
-              <div class="profil__invoices flex flex-col">
-                <span class="t-label">Reçus</span>
-                @if (invoicesError()) {
-                  <span class="profil__billing-empty">
-                    Impossible de charger vos reçus.
-                    <button
-                      type="button"
-                      class="t-inline-action profil__invoices-retry"
-                      (click)="loadInvoices()"
-                    >
-                      Réessayer
-                    </button>
-                  </span>
-                } @else if (invoices() === null) {
-                  <div class="flex flex-col">
-                    @for (row of [0, 1]; track row) {
-                      <div class="profil__invoice-row flex items-center">
-                        <ui-skeleton class="profil__skeleton-invoice-date" />
-                        <ui-skeleton class="profil__skeleton-invoice-label" />
-                        <ui-skeleton class="profil__skeleton-invoice-amount" />
-                      </div>
-                    }
-                  </div>
-                } @else if (invoiceRows().length === 0) {
-                  <span class="profil__billing-empty"
-                    >Aucun reçu pour l'instant.</span
-                  >
-                } @else {
-                  <div class="flex flex-col">
-                    @for (row of invoiceRows(); track row.id) {
-                      <div class="profil__invoice-row flex items-center">
-                        <span class="profil__invoice-date t-mono">{{
-                          row.dateLabel
-                        }}</span>
-                        <span class="profil__invoice-main flex flex-col">
-                          <span class="profil__invoice-label">{{
-                            row.label
-                          }}</span>
-                          <span class="profil__invoice-date-mobile t-mono">{{
-                            row.dateLabel
-                          }}</span>
-                        </span>
-                        <span class="profil__invoice-amount t-mono">{{
-                          row.amountLabel
-                        }}</span>
-                        <span
-                          class="profil__invoice-status"
-                          [style.color]="row.statusColorVar"
-                          >{{ row.statusLabel }}</span
-                        >
-                        @if (row.url; as url) {
-                          <a
-                            class="profil__invoice-link"
-                            [href]="url"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <span class="profil__invoice-link-full"
-                              >Télécharger</span
-                            >
-                            <span class="profil__invoice-link-short">Reçu</span>
-                          </a>
-                        } @else {
-                          <span class="profil__invoice-link--empty">-</span>
-                        }
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          }
+          
+          
         }
 
         <div

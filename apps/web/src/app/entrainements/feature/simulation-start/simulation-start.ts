@@ -17,7 +17,6 @@ import {
   Sector,
   SESSION_ENERGY_COST,
   SessionMode,
-  SubscriptionTier,
 } from '@psychotech/shared';
 import {
   BellOff,
@@ -28,7 +27,6 @@ import {
   VolumeX,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CoreFacade } from '../../../core/data-access/core.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -39,7 +37,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
-import { formatEuroAmount } from '../../../shared/util/subscription-prices';
+import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { formatRechargeCountdown } from '../entrainements/trainings-overview-view';
 import { COUNTDOWN_TICK_MS, tickingNow } from '../ticking-now';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
@@ -61,7 +59,6 @@ interface AdviceItem {
 export class SimulationStart {
   private readonly authFacade = inject(AuthFacade);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly coreFacade = inject(CoreFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
@@ -117,13 +114,8 @@ export class SimulationStart {
     { icon: BellOff, text: 'Coupez vos notifications pour rester concentré.' },
   ];
 
-  protected readonly unlimited = computed(
-    () => this.coreFacade.tier() === SubscriptionTier.UNLIMITED,
-  );
-
   protected readonly energyShort = computed(
-    () =>
-      !this.unlimited() && this.energyFacade.state()?.canStartFull === false,
+    () => this.energyFacade.state()?.canStartFull === false,
   );
 
   protected readonly balance = computed(

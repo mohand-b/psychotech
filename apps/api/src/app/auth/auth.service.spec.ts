@@ -3,22 +3,16 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 import { LEGAL_TERMS_VERSION, Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TierResolutionService } from '../subscriptions/tier-resolution.service';
-import {
-  UsersRepository,
-  UserWithSubscription,
-} from '../users/users.repository';
+import { UsersRepository } from '../users/users.repository';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
 import { PasswordHasher } from './password.service';
 import { TokenService } from './token.service';
 
-function buildUser(
-  overrides: Partial<UserWithSubscription> = {},
-): UserWithSubscription {
+function buildUser(overrides: Partial<User> = {}): User {
   return {
     id: 'user-1',
     email: 'alice@example.com',
@@ -30,7 +24,9 @@ function buildUser(
     timezone: 'Europe/Paris',
     currentSector: 'RAILWAY',
     stripeCustomerId: null,
-    subscription: null,
+    termsVersion: null,
+    termsAcceptedAt: null,
+    emailVerifiedAt: null,
     createdAt: new Date('2026-06-13T10:00:00Z'),
     updatedAt: new Date('2026-06-13T10:00:00Z'),
     ...overrides,
@@ -53,16 +49,11 @@ const tokenService = {
 };
 const usersRepository = { isSectorActive: vi.fn() };
 
-const tierResolution = new TierResolutionService({
-  getOrThrow: () => ({ enabled: true }),
-} as unknown as ConfigService);
-
 const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
   tokenService as unknown as TokenService,
   usersRepository as unknown as UsersRepository,
-  tierResolution,
 );
 
 beforeEach(() => {
