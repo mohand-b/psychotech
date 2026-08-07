@@ -36,7 +36,7 @@
   <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
   }
 
-  @if (celebration.announceView; as announce) {
+  @if (celebration.announceView(); as announce) {
   <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
   }
 

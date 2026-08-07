@@ -110,6 +110,11 @@
   color: var(--ink);
 }
 
+.badges__closest-progress {
+  font: 400 12px/1.4 var(--font-ui);
+  color: var(--label);
+}
+
 .badges__summary-bolt {
   color: var(--brand);
   align-self: center;

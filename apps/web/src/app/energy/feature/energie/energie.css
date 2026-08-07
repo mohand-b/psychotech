@@ -1,6 +1,5 @@
 .energie {
   gap: 32px;
-  max-width: 1020px;
 }
 
 .energie__head {
@@ -269,6 +268,12 @@
 
 .energie__badges-title {
   font: 700 19px/24px var(--font-display);
+  color: var(--ink);
+  gap: 6px;
+}
+
+.energie__badges-title .t-mono {
+  font: 600 18px/24px var(--font-mono);
   color: var(--ink);
 }
 

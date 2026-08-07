@@ -84,7 +84,15 @@ export class SimulationSummary {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  protected readonly celebration = resultCelebrationFor(this.sessionId);
+  protected readonly celebration = resultCelebrationFor(
+    this.sessionId,
+    computed(() => {
+      const summary = this.facade.summary();
+      return summary
+        ? { badges: summary.earnedBadges ?? [], sector: summary.sector }
+        : null;
+    }),
+  );
 
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;

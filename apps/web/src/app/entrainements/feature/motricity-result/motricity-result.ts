@@ -64,7 +64,15 @@ export class MotricityResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  protected readonly celebration = resultCelebrationFor(this.sessionId);
+  protected readonly celebration = resultCelebrationFor(
+    this.sessionId,
+    computed(() => {
+      const result = this.result();
+      return result
+        ? { badges: result.earnedBadges ?? [], sector: result.sector }
+        : null;
+    }),
+  );
 
   protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly result = signal<TargetedMotricityResultDto | null>(null);

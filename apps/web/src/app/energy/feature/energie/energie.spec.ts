@@ -88,10 +88,14 @@ describe('Energie', () => {
       fixture.nativeElement.querySelector('.energie__badges-link');
     expect(link?.getAttribute('href')).toBe('/badges');
     const text = fixture.nativeElement.textContent;
+    expect(text).toContain('+25');
+    expect(text).toContain('Sur les rails');
+    expect(text).toContain('Sans réserve');
     expect(text).toContain('Premiers pas');
-    expect(text).toContain('+5');
-    expect(text).toContain('Apte');
+    expect(text).toContain('+3');
     expect(text).toContain('+2');
+    const tiles = fixture.nativeElement.querySelectorAll('.energie__badge-tile');
+    expect(tiles).toHaveLength(3);
   });
 
   it('enters the confirmation view when returning from a checkout', async () => {

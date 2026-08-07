@@ -519,13 +519,8 @@ describe('SimulationSummary', () => {
   });
 
   it('announces the badges earned by the completed examen blanc', async () => {
-    const newBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
-    const activeSession = {
-      id: 'session-1',
-      sector: Sector.RAILWAY,
-      newBadges,
-    } as unknown as SessionDto;
-    const { fixture } = await setup(buildSummary(), LOGIC_DETAIL, activeSession);
+    const earnedBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
+    const { fixture } = await setup(buildSummary({ earnedBadges }));
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card).not.toBeNull();
     expect(card.textContent).toContain('Apte rejoint votre collection');

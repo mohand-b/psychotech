@@ -30,7 +30,7 @@ const APTE: EarnedBadgeDto = {
   conditions: [
     {
       id: 'favorable',
-      label: 'Premier examen blanc au verdict favorable',
+      label: 'Verdict favorable',
       met: true,
       justValidated: true,
     },

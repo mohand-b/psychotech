@@ -315,9 +315,9 @@ describe('LogicResult - badges débloqués', () => {
   ];
 
   it('announces the earned badges with the coin and the total gain', async () => {
-    const { fixture } = await setupWithBadges(buildResult(), {
-      activeSession: buildCompletedSession({ newBadges }),
-    });
+    const { fixture } = await setupWithBadges(
+      buildResult({ earnedBadges: newBadges }),
+    );
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card).not.toBeNull();
     expect(card.textContent).toContain(
@@ -329,11 +329,11 @@ describe('LogicResult - badges débloqués', () => {
   });
 
   it('announces a single gainless badge with its family and tier', async () => {
-    const { fixture } = await setupWithBadges(buildResult(), {
-      activeSession: buildCompletedSession({
-        newBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] }],
+    const { fixture } = await setupWithBadges(
+      buildResult({
+        earnedBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] }],
       }),
-    });
+    );
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card.textContent).toContain('Déclic rejoint votre collection');
     expect(card.textContent).toContain("Badge d'axe · Logique · Bronze");
@@ -346,10 +346,4 @@ describe('LogicResult - badges débloqués', () => {
     expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
 
-  it('hides the announce card when the stored session is not the displayed one', async () => {
-    const { fixture } = await setupWithBadges(buildResult(), {
-      activeSession: buildCompletedSession({ id: 'session-2', newBadges }),
-    });
-    expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
-  });
 });

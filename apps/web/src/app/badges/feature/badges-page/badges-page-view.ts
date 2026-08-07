@@ -2,11 +2,16 @@ import {
   AXIS_META,
   AxisType,
   BADGE_CATALOG,
+  BADGE_EXCELLENCE_THRESHOLD,
+  BADGE_PERFECTION_SCORE,
+  BADGE_PROGRESSION_THRESHOLD,
+  BADGE_SECTOR_THRESHOLD,
   BadgeDefinition,
   BadgeFamily,
   BadgeId,
   BadgeStatusDto,
   BadgeTier,
+  SECTOR_AXES,
   Sector,
   badgeAssetPath,
   badgeDisplayName,
@@ -30,10 +35,23 @@ interface BadgeEntry {
   metCount: number;
 }
 
+export interface BadgeOutlook {
+  bestScores: Partial<Record<AxisType, number>>;
+  lastExamScore: number | null;
+  examThreshold: number | null;
+}
+
+export const EMPTY_BADGE_OUTLOOK: BadgeOutlook = {
+  bestScores: {},
+  lastExamScore: null,
+  examThreshold: null,
+};
+
 export interface ClosestBadgeView {
   name: string;
   assetPath: string;
   hint: string;
+  progress: string | null;
   gain: number | null;
 }
 
@@ -70,7 +88,7 @@ const CONDITION_COUNT_INTROS: Record<number, string> = {
   3: 'Trois conditions :',
 };
 
-export const EXAM_CARD_LABEL = 'Les cinq axes enchaînés';
+export const EXAM_CARD_LABEL = 'Tous les axes enchaînés';
 
 function formatEarnedDate(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', {
@@ -186,7 +204,127 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
   };
 }
 
-function buildSummary(entries: BadgeEntry[]): BadgesSummaryView {
+const SESSION_EFFORT_POINTS = 10;
+const ACTION_EFFORT_POINTS = 4;
+const MIN_EFFORT_POINTS = 1;
+
+const TIER_TARGETS: Record<BadgeTier, number> = {
+  [BadgeTier.BRONZE]: BADGE_PROGRESSION_THRESHOLD,
+  [BadgeTier.SILVER]: BADGE_EXCELLENCE_THRESHOLD,
+  [BadgeTier.GOLD]: BADGE_PERFECTION_SCORE,
+};
+
+function axisDeficits(
+  sector: Sector,
+  outlook: BadgeOutlook,
+): { axis: AxisType; deficit: number }[] {
+  return SECTOR_AXES[sector].map((axis) => ({
+    axis,
+    deficit: Math.max(
+      0,
+      BADGE_SECTOR_THRESHOLD - (outlook.bestScores[axis] ?? 0),
+    ),
+  }));
+}
+
+function bindingAxisDeficit(
+  sector: Sector,
+  outlook: BadgeOutlook,
+): { axis: AxisType; deficit: number } {
+  return axisDeficits(sector, outlook).reduce((worst, entry) =>
+    entry.deficit > worst.deficit ? entry : worst,
+  );
+}
+
+function examDeficit(outlook: BadgeOutlook): number {
+  if (outlook.lastExamScore === null) {
+    const deficits = axisDeficits(Sector.RAILWAY, outlook);
+    return (
+      deficits.reduce((sum, entry) => sum + entry.deficit, 0) / deficits.length
+    );
+  }
+  return Math.max(
+    0,
+    (outlook.examThreshold ?? BADGE_SECTOR_THRESHOLD) - outlook.lastExamScore,
+  );
+}
+
+function effortOf(
+  entry: BadgeEntry,
+  sector: Sector,
+  outlook: BadgeOutlook,
+): number {
+  const { definition } = entry;
+  if (definition.family === BadgeFamily.AXIS && definition.axis) {
+    const target = TIER_TARGETS[definition.tier ?? BadgeTier.BRONZE];
+    return Math.max(
+      MIN_EFFORT_POINTS,
+      target - (outlook.bestScores[definition.axis] ?? 0),
+    );
+  }
+  if (definition.id === BadgeId.EXAM_FIRST) {
+    return SESSION_EFFORT_POINTS;
+  }
+  if (definition.id === BadgeId.EXAM_FAVORABLE) {
+    return SESSION_EFFORT_POINTS + examDeficit(outlook);
+  }
+  if (definition.id === BadgeId.EXAM_SOLID) {
+    return (
+      SESSION_EFFORT_POINTS +
+      Math.max(examDeficit(outlook), bindingAxisDeficit(sector, outlook).deficit)
+    );
+  }
+  if (definition.id === BadgeId.SECTOR_MASTERY) {
+    return Math.max(
+      MIN_EFFORT_POINTS,
+      bindingAxisDeficit(sector, outlook).deficit,
+    );
+  }
+  const unmet = entry.conditions.filter((condition) => !condition.met).length;
+  return Math.max(MIN_EFFORT_POINTS, unmet * ACTION_EFFORT_POINTS);
+}
+
+function pointsLabel(points: number): string {
+  return `${points} point${points > 1 ? 's' : ''}`;
+}
+
+function closestProgress(
+  entry: BadgeEntry,
+  sector: Sector,
+  outlook: BadgeOutlook,
+): string | null {
+  const { definition } = entry;
+  if (definition.family === BadgeFamily.AXIS && definition.axis) {
+    const best = outlook.bestScores[definition.axis];
+    const target = TIER_TARGETS[definition.tier ?? BadgeTier.BRONZE];
+    if (best === undefined || best >= target) {
+      return null;
+    }
+    return `Votre meilleur score ${best} · plus que ${pointsLabel(target - best)}`;
+  }
+  if (definition.id === BadgeId.SECTOR_MASTERY) {
+    const binding = bindingAxisDeficit(sector, outlook);
+    return binding.deficit > 0
+      ? `Plus que ${pointsLabel(binding.deficit)} en ${AXIS_META[binding.axis].label}`
+      : null;
+  }
+  if (
+    definition.id === BadgeId.EXAM_FAVORABLE &&
+    outlook.lastExamScore !== null
+  ) {
+    const deficit = examDeficit(outlook);
+    return deficit > 0
+      ? `Dernier examen à ${outlook.lastExamScore} · plus que ${pointsLabel(deficit)}`
+      : null;
+  }
+  return null;
+}
+
+function buildSummary(
+  entries: BadgeEntry[],
+  sector: Sector,
+  outlook: BadgeOutlook,
+): BadgesSummaryView {
   const earnedCount = entries.filter((entry) => entry.earned).length;
   const total = entries.length;
   const energyEarned = entries
@@ -199,9 +337,10 @@ function buildSummary(entries: BadgeEntry[]): BadgesSummaryView {
   const closestEntry =
     locked.length === 0
       ? null
-      : locked.reduce(
-          (best, entry) => (entry.metCount > best.metCount ? entry : best),
-          locked[0],
+      : locked.reduce((best, entry) =>
+          effortOf(entry, sector, outlook) < effortOf(best, sector, outlook)
+            ? entry
+            : best,
         );
   return {
     earnedCount,
@@ -218,6 +357,7 @@ function buildSummary(entries: BadgeEntry[]): BadgesSummaryView {
               ?.label ??
             closestEntry.conditions[0]?.label ??
             '',
+          progress: closestProgress(closestEntry, sector, outlook),
           gain: energyGain(closestEntry.definition.energyReward),
         }
       : null,
@@ -227,6 +367,7 @@ function buildSummary(entries: BadgeEntry[]): BadgesSummaryView {
 export function buildBadgeBoard(
   statuses: BadgeStatusDto[],
   sector: Sector,
+  outlook: BadgeOutlook = EMPTY_BADGE_OUTLOOK,
 ): BadgeBoardView {
   const statusById = new Map(statuses.map((status) => [status.badgeId, status]));
   const entries = BADGE_CATALOG.map((definition) =>
@@ -254,6 +395,6 @@ export function buildBadgeBoard(
     axisCards,
     examCard,
     transverse,
-    summary: buildSummary(entries),
+    summary: buildSummary(entries, sector, outlook),
   };
 }

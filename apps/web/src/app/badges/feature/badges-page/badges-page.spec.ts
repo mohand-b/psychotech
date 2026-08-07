@@ -6,11 +6,13 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
+  AxisType,
   BADGE_BY_ID,
   BADGE_CATALOG,
   BadgeId,
   BadgeStatusDto,
   Sector,
+  TrainingsOverviewDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesPage } from './badges-page';
@@ -42,8 +44,15 @@ function catalogStatuses(
   );
 }
 
+const EMPTY_OVERVIEW: TrainingsOverviewDto = {
+  lastSimulation: null,
+  vigilanceThreshold: 65,
+  axes: [],
+};
+
 async function setup(
   statuses: BadgeStatusDto[],
+  overview: TrainingsOverviewDto = EMPTY_OVERVIEW,
 ): Promise<ComponentFixture<BadgesPage>> {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -60,9 +69,11 @@ async function setup(
   }).compileComponents();
   const fixture = TestBed.createComponent(BadgesPage);
   fixture.detectChanges();
-  TestBed.inject(HttpTestingController)
-    .expectOne('/api/me/badges')
-    .flush(statuses);
+  const controller = TestBed.inject(HttpTestingController);
+  controller.expectOne('/api/me/badges').flush(statuses);
+  controller
+    .expectOne((request) => request.url.includes('/me/trainings/overview'))
+    .flush(overview);
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture;
@@ -98,7 +109,7 @@ describe('BadgesPage', () => {
     const text = (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
     expect(text).toContain('· +1');
     expect(text).toContain('· +2');
-    expect(text).toContain('+5');
+    expect(text).toContain('· +3');
     expect(text).not.toContain('Bronze · +');
     expect(text).not.toContain('crédits offerts');
     const stepGains = fixture.nativeElement.querySelectorAll(
@@ -108,7 +119,7 @@ describe('BadgesPage', () => {
     const transGains = fixture.nativeElement.querySelectorAll(
       '.trans-row__gain ui-axis-icon',
     );
-    expect(transGains).toHaveLength(1);
+    expect(transGains).toHaveLength(2);
   });
 
   it('reveals dates and the earned-only rarity without any maximal tier note', async () => {
@@ -147,12 +158,12 @@ describe('BadgesPage', () => {
       }),
     );
     const text = fixture.nativeElement.textContent ?? '';
-    expect(text).toContain('+7');
+    expect(text).toContain('+4');
     expect(text).toContain('ajoutés');
-    expect(text).toContain('Encore +15 à gagner');
+    expect(text).toContain('Encore +21 à gagner');
   });
 
-  it('picks the closest badge from the most advanced unearned conditions', async () => {
+  it('picks the cheapest remaining actions when no score is close', async () => {
     const definition = BADGE_BY_ID.get(BadgeId.FIRST_STEPS);
     const fixture = await setup(
       catalogStatuses({
@@ -169,9 +180,30 @@ describe('BadgesPage', () => {
     );
     const closest = fixture.nativeElement.querySelector('.badges__closest');
     expect(closest.textContent).toContain('Premiers pas');
-    expect(closest.textContent).toContain('Un tutoriel découvert');
-    expect(closest.textContent).toContain('+5');
+    expect(closest.textContent).toContain('Un tutoriel terminé');
+    expect(closest.textContent).toContain('+2');
     expect(closest.querySelector('.badges__closest-gain ui-axis-icon')).not.toBeNull();
+  });
+
+  it('picks the smallest real score gap from the trainings overview', async () => {
+    const fixture = await setup(catalogStatuses(), {
+      lastSimulation: null,
+      vigilanceThreshold: 65,
+      axes: [
+        {
+          axis: AxisType.MEMORY,
+          bestScore: 65,
+          neverPlayed: false,
+          isCriticalAxis: true,
+          needsWork: false,
+        },
+      ],
+    });
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Mémoire vive');
+    expect(closest.textContent).toContain(
+      'Votre meilleur score 65 · plus que 5 points',
+    );
   });
 
   it('keeps the footnote pointing to the credit packs', async () => {

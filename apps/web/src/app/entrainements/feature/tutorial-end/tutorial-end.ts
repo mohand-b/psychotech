@@ -32,6 +32,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
 import { ButtonColor } from '../../../shared/ui/button/button';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialRunResult } from '../../data-access/tutorial-run.store';
 import { formatOverviewDate } from '../entrainements/trainings-overview-view';
@@ -175,6 +176,7 @@ export class TutorialEnd {
   private readonly router = inject(Router);
   private readonly runFacade = inject(TutorialRunFacade);
   private readonly authFacade = inject(AuthFacade);
+  private readonly badgesFacade = inject(BadgesFacade);
 
   protected readonly arrowIcon = ArrowRight;
   protected readonly checkIcon = Check;
@@ -220,6 +222,8 @@ export class TutorialEnd {
           ? ['/entrainements/tutoriel', axisSlug(this.axis)]
           : ['/entrainements'],
       );
+      return;
     }
+    this.badgesFacade.notifyTutorialDiscovered();
   }
 }

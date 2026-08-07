@@ -145,9 +145,6 @@
   color: var(--success-text);
 }
 
-.tier-row__step--far .tier-row__step-sub {
-  color: var(--text-disabled);
-}
 
 @media (max-width: 767px) {
   :host {

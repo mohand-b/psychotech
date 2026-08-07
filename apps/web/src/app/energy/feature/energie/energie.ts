@@ -12,13 +12,17 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  BADGE_CATALOG,
+  BADGE_TOTAL_REWARD,
+  BadgeFamily,
   ENERGY_PACKS,
   EnergyPackDefinition,
   EnergyPackId,
-  EXAM_FAVORABLE_REWARD,
-  FIRST_STEPS_REWARD,
   SESSION_ENERGY_COST,
+  Sector,
   SessionMode,
+  badgeAssetPath,
+  badgeDisplayName,
   energyPackUnitPriceEur,
 } from '@psychotech/shared';
 import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
@@ -49,6 +53,30 @@ interface RewardBadgeView {
   asset: string;
   name: string;
   gain: number;
+}
+
+const REWARD_SHOWCASE_COUNT = 3;
+
+const FAMILY_SHOWCASE_ORDER: Record<BadgeFamily, number> = {
+  [BadgeFamily.TRANSVERSE]: 0,
+  [BadgeFamily.EXAM]: 1,
+  [BadgeFamily.AXIS]: 2,
+};
+
+function topRewardBadges(): RewardBadgeView[] {
+  return [...BADGE_CATALOG]
+    .filter((definition) => definition.energyReward > 0)
+    .sort(
+      (a, b) =>
+        b.energyReward - a.energyReward ||
+        FAMILY_SHOWCASE_ORDER[a.family] - FAMILY_SHOWCASE_ORDER[b.family],
+    )
+    .slice(0, REWARD_SHOWCASE_COUNT)
+    .map((definition) => ({
+      asset: badgeAssetPath(definition, Sector.RAILWAY),
+      name: badgeDisplayName(definition, Sector.RAILWAY),
+      gain: definition.energyReward,
+    }));
 }
 
 const PACK_DESCRIPTIONS: Record<EnergyPackId, string> = {
@@ -106,18 +134,9 @@ export class Energie implements OnDestroy {
     (pack) => this.toPackCard(pack),
   );
 
-  protected readonly rewardBadges: readonly RewardBadgeView[] = [
-    {
-      asset: 'badges/badge-premiers-pas.svg',
-      name: 'Premiers pas',
-      gain: FIRST_STEPS_REWARD,
-    },
-    {
-      asset: 'badges/badge-examen-argent.svg',
-      name: 'Apte',
-      gain: EXAM_FAVORABLE_REWARD,
-    },
-  ];
+  protected readonly totalReward = BADGE_TOTAL_REWARD;
+
+  protected readonly rewardBadges: readonly RewardBadgeView[] = topRewardBadges();
 
   constructor() {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');

@@ -266,13 +266,8 @@ describe('AxisStart - option Familles', () => {
 });
 
 describe('AxisStart - badge tutoriel', () => {
-  it('signals the discovered tutorial when the briefing opens in discovery mode', async () => {
+  it('signals nothing at the briefing, the marker belongs to the tutorial end', async () => {
     const result = await setup('logique', true);
-    expect(result.notifyTutorialDiscovered).toHaveBeenCalledTimes(1);
-  });
-
-  it('signals nothing outside the discovery mode', async () => {
-    const result = await setup('logique');
     expect(result.notifyTutorialDiscovered).not.toHaveBeenCalled();
   });
 });

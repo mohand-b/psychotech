@@ -6,15 +6,18 @@ import {
 } from '@angular/router';
 import { AxisType, Sector } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialEnd } from './tutorial-end';
 
 async function setup() {
+  const notifyTutorialDiscovered = vi.fn();
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [TutorialEnd],
     providers: [
       provideRouter([]),
+      { provide: BadgesFacade, useValue: { notifyTutorialDiscovered } },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -70,7 +73,7 @@ async function setup() {
   });
   const fixture = TestBed.createComponent(TutorialEnd);
   fixture.detectChanges();
-  return fixture;
+  return Object.assign(fixture, { notifyTutorialDiscovered });
 }
 
 function buttonLabels(element: HTMLElement): string[] {
@@ -96,5 +99,12 @@ describe('TutorialEnd', () => {
     expect(labels).toContain('Entraînement ciblé');
     expect(labels).toContain('Découvrir un autre axe');
     expect(labels).not.toContain('Découvrir les offres');
+  });
+});
+
+describe('TutorialEnd - badge tutoriel', () => {
+  it('signals the finished tutorial once the end screen opens', async () => {
+    const fixture = await setup();
+    expect(fixture.notifyTutorialDiscovered).toHaveBeenCalledTimes(1);
   });
 });

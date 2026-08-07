@@ -121,7 +121,6 @@ import { TransverseBadgeView } from './badge-views';
       }
       .trans-row__cond {
         font-size: 12px;
-        color: var(--label);
       }
     }
   `,

@@ -52,13 +52,18 @@
             [alt]="closest.name"
             [locked]="true"
           />
-          <span class="badges__closest-text">
-            <span class="badges__closest-name">{{ closest.name }}</span>
-            · {{ closest.hint }}
-            @if (closest.gain) {
-              <span class="badges__closest-gain t-mono"
-                >+{{ closest.gain }}<ui-axis-icon axis="credit" [size]="11"
-              /></span>
+          <span class="badges__closest-text flex flex-col">
+            <span>
+              <span class="badges__closest-name">{{ closest.name }}</span>
+              · {{ closest.hint }}
+              @if (closest.gain) {
+                <span class="badges__closest-gain t-mono"
+                  >+{{ closest.gain }}<ui-axis-icon axis="credit" [size]="11"
+                /></span>
+              }
+            </span>
+            @if (closest.progress) {
+              <span class="badges__closest-progress">{{ closest.progress }}</span>
             }
           </span>
         </span>
@@ -71,6 +76,17 @@
   <section class="badges__board">
     <div class="badges__family">
       <div class="badges__family-head">
+        <h2 class="badges__family-title">{{ fullSessionLabel }}</h2>
+        <span class="badges__family-sub"
+          >Tous les axes enchaînés, trois paliers</span
+        >
+      </div>
+      <div class="badges__family-rows">
+        <ui-badge-tier-row [card]="view.examCard" />
+      </div>
+    </div>
+    <div class="badges__family">
+      <div class="badges__family-head">
         <h2 class="badges__family-title">Axes</h2>
         <span class="badges__family-sub"
           >Le palier le plus haut de chaque axe, et la suite de l'échelle</span
@@ -80,17 +96,6 @@
         @for (card of view.axisCards; track card.label) {
           <ui-badge-tier-row [card]="card" />
         }
-      </div>
-    </div>
-    <div class="badges__family">
-      <div class="badges__family-head">
-        <h2 class="badges__family-title">{{ fullSessionLabel }}</h2>
-        <span class="badges__family-sub"
-          >Les cinq axes enchaînés, trois paliers</span
-        >
-      </div>
-      <div class="badges__family-rows">
-        <ui-badge-tier-row [card]="view.examCard" />
       </div>
     </div>
     <div class="badges__family">

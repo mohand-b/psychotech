@@ -154,7 +154,10 @@
   @if (view() === 'packs') {
     <section class="energie__badges flex items-center">
       <div class="energie__badges-copy flex flex-col">
-        <span class="energie__badges-title">Ou gagnez des crédits</span>
+        <span class="energie__badges-title flex items-center"
+          >Ou gagnez jusqu’à <span class="t-mono">+{{ totalReward }}</span
+          ><ui-axis-icon axis="credit" [size]="15"
+        /></span>
         <span class="energie__badges-text"
           >Certains badges créditent votre solde dès leur obtention, sans rien
           payer.</span
