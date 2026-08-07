@@ -2,7 +2,7 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { EarnedBadgeDto } from '@psychotech/shared';
 import { tap } from 'rxjs';
-import { BadgeCelebrationStore } from '../badges/badge-celebration.store';
+import { BadgeStore } from '../badges/badge.store';
 
 function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
@@ -29,7 +29,7 @@ function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
  * célébration globale, sans jamais muter ni retarder la réponse elle-même.
  */
 export const newBadgesInterceptor: HttpInterceptorFn = (request, next) => {
-  const store = inject(BadgeCelebrationStore);
+  const store = inject(BadgeStore);
   return next(request).pipe(
     tap((event) => {
       if (event instanceof HttpResponse) {

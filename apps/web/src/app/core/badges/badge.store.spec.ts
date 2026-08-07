@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { BadgeId, EarnedBadgeDto } from '@psychotech/shared';
-import { BadgeCelebrationStore } from './badge-celebration.store';
+import { BadgeStore } from './badge.store';
 
 function badge(badgeId: BadgeId, gain: number | null = null): EarnedBadgeDto {
   return {
@@ -13,15 +13,15 @@ function badge(badgeId: BadgeId, gain: number | null = null): EarnedBadgeDto {
   };
 }
 
-type Store = InstanceType<typeof BadgeCelebrationStore>;
+type Store = InstanceType<typeof BadgeStore>;
 
 function setup(): Store {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({});
-  return TestBed.inject(BadgeCelebrationStore);
+  return TestBed.inject(BadgeStore);
 }
 
-describe('BadgeCelebrationStore', () => {
+describe('BadgeStore', () => {
   it('starts celebrating immediately when nothing holds the scene', () => {
     const store = setup();
     store.enqueue([badge(BadgeId.LOGIC_PROGRESSION)]);

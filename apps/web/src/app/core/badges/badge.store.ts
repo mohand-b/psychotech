@@ -43,7 +43,7 @@ function advanced(
   return {};
 }
 
-export const BadgeCelebrationStore = signalStore(
+export const BadgeStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({

@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { BadgeId, EarnedBadgeDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { BadgeCelebrationStore } from '../../core/badges/badge-celebration.store';
+import { BadgeStore } from '../../core/badges/badge.store';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgeCelebrationFacade } from './badge-celebration.facade';
 import { BadgesApi } from './badges.api';
@@ -36,7 +36,7 @@ function setup(unacknowledged: EarnedBadgeDto[] = []) {
   });
   return {
     facade: TestBed.inject(BadgeCelebrationFacade),
-    store: TestBed.inject(BadgeCelebrationStore),
+    store: TestBed.inject(BadgeStore),
     acknowledge,
     unacknowledgedCall,
     energyLoad,

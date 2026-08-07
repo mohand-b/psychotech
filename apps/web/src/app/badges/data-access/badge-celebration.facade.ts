@@ -5,8 +5,8 @@ import { BadgeId, EarnedBadgeDto } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import {
   BadgeCelebrationPhase,
-  BadgeCelebrationStore,
-} from '../../core/badges/badge-celebration.store';
+  BadgeStore,
+} from '../../core/badges/badge.store';
 import { isQuietForCelebration } from '../../core/badges/play-routes';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgesApi } from './badges.api';
@@ -15,7 +15,7 @@ const PLAY_ROUTE_HOLD = 'play-route';
 
 @Injectable({ providedIn: 'root' })
 export class BadgeCelebrationFacade {
-  private readonly store = inject(BadgeCelebrationStore);
+  private readonly store = inject(BadgeStore);
   private readonly api = inject(BadgesApi);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly router = inject(Router);

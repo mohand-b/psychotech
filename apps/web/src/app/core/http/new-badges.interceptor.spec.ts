@@ -6,7 +6,7 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { BadgeId } from '@psychotech/shared';
-import { BadgeCelebrationStore } from '../badges/badge-celebration.store';
+import { BadgeStore } from '../badges/badge.store';
 import { newBadgesInterceptor } from './new-badges.interceptor';
 
 function setup() {
@@ -20,7 +20,7 @@ function setup() {
   return {
     http: TestBed.inject(HttpClient),
     controller: TestBed.inject(HttpTestingController),
-    store: TestBed.inject(BadgeCelebrationStore),
+    store: TestBed.inject(BadgeStore),
   };
 }
 
