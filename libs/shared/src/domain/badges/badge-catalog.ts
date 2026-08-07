@@ -207,7 +207,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
       },
       {
         id: 'no-axis-under-70',
-        label: `Aucun axe sous ${BADGE_EXAM_AXIS_FLOOR} dans ce même examen`,
+        label: `Aucun axe sous ${BADGE_EXAM_AXIS_FLOOR}`,
         met: (facts) =>
           completedSimulation(facts) &&
           (facts.session?.axes.length ?? 0) > 0 &&
