@@ -169,12 +169,7 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
     locked: !entry.earned,
     name: entry.earned ? entry.name : null,
     gain,
-    earnedLine:
-      entry.earned && entry.dateLabel
-        ? gain
-          ? `${entry.dateLabel} · récompense ajoutée`
-          : entry.dateLabel
-        : null,
+    earnedLine: entry.earned ? entry.dateLabel : null,
     conditionLine:
       !entry.earned && !multipleConditions
         ? (entry.conditions[0]?.label ?? null)
