@@ -177,12 +177,13 @@ export class SessionsService {
             )
         : undefined,
       request.mode !== SessionMode.TUTORIAL
-        ? async (client) => {
+        ? async (client, createdSessionId) => {
             await this.badgesService.evaluateWithin(
               client,
               userId,
               BadgeEvent.SESSION_STARTED,
               null,
+              createdSessionId,
             );
           }
         : undefined,
@@ -255,6 +256,7 @@ export class SessionsService {
             axes: score ? [{ axis, score: score.normalizedScore }] : [],
             simulation: null,
           },
+          sessionId,
         ),
     );
     return toSessionDto(completed.session);
@@ -678,6 +680,7 @@ export class SessionsService {
             })),
             simulation: { verdictFavorable: evaluation.isAdmissible },
           },
+          sessionId,
         ),
     );
     return toSessionResultDto(completed.session);
@@ -784,6 +787,7 @@ export class SessionsService {
     );
     return {
       sessionId: session.id,
+      earnedBadges: await this.badgesService.getForSession(userId, session.id),
       sector,
       completedAt: (session.completedAt ?? session.startedAt).toISOString(),
       globalScore,
@@ -1075,6 +1079,7 @@ export class SessionsService {
     const excludedFromBest = session.logicFamily != null || untimed;
     const base = {
       sessionId,
+      earnedBadges: await this.badgesService.getForSession(userId, sessionId),
       sector: mapEnumValue(Sector, session.sector),
       seed: session.seed,
       helpEnabled: session.helpEnabled,

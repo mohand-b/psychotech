@@ -130,7 +130,10 @@ export class SessionsRepository {
       client: Prisma.TransactionClient,
       sessionId: string,
     ) => Promise<void>,
-    afterCreateWithinTx?: (client: Prisma.TransactionClient) => Promise<void>,
+    afterCreateWithinTx?: (
+      client: Prisma.TransactionClient,
+      sessionId: string,
+    ) => Promise<void>,
   ): Promise<SessionWithRelations> {
     return this.prisma.$transaction(async (tx) => {
       await this.abandonUnfinishedSessions(tx, params.userId, new Date());
@@ -158,7 +161,7 @@ export class SessionsRepository {
         await spendWithinTx(tx, created.id);
       }
       if (afterCreateWithinTx) {
-        await afterCreateWithinTx(tx);
+        await afterCreateWithinTx(tx, created.id);
       }
       return tx.session.findUniqueOrThrow({
         where: { id: created.id },

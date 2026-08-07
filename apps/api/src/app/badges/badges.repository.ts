@@ -48,6 +48,13 @@ export class BadgesRepository {
     });
   }
 
+  findBySession(userId: string, sessionId: string): Promise<UserBadge[]> {
+    return this.prisma.userBadge.findMany({
+      where: { userId, sessionId },
+      orderBy: { earnedAt: 'asc' },
+    });
+  }
+
   findUnacknowledged(userId: string): Promise<UserBadge[]> {
     return this.prisma.userBadge.findMany({
       where: { userId, acknowledgedAt: null },
@@ -77,10 +84,11 @@ export class BadgesRepository {
     client: PrismaClientLike,
     userId: string,
     badgeId: DbBadgeId,
+    sessionId: string | null,
   ): Promise<Date | null> {
     try {
       const created = await client.userBadge.create({
-        data: { userId, badgeId },
+        data: { userId, badgeId, sessionId },
       });
       return created.earnedAt;
     } catch (error) {

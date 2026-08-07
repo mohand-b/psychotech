@@ -93,6 +93,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
       tx,
       'user-1',
       DbBadgeId.LOGIC_PROGRESSION,
+      null,
     );
     expect(repository.creditRewardWithin).not.toHaveBeenCalled();
   });
@@ -243,7 +244,7 @@ describe('BadgesService.evaluateWithin — first steps', () => {
 
     expect(won).toHaveLength(1);
     expect(won[0].badgeId).toBe(BadgeId.FIRST_STEPS);
-    expect(won[0].gain).toBe(5);
+    expect(won[0].gain).toBe(2);
     expect(
       won[0].conditions.map((condition) => [
         condition.id,
@@ -258,7 +259,7 @@ describe('BadgesService.evaluateWithin — first steps', () => {
     expect(repository.creditRewardWithin).toHaveBeenCalledWith(
       tx,
       'user-1',
-      5,
+      2,
       BadgeId.FIRST_STEPS,
     );
   });

@@ -35,6 +35,7 @@ export class BadgesService {
     userId: string,
     event: BadgeEvent,
     sessionFacts: BadgeSessionFacts | null,
+    sessionId: string | null = null,
   ): Promise<void> {
     const listening = badgesListeningTo(event);
     if (listening.length === 0) {
@@ -60,6 +61,7 @@ export class BadgesService {
         client,
         userId,
         mapEnumValue(DbBadgeId, definition.id),
+        sessionId,
       );
       if (!earnedAt) {
         continue;
@@ -107,6 +109,19 @@ export class BadgesService {
         facts,
       ),
     );
+  }
+
+  async getForSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<EarnedBadgeDto[]> {
+    const rows = await this.repository.findBySession(userId, sessionId);
+    return rows.flatMap((row) => {
+      const definition = BADGE_BY_ID.get(mapEnumValue(BadgeId, row.badgeId));
+      return definition
+        ? [toReconciledEarnedBadgeDto(definition, row.earnedAt)]
+        : [];
+    });
   }
 
   async getUnacknowledged(userId: string): Promise<EarnedBadgeDto[]> {

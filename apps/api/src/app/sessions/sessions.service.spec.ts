@@ -124,7 +124,10 @@ const repository = {
 };
 
 const scoringService = { evaluateSession: vi.fn() };
-const badgesService = { evaluateWithin: vi.fn() };
+const badgesService = {
+  evaluateWithin: vi.fn(),
+  getForSession: vi.fn().mockResolvedValue([]),
+};
 const energyService = { spendWithin: vi.fn() };
 
 const service = new SessionsService(
@@ -2128,6 +2131,7 @@ describe('SessionsService.complete', () => {
         axes: [{ axis: AxisType.LOGIC, score: 75 }],
         simulation: { verdictFavorable: true },
       },
+      sessionId,
     );
     expect(result.status).toBe('COMPLETED');
   });

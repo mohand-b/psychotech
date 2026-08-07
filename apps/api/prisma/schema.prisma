@@ -244,11 +244,13 @@ model UserBadge {
   id             String    @id @default(uuid())
   userId         String
   badgeId        BadgeId
+  sessionId      String?
   earnedAt       DateTime  @default(now())
   acknowledgedAt DateTime?
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
+  @@index([sessionId])
 }
 
 model BadgeRarity {
