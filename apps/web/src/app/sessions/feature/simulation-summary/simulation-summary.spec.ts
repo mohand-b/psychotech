@@ -514,12 +514,12 @@ describe('SimulationSummary', () => {
   });
 
   it('reveals and acknowledges the badges earned by the completed examen blanc', async () => {
-    const newBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, energyReward: 2 }];
+    const newBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
     const activeSession = {
       id: 'session-1',
       sector: Sector.RAILWAY,
       newBadges,
-    } as SessionDto;
+    } as unknown as SessionDto;
     const { fixture, acknowledgeAll } = await setup(
       buildSummary(),
       LOGIC_DETAIL,

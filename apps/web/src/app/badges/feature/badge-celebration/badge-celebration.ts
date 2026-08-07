@@ -128,7 +128,7 @@ export class BadgeCelebration {
     }
     const sector =
       this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-    return badgeRevealViewFor(pending.badgeId, pending.energyReward, sector);
+    return badgeRevealViewFor(pending.badgeId, pending.gain ?? 0, sector);
   });
 
   protected readonly visible = computed(

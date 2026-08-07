@@ -300,8 +300,8 @@ describe('LogicResult (contenu v2)', () => {
 
 describe('LogicResult - badges débloqués', () => {
   const newBadges = [
-    { badgeId: BadgeId.LOGIC_PROGRESSION, energyReward: 0 },
-    { badgeId: BadgeId.FIRST_STEPS, energyReward: 5 },
+    { badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] },
+    { badgeId: BadgeId.FIRST_STEPS, earnedAt: '2026-08-07T10:00:00.000Z', gain: 5, conditions: [] },
   ];
 
   it('reveals the earned badges with their textual gain and acknowledges them', async () => {
@@ -321,7 +321,7 @@ describe('LogicResult - badges débloqués', () => {
   it('shows the singular heading for a single badge', async () => {
     const { fixture } = await setupWithBadges(buildResult(), {
       activeSession: buildCompletedSession({
-        newBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, energyReward: 0 }],
+        newBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] }],
       }),
     });
     const section = fixture.nativeElement.querySelector('ui-badge-unlock');

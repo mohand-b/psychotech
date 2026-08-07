@@ -1,11 +1,11 @@
 import { Injectable, Signal, inject, signal } from '@angular/core';
-import { BadgeId, UnacknowledgedBadgeDto } from '@psychotech/shared';
+import { BadgeId, EarnedBadgeDto } from '@psychotech/shared';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgesApi } from './badges.api';
 
 interface AcknowledgeableBadge {
   badgeId: BadgeId;
-  energyReward: number;
+  gain: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -13,11 +13,11 @@ export class BadgesFacade {
   private readonly api = inject(BadgesApi);
   private readonly energyFacade = inject(EnergyFacade);
 
-  private readonly pendingSignal = signal<UnacknowledgedBadgeDto[]>([]);
+  private readonly pendingSignal = signal<EarnedBadgeDto[]>([]);
   private readonly acknowledgedIds = new Set<BadgeId>();
   private tutorialNotified = false;
 
-  readonly pending: Signal<UnacknowledgedBadgeDto[]> =
+  readonly pending: Signal<EarnedBadgeDto[]> =
     this.pendingSignal.asReadonly();
 
   loadUnacknowledged(): void {
@@ -57,7 +57,7 @@ export class BadgesFacade {
     }
     this.acknowledgedIds.add(badge.badgeId);
     this.api.acknowledge(badge.badgeId).subscribe({ error: () => undefined });
-    if (badge.energyReward > 0) {
+    if ((badge.gain ?? 0) > 0) {
       this.energyFacade.load().subscribe({ error: () => undefined });
     }
   }

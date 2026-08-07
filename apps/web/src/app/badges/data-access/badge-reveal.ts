@@ -17,7 +17,7 @@ export function revealSessionBadges(sessionId: string): BadgeRevealView[] {
   badgesFacade.acknowledgeAll(newBadges);
   return newBadges
     .map((badge) =>
-      badgeRevealViewFor(badge.badgeId, badge.energyReward, session.sector),
+      badgeRevealViewFor(badge.badgeId, badge.gain ?? 0, session.sector),
     )
     .filter((view): view is BadgeRevealView => view !== null);
 }

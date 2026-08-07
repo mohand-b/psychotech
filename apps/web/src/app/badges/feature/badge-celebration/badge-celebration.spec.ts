@@ -4,7 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import {
   BadgeId,
   Sector,
-  UnacknowledgedBadgeDto,
+  EarnedBadgeDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesFacade } from '../../data-access/badges.facade';
@@ -17,7 +17,7 @@ interface Setup {
 }
 
 async function setup(
-  pending: UnacknowledgedBadgeDto[],
+  pending: EarnedBadgeDto[],
   currentUrl = '/',
 ): Promise<Setup> {
   TestBed.resetTestingModule();
@@ -48,10 +48,11 @@ async function setup(
   return { fixture, loadUnacknowledged, acknowledgeCurrentCelebration };
 }
 
-const FIRST_STEPS_PENDING: UnacknowledgedBadgeDto = {
+const FIRST_STEPS_PENDING: EarnedBadgeDto = {
   badgeId: BadgeId.FIRST_STEPS,
   earnedAt: '2026-07-08T10:00:00.000Z',
-  energyReward: 5,
+  gain: 5,
+  conditions: [],
 };
 
 describe('BadgeCelebration', () => {
@@ -78,7 +79,8 @@ describe('BadgeCelebration', () => {
       {
         badgeId: BadgeId.LOGIC_PROGRESSION,
         earnedAt: '2026-07-12T10:00:00.000Z',
-        energyReward: 0,
+        gain: null,
+        conditions: [],
       },
     ]);
     const card = fixture.nativeElement.querySelector('.celebration__card');

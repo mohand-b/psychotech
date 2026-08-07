@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import {
   BadgeId,
   BadgeStatusDto,
-  UnacknowledgedBadgeDto,
+  EarnedBadgeDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -17,8 +17,8 @@ export class BadgesApi {
     return this.http.get<BadgeStatusDto[]>(`${this.baseUrl}/me/badges`);
   }
 
-  unacknowledged(): Observable<UnacknowledgedBadgeDto[]> {
-    return this.http.get<UnacknowledgedBadgeDto[]>(
+  unacknowledged(): Observable<EarnedBadgeDto[]> {
+    return this.http.get<EarnedBadgeDto[]>(
       `${this.baseUrl}/me/badges/unacknowledged`,
     );
   }
