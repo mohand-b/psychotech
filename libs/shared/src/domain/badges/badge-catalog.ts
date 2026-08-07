@@ -19,6 +19,8 @@ export const BADGE_EXAM_AXIS_FLOOR = 70;
 
 export const FIRST_STEPS_REWARD = 5;
 export const EXAM_FAVORABLE_REWARD = 2;
+export const AXIS_SILVER_REWARD = 1;
+export const AXIS_GOLD_REWARD = 2;
 
 export const SECTOR_BADGE_NAMES: Partial<Record<Sector, string>> = {
   [Sector.RAILWAY]: 'Sur les rails',
@@ -44,7 +46,6 @@ function axisBadges(
   const common = {
     family: BadgeFamily.AXIS,
     axis,
-    energyReward: 0,
     rarityDenominator: BadgeRarityDenominator.AXIS_PLAYERS,
     events: [BadgeEvent.SESSION_COMPLETED],
   } as const;
@@ -54,6 +55,7 @@ function axisBadges(
       id: ids[0],
       tier: BadgeTier.BRONZE,
       displayName: names[0],
+      energyReward: 0,
       conditions: [
         bestScoreCondition(
           axis,
@@ -67,6 +69,7 @@ function axisBadges(
       id: ids[1],
       tier: BadgeTier.SILVER,
       displayName: names[1],
+      energyReward: AXIS_SILVER_REWARD,
       conditions: [
         bestScoreCondition(
           axis,
@@ -80,6 +83,7 @@ function axisBadges(
       id: ids[2],
       tier: BadgeTier.GOLD,
       displayName: names[2],
+      energyReward: AXIS_GOLD_REWARD,
       conditions: [
         bestScoreCondition(
           axis,

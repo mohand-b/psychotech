@@ -13,6 +13,7 @@ import {
   BadgeFacts,
   BadgeFamily,
   BadgeId,
+  BadgeTier,
   badgeEarned,
 } from './badge-model';
 
@@ -65,18 +66,28 @@ describe('badge catalog shape', () => {
     expect(new Set(BADGE_CATALOG.map(({ id }) => id)).size).toBe(20);
   });
 
-  it('credits energy on exactly two badges of this lot', () => {
-    const rewarding = BADGE_CATALOG.filter(
-      ({ energyReward }) => energyReward > 0,
-    );
-    expect(rewarding.map(({ id }) => id).sort()).toEqual([
-      BadgeId.EXAM_FAVORABLE,
-      BadgeId.FIRST_STEPS,
-    ]);
-    expect(
-      badge(BadgeId.FIRST_STEPS).energyReward,
-    ).toBe(5);
+  it('credits energy on the axis tiers, the favorable exam and first steps', () => {
+    for (const definition of BADGE_CATALOG) {
+      if (definition.family === BadgeFamily.AXIS) {
+        expect(definition.energyReward).toBe(
+          definition.tier === BadgeTier.GOLD
+            ? 2
+            : definition.tier === BadgeTier.SILVER
+              ? 1
+              : 0,
+        );
+      }
+    }
+    expect(badge(BadgeId.FIRST_STEPS).energyReward).toBe(5);
     expect(badge(BadgeId.EXAM_FAVORABLE).energyReward).toBe(2);
+    expect(badge(BadgeId.EXAM_FIRST).energyReward).toBe(0);
+    expect(badge(BadgeId.EXAM_SOLID).energyReward).toBe(0);
+    expect(badge(BadgeId.SECTOR_MASTERY).energyReward).toBe(0);
+    const total = BADGE_CATALOG.reduce(
+      (sum, { energyReward }) => sum + energyReward,
+      0,
+    );
+    expect(total).toBe(22);
   });
 
   it('maps every badge to an existing asset naming scheme', () => {
