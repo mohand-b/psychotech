@@ -17,8 +17,10 @@ export const BADGE_PERFECTION_SCORE = 100;
 export const BADGE_SECTOR_THRESHOLD = 70;
 export const BADGE_EXAM_AXIS_FLOOR = 70;
 
-export const FIRST_STEPS_REWARD = 5;
+export const FIRST_STEPS_REWARD = 3;
 export const EXAM_FAVORABLE_REWARD = 2;
+export const EXAM_GOLD_REWARD = 3;
+export const SECTOR_MASTERY_REWARD = 2;
 export const AXIS_SILVER_REWARD = 1;
 export const AXIS_GOLD_REWARD = 2;
 
@@ -194,7 +196,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     displayName: 'Sans réserve',
     axis: null,
     tier: BadgeTier.GOLD,
-    energyReward: 0,
+    energyReward: EXAM_GOLD_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
     conditions: [
@@ -258,7 +260,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
     displayName: 'Sur les rails',
     axis: null,
     tier: null,
-    energyReward: 0,
+    energyReward: SECTOR_MASTERY_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.SESSION_FINISHERS,
     conditions: [
@@ -279,6 +281,11 @@ export const BADGE_CATALOG: readonly BadgeDefinition[] = [
   ...EXAM_BADGES,
   ...TRANSVERSE_BADGES,
 ];
+
+export const BADGE_TOTAL_REWARD = BADGE_CATALOG.reduce(
+  (sum, definition) => sum + definition.energyReward,
+  0,
+);
 
 export const BADGE_BY_ID: ReadonlyMap<BadgeId, BadgeDefinition> = new Map(
   BADGE_CATALOG.map((definition) => [definition.id, definition]),
