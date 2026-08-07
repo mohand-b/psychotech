@@ -6,8 +6,6 @@ import {
   BadgeStatusDto,
 } from '@psychotech/shared';
 
-export const RARITY_VISIBILITY_THRESHOLD = 100;
-
 export function toBadgeStatusDto(
   definition: BadgeDefinition,
   earned: UserBadge | null,
@@ -31,7 +29,7 @@ export function toBadgeStatusDto(
 }
 
 function rarityPercent(rarity: BadgeRarity | null): number | null {
-  if (!rarity || rarity.eligibleCount < RARITY_VISIBILITY_THRESHOLD) {
+  if (!rarity || rarity.eligibleCount === 0) {
     return null;
   }
   return Math.round((rarity.earnedCount / rarity.eligibleCount) * 100);

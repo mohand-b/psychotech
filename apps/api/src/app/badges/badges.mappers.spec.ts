@@ -72,21 +72,39 @@ describe('toBadgeStatusDto', () => {
     expect(dto.earnedAt).toBe('2026-08-06T10:00:00.000Z');
   });
 
-  it('masks the rarity below one hundred eligible candidates', () => {
-    const hidden = toBadgeStatusDto(
+  it('computes the rarity from the very first eligible candidate', () => {
+    const single = toBadgeStatusDto(
       definitionOf(BadgeId.FIRST_STEPS),
       null,
-      rarityRow({ eligibleCount: 99, earnedCount: 40 }),
+      rarityRow({ eligibleCount: 1, earnedCount: 1 }),
       facts,
     );
-    const visible = toBadgeStatusDto(
+    const partial = toBadgeStatusDto(
       definitionOf(BadgeId.FIRST_STEPS),
       null,
       rarityRow({ eligibleCount: 100, earnedCount: 40 }),
       facts,
     );
 
-    expect(hidden.rarityPercent).toBeNull();
-    expect(visible.rarityPercent).toBe(40);
+    expect(single.rarityPercent).toBe(100);
+    expect(partial.rarityPercent).toBe(40);
+  });
+
+  it('hides the rarity only when nobody is eligible yet', () => {
+    const noRow = toBadgeStatusDto(
+      definitionOf(BadgeId.FIRST_STEPS),
+      null,
+      null,
+      facts,
+    );
+    const empty = toBadgeStatusDto(
+      definitionOf(BadgeId.FIRST_STEPS),
+      null,
+      rarityRow({ eligibleCount: 0, earnedCount: 0 }),
+      facts,
+    );
+
+    expect(noRow.rarityPercent).toBeNull();
+    expect(empty.rarityPercent).toBeNull();
   });
 });
