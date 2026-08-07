@@ -4,6 +4,7 @@ import {
   BADGE_CATALOG,
   BadgeDefinition,
   BadgeFamily,
+  BadgeId,
   BadgeStatusDto,
   BadgeTier,
   Sector,
@@ -106,8 +107,11 @@ function buildEntry(
   };
 }
 
-function conditionsIntroFor(conditions: BadgeConditionView[]): string {
-  return CONDITION_COUNT_INTROS[conditions.length] ?? 'Conditions :';
+function conditionsIntroFor(entry: BadgeEntry): string {
+  if (entry.definition.id === BadgeId.EXAM_SOLID) {
+    return 'Dans le même examen :';
+  }
+  return CONDITION_COUNT_INTROS[entry.conditions.length] ?? 'Conditions :';
 }
 
 function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
@@ -129,7 +133,7 @@ function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
         : (entry.conditions[0]?.label ?? null),
     conditions: multipleConditions ? entry.conditions : null,
     conditionsIntro: multipleConditions
-      ? conditionsIntroFor(entry.conditions)
+      ? conditionsIntroFor(entry)
       : null,
   };
 }
@@ -176,7 +180,7 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
         : null,
     conditions: multipleConditions ? entry.conditions : null,
     conditionsIntro: multipleConditions
-      ? conditionsIntroFor(entry.conditions)
+      ? conditionsIntroFor(entry)
       : null,
     rarityLabel: entry.rarityLabel,
   };
