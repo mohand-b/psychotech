@@ -136,7 +136,7 @@ export class EmailVerificationService {
     return [
       `Bonjour ${firstName},`,
       '',
-      'Confirmez votre adresse e-mail pour activer votre compte PsychoTech et recevoir vos 5 énergies de bienvenue.',
+      'Confirmez votre adresse e-mail pour activer votre compte PsychoTech et recevoir vos 5 crédits de bienvenue.',
       '',
       link,
       '',
@@ -150,7 +150,7 @@ export class EmailVerificationService {
       '<div style="font-family: Inter, Arial, sans-serif; color: #1B2130; max-width: 480px; margin: 0 auto; padding: 24px;">',
       '<p style="font-family: inherit; font-size: 20px; font-weight: 700; margin: 0 0 16px;">Psycho<span style="color: #7C5CFC;">Tech</span></p>',
       `<p style="margin: 0 0 12px;">Bonjour ${firstName},</p>`,
-      '<p style="margin: 0 0 20px; color: #5B6472; line-height: 1.55;">Confirmez votre adresse e-mail pour activer votre compte et recevoir vos 5 énergies de bienvenue.</p>',
+      '<p style="margin: 0 0 20px; color: #5B6472; line-height: 1.55;">Confirmez votre adresse e-mail pour activer votre compte et recevoir vos 5 crédits de bienvenue.</p>',
       `<p style="margin: 0 0 20px;"><a href="${link}" style="display: inline-block; background: #7C5CFC; color: #FFFFFF; text-decoration: none; font-weight: 600; padding: 12px 20px; border-radius: 10px;">Vérifier mon adresse</a></p>`,
       '<p style="margin: 0 0 6px; font-size: 13px; color: #8A94A6;">Ce lien est valable 24 heures et ne peut servir qu&rsquo;une seule fois.</p>',
       '<p style="margin: 0; font-size: 13px; color: #8A94A6;">Si vous n&rsquo;êtes pas à l&rsquo;origine de cette inscription, ignorez ce message.</p>',

@@ -38,7 +38,6 @@ import {
   AxisIcon,
 } from '../../../shared/ui/axis-icon/axis-icon';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import {
   ChevronStep,
@@ -86,7 +85,6 @@ interface LastResultView {
     AxisIcon,
     AxisLabel,
     AxisRadar,
-    BoltIcon,
     Button,
     ChevronStepper,
     Icon,
@@ -188,7 +186,7 @@ export class Dashboard {
   });
 
   protected readonly energyLabel = computed(() =>
-    this.balance() === 0 ? 'Énergie épuisée' : 'Énergie disponible',
+    this.balance() === 0 ? 'Crédits épuisés' : 'Crédits disponibles',
   );
 
   protected readonly energyValue = computed(() => {
@@ -202,7 +200,7 @@ export class Dashboard {
       return 'Vous avez de quoi lancer un examen blanc complet.';
     }
     if (balance > 0) {
-      return `Il vous reste ${balance} énergie${balance > 1 ? 's' : ''}. Une séance suffit pour progresser, même courte.`;
+      return `Il vous reste ${balance} crédit${balance > 1 ? 's' : ''}. Une séance suffit pour progresser, même courte.`;
     }
     return null;
   });

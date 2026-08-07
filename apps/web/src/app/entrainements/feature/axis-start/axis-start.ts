@@ -25,7 +25,7 @@ import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
@@ -38,7 +38,7 @@ import { sectorReferentialFor } from '../sector-referential';
   imports: [
     ActionFooter,
     AxisBriefing,
-    BoltIcon,
+    AxisIcon,
     Button,
     GamepadPairing,
     RouterLink,

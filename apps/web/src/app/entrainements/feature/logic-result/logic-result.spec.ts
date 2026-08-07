@@ -314,7 +314,7 @@ describe('LogicResult - badges débloqués', () => {
     expect(section.textContent).toContain('Déclic');
     expect(section.textContent).toContain('Premiers pas');
     expect(section.textContent).toContain('+5');
-    expect(section.querySelector('.unlock__gain ui-bolt')).not.toBeNull();
+    expect(section.querySelector('.unlock__gain ui-axis-icon')).not.toBeNull();
     expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
   });
 

@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { AxisType } from '@psychotech/shared';
 
-export type AxisIconId = AxisType | 'examen';
+export type AxisIconId = AxisType | 'examen' | 'credit';
 
 export const AXIS_ICON_SIZE = {
   chip: 16,
@@ -16,6 +16,7 @@ export const AXIS_ICON_SIZE = {
 
 const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
   examen: string;
+  credit: string;
 } = {
   [AxisType.LOGIC]: '/icons/icone-logique.svg',
   [AxisType.MEMORY]: '/icons/icone-memoire.svg',
@@ -23,6 +24,7 @@ const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
   [AxisType.REACTIVITY]: '/icons/icone-reactivite.svg',
   [AxisType.MOTOR_SKILLS]: '/icons/icone-motricite.svg',
   examen: '/icons/icone-examen.svg',
+  credit: '/icons/icone-piece.svg',
 };
 
 @Component({
@@ -63,8 +65,8 @@ export class AxisIcon {
 
   protected readonly src = computed(() => {
     const axis = this.axis();
-    return axis === 'examen'
-      ? AXIS_ICON_PATHS.examen
+    return axis === 'examen' || axis === 'credit'
+      ? AXIS_ICON_PATHS[axis]
       : (AXIS_ICON_PATHS[axis] ?? null);
   });
 }

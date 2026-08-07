@@ -471,7 +471,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'L’accès aux épreuves est régulé par une énergie quotidienne : un examen blanc complet consomme cinq énergies, un entraînement ciblé en consomme une. L’énergie se recharge chaque jour à minuit. La formule Illimité n’est pas soumise à cette limite.',
+              text: 'L’accès aux épreuves est régulé par des crédits : un examen blanc complet consomme cinq crédits, un entraînement ciblé en consomme un. Les crédits s’achètent par packs à paiement unique et n’expirent pas.',
             },
           ],
         },
@@ -491,19 +491,19 @@ const CGV: LegalDocument = {
               'Gratuit',
             ],
             [
-              'Essentiel',
-              'Cinq énergies par jour, bilans et progression complets',
-              '8,99 €/mois',
+              'Pack Découverte',
+              '15 crédits, soit 3 examens blancs ou 15 sessions ciblées',
+              '2,90 €',
             ],
             [
-              'Illimité',
-              'Énergie illimitée, sessions et entraînements sans restriction',
-              '14,99 €/mois',
+              'Pack Avant l’examen',
+              '50 crédits, soit 10 examens blancs ou un mois d’entraînement quotidien',
+              '7,90 €',
             ],
             [
-              'Recharge',
-              'Rétablit votre énergie du jour, réservé à la formule Essentiel',
-              '1,00 €',
+              'Pack Préparation complète',
+              '120 crédits, soit 24 examens blancs',
+              '14,90 €',
             ],
           ],
         },
@@ -555,7 +555,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: `Vous disposez de ${LEGAL_WITHDRAWAL_DAYS} jours pour vous rétracter, sans motif. En demandant l’accès immédiat au service, vous reconnaissez que son exécution commence aussitôt : en cas de rétractation, la somme due est calculée au prorata de la période utilisée. La recharge d’énergie, exécutée immédiatement, n’ouvre pas droit à rétractation.`,
+              text: `Vous disposez de ${LEGAL_WITHDRAWAL_DAYS} jours pour vous rétracter, sans motif. En demandant l’accès immédiat au service, vous reconnaissez que son exécution commence aussitôt : en cas de rétractation, la somme due est calculée au prorata de la période utilisée. L’achat de crédits, exécuté immédiatement, n’ouvre pas droit à rétractation.`,
             },
           ],
         },
@@ -693,7 +693,7 @@ const CGU: LegalDocument = {
             'Partager vos identifiants, ouvrir le service à plusieurs candidats ou revendre un accès',
             'Capturer, recopier ou extraire les énoncés d’exercices, y compris de façon automatisée',
             'Fausser vos résultats par un outil tiers, une automatisation ou une manipulation du service',
-            'Perturber le fonctionnement du service, en sonder les failles ou contourner la limite d’énergie',
+            'Perturber le fonctionnement du service, en sonder les failles ou contourner le décompte de crédits',
           ],
         },
       ],

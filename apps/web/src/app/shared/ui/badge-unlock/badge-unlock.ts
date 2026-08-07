@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { BadgeId } from '@psychotech/shared';
-import { BoltIcon } from '../bolt-icon/bolt-icon';
+import { AxisIcon } from '../axis-icon/axis-icon';
 
 export interface BadgeRevealView {
   badgeId: BadgeId;
@@ -17,7 +17,7 @@ export interface BadgeRevealView {
 @Component({
   selector: 'ui-badge-unlock',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon],
+  imports: [AxisIcon],
   template: `
     <section class="unlock">
       <span class="t-label">{{ title() }}</span>
@@ -28,7 +28,7 @@ export interface BadgeRevealView {
             <span class="unlock__name">{{ badge.name }}</span>
             @if (badge.gain) {
               <span class="unlock__gain t-mono"
-                >+{{ badge.gain }}<ui-bolt [size]="12" [filled]="true"
+                >+{{ badge.gain }}<ui-axis-icon axis="credit" [size]="12"
               /></span>
             }
           </div>

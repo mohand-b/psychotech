@@ -2,8 +2,9 @@ import { Route } from '@angular/router';
 
 export const energyRoutes: Route[] = [
   {
-    path: 'energie',
+    path: 'credits',
     loadComponent: () => import('./energie/energie').then((m) => m.Energie),
   },
-  { path: 'recharge', redirectTo: 'energie' },
+  { path: 'energie', redirectTo: 'credits' },
+  { path: 'recharge', redirectTo: 'credits' },
 ];

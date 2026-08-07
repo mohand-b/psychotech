@@ -172,7 +172,7 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
     earnedLine:
       entry.earned && entry.dateLabel
         ? gain
-          ? `${entry.dateLabel} · récompense créditée`
+          ? `${entry.dateLabel} · récompense ajoutée`
           : entry.dateLabel
         : null,
     conditionLine:

@@ -62,7 +62,7 @@ export class BillingService {
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: { userId, packId },
       saved_payment_method_options: { payment_method_save: 'enabled' },
-      return_url: `${appBaseUrl}/energie?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${appBaseUrl}/credits?session_id={CHECKOUT_SESSION_ID}`,
     });
     if (!session.client_secret) {
       throw new ServiceUnavailableException(

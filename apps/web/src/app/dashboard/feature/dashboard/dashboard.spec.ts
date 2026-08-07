@@ -202,7 +202,7 @@ describe('Dashboard', () => {
     const { fixture } = await setup();
     expect(textOf(fixture)).toContain('Bonjour Mohand');
     expect(textOf(fixture)).toContain("C'est le moment de vous entraîner");
-    expect(textOf(fixture)).toContain('Énergie disponible');
+    expect(textOf(fixture)).toContain('Crédits disponibles');
     expect(
       fixture.nativeElement.querySelector('.home__day-energy-value')
         ?.textContent,
@@ -244,7 +244,7 @@ describe('Dashboard', () => {
 
   it('adapts the training subtitle to the remaining energy', async () => {
     const partial = await setup({ balance: 2 });
-    expect(textOf(partial.fixture)).toContain('Il vous reste 2 énergies.');
+    expect(textOf(partial.fixture)).toContain('Il vous reste 2 crédits.');
 
     TestBed.resetTestingModule();
     const large = await setup({ balance: 42 });
@@ -254,13 +254,13 @@ describe('Dashboard', () => {
 
     TestBed.resetTestingModule();
     const depleted = await setup({ balance: 0 });
-    expect(textOf(depleted.fixture)).toContain('Énergie épuisée');
-    expect(textOf(depleted.fixture)).toContain("Vous n'avez plus d'énergie.");
+    expect(textOf(depleted.fixture)).toContain('Crédits épuisés');
+    expect(textOf(depleted.fixture)).toContain("Vous n'avez plus de crédits.");
     const link = depleted.fixture.nativeElement.querySelector(
       '.home__day-sub a',
     );
-    expect(link?.textContent).toContain("Recharger l'énergie");
-    expect(link?.getAttribute('href')).toBe('/energie');
+    expect(link?.textContent).toContain('Recharger des crédits');
+    expect(link?.getAttribute('href')).toBe('/credits');
   });
 
   it('renders the new-account variant with its empty states', async () => {

@@ -84,7 +84,7 @@ describe('SimulationStart', () => {
       '.simb__cta',
     ) as HTMLButtonElement;
     expect(cta.textContent).toContain('Commencer la session');
-    expect(cta.querySelector('ui-bolt')).not.toBeNull();
+    expect(cta.querySelector('ui-axis-icon')).not.toBeNull();
 
     cta.click();
     expect(startFull).toHaveBeenCalledTimes(1);
@@ -144,10 +144,10 @@ describe('SimulationStart', () => {
       '.simb__cta button',
     ) as HTMLButtonElement;
     expect(locked.disabled).toBe(true);
-    expect(text(fixture)).toContain('Il vous faut 5 énergies, vous en avez 3.');
+    expect(text(fixture)).toContain('Il vous faut 5 crédits, vous en avez 3.');
     const link = fixture.nativeElement.querySelector('.simb__short-link');
-    expect(link?.textContent).toContain("Recharger l'énergie");
-    expect(link?.getAttribute('href')).toBe('/energie');
+    expect(link?.textContent).toContain('Recharger des crédits');
+    expect(link?.getAttribute('href')).toBe('/credits');
     expect(text(fixture)).not.toContain('recharge dans');
     (locked as HTMLElement).click();
     expect(startFull).not.toHaveBeenCalled();

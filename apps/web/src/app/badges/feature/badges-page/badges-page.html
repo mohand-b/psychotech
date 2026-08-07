@@ -1,8 +1,8 @@
 <div class="badges__head">
   <h1 class="t-page-title">Badges</h1>
   <p class="badges__subtitle">
-    Votre collection avance avec vos résultats. Certains badges créditent votre
-    solde d'énergie.
+    Votre collection avance avec vos résultats. Certains badges ajoutent des crédits à
+    votre solde.
   </p>
 </div>
 
@@ -27,13 +27,13 @@
     </div>
     <span class="badges__summary-divider"></span>
     <div class="badges__summary-block">
-      <span class="t-label">Énergie</span>
+      <span class="t-label">Crédits</span>
       <span class="badges__summary-line">
         <span class="badges__summary-value badges__summary-value--energy t-mono"
           >+{{ view.summary.energyEarned }}</span
         >
-        <ui-bolt class="badges__summary-bolt" [size]="14" [filled]="true" />
-        <span class="badges__summary-caption">créditées</span>
+        <ui-axis-icon class="badges__summary-bolt" axis="credit" [size]="14" />
+        <span class="badges__summary-caption">ajoutés</span>
       </span>
       @if (view.summary.energyRemaining > 0) {
         <span class="badges__summary-note"
@@ -57,7 +57,7 @@
             · {{ closest.hint }}
             @if (closest.gain) {
               <span class="badges__closest-gain t-mono"
-                >+{{ closest.gain }}<ui-bolt [size]="11" [filled]="true"
+                >+{{ closest.gain }}<ui-axis-icon axis="credit" [size]="11"
               /></span>
             }
           </span>
@@ -107,8 +107,7 @@
   </section>
 
   <p class="badges__footnote">
-    La part des candidats n'apparaît que lorsque suffisamment de comptes sont
-    concernés. Besoin d'énergie tout de suite ?
-    <a class="badges__footnote-link" routerLink="/energie">Voir les packs</a>.
+    Besoin de crédits tout de suite ?
+    <a class="badges__footnote-link" routerLink="/credits">Voir les packs</a>.
   </p>
 }

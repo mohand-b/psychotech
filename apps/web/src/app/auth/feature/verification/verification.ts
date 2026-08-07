@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EmailVerificationOutcome } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { AuthFacade } from '../../data-access/auth.facade';
 import { ResendVerificationState } from '../resend-verification-state';
@@ -29,7 +29,7 @@ const VIEW_TITLES: Record<VerificationViewState, string> = {
 @Component({
   selector: 'app-verification',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button],
+  imports: [AxisIcon, Button],
   providers: [ResendVerificationState],
   templateUrl: './verification.html',
   styleUrls: ['../auth-panel.css', './verification.css'],

@@ -530,7 +530,7 @@ describe('SimulationSummary', () => {
     expect(section.textContent).toContain('Badge débloqué');
     expect(section.textContent).toContain('Apte');
     expect(section.textContent).toContain('+2');
-    expect(section.querySelector('.unlock__gain ui-bolt')).not.toBeNull();
+    expect(section.querySelector('.unlock__gain ui-axis-icon')).not.toBeNull();
     expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
   });
 

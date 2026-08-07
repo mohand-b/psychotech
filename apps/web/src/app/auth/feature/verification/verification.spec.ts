@@ -99,7 +99,7 @@ describe('Verification', () => {
     expect(result.verifyEmail).toHaveBeenCalledWith('a'.repeat(64));
     expect(result.element.textContent).toContain('Adresse vérifiée');
     expect(result.element.textContent).toContain('5');
-    expect(result.element.textContent).toContain('énergies créditées');
+    expect(result.element.textContent).toContain('crédits offerts');
     expect(result.loadCurrentUser).toHaveBeenCalled();
     expect(result.energyLoad).toHaveBeenCalled();
 
@@ -130,7 +130,7 @@ describe('Verification', () => {
     });
 
     expect(result.element.textContent).toContain('Adresse déjà vérifiée');
-    expect(result.element.textContent).not.toContain('énergies créditées');
+    expect(result.element.textContent).not.toContain('crédits offerts');
     expect(result.energyLoad).not.toHaveBeenCalled();
     expect(ctaButton(result.element).textContent).toContain(
       "Commencer l'entraînement",

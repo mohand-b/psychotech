@@ -78,7 +78,7 @@ describe('Energie', () => {
   it('shows the reassurance lines of the energy-only model', async () => {
     const fixture = await setup();
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain("Vos énergies n'expirent jamais");
+    expect(text).toContain("Vos crédits n'expirent jamais");
     expect(text).toContain('Aucun abonnement, aucune reconduction');
   });
 

@@ -64,9 +64,9 @@
                   <span class="home__day-sub">{{ sub }}</span>
                 } @else {
                   <span class="home__day-sub"
-                    >Vous n'avez plus d'énergie.
-                    <a class="t-inline-action" routerLink="/energie"
-                      >Recharger l'énergie</a
+                    >Vous n'avez plus de crédits.
+                    <a class="t-inline-action" routerLink="/credits"
+                      >Recharger des crédits</a
                     ></span
                   >
                 }
@@ -294,7 +294,7 @@
             <p class="home__weak-text">
               C'est l'axe à sécuriser en priorité. Un entraînement ciblé coûte
               <span class="home__weak-cost t-mono">1</span>
-              <ui-bolt class="home__weak-bolt" [size]="12" />
+              <ui-axis-icon class="home__weak-bolt" axis="credit" [size]="12" />
               et dure au plus {{ weak.durationMinutes }} minutes.
             </p>
             <ui-button

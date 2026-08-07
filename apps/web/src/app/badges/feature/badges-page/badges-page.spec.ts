@@ -100,13 +100,13 @@ describe('BadgesPage', () => {
     expect(text).toContain('· +2');
     expect(text).toContain('+5');
     expect(text).not.toContain('Bronze · +');
-    expect(text).not.toContain('énergies créditées');
+    expect(text).not.toContain('crédits offerts');
     const stepGains = fixture.nativeElement.querySelectorAll(
-      '.tier-row__step-gain ui-bolt',
+      '.tier-row__step-gain ui-axis-icon',
     );
     expect(stepGains.length).toBeGreaterThan(0);
     const transGains = fixture.nativeElement.querySelectorAll(
-      '.trans-row__gain ui-bolt',
+      '.trans-row__gain ui-axis-icon',
     );
     expect(transGains).toHaveLength(1);
   });
@@ -148,7 +148,7 @@ describe('BadgesPage', () => {
     );
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('+7');
-    expect(text).toContain('créditées');
+    expect(text).toContain('ajoutés');
     expect(text).toContain('Encore +15 à gagner');
   });
 
@@ -171,17 +171,15 @@ describe('BadgesPage', () => {
     expect(closest.textContent).toContain('Premiers pas');
     expect(closest.textContent).toContain('Un tutoriel découvert');
     expect(closest.textContent).toContain('+5');
-    expect(closest.querySelector('.badges__closest-gain ui-bolt')).not.toBeNull();
+    expect(closest.querySelector('.badges__closest-gain ui-axis-icon')).not.toBeNull();
   });
 
-  it('keeps the rarity footnote with the energy packs link', async () => {
+  it('keeps the footnote pointing to the credit packs', async () => {
     const fixture = await setup(catalogStatuses());
     const footnote = fixture.nativeElement.querySelector('.badges__footnote');
-    expect(footnote.textContent).toContain(
-      "La part des candidats n'apparaît que lorsque suffisamment de comptes sont concernés.",
-    );
+    expect(footnote.textContent).toContain('Besoin de crédits tout de suite ?');
     const link = footnote.querySelector('a');
-    expect(link.getAttribute('href')).toBe('/energie');
+    expect(link.getAttribute('href')).toBe('/credits');
     expect(link.textContent).toContain('Voir les packs');
   });
 });

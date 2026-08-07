@@ -1,22 +1,22 @@
 <section class="page-shell energie flex flex-col">
   <header class="energie__head flex flex-col">
-    <h1 class="t-page-title">Votre énergie</h1>
+    <h1 class="t-page-title">Vos crédits</h1>
     <p class="energie__intro">
-      Rechargez en une fois, ou gagnez de l'énergie avec les badges. Elle n'est
-      débitée que lorsque vous lancez une séance.
+      Rechargez en une fois, ou gagnez des crédits avec les badges. Ils ne sont
+      débités que lorsque vous lancez une séance.
     </p>
   </header>
 
   <section class="energie__solde flex">
     <div class="energie__solde-main flex items-center">
       <span class="energie__solde-tile">
-        <ui-bolt [size]="30" [filled]="true" />
+        <ui-axis-icon axis="credit" [size]="30" />
       </span>
       <span class="flex flex-col">
         <span class="t-label">Solde actuel</span>
         <span class="energie__solde-line flex items-baseline">
           <span class="energie__solde-value t-mono">{{ balance() }}</span>
-          <span class="energie__solde-unit">énergies disponibles</span>
+          <span class="energie__solde-unit">crédits disponibles</span>
         </span>
         <span class="energie__solde-note">Sans date d'expiration</span>
       </span>
@@ -27,14 +27,14 @@
       <span class="energie__use flex items-center">
         <span class="energie__use-cost flex items-center">
           <span class="t-mono">{{ targetedCost }}</span>
-          <ui-bolt [size]="12" [filled]="true" />
+          <ui-axis-icon axis="credit" [size]="12" />
         </span>
         <span class="energie__use-text">Une session ciblée sur un axe</span>
       </span>
       <span class="energie__use flex items-center">
         <span class="energie__use-cost flex items-center">
           <span class="t-mono">{{ fullCost }}</span>
-          <ui-bolt [size]="12" [filled]="true" />
+          <ui-axis-icon axis="credit" [size]="12" />
         </span>
         <span class="energie__use-text">Un examen blanc complet</span>
       </span>
@@ -59,7 +59,7 @@
             <span class="energie__pack-title">{{ pack.title }}</span>
             <span class="energie__pack-amount flex items-center">
               <span class="t-mono">{{ pack.energyAmount }}</span>
-              <ui-bolt [size]="21" [filled]="true" />
+              <ui-axis-icon axis="credit" [size]="21" />
             </span>
             <span class="energie__pack-desc">{{ pack.description }}</span>
             <span class="energie__pack-unit">{{ pack.unitPriceLabel }}</span>
@@ -80,7 +80,7 @@
       <div class="energie__reassurances flex justify-center">
         <span class="energie__reassurance flex items-center">
           <ui-icon [img]="shieldIcon" [size]="15" />
-          Vos énergies n'expirent jamais
+          Vos crédits n'expirent jamais
         </span>
         <span class="energie__reassurance flex items-center">
           <ui-icon [img]="banIcon" [size]="15" />
@@ -100,11 +100,11 @@
         @case ('pending') {
           <span class="energie__confirmation-title">Paiement en cours de confirmation…</span>
           <span class="energie__confirmation-text"
-            >Votre énergie sera créditée dans quelques secondes.</span
+            >Vos crédits seront ajoutés dans quelques secondes.</span
           >
         }
         @case ('credited') {
-          <span class="energie__confirmation-title">Énergie créditée</span>
+          <span class="energie__confirmation-title">Crédits ajoutés</span>
           <span class="energie__confirmation-text"
             >Votre solde est à jour. Bon entraînement.</span
           >
@@ -154,7 +154,7 @@
   @if (view() === 'packs') {
     <section class="energie__badges flex items-center">
       <div class="energie__badges-copy flex flex-col">
-        <span class="energie__badges-title">Ou gagnez de l'énergie</span>
+        <span class="energie__badges-title">Ou gagnez des crédits</span>
         <span class="energie__badges-text"
           >Certains badges créditent votre solde dès leur obtention, sans rien
           payer.</span
@@ -170,7 +170,7 @@
             <img [src]="badge.asset" [alt]="badge.name" />
             <span class="energie__badge-name">{{ badge.name }}</span>
             <span class="energie__badge-gain t-mono"
-              >+{{ badge.gain }}<ui-bolt [size]="11" [filled]="true"
+              >+{{ badge.gain }}<ui-axis-icon axis="credit" [size]="11"
             /></span>
           </span>
         }

@@ -25,7 +25,7 @@ const FAQ_ENTRIES: FaqEntry[] = [
   {
     question: 'Comment commencer ?',
     answer:
-      "Créez un compte gratuitement : le mode découverte de chaque axe est en accès libre, sans carte bancaire, et votre inscription vérifiée vous crédite 5 énergies. Ensuite, vous achetez de l'énergie par packs, selon vos besoins : aucun abonnement, aucune reconduction.",
+      "Créez un compte gratuitement : le mode découverte de chaque axe est en accès libre, sans carte bancaire, et votre inscription vérifiée vous offre 5 crédits. Ensuite, vous achetez des crédits par packs, selon vos besoins : aucun abonnement, aucune reconduction.",
   },
 ];
 

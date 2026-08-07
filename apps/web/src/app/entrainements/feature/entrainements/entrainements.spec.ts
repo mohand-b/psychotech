@@ -219,7 +219,7 @@ describe('Entrainements', () => {
       fixture.nativeElement.querySelector('.trainings__footnote'),
     );
     expect(footnote).toContain(
-      "Chaque entraînement génère de nouveaux exercices. L'énergie est débitée au lancement.",
+      "Chaque entraînement génère de nouveaux exercices. Les crédits sont débités au lancement.",
     );
     expect(footnote).not.toContain('Recharge complète dans');
   });

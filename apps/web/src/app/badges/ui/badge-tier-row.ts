@@ -3,7 +3,7 @@ import {
   Component,
   input,
 } from '@angular/core';
-import { BoltIcon } from '../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../shared/ui/axis-icon/axis-icon';
 import { BadgeArt } from './badge-art';
 import { BadgeConditions } from './badge-conditions';
 import { TieredBadgeCardView } from './badge-views';
@@ -11,7 +11,7 @@ import { TieredBadgeCardView } from './badge-views';
 @Component({
   selector: 'ui-badge-tier-row',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeArt, BadgeConditions, BoltIcon],
+  imports: [AxisIcon, BadgeArt, BadgeConditions],
   templateUrl: './badge-tier-row.html',
   styleUrl: './badge-tier-row.css',
 })

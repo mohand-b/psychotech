@@ -39,7 +39,6 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
@@ -89,7 +88,6 @@ interface LastSimulationView {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AxisIcon,
-    BoltIcon,
     Button,
     Icon,
     RouterLink,

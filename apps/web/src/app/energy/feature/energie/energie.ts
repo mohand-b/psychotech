@@ -26,7 +26,7 @@ import { ArrowLeft, ArrowRight, Ban, CreditCard, ShieldCheck } from 'lucide-angu
 import { EMPTY, catchError, concatMap, of, take, takeWhile, timer } from 'rxjs';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
@@ -68,7 +68,7 @@ const STATUS_POLL_ATTEMPTS = 8;
 @Component({
   selector: 'app-energie',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BoltIcon, Button, Icon, RouterLink],
+  imports: [AxisIcon, Button, Icon, RouterLink],
   templateUrl: './energie.html',
   styleUrl: './energie.css',
 })
@@ -204,7 +204,7 @@ export class Energie implements OnDestroy {
       title: pack.title,
       energyAmount: pack.energyAmount,
       description: PACK_DESCRIPTIONS[pack.id],
-      unitPriceLabel: `${formatEuroAmount(energyPackUnitPriceEur(pack))} € par énergie`,
+      unitPriceLabel: `${formatEuroAmount(energyPackUnitPriceEur(pack))} € par crédit`,
       ctaLabel: `Recharger · ${formatEuroAmount(pack.priceCents / 100)} €`,
       featured: pack.id === FEATURED_PACK,
     };

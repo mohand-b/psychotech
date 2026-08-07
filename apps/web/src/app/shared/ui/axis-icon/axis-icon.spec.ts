@@ -48,6 +48,9 @@ describe('AxisIcon', () => {
     expect((await setup('examen'))?.getAttribute('src')).toBe(
       '/icons/icone-examen.svg',
     );
+    expect((await setup('credit'))?.getAttribute('src')).toBe(
+      '/icons/icone-piece.svg',
+    );
   });
 
   it('sets explicit dimensions to avoid any layout shift', async () => {

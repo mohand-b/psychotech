@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import {
   BadgeStatusDto,
   FULL_SESSION_LABEL,
@@ -22,7 +22,7 @@ import { BadgeBoardView, buildBadgeBoard } from './badges-page-view';
 @Component({
   selector: 'app-badges-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeArt, BadgeTierRow, BadgeTransverseRow, BoltIcon, RouterLink],
+  imports: [AxisIcon, BadgeArt, BadgeTierRow, BadgeTransverseRow, RouterLink],
   templateUrl: './badges-page.html',
   styleUrl: './badges-page.css',
   host: { class: 'page-shell' },

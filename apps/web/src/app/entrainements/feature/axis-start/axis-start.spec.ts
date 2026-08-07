@@ -259,7 +259,7 @@ describe('AxisStart - option Familles', () => {
     ) as HTMLButtonElement;
     expect(button.textContent).toContain('Commencer la découverte');
     expect(result.element.textContent).toContain(
-      'La découverte est toujours identique et ne consomme aucune énergie.',
+      'La découverte est toujours identique et ne consomme aucun crédit.',
     );
     expect(result.element.textContent?.toLowerCase()).not.toContain('tutoriel');
   });
@@ -277,7 +277,7 @@ describe('AxisStart - badge tutoriel', () => {
   });
 });
 
-describe('AxisStart - énergie', () => {
+describe('AxisStart - crédits', () => {
   it('locks the launch with a recharge path when the balance is empty', async () => {
     const result = await setup('logique', false, {
       energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
@@ -288,11 +288,11 @@ describe('AxisStart - énergie', () => {
         ?.disabled,
     ).toBe(true);
     expect(result.element.textContent).toContain(
-      "Vous n'avez plus assez d'énergie.",
+      "Vous n'avez plus assez de crédits.",
     );
     const link = result.element.querySelector('.axis-start__recharge-link');
-    expect(link?.textContent).toContain("Recharger l'énergie");
-    expect(link?.getAttribute('href')).toBe('/energie');
+    expect(link?.textContent).toContain('Recharger des crédits');
+    expect(link?.getAttribute('href')).toBe('/credits');
     expect(result.element.textContent).not.toContain('recharge dans');
     expect(result.element.textContent).not.toContain("pour aujourd'hui");
   });
@@ -304,7 +304,7 @@ describe('AxisStart - énergie', () => {
     const button = result.element.querySelector('ui-button button');
     expect(button?.textContent).toContain('Commencer');
     expect(button?.textContent).toContain("l'entraînement");
-    expect(button?.querySelector('ui-bolt')).not.toBeNull();
+    expect(button?.querySelector('ui-axis-icon')).not.toBeNull();
   });
 
   it('handles the backend insufficient-energy refusal by reloading the balance', async () => {
@@ -347,7 +347,7 @@ describe('AxisStart - vérification e-mail', () => {
     const link = result.element.querySelector('.axis-start__recharge-link');
     expect(link?.getAttribute('href')).toBe('/verification-email');
     expect(result.element.textContent).not.toContain(
-      "Vous n'avez plus assez d'énergie.",
+      "Vous n'avez plus assez de crédits.",
     );
 
     clickStart(result);

@@ -52,7 +52,7 @@ export class Navbar {
     () => this.user()?.currentSector ?? null,
   );
 
-  protected readonly energyLink = computed(() => '/energie');
+  protected readonly energyLink = computed(() => '/credits');
 
   protected logout(): void {
     this.logoutRequested.emit();

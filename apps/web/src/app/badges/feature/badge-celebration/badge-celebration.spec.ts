@@ -66,8 +66,8 @@ describe('BadgeCelebration', () => {
     expect(card).not.toBeNull();
     expect(card.textContent).toContain('Badge débloqué');
     expect(card.textContent).toContain('Premiers pas');
-    expect(card.textContent?.replace(/\s+/g, ' ')).toContain('+5 créditées');
-    expect(card.querySelector('.celebration__gain ui-bolt')).not.toBeNull();
+    expect(card.textContent?.replace(/\s+/g, ' ')).toContain('+5 offerts');
+    expect(card.querySelector('.celebration__gain ui-axis-icon')).not.toBeNull();
     expect(
       card.querySelector('.celebration__art').getAttribute('src'),
     ).toBe('badges/badge-premiers-pas.svg');
@@ -83,7 +83,7 @@ describe('BadgeCelebration', () => {
     ]);
     const card = fixture.nativeElement.querySelector('.celebration__card');
     expect(card.textContent).toContain('Déclic');
-    expect(card.textContent).not.toContain('crédité');
+    expect(card.textContent).not.toContain('offert');
   });
 
   it('acknowledges the celebrated badge when the user continues', async () => {
@@ -132,7 +132,7 @@ describe('isQuietForCelebration', () => {
   it('accepts the calm connected routes', () => {
     expect(isQuietForCelebration('/dashboard')).toBe(true);
     expect(isQuietForCelebration('/badges')).toBe(true);
-    expect(isQuietForCelebration('/energie')).toBe(true);
+    expect(isQuietForCelebration('/credits')).toBe(true);
     expect(isQuietForCelebration('/sessions')).toBe(true);
   });
 });

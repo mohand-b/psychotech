@@ -34,7 +34,6 @@ import {
   AxisIcon,
 } from '../../../shared/ui/axis-icon/axis-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
-import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepper';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -54,7 +53,6 @@ interface AdviceItem {
   imports: [
     ActionFooter,
     AxisIcon,
-    BoltIcon,
     Button,
     ChevronStepper,
     Icon,

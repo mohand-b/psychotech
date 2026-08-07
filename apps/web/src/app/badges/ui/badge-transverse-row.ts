@@ -3,7 +3,7 @@ import {
   Component,
   input,
 } from '@angular/core';
-import { BoltIcon } from '../../shared/ui/bolt-icon/bolt-icon';
+import { AxisIcon } from '../../shared/ui/axis-icon/axis-icon';
 import { BadgeArt } from './badge-art';
 import { BadgeConditions } from './badge-conditions';
 import { TransverseBadgeView } from './badge-views';
@@ -11,7 +11,7 @@ import { TransverseBadgeView } from './badge-views';
 @Component({
   selector: 'ui-badge-transverse-row',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeArt, BadgeConditions, BoltIcon],
+  imports: [AxisIcon, BadgeArt, BadgeConditions],
   template: `
     @if (badge(); as view) {
       <ui-badge-art
@@ -31,7 +31,7 @@ import { TransverseBadgeView } from './badge-views';
           }
           @if (view.gain) {
             <span class="trans-row__gain t-mono"
-              >+{{ view.gain }}<ui-bolt [size]="10" [filled]="true"
+              >+{{ view.gain }}<ui-axis-icon axis="credit" [size]="10"
             /></span>
           }
         </span>
