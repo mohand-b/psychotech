@@ -11,6 +11,7 @@
     [completedAt]="r.completedAt"
     [referential]="referential()"
     [recordVisible]="!r.untimed"
+    (revealDone)="celebration.sceneReady()"
   />
 
   @if (scored()) {
@@ -29,8 +30,8 @@
   <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
   }
 
-  @if (unlockedBadges.length > 0) {
-  <ui-badge-unlock [badges]="unlockedBadges" />
+  @if (celebration.announceView; as announce) {
+  <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
   }
 
   <ui-result-actions

@@ -19,9 +19,9 @@ import {
   getAxisRecommendations,
   scoreLogicSession,
 } from '@psychotech/shared';
-import { revealSessionBadges } from '../../../badges/data-access/badge-reveal';
+import { resultCelebrationFor } from '../../../badges/data-access/result-celebration';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
-import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
+import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { backFromTargetedResult } from '../../ui/result-navigation';
 import {
@@ -51,7 +51,7 @@ import { TimeChart, TimeChartEntry } from '../../../shared/ui/time-chart/time-ch
   selector: 'app-logic-result',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    BadgeUnlock,
+    BadgeAnnounce,
     ResultActions,
     ResultFamilyBars,
     ResultMetrics,
@@ -76,7 +76,7 @@ export class LogicResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  protected readonly unlockedBadges = revealSessionBadges(this.sessionId);
+  protected readonly celebration = resultCelebrationFor(this.sessionId);
 
   protected readonly axis = AxisType.LOGIC;
   protected readonly result = signal<TargetedLogicResultDto | null>(null);

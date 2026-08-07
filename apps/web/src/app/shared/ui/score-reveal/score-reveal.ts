@@ -125,6 +125,7 @@ export class ScoreReveal {
   private readonly stampShown = signal(true);
   private readonly stampStruck = signal(false);
   private readonly settlePulsing = signal(false);
+  private readonly done = signal(false);
 
   private started = false;
   private stopAnimation: (() => void) | null = null;
@@ -133,6 +134,7 @@ export class ScoreReveal {
   readonly stampVisible: Signal<boolean> = this.stampShown.asReadonly();
   readonly stampStrike: Signal<boolean> = this.stampStruck.asReadonly();
   readonly settlePulse: Signal<boolean> = this.settlePulsing.asReadonly();
+  readonly completed: Signal<boolean> = this.done.asReadonly();
 
   constructor() {
     this.destroyRef.onDestroy(() => this.teardown());
@@ -145,6 +147,7 @@ export class ScoreReveal {
     this.started = true;
     this.settle(target);
     if (this.prefersReducedMotion()) {
+      this.done.set(true);
       return;
     }
     try {
@@ -160,6 +163,7 @@ export class ScoreReveal {
       this.stopAnimation = () => controls.stop();
     } catch {
       this.settle(target);
+      this.done.set(true);
     }
   }
 
@@ -170,6 +174,7 @@ export class ScoreReveal {
       this.settlePulsing.set(false);
       this.settle(target);
       this.stampStruck.set(true);
+      this.done.set(true);
     }, SCORE_REVEAL_SETTLE_MS);
     this.destroyRef.onDestroy(() => window.clearTimeout(settleId));
   }

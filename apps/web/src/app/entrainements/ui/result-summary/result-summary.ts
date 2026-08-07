@@ -3,8 +3,10 @@ import {
   Component,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
+  output,
 } from '@angular/core';
 import {
   AxisType,
@@ -136,8 +138,18 @@ export class ResultSummary {
   protected readonly fillFrom = computed(() => this.presentation().plainVar);
   protected readonly fillTo = computed(() => this.presentation().textVar);
 
+  readonly revealDone = output<void>();
+
+  private revealDoneEmitted = false;
+
   constructor() {
     afterNextRender(() => this.reveal.start(this.score()));
+    effect(() => {
+      if (this.reveal.completed() && !this.revealDoneEmitted) {
+        this.revealDoneEmitted = true;
+        this.revealDone.emit();
+      }
+    });
   }
 
   protected readonly bestSuffix = computed(() => {

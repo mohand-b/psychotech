@@ -22,6 +22,7 @@ import {
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
@@ -141,6 +142,14 @@ interface Setup {
   acknowledgeAll: ReturnType<typeof vi.fn>;
 }
 
+function celebrationStub() {
+  return {
+    holdScene: vi.fn(),
+    releaseScene: vi.fn(),
+    replay: vi.fn(),
+  };
+}
+
 async function setupWithBadges(
   result: TargetedLogicResultDto,
   options: SetupOptions = {},
@@ -160,6 +169,7 @@ async function setupWithBadges(
         },
       },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
+      { provide: BadgeCelebrationFacade, useValue: celebrationStub() },
       { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
       {
         provide: AuthFacade,
@@ -304,44 +314,42 @@ describe('LogicResult - badges débloqués', () => {
     { badgeId: BadgeId.FIRST_STEPS, earnedAt: '2026-08-07T10:00:00.000Z', gain: 5, conditions: [] },
   ];
 
-  it('reveals the earned badges with their textual gain and acknowledges them', async () => {
-    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+  it('announces the earned badges with the coin and the total gain', async () => {
+    const { fixture } = await setupWithBadges(buildResult(), {
       activeSession: buildCompletedSession({ newBadges }),
     });
-    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
-    expect(section).not.toBeNull();
-    expect(section.textContent).toContain('Badges débloqués');
-    expect(section.textContent).toContain('Déclic');
-    expect(section.textContent).toContain('Premiers pas');
-    expect(section.textContent).toContain('+5');
-    expect(section.querySelector('.unlock__gain ui-axis-icon')).not.toBeNull();
-    expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
+    const card = fixture.nativeElement.querySelector('ui-badge-announce');
+    expect(card).not.toBeNull();
+    expect(card.textContent).toContain(
+      'Déclic et Premiers pas rejoignent votre collection',
+    );
+    expect(card.textContent).toContain('+5');
+    expect(card.textContent).toContain('crédits ajoutés à votre solde');
+    expect(card.querySelector('ui-axis-icon')).not.toBeNull();
   });
 
-  it('shows the singular heading for a single badge', async () => {
+  it('announces a single gainless badge with its family and tier', async () => {
     const { fixture } = await setupWithBadges(buildResult(), {
       activeSession: buildCompletedSession({
         newBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] }],
       }),
     });
-    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
-    expect(section.textContent).toContain('Badge débloqué');
-    expect(section.textContent).not.toContain('Badges débloqués');
+    const card = fixture.nativeElement.querySelector('ui-badge-announce');
+    expect(card.textContent).toContain('Déclic rejoint votre collection');
+    expect(card.textContent).toContain("Badge d'axe · Logique · Bronze");
   });
 
-  it('hides the section and acknowledges nothing without new badges', async () => {
-    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+  it('hides the announce card without new badges', async () => {
+    const { fixture } = await setupWithBadges(buildResult(), {
       activeSession: buildCompletedSession(),
     });
-    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
-    expect(acknowledgeAll).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
 
-  it('hides the section when the stored session is not the displayed one', async () => {
-    const { fixture, acknowledgeAll } = await setupWithBadges(buildResult(), {
+  it('hides the announce card when the stored session is not the displayed one', async () => {
+    const { fixture } = await setupWithBadges(buildResult(), {
       activeSession: buildCompletedSession({ id: 'session-2', newBadges }),
     });
-    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
-    expect(acknowledgeAll).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
 });

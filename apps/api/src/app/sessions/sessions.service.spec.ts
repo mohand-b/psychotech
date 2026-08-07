@@ -8,7 +8,6 @@ import { Prisma, SessionAxis } from '@prisma/client';
 import {
   AxisType,
   BadgeEvent,
-  BadgeId,
   ControlModality,
   MotorSkillsMetrics,
   ScoreBand,

@@ -1,140 +1,133 @@
-import { signal } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import {
-  BadgeId,
-  Sector,
-  EarnedBadgeDto,
-} from '@psychotech/shared';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { BadgeId, EarnedBadgeDto, Sector } from '@psychotech/shared';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { BadgesFacade } from '../../data-access/badges.facade';
-import { BadgeCelebration, isQuietForCelebration } from './badge-celebration';
+import { BadgeStore } from '../../../core/badges/badge.store';
+import { EnergyFacade } from '../../../energy/data-access/energy.facade';
+import { BadgesApi } from '../../data-access/badges.api';
+import { BadgeCelebration } from './badge-celebration';
 
-interface Setup {
-  fixture: ComponentFixture<BadgeCelebration>;
-  loadUnacknowledged: ReturnType<typeof vi.fn>;
-  acknowledgeCurrentCelebration: ReturnType<typeof vi.fn>;
-}
+const BAPTEME: EarnedBadgeDto = {
+  badgeId: BadgeId.EXAM_FIRST,
+  earnedAt: '2026-08-07T10:00:00.000Z',
+  gain: null,
+  conditions: [
+    {
+      id: 'first-exam',
+      label: 'Terminer un premier examen blanc',
+      met: true,
+      justValidated: true,
+    },
+  ],
+};
 
-async function setup(
-  pending: EarnedBadgeDto[],
-  currentUrl = '/',
-): Promise<Setup> {
+const APTE: EarnedBadgeDto = {
+  badgeId: BadgeId.EXAM_FAVORABLE,
+  earnedAt: '2026-08-07T10:00:01.000Z',
+  gain: 2,
+  conditions: [
+    {
+      id: 'favorable',
+      label: 'Premier examen blanc au verdict favorable',
+      met: true,
+      justValidated: true,
+    },
+  ],
+};
+
+async function setup(unacknowledged: EarnedBadgeDto[] = []) {
+  const acknowledge = vi.fn().mockReturnValue(of(undefined));
   TestBed.resetTestingModule();
-  const loadUnacknowledged = vi.fn();
-  const acknowledgeCurrentCelebration = vi.fn();
   await TestBed.configureTestingModule({
     imports: [BadgeCelebration],
     providers: [
       provideRouter([]),
       {
-        provide: BadgesFacade,
+        provide: BadgesApi,
         useValue: {
-          pending: signal(pending).asReadonly(),
-          loadUnacknowledged,
-          acknowledgeCurrentCelebration,
+          acknowledge,
+          unacknowledged: vi.fn().mockReturnValue(of(unacknowledged)),
         },
       },
+      { provide: EnergyFacade, useValue: { load: () => of(null) } },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
       },
     ],
   }).compileComponents();
-  const router = TestBed.inject(Router);
-  vi.spyOn(router, 'url', 'get').mockReturnValue(currentUrl);
   const fixture = TestBed.createComponent(BadgeCelebration);
   fixture.detectChanges();
-  return { fixture, loadUnacknowledged, acknowledgeCurrentCelebration };
+  return { fixture, store: TestBed.inject(BadgeStore), acknowledge };
 }
 
-const FIRST_STEPS_PENDING: EarnedBadgeDto = {
-  badgeId: BadgeId.FIRST_STEPS,
-  earnedAt: '2026-07-08T10:00:00.000Z',
-  gain: 5,
-  conditions: [],
-};
+function cardOf(fixture: { nativeElement: HTMLElement }): HTMLElement | null {
+  return fixture.nativeElement.querySelector('.cb__card');
+}
 
 describe('BadgeCelebration', () => {
-  it('loads the unacknowledged badges at startup', async () => {
-    const { loadUnacknowledged } = await setup([]);
-    expect(loadUnacknowledged).toHaveBeenCalledTimes(1);
-  });
-
-  it('celebrates the first pending badge with its textual credited gain', async () => {
-    const { fixture } = await setup([FIRST_STEPS_PENDING]);
-    const card = fixture.nativeElement.querySelector('.celebration__card');
+  it('celebrates a reconciled unacknowledged badge at shell load', async () => {
+    const { fixture } = await setup([APTE]);
+    fixture.detectChanges();
+    const card = cardOf(fixture);
     expect(card).not.toBeNull();
-    expect(card.textContent).toContain('Badge débloqué');
-    expect(card.textContent).toContain('Premiers pas');
-    expect(card.textContent?.replace(/\s+/g, ' ')).toContain('+5 offerts');
-    expect(card.querySelector('.celebration__gain ui-axis-icon')).not.toBeNull();
-    expect(
-      card.querySelector('.celebration__art').getAttribute('src'),
-    ).toBe('badges/badge-premiers-pas.svg');
+    expect(card?.textContent).toContain('Apte');
+    expect(card?.textContent).toContain('+2');
+    expect(card?.textContent).toContain('ajoutés à votre solde');
   });
 
-  it('omits the gain line for a badge without energy reward', async () => {
-    const { fixture } = await setup([
-      {
-        badgeId: BadgeId.LOGIC_PROGRESSION,
-        earnedAt: '2026-07-12T10:00:00.000Z',
-        gain: null,
-        conditions: [],
-      },
-    ]);
-    const card = fixture.nativeElement.querySelector('.celebration__card');
-    expect(card.textContent).toContain('Déclic');
-    expect(card.textContent).not.toContain('offert');
+  it('chains two badges on the advance event and acknowledges each one', async () => {
+    const { fixture, store, acknowledge } = await setup();
+    store.enqueue([BAPTEME, APTE]);
+    fixture.detectChanges();
+
+    let card = cardOf(fixture);
+    expect(card?.textContent).toContain('Badge 1 sur 2');
+    expect(card?.textContent).toContain('Baptême');
+    expect(card?.textContent).toContain('Badge suivant');
+
+    card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
+    fixture.detectChanges();
+    card?.dispatchEvent(new Event('animationend'));
+    fixture.detectChanges();
+
+    card = cardOf(fixture);
+    expect(card?.textContent).toContain('Badge 2 sur 2');
+    expect(card?.textContent).toContain('Apte');
+    expect(card?.textContent).toContain('Continuer');
+    expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
+
+    card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
+    fixture.detectChanges();
+    expect(cardOf(fixture)).toBeNull();
+    expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FAVORABLE);
+    expect(acknowledge).toHaveBeenCalledTimes(2);
   });
 
-  it('acknowledges the celebrated badge when the user continues', async () => {
-    const { fixture, acknowledgeCurrentCelebration } = await setup([
-      FIRST_STEPS_PENDING,
-    ]);
-    fixture.nativeElement.querySelector('ui-button button').click();
-    expect(acknowledgeCurrentCelebration).toHaveBeenCalledTimes(1);
+  it('shows the struck condition and no gain line for a badge without credits', async () => {
+    const { fixture, store } = await setup();
+    store.enqueue([BAPTEME]);
+    fixture.detectChanges();
+
+    const card = cardOf(fixture);
+    expect(card?.textContent).toContain('Terminer un premier examen blanc');
+    expect(card?.querySelector('.cb__strike')).not.toBeNull();
+    expect(card?.querySelector('.cb__gain')).toBeNull();
   });
 
-  it('shows nothing without pending badges', async () => {
-    const { fixture } = await setup([]);
-    expect(fixture.nativeElement.querySelector('.celebration')).toBeNull();
-  });
+  it('acknowledges every queued badge when closed from the overlay', async () => {
+    const { fixture, store, acknowledge } = await setup();
+    store.enqueue([BAPTEME, APTE]);
+    fixture.detectChanges();
 
-  it('stays hidden on a play route even with a pending badge', async () => {
-    const { fixture } = await setup(
-      [FIRST_STEPS_PENDING],
-      '/entrainements/cible/logique/session/session-1',
-    );
-    expect(fixture.nativeElement.querySelector('.celebration')).toBeNull();
-  });
-});
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('.cb__overlay')
+      ?.click();
+    fixture.detectChanges();
 
-describe('isQuietForCelebration', () => {
-  it('rejects play, discovery, result and correction routes', () => {
-    expect(
-      isQuietForCelebration('/entrainements/cible/logique/session/session-1'),
-    ).toBe(false);
-    expect(isQuietForCelebration('/entrainements/tutoriel/memoire')).toBe(
-      false,
-    );
-    expect(
-      isQuietForCelebration(
-        '/entrainements/examen-blanc/session/session-1/axe/logique',
-      ),
-    ).toBe(false);
-    expect(isQuietForCelebration('/sessions/session-1/resultat')).toBe(false);
-    expect(
-      isQuietForCelebration(
-        '/entrainements/examen-blanc/session/session-1/correction/logique',
-      ),
-    ).toBe(false);
-  });
-
-  it('accepts the calm connected routes', () => {
-    expect(isQuietForCelebration('/dashboard')).toBe(true);
-    expect(isQuietForCelebration('/badges')).toBe(true);
-    expect(isQuietForCelebration('/credits')).toBe(true);
-    expect(isQuietForCelebration('/sessions')).toBe(true);
+    expect(cardOf(fixture)).toBeNull();
+    expect(acknowledge).toHaveBeenCalledTimes(2);
   });
 });

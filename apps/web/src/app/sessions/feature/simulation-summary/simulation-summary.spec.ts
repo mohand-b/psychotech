@@ -22,6 +22,7 @@ import {
   TargetedLogicResultDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
+import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { TrainingSessionFacade } from '../../data-access/training-session.facade';
@@ -231,6 +232,10 @@ async function setup(
         useValue: { session: signal(activeSession) },
       },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
+      {
+        provide: BadgeCelebrationFacade,
+        useValue: { holdScene: vi.fn(), releaseScene: vi.fn(), replay: vi.fn() },
+      },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -513,31 +518,24 @@ describe('SimulationSummary', () => {
     expect(element.querySelector('ui-time-chart')).not.toBeNull();
   });
 
-  it('reveals and acknowledges the badges earned by the completed examen blanc', async () => {
+  it('announces the badges earned by the completed examen blanc', async () => {
     const newBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
     const activeSession = {
       id: 'session-1',
       sector: Sector.RAILWAY,
       newBadges,
     } as unknown as SessionDto;
-    const { fixture, acknowledgeAll } = await setup(
-      buildSummary(),
-      LOGIC_DETAIL,
-      activeSession,
-    );
-    const section = fixture.nativeElement.querySelector('ui-badge-unlock');
-    expect(section).not.toBeNull();
-    expect(section.textContent).toContain('Badge débloqué');
-    expect(section.textContent).toContain('Apte');
-    expect(section.textContent).toContain('+2');
-    expect(section.querySelector('.unlock__gain ui-axis-icon')).not.toBeNull();
-    expect(acknowledgeAll).toHaveBeenCalledWith(newBadges);
+    const { fixture } = await setup(buildSummary(), LOGIC_DETAIL, activeSession);
+    const card = fixture.nativeElement.querySelector('ui-badge-announce');
+    expect(card).not.toBeNull();
+    expect(card.textContent).toContain('Apte rejoint votre collection');
+    expect(card.textContent).toContain('+2');
+    expect(card.textContent).toContain('crédits ajoutés à votre solde');
   });
 
-  it('hides the badge section when nothing new was earned', async () => {
-    const { fixture, acknowledgeAll } = await setup(buildSummary());
-    expect(fixture.nativeElement.querySelector('ui-badge-unlock')).toBeNull();
-    expect(acknowledgeAll).not.toHaveBeenCalled();
+  it('hides the announce card when nothing new was earned', async () => {
+    const { fixture } = await setup(buildSummary());
+    expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
 
   it('navigates to the targeted preparation of the recommended axis', async () => {

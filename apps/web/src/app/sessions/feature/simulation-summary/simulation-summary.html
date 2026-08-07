@@ -66,8 +66,8 @@
       </div>
     </header>
 
-    @if (unlockedBadges.length > 0) {
-      <ui-badge-unlock [badges]="unlockedBadges" />
+    @if (celebration.announceView; as announce) {
+      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
     }
 
     <div class="bilan__columns">
