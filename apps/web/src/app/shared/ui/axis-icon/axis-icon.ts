@@ -28,6 +28,10 @@ const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
 @Component({
   selector: 'ui-axis-icon',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.width.px]': 'size()',
+    '[style.height.px]': 'size()',
+  },
   template: `
     @if (src(); as path) {
       <img
@@ -42,6 +46,8 @@ const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
   styles: `
     :host {
       display: inline-flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
     img {

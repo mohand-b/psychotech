@@ -56,6 +56,12 @@ describe('AxisIcon', () => {
     expect(img?.getAttribute('height')).toBe('44');
   });
 
+  it('keeps the reactivity bolt at the requested dimensions', async () => {
+    const img = await setup(AxisType.REACTIVITY, AXIS_ICON_SIZE.hero);
+    expect(img?.getAttribute('width')).toBe('44');
+    expect(img?.getAttribute('height')).toBe('44');
+  });
+
   it('stays decorative unless a label is provided', async () => {
     const decorative = await setup(AxisType.LOGIC);
     expect(decorative?.getAttribute('aria-hidden')).toBe('true');
