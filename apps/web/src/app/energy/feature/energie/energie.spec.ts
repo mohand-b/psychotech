@@ -89,9 +89,9 @@ describe('Energie', () => {
     expect(link?.getAttribute('href')).toBe('/badges');
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('Premiers pas');
-    expect(text).toContain('+5 énergies');
+    expect(text).toContain('+5');
     expect(text).toContain('Apte');
-    expect(text).toContain('+2 énergies');
+    expect(text).toContain('+2');
   });
 
   it('enters the confirmation view when returning from a checkout', async () => {

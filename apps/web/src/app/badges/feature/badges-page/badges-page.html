@@ -32,7 +32,8 @@
         <span class="badges__summary-value badges__summary-value--energy t-mono"
           >+{{ view.summary.energyEarned }}</span
         >
-        <span class="badges__summary-caption">énergies créditées</span>
+        <ui-bolt class="badges__summary-bolt" [size]="14" [filled]="true" />
+        <span class="badges__summary-caption">créditées</span>
       </span>
       @if (view.summary.energyRemaining > 0) {
         <span class="badges__summary-note"
@@ -54,10 +55,10 @@
           <span class="badges__closest-text">
             <span class="badges__closest-name">{{ closest.name }}</span>
             · {{ closest.hint }}
-            @if (closest.gainLabel) {
-              <span class="badges__closest-gain t-mono">{{
-                closest.gainLabel
-              }}</span>
+            @if (closest.gain) {
+              <span class="badges__closest-gain t-mono"
+                >+{{ closest.gain }}<ui-bolt [size]="11" [filled]="true"
+              /></span>
             }
           </span>
         </span>

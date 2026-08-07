@@ -69,7 +69,7 @@ async function setup(
 }
 
 describe('BadgesPage', () => {
-  it('renders the three families with the catalog wording and no lightning icon', async () => {
+  it('renders the three families with the catalog wording', async () => {
     const fixture = await setup(catalogStatuses());
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('Axes');
@@ -78,7 +78,6 @@ describe('BadgesPage', () => {
     expect(text).toContain('Meilleur score ≥ 70');
     expect(text).toContain('Score parfait de 100');
     expect(text).toContain('Terminer un premier examen blanc');
-    expect(fixture.nativeElement.querySelectorAll('svg')).toHaveLength(0);
     expect(text).toContain('0');
     expect(text).toContain('sur 20 badges');
   });
@@ -94,16 +93,25 @@ describe('BadgesPage', () => {
     );
   });
 
-  it('shows textual gains only where the catalog grants energy', async () => {
+  it('shows bolt gains exactly where the catalog grants energy', async () => {
     const fixture = await setup(catalogStatuses());
-    const text = fixture.nativeElement.textContent ?? '';
-    expect(text).toContain('Argent · +2 énergies');
-    expect(text).toContain('+5 énergies');
+    const text = (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).toContain('· +1');
+    expect(text).toContain('· +2');
+    expect(text).toContain('+5');
     expect(text).not.toContain('Bronze · +');
-    expect(text).not.toContain('Or · +');
+    expect(text).not.toContain('énergies créditées');
+    const stepGains = fixture.nativeElement.querySelectorAll(
+      '.tier-row__step-gain ui-bolt',
+    );
+    expect(stepGains.length).toBeGreaterThan(0);
+    const transGains = fixture.nativeElement.querySelectorAll(
+      '.trans-row__gain ui-bolt',
+    );
+    expect(transGains).toHaveLength(1);
   });
 
-  it('reveals dates, the maximal tier note and the earned-only rarity', async () => {
+  it('reveals dates and the earned-only rarity without any maximal tier note', async () => {
     const fixture = await setup(
       catalogStatuses({
         [BadgeId.LOGIC_PROGRESSION]: {
@@ -125,7 +133,7 @@ describe('BadgesPage', () => {
     );
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('Obtenu le 12/07/2026');
-    expect(text).toContain('Palier maximal');
+    expect(text).not.toContain('Palier maximal');
     expect(text).toContain("28 % des candidats l'ont obtenu");
     expect(text).toContain("6 % des candidats l'ont obtenu");
     expect(text).not.toContain('11 %');
@@ -140,8 +148,8 @@ describe('BadgesPage', () => {
     );
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('+7');
-    expect(text).toContain('énergies créditées');
-    expect(text).not.toContain('Encore +');
+    expect(text).toContain('créditées');
+    expect(text).toContain('Encore +15 à gagner');
   });
 
   it('picks the closest badge from the most advanced unearned conditions', async () => {
@@ -162,7 +170,8 @@ describe('BadgesPage', () => {
     const closest = fixture.nativeElement.querySelector('.badges__closest');
     expect(closest.textContent).toContain('Premiers pas');
     expect(closest.textContent).toContain('Un tutoriel découvert');
-    expect(closest.textContent).toContain('+5 énergies');
+    expect(closest.textContent).toContain('+5');
+    expect(closest.querySelector('.badges__closest-gain ui-bolt')).not.toBeNull();
   });
 
   it('keeps the rarity footnote with the energy packs link', async () => {

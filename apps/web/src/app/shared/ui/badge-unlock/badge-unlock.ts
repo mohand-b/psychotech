@@ -5,17 +5,19 @@ import {
   input,
 } from '@angular/core';
 import { BadgeId } from '@psychotech/shared';
+import { BoltIcon } from '../bolt-icon/bolt-icon';
 
 export interface BadgeRevealView {
   badgeId: BadgeId;
   name: string;
   assetPath: string;
-  gainLabel: string | null;
+  gain: number | null;
 }
 
 @Component({
   selector: 'ui-badge-unlock',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BoltIcon],
   template: `
     <section class="unlock">
       <span class="t-label">{{ title() }}</span>
@@ -24,8 +26,10 @@ export interface BadgeRevealView {
           <div class="unlock__row">
             <img class="unlock__art" [src]="badge.assetPath" [alt]="badge.name" />
             <span class="unlock__name">{{ badge.name }}</span>
-            @if (badge.gainLabel) {
-              <span class="unlock__gain t-mono">{{ badge.gainLabel }}</span>
+            @if (badge.gain) {
+              <span class="unlock__gain t-mono"
+                >+{{ badge.gain }}<ui-bolt [size]="12" [filled]="true"
+              /></span>
             }
           </div>
         }
@@ -67,6 +71,9 @@ export interface BadgeRevealView {
       color: var(--ink);
     }
     .unlock__gain {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
       font-size: 13px;
       font-weight: 600;
       color: var(--brand-hover);

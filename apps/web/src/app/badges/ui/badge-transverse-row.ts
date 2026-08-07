@@ -3,6 +3,7 @@ import {
   Component,
   input,
 } from '@angular/core';
+import { BoltIcon } from '../../shared/ui/bolt-icon/bolt-icon';
 import { BadgeArt } from './badge-art';
 import { BadgeConditions } from './badge-conditions';
 import { TransverseBadgeView } from './badge-views';
@@ -10,7 +11,7 @@ import { TransverseBadgeView } from './badge-views';
 @Component({
   selector: 'ui-badge-transverse-row',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeArt, BadgeConditions],
+  imports: [BadgeArt, BadgeConditions, BoltIcon],
   template: `
     @if (badge(); as view) {
       <ui-badge-art
@@ -28,8 +29,10 @@ import { TransverseBadgeView } from './badge-views';
               >Badge à débloquer</span
             >
           }
-          @if (view.gainLabel) {
-            <span class="trans-row__gain t-mono">{{ view.gainLabel }}</span>
+          @if (view.gain) {
+            <span class="trans-row__gain t-mono"
+              >+{{ view.gain }}<ui-bolt [size]="10" [filled]="true"
+            /></span>
           }
         </span>
         @if (view.earnedLine) {
@@ -53,7 +56,7 @@ import { TransverseBadgeView } from './badge-views';
   styles: `
     :host {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 16px;
     }
     .trans-row__art {
@@ -79,6 +82,9 @@ import { TransverseBadgeView } from './badge-views';
       color: var(--label);
     }
     .trans-row__gain {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
       font-size: 11px;
       font-weight: 600;
       color: var(--brand-hover);

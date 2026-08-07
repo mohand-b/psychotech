@@ -10,6 +10,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Sector } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { BadgeRevealView } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { badgeRevealViewFor } from '../../data-access/badge-display';
@@ -30,7 +31,7 @@ export function isQuietForCelebration(url: string): boolean {
 @Component({
   selector: 'app-badge-celebration',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [BoltIcon, Button],
   template: `
     @if (visible()) {
       @if (current(); as badge) {
@@ -48,9 +49,10 @@ export function isQuietForCelebration(url: string): boolean {
               [alt]="badge.name"
             />
             <span class="celebration__name">{{ badge.name }}</span>
-            @if (badge.gainLabel) {
+            @if (badge.gain) {
               <span class="celebration__gain t-mono"
-                >{{ badge.gainLabel }} créditées</span
+                >+{{ badge.gain }}<ui-bolt [size]="13" [filled]="true" />
+                créditées</span
               >
             }
             <ui-button color="brand" (click)="acknowledgeCurrent()"

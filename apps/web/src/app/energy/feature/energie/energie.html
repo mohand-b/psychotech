@@ -169,7 +169,9 @@
           <span class="energie__badge-tile flex flex-col items-center">
             <img [src]="badge.asset" [alt]="badge.name" />
             <span class="energie__badge-name">{{ badge.name }}</span>
-            <span class="energie__badge-gain t-mono">{{ badge.gainLabel }}</span>
+            <span class="energie__badge-gain t-mono"
+              >+{{ badge.gain }}<ui-bolt [size]="11" [filled]="true"
+            /></span>
           </span>
         }
       </div>

@@ -10,7 +10,7 @@ import {
   badgeAssetPath,
   badgeDisplayName,
 } from '@psychotech/shared';
-import { energyGainLabel } from '../../data-access/badge-display';
+import { energyGain } from '../../data-access/badge-display';
 import {
   BadgeConditionView,
   BadgeTierStepView,
@@ -33,7 +33,7 @@ export interface ClosestBadgeView {
   name: string;
   assetPath: string;
   hint: string;
-  gainLabel: string | null;
+  gain: number | null;
 }
 
 export interface BadgesSummaryView {
@@ -112,16 +112,14 @@ function conditionsIntroFor(conditions: BadgeConditionView[]): string {
 
 function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
   const tier = entry.definition.tier ?? BadgeTier.BRONZE;
-  const gainLabel = energyGainLabel(entry.definition.energyReward);
   const multipleConditions = !entry.earned && entry.conditions.length > 1;
   return {
     badgeId: entry.definition.id,
     assetPath: entry.assetPath,
     earned: entry.earned,
     next,
-    tierLine: gainLabel
-      ? `${TIER_LABELS[tier]} · ${gainLabel}`
-      : TIER_LABELS[tier],
+    tierLine: TIER_LABELS[tier],
+    gain: energyGain(entry.definition.energyReward),
     tierColorVar: TIER_COLOR_VARS[tier],
     name: entry.earned ? entry.name : null,
     sub: entry.earned
@@ -139,7 +137,6 @@ function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
 function buildTieredCard(
   label: string,
   entries: BadgeEntry[],
-  isAxis: boolean,
 ): TieredBadgeCardView {
   const firstTodoIndex = entries.findIndex((entry) => !entry.earned);
   const top = [...entries].reverse().find((entry) => entry.earned) ?? null;
@@ -155,7 +152,6 @@ function buildTieredCard(
       tierColorVar: top ? TIER_COLOR_VARS[shownTier] : null,
       dateLabel: top ? shown.dateLabel : null,
       noneYet: top === null,
-      maxTier: isAxis && (entries[entries.length - 1]?.earned ?? false),
       rarityLabel: top ? shown.rarityLabel : null,
     },
     steps: entries.map((entry, index) =>
@@ -165,17 +161,17 @@ function buildTieredCard(
 }
 
 function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
-  const gainLabel = energyGainLabel(entry.definition.energyReward);
+  const gain = energyGain(entry.definition.energyReward);
   const multipleConditions = !entry.earned && entry.conditions.length > 1;
   return {
     badgeId: entry.definition.id,
     assetPath: entry.assetPath,
     locked: !entry.earned,
     name: entry.earned ? entry.name : null,
-    gainLabel,
+    gain,
     earnedLine:
       entry.earned && entry.dateLabel
-        ? gainLabel
+        ? gain
           ? `${entry.dateLabel} · récompense créditée`
           : entry.dateLabel
         : null,
@@ -223,7 +219,7 @@ function buildSummary(entries: BadgeEntry[]): BadgesSummaryView {
               ?.label ??
             closestEntry.conditions[0]?.label ??
             '',
-          gainLabel: energyGainLabel(closestEntry.definition.energyReward),
+          gain: energyGain(closestEntry.definition.energyReward),
         }
       : null,
   };
@@ -246,12 +242,11 @@ export function buildBadgeBoard(
     }
   }
   const axisCards = [...axisGroups.entries()].map(([axis, group]) =>
-    buildTieredCard(AXIS_META[axis].label, group, true),
+    buildTieredCard(AXIS_META[axis].label, group),
   );
   const examCard = buildTieredCard(
     EXAM_CARD_LABEL,
     entries.filter((entry) => entry.definition.family === BadgeFamily.EXAM),
-    false,
   );
   const transverse = entries
     .filter((entry) => entry.definition.family === BadgeFamily.TRANSVERSE)

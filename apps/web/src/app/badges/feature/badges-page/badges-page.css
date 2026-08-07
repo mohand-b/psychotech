@@ -110,7 +110,15 @@
   color: var(--ink);
 }
 
+.badges__summary-bolt {
+  color: var(--brand);
+  align-self: center;
+}
+
 .badges__closest-gain {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   font-size: 12px;
   font-weight: 600;
   color: var(--brand-hover);

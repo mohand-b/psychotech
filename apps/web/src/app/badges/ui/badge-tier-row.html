@@ -23,9 +23,6 @@
       @if (view.hero.dateLabel) {
         <span class="tier-row__date">{{ view.hero.dateLabel }}</span>
       }
-      @if (view.hero.maxTier) {
-        <span class="tier-row__max">Palier maximal</span>
-      }
       @if (view.hero.noneYet) {
         <span class="tier-row__none">Aucun palier obtenu pour le moment</span>
       }
@@ -52,11 +49,20 @@
           }
         </span>
         <div class="tier-row__step-body">
-          <span
-            class="tier-row__step-tier t-mono"
-            [style.color]="step.earned ? step.tierColorVar : null"
-            >{{ step.tierLine }}</span
-          >
+          <span class="tier-row__step-tierline">
+            <span
+              class="tier-row__step-tier t-mono"
+              [style.color]="step.earned ? step.tierColorVar : null"
+              >{{ step.tierLine }}</span
+            >
+            @if (step.gain) {
+              <span
+                class="tier-row__step-gain t-mono"
+                [class.tier-row__step-gain--earned]="step.earned"
+                >· +{{ step.gain }}<ui-bolt [size]="9" [filled]="true"
+              /></span>
+            }
+          </span>
           @if (step.name) {
             <span class="tier-row__step-name">{{ step.name }}</span>
           }

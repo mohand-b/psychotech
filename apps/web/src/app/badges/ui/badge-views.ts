@@ -11,6 +11,7 @@ export interface BadgeTierStepView {
   earned: boolean;
   next: boolean;
   tierLine: string;
+  gain: number | null;
   tierColorVar: string;
   name: string | null;
   sub: string | null;
@@ -26,7 +27,6 @@ export interface BadgeHeroView {
   tierColorVar: string | null;
   dateLabel: string | null;
   noneYet: boolean;
-  maxTier: boolean;
   rarityLabel: string | null;
 }
 
@@ -41,7 +41,7 @@ export interface TransverseBadgeView {
   assetPath: string;
   locked: boolean;
   name: string | null;
-  gainLabel: string | null;
+  gain: number | null;
   earnedLine: string | null;
   conditionLine: string | null;
   conditions: BadgeConditionView[] | null;

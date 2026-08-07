@@ -48,7 +48,7 @@ interface PackCardView {
 interface RewardBadgeView {
   asset: string;
   name: string;
-  gainLabel: string;
+  gain: number;
 }
 
 const PACK_DESCRIPTIONS: Record<EnergyPackId, string> = {
@@ -110,12 +110,12 @@ export class Energie implements OnDestroy {
     {
       asset: 'badges/badge-premiers-pas.svg',
       name: 'Premiers pas',
-      gainLabel: `+${FIRST_STEPS_REWARD} énergies`,
+      gain: FIRST_STEPS_REWARD,
     },
     {
       asset: 'badges/badge-examen-argent.svg',
       name: 'Apte',
-      gainLabel: `+${EXAM_FAVORABLE_REWARD} énergies`,
+      gain: EXAM_FAVORABLE_REWARD,
     },
   ];
 

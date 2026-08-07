@@ -54,13 +54,6 @@
   color: var(--success-text);
 }
 
-.tier-row__max {
-  font: 600 11px/1.4 var(--font-ui);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--label);
-}
-
 .tier-row__none {
   font: 400 12px/1.4 var(--font-ui);
   color: var(--label);
@@ -105,6 +98,26 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+}
+
+.tier-row__step-tierline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tier-row__step-gain {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-disabled);
+}
+
+.tier-row__step-gain--earned {
+  color: var(--brand);
 }
 
 .tier-row__step-tier {
@@ -188,7 +201,27 @@
     gap: 2px;
   }
 
-  .tier-row__step-tier {
+  .tier-row__step-tierline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tier-row__step-gain {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-disabled);
+}
+
+.tier-row__step-gain--earned {
+  color: var(--brand);
+}
+
+.tier-row__step-tier {
     font-size: 9.5px;
   }
 

@@ -7,11 +7,8 @@ import {
 } from '@psychotech/shared';
 import { BadgeRevealView } from '../../shared/ui/badge-unlock/badge-unlock';
 
-export function energyGainLabel(energyReward: number): string | null {
-  if (energyReward <= 0) {
-    return null;
-  }
-  return energyReward === 1 ? '+1 énergie' : `+${energyReward} énergies`;
+export function energyGain(energyReward: number): number | null {
+  return energyReward > 0 ? energyReward : null;
 }
 
 export function badgeRevealViewFor(
@@ -27,6 +24,6 @@ export function badgeRevealViewFor(
     badgeId,
     name: badgeDisplayName(definition, sector),
     assetPath: badgeAssetPath(definition, sector),
-    gainLabel: energyGainLabel(energyReward),
+    gain: energyGain(energyReward),
   };
 }

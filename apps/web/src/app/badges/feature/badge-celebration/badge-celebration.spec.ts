@@ -66,8 +66,8 @@ describe('BadgeCelebration', () => {
     expect(card).not.toBeNull();
     expect(card.textContent).toContain('Badge débloqué');
     expect(card.textContent).toContain('Premiers pas');
-    expect(card.textContent).toContain('+5 énergies créditées');
-    expect(card.querySelector('svg')).toBeNull();
+    expect(card.textContent?.replace(/\s+/g, ' ')).toContain('+5 créditées');
+    expect(card.querySelector('.celebration__gain ui-bolt')).not.toBeNull();
     expect(
       card.querySelector('.celebration__art').getAttribute('src'),
     ).toBe('badges/badge-premiers-pas.svg');
