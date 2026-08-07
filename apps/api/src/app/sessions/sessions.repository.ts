@@ -12,7 +12,6 @@ import {
 import {
   AxisRawResultDto,
   AxisType,
-  NewBadgeDto,
   ControlModality,
   RecommendationDto,
   ScoreBand,
@@ -30,7 +29,6 @@ import {
 
 interface CompleteSessionResult {
   session: SessionWithRelations;
-  newBadges: NewBadgeDto[];
 }
 
 interface CreateSessionParams {
@@ -264,7 +262,7 @@ export class SessionsRepository {
 
   async completeSession(
     params: CompleteSessionParams,
-    evaluateBadges: (client: Prisma.TransactionClient) => Promise<NewBadgeDto[]>,
+    evaluateBadges: (client: Prisma.TransactionClient) => Promise<void>,
   ): Promise<CompleteSessionResult> {
     return this.prisma.$transaction(async (tx) => {
       await tx.session.update({
@@ -307,12 +305,12 @@ export class SessionsRepository {
           lastActivityDate: params.streak.lastActivityDate,
         },
       });
-      const newBadges = await evaluateBadges(tx);
+      await evaluateBadges(tx);
       const session = await tx.session.findUniqueOrThrow({
         where: { id: params.sessionId },
         include: SESSION_INCLUDE,
       });
-      return { session, newBadges };
+      return { session };
     });
   }
 
@@ -321,7 +319,7 @@ export class SessionsRepository {
     evaluateBadges: (
       client: Prisma.TransactionClient,
       session: SessionWithRelations,
-    ) => Promise<NewBadgeDto[]>,
+    ) => Promise<void>,
   ): Promise<CompleteSessionResult> {
     return this.prisma.$transaction(async (tx) => {
       await tx.sessionAxis.update({
@@ -382,8 +380,8 @@ export class SessionsRepository {
           lastActivityDate: params.streak.lastActivityDate,
         },
       });
-      const newBadges = await evaluateBadges(tx, session);
-      return { session, newBadges };
+      await evaluateBadges(tx, session);
+      return { session };
     });
   }
 

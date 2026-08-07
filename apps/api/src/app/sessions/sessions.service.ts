@@ -257,7 +257,7 @@ export class SessionsService {
           },
         ),
     );
-    return toSessionDto(completed.session, completed.newBadges);
+    return toSessionDto(completed.session);
   }
 
   private async assertEmailVerified(userId: string): Promise<void> {
@@ -303,11 +303,8 @@ export class SessionsService {
     });
     const updated = await this.loadOwnedSession(session.id, userId);
     if (updated.axisResults.every((result) => result.completedAt !== null)) {
-      const result = await this.complete(userId, session.id);
-      return toSessionDto(
-        await this.loadOwnedSession(session.id, userId),
-        result.newBadges,
-      );
+      await this.complete(userId, session.id);
+      return toSessionDto(await this.loadOwnedSession(session.id, userId));
     }
     return toSessionDto(updated);
   }
@@ -683,7 +680,7 @@ export class SessionsService {
           },
         ),
     );
-    return toSessionResultDto(completed.session, completed.newBadges);
+    return toSessionResultDto(completed.session);
   }
 
   async suspend(userId: string, sessionId: string): Promise<SessionDto> {

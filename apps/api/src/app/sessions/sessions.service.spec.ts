@@ -464,7 +464,6 @@ describe('SessionsService.completeAxis (targeted)', () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
     repository.completeTargetedSession.mockResolvedValue({
       session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-      newBadges: [],
     });
 
     const result = await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
@@ -496,7 +495,6 @@ describe('SessionsService.completeAxis (targeted)', () => {
     );
     repository.completeTargetedSession.mockResolvedValue({
       session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
@@ -521,7 +519,6 @@ describe('SessionsService.completeAxis (targeted)', () => {
     );
     repository.completeTargetedSession.mockResolvedValue({
       session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
@@ -610,7 +607,6 @@ describe('SessionsService.completeAxis (targeted)', () => {
     repository.findUserSession.mockResolvedValue(targetedSession());
     repository.completeTargetedSession.mockResolvedValue({
       session: buildSession({ mode: 'TARGETED', status: 'COMPLETED', axisResults: [buildAxis()] }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.LOGIC, {
@@ -652,7 +648,6 @@ describe('SessionsService.completeAxis (memory)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MEMORY' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.MEMORY, {
@@ -725,7 +720,6 @@ describe('SessionsService.completeAxis (discrimination)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'VISUAL_DISCRIMINATION' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis(
@@ -810,7 +804,6 @@ describe('SessionsService.completeAxis (reactivity)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'REACTIVITY' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.REACTIVITY, {
@@ -965,10 +958,9 @@ describe('SessionsService.completeAxis (full simulation)', () => {
       timezone: 'Europe/Paris',
       streak: null,
     });
-    badgesService.evaluateWithin.mockResolvedValue([]);
+    badgesService.evaluateWithin.mockResolvedValue(undefined);
     repository.completeSession.mockResolvedValue({
       session: completedSession,
-      newBadges: [{ badgeId: BadgeId.EXAM_FIRST, energyReward: 0 }],
     });
 
     const result = await service.completeAxis(
@@ -987,9 +979,6 @@ describe('SessionsService.completeAxis (full simulation)', () => {
     expect(repository.completeSession).toHaveBeenCalledTimes(1);
     expect(result.status).toBe('COMPLETED');
     expect(result.axisResults[0].normalizedScore).toBe(70);
-    expect(result.newBadges).toEqual([
-      { badgeId: BadgeId.EXAM_FIRST, energyReward: 0 },
-    ]);
   });
 });
 
@@ -1532,7 +1521,6 @@ describe('SessionsService.completeAxis (motricity)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
@@ -1573,7 +1561,6 @@ describe('SessionsService.completeAxis (motricity)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
@@ -1608,7 +1595,6 @@ describe('SessionsService.completeAxis (motricity)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
@@ -1631,7 +1617,6 @@ describe('SessionsService.completeAxis (motricity)', () => {
         status: 'COMPLETED',
         axisResults: [buildAxis({ axis: 'MOTOR_SKILLS' })],
       }),
-      newBadges: [],
     });
 
     await service.completeAxis('user-1', sessionId, AxisType.MOTOR_SKILLS, {
@@ -2072,7 +2057,6 @@ describe('SessionsService.current', () => {
 
 describe('SessionsService.complete', () => {
   const sessionId = '11111111-1111-1111-1111-111111111111';
-  const wonBadge = { badgeId: BadgeId.EXAM_FIRST, energyReward: 0 };
 
   it('rejects the completion of a simulation while an axis is missing', async () => {
     repository.findUserSession.mockResolvedValue(
@@ -2091,7 +2075,7 @@ describe('SessionsService.complete', () => {
     expect(repository.completeSession).not.toHaveBeenCalled();
   });
 
-  it('evaluates badges within the completion transaction and returns the freshly unlocked ones', async () => {
+  it('evaluates badges within the completion transaction', async () => {
     const scoredAxis = buildAxis({
       normalizedScore: 75,
       band: 'ACCEPTABLE',
@@ -2115,13 +2099,13 @@ describe('SessionsService.complete', () => {
       timezone: 'Europe/Paris',
       streak: null,
     });
-    badgesService.evaluateWithin.mockResolvedValue([wonBadge]);
+    badgesService.evaluateWithin.mockResolvedValue(undefined);
     repository.completeSession.mockImplementation(
       async (
         _params: unknown,
         evaluateBadges: (client: Prisma.TransactionClient) => Promise<unknown>,
       ) => {
-        const newBadges = await evaluateBadges({} as Prisma.TransactionClient);
+        await evaluateBadges({} as Prisma.TransactionClient);
         return {
           session: buildSession({
             status: 'COMPLETED',
@@ -2129,7 +2113,6 @@ describe('SessionsService.complete', () => {
             globalBand: 'ACCEPTABLE',
             axisResults: [scoredAxis],
           }),
-          newBadges,
         };
       },
     );
@@ -2147,6 +2130,6 @@ describe('SessionsService.complete', () => {
         simulation: { verdictFavorable: true },
       },
     );
-    expect(result.newBadges).toEqual([wonBadge]);
+    expect(result.status).toBe('COMPLETED');
   });
 });

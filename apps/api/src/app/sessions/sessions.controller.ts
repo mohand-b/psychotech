@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   AxisType,
@@ -17,6 +18,7 @@ import {
   SimulationSummaryDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
+import { NewBadgesInterceptor } from '../badges/new-badges.interceptor';
 import { CurrentUser } from '../common/current-user.decorator';
 import { CompleteTargetedSessionRequest } from './dto/complete-targeted-session.request';
 import { ListSessionsQuery } from './dto/list-sessions.query';
@@ -27,6 +29,7 @@ import { SessionsService } from './sessions.service';
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}
 
+  @UseInterceptors(NewBadgesInterceptor)
   @Post()
   start(
     @CurrentUser() userId: string,
@@ -35,6 +38,7 @@ export class SessionsController {
     return this.sessionsService.start(userId, request);
   }
 
+  @UseInterceptors(NewBadgesInterceptor)
   @Post(':id/axes/:axis/results')
   completeAxis(
     @CurrentUser() userId: string,
@@ -45,6 +49,7 @@ export class SessionsController {
     return this.sessionsService.completeAxis(userId, sessionId, axis, request);
   }
 
+  @UseInterceptors(NewBadgesInterceptor)
   @Post(':id/complete')
   complete(
     @CurrentUser() userId: string,

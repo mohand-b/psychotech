@@ -7,6 +7,7 @@ import {
   Post,
   Req,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ResendVerificationResponseDto,
@@ -14,6 +15,7 @@ import {
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import { Request, Response } from 'express';
+import { NewBadgesInterceptor } from '../badges/new-badges.interceptor';
 import { CurrentUser } from '../common/current-user.decorator';
 import { REFRESH_TOKEN_COOKIE } from './auth.constants';
 import { AuthCookieService } from './auth.cookie.service';
@@ -45,6 +47,7 @@ export class AuthController {
 
   @Public()
   @SkipCsrf()
+  @UseInterceptors(NewBadgesInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('email/verify')
   verifyEmail(

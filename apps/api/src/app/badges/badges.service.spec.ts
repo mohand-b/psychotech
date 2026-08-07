@@ -3,14 +3,17 @@ import {
   AxisType,
   BadgeEvent,
   BadgeId,
+  EarnedBadgeDto,
   Sector,
   SessionMode,
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BadgeCollector } from './badge-collector';
 import { BadgeFactsSource, BadgesRepository } from './badges.repository';
 import { BadgesService } from './badges.service';
 
 const tx = {} as Prisma.TransactionClient;
+const EARNED_AT = new Date('2026-08-07T10:00:00Z');
 
 function factsSource(
   overrides: Partial<{
@@ -44,34 +47,47 @@ const repository = {
   acknowledge: vi.fn(),
 };
 
-const service = new BadgesService(repository as unknown as BadgesRepository);
+const collector = new BadgeCollector();
+const service = new BadgesService(
+  repository as unknown as BadgesRepository,
+  collector,
+);
+
+function evaluateCollecting(
+  event: BadgeEvent,
+  sessionFacts: Parameters<BadgesService['evaluateWithin']>[3],
+): Promise<EarnedBadgeDto[]> {
+  return collector.runWithin(async () => {
+    await service.evaluateWithin(tx, 'user-1', event, sessionFacts);
+    return collector.collected();
+  });
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
   repository.findEarnedIdsWithin.mockResolvedValue(new Set());
-  repository.awardWithin.mockResolvedValue(true);
+  repository.awardWithin.mockResolvedValue(EARNED_AT);
   repository.creditRewardWithin.mockResolvedValue(undefined);
 });
 
 describe('BadgesService.evaluateWithin — session completed', () => {
-  it('awards the axis progression badge when the best score reaches 70', async () => {
+  it('deposits the axis progression badge when the best score reaches 70', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(
       factsSource({ bestScores: { [AxisType.LOGIC]: 72 } }),
     );
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.TARGETED,
-        axes: [{ axis: AxisType.LOGIC, score: 72 }],
-        simulation: null,
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.TARGETED,
+      axes: [{ axis: AxisType.LOGIC, score: 72 }],
+      simulation: null,
+    });
 
-    expect(won).toEqual([
-      { badgeId: BadgeId.LOGIC_PROGRESSION, energyReward: 0 },
+    expect(won).toHaveLength(1);
+    expect(won[0].badgeId).toBe(BadgeId.LOGIC_PROGRESSION);
+    expect(won[0].gain).toBeNull();
+    expect(won[0].earnedAt).toBe(EARNED_AT.toISOString());
+    expect(won[0].conditions).toEqual([
+      expect.objectContaining({ met: true, justValidated: true }),
     ]);
     expect(repository.awardWithin).toHaveBeenCalledWith(
       tx,
@@ -84,20 +100,19 @@ describe('BadgesService.evaluateWithin — session completed', () => {
   it('credits the exam favorable reward inside the same transaction', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(factsSource());
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.FULL,
-        axes: [{ axis: AxisType.LOGIC, score: 60 }],
-        simulation: { verdictFavorable: true },
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.FULL,
+      axes: [{ axis: AxisType.LOGIC, score: 60 }],
+      simulation: { verdictFavorable: true },
+    });
 
     const badgeIds = won.map((badge) => badge.badgeId);
     expect(badgeIds).toContain(BadgeId.EXAM_FIRST);
     expect(badgeIds).toContain(BadgeId.EXAM_FAVORABLE);
+    const favorable = won.find(
+      (badge) => badge.badgeId === BadgeId.EXAM_FAVORABLE,
+    );
+    expect(favorable?.gain).toBe(2);
     expect(repository.creditRewardWithin).toHaveBeenCalledTimes(1);
     expect(repository.creditRewardWithin).toHaveBeenCalledWith(
       tx,
@@ -113,16 +128,11 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     );
     repository.buildFactsSourceWithin.mockResolvedValue(factsSource());
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.FULL,
-        axes: [{ axis: AxisType.LOGIC, score: 60 }],
-        simulation: { verdictFavorable: true },
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.FULL,
+      axes: [{ axis: AxisType.LOGIC, score: 60 }],
+      simulation: { verdictFavorable: true },
+    });
 
     expect(won).toEqual([]);
     expect(repository.awardWithin).not.toHaveBeenCalled();
@@ -131,18 +141,13 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
   it('never credits when a concurrent event already awarded the badge', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(factsSource());
-    repository.awardWithin.mockResolvedValue(false);
+    repository.awardWithin.mockResolvedValue(null);
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.FULL,
-        axes: [{ axis: AxisType.LOGIC, score: 60 }],
-        simulation: { verdictFavorable: true },
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.FULL,
+      axes: [{ axis: AxisType.LOGIC, score: 60 }],
+      simulation: { verdictFavorable: true },
+    });
 
     expect(won).toEqual([]);
     expect(repository.creditRewardWithin).not.toHaveBeenCalled();
@@ -153,22 +158,40 @@ describe('BadgesService.evaluateWithin — session completed', () => {
       factsSource({ bestScores: { [AxisType.MEMORY]: 100 } }),
     );
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.TARGETED,
-        axes: [{ axis: AxisType.MEMORY, score: 100 }],
-        simulation: null,
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.TARGETED,
+      axes: [{ axis: AxisType.MEMORY, score: 100 }],
+      simulation: null,
+    });
 
     expect(won.map((badge) => badge.badgeId)).toEqual([
       BadgeId.MEMORY_PROGRESSION,
       BadgeId.MEMORY_EXCELLENCE,
       BadgeId.MEMORY_PERFECTION,
     ]);
+  });
+
+  it('marks both exam gold conditions as just validated by the awarding exam', async () => {
+    repository.findEarnedIdsWithin.mockResolvedValue(
+      new Set([DbBadgeId.EXAM_FIRST, DbBadgeId.EXAM_FAVORABLE]),
+    );
+    repository.buildFactsSourceWithin.mockResolvedValue(factsSource());
+
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.FULL,
+      axes: [
+        { axis: AxisType.LOGIC, score: 80 },
+        { axis: AxisType.MEMORY, score: 75 },
+      ],
+      simulation: { verdictFavorable: true },
+    });
+
+    const solid = won.find((badge) => badge.badgeId === BadgeId.EXAM_SOLID);
+    expect(solid).toBeDefined();
+    expect(solid?.conditions.every((condition) => condition.met)).toBe(true);
+    expect(
+      solid?.conditions.every((condition) => condition.justValidated),
+    ).toBe(true);
   });
 
   it('awards the sector badge once every railway axis reaches 70', async () => {
@@ -194,16 +217,11 @@ describe('BadgesService.evaluateWithin — session completed', () => {
       ]),
     );
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_COMPLETED,
-      {
-        mode: SessionMode.TARGETED,
-        axes: [{ axis: AxisType.REACTIVITY, score: 71 }],
-        simulation: null,
-      },
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.TARGETED,
+      axes: [{ axis: AxisType.REACTIVITY, score: 71 }],
+      simulation: null,
+    });
 
     expect(won.map((badge) => badge.badgeId)).toContain(
       BadgeId.SECTOR_MASTERY,
@@ -212,7 +230,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 });
 
 describe('BadgesService.evaluateWithin — first steps', () => {
-  it('awards and credits first steps once the three conditions hold', async () => {
+  it('awards first steps and singles out the condition validated by the event', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(
       factsSource({
         accountVerified: true,
@@ -221,14 +239,22 @@ describe('BadgesService.evaluateWithin — first steps', () => {
       }),
     );
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.SESSION_STARTED,
-      null,
-    );
+    const won = await evaluateCollecting(BadgeEvent.SESSION_STARTED, null);
 
-    expect(won).toEqual([{ badgeId: BadgeId.FIRST_STEPS, energyReward: 5 }]);
+    expect(won).toHaveLength(1);
+    expect(won[0].badgeId).toBe(BadgeId.FIRST_STEPS);
+    expect(won[0].gain).toBe(5);
+    expect(
+      won[0].conditions.map((condition) => [
+        condition.id,
+        condition.met,
+        condition.justValidated,
+      ]),
+    ).toEqual([
+      ['verified', true, false],
+      ['tutorial', true, false],
+      ['session-started', true, true],
+    ]);
     expect(repository.creditRewardWithin).toHaveBeenCalledWith(
       tx,
       'user-1',
@@ -242,23 +268,37 @@ describe('BadgesService.evaluateWithin — first steps', () => {
       factsSource({ accountVerified: true, sessionStarted: true }),
     );
 
-    const won = await service.evaluateWithin(
-      tx,
-      'user-1',
-      BadgeEvent.ACCOUNT_VERIFIED,
-      null,
-    );
+    const won = await evaluateCollecting(BadgeEvent.ACCOUNT_VERIFIED, null);
 
     expect(won).toEqual([]);
     expect(repository.awardWithin).not.toHaveBeenCalled();
   });
 });
 
+describe('BadgesService.evaluateWithin — outside a collection scope', () => {
+  it('still awards and credits without a collector context', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ bestScores: { [AxisType.LOGIC]: 72 } }),
+    );
+
+    await service.evaluateWithin(tx, 'user-1', BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.TARGETED,
+      axes: [{ axis: AxisType.LOGIC, score: 72 }],
+      simulation: null,
+    });
+
+    expect(repository.awardWithin).toHaveBeenCalledTimes(1);
+    expect(collector.collected()).toEqual([]);
+  });
+});
+
 describe('BadgesService.markTutorialDiscovered', () => {
   it('marks the flag and evaluates the tutorial event in the same transaction', async () => {
     repository.markTutorialDiscovered.mockImplementation(
-      async (_userId: string, evaluate: (client: Prisma.TransactionClient) => Promise<unknown>) =>
-        evaluate(tx),
+      async (
+        _userId: string,
+        evaluate: (client: Prisma.TransactionClient) => Promise<unknown>,
+      ) => evaluate(tx),
     );
     repository.buildFactsSourceWithin.mockResolvedValue(
       factsSource({ tutorialDiscovered: true }),

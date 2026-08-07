@@ -6,14 +6,17 @@ import {
   Param,
   ParseEnumPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   BadgeId,
   BadgeStatusDto,
-  UnacknowledgedBadgeDto,
+  EarnedBadgeDto,
+  NewBadgesPayload,
 } from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
 import { BadgesService } from './badges.service';
+import { NewBadgesInterceptor } from './new-badges.interceptor';
 
 @Controller('me/badges')
 export class BadgesController {
@@ -27,7 +30,7 @@ export class BadgesController {
   @Get('unacknowledged')
   getUnacknowledged(
     @CurrentUser() userId: string,
-  ): Promise<UnacknowledgedBadgeDto[]> {
+  ): Promise<EarnedBadgeDto[]> {
     return this.badgesService.getUnacknowledged(userId);
   }
 
@@ -40,9 +43,13 @@ export class BadgesController {
     await this.badgesService.acknowledge(userId, badgeId);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(NewBadgesInterceptor)
+  @HttpCode(HttpStatus.OK)
   @Post('tutorial-discovered')
-  async tutorialDiscovered(@CurrentUser() userId: string): Promise<void> {
+  async tutorialDiscovered(
+    @CurrentUser() userId: string,
+  ): Promise<NewBadgesPayload> {
     await this.badgesService.markTutorialDiscovered(userId);
+    return {};
   }
 }

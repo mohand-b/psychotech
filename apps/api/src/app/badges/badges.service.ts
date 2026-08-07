@@ -1,60 +1,67 @@
 import { Injectable } from '@nestjs/common';
 import { BadgeId as DbBadgeId, Prisma } from '@prisma/client';
 import {
+  BADGE_BY_ID,
   BADGE_CATALOG,
   BadgeEvent,
   BadgeFacts,
   BadgeId,
   BadgeSessionFacts,
   BadgeStatusDto,
-  NewBadgeDto,
-  UnacknowledgedBadgeDto,
+  EarnedBadgeDto,
   badgeEarned,
   badgesListeningTo,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
+import { BadgeCollector } from './badge-collector';
 import { BadgesRepository } from './badges.repository';
-import { toBadgeStatusDto } from './badges.mappers';
+import {
+  toBadgeStatusDto,
+  toEarnedBadgeDto,
+  toReconciledEarnedBadgeDto,
+} from './badges.mappers';
 
 type PrismaClientLike = Prisma.TransactionClient;
 
 @Injectable()
 export class BadgesService {
-  constructor(private readonly repository: BadgesRepository) {}
+  constructor(
+    private readonly repository: BadgesRepository,
+    private readonly collector: BadgeCollector,
+  ) {}
 
   async evaluateWithin(
     client: PrismaClientLike,
     userId: string,
     event: BadgeEvent,
     sessionFacts: BadgeSessionFacts | null,
-  ): Promise<NewBadgeDto[]> {
+  ): Promise<void> {
     const listening = badgesListeningTo(event);
     if (listening.length === 0) {
-      return [];
+      return;
     }
     const earned = await this.repository.findEarnedIdsWithin(client, userId);
     const pending = listening.filter(
       (definition) => !earned.has(mapEnumValue(DbBadgeId, definition.id)),
     );
     if (pending.length === 0) {
-      return [];
+      return;
     }
     const source = await this.repository.buildFactsSourceWithin(client, userId);
     if (!source) {
-      return [];
+      return;
     }
     const facts: BadgeFacts = { ...source, session: sessionFacts };
-    const won: NewBadgeDto[] = [];
     for (const definition of pending) {
       if (!badgeEarned(definition, facts)) {
         continue;
       }
-      const created = await this.repository.awardWithin(
+      const earnedAt = await this.repository.awardWithin(
         client,
         userId,
         mapEnumValue(DbBadgeId, definition.id),
       );
-      if (!created) {
+      if (!earnedAt) {
         continue;
       }
       if (definition.energyReward > 0) {
@@ -65,12 +72,10 @@ export class BadgesService {
           definition.id,
         );
       }
-      won.push({
-        badgeId: definition.id,
-        energyReward: definition.energyReward,
-      });
+      this.collector.deposit(
+        toEarnedBadgeDto(definition, earnedAt, facts, event),
+      );
     }
-    return won;
   }
 
   async markTutorialDiscovered(userId: string): Promise<void> {
@@ -104,16 +109,13 @@ export class BadgesService {
     );
   }
 
-  async getUnacknowledged(userId: string): Promise<UnacknowledgedBadgeDto[]> {
+  async getUnacknowledged(userId: string): Promise<EarnedBadgeDto[]> {
     const rows = await this.repository.findUnacknowledged(userId);
-    return rows.map((row) => {
-      const badgeId = mapEnumValue(BadgeId, row.badgeId);
-      const definition = BADGE_CATALOG.find((entry) => entry.id === badgeId);
-      return {
-        badgeId,
-        earnedAt: row.earnedAt.toISOString(),
-        energyReward: definition?.energyReward ?? 0,
-      };
+    return rows.flatMap((row) => {
+      const definition = BADGE_BY_ID.get(mapEnumValue(BadgeId, row.badgeId));
+      return definition
+        ? [toReconciledEarnedBadgeDto(definition, row.earnedAt)]
+        : [];
     });
   }
 

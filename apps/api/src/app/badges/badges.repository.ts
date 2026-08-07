@@ -77,16 +77,18 @@ export class BadgesRepository {
     client: PrismaClientLike,
     userId: string,
     badgeId: DbBadgeId,
-  ): Promise<boolean> {
+  ): Promise<Date | null> {
     try {
-      await client.userBadge.create({ data: { userId, badgeId } });
-      return true;
+      const created = await client.userBadge.create({
+        data: { userId, badgeId },
+      });
+      return created.earnedAt;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === UNIQUE_CONSTRAINT_VIOLATION
       ) {
-        return false;
+        return null;
       }
       throw error;
     }
