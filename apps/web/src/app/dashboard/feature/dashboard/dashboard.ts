@@ -33,7 +33,10 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+import {
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -80,7 +83,7 @@ interface LastResultView {
   selector: 'app-dashboard',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AppIcon,
+    AxisIcon,
     AxisLabel,
     AxisRadar,
     BoltIcon,
@@ -112,6 +115,7 @@ export class Dashboard {
   protected readonly discoverIcon = Target;
   protected readonly statuses = AxisProgressStatus;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
+  protected readonly cardIconSize = AXIS_ICON_SIZE.card;
 
   protected readonly radarMode = signal<RadarMode>('derniere');
 

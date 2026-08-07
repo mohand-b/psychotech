@@ -187,9 +187,8 @@
             class="duo__axis-tile"
             [style.background]="row.presentation.pastelVar"
             [style.border-color]="row.presentation.pastelBorderVar"
-            [style.color]="row.presentation.textVar"
           >
-            <ui-app-icon [glyph]="row.axis" [size]="17" />
+            <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
           </span>
           <span class="duo__axis-copy">
             <span class="duo__axis-name">{{ row.presentation.label }}</span>
@@ -357,9 +356,8 @@
               class="trainm__axis-tile"
               [style.background]="row.presentation.pastelVar"
               [style.border-color]="row.presentation.pastelBorderVar"
-              [style.color]="row.presentation.textVar"
             >
-              <ui-app-icon [glyph]="row.axis" [size]="19" />
+              <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
             </span>
             <span class="trainm__axis-copy">
               <span class="trainm__axis-name"
@@ -431,9 +429,8 @@
         <span
           class="tut__card-tile"
           [style.background]="tutorial.presentation.pastelVar"
-          [style.color]="tutorial.presentation.textVar"
         >
-          <ui-app-icon [glyph]="tutorial.axis" [size]="17" />
+          <ui-axis-icon [axis]="tutorial.axis" [size]="cardIconSize" />
         </span>
         <span class="tut__card-name">{{ tutorial.presentation.label }}</span>
         <span class="tut__try" [style.color]="tutorial.presentation.textVar">

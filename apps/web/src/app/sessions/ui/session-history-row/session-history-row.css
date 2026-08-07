@@ -21,11 +21,6 @@
   min-width: 0;
 }
 
-.row__simulation-chip ui-icon {
-  color: var(--brand);
-  flex-shrink: 0;
-}
-
 .row__simulation-chip span {
   font: 500 14px/20px var(--font-ui);
   color: var(--ink);
@@ -110,10 +105,6 @@
 .rowm__icon {
   display: inline-flex;
   flex-shrink: 0;
-}
-
-.rowm__icon--simulation {
-  color: var(--brand);
 }
 
 .rowm__text {

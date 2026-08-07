@@ -169,9 +169,8 @@
                     [style.border-color]="
                       presentations[strength.axis].pastelBorderVar
                     "
-                    [style.color]="presentations[strength.axis].textVar"
                   >
-                    <ui-app-icon [glyph]="strength.axis" [size]="16" />
+                    <ui-axis-icon [axis]="strength.axis" />
                   </span>
                   <span class="bilan__side-copy">
                     <span class="bilan__side-name">{{
@@ -206,9 +205,8 @@
                     [style.border-color]="
                       presentations[weakness.axis].pastelBorderVar
                     "
-                    [style.color]="presentations[weakness.axis].textVar"
                   >
-                    <ui-app-icon [glyph]="weakness.axis" [size]="16" />
+                    <ui-axis-icon [axis]="weakness.axis" />
                   </span>
                   <span class="bilan__side-copy">
                     <span class="bilan__side-name">{{
@@ -299,9 +297,11 @@
                   [style.border-color]="
                     presentations[recommendation.axis].pastelBorderVar
                   "
-                  [style.color]="presentations[recommendation.axis].textVar"
                 >
-                  <ui-app-icon [glyph]="recommendation.axis" [size]="20" />
+                  <ui-axis-icon
+                    [axis]="recommendation.axis"
+                    [size]="cardIconSize"
+                  />
                 </span>
                 <span class="bilan__next-name">{{
                   presentations[recommendation.axis].label

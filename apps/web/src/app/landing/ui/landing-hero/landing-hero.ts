@@ -13,34 +13,26 @@ import { RouterLink } from '@angular/router';
 import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight, CirclePlay, LucideIconData } from 'lucide-angular';
 import {
-  ArrowRight,
-  BookOpen,
-  Calculator,
-  CirclePlay,
-  LucideIconData,
-  Rotate3d,
-  Target,
-} from 'lucide-angular';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const AXIS_FALLBACK_ICONS: Partial<Record<AxisType, LucideIconData>> = {
-  [AxisType.ATTENTION]: Target,
-  [AxisType.NUMERICAL]: Calculator,
-  [AxisType.VERBAL]: BookOpen,
-  [AxisType.SPATIAL]: Rotate3d,
-};
+const AXES_WITH_ICON: ReadonlySet<AxisType> = new Set(
+  SECTOR_AXES[Sector.RAILWAY],
+);
 
 interface HeroAxis {
   axis: AxisType;
   label: string;
   shortLabel: string;
-  fallbackIcon: LucideIconData | null;
+  hasIcon: boolean;
   colorVar: string;
 }
 
@@ -60,7 +52,7 @@ function axesFor(sector: Sector): HeroAxis[] {
       axis,
       label: presentation.label,
       shortLabel: presentation.label.split(' ')[0],
-      fallbackIcon: AXIS_FALLBACK_ICONS[axis] ?? null,
+      hasIcon: AXES_WITH_ICON.has(axis),
       colorVar: presentation.plainVar,
     };
   });
@@ -69,7 +61,7 @@ function axesFor(sector: Sector): HeroAxis[] {
 @Component({
   selector: 'app-landing-hero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppIcon, RouterLink, Icon],
+  imports: [AxisIcon, RouterLink, Icon],
   templateUrl: './landing-hero.html',
   styleUrl: './landing-hero.css',
 })
@@ -81,6 +73,7 @@ export class LandingHero {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly arrowIcon = ArrowRight;
+  protected readonly cardIconSize = AXIS_ICON_SIZE.card;
 
   protected readonly ctaLabel = computed(() =>
     this.authenticated()

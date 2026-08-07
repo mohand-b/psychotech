@@ -255,6 +255,20 @@
     box-shadow 0.18s ease-out;
 }
 
+.hero__axis-icon--dot {
+  width: 22px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__axis-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--axis-color);
+}
+
 .hero__axis-name {
   position: absolute;
   bottom: 0;

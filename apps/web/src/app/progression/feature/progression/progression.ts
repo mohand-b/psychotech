@@ -27,7 +27,7 @@ import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
@@ -73,7 +73,7 @@ function relativeDayLabel(iso: string): string {
 @Component({
   selector: 'app-progression',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppIcon, AxisRadar, EvolutionChart, Icon, SectorChip, Skeleton],
+  imports: [AxisIcon, AxisRadar, EvolutionChart, Icon, SectorChip, Skeleton],
   providers: [ProgressionFacade],
   templateUrl: './progression.html',
   styleUrl: './progression.css',

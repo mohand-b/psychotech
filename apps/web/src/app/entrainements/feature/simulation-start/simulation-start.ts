@@ -29,7 +29,10 @@ import { isEnergyInsufficientError } from '../../../energy/data-access/energy-er
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+import {
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { BoltIcon } from '../../../shared/ui/bolt-icon/bolt-icon';
 import { Button } from '../../../shared/ui/button/button';
@@ -50,7 +53,7 @@ interface AdviceItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ActionFooter,
-    AppIcon,
+    AxisIcon,
     BoltIcon,
     Button,
     ChevronStepper,
@@ -69,6 +72,8 @@ export class SimulationStart {
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly durationIcon = Timer;
+  protected readonly heroIconSize = AXIS_ICON_SIZE.hero;
+  protected readonly cardIconSize = AXIS_ICON_SIZE.card;
 
   protected readonly starting = signal(false);
 

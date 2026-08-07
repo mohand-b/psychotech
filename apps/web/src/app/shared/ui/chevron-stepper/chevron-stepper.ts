@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { AxisType, FULL_SESSION_LABEL_LOWER } from '@psychotech/shared';
 import { Check } from 'lucide-angular';
-import { AppIcon } from '../app-icon/app-icon';
+import { AxisIcon } from '../axis-icon/axis-icon';
 import { Icon } from '../icon/icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 
@@ -40,7 +40,7 @@ interface DecoratedStep {
 @Component({
   selector: 'ui-chevron-stepper',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppIcon, Icon, NgTemplateOutlet],
+  imports: [AxisIcon, Icon, NgTemplateOutlet],
   template: `
     <nav [class]="navClasses()" [attr.aria-label]="navLabel()">
       @for (
@@ -104,7 +104,7 @@ interface DecoratedStep {
       @if (step.state === 'done') {
         <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.5" />
       } @else {
-        <ui-app-icon [glyph]="step.axis" [size]="14" />
+        <ui-axis-icon [axis]="step.axis" />
       }
       @if (variant() === 'full') {
         <span class="step__label">{{ step.label }}</span>

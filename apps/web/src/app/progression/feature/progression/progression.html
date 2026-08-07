@@ -159,9 +159,8 @@
               <span
                 class="prog__axis-icon"
                 [style.background]="row.presentation.pastelVar"
-                [style.color]="row.presentation.textVar"
               >
-                <ui-app-icon [glyph]="row.axis" [size]="16" />
+                <ui-axis-icon [axis]="row.axis" />
               </span>
               <span class="prog__axis-copy">
                 <span class="prog__axis-name">{{ row.presentation.label }}</span>

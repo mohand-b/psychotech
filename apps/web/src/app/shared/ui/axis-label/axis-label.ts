@@ -5,21 +5,16 @@ import {
   input,
 } from '@angular/core';
 import { AxisType } from '@psychotech/shared';
-import { AppIcon } from '../app-icon/app-icon';
+import { AxisIcon } from '../axis-icon/axis-icon';
 import { AXIS_PRESENTATION } from '../axis-presentation';
 
 @Component({
   selector: 'ui-axis-label',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppIcon],
+  imports: [AxisIcon],
   template: `
     <span class="ui-axis-label">
-      <ui-app-icon
-        class="ui-axis-label__icon"
-        [glyph]="axis()"
-        [size]="16"
-        [style.color]="presentation().plainVar"
-      />
+      <ui-axis-icon class="ui-axis-label__icon" [axis]="axis()" />
       <span class="ui-axis-label__name">{{
         compact() ? presentation().shortLabel : presentation().label
       }}</span>

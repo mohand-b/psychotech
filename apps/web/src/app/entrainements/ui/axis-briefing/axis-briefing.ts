@@ -26,7 +26,10 @@ import {
   LayoutGrid,
   LucideIconData,
 } from 'lucide-angular';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+import {
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { Keycap } from '../../../shared/ui/keycap/keycap';
@@ -79,7 +82,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
 @Component({
   selector: 'ui-axis-briefing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppIcon, Icon, Keycap, Toggle],
+  imports: [AxisIcon, Icon, Keycap, Toggle],
   template: `
     <div
       class="axis-briefing"
@@ -90,7 +93,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
     >
       <header class="axis-briefing__hero">
         <span class="axis-briefing__tile">
-          <ui-app-icon [glyph]="axis()" [size]="44" />
+          <ui-axis-icon [axis]="axis()" [size]="heroIconSize" />
         </span>
         <h1 class="axis-briefing__name">{{ presentation().label }}</h1>
         <p class="axis-briefing__tagline">{{ content().tagline }}</p>
@@ -442,6 +445,7 @@ export class AxisBriefing {
   protected readonly keyboardIcon = Keyboard;
   protected readonly mappingArrowIcon = ArrowRight;
   protected readonly mappingDownIcon = ArrowDown;
+  protected readonly heroIconSize = AXIS_ICON_SIZE.hero;
 
   protected arrowIcon(arrow: BriefingArrow): LucideIconData {
     return ARROW_ICONS[arrow];

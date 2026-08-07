@@ -43,11 +43,7 @@
                 [attr.title]="axis.label"
               >
                 <span class="hero__axis-icon">
-                  @if (axis.fallbackIcon; as fallback) {
-                    <ui-icon [img]="fallback" [size]="22" [strokeWidth]="1.5" />
-                  } @else {
-                    <ui-app-icon [glyph]="axis.axis" [size]="22" />
-                  }
+                  <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
                 </span>
                 <span class="hero__axis-name" aria-hidden="true">
                   {{ axis.label }}
@@ -90,15 +86,14 @@
                   [attr.aria-label]="axis.label"
                   [attr.title]="axis.label"
                 >
-                  <span class="hero__axis-icon">
-                    @if (axis.fallbackIcon; as fallback) {
-                      <ui-icon
-                        [img]="fallback"
-                        [size]="20"
-                        [strokeWidth]="1.5"
-                      />
+                  <span
+                    class="hero__axis-icon"
+                    [class.hero__axis-icon--dot]="!axis.hasIcon"
+                  >
+                    @if (axis.hasIcon) {
+                      <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
                     } @else {
-                      <ui-app-icon [glyph]="axis.axis" [size]="20" />
+                      <span class="hero__axis-dot" aria-hidden="true"></span>
                     }
                   </span>
                   <span class="hero__axis-name" aria-hidden="true">
@@ -167,11 +162,7 @@
               [attr.aria-label]="axis.label"
             >
               <span class="hero__stacked-axis-icon">
-                @if (axis.fallbackIcon; as fallback) {
-                  <ui-icon [img]="fallback" [size]="19" [strokeWidth]="1.6" />
-                } @else {
-                  <ui-app-icon [glyph]="axis.axis" [size]="19" />
-                }
+                <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
               </span>
               <span class="hero__stacked-axis-name" aria-hidden="true">
                 {{ axis.shortLabel }}

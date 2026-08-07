@@ -26,7 +26,10 @@ import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgeUnlock } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
-import { AppIcon } from '../../../shared/ui/app-icon/app-icon';
+import {
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
@@ -52,7 +55,7 @@ import { formatSessionDate } from '../sessions/session-history-view';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ActionFooter,
-    AppIcon,
+    AxisIcon,
     AxisLabel,
     AxisRadar,
     BadgeUnlock,
@@ -85,6 +88,7 @@ export class SimulationSummary {
 
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;
+  protected readonly cardIconSize = AXIS_ICON_SIZE.card;
   protected readonly presentations = AXIS_PRESENTATION;
   protected readonly reportLabel = FULL_SESSION_REPORT_LABEL;
   protected readonly eliminatoryNote = ELIMINATORY_AXIS_VERDICT_NOTE;
