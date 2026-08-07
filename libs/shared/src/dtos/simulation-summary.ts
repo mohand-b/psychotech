@@ -1,4 +1,5 @@
 import { AxisType, ScoreBand, Sector } from '../enums';
+import { EarnedBadgeDto } from './badge';
 import {
   SimulationAppreciationDto,
   SimulationSummarySelectionDto,
@@ -23,6 +24,7 @@ export interface SimulationAxisSummaryDto {
 
 export interface SimulationSummaryDto {
   sessionId: string;
+  earnedBadges?: EarnedBadgeDto[];
   sector: Sector;
   completedAt: string;
   globalScore: number;

@@ -17,10 +17,10 @@ export const BADGE_PERFECTION_SCORE = 100;
 export const BADGE_SECTOR_THRESHOLD = 70;
 export const BADGE_EXAM_AXIS_FLOOR = 70;
 
-export const FIRST_STEPS_REWARD = 3;
+export const FIRST_STEPS_REWARD = 2;
 export const EXAM_FAVORABLE_REWARD = 2;
 export const EXAM_GOLD_REWARD = 3;
-export const SECTOR_MASTERY_REWARD = 2;
+export const SECTOR_MASTERY_REWARD = 3;
 export const AXIS_SILVER_REWARD = 1;
 export const AXIS_GOLD_REWARD = 2;
 
@@ -183,7 +183,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     conditions: [
       {
         id: 'first-favorable',
-        label: 'Premier examen blanc au verdict favorable',
+        label: 'Verdict favorable',
         met: (facts) =>
           completedSimulation(facts) &&
           facts.session?.simulation?.verdictFavorable === true,
@@ -244,7 +244,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
       },
       {
         id: 'tutorial',
-        label: 'Un tutoriel découvert',
+        label: 'Un tutoriel terminé',
         met: (facts) => facts.user.tutorialDiscovered,
       },
       {

@@ -125,6 +125,7 @@ export interface CompleteTargetedSessionDto {
 
 interface TargetedAxisResultBaseDto {
   sessionId: string;
+  earnedBadges?: EarnedBadgeDto[];
   sector: Sector;
   seed: string;
   helpEnabled: boolean;
