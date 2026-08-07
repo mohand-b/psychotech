@@ -1,4 +1,5 @@
 import { Sector } from '../enums';
+import { EarnedBadgeDto } from './badge';
 
 export interface RegisterDto {
   email: string;
@@ -33,6 +34,7 @@ export type EmailVerificationOutcome =
 export interface VerifyEmailResponseDto {
   outcome: EmailVerificationOutcome;
   grantedEnergy: number;
+  newBadges?: EarnedBadgeDto[];
 }
 
 export interface ResendVerificationResponseDto {

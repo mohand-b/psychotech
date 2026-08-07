@@ -14,13 +14,20 @@ export interface BadgeStatusDto {
   rarityPercent: number | null;
 }
 
-export interface NewBadgeDto {
-  badgeId: BadgeId;
-  energyReward: number;
+export interface EarnedBadgeConditionDto {
+  id: string;
+  label: string;
+  met: boolean;
+  justValidated: boolean;
 }
 
-export interface UnacknowledgedBadgeDto {
+export interface EarnedBadgeDto {
   badgeId: BadgeId;
   earnedAt: string;
-  energyReward: number;
+  gain: number | null;
+  conditions: EarnedBadgeConditionDto[];
+}
+
+export interface NewBadgesPayload {
+  newBadges?: EarnedBadgeDto[];
 }
