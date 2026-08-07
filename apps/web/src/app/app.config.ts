@@ -20,6 +20,7 @@ import { catchError, firstValueFrom, of } from 'rxjs';
 import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
+import { newBadgesInterceptor } from './core/http/new-badges.interceptor';
 import { StaleChunkErrorHandler } from './core/stale-chunk-error.handler';
 import { isStaleChunkError, reloadOnceForStaleChunk } from './core/stale-chunk';
 import { appRoutes } from './app.routes';
@@ -37,7 +38,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes, withNavigationErrorHandler(reloadOnStaleChunk)),
     provideHttpClient(
       withFetch(),
-      withInterceptors([credentialsInterceptor, errorInterceptor]),
+      withInterceptors([
+        credentialsInterceptor,
+        errorInterceptor,
+        newBadgesInterceptor,
+      ]),
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN',

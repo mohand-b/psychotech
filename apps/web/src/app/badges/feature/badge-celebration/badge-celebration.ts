@@ -10,23 +10,14 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Sector } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { isQuietForCelebration } from '../../../core/badges/play-routes';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { BadgeRevealView } from '../../../shared/ui/badge-unlock/badge-unlock';
 import { badgeRevealViewFor } from '../../data-access/badge-display';
 import { BadgesFacade } from '../../data-access/badges.facade';
 
-const PLAY_URL_MARKERS = [
-  '/session/',
-  '/tutoriel',
-  '/resultat',
-  '/correction',
-  '/manette',
-];
-
-export function isQuietForCelebration(url: string): boolean {
-  return !PLAY_URL_MARKERS.some((marker) => url.includes(marker));
-}
+export { isQuietForCelebration };
 
 @Component({
   selector: 'app-badge-celebration',
