@@ -13,6 +13,7 @@ import {
   BillingConfigDto,
   PackCheckoutSessionDto,
   PackCheckoutStatusDto,
+  PackPurchaseDto,
 } from '@psychotech/shared';
 import { Request } from 'express';
 import { Public } from '../auth/decorators/public.decorator';
