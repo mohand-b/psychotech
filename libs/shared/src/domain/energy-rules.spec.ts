@@ -3,7 +3,7 @@ import {
   ENERGY_PACK_BY_ID,
   energyPackUnitPriceEur,
 } from './energy-packs';
-import { SESSION_ENERGY_COST, SIGNUP_ENERGY_GRANT } from './energy-rules';
+import { SESSION_ENERGY_COST } from './energy-rules';
 import { EnergyPackId, SessionMode } from '../enums';
 
 describe('energy rules', () => {
@@ -13,9 +13,6 @@ describe('energy rules', () => {
     expect(SESSION_ENERGY_COST[SessionMode.TUTORIAL]).toBe(0);
   });
 
-  it('grants five energies at signup verification', () => {
-    expect(SIGNUP_ENERGY_GRANT).toBe(5);
-  });
 });
 
 describe('energy packs', () => {

@@ -33,7 +33,7 @@ export type EmailVerificationOutcome =
 
 export interface VerifyEmailResponseDto {
   outcome: EmailVerificationOutcome;
-  grantedEnergy: number;
+  email: string | null;
   newBadges?: EarnedBadgeDto[];
 }
 
