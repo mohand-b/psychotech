@@ -24,6 +24,11 @@ export const authRoutes: Route[] = [
           import('./verification/verification').then((m) => m.Verification),
       },
       {
+        path: 'verification-changement',
+        loadComponent: () =>
+          import('./email-change/email-change').then((m) => m.EmailChange),
+      },
+      {
         path: 'verification-email',
         canMatch: [authGuard],
         loadComponent: () =>

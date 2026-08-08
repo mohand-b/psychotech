@@ -1,305 +1,611 @@
-<header class="profilm__header safe-top md:hidden">
-  <div class="profilm__bar flex items-center">
-    <a class="profilm__back" routerLink="/dashboard" aria-label="Retour">
-      <ui-icon [img]="backIcon" [size]="18" [strokeWidth]="2" />
-    </a>
-    <span class="profilm__bar-title">Mon profil</span>
-    <span class="profilm__bar-spacer"></span>
-    <ui-energy-chip [state]="energy()" />
-  </div>
-  <div class="profilm__tabs flex">
-    @for (item of navItems(); track item.id) {
-      <button
-        type="button"
-        class="profilm__tab"
-        [class.profilm__tab--active]="section() === item.id"
-        (click)="open(item.id)"
-      >
-        <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
-        {{ item.label }}
-      </button>
-    }
-  </div>
+<header class="profilm__bar safe-top md:hidden flex items-center">
+  <a class="profilm__back" routerLink="/dashboard" aria-label="Retour">
+    <ui-icon [img]="backIcon" [size]="18" [strokeWidth]="2" />
+  </a>
+  <span class="profilm__bar-title">Mon profil</span>
+  <span class="flex-1"></span>
+  <a class="profilm__solde flex items-center" routerLink="/credits">
+    <ui-axis-icon axis="credit" [size]="13" />
+    <span class="t-mono">{{ balance() }}</span>
+  </a>
 </header>
+<div class="profilm__tabs md:hidden flex">
+  @for (item of navItems; track item.id) {
+    <button
+      type="button"
+      class="profilm__tab"
+      [class.profilm__tab--active]="section() === item.id"
+      (click)="open(item.id)"
+    >
+      <ui-icon [img]="item.icon" [size]="15" [strokeWidth]="1.8" />
+      {{ item.label }}
+    </button>
+  }
+</div>
 
-<div class="page-shell profil" [class.profil--form-bar]="isForm()">
+<div class="page-shell profil">
   <div class="profil__head flex flex-col">
     <h1 class="t-page-title">Mon profil</h1>
     <span class="profil__subtitle"
-      >Vos informations, votre secteur de préparation et votre
-      compte.</span
+      >Vos informations, votre secteur et vos préférences.</span
     >
   </div>
 
-  <div class="profilm__identity flex items-center md:hidden">
-    <span class="profil__avatar">{{ initial() }}</span>
-    <span class="profil__identity-copy flex flex-col">
-      <span class="profil__name">{{ fullName() }}</span>
-      <span class="profil__plan-line">{{ railSubtitle() }}</span>
-    </span>
-  </div>
-
   <div class="profil__grid">
-    <aside class="profil__rail flex flex-col">
-      <div class="profil__identity flex items-center">
+    <nav class="profil__rail flex flex-col">
+      <span class="profil__identity flex items-center">
         <span class="profil__avatar">{{ initial() }}</span>
         <span class="profil__identity-copy flex flex-col">
           <span class="profil__name">{{ fullName() }}</span>
-          <span class="profil__plan-line">{{ railSubtitle() }}</span>
-        </span>
-      </div>
-
-      <nav class="profil__nav flex flex-col">
-        @for (item of navItems(); track item.id) {
-          <button
-            type="button"
-            class="profil__nav-item"
-            [class.profil__nav-item--active]="section() === item.id"
-            (click)="open(item.id)"
+          <span class="profil__identity-sub flex items-center"
+            >{{ sectorLabel() }} ·
+            <span class="t-mono">{{ balance() }}</span> crédits</span
           >
-            <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
-            {{ item.label }}
-          </button>
-        }
-      </nav>
-
+        </span>
+      </span>
+      <span class="profil__rail-divider"></span>
+      @for (item of navItems; track item.id) {
+        <button
+          type="button"
+          class="profil__nav-item"
+          [class.profil__nav-item--active]="section() === item.id"
+          (click)="open(item.id)"
+        >
+          <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
+          {{ item.label }}
+        </button>
+      }
+      <span class="profil__rail-divider"></span>
       <button type="button" class="profil__logout" (click)="logout()">
-        <ui-icon [img]="logoutIcon" [size]="16" [strokeWidth]="1.8" />
+        <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="1.8" />
         Se déconnecter
       </button>
-    </aside>
+    </nav>
 
     <div class="profil__panel flex flex-col">
-      <section class="profil__card flex flex-col">
-        <div class="profil__section-head flex flex-col">
-          <span class="profil__section-title">{{ meta().title }}</span>
-          <span class="profil__section-desc">{{ meta().description }}</span>
-        </div>
+      @switch (section()) {
+        @case ('account') {
+          <section class="profil__card">
+            <div class="profil__card-head flex items-center">
+              <span class="profil__card-title flex-1">{{ meta().title }}</span>
+              @if (saved()) {
+                <span class="profil__chip-saved flex items-center">Enregistré</span>
+              }
+              @if (!edit()) {
+                <button
+                  type="button"
+                  class="profil__btn-ghost md:inline-flex hidden"
+                  (click)="startEdit()"
+                >
+                  Modifier
+                </button>
+              }
+            </div>
 
-
-        @switch (section()) {
-          @case ('account') {
-            <div class="profil__section-body flex flex-col">
-              <div class="profil__field-row">
-                <label class="profil__field flex flex-col">
-                  <span class="profil__field-label">Prénom</span>
-                  <input
-                    class="profil__input"
-                    [value]="firstName()"
-                    (input)="firstName.set(readValue($event))"
-                  />
-                </label>
-                <label class="profil__field flex flex-col">
-                  <span class="profil__field-label">Nom</span>
-                  <input
-                    class="profil__input"
-                    [value]="lastName()"
-                    (input)="lastName.set(readValue($event))"
-                  />
-                </label>
+            @if (!edit()) {
+              <div class="profil__rows md:flex hidden flex-col">
+                <div class="profil__row">
+                  <span class="profil__row-label">Prénom</span>
+                  <span class="profil__row-value">{{ user()?.firstName }}</span>
+                </div>
+                <div class="profil__row">
+                  <span class="profil__row-label">Nom</span>
+                  <span class="profil__row-value">{{ user()?.lastName }}</span>
+                </div>
+                <div class="profil__row profil__row--mail">
+                  <span class="profil__row-label">Adresse email</span>
+                  <span class="profil__mail flex flex-col">
+                    <span class="profil__mail-line flex items-center">
+                      <span class="profil__row-value">{{ user()?.email }}</span>
+                      @if (emailVerified()) {
+                        <span
+                          class="profil__badge profil__badge--ok"
+                          [title]="
+                            verifiedDateLabel()
+                              ? 'Adresse vérifiée le ' + verifiedDateLabel()
+                              : ''
+                          "
+                          >Vérifiée</span
+                        >
+                      } @else {
+                        <span class="profil__badge profil__badge--warn"
+                          >Non vérifiée</span
+                        >
+                      }
+                      @if (pendingEmail(); as pending) {
+                        <span class="profil__badge profil__badge--warn"
+                          >Changement en attente</span
+                        >
+                      }
+                    </span>
+                    @if (emailSentTo(); as sentTo) {
+                      <span class="profil__mail-sent"
+                        >Email envoyé à {{ sentTo }}. Pensez à vérifier vos
+                        courriers indésirables.</span
+                      >
+                    } @else if (pendingEmail(); as pending) {
+                      <span class="profil__mail-sent"
+                        >Confirmation attendue sur {{ pending }}.</span
+                      >
+                    }
+                  </span>
+                  @if ((!emailVerified() || pendingEmail()) && !emailSentTo()) {
+                    <button
+                      type="button"
+                      class="profil__btn-amber"
+                      [disabled]="resendSending()"
+                      (click)="resendVerification()"
+                    >
+                      Renvoyer l'email
+                    </button>
+                  }
+                </div>
               </div>
-              <label class="profil__field profil__field--email flex flex-col">
-                <span class="profil__field-label">Adresse email</span>
+            }
+
+            @if (edit()) {
+              <div class="profil__form md:grid flex flex-col">
+                <span class="profil__row-label">Prénom</span>
+                <input
+                  class="profil__input"
+                  [value]="firstName()"
+                  (input)="firstName.set(readValue($event)); touchAccount()"
+                />
+                <span class="profil__row-label">Nom</span>
+                <input
+                  class="profil__input"
+                  [value]="lastName()"
+                  (input)="lastName.set(readValue($event)); touchAccount()"
+                />
+                <span class="profil__row-label">Adresse email</span>
+                <span class="profil__form-mail flex flex-col">
+                  <input
+                    class="profil__input"
+                    type="email"
+                    [value]="email()"
+                    (input)="email.set(readValue($event)); touchAccount()"
+                  />
+                  <span class="profil__hint"
+                    >Un email de confirmation sera envoyé en cas de changement
+                    d'adresse.</span
+                  >
+                </span>
+              </div>
+              <div class="profil__footer flex items-center">
+                <span
+                  class="profil__status flex-1"
+                  [class.profil__status--dirty]="dirty()"
+                  >{{
+                    accountError() ??
+                      (dirty()
+                        ? 'Modifications non enregistrées'
+                        : 'Aucune modification')
+                  }}</span
+                >
+                <button
+                  type="button"
+                  class="profil__btn-ghost"
+                  (click)="cancelEdit()"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  class="profil__btn-primary"
+                  [disabled]="!canSave()"
+                  (click)="save()"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            }
+
+            <div class="profilm__form md:hidden flex flex-col">
+              @if (!emailVerified() && !emailSentTo()) {
+                <div class="profilm__warn flex flex-col">
+                  <span class="profilm__warn-text"
+                    >Votre adresse n'est pas encore vérifiée. Certaines
+                    fonctions, dont l'apparition dans le fil de la communauté,
+                    restent désactivées.</span
+                  >
+                  <button
+                    type="button"
+                    class="profil__btn-amber"
+                    [disabled]="resendSending()"
+                    (click)="resendVerification()"
+                  >
+                    Renvoyer l'email de vérification
+                  </button>
+                </div>
+              }
+              @if (emailSentTo(); as sentTo) {
+                <div class="profilm__sent">
+                  Email envoyé à {{ sentTo }}. Pensez à vérifier vos courriers
+                  indésirables.
+                </div>
+              }
+              <label class="profil__field flex flex-col">
+                <span class="profil__row-label">Prénom</span>
+                <input
+                  class="profil__input"
+                  [value]="firstName()"
+                  (input)="firstName.set(readValue($event)); touchAccount()"
+                />
+              </label>
+              <label class="profil__field flex flex-col">
+                <span class="profil__row-label">Nom</span>
+                <input
+                  class="profil__input"
+                  [value]="lastName()"
+                  (input)="lastName.set(readValue($event)); touchAccount()"
+                />
+              </label>
+              <label class="profil__field flex flex-col">
+                <span class="profil__field-head flex items-center">
+                  <span class="profil__row-label flex-1">Adresse email</span>
+                  @if (emailVerified()) {
+                    <span class="profil__badge profil__badge--ok">Vérifiée</span>
+                  } @else {
+                    <span class="profil__badge profil__badge--warn"
+                      >Non vérifiée</span
+                    >
+                  }
+                </span>
                 <input
                   class="profil__input"
                   type="email"
-                  [value]="user()?.email ?? ''"
-                  disabled
+                  [value]="email()"
+                  (input)="email.set(readValue($event)); touchAccount()"
                 />
-                <span class="profil__field-hint"
-                  >L'adresse email de connexion ne peut pas être modifiée pour
-                  l'instant.</span
+                <span class="profil__hint"
+                  >Un email de confirmation sera envoyé en cas de changement
+                  d'adresse.</span
                 >
               </label>
-              <div class="profil__feed-optin flex items-center">
-                <span class="profil__feed-copy flex flex-col">
-                  <span class="profil__field-label"
-                    >Apparaître dans le fil avec mon prénom</span
-                  >
-                  <span class="profil__field-hint"
-                    >Vos obtentions de badges restent anonymes tant que cette
-                    option est désactivée.</span
-                  >
-                </span>
-                <ui-toggle
-                  [(checked)]="showInFeed"
-                  label="Apparaître dans le fil avec mon prénom"
-                />
-              </div>
-              <div class="profil__metas">
-                <span class="profil__meta flex flex-col">
-                  <span class="t-label">Membre depuis</span>
-                  <span class="profil__meta-value">{{ memberSince() }}</span>
-                </span>
-                @if (completedSessions() !== null) {
-                  <span class="profil__meta flex flex-col">
-                    <span class="t-label">Sessions réalisées</span>
-                    <span class="profil__meta-value t-mono">{{
-                      completedSessions()
-                    }}</span>
-                  </span>
-                }
+              <div class="profilm__actions flex">
+                <button
+                  type="button"
+                  class="profil__btn-ghost flex-1"
+                  (click)="cancelEdit()"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  class="profil__btn-primary flex-1"
+                  [disabled]="!canSave()"
+                  (click)="save()"
+                >
+                  Enregistrer
+                </button>
               </div>
             </div>
-          }
-          @case ('security') {
-            <div class="profil__section-body flex flex-col">
-              <label class="profil__field profil__field--email flex flex-col">
-                <span class="profil__field-label">Mot de passe actuel</span>
+
+            <div class="profil__metas">
+              <span class="profil__meta flex flex-col">
+                <span class="profil__meta-label">Membre depuis</span>
+                <span class="profil__meta-value">{{ memberSince() }}</span>
+              </span>
+              <span class="profil__meta flex flex-col">
+                <span class="profil__meta-label">Sessions réalisées</span>
+                <span class="profil__meta-value t-mono">{{
+                  completedSessions() ?? '—'
+                }}</span>
+              </span>
+              <span class="profil__meta flex flex-col">
+                <span class="profil__meta-label">Badges obtenus</span>
+                <span class="profil__meta-value"
+                  ><span class="t-mono">{{ earnedBadges() ?? '—' }}</span> sur
+                  {{ totalBadges }}</span
+                >
+              </span>
+              <span class="profil__meta flex flex-col">
+                <span class="profil__meta-label">Dernière connexion</span>
+                <span class="profil__meta-value">{{
+                  lastLoginLabel() ?? '—'
+                }}</span>
+              </span>
+            </div>
+          </section>
+
+          <section class="profil__card profil__danger flex items-center">
+            <span class="profil__danger-copy flex flex-col flex-1">
+              <span class="profil__danger-title">Supprimer mon compte</span>
+              <span class="profil__danger-text"
+                >Sessions, résultats et progression seront définitivement
+                effacés. Les crédits restants sont perdus.</span
+              >
+            </span>
+            <button
+              type="button"
+              class="profil__btn-danger"
+              (click)="openDelete()"
+            >
+              Supprimer
+            </button>
+          </section>
+        }
+
+        @case ('security') {
+          <section class="profil__card">
+            <div class="profil__card-head flex items-center">
+              <span class="profil__card-title flex-1">Mot de passe</span>
+              @if (passwordChangedLabel(); as label) {
+                <span class="profil__card-note">{{ label }}</span>
+              }
+            </div>
+            <div class="profil__security flex flex-col">
+              <label class="profil__sec-field">
+                <span class="profil__row-label">Mot de passe actuel</span>
                 <input
                   class="profil__input"
                   type="password"
                   placeholder="Votre mot de passe"
-                  autocomplete="current-password"
                   [value]="currentPassword()"
                   (input)="currentPassword.set(readValue($event))"
                 />
               </label>
-              <div class="profil__field-row profil__field-row--security">
-                <label class="profil__field flex flex-col">
-                  <span class="profil__field-label">Nouveau mot de passe</span>
-                  <input
-                    class="profil__input"
-                    type="password"
-                    placeholder="8 caractères minimum"
-                    autocomplete="new-password"
-                    [value]="newPassword()"
-                    (input)="newPassword.set(readValue($event))"
-                  />
-                </label>
-                <label class="profil__field flex flex-col">
-                  <span class="profil__field-label">Confirmation</span>
-                  <input
-                    class="profil__input"
-                    type="password"
-                    placeholder="Répétez le mot de passe"
-                    autocomplete="new-password"
-                    [value]="confirmation()"
-                    (input)="confirmation.set(readValue($event))"
-                  />
-                </label>
-              </div>
-              <div class="profil__password-feedback flex flex-col">
-                <ui-password-strength-meter [value]="newPassword()" />
-                <div class="profil__password-checks flex items-center">
-                  <span
-                    class="profil__password-check flex items-center"
-                    [class.profil__password-check--met]="
-                      newPasswordLongEnough()
-                    "
-                  >
-                    <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.2" />
-                    8 caractères minimum
+              <label class="profil__sec-field">
+                <span class="profil__row-label">Nouveau mot de passe</span>
+                <input
+                  class="profil__input"
+                  type="password"
+                  placeholder="8 caractères minimum"
+                  [value]="newPassword()"
+                  (input)="newPassword.set(readValue($event)); pwDone.set(false)"
+                />
+              </label>
+              <label class="profil__sec-field">
+                <span class="profil__row-label">Confirmation</span>
+                <input
+                  class="profil__input"
+                  type="password"
+                  placeholder="Répétez le mot de passe"
+                  [value]="confirmation()"
+                  (input)="confirmation.set(readValue($event))"
+                />
+              </label>
+              <div class="profil__sec-field profil__sec-field--meter">
+                <span class="md:inline hidden"></span>
+                <span class="flex flex-col profil__meter">
+                  <ui-password-strength-meter [value]="newPassword()" />
+                  <span class="profil__criteria flex">
+                    @for (criterion of pwCriteria(); track criterion.label) {
+                      <span
+                        class="profil__criterion flex items-center"
+                        [class.profil__criterion--met]="criterion.met"
+                        >{{ criterion.label }}</span
+                      >
+                    }
                   </span>
-                  @if (confirmation().length > 0) {
-                    <span
-                      class="profil__password-check flex items-center"
-                      [class.profil__password-check--met]="confirmationValid()"
-                    >
-                      <ui-icon
-                        [img]="checkIcon"
-                        [size]="14"
-                        [strokeWidth]="2.2"
-                      />
-                      Mots de passe identiques
-                    </span>
-                  }
-                </div>
+                </span>
               </div>
-            </div>
-          }
-          @case ('sector') {
-            <div class="profil__section-body flex flex-col">
-              <div class="profil__sectors">
-                @for (card of sectorCards(); track card.sector) {
-                  <div
-                    class="profil__sector"
-                    [class.profil__sector--active]="card.active"
-                    [class.profil__sector--coming]="card.coming"
-                    [attr.aria-disabled]="card.coming ? true : null"
+              <div class="profil__sec-field">
+                <span class="md:inline hidden"></span>
+                <span class="flex items-center profil__sec-actions">
+                  <button
+                    type="button"
+                    class="profil__btn-primary"
+                    [disabled]="!canUpdatePassword()"
+                    (click)="updatePassword()"
                   >
-                    @if (card.active) {
-                      <span class="profil__sector-check">
-                        <ui-icon
-                          [img]="checkIcon"
-                          [size]="12"
-                          [strokeWidth]="3"
-                        />
-                      </span>
-                    }
-                    <ui-icon
-                      [img]="card.icon"
-                      [size]="22"
-                      [strokeWidth]="1.8"
-                    />
-                    <span class="profil__sector-label">{{ card.label }}</span>
-                    @if (card.coming) {
-                      <ui-badge tone="neutral">À venir</ui-badge>
-                    }
-                  </div>
-                }
+                    Mettre à jour le mot de passe
+                  </button>
+                  @if (pwDone()) {
+                    <span class="profil__pw-done">Mot de passe mis à jour</span>
+                  }
+                  @if (securityError(); as error) {
+                    <span class="profil__error">{{ error }}</span>
+                  }
+                </span>
               </div>
-              <span class="profil__sector-note"
-                >Les autres secteurs ouvriront prochainement. Le secteur
-                détermine vos épreuves, la pondération de vos scores et le
-                seuil d'admissibilité ; votre historique est conservé par
-                secteur, changer de secteur ne supprime rien.</span
-              >
             </div>
-          }
-          
-          
+            <div class="profil__card-foot">
+              Un email de confirmation vous est envoyé après chaque modification
+              du mot de passe.
+            </div>
+          </section>
         }
 
-        <div
-          class="profil__footer flex items-center"
-          [class.profil__footer--form]="isForm()"
-        >
-          <span
-            class="profil__status flex items-center"
-            [class.profil__status--dirty]="status().tone === 'dirty'"
-            [class.profil__status--saved]="status().tone === 'saved'"
-            [class.profil__status--error]="status().tone === 'error'"
-          >
-            @if (status().tone === 'saved') {
-              <ui-icon [img]="checkIcon" [size]="15" [strokeWidth]="2.2" />
-            }
-            {{ status().text }}
-          </span>
-          @if (isForm()) {
-            <div class="profil__footer-actions flex items-center">
-              <ui-button
-                class="profil__action-cancel"
-                appearance="outlined"
-                color="neutral"
-                block="mobile"
-                [disabled]="!formDirty()"
-                (click)="cancel()"
+        @case ('sector') {
+          <section class="profil__card">
+            <div class="profil__card-head flex items-center">
+              <span class="profil__card-title flex-1"
+                >Secteur de préparation</span
               >
-                Annuler
-              </ui-button>
-              <ui-button
-                class="profil__action-save"
-                color="brand"
-                block="mobile"
-                [disabled]="!formCanSave()"
-                (click)="save()"
-              >
-                Enregistrer
-              </ui-button>
+              <span class="profil__card-note">Défini à l'inscription</span>
             </div>
-          }
-        </div>
-      </section>
+            <div class="profil__sector profil__sector--active flex items-center">
+              <span class="profil__sector-name flex-1">{{ sectorLabel() }}</span>
+              <span class="profil__sector-chip">Actif</span>
+            </div>
+            @for (name of upcomingSectors; track name) {
+              <div class="profil__sector flex items-center">
+                <span class="profil__sector-name profil__sector-name--muted flex-1">{{
+                  name
+                }}</span>
+                <span class="profil__sector-soon">Prochainement</span>
+              </div>
+            }
+            <div class="profil__card-foot">
+              Le secteur détermine vos épreuves, la pondération de vos scores et
+              le seuil d'admissibilité. Votre historique est conservé par
+              secteur : en changer ne supprime rien.
+            </div>
+          </section>
+        }
+
+        @case ('privacy') {
+          <section class="profil__card">
+            <div class="profil__card-head flex items-center">
+              <span class="profil__card-title flex-1"
+                >Visibilité dans la communauté</span
+              >
+              @if (filSaved()) {
+                <span class="profil__chip-saved flex items-center">Enregistré</span>
+              }
+            </div>
+            <div class="profil__privacy flex items-center">
+              <span class="profil__privacy-copy flex flex-col flex-1">
+                <span class="profil__privacy-title"
+                  >Apparaître dans le fil avec mon prénom</span
+                >
+                <span class="profil__privacy-text"
+                  >Vos obtentions de badges restent anonymes tant que cette
+                  option est désactivée.</span
+                >
+              </span>
+              <ui-toggle
+                [checked]="showInFeed()"
+                (checkedChange)="toggleFeed($event)"
+                label="Apparaître dans le fil avec mon prénom"
+              />
+            </div>
+            <div class="profil__preview flex flex-col">
+              <span class="profil__preview-label"
+                >Aperçu dans le fil de l'accueil</span
+              >
+              <span class="profil__preview-entry flex items-center">
+                <img
+                  class="profil__preview-art"
+                  src="badges/badge-logique-bronze.svg"
+                  alt=""
+                />
+                <span class="profil__preview-text"
+                  ><span class="profil__preview-strong">{{ previewWho() }}</span>
+                  a décroché
+                  <span class="profil__preview-strong">Déclic</span></span
+                >
+                <span class="profil__preview-time">à l'instant</span>
+              </span>
+              <span class="profil__preview-note"
+                >Seul votre prénom est affiché, jamais votre nom complet ni vos
+                scores. En cas d'homonyme, l'initiale du nom est ajoutée :
+                {{ user()?.firstName }}
+                {{ (user()?.lastName ?? '').charAt(0).toUpperCase() }}.</span
+              >
+            </div>
+          </section>
+        }
+
+        @case ('credits') {
+          <section class="profil__card">
+            <div class="profil__card-head flex items-center">
+              <span class="profil__card-title flex-1">Crédits et reçus</span>
+              <span class="profil__card-note">Sans date d'expiration</span>
+            </div>
+            <div class="profil__credits flex items-center">
+              <ui-axis-icon axis="credit" [size]="30" />
+              <span class="profil__credits-line flex items-baseline flex-1">
+                <span class="profil__credits-value t-mono">{{ balance() }}</span>
+                <span class="profil__credits-unit">crédits disponibles</span>
+              </span>
+              <a class="profil__btn-primary profil__recharge" routerLink="/credits"
+                >Recharger</a
+              >
+            </div>
+            <div class="profil__receipts-head flex items-center">
+              <span class="profil__receipts-title flex-1">Reçus</span>
+              <span class="profil__receipts-note">Envoyés aussi par email</span>
+            </div>
+            @if (receipts(); as rows) {
+              @if (rows.length === 0) {
+                <div class="profil__receipt-empty">
+                  Aucun achat pour l'instant.
+                </div>
+              }
+              @for (receipt of rows; track receipt.id) {
+                <div class="profil__receipt">
+                  <span class="profil__receipt-date t-mono">{{
+                    receipt.dateLabel
+                  }}</span>
+                  <span class="profil__receipt-label"
+                    >{{ receipt.label }} ·
+                    <span class="t-mono">{{ receipt.energyAmount }}</span>
+                    crédits</span
+                  >
+                  <span class="profil__receipt-price t-mono">{{
+                    receipt.priceLabel
+                  }}</span>
+                  @if (receipt.receiptUrl; as url) {
+                    <a
+                      class="profil__receipt-link"
+                      [href]="url"
+                      target="_blank"
+                      rel="noopener"
+                      >Télécharger</a
+                    >
+                  } @else {
+                    <span class="profil__receipt-link--off">—</span>
+                  }
+                </div>
+              }
+            }
+            <div class="profil__card-foot">
+              Paiement unique et sécurisé via Stripe : aucun abonnement, aucune
+              reconduction.
+            </div>
+          </section>
+        }
+      }
     </div>
   </div>
-
-  <button
-    type="button"
-    class="profilm__logout md:hidden"
-    (click)="logout()"
-  >
-    <ui-icon [img]="logoutIcon" [size]="16" [strokeWidth]="1.8" />
-    Se déconnecter
-  </button>
 </div>
+
+@if (deleteOpen()) {
+  <div
+    class="profil__modal-overlay"
+    role="presentation"
+    tabindex="-1"
+    (click)="closeDelete()"
+    (keyup.escape)="closeDelete()"
+  ></div>
+  <div
+    class="profil__modal flex flex-col"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Supprimer mon compte"
+  >
+    <span class="profil__modal-title">Supprimer mon compte</span>
+    <span class="profil__modal-text"
+      >Cette action est définitive : sessions, résultats, badges et crédits
+      restants seront effacés. Saisissez votre mot de passe puis le mot
+      {{ deleteConfirmation }} pour confirmer.</span
+    >
+    <label class="profil__field flex flex-col">
+      <span class="profil__row-label">Mot de passe</span>
+      <input
+        class="profil__input"
+        type="password"
+        [value]="deletePassword()"
+        (input)="deletePassword.set(readValue($event))"
+      />
+    </label>
+    <label class="profil__field flex flex-col">
+      <span class="profil__row-label"
+        >Tapez {{ deleteConfirmation }} pour confirmer</span
+      >
+      <input
+        class="profil__input"
+        [value]="deleteConfirmationInput()"
+        (input)="deleteConfirmationInput.set(readValue($event))"
+      />
+    </label>
+    @if (deleteError(); as error) {
+      <span class="profil__error">{{ error }}</span>
+    }
+    <div class="profil__modal-actions flex">
+      <button type="button" class="profil__btn-ghost flex-1" (click)="closeDelete()">
+        Annuler
+      </button>
+      <button
+        type="button"
+        class="profil__btn-danger profil__btn-danger--solid flex-1"
+        [disabled]="!canDelete()"
+        (click)="confirmDelete()"
+      >
+        Supprimer définitivement
+      </button>
+    </div>
+  </div>
+}

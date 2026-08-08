@@ -1,17 +1,19 @@
+import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import {
   EnergyStateDto,
-  ProgressionDto,
   Sector,
-  SectorSummaryDto,
   UserProfileDto,
 } from '@psychotech/shared';
-import { Observable, of, throwError } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { Profile } from './profile';
@@ -21,97 +23,59 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
     id: 'user-1',
     email: 'mohand@example.com',
     firstName: 'Mohand',
-    lastName: 'Boudjema',
+    lastName: 'Kaci',
     locale: 'fr-FR',
     timezone: 'Europe/Paris',
     currentSector: Sector.RAILWAY,
     showInFeed: false,
-  pendingEmail: null,
-  passwordChangedAt: null,
-  lastLoginAt: null,
-    emailVerifiedAt: '2026-04-14T00:00:00.000Z',
+    emailVerifiedAt: '2026-04-14T10:00:00.000Z',
+    pendingEmail: null,
+    passwordChangedAt: '2026-04-14T10:00:00.000Z',
+    lastLoginAt: '2026-08-08T09:12:00.000Z',
     createdAt: '2026-04-14T00:00:00.000Z',
     ...overrides,
   };
 }
 
-function buildEnergy(): EnergyStateDto {
-  return {
-    balance: 5,
-    canStartFull: true,
-    canStartAxis: true,
-  };
+function energyState(balance: number): EnergyStateDto {
+  return { balance, canStartFull: balance >= 5, canStartAxis: balance >= 1 };
 }
 
-function buildProgression(): ProgressionDto {
-  return {
-    stats: {
-      currentStreak: 3,
-      longestStreak: 5,
-      completedSessions: 23,
-      fullSessionsCount: 4,
-      targetedSessionsCount: 19,
-      firstSessionAt: '2026-04-15T10:00:00.000Z',
-      firstFullSessionAt: '2026-04-15T10:00:00.000Z',
-      firstGlobalScore: 60,
-      bestGlobalScore: 74.8,
-      bestGlobalScoreAt: '2026-07-10T10:00:00.000Z',
-    },
-    evolution: [],
-    axes: [],
-    radar: { first: [], last: [] },
-  };
-}
-
-const CATALOG_SECTORS: SectorSummaryDto[] = [
-  { code: Sector.RAILWAY, label: 'Ferroviaire', isActive: true },
-  { code: Sector.HEALTHCARE, label: 'Santé', isActive: false },
-  { code: Sector.AVIATION, label: 'Aérien', isActive: false },
-  { code: Sector.SECURITY, label: 'Sécurité', isActive: false },
-  { code: Sector.DRIVING, label: 'Conduite', isActive: false },
-];
-
-interface SetupOptions {
-  user?: UserProfileDto;
-  changePasswordResult?: () => Observable<UserProfileDto>;
-}
-
-async function setup(options: SetupOptions = {}) {
+async function setup(user: UserProfileDto = buildUser()) {
+  const userSignal = signal<UserProfileDto | null>(user);
+  const updateProfile = vi.fn().mockReturnValue(of(user));
+  const requestEmailChange = vi.fn().mockReturnValue(
+    of({ sent: true, retryAfterSeconds: null, pendingEmail: null }),
+  );
+  const changePassword = vi.fn().mockReturnValue(of(user));
+  const deleteAccount = vi.fn().mockReturnValue(of(undefined));
+  const resendVerification = vi
+    .fn()
+    .mockReturnValue(of({ sent: true, retryAfterSeconds: null }));
   TestBed.resetTestingModule();
-  const user = signal<UserProfileDto | null>(options.user ?? buildUser());
-  const updateProfile = vi.fn(
-    (payload: { firstName: string; lastName: string }) => {
-      const current = user();
-      const updated = buildUser({ ...current, ...payload });
-      user.set(updated);
-      return of(updated);
-    },
-  );
-  const changePassword = vi.fn(() =>
-    options.changePasswordResult
-      ? options.changePasswordResult()
-      : of(user() ?? buildUser()),
-  );
-
   await TestBed.configureTestingModule({
     imports: [Profile],
     providers: [
       provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
       {
         provide: AuthFacade,
         useValue: {
-          currentUser: user,
+          currentUser: userSignal.asReadonly(),
           updateProfile,
+          requestEmailChange,
           changePassword,
+          deleteAccount,
+          resendVerification,
           logout: vi.fn().mockReturnValue(of(undefined)),
         },
       },
-      { provide: EnergyFacade, useValue: { state: signal(buildEnergy()) } },
       {
-        provide: CatalogFacade,
+        provide: EnergyFacade,
         useValue: {
-          sectors: signal(CATALOG_SECTORS),
-          sectorsError: signal(null),
+          state: signal(energyState(12)),
+          load: () => of(energyState(12)),
         },
       },
     ],
@@ -122,230 +86,225 @@ async function setup(options: SetupOptions = {}) {
           {
             provide: ProgressionFacade,
             useValue: {
-              progression: signal<ProgressionDto | null>(buildProgression()),
-              loading: signal(false),
+              progression: signal({ stats: { completedSessions: 23 } }),
             },
           },
         ],
       },
     })
     .compileComponents();
-
   const fixture = TestBed.createComponent(Profile);
-  const router = TestBed.inject(Router);
-  const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   fixture.detectChanges();
-  return { fixture, navigate, updateProfile, changePassword };
-}
-
-function textOf(fixture: { nativeElement: HTMLElement }): string {
-  return fixture.nativeElement.textContent ?? '';
-}
-
-function navButtons(fixture: {
-  nativeElement: HTMLElement;
-}): HTMLButtonElement[] {
-  return Array.from(
-    (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
-      '.profil__nav-item',
-    ),
-  );
-}
-
-function input(
-  fixture: { nativeElement: HTMLElement },
-  index: number,
-): HTMLInputElement {
-  return fixture.nativeElement.querySelectorAll<HTMLInputElement>(
-    '.profil__input',
-  )[index];
-}
-
-describe('Profile', () => {
-  it('renders the identity rail with the sector and account facts', async () => {
-    const { fixture } = await setup();
-    expect(textOf(fixture)).toContain('Mohand Boudjema');
-    expect(textOf(fixture)).toContain('Ferroviaire');
-    expect(textOf(fixture)).toContain('Informations personnelles');
-    expect(textOf(fixture)).toContain('14 avril 2026');
-    expect(textOf(fixture)).toContain('23');
-    expect(input(fixture, 0).value).toBe('Mohand');
-    expect(input(fixture, 1).value).toBe('Boudjema');
-    expect(input(fixture, 2).disabled).toBe(true);
-  });
-
-  it('switches sections from the rail navigation', async () => {
-    const { fixture } = await setup();
-    const buttons = navButtons(fixture);
-    expect(buttons.map((button) => button.textContent?.trim())).toEqual([
-      'Informations',
-      'Sécurité',
-      'Secteur',
-    ]);
-
-    buttons[2].click();
-    fixture.detectChanges();
-    expect(textOf(fixture)).toContain('Secteur de préparation');
-    expect(
-      fixture.nativeElement.querySelectorAll('.profil__sector'),
-    ).toHaveLength(5);
-    expect(
-      fixture.nativeElement.querySelector('.profil__sector--active')
-        ?.textContent,
-    ).toContain('Ferroviaire');
-    const coming = fixture.nativeElement.querySelectorAll(
-      '.profil__sector--coming',
+  const controller = TestBed.inject(HttpTestingController);
+  controller
+    .match((request) => request.url.endsWith('/me/badges'))
+    .forEach((request) => request.flush([]));
+  controller
+    .match((request) => request.url.endsWith('/billing/purchases'))
+    .forEach((request) =>
+      request.flush([
+        {
+          id: 'purchase-1',
+          purchasedAt: '2026-07-28T10:00:00.000Z',
+          packId: 'PRE_EXAM',
+          energyAmount: 50,
+          amountCents: 790,
+          receiptUrl: 'https://pay.stripe.com/receipts/abc',
+        },
+      ]),
     );
-    expect(coming).toHaveLength(4);
-    expect(coming[0].textContent).toContain('À venir');
-    expect(coming[0].getAttribute('aria-disabled')).toBe('true');
-    expect(
-      fixture.nativeElement.querySelector('.profil__sector--active')
-        ?.textContent,
-    ).not.toContain('À venir');
+  await fixture.whenStable();
+  fixture.detectChanges();
+  return {
+    fixture,
+    userSignal,
+    updateProfile,
+    requestEmailChange,
+    changePassword,
+    deleteAccount,
+  };
+}
+
+function element(fixture: ComponentFixture<Profile>): HTMLElement {
+  return fixture.nativeElement as HTMLElement;
+}
+
+function clickButton(
+  fixture: ComponentFixture<Profile>,
+  label: string,
+): void {
+  const button = Array.from(
+    element(fixture).querySelectorAll<HTMLButtonElement>('button'),
+  ).find((candidate) => candidate.textContent?.trim().startsWith(label));
+  button?.click();
+  fixture.detectChanges();
+}
+
+describe('Profile - informations', () => {
+  it('shows the read mode with the verified badge and the meta strip', async () => {
+    const { fixture } = await setup();
+    const text = element(fixture).textContent ?? '';
+    expect(text).toContain('Informations personnelles');
+    expect(text).toContain('Vérifiée');
+    expect(text).toContain('Membre depuis');
+    expect(text).toContain('14 avril 2026');
+    expect(text).toContain('23');
+    expect(text).toContain('sur 20');
+    expect(text).toContain('Dernière connexion');
   });
 
-  it('walks the footer states from idle to dirty to saved', async () => {
-    const { fixture, updateProfile } = await setup();
-    expect(textOf(fixture)).toContain('Aucune modification en attente');
+  it('requests an email change when the saved email differs', async () => {
+    const { fixture, updateProfile, requestEmailChange } = await setup();
+    clickButton(fixture, 'Modifier');
 
-    const firstName = input(fixture, 0);
-    firstName.value = 'Idir';
-    firstName.dispatchEvent(new Event('input'));
+    const emailInput = element(fixture).querySelector<HTMLInputElement>(
+      'input[type="email"]',
+    ) as HTMLInputElement;
+    emailInput.value = 'nouvelle@example.com';
+    emailInput.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(textOf(fixture)).toContain('Modifications non enregistrées');
 
-    (
-      fixture.nativeElement.querySelector(
-        '.profil__action-save',
-      ) as HTMLButtonElement
-    ).click();
+    clickButton(fixture, 'Enregistrer');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(updateProfile).toHaveBeenCalledWith({
+      firstName: 'Mohand',
+      lastName: 'Kaci',
+    });
+    expect(requestEmailChange).toHaveBeenCalledWith('nouvelle@example.com');
+    expect(element(fixture).textContent).toContain(
+      'Email envoyé à nouvelle@example.com',
+    );
+  });
+
+  it('never requests an email change when only the names change', async () => {
+    const { fixture, updateProfile, requestEmailChange } = await setup();
+    clickButton(fixture, 'Modifier');
+
+    const inputs = element(fixture).querySelectorAll<HTMLInputElement>(
+      '.profil__form input',
+    );
+    inputs[0].value = 'Idir';
+    inputs[0].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    clickButton(fixture, 'Enregistrer');
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(updateProfile).toHaveBeenCalledWith({
       firstName: 'Idir',
-      lastName: 'Boudjema',
-      showInFeed: false,
+      lastName: 'Kaci',
     });
-    expect(textOf(fixture)).toContain('Modifications enregistrées');
+    expect(requestEmailChange).not.toHaveBeenCalled();
   });
 
-  it('changes the password from the security tab and clears the form on success', async () => {
-    const { fixture, changePassword } = await setup();
-    navButtons(fixture)[1].click();
-    fixture.detectChanges();
-
-    expect(textOf(fixture)).toContain(
-      'Modifiez votre mot de passe. Il vous sera demandé à chaque connexion.',
+  it('shows the pending change state with its resend action', async () => {
+    const { fixture } = await setup(
+      buildUser({ pendingEmail: 'attente@example.com' }),
     );
-    expect(textOf(fixture)).toContain('8 caractères minimum');
-    expect(textOf(fixture)).not.toContain('Un chiffre');
+    const text = element(fixture).textContent ?? '';
+    expect(text).toContain('Changement en attente');
+    expect(text).toContain('Confirmation attendue sur attente@example.com');
+  });
+});
 
-    const fields = (
-      fixture.nativeElement as HTMLElement
-    ).querySelectorAll<HTMLInputElement>('.profil__input');
-    fields[0].value = 'AncienSecret1';
-    fields[0].dispatchEvent(new Event('input'));
-    fields[1].value = 'NouveauSecret1';
-    fields[1].dispatchEvent(new Event('input'));
-    fields[2].value = 'NouveauSecret1';
-    fields[2].dispatchEvent(new Event('input'));
+describe('Profile - sécurité', () => {
+  it('updates the password once every criterion is satisfied', async () => {
+    const { fixture, changePassword } = await setup();
+    clickButton(fixture, 'Sécurité');
+
+    const inputs = element(fixture).querySelectorAll<HTMLInputElement>(
+      '.profil__security input',
+    );
+    inputs[0].value = 'ancien-mdp';
+    inputs[0].dispatchEvent(new Event('input'));
+    inputs[1].value = 'Nouveau1234';
+    inputs[1].dispatchEvent(new Event('input'));
+    inputs[2].value = 'Nouveau1234';
+    inputs[2].dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(textOf(fixture)).toContain('Mots de passe identiques');
-    (
-      fixture.nativeElement.querySelector(
-        '.profil__action-save',
-      ) as HTMLButtonElement
-    ).click();
+    clickButton(fixture, 'Mettre à jour le mot de passe');
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(changePassword).toHaveBeenCalledWith({
-      currentPassword: 'AncienSecret1',
-      newPassword: 'NouveauSecret1',
+      currentPassword: 'ancien-mdp',
+      newPassword: 'Nouveau1234',
     });
-    expect(textOf(fixture)).toContain('Mot de passe mis à jour');
-    expect(input(fixture, 0).value).toBe('');
+    expect(element(fixture).textContent).toContain('Mot de passe mis à jour');
   });
+});
 
-  it('surfaces an invalid current password error from the api', async () => {
-    const { fixture, changePassword } = await setup({
-      changePasswordResult: () =>
-        throwError(
-          () =>
-            new HttpErrorResponse({
-              status: 400,
-              error: { message: 'INVALID_CURRENT_PASSWORD' },
-            }),
-        ),
-    });
-    navButtons(fixture)[1].click();
-    fixture.detectChanges();
-
-    const fields = (
-      fixture.nativeElement as HTMLElement
-    ).querySelectorAll<HTMLInputElement>('.profil__input');
-    fields[0].value = 'MauvaisActuel1';
-    fields[0].dispatchEvent(new Event('input'));
-    fields[1].value = 'NouveauSecret1';
-    fields[1].dispatchEvent(new Event('input'));
-    fields[2].value = 'NouveauSecret1';
-    fields[2].dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    (
-      fixture.nativeElement.querySelector(
-        '.profil__action-save',
-      ) as HTMLButtonElement
-    ).click();
-    fixture.detectChanges();
-
-    expect(changePassword).toHaveBeenCalled();
-    expect(textOf(fixture)).toContain('Mot de passe actuel invalide.');
-  });
-
-  it('keeps the save action inert while the password form is incomplete', async () => {
-    const { fixture, changePassword } = await setup();
-    navButtons(fixture)[1].click();
-    fixture.detectChanges();
-
-    const fields = (
-      fixture.nativeElement as HTMLElement
-    ).querySelectorAll<HTMLInputElement>('.profil__input');
-    fields[0].value = 'AncienSecret1';
-    fields[0].dispatchEvent(new Event('input'));
-    fields[1].value = 'court';
-    fields[1].dispatchEvent(new Event('input'));
-    fields[2].value = 'court';
-    fields[2].dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    (
-      fixture.nativeElement.querySelector(
-        '.profil__action-save',
-      ) as HTMLButtonElement
-    ).click();
-    fixture.detectChanges();
-
-    expect(changePassword).not.toHaveBeenCalled();
-  });
-
-  it('cancels pending edits back to the stored profile', async () => {
+describe('Profile - confidentialité', () => {
+  it('saves the feed opt-in immediately from the toggle', async () => {
     const { fixture, updateProfile } = await setup();
-    const firstName = input(fixture, 0);
-    firstName.value = 'Idir';
-    firstName.dispatchEvent(new Event('input'));
+    clickButton(fixture, 'Confidentialité');
+
+    const toggle = element(fixture).querySelector<HTMLButtonElement>(
+      '.ui-toggle',
+    );
+    toggle?.click();
+    await fixture.whenStable();
     fixture.detectChanges();
 
-    (
-      fixture.nativeElement.querySelector(
-        '.profil__action-cancel',
-      ) as HTMLButtonElement
-    ).click();
+    expect(updateProfile).toHaveBeenCalledWith({ showInFeed: true });
+    expect(element(fixture).textContent).toContain('Mohand a décroché Déclic');
+  });
+});
+
+describe('Profile - crédits et reçus', () => {
+  it('lists the receipts with their download link and the shared balance', async () => {
+    const { fixture } = await setup();
+    clickButton(fixture, 'Crédits et reçus');
+    const text = element(fixture).textContent ?? '';
+    expect(text).toContain('12');
+    expect(text).toContain('crédits disponibles');
+    expect(text).toContain("Pack Avant l'examen");
+    expect(text).toContain('7,90 €');
+    const link = element(fixture).querySelector<HTMLAnchorElement>(
+      '.profil__receipt-link',
+    );
+    expect(link?.getAttribute('href')).toBe(
+      'https://pay.stripe.com/receipts/abc',
+    );
+  });
+});
+
+describe('Profile - suppression', () => {
+  it('requires the password and the exact confirmation word', async () => {
+    const { fixture, deleteAccount } = await setup();
+    clickButton(fixture, 'Supprimer');
     fixture.detectChanges();
 
-    expect(input(fixture, 0).value).toBe('Mohand');
-    expect(textOf(fixture)).toContain('Aucune modification en attente');
-    expect(updateProfile).not.toHaveBeenCalled();
+    const modal = element(fixture).querySelector('.profil__modal');
+    expect(modal).not.toBeNull();
+
+    const inputs = (modal as Element).querySelectorAll<HTMLInputElement>('input');
+    inputs[0].value = 'mon-mdp';
+    inputs[0].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const confirmButton = Array.from(
+      element(fixture).querySelectorAll<HTMLButtonElement>('button'),
+    ).find((candidate) =>
+      candidate.textContent?.includes('Supprimer définitivement'),
+    );
+    expect(confirmButton?.disabled).toBe(true);
+
+    inputs[1].value = 'SUPPRIMER';
+    inputs[1].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(confirmButton?.disabled).toBe(false);
+
+    confirmButton?.click();
+    await fixture.whenStable();
+
+    expect(deleteAccount).toHaveBeenCalledWith({
+      password: 'mon-mdp',
+      confirmation: 'SUPPRIMER',
+    });
   });
 });

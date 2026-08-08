@@ -2,11 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Signal, inject } from '@angular/core';
 import {
   ChangePasswordDto,
+  DeleteAccountDto,
+  EmailChangeRequestResponseDto,
   LoginDto,
   RegisterDto,
   ResendVerificationResponseDto,
   UpdateUserProfileDto,
   UserProfileDto,
+  VerifyEmailChangeResponseDto,
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import {
@@ -72,6 +75,32 @@ export class AuthFacade {
 
   resendVerification(): Observable<ResendVerificationResponseDto> {
     return this.api.resendVerification();
+  }
+
+  requestEmailChange(
+    newEmail: string,
+  ): Observable<EmailChangeRequestResponseDto> {
+    return this.api.requestEmailChange({ newEmail }).pipe(
+      tap((result) => {
+        const current = this.store.currentUser();
+        if (current && result.pendingEmail) {
+          this.store.setCurrentUser({
+            ...current,
+            pendingEmail: result.pendingEmail,
+          });
+        }
+      }),
+    );
+  }
+
+  verifyEmailChange(token: string): Observable<VerifyEmailChangeResponseDto> {
+    return this.api.verifyEmailChange(token);
+  }
+
+  deleteAccount(payload: DeleteAccountDto): Observable<void> {
+    return this.api
+      .deleteAccount(payload)
+      .pipe(finalize(() => this.store.setCurrentUser(null)));
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {

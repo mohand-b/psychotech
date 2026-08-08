@@ -2,11 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   ChangePasswordDto,
+  DeleteAccountDto,
+  EmailChangeRequestResponseDto,
   LoginDto,
   RegisterDto,
+  RequestEmailChangeDto,
   ResendVerificationResponseDto,
   UpdateUserProfileDto,
   UserProfileDto,
+  VerifyEmailChangeResponseDto,
   VerifyEmailRequestDto,
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
@@ -66,6 +70,29 @@ export class AuthApi {
     return this.http.post<ResendVerificationResponseDto>(
       `${this.baseUrl}/auth/email/resend`,
       {},
+    );
+  }
+
+  requestEmailChange(
+    payload: RequestEmailChangeDto,
+  ): Observable<EmailChangeRequestResponseDto> {
+    return this.http.post<EmailChangeRequestResponseDto>(
+      `${this.baseUrl}/auth/email/change`,
+      payload,
+    );
+  }
+
+  verifyEmailChange(token: string): Observable<VerifyEmailChangeResponseDto> {
+    return this.http.post<VerifyEmailChangeResponseDto>(
+      `${this.baseUrl}/auth/email/change/verify`,
+      { token },
+    );
+  }
+
+  deleteAccount(payload: DeleteAccountDto): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/auth/account/delete`,
+      payload,
     );
   }
 }
