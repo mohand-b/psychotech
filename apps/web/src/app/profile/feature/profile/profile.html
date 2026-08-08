@@ -110,17 +110,33 @@
                               ? 'Adresse vérifiée le ' + verifiedDateLabel()
                               : ''
                           "
-                          >Vérifiée</span
                         >
+                          <ui-icon
+                            [img]="checkIcon"
+                            [size]="11"
+                            [strokeWidth]="2.6"
+                          />
+                          Vérifiée
+                        </span>
                       } @else {
-                        <span class="profil__badge profil__badge--warn"
-                          >Non vérifiée</span
-                        >
+                        <span class="profil__badge profil__badge--warn">
+                          <ui-icon
+                            [img]="alertIcon"
+                            [size]="11"
+                            [strokeWidth]="2.4"
+                          />
+                          Non vérifiée
+                        </span>
                       }
                       @if (pendingEmail(); as pending) {
-                        <span class="profil__badge profil__badge--warn"
-                          >Changement en attente</span
-                        >
+                        <span class="profil__badge profil__badge--warn">
+                          <ui-icon
+                            [img]="alertIcon"
+                            [size]="11"
+                            [strokeWidth]="2.4"
+                          />
+                          Changement en attente
+                        </span>
                       }
                     </span>
                     @if (emailSentTo(); as sentTo) {
@@ -250,11 +266,23 @@
                 <span class="profil__field-head flex items-center">
                   <span class="profil__row-label flex-1">Adresse email</span>
                   @if (emailVerified()) {
-                    <span class="profil__badge profil__badge--ok">Vérifiée</span>
+                    <span class="profil__badge profil__badge--ok">
+                      <ui-icon
+                        [img]="checkIcon"
+                        [size]="11"
+                        [strokeWidth]="2.6"
+                      />
+                      Vérifiée
+                    </span>
                   } @else {
-                    <span class="profil__badge profil__badge--warn"
-                      >Non vérifiée</span
-                    >
+                    <span class="profil__badge profil__badge--warn">
+                      <ui-icon
+                        [img]="alertIcon"
+                        [size]="11"
+                        [strokeWidth]="2.4"
+                      />
+                      Non vérifiée
+                    </span>
                   }
                 </span>
                 <input
