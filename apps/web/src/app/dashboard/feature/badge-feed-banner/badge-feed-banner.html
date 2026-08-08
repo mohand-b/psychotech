@@ -1,0 +1,36 @@
+@if (visible()) {
+  <div class="feed">
+    <div class="feed__inner flex items-center">
+      <span class="feed__label flex items-center">
+        <span class="feed__dot"></span>
+        En ce moment
+      </span>
+      <div class="feed__viewport">
+        <div class="feed__track flex items-center">
+          @for (entry of entries(); track $index) {
+            <span class="feed__entry flex items-center">
+              <img class="feed__art" [src]="entry.assetPath" alt="" />
+              <span class="feed__text"
+                ><span class="feed__strong">{{ entry.label }}</span> a décroché
+                <span class="feed__strong">{{ entry.badgeName }}</span></span
+              >
+              <span class="feed__time">{{ entry.timeLabel }}</span>
+            </span>
+          }
+          @for (entry of entries(); track $index) {
+            <span class="feed__entry feed__entry--echo flex items-center" aria-hidden="true">
+              <img class="feed__art" [src]="entry.assetPath" alt="" />
+              <span class="feed__text"
+                ><span class="feed__strong">{{ entry.label }}</span> a décroché
+                <span class="feed__strong">{{ entry.badgeName }}</span></span
+              >
+              <span class="feed__time">{{ entry.timeLabel }}</span>
+            </span>
+          }
+        </div>
+        <span class="feed__fade feed__fade--start"></span>
+        <span class="feed__fade feed__fade--end"></span>
+      </div>
+    </div>
+  </div>
+}
