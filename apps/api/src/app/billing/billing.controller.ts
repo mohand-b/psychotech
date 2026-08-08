@@ -25,6 +25,11 @@ import { PackCheckoutRequest } from './dto/pack-checkout.request';
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
 
+  @Get('purchases')
+  listPurchases(@CurrentUser() userId: string): Promise<PackPurchaseDto[]> {
+    return this.billingService.listPurchases(userId);
+  }
+
   @Get('config')
   getConfig(): BillingConfigDto {
     return this.billingService.getConfig();

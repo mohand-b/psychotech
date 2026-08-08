@@ -10,6 +10,9 @@ export interface UserProfileDto {
   currentSector: Sector;
   showInFeed: boolean;
   emailVerifiedAt: string | null;
+  pendingEmail: string | null;
+  passwordChangedAt: string | null;
+  lastLoginAt: string | null;
   createdAt: string;
 }
 
@@ -20,4 +23,32 @@ export interface UpdateUserProfileDto {
   timezone?: string;
   currentSector?: Sector;
   showInFeed?: boolean;
+}
+
+export const DELETE_ACCOUNT_CONFIRMATION = 'SUPPRIMER';
+
+export interface RequestEmailChangeDto {
+  newEmail: string;
+}
+
+export interface EmailChangeRequestResponseDto {
+  sent: boolean;
+  retryAfterSeconds: number | null;
+  pendingEmail: string | null;
+}
+
+export type EmailChangeOutcome =
+  | 'CHANGED'
+  | 'INVALID'
+  | 'EXPIRED'
+  | 'ALREADY_USED';
+
+export interface VerifyEmailChangeResponseDto {
+  outcome: EmailChangeOutcome;
+  email: string | null;
+}
+
+export interface DeleteAccountDto {
+  password: string;
+  confirmation: string;
 }

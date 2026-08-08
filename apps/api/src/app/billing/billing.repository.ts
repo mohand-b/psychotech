@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EnergyLedgerReason, Prisma, User } from '@prisma/client';
+import { EnergyLedgerReason, PackPurchase, Prisma, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -37,7 +37,9 @@ export class BillingRepository {
   async creditPackPurchaseOnce(
     eventId: string,
     userId: string,
+    packId: string,
     energyAmount: number,
+    amountCents: number,
     ref: string,
   ): Promise<boolean> {
     try {
@@ -57,6 +59,15 @@ export class BillingRepository {
             ref,
           },
         });
+        await tx.packPurchase.create({
+          data: {
+            userId,
+            packId,
+            energyAmount,
+            amountCents,
+            checkoutSessionId: ref,
+          },
+        });
       });
       return true;
     } catch (error) {
@@ -65,6 +76,23 @@ export class BillingRepository {
       }
       throw error;
     }
+  }
+
+  listPurchases(userId: string): Promise<PackPurchase[]> {
+    return this.prisma.packPurchase.findMany({
+      where: { userId },
+      orderBy: { purchasedAt: 'desc' },
+    });
+  }
+
+  async saveReceiptUrl(
+    checkoutSessionId: string,
+    receiptUrl: string,
+  ): Promise<void> {
+    await this.prisma.packPurchase.updateMany({
+      where: { checkoutSessionId, receiptUrl: null },
+      data: { receiptUrl },
+    });
   }
 
   private isUniqueViolation(error: unknown): boolean {

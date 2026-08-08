@@ -18,3 +18,12 @@ export interface PackCheckoutStatusDto {
   status: PackCheckoutState;
   credited: boolean;
 }
+
+export interface PackPurchaseDto {
+  id: string;
+  purchasedAt: string;
+  packId: EnergyPackId;
+  energyAmount: number;
+  amountCents: number;
+  receiptUrl: string | null;
+}

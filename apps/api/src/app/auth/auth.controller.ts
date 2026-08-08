@@ -10,8 +10,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  EmailChangeRequestResponseDto,
   ResendVerificationResponseDto,
   UserProfileDto,
+  VerifyEmailChangeResponseDto,
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import { Request, Response } from 'express';
@@ -25,12 +27,18 @@ import { SkipCsrf } from './decorators/skip-csrf.decorator';
 import { ChangePasswordRequest } from './dto/change-password.request';
 import { LoginRequest } from './dto/login.request';
 import { RegisterRequest } from './dto/register.request';
+import { DeleteAccountRequest } from './dto/delete-account.request';
+import { RequestEmailChangeRequest } from './dto/request-email-change.request';
+import { VerifyEmailChangeRequest } from './dto/verify-email-change.request';
 import { VerifyEmailRequest } from './dto/verify-email.request';
+import { EmailChangeService } from './email-change.service';
 import { EmailVerificationService } from './email-verification.service';
 import { IpRateLimitService } from './ip-rate-limit.service';
 
 const VERIFY_IP_LIMIT = { limit: 30, windowMs: 3_600_000 };
 const RESEND_IP_LIMIT = { limit: 10, windowMs: 3_600_000 };
+const EMAIL_CHANGE_LIMIT = { limit: 10, windowMs: 3_600_000 };
+const DELETE_LIMIT = { limit: 5, windowMs: 3_600_000 };
 
 interface RequestWithCookies extends Request {
   cookies: Record<string, string | undefined>;
@@ -42,6 +50,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly cookies: AuthCookieService,
     private readonly emailVerification: EmailVerificationService,
+    private readonly emailChange: EmailChangeService,
     private readonly ipRateLimit: IpRateLimitService,
   ) {}
 
@@ -113,6 +122,46 @@ export class AuthController {
       await this.authService.changePassword(userId, request),
       response,
     );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('email/change')
+  requestEmailChange(
+    @CurrentUser() userId: string,
+    @Body() request: RequestEmailChangeRequest,
+    @Ip() ip: string,
+  ): Promise<EmailChangeRequestResponseDto> {
+    this.ipRateLimit.assertAllowed(`email-change:${ip}`, EMAIL_CHANGE_LIMIT);
+    this.ipRateLimit.assertAllowed(
+      `email-change:user:${userId}`,
+      EMAIL_CHANGE_LIMIT,
+    );
+    return this.emailChange.request(userId, request.newEmail);
+  }
+
+  @Public()
+  @SkipCsrf()
+  @HttpCode(HttpStatus.OK)
+  @Post('email/change/verify')
+  verifyEmailChange(
+    @Body() request: VerifyEmailChangeRequest,
+    @Ip() ip: string,
+  ): Promise<VerifyEmailChangeResponseDto> {
+    this.ipRateLimit.assertAllowed(`verify-change:${ip}`, VERIFY_IP_LIMIT);
+    return this.emailChange.verify(request.token);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('account/delete')
+  async deleteAccount(
+    @CurrentUser() userId: string,
+    @Body() request: DeleteAccountRequest,
+    @Ip() ip: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    this.ipRateLimit.assertAllowed(`delete:${ip}`, DELETE_LIMIT);
+    await this.authService.deleteAccount(userId, request.password);
+    this.cookies.clearAuthCookies(response);
   }
 
   @Public()

@@ -41,6 +41,9 @@ const USER: UserProfileDto = {
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
   showInFeed: false,
+  pendingEmail: null,
+  passwordChangedAt: null,
+  lastLoginAt: null,
   emailVerifiedAt: '2026-06-01T00:00:00.000Z',
   createdAt: '2026-06-01T00:00:00.000Z',
 };

@@ -110,16 +110,49 @@ model User {
   emailVerifiedAt      DateTime?
   tutorialDiscoveredAt DateTime?
   showInFeed           Boolean   @default(false)
+  pendingEmail         String?
+  passwordChangedAt    DateTime?
+  lastLoginAt          DateTime?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
   energyWallet      EnergyWallet?
   emailVerification EmailVerification?
+  emailChange       EmailChange?
+  packPurchases     PackPurchase[]
   streak            Streak?
   sessions          Session[]
   axisBests         AxisBest[]
   badges            UserBadge[]
   energyLedger      EnergyLedger[]
+}
+
+model EmailChange {
+  id         String    @id @default(uuid())
+  userId     String    @unique
+  newEmail   String
+  tokenHash  String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  sentCount  Int       @default(1)
+  lastSentAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PackPurchase {
+  id                String   @id @default(uuid())
+  userId            String
+  packId            String
+  energyAmount      Int
+  amountCents       Int
+  currency          String   @default("eur")
+  checkoutSessionId String   @unique
+  receiptUrl        String?
+  purchasedAt       DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purchasedAt])
 }
 
 model EmailVerification {

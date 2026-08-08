@@ -11,6 +11,7 @@ import {
 import { BadgesService } from '../badges/badges.service';
 import { MailConfig } from '../config/mail.config';
 import { MAILER, MailerPort } from '../mail/mailer.port';
+import { buildVerificationEmail } from '../mail/mail-templates';
 import { AuthRepository } from './auth.repository';
 import { EmailVerificationRepository } from './email-verification.repository';
 
@@ -120,42 +121,17 @@ export class EmailVerificationService {
     );
     await this.repository.replaceToken(user.id, this.hash(token), expiresAt, now);
     const link = `${this.appBaseUrl()}/verification?token=${token}`;
-    await this.mailer.send({
-      to: user.email,
-      subject: 'Vérifiez votre adresse e-mail',
-      text: this.buildText(user.firstName, link),
-      html: this.buildHtml(user.firstName, link),
+    const email = buildVerificationEmail({
+      firstName: user.firstName,
+      email: user.email,
+      link,
+      variant: 'signup',
     });
+    await this.mailer.send({ to: user.email, ...email });
   }
 
   private appBaseUrl(): string {
     return this.config.appBaseUrl ?? 'http://localhost:4200';
-  }
-
-  private buildText(firstName: string, link: string): string {
-    return [
-      `Bonjour ${firstName},`,
-      '',
-      'Confirmez votre adresse e-mail pour activer votre compte PsychoTech et recevoir vos 5 crédits de bienvenue.',
-      '',
-      link,
-      '',
-      "Ce lien est valable 24 heures et ne peut servir qu'une seule fois.",
-      "Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message.",
-    ].join('\n');
-  }
-
-  private buildHtml(firstName: string, link: string): string {
-    return [
-      '<div style="font-family: Inter, Arial, sans-serif; color: #1B2130; max-width: 480px; margin: 0 auto; padding: 24px;">',
-      '<p style="font-family: inherit; font-size: 20px; font-weight: 700; margin: 0 0 16px;">Psycho<span style="color: #7C5CFC;">Tech</span></p>',
-      `<p style="margin: 0 0 12px;">Bonjour ${firstName},</p>`,
-      '<p style="margin: 0 0 20px; color: #5B6472; line-height: 1.55;">Confirmez votre adresse e-mail pour activer votre compte et recevoir vos 5 crédits de bienvenue.</p>',
-      `<p style="margin: 0 0 20px;"><a href="${link}" style="display: inline-block; background: #7C5CFC; color: #FFFFFF; text-decoration: none; font-weight: 600; padding: 12px 20px; border-radius: 10px;">Vérifier mon adresse</a></p>`,
-      '<p style="margin: 0 0 6px; font-size: 13px; color: #8A94A6;">Ce lien est valable 24 heures et ne peut servir qu&rsquo;une seule fois.</p>',
-      '<p style="margin: 0; font-size: 13px; color: #8A94A6;">Si vous n&rsquo;êtes pas à l&rsquo;origine de cette inscription, ignorez ce message.</p>',
-      '</div>',
-    ].join('');
   }
 
   private hash(token: string): string {

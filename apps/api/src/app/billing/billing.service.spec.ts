@@ -70,7 +70,9 @@ describe('BillingService.handleWebhook checkout.session.completed', () => {
     expect(repository.creditPackPurchaseOnce).toHaveBeenCalledWith(
       'evt_1',
       'user-1',
+      'DISCOVERY',
       15,
+      290,
       'cs_test_1',
     );
     expect(repository.registerEvent).not.toHaveBeenCalled();
@@ -90,7 +92,9 @@ describe('BillingService.handleWebhook checkout.session.completed', () => {
       2,
       'evt_1',
       'user-1',
+      'DISCOVERY',
       15,
+      290,
       'cs_test_1',
     );
   });

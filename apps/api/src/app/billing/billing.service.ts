@@ -1,4 +1,5 @@
 import {
+  Logger,
   BadRequestException,
   Inject,
   Injectable,
@@ -14,6 +15,7 @@ import {
   PackCheckoutSessionDto,
   PackCheckoutState,
   PackCheckoutStatusDto,
+  PackPurchaseDto,
 } from '@psychotech/shared';
 import { BillingConfig } from '../config/billing.config';
 import { EnergyService } from '../energy/energy.service';
@@ -23,6 +25,7 @@ import { STRIPE_CLIENT } from './stripe.client';
 @Injectable()
 export class BillingService {
   private readonly config: BillingConfig;
+  private readonly logger = new Logger(BillingService.name);
 
   constructor(
     @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
@@ -131,9 +134,56 @@ export class BillingService {
     await this.repository.creditPackPurchaseOnce(
       event.id,
       userId,
+      pack.id,
       pack.energyAmount,
+      session.amount_total ?? pack.priceCents,
       session.id,
     );
+    await this.attachReceiptUrl(session);
+  }
+
+  async listPurchases(userId: string): Promise<PackPurchaseDto[]> {
+    const rows = await this.repository.listPurchases(userId);
+    return rows.flatMap((row) => {
+      const packId = row.packId as EnergyPackId;
+      return ENERGY_PACK_BY_ID.has(packId)
+        ? [
+            {
+              id: row.id,
+              purchasedAt: row.purchasedAt.toISOString(),
+              packId,
+              energyAmount: row.energyAmount,
+              amountCents: row.amountCents,
+              receiptUrl: row.receiptUrl,
+            },
+          ]
+        : [];
+    });
+  }
+
+  private async attachReceiptUrl(
+    session: Stripe.Checkout.Session,
+  ): Promise<void> {
+    const stripe = this.stripe;
+    if (!stripe || typeof session.payment_intent !== 'string') {
+      return;
+    }
+    try {
+      const intent = await stripe.paymentIntents.retrieve(
+        session.payment_intent,
+        { expand: ['latest_charge'] },
+      );
+      const charge = intent.latest_charge;
+      const receiptUrl =
+        charge && typeof charge !== 'string' ? charge.receipt_url : null;
+      if (receiptUrl) {
+        await this.repository.saveReceiptUrl(session.id, receiptUrl);
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Could not fetch the receipt url for ${session.id}: ${String(error)}`,
+      );
+    }
   }
 
   private async resolveCustomerId(

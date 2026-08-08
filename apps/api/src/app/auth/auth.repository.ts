@@ -64,7 +64,25 @@ export class AuthRepository {
   updatePasswordHash(userId: string, passwordHash: string): Promise<User> {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { passwordHash },
+      data: { passwordHash, passwordChangedAt: new Date() },
+    });
+  }
+
+  async setPendingEmail(userId: string, pendingEmail: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { pendingEmail },
+    });
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id: userId } });
+  }
+
+  async markLogin(userId: string, at: Date): Promise<void> {
+    await this.prisma.user.updateMany({
+      where: { id: userId },
+      data: { lastLoginAt: at },
     });
   }
 }

@@ -8,6 +8,8 @@ import { AuthController } from './auth.controller';
 import { AuthCookieService } from './auth.cookie.service';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
+import { EmailChangeRepository } from './email-change.repository';
+import { EmailChangeService } from './email-change.service';
 import { EmailVerificationRepository } from './email-verification.repository';
 import { EmailVerificationService } from './email-verification.service';
 import { CsrfGuard } from './guards/csrf.guard';
@@ -24,6 +26,8 @@ import { TokenService } from './token.service';
     AuthRepository,
     EmailVerificationService,
     EmailVerificationRepository,
+    EmailChangeService,
+    EmailChangeRepository,
     IpRateLimitService,
     PasswordHasher,
     TokenService,

@@ -17,6 +17,7 @@ function buildTx(eventCreate: ReturnType<typeof vi.fn>) {
       upsert: vi.fn().mockResolvedValue({ userId: 'user-1', balance: 20 }),
     },
     energyLedger: { create: vi.fn().mockResolvedValue({}) },
+    packPurchase: { create: vi.fn().mockResolvedValue({}) },
   };
 }
 
@@ -37,7 +38,9 @@ describe('BillingRepository.creditPackPurchaseOnce', () => {
     const credited = await repository.creditPackPurchaseOnce(
       'evt_1',
       'user-1',
+      'DISCOVERY',
       15,
+      290,
       'cs_test_1',
     );
 
@@ -69,7 +72,9 @@ describe('BillingRepository.creditPackPurchaseOnce', () => {
     const credited = await repository.creditPackPurchaseOnce(
       'evt_1',
       'user-1',
+      'DISCOVERY',
       15,
+      290,
       'cs_test_1',
     );
 
@@ -84,7 +89,7 @@ describe('BillingRepository.creditPackPurchaseOnce', () => {
     const repository = new BillingRepository(prisma as unknown as PrismaService);
 
     await expect(
-      repository.creditPackPurchaseOnce('evt_1', 'user-1', 15, 'cs_test_1'),
+      repository.creditPackPurchaseOnce('evt_1', 'user-1', 'DISCOVERY', 15, 290, 'cs_test_1'),
     ).rejects.toThrow('db down');
   });
 });

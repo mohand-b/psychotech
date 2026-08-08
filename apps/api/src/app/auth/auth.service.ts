@@ -2,6 +2,7 @@ import { User } from '@prisma/client';
 import { randomBytes } from 'node:crypto';
 import {
   BadRequestException,
+  Inject,
   ConflictException,
   Injectable,
   Logger,
@@ -20,6 +21,8 @@ import { toUserProfileDto } from '../users/users.mappers';
 import { UsersRepository } from '../users/users.repository';
 import { EmailVerificationService } from './email-verification.service';
 import { AuthTokens } from './auth.cookie.service';
+import { MAILER, MailerPort } from '../mail/mailer.port';
+import { buildNoticeEmail } from '../mail/mail-templates';
 import { AuthRepository } from './auth.repository';
 import { PasswordHasher } from './password.service';
 import { AccessTokenPayload, TokenService } from './token.service';
@@ -43,6 +46,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly usersRepository: UsersRepository,
     private readonly emailVerification: EmailVerificationService,
+    @Inject(MAILER) private readonly mailer: MailerPort,
   ) {}
 
   async register(input: RegisterDto): Promise<AuthResult> {
@@ -78,6 +82,7 @@ export class AuthService {
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    await this.repository.markLogin(user.id, new Date());
     return this.issueSession(user);
   }
 
@@ -120,7 +125,43 @@ export class AuthService {
     }
     const passwordHash = await this.passwordHasher.hash(input.newPassword);
     await this.repository.updatePasswordHash(user.id, passwordHash);
+    this.logger.log(`Password changed for user ${user.id}`);
+    await this.sendPasswordChangedNotice(user);
     return this.issueSession(user);
+  }
+
+  private async sendPasswordChangedNotice(user: User): Promise<void> {
+    try {
+      await this.mailer.send({
+        to: user.email,
+        ...buildNoticeEmail({
+          firstName: user.firstName,
+          title: 'Votre mot de passe a été modifié',
+          paragraphs: [
+            'Le mot de passe de votre compte PsychoTech vient d’être modifié. Les autres appareils connectés devront se reconnecter.',
+            "Si vous n'êtes pas à l'origine de cette modification, réinitialisez votre mot de passe sans attendre.",
+          ],
+        }),
+      });
+    } catch (error) {
+      this.logger.error(
+        `Could not send the password change notice to ${user.email}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
+  async deleteAccount(userId: string, password: string): Promise<void> {
+    const user = await this.repository.findById(userId);
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const valid = await this.passwordHasher.verify(user.passwordHash, password);
+    if (!valid) {
+      throw new BadRequestException(INVALID_CURRENT_PASSWORD_ERROR_CODE);
+    }
+    await this.repository.deleteUser(userId);
+    this.logger.log(`Account deleted for user ${userId} (${user.email})`);
   }
 
   async logout(refreshToken: string | undefined): Promise<void> {

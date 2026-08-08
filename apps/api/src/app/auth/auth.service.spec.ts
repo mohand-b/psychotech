@@ -40,6 +40,8 @@ const repository = {
   createAccount: vi.fn(),
   updateRefreshTokenHash: vi.fn(),
   updatePasswordHash: vi.fn(),
+  markLogin: vi.fn(),
+  deleteUser: vi.fn(),
 };
 
 const passwordHasher = { hash: vi.fn(), verify: vi.fn() };
@@ -52,12 +54,15 @@ const usersRepository = { isSectorActive: vi.fn() };
 
 const emailVerification = { sendInitialVerification: vi.fn() };
 
+const mailer = { send: vi.fn() };
+
 const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
   tokenService as unknown as TokenService,
   usersRepository as unknown as UsersRepository,
   emailVerification as unknown as EmailVerificationService,
+  mailer,
 );
 
 beforeEach(() => {
