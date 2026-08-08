@@ -633,6 +633,70 @@
   color: var(--text-disabled);
 }
 
+.home__credits {
+  gap: 14px;
+}
+
+.home__credits-balance {
+  gap: 12px;
+}
+
+.home__credits-copy {
+  gap: 2px;
+  min-width: 0;
+}
+
+.home__credits-line {
+  gap: 6px;
+}
+
+.home__credits-value {
+  font: 600 30px/1 var(--font-mono);
+  color: var(--ink);
+}
+
+.home__credits-unit {
+  font: 400 13px/1.4 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.home__credits-note {
+  font: 400 12px/1.4 var(--font-ui);
+  color: var(--label);
+}
+
+.home__credits-low {
+  font: 600 12px/1.4 var(--font-ui);
+  color: var(--warning-text);
+}
+
+.home__credits-badges {
+  gap: 10px;
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 12px;
+  text-decoration: none;
+}
+
+.home__credits-badges-text {
+  flex: 1;
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.home__credits-badges-text ui-axis-icon {
+  vertical-align: -1px;
+}
+
+.home__credits-badges-amount {
+  font-weight: 600;
+  color: var(--badge-or);
+}
+
+.home__credits-badges ui-icon {
+  color: var(--text-disabled);
+  flex-shrink: 0;
+}
+
 @media (max-width: 767px) {
   .home {
     padding: 20px 16px 32px;
@@ -814,5 +878,9 @@
 
   .home__weak-empty {
     padding: 8px 0;
+  }
+
+  .home__credits-value {
+    font-size: 26px;
   }
 }

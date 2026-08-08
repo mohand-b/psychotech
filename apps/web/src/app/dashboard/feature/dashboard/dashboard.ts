@@ -1,4 +1,5 @@
-﻿import {
+﻿import { httpResource } from '@angular/common/http';
+import {
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -9,6 +10,8 @@ import { Router, RouterLink } from '@angular/router';
 import {
   AxisProgressStatus,
   AxisType,
+  BADGE_BY_ID,
+  BadgeStatusDto,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,
@@ -19,8 +22,9 @@ import {
   axisMaxDurationSec,
   buildSimulationStamp,
 } from '@psychotech/shared';
-import { ArrowRight, Play, Target } from 'lucide-angular';
+import { ArrowRight, ChevronRight, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { API_BASE_URL } from '../../../core/http/api-base-url.token';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
@@ -48,6 +52,7 @@ import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
+import { BadgeFeedBanner } from '../badge-feed-banner/badge-feed-banner';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
@@ -83,6 +88,7 @@ interface LastResultView {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AxisIcon,
+    BadgeFeedBanner,
     AxisLabel,
     AxisRadar,
     Button,
@@ -106,11 +112,18 @@ export class Dashboard {
   private readonly sessionHistoryFacade = inject(SessionHistoryFacade);
   private readonly router = inject(Router);
   private readonly clock = inject(Clock);
+  private readonly baseUrl = inject(API_BASE_URL);
+
+  private readonly badgeStatusesResource = httpResource<BadgeStatusDto[] | null>(
+    () => `${this.baseUrl}/me/badges`,
+    { defaultValue: null },
+  );
   private readonly now = new Date();
 
   protected readonly playIcon = Play;
   protected readonly arrowIcon = ArrowRight;
   protected readonly discoverIcon = Target;
+  protected readonly chevronIcon = ChevronRight;
   protected readonly statuses = AxisProgressStatus;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly cardIconSize = AXIS_ICON_SIZE.card;
@@ -183,6 +196,37 @@ export class Dashboard {
       return `Vous avez un ${FULL_SESSION_LABEL.toLowerCase()} en cours : reprenez là où vous vous êtes arrêté.`;
     }
     return 'Chaque session vous rapproche de la sélection.';
+  });
+
+  protected readonly balanceValue = computed(() => this.balance());
+
+  protected readonly lowCredits = computed(() => this.balance() <= 1);
+
+  protected readonly lowCreditsNote = computed<string | null>(() => {
+    const balance = this.balance();
+    if (balance === 0) {
+      return 'Rechargez ou gagnez vos prochains crédits avec les badges.';
+    }
+    if (balance === 1) {
+      return 'Il vous reste de quoi lancer une session ciblée.';
+    }
+    return null;
+  });
+
+  protected readonly earnableRemainder = computed<number | null>(() => {
+    const statuses = this.badgeStatusesResource.value();
+    if (!statuses) {
+      return null;
+    }
+    const earnedIds = new Set(
+      statuses
+        .filter((status) => status.earnedAt !== null)
+        .map((status) => status.badgeId),
+    );
+    const remainder = [...BADGE_BY_ID.values()]
+      .filter((definition) => !earnedIds.has(definition.id))
+      .reduce((sum, definition) => sum + definition.energyReward, 0);
+    return remainder > 0 ? remainder : null;
   });
 
   protected readonly energyLabel = computed(() =>

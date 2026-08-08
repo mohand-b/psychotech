@@ -1,8 +1,17 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
   AxisProgressStatus,
+  BADGE_CATALOG,
+  BadgeFeedDto,
+  BadgeId,
+  BadgeStatusDto,
   AxisType,
   CurrentSessionDto,
   EnergyStateDto,
@@ -123,6 +132,8 @@ function fullSession(): CurrentSessionDto {
 }
 
 interface SetupOptions {
+  badgeStatuses?: BadgeStatusDto[];
+  feed?: BadgeFeedDto;
   balance?: number;
   overview?: TrainingsOverviewDto | null;
   progression?: ProgressionDto | null;
@@ -131,6 +142,7 @@ interface SetupOptions {
 }
 
 async function setup(options: SetupOptions = {}) {
+  TestBed.resetTestingModule();
   const overview =
     options.overview === undefined ? overviewWithData() : options.overview;
   const overviewFacade = {
@@ -157,6 +169,8 @@ async function setup(options: SetupOptions = {}) {
     imports: [Dashboard],
     providers: [
       provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
       { provide: AuthFacade, useValue: { currentUser: signal(USER) } },
       {
         provide: EnergyFacade,
@@ -190,6 +204,17 @@ async function setup(options: SetupOptions = {}) {
   const fixture = TestBed.createComponent(Dashboard);
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+  fixture.detectChanges();
+  const controller = TestBed.inject(HttpTestingController);
+  controller
+    .match((request) => request.url.endsWith('/me/badges'))
+    .forEach((request) => request.flush(options.badgeStatuses ?? []));
+  controller
+    .match((request) => request.url.endsWith('/me/badges/feed'))
+    .forEach((request) =>
+      request.flush(options.feed ?? { visible: false, entries: [] }),
+    );
+  await fixture.whenStable();
   fixture.detectChanges();
   return { fixture, navigate, overviewFacade, sessionHistoryFacade };
 }
@@ -356,5 +381,109 @@ describe('Dashboard', () => {
     expect(textOf(fixture)).toContain(
       'Meilleurs scores, tous entraînements confondus',
     );
+  });
+});
+
+function badgeStatus(
+  badgeId: BadgeId,
+  earnedAt: string | null,
+): BadgeStatusDto {
+  return {
+    badgeId,
+    earnedAt,
+    acknowledgedAt: earnedAt,
+    conditions: [],
+    rarityPercent: null,
+  };
+}
+
+describe('Dashboard - widget Crédits', () => {
+  it('computes the earnable remainder from the catalog for a fresh account', async () => {
+    const { fixture } = await setup({
+      badgeStatuses: BADGE_CATALOG.map((definition) =>
+        badgeStatus(definition.id, null),
+      ),
+    });
+    const badgesLink = fixture.nativeElement.querySelector(
+      '.home__credits-badges',
+    );
+    expect(badgesLink?.textContent?.replace(/\s+/g, ' ')).toContain(
+      'Encore 25 à gagner avec les badges',
+    );
+    expect(badgesLink?.getAttribute('href')).toBe('/badges');
+  });
+
+  it('lowers the remainder once a paying badge is earned', async () => {
+    const { fixture } = await setup({
+      badgeStatuses: BADGE_CATALOG.map((definition) =>
+        badgeStatus(
+          definition.id,
+          definition.id === BadgeId.FIRST_STEPS
+            ? '2026-08-08T10:00:00.000Z'
+            : null,
+        ),
+      ),
+    });
+    expect(
+      fixture.nativeElement
+        .querySelector('.home__credits-badges')
+        ?.textContent?.replace(/\s+/g, ' '),
+    ).toContain('Encore 23 à gagner');
+  });
+
+  it('shows the balance with the coin, the packs link and the low state', async () => {
+    const low = await setup({ balance: 0 });
+    const card = low.fixture.nativeElement.querySelector('.home__credits');
+    expect(card?.textContent).toContain('Crédits');
+    expect(card?.textContent).toContain(
+      'Rechargez ou gagnez vos prochains crédits avec les badges.',
+    );
+    expect(card?.querySelector('ui-axis-icon')).not.toBeNull();
+    expect(
+      card?.querySelector('a[href="/credits"]')?.textContent,
+    ).toContain('Voir les packs');
+
+    const ok = await setup({ balance: 5 });
+    const okCard = ok.fixture.nativeElement.querySelector('.home__credits');
+    expect(okCard?.textContent).toContain("Sans date d'expiration");
+  });
+});
+
+describe('Dashboard - fil des obtentions', () => {
+  it('renders the banner entries with labels, badges and relative times', async () => {
+    const { fixture } = await setup({
+      feed: {
+        visible: true,
+        entries: [
+          {
+            badgeId: BadgeId.REACTIVITY_PERFECTION,
+            sector: Sector.RAILWAY,
+            earnedAt: '2026-07-24T23:54:00.000Z',
+            label: 'Léa',
+          },
+          {
+            badgeId: BadgeId.EXAM_FAVORABLE,
+            sector: Sector.RAILWAY,
+            earnedAt: '2026-07-24T09:00:00.000Z',
+            label: 'Un candidat',
+          },
+        ],
+      },
+    });
+    const banner = fixture.nativeElement.querySelector('.feed');
+    expect(banner).not.toBeNull();
+    expect(banner?.textContent).toContain('En ce moment');
+    expect(banner?.textContent).toContain('Léa a décroché Sang-froid');
+    expect(banner?.textContent).toContain('Un candidat a décroché Apte');
+    expect(banner?.textContent).toContain('il y a');
+    const arts = banner?.querySelectorAll('.feed__art');
+    expect(arts?.length).toBe(4);
+  });
+
+  it('leaves the banner out of the DOM in the hidden state', async () => {
+    const { fixture } = await setup({
+      feed: { visible: false, entries: [] },
+    });
+    expect(fixture.nativeElement.querySelector('.feed')).toBeNull();
   });
 });
