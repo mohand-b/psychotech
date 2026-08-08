@@ -96,6 +96,23 @@ describe('BadgesService.getFeed', () => {
     expect(JSON.stringify(feed)).not.toContain('Benali');
   });
 
+  it('never adds the initial when the same person appears twice', async () => {
+    repository.findRecentEarned.mockResolvedValue([
+      row({ user: { showInFeed: true } }),
+      row({
+        badgeId: DbBadgeId.MEMORY_PROGRESSION,
+        user: { showInFeed: true },
+      }),
+    ]);
+
+    const feed = await service.getFeed();
+
+    expect(feed.entries.map((entry) => entry.label)).toEqual([
+      'Karim',
+      'Karim',
+    ]);
+  });
+
   it('never counts an anonymous homonym as a duplicate', async () => {
     repository.findRecentEarned.mockResolvedValue([
       row({ user: { showInFeed: true, lastName: 'Benali' } }),

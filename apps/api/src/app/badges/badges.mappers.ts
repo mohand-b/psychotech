@@ -83,13 +83,13 @@ export function toEarnedBadgeDto(
 export function toBadgeFeedEntries(
   rows: RecentEarnedBadge[],
 ): BadgeFeedEntryDto[] {
-  const optInFirstNameCounts = new Map<string, number>();
+  const optInLastNamesByFirstName = new Map<string, Set<string>>();
   for (const row of rows) {
     if (row.user.showInFeed) {
-      optInFirstNameCounts.set(
-        row.user.firstName,
-        (optInFirstNameCounts.get(row.user.firstName) ?? 0) + 1,
-      );
+      const lastNames =
+        optInLastNamesByFirstName.get(row.user.firstName) ?? new Set<string>();
+      lastNames.add(row.user.lastName);
+      optInLastNamesByFirstName.set(row.user.firstName, lastNames);
     }
   }
   return rows.flatMap((row) => {
@@ -100,7 +100,7 @@ export function toBadgeFeedEntries(
     let label = FEED_ANONYMOUS_LABEL;
     if (row.user.showInFeed) {
       const duplicated =
-        (optInFirstNameCounts.get(row.user.firstName) ?? 0) > 1;
+        (optInLastNamesByFirstName.get(row.user.firstName)?.size ?? 0) > 1;
       const initial = row.user.lastName.charAt(0).toUpperCase();
       label =
         duplicated && initial
