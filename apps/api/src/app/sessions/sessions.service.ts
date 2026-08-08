@@ -176,17 +176,6 @@ export class SessionsService {
               createdSessionId,
             )
         : undefined,
-      request.mode !== SessionMode.TUTORIAL
-        ? async (client, createdSessionId) => {
-            await this.badgesService.evaluateWithin(
-              client,
-              userId,
-              BadgeEvent.SESSION_STARTED,
-              null,
-              createdSessionId,
-            );
-          }
-        : undefined,
     );
     return toSessionDto(session);
   }

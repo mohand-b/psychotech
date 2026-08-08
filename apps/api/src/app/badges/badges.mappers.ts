@@ -51,8 +51,6 @@ function factsBeforeEvent(facts: BadgeFacts, event: BadgeEvent): BadgeFacts {
       return { ...facts, user: { ...facts.user, accountVerified: false } };
     case BadgeEvent.TUTORIAL_OPENED:
       return { ...facts, user: { ...facts.user, tutorialDiscovered: false } };
-    case BadgeEvent.SESSION_STARTED:
-      return { ...facts, user: { ...facts.user, sessionStarted: false } };
     case BadgeEvent.SESSION_COMPLETED:
       return { ...facts, session: null };
   }

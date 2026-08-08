@@ -210,7 +210,6 @@ describe('SessionsService.start', () => {
         axes: [AxisType.LOGIC],
       }),
       expect.any(Function),
-      expect.any(Function),
     );
     expect(energyService.spendWithin).toHaveBeenCalledWith(
       'tx-client',
@@ -252,7 +251,6 @@ describe('SessionsService.start', () => {
     expect(repository.createSession).toHaveBeenLastCalledWith(
       expect.objectContaining({ mode: SessionMode.TUTORIAL, energyCost: 0 }),
       undefined,
-      undefined,
     );
     expect(energyService.spendWithin).not.toHaveBeenCalled();
   });
@@ -275,7 +273,6 @@ describe('SessionsService.start', () => {
         helpEnabled: true,
         trainingOptions: [TrainingOptionId.LOGIC_HELP],
       }),
-      expect.any(Function),
       expect.any(Function),
     );
   });
@@ -304,7 +301,6 @@ describe('SessionsService.start', () => {
         ],
       }),
       expect.any(Function),
-      expect.any(Function),
     );
   });
 
@@ -326,7 +322,6 @@ describe('SessionsService.start', () => {
         helpEnabled: false,
         trainingOptions: [TrainingOptionId.NO_TIMER],
       }),
-      expect.any(Function),
       expect.any(Function),
     );
   });
@@ -405,7 +400,6 @@ describe('SessionsService.start', () => {
         contentVersion: SESSION_CONTENT_VERSION,
         logicFamily: LogicFamilyFilter.DOMINO,
       }),
-      expect.any(Function),
       expect.any(Function),
     );
   });

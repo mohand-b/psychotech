@@ -20,7 +20,6 @@ function factsSource(
     bestScores: Partial<Record<AxisType, number>>;
     accountVerified: boolean;
     tutorialDiscovered: boolean;
-    sessionStarted: boolean;
   }> = {},
 ): BadgeFactsSource {
   return {
@@ -29,7 +28,6 @@ function factsSource(
     user: {
       accountVerified: overrides.accountVerified ?? false,
       tutorialDiscovered: overrides.tutorialDiscovered ?? false,
-      sessionStarted: overrides.sessionStarted ?? false,
     },
   };
 }
@@ -236,11 +234,10 @@ describe('BadgesService.evaluateWithin — first steps', () => {
       factsSource({
         accountVerified: true,
         tutorialDiscovered: true,
-        sessionStarted: true,
       }),
     );
 
-    const won = await evaluateCollecting(BadgeEvent.SESSION_STARTED, null);
+    const won = await evaluateCollecting(BadgeEvent.TUTORIAL_OPENED, null);
 
     expect(won).toHaveLength(1);
     expect(won[0].badgeId).toBe(BadgeId.FIRST_STEPS);
@@ -253,8 +250,7 @@ describe('BadgesService.evaluateWithin — first steps', () => {
       ]),
     ).toEqual([
       ['verified', true, false],
-      ['tutorial', true, false],
-      ['session-started', true, true],
+      ['tutorial', true, true],
     ]);
     expect(repository.creditRewardWithin).toHaveBeenCalledWith(
       tx,
@@ -266,7 +262,7 @@ describe('BadgesService.evaluateWithin — first steps', () => {
 
   it('withholds first steps while a condition is missing', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(
-      factsSource({ accountVerified: true, sessionStarted: true }),
+      factsSource({ accountVerified: true }),
     );
 
     const won = await evaluateCollecting(BadgeEvent.ACCOUNT_VERIFIED, null);

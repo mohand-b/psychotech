@@ -38,7 +38,6 @@ const facts: BadgeFacts = {
   user: {
     accountVerified: true,
     tutorialDiscovered: false,
-    sessionStarted: false,
   },
   session: null,
 };
@@ -54,7 +53,6 @@ describe('toBadgeStatusDto', () => {
 
     expect(dto.conditions.map((condition) => condition.met)).toEqual([
       true,
-      false,
       false,
     ]);
     expect(dto.earnedAt).toBeNull();

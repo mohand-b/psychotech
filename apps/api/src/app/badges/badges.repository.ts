@@ -248,15 +248,10 @@ export class BadgesRepository {
     if (!user) {
       return null;
     }
-    const [startedCount, bests] = await Promise.all([
-      client.session.count({
-        where: { userId, mode: { in: ['FULL', 'TARGETED'] } },
-      }),
-      client.axisBest.findMany({
-        where: { userId },
-        select: { axis: true, bestScore: true },
-      }),
-    ]);
+    const bests = await client.axisBest.findMany({
+      where: { userId },
+      select: { axis: true, bestScore: true },
+    });
     const bestScores: Partial<Record<AxisType, number>> = {};
     for (const best of bests) {
       bestScores[mapEnumValue(AxisType, best.axis)] = best.bestScore;
@@ -267,7 +262,6 @@ export class BadgesRepository {
       user: {
         accountVerified: user.emailVerifiedAt !== null,
         tutorialDiscovered: user.tutorialDiscoveredAt !== null,
-        sessionStarted: startedCount > 0,
       },
     };
   }
