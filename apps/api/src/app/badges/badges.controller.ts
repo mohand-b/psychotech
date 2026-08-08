@@ -9,6 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  BadgeFeedDto,
   BadgeId,
   BadgeStatusDto,
   EarnedBadgeDto,
@@ -25,6 +26,11 @@ export class BadgesController {
   @Get()
   getBadges(@CurrentUser() userId: string): Promise<BadgeStatusDto[]> {
     return this.badgesService.getCollection(userId);
+  }
+
+  @Get('feed')
+  getFeed(): Promise<BadgeFeedDto> {
+    return this.badgesService.getFeed();
   }
 
   @Get('unacknowledged')

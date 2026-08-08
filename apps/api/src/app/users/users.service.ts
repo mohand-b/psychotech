@@ -37,6 +37,7 @@ export class UsersService {
       locale: update.locale,
       timezone: update.timezone,
       currentSector: update.currentSector,
+      showInFeed: update.showInFeed,
     });
     return toUserProfileDto(user);
   }

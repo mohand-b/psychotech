@@ -1,5 +1,6 @@
 import { Sector, UpdateUserProfileDto } from '@psychotech/shared';
 import {
+  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
@@ -29,4 +30,8 @@ export class UpdateUserProfileRequest implements UpdateUserProfileDto {
   @IsOptional()
   @IsEnum(Sector)
   currentSector?: Sector;
+
+  @IsOptional()
+  @IsBoolean()
+  showInFeed?: boolean;
 }

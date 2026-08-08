@@ -31,6 +31,7 @@ const USER: UserProfileDto = {
   locale: 'fr-FR',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
+  showInFeed: false,
   emailVerifiedAt: '2026-06-01T00:00:00.000Z',
   createdAt: '2026-06-01T00:00:00.000Z',
 };

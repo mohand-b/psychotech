@@ -1,4 +1,5 @@
 import { BadgeId } from '../domain/badges/badge-model';
+import { Sector } from '../enums';
 
 export interface BadgeConditionStateDto {
   id: string;
@@ -30,4 +31,16 @@ export interface EarnedBadgeDto {
 
 export interface NewBadgesPayload {
   newBadges?: EarnedBadgeDto[];
+}
+
+export interface BadgeFeedEntryDto {
+  badgeId: BadgeId;
+  sector: Sector;
+  earnedAt: string;
+  label: string;
+}
+
+export interface BadgeFeedDto {
+  visible: boolean;
+  entries: BadgeFeedEntryDto[];
 }

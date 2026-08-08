@@ -25,6 +25,7 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
     locale: 'fr-FR',
     timezone: 'Europe/Paris',
     currentSector: Sector.RAILWAY,
+    showInFeed: false,
     emailVerifiedAt: '2026-04-14T00:00:00.000Z',
     createdAt: '2026-04-14T00:00:00.000Z',
     ...overrides,
@@ -221,6 +222,7 @@ describe('Profile', () => {
     expect(updateProfile).toHaveBeenCalledWith({
       firstName: 'Idir',
       lastName: 'Boudjema',
+      showInFeed: false,
     });
     expect(textOf(fixture)).toContain('Modifications enregistrées');
   });

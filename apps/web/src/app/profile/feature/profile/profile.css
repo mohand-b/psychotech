@@ -212,6 +212,19 @@
   color: var(--success-text);
 }
 
+.profil__feed-optin {
+  gap: 16px;
+  justify-content: space-between;
+  border: 1px solid var(--divider-soft);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+}
+
+.profil__feed-copy {
+  gap: 2px;
+  min-width: 0;
+}
+
 .profil__metas {
   display: flex;
   gap: 48px;

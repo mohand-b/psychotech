@@ -32,6 +32,7 @@ import { Button } from '../../../shared/ui/button/button';
 import { EnergyChip } from '../../../shared/ui/energy-chip/energy-chip';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+import { Toggle } from '../../../shared/ui/toggle/toggle';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { passwordsMatch } from '../../../shared/util/password-match';
@@ -76,6 +77,7 @@ const SAVED_STATUS_DURATION_MS = 3200;
     Icon,
     PasswordStrengthMeter,
     RouterLink,
+    Toggle,
   ],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
@@ -109,6 +111,9 @@ export class Profile {
     () => this.user()?.firstName ?? '',
   );
   protected readonly lastName = linkedSignal(() => this.user()?.lastName ?? '');
+  protected readonly showInFeed = linkedSignal(
+    () => this.user()?.showInFeed ?? false,
+  );
 
   protected readonly currentPassword = signal('');
   protected readonly newPassword = signal('');
@@ -167,7 +172,8 @@ export class Profile {
     return (
       current !== null &&
       (this.firstName().trim() !== current.firstName ||
-        this.lastName().trim() !== current.lastName)
+        this.lastName().trim() !== current.lastName ||
+        this.showInFeed() !== current.showInFeed)
     );
   });
 
@@ -305,6 +311,7 @@ export class Profile {
     const current = this.user();
     this.firstName.set(current?.firstName ?? '');
     this.lastName.set(current?.lastName ?? '');
+    this.showInFeed.set(current?.showInFeed ?? false);
     this.currentPassword.set('');
     this.newPassword.set('');
     this.confirmation.set('');
@@ -324,6 +331,7 @@ export class Profile {
       .updateProfile({
         firstName: this.firstName().trim(),
         lastName: this.lastName().trim(),
+        showInFeed: this.showInFeed(),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

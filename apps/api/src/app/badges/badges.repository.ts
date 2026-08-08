@@ -5,6 +5,7 @@ import {
   BadgeRarity,
   EnergyLedgerReason,
   Prisma,
+  Sector as DbSector,
   UserBadge,
 } from '@prisma/client';
 import { AxisType, BadgeFacts, Sector } from '@psychotech/shared';
@@ -22,6 +23,17 @@ interface AxisPlayersRow {
 
 interface DistinctCountRow {
   count: bigint;
+}
+
+export interface RecentEarnedBadge {
+  badgeId: DbBadgeId;
+  earnedAt: Date;
+  user: {
+    firstName: string;
+    lastName: string;
+    showInFeed: boolean;
+    currentSector: DbSector;
+  };
 }
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
@@ -52,6 +64,25 @@ export class BadgesRepository {
     return this.prisma.userBadge.findMany({
       where: { userId, sessionId },
       orderBy: { earnedAt: 'asc' },
+    });
+  }
+
+  findRecentEarned(limit: number): Promise<RecentEarnedBadge[]> {
+    return this.prisma.userBadge.findMany({
+      orderBy: { earnedAt: 'desc' },
+      take: limit,
+      select: {
+        badgeId: true,
+        earnedAt: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            showInFeed: true,
+            currentSector: true,
+          },
+        },
+      },
     });
   }
 

@@ -8,6 +8,7 @@ export interface UserProfileDto {
   locale: string;
   timezone: string;
   currentSector: Sector;
+  showInFeed: boolean;
   emailVerifiedAt: string | null;
   createdAt: string;
 }
@@ -18,4 +19,5 @@ export interface UpdateUserProfileDto {
   locale?: string;
   timezone?: string;
   currentSector?: Sector;
+  showInFeed?: boolean;
 }

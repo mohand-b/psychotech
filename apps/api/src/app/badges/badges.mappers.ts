@@ -1,12 +1,20 @@
 import { BadgeRarity, UserBadge } from '@prisma/client';
 import {
+  BADGE_BY_ID,
   BadgeConditionStateDto,
   BadgeDefinition,
   BadgeEvent,
   BadgeFacts,
+  BadgeFeedEntryDto,
+  BadgeId,
   BadgeStatusDto,
   EarnedBadgeDto,
+  Sector,
 } from '@psychotech/shared';
+import { mapEnumValue } from '../common/enum.util';
+import { RecentEarnedBadge } from './badges.repository';
+
+export const FEED_ANONYMOUS_LABEL = 'Un candidat';
 
 export function toBadgeStatusDto(
   definition: BadgeDefinition,
@@ -70,6 +78,44 @@ export function toEarnedBadgeDto(
         single || (condition.met(facts) && !condition.met(before)),
     })),
   };
+}
+
+export function toBadgeFeedEntries(
+  rows: RecentEarnedBadge[],
+): BadgeFeedEntryDto[] {
+  const optInFirstNameCounts = new Map<string, number>();
+  for (const row of rows) {
+    if (row.user.showInFeed) {
+      optInFirstNameCounts.set(
+        row.user.firstName,
+        (optInFirstNameCounts.get(row.user.firstName) ?? 0) + 1,
+      );
+    }
+  }
+  return rows.flatMap((row) => {
+    const badgeId = mapEnumValue(BadgeId, row.badgeId);
+    if (!BADGE_BY_ID.has(badgeId)) {
+      return [];
+    }
+    let label = FEED_ANONYMOUS_LABEL;
+    if (row.user.showInFeed) {
+      const duplicated =
+        (optInFirstNameCounts.get(row.user.firstName) ?? 0) > 1;
+      const initial = row.user.lastName.charAt(0).toUpperCase();
+      label =
+        duplicated && initial
+          ? `${row.user.firstName} ${initial}.`
+          : row.user.firstName;
+    }
+    return [
+      {
+        badgeId,
+        sector: mapEnumValue(Sector, row.user.currentSector),
+        earnedAt: row.earnedAt.toISOString(),
+        label,
+      },
+    ];
+  });
 }
 
 export function toReconciledEarnedBadgeDto(

@@ -6,6 +6,7 @@ import {
   BadgeEvent,
   BadgeFacts,
   BadgeId,
+  BadgeFeedDto,
   BadgeSessionFacts,
   BadgeStatusDto,
   EarnedBadgeDto,
@@ -16,10 +17,14 @@ import { mapEnumValue } from '../common/enum.util';
 import { BadgeCollector } from './badge-collector';
 import { BadgesRepository } from './badges.repository';
 import {
+  toBadgeFeedEntries,
   toBadgeStatusDto,
   toEarnedBadgeDto,
   toReconciledEarnedBadgeDto,
 } from './badges.mappers';
+
+export const FEED_VISIBILITY_THRESHOLD = 100;
+export const FEED_LIMIT = 20;
 
 type PrismaClientLike = Prisma.TransactionClient;
 
@@ -109,6 +114,15 @@ export class BadgesService {
         facts,
       ),
     );
+  }
+
+  async getFeed(): Promise<BadgeFeedDto> {
+    const eligibleCount = await this.repository.countVerifiedAccounts();
+    if (eligibleCount < FEED_VISIBILITY_THRESHOLD) {
+      return { visible: false, entries: [] };
+    }
+    const rows = await this.repository.findRecentEarned(FEED_LIMIT);
+    return { visible: true, entries: toBadgeFeedEntries(rows) };
   }
 
   async getForSession(

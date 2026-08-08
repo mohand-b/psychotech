@@ -10,6 +10,7 @@ interface ProfileUpdate {
   locale?: string;
   timezone?: string;
   currentSector?: Sector;
+  showInFeed?: boolean;
 }
 
 @Injectable()
@@ -34,6 +35,7 @@ export class UsersRepository {
         currentSector: update.currentSector
           ? mapEnumValue(DbSector, update.currentSector)
           : undefined,
+        showInFeed: update.showInFeed,
       },
     });
   }

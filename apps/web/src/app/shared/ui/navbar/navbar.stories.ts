@@ -12,6 +12,7 @@ const mockUser: UserProfileDto = {
   locale: 'fr',
   timezone: 'Europe/Paris',
   currentSector: Sector.RAILWAY,
+  showInFeed: false,
   emailVerifiedAt: '2026-06-27T08:00:00.000Z',
   createdAt: '2026-06-27T08:00:00.000Z',
 };

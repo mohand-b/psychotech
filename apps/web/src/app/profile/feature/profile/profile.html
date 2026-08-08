@@ -111,6 +111,21 @@
                   l'instant.</span
                 >
               </label>
+              <div class="profil__feed-optin flex items-center">
+                <span class="profil__feed-copy flex flex-col">
+                  <span class="profil__field-label"
+                    >Apparaître dans le fil avec mon prénom</span
+                  >
+                  <span class="profil__field-hint"
+                    >Vos obtentions de badges restent anonymes tant que cette
+                    option est désactivée.</span
+                  >
+                </span>
+                <ui-toggle
+                  [(checked)]="showInFeed"
+                  label="Apparaître dans le fil avec mon prénom"
+                />
+              </div>
               <div class="profil__metas">
                 <span class="profil__meta flex flex-col">
                   <span class="t-label">Membre depuis</span>
