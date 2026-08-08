@@ -33,7 +33,6 @@ function facts(overrides: Partial<BadgeFacts> = {}): BadgeFacts {
     user: {
       accountVerified: false,
       tutorialDiscovered: false,
-      sessionStarted: false,
     },
     session: null,
     ...overrides,
@@ -196,7 +195,6 @@ describe('transverse badges', () => {
           user: {
             accountVerified: true,
             tutorialDiscovered: true,
-            sessionStarted: true,
           },
         }),
       ),
@@ -208,7 +206,6 @@ describe('transverse badges', () => {
           user: {
             accountVerified: true,
             tutorialDiscovered: false,
-            sessionStarted: true,
           },
         }),
       ),

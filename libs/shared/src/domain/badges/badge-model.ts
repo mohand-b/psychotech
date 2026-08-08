@@ -37,7 +37,6 @@ export enum BadgeTier {
 
 export enum BadgeEvent {
   SESSION_COMPLETED = 'SESSION_COMPLETED',
-  SESSION_STARTED = 'SESSION_STARTED',
   ACCOUNT_VERIFIED = 'ACCOUNT_VERIFIED',
   TUTORIAL_OPENED = 'TUTORIAL_OPENED',
 }
@@ -52,7 +51,6 @@ export enum BadgeRarityDenominator {
 export interface BadgeUserFacts {
   accountVerified: boolean;
   tutorialDiscovered: boolean;
-  sessionStarted: boolean;
 }
 
 

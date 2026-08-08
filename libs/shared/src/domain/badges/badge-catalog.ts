@@ -230,11 +230,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
     axis: null,
     tier: null,
     energyReward: FIRST_STEPS_REWARD,
-    events: [
-      BadgeEvent.ACCOUNT_VERIFIED,
-      BadgeEvent.TUTORIAL_OPENED,
-      BadgeEvent.SESSION_STARTED,
-    ],
+    events: [BadgeEvent.ACCOUNT_VERIFIED, BadgeEvent.TUTORIAL_OPENED],
     rarityDenominator: BadgeRarityDenominator.VERIFIED_ACCOUNTS,
     conditions: [
       {
@@ -246,11 +242,6 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
         id: 'tutorial',
         label: 'Un tutoriel terminé',
         met: (facts) => facts.user.tutorialDiscovered,
-      },
-      {
-        id: 'session-started',
-        label: 'Une première session lancée',
-        met: (facts) => facts.user.sessionStarted,
       },
     ],
   },
