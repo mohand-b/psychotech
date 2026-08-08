@@ -10,7 +10,7 @@ import {
 } from '../../util/password-strength';
 
 const LEVEL_LABELS: Record<PasswordStrengthLevel, string> = {
-  empty: '',
+  empty: 'Robustesse',
   weak: 'Faible',
   medium: 'Moyen',
   strong: 'Solide',
@@ -36,33 +36,27 @@ const SEGMENT_COLORS = [
   selector: 'ui-password-strength-meter',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (strength().score > 0) {
-      <div class="meter">
-        <div class="meter__track" aria-hidden="true">
-          @for (segment of segments; track segment; let index = $index) {
-            <span
-              class="meter__segment"
-              [class.meter__segment--filled]="segment <= strength().score"
-              [style.--meter-color]="segmentColors[index]"
-            ></span>
-          }
-        </div>
-        <span
-          class="meter__label"
-          aria-live="polite"
-          [style.color]="colorVar()"
-        >
-          {{ labelText() }}
-        </span>
+    <div class="meter">
+      <div class="meter__track" aria-hidden="true">
+        @for (segment of segments; track segment; let index = $index) {
+          <span
+            class="meter__segment"
+            [class.meter__segment--filled]="segment <= strength().score"
+            [style.--meter-color]="segmentColors[index]"
+          ></span>
+        }
       </div>
-    }
+      <span class="meter__label" aria-live="polite" [style.color]="colorVar()">
+        {{ labelText() }}
+      </span>
+    </div>
   `,
   styles: `
     .meter {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 0 12px;
+      padding: var(--meter-pad, 0 12px);
     }
     .meter__track {
       display: flex;
@@ -82,6 +76,8 @@ const SEGMENT_COLORS = [
     .meter__label {
       font: 600 12px/16px var(--font-ui);
       flex-shrink: 0;
+      min-width: 70px;
+      text-align: right;
     }
   `,
 })

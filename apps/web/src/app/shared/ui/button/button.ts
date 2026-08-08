@@ -15,7 +15,9 @@ export type ButtonColor =
   | 'memory'
   | 'discrimination'
   | 'reactivity'
-  | 'motor';
+  | 'motor'
+  | 'warning'
+  | 'danger';
 
 type ButtonAppearance = 'solid' | 'outlined' | 'ghost';
 
@@ -165,6 +167,34 @@ type ButtonSize = 'md' | 'lg';
       --btn-outline-text: var(--axis-motor-text);
       --btn-outline-border: var(--axis-motor-pastel-bd);
       --btn-outline-hover: var(--axis-motor-pastel);
+    }
+    .ui-button--warning {
+      --btn-fill: var(--warning-text);
+      --btn-fill-hover: var(--badge-or);
+      --btn-fill-loading: var(--warning-text);
+      --btn-on-fill: var(--card);
+      --btn-relief: var(--badge-or);
+      --btn-outline-text: var(--warning-text);
+      --btn-outline-border: color-mix(
+        in srgb,
+        var(--warning-text) 35%,
+        var(--card)
+      );
+      --btn-outline-hover: var(--warning-pastel);
+    }
+    .ui-button--danger {
+      --btn-fill: var(--danger);
+      --btn-fill-hover: var(--danger-text);
+      --btn-fill-loading: var(--danger);
+      --btn-on-fill: var(--card);
+      --btn-relief: var(--danger-text);
+      --btn-outline-text: var(--danger-text);
+      --btn-outline-border: color-mix(
+        in srgb,
+        var(--danger-text) 25%,
+        var(--card)
+      );
+      --btn-outline-hover: var(--danger-pastel);
     }
     .ui-button--solid {
       padding: var(--btn-pad-y) var(--btn-pad-x);

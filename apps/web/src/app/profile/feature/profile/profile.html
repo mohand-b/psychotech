@@ -69,16 +69,21 @@
             <div class="profil__card-head flex items-center">
               <span class="profil__card-title flex-1">{{ meta().title }}</span>
               @if (saved()) {
-                <span class="profil__chip-saved flex items-center">Enregistré</span>
+                <span class="profil__chip-saved flex items-center">
+                  <ui-icon [img]="checkIcon" [size]="11" [strokeWidth]="2.6" />
+                  Enregistré
+                </span>
               }
               @if (!edit()) {
-                <button
-                  type="button"
-                  class="profil__btn-ghost md:inline-flex hidden"
-                  (click)="startEdit()"
-                >
-                  Modifier
-                </button>
+                <span class="md:inline-flex hidden">
+                  <ui-button
+                    color="neutral"
+                    appearance="outlined"
+                    (click)="startEdit()"
+                  >
+                    Modifier
+                  </ui-button>
+                </span>
               }
             </div>
 
@@ -130,14 +135,14 @@
                     }
                   </span>
                   @if ((!emailVerified() || pendingEmail()) && !emailSentTo()) {
-                    <button
-                      type="button"
-                      class="profil__btn-amber"
-                      [disabled]="resendSending()"
+                    <ui-button
+                      color="warning"
+                      appearance="outlined"
+                      [loading]="resendSending()"
                       (click)="resendVerification()"
                     >
                       Renvoyer l'email
-                    </button>
+                    </ui-button>
                   }
                 </div>
               </div>
@@ -182,21 +187,21 @@
                         : 'Aucune modification')
                   }}</span
                 >
-                <button
-                  type="button"
-                  class="profil__btn-ghost"
+                <ui-button
+                  color="neutral"
+                  appearance="outlined"
                   (click)="cancelEdit()"
                 >
                   Annuler
-                </button>
-                <button
-                  type="button"
-                  class="profil__btn-primary"
+                </ui-button>
+                <ui-button
+                  color="brand"
                   [disabled]="!canSave()"
+                  [loading]="saving()"
                   (click)="save()"
                 >
                   Enregistrer
-                </button>
+                </ui-button>
               </div>
             }
 
@@ -208,14 +213,15 @@
                     fonctions, dont l'apparition dans le fil de la communauté,
                     restent désactivées.</span
                   >
-                  <button
-                    type="button"
-                    class="profil__btn-amber"
-                    [disabled]="resendSending()"
+                  <ui-button
+                    color="warning"
+                    appearance="outlined"
+                    [block]="true"
+                    [loading]="resendSending()"
                     (click)="resendVerification()"
                   >
                     Renvoyer l'email de vérification
-                  </button>
+                  </ui-button>
                 </div>
               }
               @if (emailSentTo(); as sentTo) {
@@ -263,21 +269,25 @@
                 >
               </label>
               <div class="profilm__actions flex">
-                <button
-                  type="button"
-                  class="profil__btn-ghost flex-1"
+                <ui-button
+                  class="flex-1"
+                  color="neutral"
+                  appearance="outlined"
+                  [block]="true"
                   (click)="cancelEdit()"
                 >
                   Annuler
-                </button>
-                <button
-                  type="button"
-                  class="profil__btn-primary flex-1"
+                </ui-button>
+                <ui-button
+                  class="flex-1"
+                  color="brand"
+                  [block]="true"
                   [disabled]="!canSave()"
+                  [loading]="saving()"
                   (click)="save()"
                 >
                   Enregistrer
-                </button>
+                </ui-button>
               </div>
             </div>
 
@@ -316,13 +326,14 @@
                 effacés. Les crédits restants sont perdus.</span
               >
             </span>
-            <button
-              type="button"
-              class="profil__btn-danger"
+            <ui-button
+              class="shrink-0"
+              color="danger"
+              appearance="outlined"
               (click)="openDelete()"
             >
               Supprimer
-            </button>
+            </ui-button>
           </section>
         }
 
@@ -374,8 +385,14 @@
                       <span
                         class="profil__criterion flex items-center"
                         [class.profil__criterion--met]="criterion.met"
-                        >{{ criterion.label }}</span
                       >
+                        <ui-icon
+                          [img]="checkIcon"
+                          [size]="13"
+                          [strokeWidth]="2.2"
+                        />
+                        {{ criterion.label }}
+                      </span>
                     }
                   </span>
                 </span>
@@ -383,14 +400,14 @@
               <div class="profil__sec-field">
                 <span class="md:inline hidden"></span>
                 <span class="flex items-center profil__sec-actions">
-                  <button
-                    type="button"
-                    class="profil__btn-primary"
+                  <ui-button
+                    color="brand"
                     [disabled]="!canUpdatePassword()"
+                    [loading]="pwSaving()"
                     (click)="updatePassword()"
                   >
                     Mettre à jour le mot de passe
-                  </button>
+                  </ui-button>
                   @if (pwDone()) {
                     <span class="profil__pw-done">Mot de passe mis à jour</span>
                   }
@@ -442,7 +459,10 @@
                 >Visibilité dans la communauté</span
               >
               @if (filSaved()) {
-                <span class="profil__chip-saved flex items-center">Enregistré</span>
+                <span class="profil__chip-saved flex items-center">
+                  <ui-icon [img]="checkIcon" [size]="11" [strokeWidth]="2.6" />
+                  Enregistré
+                </span>
               }
             </div>
             <div class="profil__privacy flex items-center">
@@ -500,9 +520,9 @@
                 <span class="profil__credits-value t-mono">{{ balance() }}</span>
                 <span class="profil__credits-unit">crédits disponibles</span>
               </span>
-              <a class="profil__btn-primary profil__recharge" routerLink="/credits"
-                >Recharger</a
-              >
+              <ui-button color="brand" (click)="goToCredits()">
+                Recharger
+              </ui-button>
             </div>
             <div class="profil__receipts-head flex items-center">
               <span class="profil__receipts-title flex-1">Reçus</span>
@@ -595,17 +615,25 @@
       <span class="profil__error">{{ error }}</span>
     }
     <div class="profil__modal-actions flex">
-      <button type="button" class="profil__btn-ghost flex-1" (click)="closeDelete()">
+      <ui-button
+        class="flex-1"
+        color="neutral"
+        appearance="outlined"
+        [block]="true"
+        (click)="closeDelete()"
+      >
         Annuler
-      </button>
-      <button
-        type="button"
-        class="profil__btn-danger profil__btn-danger--solid flex-1"
+      </ui-button>
+      <ui-button
+        class="flex-1"
+        color="danger"
+        [block]="true"
         [disabled]="!canDelete()"
+        [loading]="deleting()"
         (click)="confirmDelete()"
       >
         Supprimer définitivement
-      </button>
+      </ui-button>
     </div>
   </div>
 }

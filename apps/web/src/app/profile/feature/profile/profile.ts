@@ -22,6 +22,7 @@ import {
 } from '@psychotech/shared';
 import {
   ArrowLeft,
+  Check,
   Eye,
   Lock,
   LucideIconData,
@@ -34,6 +35,7 @@ import { API_BASE_URL } from '../../../core/http/api-base-url.token';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
+import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
@@ -88,7 +90,7 @@ const UPCOMING_SECTORS = ['Médical', 'Aviation', 'Sécurité', 'Conduite'];
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, Icon, PasswordStrengthMeter, RouterLink, Toggle],
+  imports: [AxisIcon, Button, Icon, PasswordStrengthMeter, RouterLink, Toggle],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -102,6 +104,7 @@ export class Profile {
   private readonly baseUrl = inject(API_BASE_URL);
 
   protected readonly backIcon = ArrowLeft;
+  protected readonly checkIcon = Check;
   protected readonly deleteConfirmation = DELETE_ACCOUNT_CONFIRMATION;
   protected readonly readValue = inputValue;
   protected readonly upcomingSectors = UPCOMING_SECTORS;
@@ -472,6 +475,10 @@ export class Profile {
           );
         },
       });
+  }
+
+  protected goToCredits(): void {
+    this.router.navigate(['/credits']);
   }
 
   protected open(section: ProfileSection): void {
