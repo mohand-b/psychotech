@@ -9,10 +9,9 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmailVerificationOutcome } from '@psychotech/shared';
-import { ArrowRight } from 'lucide-angular';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
+import { Check, CircleAlert } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { AuthFacade } from '../../data-access/auth.facade';
 import { ResendVerificationState } from '../resend-verification-state';
 
@@ -20,7 +19,7 @@ type VerificationViewState = 'PENDING' | EmailVerificationOutcome;
 
 const VIEW_TITLES: Record<VerificationViewState, string> = {
   PENDING: 'Vérification en cours',
-  VERIFIED: 'Adresse vérifiée',
+  VERIFIED: 'Adresse confirmée',
   ALREADY_VERIFIED: 'Adresse déjà vérifiée',
   EXPIRED: 'Lien expiré',
   INVALID: 'Lien invalide',
@@ -29,23 +28,23 @@ const VIEW_TITLES: Record<VerificationViewState, string> = {
 @Component({
   selector: 'app-verification',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, Button],
+  imports: [Button, Icon],
   providers: [ResendVerificationState],
   templateUrl: './verification.html',
-  styleUrls: ['../auth-panel.css', './verification.css'],
+  styleUrls: ['../auth-card.css', './verification.css'],
 })
 export class Verification {
   private readonly authFacade = inject(AuthFacade);
-  private readonly energyFacade = inject(EnergyFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly arrowIcon = ArrowRight;
+  protected readonly checkIcon = Check;
+  protected readonly alertIcon = CircleAlert;
   protected readonly resendState = inject(ResendVerificationState);
   protected readonly isAuthenticated = this.authFacade.isAuthenticated;
   protected readonly state = signal<VerificationViewState>('PENDING');
-  protected readonly grantedEnergy = signal(0);
+  protected readonly email = signal<string | null>(null);
 
   protected readonly title = computed(() => VIEW_TITLES[this.state()]);
   protected readonly subtitle = computed(() => this.subtitleFor(this.state()));
@@ -61,7 +60,7 @@ export class Verification {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.grantedEnergy.set(response.grantedEnergy);
+          this.email.set(response.email);
           this.state.set(response.outcome);
           if (response.outcome === 'VERIFIED' && this.isAuthenticated()) {
             this.refreshConnectedAccount();
@@ -71,8 +70,12 @@ export class Verification {
       });
   }
 
-  protected goToTraining(): void {
-    this.router.navigate(['/entrainements']);
+  protected goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
+  protected goToProfile(): void {
+    this.router.navigate(['/profil']);
   }
 
   protected goToLogin(): void {
@@ -84,26 +87,22 @@ export class Verification {
       .loadCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
-    this.energyFacade
-      .load()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ error: () => undefined });
   }
 
   private subtitleFor(state: VerificationViewState): string {
     switch (state) {
       case 'PENDING':
-        return 'Un instant, nous confirmons votre adresse e-mail.';
+        return 'Un instant, nous confirmons votre adresse email.';
       case 'VERIFIED':
-        return 'Votre compte est prêt. Bonne préparation.';
+        return 'Votre adresse est vérifiée. Votre compte est actif, bonne préparation.';
       case 'ALREADY_VERIFIED':
         return 'Ce lien a déjà été utilisé, votre compte est actif.';
       case 'EXPIRED':
         return this.isAuthenticated()
-          ? "Ce lien n'est plus valable. Renvoyez un e-mail pour en recevoir un nouveau."
-          : "Ce lien n'est plus valable. Connectez-vous pour renvoyer un e-mail de vérification.";
+          ? "Ce lien n'est plus valable. Renvoyez un email pour en recevoir un nouveau."
+          : "Ce lien n'est plus valable. Connectez-vous pour renvoyer un email de vérification.";
       case 'INVALID':
-        return "Ce lien de vérification n'est pas reconnu. Ouvrez le lien reçu par e-mail.";
+        return "Ce lien de vérification n'est pas reconnu. Ouvrez le lien reçu par email.";
     }
   }
 }

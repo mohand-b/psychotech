@@ -4,6 +4,13 @@
       <a routerLink="/" class="auth__logo"
         >Psycho<span class="auth__logo-accent">Tech</span></a
       >
+      <span class="flex-1"></span>
+      @if (showLogout()) {
+        <button type="button" class="auth__bar-logout" (click)="logout()">
+          <ui-icon [img]="logoutIcon" [size]="15" [strokeWidth]="1.8" />
+          Se déconnecter
+        </button>
+      }
     </div>
   </header>
 

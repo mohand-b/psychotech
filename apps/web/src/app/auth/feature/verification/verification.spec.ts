@@ -10,7 +10,6 @@ import {
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { AuthFacade } from '../../data-access/auth.facade';
 import { Verification } from './verification';
 
@@ -27,14 +26,17 @@ interface Setup {
   verifyEmail: ReturnType<typeof vi.fn>;
   resendVerification: ReturnType<typeof vi.fn>;
   loadCurrentUser: ReturnType<typeof vi.fn>;
-  energyLoad: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.spyOn>;
 }
 
 async function setup(options: SetupOptions = {}): Promise<Setup> {
   const verifyEmail = vi.fn(
     options.verifyResult ??
-      (() => of<VerifyEmailResponseDto>({ outcome: 'VERIFIED', grantedEnergy: 5 })),
+      (() =>
+        of<VerifyEmailResponseDto>({
+          outcome: 'VERIFIED',
+          email: 'alice@example.com',
+        })),
   );
   const resendVerification = vi.fn(
     options.resendResult ??
@@ -42,7 +44,6 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
         of<ResendVerificationResponseDto>({ sent: true, retryAfterSeconds: null })),
   );
   const loadCurrentUser = vi.fn(() => of(null));
-  const energyLoad = vi.fn(() => of(null));
   await TestBed.configureTestingModule({
     imports: [Verification],
     providers: [
@@ -56,7 +57,6 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
           isAuthenticated: () => options.authenticated ?? false,
         },
       },
-      { provide: EnergyFacade, useValue: { load: energyLoad } },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -79,7 +79,6 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
     verifyEmail,
     resendVerification,
     loadCurrentUser,
-    energyLoad,
     navigate,
   };
 }
@@ -93,28 +92,37 @@ describe('Verification', () => {
     TestBed.resetTestingModule();
   });
 
-  it('confirms the address with the energy credit and refreshes the connected account', async () => {
+  it('confirms the address without any credit mention and refreshes the connected account', async () => {
     const result = await setup({ authenticated: true });
 
     expect(result.verifyEmail).toHaveBeenCalledWith('a'.repeat(64));
-    expect(result.element.textContent).toContain('Adresse vérifiée');
-    expect(result.element.textContent).toContain('5');
-    expect(result.element.textContent).toContain('crédits offerts');
+    expect(result.element.textContent).toContain('Adresse confirmée');
+    expect(result.element.textContent).toContain('alice@example.com');
+    expect(result.element.textContent).not.toContain('crédit');
     expect(result.loadCurrentUser).toHaveBeenCalled();
-    expect(result.energyLoad).toHaveBeenCalled();
 
     const cta = ctaButton(result.element);
-    expect(cta.textContent).toContain("Commencer l'entraînement");
+    expect(cta.textContent).toContain('Accéder à mon espace');
     cta.click();
-    expect(result.navigate).toHaveBeenCalledWith(['/entrainements']);
+    expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('offers the profile shortcut to a connected user', async () => {
+    const result = await setup({ authenticated: true });
+
+    const ghost = result.element.querySelector(
+      '.authcard__ghost',
+    ) as HTMLButtonElement;
+    expect(ghost.textContent).toContain('Voir mon profil');
+    ghost.click();
+    expect(result.navigate).toHaveBeenCalledWith(['/profil']);
   });
 
   it('sends the visitor to the login after a verification done while logged out', async () => {
     const result = await setup({ authenticated: false });
 
-    expect(result.element.textContent).toContain('Adresse vérifiée');
+    expect(result.element.textContent).toContain('Adresse confirmée');
     expect(result.loadCurrentUser).not.toHaveBeenCalled();
-    expect(result.energyLoad).not.toHaveBeenCalled();
 
     const cta = ctaButton(result.element);
     expect(cta.textContent).toContain('Se connecter');
@@ -122,18 +130,17 @@ describe('Verification', () => {
     expect(result.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('mentions no energy credit for an already verified address', async () => {
+  it('handles an already verified address without any credit mention', async () => {
     const result = await setup({
       authenticated: true,
       verifyResult: () =>
-        of<VerifyEmailResponseDto>({ outcome: 'ALREADY_VERIFIED', grantedEnergy: 0 }),
+        of<VerifyEmailResponseDto>({ outcome: 'ALREADY_VERIFIED', email: null }),
     });
 
     expect(result.element.textContent).toContain('Adresse déjà vérifiée');
-    expect(result.element.textContent).not.toContain('crédits offerts');
-    expect(result.energyLoad).not.toHaveBeenCalled();
+    expect(result.element.textContent).not.toContain('crédit');
     expect(ctaButton(result.element).textContent).toContain(
-      "Commencer l'entraînement",
+      'Accéder à mon espace',
     );
   });
 
@@ -141,24 +148,24 @@ describe('Verification', () => {
     const result = await setup({
       authenticated: true,
       verifyResult: () =>
-        of<VerifyEmailResponseDto>({ outcome: 'EXPIRED', grantedEnergy: 0 }),
+        of<VerifyEmailResponseDto>({ outcome: 'EXPIRED', email: null }),
     });
 
     expect(result.element.textContent).toContain('Lien expiré');
     const cta = ctaButton(result.element);
-    expect(cta.textContent).toContain("Renvoyer l'e-mail");
+    expect(cta.textContent).toContain("Renvoyer l'email");
     cta.click();
     result.fixture.detectChanges();
 
     expect(result.resendVerification).toHaveBeenCalledTimes(1);
-    expect(result.element.textContent).toContain('E-mail renvoyé.');
+    expect(result.element.textContent).toContain('Email renvoyé');
   });
 
   it('invites a logged out visitor to sign in on an expired link', async () => {
     const result = await setup({
       authenticated: false,
       verifyResult: () =>
-        of<VerifyEmailResponseDto>({ outcome: 'EXPIRED', grantedEnergy: 0 }),
+        of<VerifyEmailResponseDto>({ outcome: 'EXPIRED', email: null }),
     });
 
     expect(result.element.textContent).toContain('Lien expiré');

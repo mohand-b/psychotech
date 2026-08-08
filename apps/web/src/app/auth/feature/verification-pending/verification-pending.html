@@ -1,43 +1,55 @@
-<div class="auth__panel">
-  <div class="auth__head">
-    <h1 class="auth__title">Vérifiez votre adresse e-mail</h1>
-    <p class="auth__subtitle">
-      Un lien de confirmation a été envoyé à
-      <span class="verification-pending__email">{{ email() }}</span
-      >. Il est valable 24&nbsp;heures.
-    </p>
-  </div>
+<div class="authcard authcard--wide authcard--rise">
+  <span class="authcard__icon-slot">
+    <span class="authcard__icon authcard__icon--brand">
+      <ui-icon [img]="mailIcon" [size]="28" [strokeWidth]="1.9" />
+    </span>
+  </span>
 
-  @if (resendState.resent()) {
-  <span class="verification-pending__status verification-pending__status--sent" role="status"
-    >E-mail renvoyé.</span
-  >
-  } @else if (resendState.cooldownSeconds(); as seconds) {
-  <span class="verification-pending__status" role="status"
-    >Vous pourrez renvoyer un e-mail dans {{ seconds }}&nbsp;s</span
-  >
-  }
+  <h1 class="authcard__title">Vérifiez votre adresse email</h1>
 
-  <div class="auth__actions">
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [loading]="resendState.sending()"
-      [disabled]="resendState.cooldownSeconds() !== null"
-      (click)="resendState.resend()"
-    >
-      Renvoyer l'e-mail
+  <span class="authcard__text"
+    >Votre compte est créé. Nous venons d'envoyer un lien de confirmation à
+    <span class="authcard__strong">{{ email() }}</span> : cliquez dessus pour
+    activer toutes les fonctions.</span
+  >
+
+  <div class="authcard__actions">
+    <ui-button color="brand" size="lg" [block]="true" (click)="goToDashboard()">
+      Continuer sans attendre
     </ui-button>
+    @if (resendState.resent()) {
+      <span class="authcard__sent" role="status">
+        <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.4" />
+        Email renvoyé
+      </span>
+    } @else {
+      <ui-button
+        color="neutral"
+        appearance="outlined"
+        size="lg"
+        [block]="true"
+        [loading]="resendState.sending()"
+        [disabled]="resendState.cooldownSeconds() !== null"
+        (click)="resendState.resend()"
+      >
+        @if (resendState.cooldownSeconds(); as seconds) {
+          Renvoyer dans {{ seconds }}&nbsp;s
+        } @else {
+          Renvoyer l'email
+        }
+      </ui-button>
+    }
   </div>
 
-  <div class="auth__footer">
-    <button
-      type="button"
-      class="auth__footer-link verification-pending__logout"
-      (click)="logout()"
-    >
-      Se déconnecter
-    </button>
-  </div>
+  <span class="authcard__note"
+    >Vous pourrez explorer votre espace en attendant ; la vérification reste
+    demandée pour certaines fonctions. Pensez à vérifier vos courriers
+    indésirables.</span
+  >
+  <span class="authcard__aside"
+    >Adresse erronée&nbsp;?
+    <a class="authcard__aside-link" routerLink="/profil"
+      >La corriger dans le profil</a
+    ></span
+  >
 </div>

@@ -8,10 +8,12 @@ import {
   untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { Check, Mail } from 'lucide-angular';
 import { EMPTY, catchError, interval, switchMap } from 'rxjs';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { Button } from '../../../shared/ui/button/button';
+import { Icon } from '../../../shared/ui/icon/icon';
 import { AuthFacade } from '../../data-access/auth.facade';
 import { ResendVerificationState } from '../resend-verification-state';
 
@@ -20,10 +22,10 @@ const PROFILE_POLL_INTERVAL_MS = 5000;
 @Component({
   selector: 'app-verification-pending',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [Button, Icon, RouterLink],
   providers: [ResendVerificationState],
   templateUrl: './verification-pending.html',
-  styleUrls: ['../auth-panel.css', './verification-pending.css'],
+  styleUrls: ['../auth-card.css', './verification-pending.css'],
 })
 export class VerificationPending {
   private readonly authFacade = inject(AuthFacade);
@@ -31,6 +33,8 @@ export class VerificationPending {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly mailIcon = Mail;
+  protected readonly checkIcon = Check;
   protected readonly resendState = inject(ResendVerificationState);
   protected readonly email = computed(
     () => this.authFacade.currentUser()?.email ?? '',
@@ -54,11 +58,8 @@ export class VerificationPending {
       .subscribe();
   }
 
-  protected logout(): void {
-    this.authFacade.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => this.router.navigate(['/login']),
-    });
+  protected goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   private leaveAsVerified(): void {

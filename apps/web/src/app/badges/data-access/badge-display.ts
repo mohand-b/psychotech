@@ -59,10 +59,13 @@ export function badgeCelebrationViewFor(
   if (!definition) {
     return null;
   }
-  const condition =
-    badge.conditions.find((entry) => entry.justValidated) ??
-    badge.conditions[0] ??
-    null;
+  const anyJustValidated = badge.conditions.some(
+    (entry) => entry.justValidated,
+  );
+  const conditions = badge.conditions.map((entry, index) => ({
+    label: entry.label,
+    justValidated: anyJustValidated ? entry.justValidated : index === 0,
+  }));
   return {
     badgeId: badge.badgeId,
     name: badgeDisplayName(definition, sector),
@@ -70,7 +73,7 @@ export function badgeCelebrationViewFor(
     familyLabel: familyLabelFor(definition),
     tierName: definition.tier ? TIER_NAMES[definition.tier] : null,
     tierColorVar: definition.tier ? TIER_COLOR_VARS[definition.tier] : null,
-    conditionLabel: condition?.label ?? '',
+    conditions,
     gain: badge.gain,
   };
 }

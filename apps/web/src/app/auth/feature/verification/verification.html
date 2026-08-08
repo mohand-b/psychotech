@@ -1,78 +1,89 @@
-<div class="auth__panel">
-  <div class="auth__head">
-    <h1 class="auth__title">{{ title() }}</h1>
-    <p class="auth__subtitle">{{ subtitle() }}</p>
-  </div>
+<div
+  class="authcard"
+  [class.authcard--rise]="state() !== 'VERIFIED' && state() !== 'PENDING'"
+>
+  @if (state() === 'VERIFIED' || state() === 'ALREADY_VERIFIED') {
+    <span class="authcard__icon-slot">
+      <span class="authcard__icon authcard__icon--success authcard__pop">
+        <ui-icon [img]="checkIcon" [size]="30" [strokeWidth]="2.4" />
+      </span>
+    </span>
+  } @else if (state() === 'EXPIRED' || state() === 'INVALID') {
+    <span class="authcard__icon-slot">
+      <span class="authcard__icon authcard__icon--warn">
+        <ui-icon [img]="alertIcon" [size]="30" [strokeWidth]="2" />
+      </span>
+    </span>
+  }
 
-  @if (state() === 'VERIFIED') {
-  <span class="verification__energy">
-    <ui-axis-icon axis="credit" [size]="14" />
-    <span class="t-mono">{{ grantedEnergy() }}</span>
-    <span>crédits offerts</span>
-  </span>
+  <h1 class="authcard__title authcard__rise-1">{{ title() }}</h1>
+
+  @if (state() === 'VERIFIED' && email(); as address) {
+    <span class="authcard__text authcard__rise-2"
+      >Votre adresse
+      <span class="authcard__strong">{{ address }}</span> est vérifiée. Votre
+      compte est actif, bonne préparation.</span
+    >
+  } @else {
+    <span class="authcard__text authcard__rise-2">{{ subtitle() }}</span>
   }
 
   @if (state() === 'VERIFIED' || state() === 'ALREADY_VERIFIED') {
-  <div class="auth__actions">
+    <div class="authcard__actions authcard__rise-3">
+      @if (isAuthenticated()) {
+        <ui-button color="brand" size="lg" [block]="true" (click)="goToDashboard()">
+          Accéder à mon espace
+        </ui-button>
+      } @else {
+        <ui-button color="brand" size="lg" [block]="true" (click)="goToLogin()">
+          Se connecter
+        </ui-button>
+      }
+    </div>
     @if (isAuthenticated()) {
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [iconEnd]="arrowIcon"
-      (click)="goToTraining()"
-    >
-      Commencer l'entraînement
-    </ui-button>
-    } @else {
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [iconEnd]="arrowIcon"
-      (click)="goToLogin()"
-    >
-      Se connecter
-    </ui-button>
+      <button
+        type="button"
+        class="authcard__ghost authcard__rise-4"
+        (click)="goToProfile()"
+      >
+        Voir mon profil
+      </button>
     }
-  </div>
   }
 
   @if (state() === 'EXPIRED') {
-  @if (isAuthenticated()) {
-  @if (resendState.resent()) {
-  <span class="verification__status verification__status--sent" role="status"
-    >E-mail renvoyé.</span
-  >
-  } @else if (resendState.cooldownSeconds(); as seconds) {
-  <span class="verification__status" role="status"
-    >Vous pourrez renvoyer un e-mail dans {{ seconds }}&nbsp;s</span
-  >
-  }
-  <div class="auth__actions">
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [loading]="resendState.sending()"
-      [disabled]="resendState.cooldownSeconds() !== null"
-      (click)="resendState.resend()"
-    >
-      Renvoyer l'e-mail
-    </ui-button>
-  </div>
-  } @else {
-  <div class="auth__actions">
-    <ui-button
-      color="brand"
-      size="lg"
-      [block]="true"
-      [iconEnd]="arrowIcon"
-      (click)="goToLogin()"
-    >
-      Se connecter
-    </ui-button>
-  </div>
-  }
+    @if (isAuthenticated()) {
+      @if (resendState.resent()) {
+        <div class="authcard__actions">
+          <span class="authcard__sent" role="status">
+            <ui-icon [img]="checkIcon" [size]="14" [strokeWidth]="2.4" />
+            Email renvoyé
+          </span>
+        </div>
+      } @else {
+        <div class="authcard__actions">
+          <ui-button
+            color="brand"
+            size="lg"
+            [block]="true"
+            [loading]="resendState.sending()"
+            [disabled]="resendState.cooldownSeconds() !== null"
+            (click)="resendState.resend()"
+          >
+            @if (resendState.cooldownSeconds(); as seconds) {
+              Renvoyer dans {{ seconds }}&nbsp;s
+            } @else {
+              Renvoyer l'email
+            }
+          </ui-button>
+        </div>
+      }
+    } @else {
+      <div class="authcard__actions">
+        <ui-button color="brand" size="lg" [block]="true" (click)="goToLogin()">
+          Se connecter
+        </ui-button>
+      </div>
+    }
   }
 </div>

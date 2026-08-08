@@ -13,6 +13,11 @@ import { AxisIcon } from '../axis-icon/axis-icon';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
+export interface BadgeCelebrationCondition {
+  label: string;
+  justValidated: boolean;
+}
+
 export interface BadgeCelebrationView {
   badgeId: BadgeId;
   name: string;
@@ -20,7 +25,7 @@ export interface BadgeCelebrationView {
   familyLabel: string;
   tierName: string | null;
   tierColorVar: string | null;
-  conditionLabel: string;
+  conditions: BadgeCelebrationCondition[];
   gain: number | null;
 }
 

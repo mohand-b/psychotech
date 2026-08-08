@@ -31,6 +31,24 @@
   color: var(--brand);
 }
 
+.auth__bar-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 600 13.5px/1.3 var(--font-ui);
+  color: var(--label);
+  background: none;
+  border: none;
+  border-radius: var(--radius-button);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.auth__bar-logout:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+
 .auth__main {
   flex: 1;
   display: flex;

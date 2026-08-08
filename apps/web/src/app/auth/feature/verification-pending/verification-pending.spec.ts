@@ -21,9 +21,9 @@ function buildUser(emailVerifiedAt: string | null): UserProfileDto {
     timezone: 'Europe/Paris',
     currentSector: Sector.RAILWAY,
     showInFeed: false,
-  pendingEmail: null,
-  passwordChangedAt: null,
-  lastLoginAt: null,
+    pendingEmail: null,
+    passwordChangedAt: null,
+    lastLoginAt: null,
     emailVerifiedAt,
     createdAt: '2026-06-01T00:00:00.000Z',
   };
@@ -35,7 +35,6 @@ interface Setup {
   currentUser: WritableSignal<UserProfileDto | null>;
   loadCurrentUser: ReturnType<typeof vi.fn>;
   resendVerification: ReturnType<typeof vi.fn>;
-  logout: ReturnType<typeof vi.fn>;
   energyLoad: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.spyOn>;
 }
@@ -55,7 +54,6 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
       (() =>
         of<ResendVerificationResponseDto>({ sent: true, retryAfterSeconds: null })),
   );
-  const logout = vi.fn(() => of(undefined));
   const energyLoad = vi.fn(() => of(null));
   await TestBed.configureTestingModule({
     imports: [VerificationPending],
@@ -63,7 +61,7 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
       provideRouter([]),
       {
         provide: AuthFacade,
-        useValue: { currentUser, loadCurrentUser, resendVerification, logout },
+        useValue: { currentUser, loadCurrentUser, resendVerification },
       },
       { provide: EnergyFacade, useValue: { load: energyLoad } },
     ],
@@ -78,14 +76,35 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
     currentUser,
     loadCurrentUser,
     resendVerification,
-    logout,
     energyLoad,
     navigate,
   };
 }
 
+function buttons(element: HTMLElement): HTMLButtonElement[] {
+  return Array.from(
+    element.querySelectorAll<HTMLButtonElement>('ui-button button'),
+  );
+}
+
+function continueButton(element: HTMLElement): HTMLButtonElement {
+  const found = buttons(element).find((candidate) =>
+    candidate.textContent?.includes('Continuer sans attendre'),
+  );
+  if (!found) {
+    throw new Error('continue button missing');
+  }
+  return found;
+}
+
 function resendButton(element: HTMLElement): HTMLButtonElement {
-  return element.querySelector('ui-button button') as HTMLButtonElement;
+  const found = buttons(element).find((candidate) =>
+    candidate.textContent?.includes('Renvoyer'),
+  );
+  if (!found) {
+    throw new Error('resend button missing');
+  }
+  return found;
 }
 
 describe('VerificationPending', () => {
@@ -101,20 +120,26 @@ describe('VerificationPending', () => {
   it('announces the sent link with the account email and resends it', async () => {
     const result = await setup();
 
-    expect(result.element.textContent).toContain(
-      'Vérifiez votre adresse e-mail',
-    );
+    expect(result.element.textContent).toContain('Vérifiez votre adresse email');
     expect(result.element.textContent).toContain('mohand@example.com');
-    expect(result.element.textContent).toContain('24');
+    expect(result.element.textContent).not.toContain('crédit');
 
     resendButton(result.element).click();
     result.fixture.detectChanges();
 
     expect(result.resendVerification).toHaveBeenCalledTimes(1);
-    expect(result.element.textContent).toContain('E-mail renvoyé.');
+    expect(result.element.textContent).toContain('Email renvoyé');
   });
 
-  it('shows a decreasing cooldown and disables the resend when rate limited', async () => {
+  it('lets the candidate continue to the dashboard without waiting', async () => {
+    const result = await setup();
+
+    continueButton(result.element).click();
+
+    expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('shows a decreasing cooldown inside the disabled resend button', async () => {
     const result = await setup({
       resendResult: () =>
         of<ResendVerificationResponseDto>({ sent: false, retryAfterSeconds: 42 }),
@@ -123,15 +148,15 @@ describe('VerificationPending', () => {
     resendButton(result.element).click();
     result.fixture.detectChanges();
 
-    expect(result.element.textContent).toContain(
-      'Vous pourrez renvoyer un e-mail dans 42',
+    expect(resendButton(result.element).textContent).toContain(
+      'Renvoyer dans 42',
     );
     expect(resendButton(result.element).disabled).toBe(true);
 
     vi.advanceTimersByTime(1000);
     result.fixture.detectChanges();
-    expect(result.element.textContent).toContain(
-      'Vous pourrez renvoyer un e-mail dans 41',
+    expect(resendButton(result.element).textContent).toContain(
+      'Renvoyer dans 41',
     );
   });
 
@@ -157,16 +182,12 @@ describe('VerificationPending', () => {
     expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
-  it('logs the user out from the footer link', async () => {
+  it('links the wrong-address case to the profile', async () => {
     const result = await setup();
 
-    (
-      result.element.querySelector(
-        '.verification-pending__logout',
-      ) as HTMLButtonElement
-    ).click();
-
-    expect(result.logout).toHaveBeenCalledTimes(1);
-    expect(result.navigate).toHaveBeenCalledWith(['/login']);
+    const link = result.element.querySelector<HTMLAnchorElement>(
+      '.authcard__aside-link',
+    );
+    expect(link?.getAttribute('href')).toBe('/profil');
   });
 });
