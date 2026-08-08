@@ -149,15 +149,6 @@
             }
           </div>
         </div>
-        <ui-button
-          color="brand"
-          size="lg"
-          [block]="true"
-          [appearance]="lowCredits() ? 'solid' : 'outlined'"
-          routerLink="/credits"
-        >
-          Recharger
-        </ui-button>
         @if (earnableRemainder(); as remainder) {
           <a class="home__credits-badges flex items-center" routerLink="/badges">
             <span class="home__credits-badges-text"

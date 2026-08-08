@@ -200,8 +200,6 @@ export class Dashboard {
 
   protected readonly balanceValue = computed(() => this.balance());
 
-  protected readonly lowCredits = computed(() => this.balance() <= 1);
-
   protected readonly lowCreditsNote = computed<string | null>(() => {
     const balance = this.balance();
     if (balance === 0) {
