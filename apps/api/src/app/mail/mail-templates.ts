@@ -3,12 +3,14 @@ export interface VerificationEmailInput {
   email: string;
   link: string;
   variant: 'signup' | 'email-change';
+  baseUrl: string;
 }
 
 export interface NoticeEmailInput {
   firstName: string;
   title: string;
   paragraphs: string[];
+  baseUrl: string;
 }
 
 interface EmailContent {
@@ -19,6 +21,7 @@ interface EmailContent {
   afterCta: string | null;
   fallbackLink: string | null;
   outro: string;
+  baseUrl: string;
 }
 
 const INK = '#1B2130';
@@ -98,13 +101,17 @@ function renderHtml(content: EmailContent): string {
   spacer(14);
   text(
     'PsychoTech · Préparation aux tests psychotechniques',
-    `font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; color: ${FOOT};`,
+    `font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; color: ${FOOT}; padding-bottom: 10px;`,
+  );
+  text(
+    `<a href="${content.baseUrl}/mentions-legales" style="color: ${FOOT}; text-decoration: none;">Mentions légales</a>&nbsp;&nbsp;&nbsp;<a href="${content.baseUrl}/confidentialite" style="color: ${FOOT}; text-decoration: none;">Confidentialité</a>`,
+    `font-family: Arial, Helvetica, sans-serif; font-size: 11.5px;`,
   );
 
   return [
     '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>',
     '<body style="margin: 0; padding: 0; background: #FFFFFF;">',
-    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">',
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>',
     '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;"><tr><td style="padding: 40px 32px 48px;">',
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">',
     rows.join(''),
@@ -141,6 +148,7 @@ export function buildVerificationEmail(input: VerificationEmailInput): {
     fallbackLink: input.link,
     outro:
       "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email : aucune action ne sera effectuée.",
+    baseUrl: input.baseUrl,
   };
   const plainBody = signup
     ? `Bienvenue sur PsychoTech. Pour activer votre compte, confirmez que l'adresse ${input.email} est bien la vôtre.`
@@ -168,6 +176,7 @@ export function buildNoticeEmail(input: NoticeEmailInput): {
     afterCta: null,
     fallbackLink: null,
     outro: rest.join(' '),
+    baseUrl: input.baseUrl,
   };
   return {
     subject: input.title,

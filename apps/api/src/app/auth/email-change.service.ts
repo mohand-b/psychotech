@@ -159,6 +159,7 @@ export class EmailChangeService {
       email: newEmail,
       link,
       variant: 'email-change',
+      baseUrl: this.appBaseUrl(),
     });
     await this.mailer.send({ to: newEmail, ...verification });
     await this.sendSafely(user.email, {
@@ -173,10 +174,13 @@ export class EmailChangeService {
 
   private async sendSafely(
     to: string,
-    notice: Parameters<typeof buildNoticeEmail>[0],
+    notice: Omit<Parameters<typeof buildNoticeEmail>[0], 'baseUrl'>,
   ): Promise<void> {
     try {
-      await this.mailer.send({ to, ...buildNoticeEmail(notice) });
+      await this.mailer.send({
+        to,
+        ...buildNoticeEmail({ ...notice, baseUrl: this.appBaseUrl() }),
+      });
     } catch (error) {
       this.logger.error(
         `Could not send the security notice to ${to}`,

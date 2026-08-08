@@ -3,6 +3,7 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { LEGAL_TERMS_VERSION, Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -56,6 +57,13 @@ const emailVerification = { sendInitialVerification: vi.fn() };
 
 const mailer = { send: vi.fn() };
 
+const configService = {
+  getOrThrow: () => ({
+    from: 'PsychoTech <no-reply@psychotech.app>',
+    appBaseUrl: 'http://localhost:4200',
+  }),
+} as unknown as ConfigService;
+
 const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
@@ -63,6 +71,7 @@ const service = new AuthService(
   usersRepository as unknown as UsersRepository,
   emailVerification as unknown as EmailVerificationService,
   mailer,
+  configService,
 );
 
 beforeEach(() => {

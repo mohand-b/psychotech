@@ -5,7 +5,6 @@ import { User } from '@prisma/client';
 import {
   BadgeEvent,
   ResendVerificationResponseDto,
-  SIGNUP_ENERGY_GRANT,
   VerifyEmailResponseDto,
 } from '@psychotech/shared';
 import { BadgesService } from '../badges/badges.service';
@@ -84,19 +83,18 @@ export class EmailVerificationService {
   async verify(token: string): Promise<VerifyEmailResponseDto> {
     const record = await this.repository.findByTokenHash(this.hash(token));
     if (!record) {
-      return { outcome: 'INVALID', grantedEnergy: 0 };
+      return { outcome: 'INVALID', email: null };
     }
     if (record.usedAt !== null) {
-      return { outcome: 'ALREADY_VERIFIED', grantedEnergy: 0 };
+      return { outcome: 'ALREADY_VERIFIED', email: null };
     }
     const now = new Date();
     if (record.expiresAt.getTime() < now.getTime()) {
-      return { outcome: 'EXPIRED', grantedEnergy: 0 };
+      return { outcome: 'EXPIRED', email: null };
     }
-    const outcome = await this.repository.consumeAndGrant(
+    const outcome = await this.repository.consumeAndVerify(
       record.id,
       record.userId,
-      SIGNUP_ENERGY_GRANT,
       now,
       async (client) => {
         await this.badgesService.evaluateWithin(
@@ -107,10 +105,11 @@ export class EmailVerificationService {
         );
       },
     );
-    if (outcome === 'VERIFIED_WITH_GRANT') {
-      return { outcome: 'VERIFIED', grantedEnergy: SIGNUP_ENERGY_GRANT };
+    if (outcome === 'VERIFIED') {
+      const user = await this.authRepository.findById(record.userId);
+      return { outcome: 'VERIFIED', email: user?.email ?? null };
     }
-    return { outcome: 'ALREADY_VERIFIED', grantedEnergy: 0 };
+    return { outcome: 'ALREADY_VERIFIED', email: null };
   }
 
   private async issueAndSend(user: User): Promise<void> {
@@ -126,6 +125,7 @@ export class EmailVerificationService {
       email: user.email,
       link,
       variant: 'signup',
+      baseUrl: this.appBaseUrl(),
     });
     await this.mailer.send({ to: user.email, ...email });
   }

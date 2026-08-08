@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { EmailVerification, EnergyLedgerReason, Prisma } from '@prisma/client';
+import { EmailVerification, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type VerificationOutcome =
-  | 'VERIFIED_WITH_GRANT'
-  | 'VERIFIED_WITHOUT_GRANT'
+  | 'VERIFIED'
+  | 'ALREADY_VERIFIED'
   | 'ALREADY_USED';
 
 @Injectable()
@@ -38,10 +38,9 @@ export class EmailVerificationRepository {
     return this.prisma.emailVerification.findUnique({ where: { userId } });
   }
 
-  async consumeAndGrant(
+  async consumeAndVerify(
     verificationId: string,
     userId: string,
-    grantAmount: number,
     now: Date,
     onVerified?: (client: Prisma.TransactionClient) => Promise<void>,
   ): Promise<VerificationOutcome> {
@@ -58,26 +57,12 @@ export class EmailVerificationRepository {
         data: { emailVerifiedAt: now },
       });
       if (marked.count === 0) {
-        return 'VERIFIED_WITHOUT_GRANT';
+        return 'ALREADY_VERIFIED';
       }
-      const wallet = await tx.energyWallet.upsert({
-        where: { userId },
-        create: { userId, balance: grantAmount },
-        update: { balance: { increment: grantAmount } },
-      });
-      await tx.energyLedger.create({
-        data: {
-          userId,
-          delta: grantAmount,
-          reason: EnergyLedgerReason.SIGNUP_GRANT,
-          balanceAfter: wallet.balance,
-          ref: verificationId,
-        },
-      });
       if (onVerified) {
         await onVerified(tx);
       }
-      return 'VERIFIED_WITH_GRANT';
+      return 'VERIFIED';
     });
   }
 }

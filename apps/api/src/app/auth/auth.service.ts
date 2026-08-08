@@ -8,6 +8,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import {
   ChangePasswordDto,
@@ -17,6 +18,7 @@ import {
   RegisterDto,
   UserProfileDto,
 } from '@psychotech/shared';
+import { MailConfig } from '../config/mail.config';
 import { toUserProfileDto } from '../users/users.mappers';
 import { UsersRepository } from '../users/users.repository';
 import { EmailVerificationService } from './email-verification.service';
@@ -39,6 +41,7 @@ export interface AuthResult {
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly mailConfig: MailConfig;
 
   constructor(
     private readonly repository: AuthRepository,
@@ -47,7 +50,10 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly emailVerification: EmailVerificationService,
     @Inject(MAILER) private readonly mailer: MailerPort,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.mailConfig = configService.getOrThrow<MailConfig>('mail');
+  }
 
   async register(input: RegisterDto): Promise<AuthResult> {
     const existing = await this.repository.findByEmail(input.email);
@@ -141,6 +147,7 @@ export class AuthService {
             'Le mot de passe de votre compte PsychoTech vient d’être modifié. Les autres appareils connectés devront se reconnecter.',
             "Si vous n'êtes pas à l'origine de cette modification, réinitialisez votre mot de passe sans attendre.",
           ],
+          baseUrl: this.mailConfig.appBaseUrl ?? 'http://localhost:4200',
         }),
       });
     } catch (error) {

@@ -54,7 +54,7 @@ const repository = {
   replaceToken: vi.fn(),
   findByTokenHash: vi.fn(),
   findByUserId: vi.fn(),
-  consumeAndGrant: vi.fn(),
+  consumeAndVerify: vi.fn(),
 };
 
 const authRepository = { findById: vi.fn() };
@@ -85,41 +85,43 @@ beforeEach(() => {
 });
 
 describe('EmailVerificationService.verify', () => {
-  it('grants the signup energy exactly once on a fresh token', async () => {
+  it('verifies a fresh token and returns the confirmed address without any credit', async () => {
     repository.findByTokenHash.mockResolvedValue(buildRecord());
-    repository.consumeAndGrant.mockResolvedValue('VERIFIED_WITH_GRANT');
+    repository.consumeAndVerify.mockResolvedValue('VERIFIED');
+    authRepository.findById.mockResolvedValue(buildUser());
 
     const result = await service.verify(TOKEN);
 
-    expect(result).toEqual({ outcome: 'VERIFIED', grantedEnergy: 5 });
-    expect(repository.consumeAndGrant).toHaveBeenCalledWith(
+    expect(result).toEqual({ outcome: 'VERIFIED', email: 'alice@example.com' });
+    expect(repository.consumeAndVerify).toHaveBeenCalledWith(
       'verification-1',
       'user-1',
-      5,
       expect.any(Date),
       expect.any(Function),
     );
   });
 
-  it('never grants twice on a double click', async () => {
+  it('reports an already used token on a double click', async () => {
     repository.findByTokenHash
       .mockResolvedValueOnce(buildRecord())
       .mockResolvedValueOnce(buildRecord({ usedAt: new Date() }));
-    repository.consumeAndGrant.mockResolvedValue('VERIFIED_WITH_GRANT');
+    repository.consumeAndVerify.mockResolvedValue('VERIFIED');
+    authRepository.findById.mockResolvedValue(buildUser());
 
     const first = await service.verify(TOKEN);
     const second = await service.verify(TOKEN);
 
     expect(first.outcome).toBe('VERIFIED');
-    expect(second).toEqual({ outcome: 'ALREADY_VERIFIED', grantedEnergy: 0 });
-    expect(repository.consumeAndGrant).toHaveBeenCalledTimes(1);
+    expect(second).toEqual({ outcome: 'ALREADY_VERIFIED', email: null });
+    expect(repository.consumeAndVerify).toHaveBeenCalledTimes(1);
   });
 
-  it('resolves a concurrent race to a single grant', async () => {
+  it('resolves a concurrent race to a single verification', async () => {
     repository.findByTokenHash.mockResolvedValue(buildRecord());
-    repository.consumeAndGrant
-      .mockResolvedValueOnce('VERIFIED_WITH_GRANT')
+    repository.consumeAndVerify
+      .mockResolvedValueOnce('VERIFIED')
       .mockResolvedValueOnce('ALREADY_USED');
+    authRepository.findById.mockResolvedValue(buildUser());
 
     const [first, second] = await Promise.all([
       service.verify(TOKEN),
@@ -128,7 +130,6 @@ describe('EmailVerificationService.verify', () => {
 
     const outcomes = [first.outcome, second.outcome].sort();
     expect(outcomes).toEqual(['ALREADY_VERIFIED', 'VERIFIED']);
-    expect(first.grantedEnergy + second.grantedEnergy).toBe(5);
   });
 
   it('rejects an expired link without touching the account', async () => {
@@ -138,8 +139,8 @@ describe('EmailVerificationService.verify', () => {
 
     const result = await service.verify(TOKEN);
 
-    expect(result).toEqual({ outcome: 'EXPIRED', grantedEnergy: 0 });
-    expect(repository.consumeAndGrant).not.toHaveBeenCalled();
+    expect(result).toEqual({ outcome: 'EXPIRED', email: null });
+    expect(repository.consumeAndVerify).not.toHaveBeenCalled();
   });
 
   it('rejects an unknown token', async () => {
@@ -147,7 +148,7 @@ describe('EmailVerificationService.verify', () => {
 
     const result = await service.verify(TOKEN);
 
-    expect(result).toEqual({ outcome: 'INVALID', grantedEnergy: 0 });
+    expect(result).toEqual({ outcome: 'INVALID', email: null });
   });
 });
 
