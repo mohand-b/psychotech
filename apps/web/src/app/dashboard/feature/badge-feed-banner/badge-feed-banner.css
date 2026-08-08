@@ -48,7 +48,7 @@
 .feed__track {
   display: inline-flex;
   height: 100%;
-  animation: feed-scroll 60s linear infinite;
+  animation: feed-scroll 150s linear infinite;
   will-change: transform;
 }
 

@@ -127,6 +127,51 @@
         </div>
       </section>
 
+      <section class="home__card home__credits">
+        <div class="home__card-head">
+          <span class="t-label">Crédits</span>
+          <a class="home__link" routerLink="/credits">
+            Voir les packs
+            <ui-icon [img]="arrowIcon" [size]="13" />
+          </a>
+        </div>
+        <div class="home__credits-balance flex items-center">
+          <ui-axis-icon axis="credit" [size]="28" />
+          <div class="home__credits-copy flex flex-col">
+            <span class="home__credits-line flex items-baseline">
+              <span class="home__credits-value t-mono">{{ balanceValue() }}</span>
+              <span class="home__credits-unit">crédits</span>
+            </span>
+            @if (lowCreditsNote(); as note) {
+              <span class="home__credits-low">{{ note }}</span>
+            } @else {
+              <span class="home__credits-note">Sans date d'expiration</span>
+            }
+          </div>
+        </div>
+        <ui-button
+          color="brand"
+          size="lg"
+          [block]="true"
+          [appearance]="lowCredits() ? 'solid' : 'outlined'"
+          routerLink="/credits"
+        >
+          Recharger
+        </ui-button>
+        @if (earnableRemainder(); as remainder) {
+          <a class="home__credits-badges flex items-center" routerLink="/badges">
+            <span class="home__credits-badges-text"
+              >Encore
+              <span class="home__credits-badges-amount t-mono">{{
+                remainder
+              }}</span>
+              <ui-axis-icon axis="credit" [size]="11" />
+              à gagner avec les badges</span
+            >
+            <ui-icon [img]="chevronIcon" [size]="14" />
+          </a>
+        }
+      </section>
 
       <section class="home__card home__result">
         <div class="home__card-head">
@@ -337,51 +382,7 @@
         }
       </section>
 
-      <section class="home__card home__credits">
-        <div class="home__card-head">
-          <span class="t-label">Crédits</span>
-          <a class="home__link" routerLink="/credits">
-            Voir les packs
-            <ui-icon [img]="arrowIcon" [size]="13" />
-          </a>
-        </div>
-        <div class="home__credits-balance flex items-center">
-          <ui-axis-icon axis="credit" [size]="28" />
-          <div class="home__credits-copy flex flex-col">
-            <span class="home__credits-line flex items-baseline">
-              <span class="home__credits-value t-mono">{{ balanceValue() }}</span>
-              <span class="home__credits-unit">crédits</span>
-            </span>
-            @if (lowCreditsNote(); as note) {
-              <span class="home__credits-low">{{ note }}</span>
-            } @else {
-              <span class="home__credits-note">Sans date d'expiration</span>
-            }
-          </div>
-        </div>
-        <ui-button
-          color="brand"
-          size="lg"
-          [block]="true"
-          [appearance]="lowCredits() ? 'solid' : 'outlined'"
-          routerLink="/credits"
-        >
-          Recharger
-        </ui-button>
-        @if (earnableRemainder(); as remainder) {
-          <a class="home__credits-badges flex items-center" routerLink="/badges">
-            <span class="home__credits-badges-text"
-              >Encore
-              <span class="home__credits-badges-amount t-mono">{{
-                remainder
-              }}</span>
-              <ui-axis-icon axis="credit" [size]="11" />
-              à gagner avec les badges</span
-            >
-            <ui-icon [img]="chevronIcon" [size]="14" />
-          </a>
-        }
-      </section>
+
     </div>
   }
 </div>
