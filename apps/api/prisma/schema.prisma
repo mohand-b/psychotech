@@ -109,7 +109,7 @@ model User {
   termsAcceptedAt      DateTime?
   emailVerifiedAt      DateTime?
   tutorialDiscoveredAt DateTime?
-  showInFeed           Boolean   @default(false)
+  showInFeed           Boolean   @default(true)
   pendingEmail         String?
   passwordChangedAt    DateTime?
   lastLoginAt          DateTime?
