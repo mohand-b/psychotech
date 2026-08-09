@@ -67,7 +67,8 @@ export class BadgeCelebrationModal {
     this.settled.set(true);
   }
 
-  protected next(): void {
+  protected next(event: Event): void {
+    event.stopPropagation();
     this.settled.set(false);
     this.advance.emit();
   }
