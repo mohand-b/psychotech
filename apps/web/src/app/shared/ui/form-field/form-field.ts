@@ -42,7 +42,7 @@ import { inputValue } from '../../util/input-value';
         }
       </span>
       @if (error(); as message) {
-        <span class="ui-form-field__error">{{ message }}</span>
+        <span class="ui-form-field__error motion-shake">{{ message }}</span>
       }
     </label>
   `,

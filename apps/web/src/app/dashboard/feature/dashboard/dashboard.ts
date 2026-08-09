@@ -50,6 +50,8 @@ import {
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
+import { CountUp } from '../../../shared/ui/motion/count-up';
+import { MotionOnce } from '../../../shared/ui/motion/motion-once';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { BadgeFeedBanner } from '../badge-feed-banner/badge-feed-banner';
@@ -93,7 +95,9 @@ interface LastResultView {
     AxisRadar,
     Button,
     ChevronStepper,
+    CountUp,
     Icon,
+    MotionOnce,
     RouterLink,
     SectorChip,
     Skeleton,

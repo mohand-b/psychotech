@@ -76,6 +76,21 @@
   height: 100%;
   border-radius: 999px;
   background: var(--brand);
+  transform-origin: left;
+  animation: badges-bar-fill var(--motion-deliberate) var(--ease-glide)
+    backwards;
+}
+
+@keyframes badges-bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badges__bar-fill {
+    animation: none;
+  }
 }
 
 .badges__summary-divider {

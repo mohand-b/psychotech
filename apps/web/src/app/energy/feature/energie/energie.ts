@@ -33,6 +33,7 @@ import { EnergyFacade } from '../../data-access/energy.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { CountUp } from '../../../shared/ui/motion/count-up';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
 
 type EnergieView = 'packs' | 'checkout' | 'confirmation';
@@ -96,7 +97,7 @@ const STATUS_POLL_ATTEMPTS = 8;
 @Component({
   selector: 'app-energie',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, Button, Icon, RouterLink],
+  imports: [AxisIcon, Button, CountUp, Icon, RouterLink],
   templateUrl: './energie.html',
   styleUrl: './energie.css',
 })

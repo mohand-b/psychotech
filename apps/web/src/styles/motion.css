@@ -47,6 +47,29 @@
   animation: motion-fade var(--motion-enter) var(--ease-glide) backwards;
 }
 
+.motion-fade-micro {
+  animation: motion-fade var(--motion-micro) var(--ease-settle) backwards;
+}
+
+@keyframes motion-shake {
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+}
+
+.motion-shake {
+  animation: motion-shake var(--motion-deliberate) var(--ease-settle);
+}
+
 .motion-rise {
   animation: motion-rise var(--motion-enter) var(--ease-glide) backwards;
 }
@@ -82,19 +105,23 @@
   animation-delay: calc(4 * var(--motion-stagger-step));
 }
 
-.motion-off,
-.motion-off * {
+.motion-off {
   animation: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .motion-fade,
+  .motion-fade-micro,
   .motion-rise,
   .motion-drop,
   .motion-pop {
     animation-duration: 1ms;
     animation-delay: 0ms;
     animation-timing-function: linear;
+  }
+
+  .motion-shake {
+    animation: none;
   }
 
   .motion-stagger,

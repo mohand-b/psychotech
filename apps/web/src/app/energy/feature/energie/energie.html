@@ -7,7 +7,7 @@
     </p>
   </header>
 
-  <section class="energie__solde flex">
+  <section class="energie__solde motion-rise flex">
     <div class="energie__solde-main flex items-center">
       <span class="energie__solde-tile">
         <ui-axis-icon axis="credit" [size]="30" />
@@ -15,7 +15,7 @@
       <span class="flex flex-col">
         <span class="t-label">Solde actuel</span>
         <span class="energie__solde-line flex items-baseline">
-          <span class="energie__solde-value t-mono">{{ balance() }}</span>
+          <span class="energie__solde-value t-mono" [uiCountUp]="balance()"></span>
           <span class="energie__solde-unit">crédits disponibles</span>
         </span>
         <span class="energie__solde-note">Sans date d'expiration</span>
@@ -48,9 +48,10 @@
         <span class="energie__recharge-hint">Paiement unique, à la carte</span>
       </div>
       <div class="energie__packs grid">
-        @for (pack of packs; track pack.id) {
+        @for (pack of packs; track pack.id; let index = $index) {
           <article
-            class="energie__pack flex flex-col items-center"
+            class="energie__pack motion-rise motion-stagger flex flex-col items-center"
+            [style.--motion-index]="index + 1"
             [class.energie__pack--featured]="pack.featured"
           >
             @if (pack.featured) {
@@ -95,7 +96,7 @@
   }
 
   @if (view() === 'confirmation') {
-    <section class="energie__confirmation flex flex-col items-center">
+    <section class="energie__confirmation motion-rise flex flex-col items-center">
       @switch (confirmation()) {
         @case ('pending') {
           <span class="energie__confirmation-title">Paiement en cours de confirmation…</span>
