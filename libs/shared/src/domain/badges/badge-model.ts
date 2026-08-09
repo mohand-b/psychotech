@@ -1,5 +1,4 @@
 import { AxisType, Sector, SessionMode } from '../../enums';
-import { SimulationStampQualifier } from '../verdict-stamp';
 
 export enum BadgeId {
   LOGIC_PROGRESSION = 'LOGIC_PROGRESSION',
@@ -62,8 +61,7 @@ export interface BadgeSessionAxisFacts {
 }
 
 export interface BadgeSimulationFacts {
-  verdictFavorable: boolean;
-  qualifier: SimulationStampQualifier;
+  globalScore: number;
 }
 
 export interface BadgeSessionFacts {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { AxisType, Sector, SessionMode } from '../../enums';
-import { SimulationStampQualifier } from '../verdict-stamp';
 import {
   BADGE_BY_ID,
   BADGE_CATALOG,
@@ -51,10 +50,7 @@ function facts(overrides: Partial<BadgeFacts> = {}): BadgeFacts {
 
 function simulationSession(
   axisScores: number[],
-  verdictFavorable: boolean,
-  qualifier: SimulationStampQualifier = verdictFavorable
-    ? SimulationStampQualifier.SOLID
-    : SimulationStampQualifier.INSUFFICIENT,
+  globalScore: number,
 ): BadgeFacts['session'] {
   const axes: BadgeSessionAxisFacts[] = ALL_AXES.map((axis, index) => ({
     axis,
@@ -64,7 +60,7 @@ function simulationSession(
   return {
     mode: SessionMode.FULL,
     axes,
-    simulation: { verdictFavorable, qualifier },
+    simulation: { globalScore },
   };
 }
 
@@ -236,87 +232,36 @@ describe('axis perfection badges', () => {
 });
 
 describe('exam badges', () => {
-  it('awards Aguerri on any completed simulation whatever the verdict', () => {
+  const AXIS_SCORES = [72, 71, 70, 74, 73];
+
+  it('grades the exam ladder on the global score at 70, 85 and 95', () => {
+    const aguerri = badge(BadgeId.EXAM_FIRST);
+    const certifie = badge(BadgeId.EXAM_FAVORABLE);
+    const premierDeLaClasse = badge(BadgeId.EXAM_SOLID);
+    const withScore = (globalScore: number) =>
+      facts({ session: simulationSession(AXIS_SCORES, globalScore) });
+
+    expect(badgeEarned(aguerri, withScore(69.9))).toBe(false);
+    expect(badgeEarned(aguerri, withScore(70))).toBe(true);
+    expect(badgeEarned(certifie, withScore(84.9))).toBe(false);
+    expect(badgeEarned(certifie, withScore(85))).toBe(true);
+    expect(badgeEarned(premierDeLaClasse, withScore(94.9))).toBe(false);
+    expect(badgeEarned(premierDeLaClasse, withScore(95))).toBe(true);
+    expect(badgeEarned(aguerri, facts())).toBe(false);
+  });
+
+  it('never awards an exam badge from a targeted session score', () => {
     const aguerri = badge(BadgeId.EXAM_FIRST);
     expect(
       badgeEarned(
         aguerri,
-        facts({ session: simulationSession([10, 10, 10, 10, 10], false) }),
-      ),
-    ).toBe(true);
-    expect(badgeEarned(aguerri, facts())).toBe(false);
-  });
-
-  it('awards Certifié on a favorable verdict whatever the qualifier', () => {
-    const certifie = badge(BadgeId.EXAM_FAVORABLE);
-    expect(
-      badgeEarned(
-        certifie,
         facts({
-          session: simulationSession(
-            [72, 71, 70, 74, 73],
-            true,
-            SimulationStampQualifier.JUST,
-          ),
+          session: {
+            mode: SessionMode.TARGETED,
+            axes: [{ axis: AxisType.LOGIC, score: 100, perfection: true }],
+            simulation: null,
+          },
         }),
-      ),
-    ).toBe(true);
-  });
-
-  it('awards Premier de la classe only on a SOLID favorable verdict with no axis under 70', () => {
-    const premierDeLaClasse = badge(BadgeId.EXAM_SOLID);
-    expect(
-      badgeEarned(
-        premierDeLaClasse,
-        facts({
-          session: simulationSession(
-            [80, 85, 78, 90, 72],
-            true,
-            SimulationStampQualifier.SOLID,
-          ),
-        }),
-      ),
-    ).toBe(true);
-    expect(
-      badgeEarned(
-        premierDeLaClasse,
-        facts({
-          session: simulationSession(
-            [92, 95, 88, 96, 90],
-            true,
-            SimulationStampQualifier.EXCELLENT,
-          ),
-        }),
-      ),
-    ).toBe(true);
-    expect(
-      badgeEarned(
-        premierDeLaClasse,
-        facts({
-          session: simulationSession(
-            [80, 85, 78, 90, 72],
-            true,
-            SimulationStampQualifier.JUST,
-          ),
-        }),
-      ),
-    ).toBe(false);
-    expect(
-      badgeEarned(
-        premierDeLaClasse,
-        facts({
-          session: simulationSession(
-            [80, 85, 69, 90, 72],
-            true,
-            SimulationStampQualifier.SOLID,
-          ),
-        }),
-      ),
-    ).toBe(false);
-    expect(
-      badgeEarned(
-        premierDeLaClasse,
-        facts({ session: simulationSession([80, 85, 78, 90, 72], false) }),
       ),
     ).toBe(false);
   });

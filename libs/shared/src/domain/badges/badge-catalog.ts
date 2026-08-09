@@ -1,6 +1,5 @@
 import { AxisType, Sector, SessionMode } from '../../enums';
 import { SECTOR_AXES } from '../sector-axes';
-import { SimulationStampQualifier } from '../verdict-stamp';
 import {
   BadgeCondition,
   BadgeDefinition,
@@ -15,7 +14,9 @@ import {
 export const BADGE_PROGRESSION_THRESHOLD = 70;
 export const BADGE_EXCELLENCE_THRESHOLD = 85;
 export const BADGE_SECTOR_THRESHOLD = 70;
-export const BADGE_EXAM_AXIS_FLOOR = 70;
+export const EXAM_PROGRESSION_THRESHOLD = 70;
+export const EXAM_EXCELLENCE_THRESHOLD = 85;
+export const EXAM_PERFECTION_THRESHOLD = 95;
 
 export const FIRST_STEPS_REWARD = 2;
 export const EXAM_FAVORABLE_REWARD = 2;
@@ -112,7 +113,7 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.LOGIC_PERFECTION,
     ],
     ['Cartésien', 'Esprit affûté', 'Mentaliste'],
-    'Toutes les réponses justes, aucun timeout',
+    'Toutes les réponses correctes',
   ),
   ...axisBadges(
     AxisType.MEMORY,
@@ -164,15 +165,14 @@ function completedSimulation(facts: BadgeFacts): boolean {
   );
 }
 
-function solidFavorableVerdict(facts: BadgeFacts): boolean {
-  const simulation = facts.session?.simulation ?? null;
-  return (
-    completedSimulation(facts) &&
-    simulation !== null &&
-    simulation.verdictFavorable &&
-    (simulation.qualifier === SimulationStampQualifier.SOLID ||
-      simulation.qualifier === SimulationStampQualifier.EXCELLENT)
-  );
+function examBestScoreCondition(threshold: number): BadgeCondition {
+  return {
+    id: `exam-best-${threshold}`,
+    label: `Meilleur score ≥ ${threshold}`,
+    met: (facts) =>
+      completedSimulation(facts) &&
+      (facts.session?.simulation?.globalScore ?? 0) >= threshold,
+  };
 }
 
 const EXAM_BADGES: BadgeDefinition[] = [
@@ -185,13 +185,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: 0,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [
-      {
-        id: 'first-exam',
-        label: 'Terminer un premier examen blanc',
-        met: completedSimulation,
-      },
-    ],
+    conditions: [examBestScoreCondition(EXAM_PROGRESSION_THRESHOLD)],
   },
   {
     id: BadgeId.EXAM_FAVORABLE,
@@ -202,15 +196,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: EXAM_FAVORABLE_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [
-      {
-        id: 'first-favorable',
-        label: 'Premier examen blanc au verdict favorable',
-        met: (facts) =>
-          completedSimulation(facts) &&
-          facts.session?.simulation?.verdictFavorable === true,
-      },
-    ],
+    conditions: [examBestScoreCondition(EXAM_EXCELLENCE_THRESHOLD)],
   },
   {
     id: BadgeId.EXAM_SOLID,
@@ -221,24 +207,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: EXAM_GOLD_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [
-      {
-        id: 'favorable-solid',
-        label: 'Un examen blanc au verdict favorable avec qualificatif SOLIDE',
-        met: solidFavorableVerdict,
-      },
-      {
-        id: 'no-axis-under-70',
-        label: `Aucun axe sous ${BADGE_EXAM_AXIS_FLOOR} dans ce même examen`,
-        met: (facts) =>
-          completedSimulation(facts) &&
-          (facts.session?.axes.length ?? 0) > 0 &&
-          (facts.session?.axes.every(
-            (axis) => axis.score >= BADGE_EXAM_AXIS_FLOOR,
-          ) ??
-            false),
-      },
-    ],
+    conditions: [examBestScoreCondition(EXAM_PERFECTION_THRESHOLD)],
   },
 ];
 
