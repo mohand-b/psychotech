@@ -6,7 +6,7 @@ import {
   inject,
   untracked,
 } from '@angular/core';
-import { EnergyStateDto } from '@psychotech/shared';
+import { EnergyStateDto, GiftCodeRedemptionDto } from '@psychotech/shared';
 import { Observable, tap } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyApi } from './energy.api';
@@ -39,6 +39,12 @@ export class EnergyFacade {
 
   load(): Observable<EnergyStateDto> {
     return this.api.state().pipe(tap((energy) => this.store.setEnergy(energy)));
+  }
+
+  redeemGiftCode(code: string): Observable<GiftCodeRedemptionDto> {
+    return this.api.redeemGiftCode(code).pipe(
+      tap(() => this.load().subscribe({ error: () => undefined })),
+    );
   }
 
   clear(): void {

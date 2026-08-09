@@ -179,5 +179,72 @@
         }
       </div>
     </section>
+
+    <section class="energie__gift flex items-center">
+      <div class="energie__gift-copy flex items-center">
+        <span class="energie__gift-tile">
+          <ui-icon [img]="giftIcon" [size]="21" [strokeWidth]="1.8" />
+        </span>
+        <span class="energie__gift-text flex flex-col">
+          <span class="energie__gift-title">Un code cadeau&nbsp;?</span>
+          <span class="energie__gift-sub"
+            >Saisissez-le pour créditer votre solde immédiatement.</span
+          >
+        </span>
+      </div>
+      <div class="energie__gift-zone flex flex-col">
+        @if (giftStatus() !== 'ok') {
+          <span class="energie__gift-row flex">
+            <input
+              class="energie__gift-input"
+              [class.energie__gift-input--error]="giftStatus() === 'error'"
+              placeholder="XXXX-XXXX-XXXX"
+              [value]="giftCode()"
+              (input)="onGiftInput($event)"
+              (keydown.enter)="applyGiftCode()"
+            />
+            <ui-button
+              color="brand"
+              [disabled]="giftCode().trim().length === 0"
+              [loading]="giftSending()"
+              (click)="applyGiftCode()"
+            >
+              Utiliser
+            </ui-button>
+          </span>
+          @if (giftStatus() === 'error') {
+            <span class="energie__gift-error"
+              >Code invalide ou déjà utilisé. Vérifiez la saisie.</span
+            >
+          }
+        } @else {
+          <span class="energie__gift-success flex items-center">
+            <span class="energie__gift-check">
+              <ui-icon [img]="checkIcon" [size]="10" [strokeWidth]="3.4" />
+            </span>
+            <span class="energie__gift-accepted">Code accepté</span>
+            <span class="energie__gift-divider"></span>
+            <span class="energie__gift-gain flex items-center">
+              <ui-axis-icon
+                class="energie__gift-coin"
+                axis="credit"
+                [size]="15"
+              />
+              <span class="energie__gift-amount t-mono"
+                >+{{ giftCounter() }}</span
+              >
+              <span class="energie__gift-onto">sur votre solde</span>
+            </span>
+          </span>
+          <button
+            type="button"
+            class="energie__gift-again"
+            (click)="resetGift()"
+          >
+            Utiliser un autre code
+          </button>
+        }
+      </div>
+    </section>
   }
 </section>

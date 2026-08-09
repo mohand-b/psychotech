@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -26,7 +27,15 @@ import {
   energyPackUnitPriceEur,
 } from '@psychotech/shared';
 import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
-import { ArrowLeft, ArrowRight, Ban, CreditCard, ShieldCheck } from 'lucide-angular';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Ban,
+  Check,
+  CreditCard,
+  Gift,
+  ShieldCheck,
+} from 'lucide-angular';
 import { EMPTY, catchError, concatMap, of, take, takeWhile, timer } from 'rxjs';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
@@ -34,6 +43,7 @@ import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
+import { inputValue } from '../../../shared/util/input-value';
 
 type EnergieView = 'packs' | 'checkout' | 'confirmation';
 
@@ -93,6 +103,12 @@ const STATUS_POLL_INTERVAL_MS = 1500;
 
 const STATUS_POLL_ATTEMPTS = 8;
 
+const GIFT_COUNT_DELAY_MS = 480;
+
+const GIFT_COUNT_STEP_MS = 55;
+
+type GiftStatus = 'idle' | 'error' | 'ok';
+
 @Component({
   selector: 'app-energie',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -117,6 +133,9 @@ export class Energie implements OnDestroy {
   protected readonly cardIcon = CreditCard;
   protected readonly arrowRightIcon = ArrowRight;
   protected readonly arrowLeftIcon = ArrowLeft;
+  protected readonly giftIcon = Gift;
+  protected readonly checkIcon = Check;
+  protected readonly readValue = inputValue;
 
   protected readonly targetedCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
   protected readonly fullCost = SESSION_ENERGY_COST[SessionMode.FULL];
@@ -154,6 +173,85 @@ export class Energie implements OnDestroy {
 
   ngOnDestroy(): void {
     this.embeddedCheckout?.destroy();
+    this.cancelGiftCounter();
+  }
+
+  protected readonly giftCode = signal('');
+  protected readonly giftStatus = signal<GiftStatus>('idle');
+  protected readonly giftSending = signal(false);
+  protected readonly giftGranted = signal(0);
+  protected readonly giftCounter = signal(0);
+
+  private readonly document = inject(DOCUMENT);
+  private giftFrame: number | null = null;
+
+  protected onGiftInput(event: Event): void {
+    this.giftCode.set(inputValue(event));
+    this.giftStatus.set('idle');
+  }
+
+  protected applyGiftCode(): void {
+    const code = this.giftCode().trim();
+    if (code.length === 0 || this.giftSending()) {
+      return;
+    }
+    this.giftSending.set(true);
+    this.energyFacade
+      .redeemGiftCode(code)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.giftSending.set(false);
+          this.giftGranted.set(result.granted);
+          this.giftStatus.set('ok');
+          this.animateGiftCounter(result.granted);
+        },
+        error: () => {
+          this.giftSending.set(false);
+          this.giftStatus.set('error');
+        },
+      });
+  }
+
+  protected resetGift(): void {
+    this.cancelGiftCounter();
+    this.giftCode.set('');
+    this.giftGranted.set(0);
+    this.giftCounter.set(0);
+    this.giftStatus.set('idle');
+  }
+
+  private animateGiftCounter(granted: number): void {
+    this.cancelGiftCounter();
+    const view = this.document.defaultView;
+    const reduced =
+      !view ||
+      typeof view.matchMedia !== 'function' ||
+      view.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !view) {
+      this.giftCounter.set(granted);
+      return;
+    }
+    this.giftCounter.set(0);
+    const start = view.performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start - GIFT_COUNT_DELAY_MS;
+      const value =
+        elapsed <= 0
+          ? 0
+          : Math.min(granted, Math.floor(elapsed / GIFT_COUNT_STEP_MS) + 1);
+      this.giftCounter.set(value);
+      this.giftFrame =
+        value >= granted ? null : view.requestAnimationFrame(step);
+    };
+    this.giftFrame = view.requestAnimationFrame(step);
+  }
+
+  private cancelGiftCounter(): void {
+    if (this.giftFrame !== null) {
+      this.document.defaultView?.cancelAnimationFrame(this.giftFrame);
+      this.giftFrame = null;
+    }
   }
 
   protected async selectPack(packId: EnergyPackId): Promise<void> {

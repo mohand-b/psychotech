@@ -367,3 +367,205 @@
     flex-wrap: wrap;
   }
 }
+
+.energie__gift {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-card);
+  padding: 22px 28px;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.energie__gift-copy {
+  gap: 16px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.energie__gift-tile {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--brand-pastel);
+  color: var(--brand-hover);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.energie__gift-text {
+  gap: 3px;
+}
+
+.energie__gift-title {
+  font: 700 19px/1.3 var(--font-display);
+}
+
+.energie__gift-sub {
+  font: 400 13px/1.55 var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__gift-zone {
+  gap: 8px;
+}
+
+.energie__gift-row {
+  gap: 10px;
+}
+
+.energie__gift-input {
+  width: 220px;
+  height: 40px;
+  border: 1px solid var(--keycap-bd);
+  border-radius: var(--radius-button);
+  padding: 0 14px;
+  font: 400 13.5px/1.3 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--card);
+}
+
+.energie__gift-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: var(--shadow-focus);
+}
+
+.energie__gift-input--error {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--card));
+}
+
+.energie__gift-error {
+  font: 500 12.5px/1.4 var(--font-ui);
+  color: var(--danger-text);
+}
+
+.energie__gift-success {
+  gap: 10px;
+  height: 40px;
+  padding: 0 18px;
+  background: var(--success-pastel);
+  border: 1px solid color-mix(in srgb, var(--success-text) 30%, var(--card));
+  border-radius: var(--radius-button);
+  animation: energie-gift-pop 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.energie__gift-check {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+  color: var(--card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  animation: energie-gift-pop 320ms cubic-bezier(0.22, 1, 0.36, 1) 80ms
+    backwards;
+}
+
+.energie__gift-accepted {
+  font: 600 13px/1.3 var(--font-ui);
+  color: var(--success-text);
+  animation: energie-gift-rise 300ms ease-out 160ms backwards;
+}
+
+.energie__gift-divider {
+  width: 1px;
+  height: 18px;
+  background: color-mix(in srgb, var(--success-text) 30%, var(--card));
+  animation: energie-gift-rise 300ms ease-out 160ms backwards;
+}
+
+.energie__gift-gain {
+  gap: 5px;
+  animation: energie-gift-rise 320ms ease-out 300ms backwards;
+}
+
+.energie__gift-coin {
+  animation: energie-gift-coin 620ms cubic-bezier(0.34, 1.2, 0.64, 1) 340ms
+    backwards;
+}
+
+.energie__gift-amount {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--success-text);
+}
+
+.energie__gift-onto {
+  font: 600 13px/1.3 var(--font-ui);
+  color: var(--success-text);
+}
+
+.energie__gift-again {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font: 600 12.5px/1.4 var(--font-ui);
+  color: var(--brand-hover);
+  cursor: pointer;
+  animation: energie-gift-rise 300ms ease-out 500ms backwards;
+}
+
+.energie__gift-again:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+@keyframes energie-gift-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  65% {
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes energie-gift-rise {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes energie-gift-coin {
+  0% {
+    transform: rotateY(0deg) scale(0.4);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energie__gift-success,
+  .energie__gift-check,
+  .energie__gift-accepted,
+  .energie__gift-divider,
+  .energie__gift-gain,
+  .energie__gift-coin,
+  .energie__gift-again {
+    animation: none;
+  }
+}
