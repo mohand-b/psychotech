@@ -78,6 +78,45 @@ export function badgeCelebrationViewFor(
   };
 }
 
+const TIER_PRESTIGE: Record<BadgeTier, number> = {
+  [BadgeTier.BRONZE]: 1,
+  [BadgeTier.SILVER]: 2,
+  [BadgeTier.GOLD]: 3,
+};
+
+function ladderKeyFor(definition: BadgeDefinition): string {
+  if (definition.family === BadgeFamily.AXIS && definition.axis) {
+    return `${BadgeFamily.AXIS}:${definition.axis}`;
+  }
+  if (definition.family === BadgeFamily.EXAM) {
+    return BadgeFamily.EXAM;
+  }
+  return definition.id;
+}
+
+function keepMostPrestigious(
+  definitions: { badge: EarnedBadgeDto; definition: BadgeDefinition }[],
+): { badge: EarnedBadgeDto; definition: BadgeDefinition }[] {
+  const bestByLadder = new Map<
+    string,
+    { badge: EarnedBadgeDto; definition: BadgeDefinition }
+  >();
+  for (const entry of definitions) {
+    const key = ladderKeyFor(entry.definition);
+    const current = bestByLadder.get(key);
+    const prestige = entry.definition.tier
+      ? TIER_PRESTIGE[entry.definition.tier]
+      : 0;
+    const currentPrestige = current?.definition.tier
+      ? TIER_PRESTIGE[current.definition.tier]
+      : 0;
+    if (!current || prestige > currentPrestige) {
+      bestByLadder.set(key, entry);
+    }
+  }
+  return definitions.filter((entry) => bestByLadder.get(ladderKeyFor(entry.definition)) === entry);
+}
+
 export function badgeAnnounceViewFor(
   badges: EarnedBadgeDto[],
   sector: Sector,
@@ -89,12 +128,11 @@ export function badgeAnnounceViewFor(
   if (definitions.length === 0) {
     return null;
   }
-  const thumbs: BadgeAnnounceThumb[] = definitions.map(
-    ({ definition }) => ({
-      assetPath: badgeAssetPath(definition, sector),
-      name: badgeDisplayName(definition, sector),
-    }),
-  );
+  const displayed = keepMostPrestigious(definitions);
+  const thumbs: BadgeAnnounceThumb[] = displayed.map(({ definition }) => ({
+    assetPath: badgeAssetPath(definition, sector),
+    name: badgeDisplayName(definition, sector),
+  }));
   const names = thumbs.map((thumb) => thumb.name).join(' et ');
   const totalGain = definitions.reduce(
     (sum, { badge }) => sum + (badge.gain ?? 0),
@@ -102,8 +140,8 @@ export function badgeAnnounceViewFor(
   );
   return {
     thumbs,
-    title: `${names} ${definitions.length > 1 ? 'rejoignent' : 'rejoint'} votre collection`,
+    title: `${names} ${displayed.length > 1 ? 'rejoignent' : 'rejoint'} votre collection`,
     gain: totalGain > 0 ? totalGain : null,
-    plainLine: totalGain > 0 ? null : tierLineFor(definitions[0].definition),
+    plainLine: totalGain > 0 ? null : tierLineFor(displayed[0].definition),
   };
 }

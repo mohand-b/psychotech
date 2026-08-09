@@ -11,13 +11,6 @@
   }
 }
 
-@keyframes cbCardOut {
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.92);
-  }
-}
-
 @keyframes cbPop {
   0% {
     opacity: 0;
@@ -136,8 +129,8 @@
   animation: cbCardIn 340ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
-.cb__card--leaving {
-  animation: cbCardOut 170ms ease-in forwards;
+.cb__scene {
+  width: 100%;
 }
 
 .cb__close {

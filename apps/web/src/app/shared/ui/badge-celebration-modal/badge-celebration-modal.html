@@ -5,103 +5,103 @@
   (click)="close()"
   (keyup.escape)="close()"
 ></div>
-@for (v of views(); track v.badgeId) {
-  <div
-    class="cb__card flex flex-col items-center"
-    [class.cb__card--settled]="settled()"
-    [class.cb__card--leaving]="leaving()"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Badge débloqué"
-    tabindex="-1"
-    (click)="settle()"
-    (keyup.escape)="close()"
-    (animationend)="onCardAnimationEnd($event)"
+<div
+  class="cb__card flex flex-col items-center"
+  [class.cb__card--settled]="settled()"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Badge débloqué"
+  tabindex="-1"
+  (click)="settle()"
+  (keyup.escape)="close()"
+>
+  <button
+    type="button"
+    class="cb__close"
+    title="Fermer"
+    (click)="close()"
   >
-    <button
-      type="button"
-      class="cb__close"
-      title="Fermer"
-      (click)="close()"
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
     >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
-    </button>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  </button>
 
-    <span class="cb__micro">{{ microLabel() }}</span>
+  <span class="cb__micro">{{ microLabel() }}</span>
 
-    <span class="cb__stage">
-      <span class="cb__halo"></span>
-      <span class="cb__ring"></span>
-      <span class="cb__spark cb__spark--1"></span>
-      <span class="cb__spark cb__spark--2"></span>
-      <span class="cb__spark cb__spark--3"></span>
-      <span class="cb__spark cb__spark--4"></span>
-      <span class="cb__spark cb__spark--5"></span>
-      <span class="cb__spark cb__spark--6"></span>
-      <span class="cb__spark cb__spark--7"></span>
-      <span class="cb__spark cb__spark--8"></span>
-      <img class="cb__badge" [src]="v.assetPath" [alt]="v.name" />
-    </span>
-
-    <span class="cb__name">{{ v.name }}</span>
-    @if (v.tierName) {
-      <span class="cb__tier" [style.color]="v.tierColorVar">{{
-        v.tierName
-      }}</span>
-    }
-
-    <span class="cb__conditions flex flex-col items-center">
-      @for (condition of v.conditions; track condition.label) {
-        <span
-          class="cb__condition"
-          [class.cb__condition--prior]="!condition.justValidated"
-        >
-          {{ condition.label }}
-          <span
-            class="cb__strike"
-            [class.cb__strike--static]="!condition.justValidated"
-          ></span>
-        </span>
-      }
-    </span>
-
-    @if (v.gain) {
-      <span class="cb__gain flex flex-col items-center">
-        <span class="cb__gain-line flex items-center">
-          <span class="cb__coin">
-            <ui-axis-icon axis="credit" [size]="24" />
-          </span>
-          <span class="cb__gain-amount t-mono"
-            >+{{ v.gain }} <span class="cb__gain-unit">crédits</span></span
-          >
-        </span>
-        <span class="cb__gain-note">ajoutés à votre solde</span>
+  @for (v of views(); track v.badgeId) {
+    <div class="cb__scene flex flex-col items-center">
+      <span class="cb__stage">
+        <span class="cb__halo"></span>
+        <span class="cb__ring"></span>
+        <span class="cb__spark cb__spark--1"></span>
+        <span class="cb__spark cb__spark--2"></span>
+        <span class="cb__spark cb__spark--3"></span>
+        <span class="cb__spark cb__spark--4"></span>
+        <span class="cb__spark cb__spark--5"></span>
+        <span class="cb__spark cb__spark--6"></span>
+        <span class="cb__spark cb__spark--7"></span>
+        <span class="cb__spark cb__spark--8"></span>
+        <img class="cb__badge" [src]="v.assetPath" [alt]="v.name" />
       </span>
-    }
 
-    @if (dots().length > 1) {
-      <span class="cb__dots flex">
-        @for (dot of dots(); track $index) {
-          <span class="cb__dot" [class.cb__dot--active]="dot.active"></span>
+      <span class="cb__name">{{ v.name }}</span>
+      @if (v.tierName) {
+        <span class="cb__tier" [style.color]="v.tierColorVar">{{
+          v.tierName
+        }}</span>
+      }
+
+      <span class="cb__conditions flex flex-col items-center">
+        @for (condition of v.conditions; track condition.label) {
+          <span
+            class="cb__condition"
+            [class.cb__condition--prior]="!condition.justValidated"
+          >
+            {{ condition.label }}
+            <span
+              class="cb__strike"
+              [class.cb__strike--static]="!condition.justValidated"
+            ></span>
+          </span>
         }
       </span>
-    }
 
-    <button type="button" class="cb__cta" (click)="next()">
-      {{ ctaLabel() }}
-    </button>
-  </div>
-}
+      @if (v.gain) {
+        <span class="cb__gain flex flex-col items-center">
+          <span class="cb__gain-line flex items-center">
+            <span class="cb__coin">
+              <ui-axis-icon axis="credit" [size]="24" />
+            </span>
+            <span class="cb__gain-amount t-mono"
+              >+{{ v.gain }} <span class="cb__gain-unit">crédits</span></span
+            >
+          </span>
+          <span class="cb__gain-note">ajoutés à votre solde</span>
+        </span>
+      }
+    </div>
+  }
+
+  @if (dots().length > 1) {
+    <span class="cb__dots flex">
+      @for (dot of dots(); track $index) {
+        <span class="cb__dot" [class.cb__dot--active]="dot.active"></span>
+      }
+    </span>
+  }
+
+  <button type="button" class="cb__cta" (click)="next()">
+    {{ ctaLabel() }}
+  </button>
+</div>
