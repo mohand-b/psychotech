@@ -88,7 +88,7 @@
             </div>
 
             @if (!edit()) {
-              <div class="profil__rows motion-fade-micro md:flex hidden flex-col">
+              <div class="profil__rows md:flex hidden flex-col">
                 <div class="profil__row">
                   <span class="profil__row-label">Prénom</span>
                   <span class="profil__row-value">{{ user()?.firstName }}</span>
@@ -165,7 +165,7 @@
             }
 
             @if (edit()) {
-              <div class="profil__form motion-fade-micro md:grid flex flex-col">
+              <div class="profil__form md:grid flex flex-col">
                 <span class="profil__row-label">Prénom</span>
                 <input
                   class="profil__input"
@@ -440,7 +440,7 @@
                     <span class="profil__pw-done">Mot de passe mis à jour</span>
                   }
                   @if (securityError(); as error) {
-                    <span class="profil__error motion-shake">{{ error }}</span>
+                    <span class="profil__error">{{ error }}</span>
                   }
                 </span>
               </div>
@@ -640,7 +640,7 @@
       />
     </label>
     @if (deleteError(); as error) {
-      <span class="profil__error motion-shake">{{ error }}</span>
+      <span class="profil__error">{{ error }}</span>
     }
     <div class="profil__modal-actions flex">
       <ui-button

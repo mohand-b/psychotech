@@ -10,7 +10,7 @@
 
   @if (overviewLoaded() || overviewPending() || overviewError()) {
     <div class="home__grid">
-      <section class="home__card home__day motion-rise motion-stagger" uiMotionOnce="home-day" [style.--motion-index]="0">
+      <section class="home__card home__day">
         <div class="home__day-head">
           <span class="t-label">Séance du jour</span>
           @switch (variant()) {
@@ -125,7 +125,7 @@
         </div>
       </section>
 
-      <section class="home__card home__credits motion-rise motion-stagger" uiMotionOnce="home-credits" [style.--motion-index]="1">
+      <section class="home__card home__credits">
         <div class="home__card-head">
           <span class="t-label">Crédits</span>
           <a class="home__link" routerLink="/credits">
@@ -137,7 +137,7 @@
           <ui-axis-icon axis="credit" [size]="28" />
           <div class="home__credits-copy flex flex-col">
             <span class="home__credits-line flex items-baseline">
-              <span class="home__credits-value t-mono" [uiCountUp]="balanceValue()"></span>
+              <span class="home__credits-value t-mono">{{ balanceValue() }}</span>
               <span class="home__credits-unit">crédits</span>
             </span>
             @if (lowCreditsNote(); as note) {
@@ -162,7 +162,7 @@
         }
       </section>
 
-      <section class="home__card home__result motion-rise motion-stagger" uiMotionOnce="home-result" [style.--motion-index]="2">
+      <section class="home__card home__result">
         <div class="home__card-head">
           <span class="t-label">Dernier résultat</span>
           @if (lastResult()) {
@@ -247,7 +247,7 @@
         }
       </section>
 
-      <section class="home__card home__radar motion-rise motion-stagger" uiMotionOnce="home-radar" [style.--motion-index]="3">
+      <section class="home__card home__radar">
         <div class="home__card-head">
           <span class="t-label">Profil par axe</span>
           <button class="home__link" (click)="openProgression()">
@@ -292,7 +292,7 @@
         }
       </section>
 
-      <section class="home__card home__weak motion-rise motion-stagger" uiMotionOnce="home-weak" [style.--motion-index]="4">
+      <section class="home__card home__weak">
         <span class="t-label">Votre point faible</span>
         @if (weakAxis(); as weak) {
           <div class="home__weak-body">

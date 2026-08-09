@@ -62,7 +62,7 @@
 
       <div class="bilan__hero-radar">
         <span class="t-label">Profil par axe</span>
-        <ui-axis-radar [entries]="radarEntries()" [progress]="radarProgress()" />
+        <ui-axis-radar [entries]="radarEntries()" />
       </div>
     </header>
 
@@ -74,10 +74,9 @@
       <div class="bilan__axes">
         <span class="t-label bilan__section-label">Détail par axe</span>
         <div class="bilan__axis-list">
-          @for (axis of s.axes; track axis.axis; let index = $index) {
+          @for (axis of s.axes; track axis.axis) {
             <article
-              class="bilan__axis-card motion-rise motion-stagger"
-              [style.--motion-index]="index"
+              class="bilan__axis-card"
               [class.bilan__axis-card--eliminatory]="
                 isUnderEliminatory(axis.axis)
               "
@@ -156,7 +155,7 @@
       </div>
 
       <aside class="bilan__side">
-        <div class="bilan__side-card motion-rise motion-delay-2">
+        <div class="bilan__side-card">
           <div class="bilan__side-section">
             <span class="t-label bilan__side-label--strong">Points forts</span>
             @if (s.selection.strengths.length > 0) {
@@ -233,7 +232,7 @@
       </aside>
     </div>
 
-    <section class="bilan__appreciation motion-rise motion-delay-3">
+    <section class="bilan__appreciation">
       <span class="t-label">Appréciation</span>
       <p class="bilan__appreciation-text">
         @for (segment of s.appreciation.lead; track $index) {

@@ -12,32 +12,10 @@
   position: absolute;
   inset: 0;
   background: rgba(12, 10, 22, 0.55);
-  animation: legal-veil-in var(--motion-micro) var(--ease-settle) backwards;
-}
-
-@keyframes legal-veil-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes legal-panel-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .legal-overlay__veil,
-  .legal-overlay__panel {
-    animation: none;
-  }
 }
 
 .legal-overlay__panel {
   position: relative;
-  animation: legal-panel-in var(--motion-enter) var(--ease-glide) backwards;
   display: flex;
   flex-direction: column;
   width: 100%;

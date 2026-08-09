@@ -9,8 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { BadgeId } from '@psychotech/shared';
-import { prefersReducedMotion } from '../../util/reduced-motion';
 import { AxisIcon } from '../axis-icon/axis-icon';
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 export interface BadgeCelebrationCondition {
   label: string;
@@ -88,7 +89,11 @@ export class BadgeCelebrationModal {
   }
 
   private prefersReducedMotion(): boolean {
-    return prefersReducedMotion(this.document.defaultView);
+    const view = this.document.defaultView;
+    if (typeof view?.matchMedia !== 'function') {
+      return true;
+    }
+    return view.matchMedia(REDUCED_MOTION_QUERY).matches;
   }
 
   protected close(): void {

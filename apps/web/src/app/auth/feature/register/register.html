@@ -205,7 +205,7 @@
       </div>
 
       @if (serverError(); as message) {
-      <span class="auth__server-error motion-shake" role="alert">
+      <span class="auth__server-error" role="alert">
         <svg
           width="14"
           height="14"
@@ -247,7 +247,7 @@
 </div>
 } @else if (catalogError(); as message) {
 <div class="auth__panel">
-  <span class="auth__server-error motion-shake" role="alert">
+  <span class="auth__server-error" role="alert">
     <svg
       width="14"
       height="14"

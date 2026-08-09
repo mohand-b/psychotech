@@ -12,7 +12,6 @@ import { Icon } from '../../../shared/ui/icon/icon';
 @Component({
   selector: 'ui-result-recommendation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'motion-rise motion-delay-3' },
   imports: [Icon],
   template: `
     <aside class="reco">

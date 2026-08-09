@@ -7,7 +7,7 @@
 </div>
 
 @if (board(); as view) {
-  <section class="badges__summary motion-rise">
+  <section class="badges__summary">
     <div class="badges__summary-block badges__summary-collection">
       <span class="t-label">Collection</span>
       <span class="badges__summary-line">
@@ -93,12 +93,8 @@
         >
       </div>
       <div class="badges__family-rows">
-        @for (card of view.axisCards; track card.label; let index = $index) {
-          <ui-badge-tier-row
-            class="motion-rise motion-stagger"
-            [style.--motion-index]="index"
-            [card]="card"
-          />
+        @for (card of view.axisCards; track card.label) {
+          <ui-badge-tier-row [card]="card" />
         }
       </div>
     </div>
@@ -108,12 +104,8 @@
         <span class="badges__family-sub">Un seul état, tous axes confondus</span>
       </div>
       <div class="badges__family-rows badges__family-rows--transverse">
-        @for (badge of view.transverse; track badge.badgeId; let index = $index) {
-          <ui-badge-transverse-row
-            class="motion-rise motion-stagger"
-            [style.--motion-index]="index + 1"
-            [badge]="badge"
-          />
+        @for (badge of view.transverse; track badge.badgeId) {
+          <ui-badge-transverse-row [badge]="badge" />
         }
       </div>
     </div>

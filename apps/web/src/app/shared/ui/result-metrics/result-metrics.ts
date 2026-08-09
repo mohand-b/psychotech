@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CountUp } from '../motion/count-up';
 
 type ResultMetricMarker = 'square' | 'dot' | 'outlined-dot' | 'cross' | 'line';
 
@@ -16,7 +15,6 @@ export interface ResultMetricRow {
 @Component({
   selector: 'ui-result-metrics',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CountUp],
   template: `
     <span class="t-label">{{ heading() }}</span>
     <ul class="metrics">
@@ -51,15 +49,7 @@ export interface ResultMetricRow {
             <span class="metrics__chip">{{ row.value }}</span>
           } @else {
             <span class="metrics__value">
-              @if (integerValueOf(row); as target) {
-                <span
-                  class="metrics__number t-mono"
-                  [uiCountUp]="target"
-                  [countUpFromZero]="true"
-                ></span>
-              } @else {
-                <span class="metrics__number t-mono">{{ row.value }}</span>
-              }
+              <span class="metrics__number t-mono">{{ row.value }}</span>
               @if (row.suffix) {
                 <span class="metrics__suffix t-mono">{{ row.suffix }}</span>
               }
@@ -168,8 +158,4 @@ export interface ResultMetricRow {
 export class ResultMetrics {
   readonly rows = input.required<ResultMetricRow[]>();
   readonly heading = input('Métriques');
-
-  protected integerValueOf(row: ResultMetricRow): number | null {
-    return /^\d+$/.test(row.value) ? Number(row.value) : null;
-  }
 }
