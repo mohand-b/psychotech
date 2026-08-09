@@ -438,9 +438,8 @@ describe('Dashboard - widget Crédits', () => {
     const low = await setup({ balance: 0 });
     const card = low.fixture.nativeElement.querySelector('.home__credits');
     expect(card?.textContent).toContain('Crédits');
-    expect(card?.textContent).toContain(
-      'Rechargez ou gagnez vos prochains crédits avec les badges.',
-    );
+    expect(card?.textContent).not.toContain('Rechargez');
+    expect(card?.textContent).toContain("Sans date d'expiration");
     expect(card?.querySelector('ui-axis-icon')).not.toBeNull();
     expect(
       card?.querySelector('a[href="/credits"]')?.textContent,

@@ -202,9 +202,6 @@ export class Dashboard {
 
   protected readonly lowCreditsNote = computed<string | null>(() => {
     const balance = this.balance();
-    if (balance === 0) {
-      return 'Rechargez ou gagnez vos prochains crédits avec les badges.';
-    }
     if (balance === 1) {
       return 'Il vous reste de quoi lancer une session ciblée.';
     }
