@@ -122,6 +122,7 @@ export class ScoreReveal {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly animatedValue = signal(0);
+  private readonly timelineProgress = signal(0);
   private readonly stampShown = signal(true);
   private readonly stampStruck = signal(false);
   private readonly settlePulsing = signal(false);
@@ -131,6 +132,7 @@ export class ScoreReveal {
   private stopAnimation: (() => void) | null = null;
 
   readonly value: Signal<number> = this.animatedValue.asReadonly();
+  readonly timeline: Signal<number> = this.timelineProgress.asReadonly();
   readonly stampVisible: Signal<boolean> = this.stampShown.asReadonly();
   readonly stampStrike: Signal<boolean> = this.stampStruck.asReadonly();
   readonly settlePulse: Signal<boolean> = this.settlePulsing.asReadonly();
@@ -147,6 +149,7 @@ export class ScoreReveal {
     this.started = true;
     this.settle(target);
     if (this.prefersReducedMotion()) {
+      this.timelineProgress.set(1);
       this.done.set(true);
       return;
     }
@@ -156,19 +159,23 @@ export class ScoreReveal {
       const controls = animate(0, 1, {
         duration: path.durationSec,
         ease: 'linear',
-        onUpdate: (progress: number) =>
-          this.animatedValue.set(valueAt(path, progress)),
+        onUpdate: (progress: number) => {
+          this.animatedValue.set(valueAt(path, progress));
+          this.timelineProgress.set(progress);
+        },
         onComplete: () => this.finish(target),
       });
       this.stopAnimation = () => controls.stop();
     } catch {
       this.settle(target);
+      this.timelineProgress.set(1);
       this.done.set(true);
     }
   }
 
   private finish(target: number): void {
     this.animatedValue.set(target);
+    this.timelineProgress.set(1);
     this.settlePulsing.set(true);
     const settleId = window.setTimeout(() => {
       this.settlePulsing.set(false);

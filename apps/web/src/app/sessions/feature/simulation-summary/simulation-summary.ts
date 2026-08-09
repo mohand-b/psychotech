@@ -202,10 +202,10 @@ export class SimulationSummary {
     if (!summary) {
       return 0;
     }
-    if (this.reveal.completed() || summary.globalScore <= 0) {
+    if (this.reveal.completed()) {
       return 1;
     }
-    return Math.min(1, Math.max(0, this.reveal.value() / summary.globalScore));
+    return Math.min(1, Math.max(0, this.reveal.timeline()));
   });
 
   protected readonly radarProgress = linkedSignal<number, number>({
