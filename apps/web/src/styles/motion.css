@@ -109,6 +109,34 @@
   animation: none !important;
 }
 
+@keyframes motion-route-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes motion-route-out {
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-old(root) {
+  animation: motion-route-out var(--motion-micro) var(--ease-settle) both;
+}
+
+::view-transition-new(root) {
+  animation: motion-route-in var(--motion-enter) var(--ease-glide) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 1ms;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .motion-fade,
   .motion-fade-micro,

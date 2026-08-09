@@ -569,6 +569,20 @@
   inset: 0;
   z-index: 80;
   background: color-mix(in srgb, var(--ink) 45%, transparent);
+  animation: profil-overlay-in var(--motion-micro) var(--ease-settle) backwards;
+}
+
+@keyframes profil-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes profil-modal-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px));
+  }
 }
 
 .profil__modal {
@@ -584,6 +598,14 @@
   box-shadow: var(--shadow-raised);
   padding: 24px;
   gap: 14px;
+  animation: profil-modal-in var(--motion-enter) var(--ease-glide) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profil__modal-overlay,
+  .profil__modal {
+    animation: none;
+  }
 }
 
 .profil__modal-title {
