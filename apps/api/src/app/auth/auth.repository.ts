@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Sector as DbSector, User } from '@prisma/client';
-import { Sector } from '@psychotech/shared';
+import { Sector as DbSector, EnergyLedgerReason, User } from '@prisma/client';
+import { SIGNUP_ENERGY_GRANT, Sector } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -16,8 +16,6 @@ interface CreateAccountData {
   termsAcceptedAt: Date;
 }
 
-const INITIAL_ENERGY_BALANCE = 0;
-
 @Injectable()
 export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -31,8 +29,8 @@ export class AuthRepository {
   }
 
   createAccount(data: CreateAccountData): Promise<User> {
-    return this.prisma.$transaction((tx) =>
-      tx.user.create({
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
         data: {
           email: data.email,
           passwordHash: data.passwordHash,
@@ -44,11 +42,21 @@ export class AuthRepository {
           termsVersion: data.termsVersion,
           termsAcceptedAt: data.termsAcceptedAt,
           energyWallet: {
-            create: { balance: INITIAL_ENERGY_BALANCE },
+            create: { balance: SIGNUP_ENERGY_GRANT },
           },
         },
-      }),
-    );
+      });
+      await tx.energyLedger.create({
+        data: {
+          userId: user.id,
+          delta: SIGNUP_ENERGY_GRANT,
+          reason: EnergyLedgerReason.SIGNUP_GRANT,
+          balanceAfter: SIGNUP_ENERGY_GRANT,
+          ref: user.id,
+        },
+      });
+      return user;
+    });
   }
 
   updateRefreshTokenHash(

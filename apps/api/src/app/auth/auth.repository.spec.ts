@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { EnergyLedgerReason, User } from '@prisma/client';
 import { describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthRepository } from './auth.repository';
@@ -24,8 +24,11 @@ function buildUser(): User {
 }
 
 describe('AuthRepository.createAccount', () => {
-  it('creates the user and the energy wallet in one transaction', async () => {
-    const tx = { user: { create: vi.fn().mockResolvedValue(buildUser()) } };
+  it('creates the user with three offered credits and their ledger entry in one transaction', async () => {
+    const tx = {
+      user: { create: vi.fn().mockResolvedValue(buildUser()) },
+      energyLedger: { create: vi.fn().mockResolvedValue({}) },
+    };
     const prisma = {
       $transaction: vi.fn((callback: (client: typeof tx) => unknown) => callback(tx)),
     };
@@ -50,7 +53,16 @@ describe('AuthRepository.createAccount', () => {
         timezone: 'Europe/Paris',
         locale: undefined,
         currentSector: 'RAILWAY',
-        energyWallet: { create: { balance: 0 } },
+        energyWallet: { create: { balance: 3 } },
+      },
+    });
+    expect(tx.energyLedger.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-1',
+        delta: 3,
+        reason: EnergyLedgerReason.SIGNUP_GRANT,
+        balanceAfter: 3,
+        ref: 'user-1',
       },
     });
   });
