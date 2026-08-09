@@ -4,7 +4,6 @@ import { AxisFinding, sortFindingsBySeverity } from '../axis-findings';
 import { formatFindingSeconds } from '../finding-format';
 import { MatrixStructure } from '../matrix';
 import {
-  DominoLogicItem,
   LogicItem,
   LogicNumericStructure,
   MatrixLogicItem,
@@ -31,9 +30,6 @@ const LOGIC_FAMILY_GAP_MIN_PCT = 25;
 const LOGIC_FAMILY_MIN_TOTAL = 3;
 const LOGIC_TIME_SINK_RATIO = 1.6;
 const LOGIC_TIME_SINK_MIN_ANSWERED = 2;
-const LOGIC_WRAP_MIN_WRONG = 2;
-const LOGIC_WRAP_WRONG_RATE_MIN = 0.5;
-const LOGIC_WRAP_BASELINE_WRONG_RATE_MAX = 0.25;
 const LOGIC_STRUCTURE_MIN_WRONG = 2;
 const LOGIC_STRUCTURE_WRONG_RATE_MIN = 0.5;
 const LOGIC_STRUCTURE_BASELINE_CORRECT_RATE_MIN = 0.75;
@@ -230,41 +226,6 @@ function familyTimeSink(
 
 interface OutcomeOf<Item extends LogicItem> extends LogicContentOutcome {
   item: Item;
-}
-
-function dominoWrapMisses(outcomes: LogicContentOutcome[]): AxisFinding | null {
-  const dominoes = outcomes.filter(
-    (outcome): outcome is OutcomeOf<DominoLogicItem> =>
-      outcome.item.family === LogicFamily.DOMINO,
-  );
-  const wrap = dominoes.filter((outcome) => outcome.item.domino.hasWrap);
-  const straight = dominoes.filter((outcome) => !outcome.item.domino.hasWrap);
-  const wrapAttempted = wrap.filter((outcome) => outcome.answered);
-  const straightAttempted = straight.filter((outcome) => outcome.answered);
-  const wrapWrong = wrapAttempted.filter((outcome) => !outcome.correct).length;
-  const straightWrong = straightAttempted.filter(
-    (outcome) => !outcome.correct,
-  ).length;
-  if (
-    wrapWrong < LOGIC_WRAP_MIN_WRONG ||
-    straightAttempted.length === 0 ||
-    wrapWrong < wrapAttempted.length * LOGIC_WRAP_WRONG_RATE_MIN ||
-    straightWrong >
-      straightAttempted.length * LOGIC_WRAP_BASELINE_WRONG_RATE_MAX
-  ) {
-    return null;
-  }
-  const wrapRate = wrapWrong / wrapAttempted.length;
-  const straightRate = straightWrong / straightAttempted.length;
-  return {
-    id: 'LOGIC_DOMINO_WRAP_MISSES',
-    severity: RecommendationPriority.HIGH,
-    deviation: wrapRate - straightRate,
-    finding: `${wrapWrong}/${wrapAttempted.length} dominos à bouclage ratés contre ${straightWrong}/${straightAttempted.length} d'erreur sur les suites sans bouclage`,
-    evidence: `${wrapWrong}/${wrapAttempted.length} dominos à bouclage ratés`,
-    recommendation:
-      'Retravaillez le bouclage des dominos en session filtrée Familles : après 6 la face repart à 0, et avant 0 elle revient à 6.',
-  };
 }
 
 function matrixStructureFailure(
@@ -511,7 +472,6 @@ export function analyzeLogic(
       endCollapse(scored),
       familyRelativeFailure(outcomes, familyFilter),
       familyTimeSink(outcomes, familyFilter),
-      dominoWrapMisses(outcomes),
       matrixStructureFailure(outcomes),
       triangleInversedMisses(outcomes),
     ].filter((finding): finding is AxisFinding => finding !== null),

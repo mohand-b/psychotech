@@ -476,7 +476,7 @@ describe('analyzeLogic - familles v2', () => {
     ).not.toContain('LOGIC_FAMILY_TIME_SINK');
   });
 
-  it('flags domino errors concentrated on wrap sequences with both measured rates', () => {
+  it('never mentions domino wrap sequences in the findings', () => {
     const content = [
       ...Array.from({ length: 4 }, (_, position) =>
         dominoLogicItem(position, true),
@@ -500,35 +500,14 @@ describe('analyzeLogic - familles v2', () => {
       content,
       LogicFamilyFilter.DOMINO,
     );
-    const wrap = findings.find(({ id }) => id === 'LOGIC_DOMINO_WRAP_MISSES');
-    expect(wrap).toBeDefined();
-    expect(wrap?.finding).toContain('2/4 dominos à bouclage ratés');
-    expect(wrap?.finding).toContain('1/4');
-    expect(wrap?.recommendation).toContain('repart à 0');
-  });
-
-  it('stays silent on wrap misses when plain sequences fail as much', () => {
-    const content = [
-      ...Array.from({ length: 4 }, (_, position) =>
-        dominoLogicItem(position, true),
-      ),
-      ...Array.from({ length: 4 }, (_, position) =>
-        dominoLogicItem(4 + position, false),
-      ),
-    ];
-    const responses = [
-      ...Array.from({ length: 4 }, (_, position) =>
-        dominoAnswer(position, position >= 2),
-      ),
-      ...Array.from({ length: 4 }, (_, position) =>
-        dominoAnswer(4 + position, position >= 2),
-      ),
-    ];
-    expect(
-      analyzeLogic([], EMPTY_SCORE, responses, content, null).map(
-        ({ id }) => id,
-      ),
-    ).not.toContain('LOGIC_DOMINO_WRAP_MISSES');
+    expect(findings.map(({ id }) => id)).not.toContain(
+      'LOGIC_DOMINO_WRAP_MISSES',
+    );
+    for (const finding of findings) {
+      expect(`${finding.finding} ${finding.recommendation}`).not.toMatch(
+        /bouclage/i,
+      );
+    }
   });
 
   it('flags a matrix structure specifically failing while the others succeed', () => {
