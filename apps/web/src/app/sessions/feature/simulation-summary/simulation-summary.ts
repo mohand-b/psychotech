@@ -51,6 +51,8 @@ import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
 
+const RADAR_PROGRESS_RESTART_DROP = 0.5;
+
 @Component({
   selector: 'app-simulation-summary',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -208,7 +210,13 @@ export class SimulationSummary {
 
   protected readonly radarProgress = linkedSignal<number, number>({
     source: this.rawRadarProgress,
-    computation: (raw, previous) => Math.max(previous?.value ?? 0, raw),
+    computation: (raw, previous) => {
+      const reached = previous?.value ?? 0;
+      if (raw + RADAR_PROGRESS_RESTART_DROP < reached) {
+        return raw;
+      }
+      return Math.max(reached, raw);
+    },
   });
 
   protected isUnderEliminatory(axis: AxisType): boolean {
