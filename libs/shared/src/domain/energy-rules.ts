@@ -6,4 +6,6 @@ export const SESSION_ENERGY_COST: Record<SessionMode, number> = {
   [SessionMode.TUTORIAL]: 0,
 };
 
+export const SIGNUP_ENERGY_GRANT = 3;
+
 export const ENERGY_INSUFFICIENT_ERROR_CODE = 'ENERGY_INSUFFICIENT';
