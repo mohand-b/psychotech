@@ -92,7 +92,7 @@
   text-align: left;
 }
 
-.profil__nav-item:hover {
+.profil__nav-item:hover:not(.profil__nav-item--active) {
   background: var(--surface-hover);
 }
 
