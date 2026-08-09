@@ -57,6 +57,7 @@ enum EnergyLedgerReason {
   SIGNUP_GRANT
   BADGE_REWARD
   PURCHASE
+  GIFT_CODE
 }
 
 enum RecommendationPriority {
@@ -125,6 +126,7 @@ model User {
   axisBests         AxisBest[]
   badges            UserBadge[]
   energyLedger      EnergyLedger[]
+  giftRedemptions   GiftRedemption[]
 }
 
 model EmailChange {
@@ -153,6 +155,28 @@ model PackPurchase {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, purchasedAt])
+}
+
+model GiftCode {
+  id             String           @id @default(uuid())
+  code           String           @unique
+  energyAmount   Int
+  active         Boolean          @default(true)
+  expiresAt      DateTime?
+  maxRedemptions Int?
+  createdAt      DateTime         @default(now())
+  redemptions    GiftRedemption[]
+}
+
+model GiftRedemption {
+  id         String   @id @default(uuid())
+  codeId     String
+  userId     String
+  redeemedAt DateTime @default(now())
+  code       GiftCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([codeId, userId])
 }
 
 model EmailVerification {

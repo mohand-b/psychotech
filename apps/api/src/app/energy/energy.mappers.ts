@@ -10,6 +10,7 @@ const DB_REASON_BY_SHARED: Record<EnergyLedgerReason, DbEnergyLedgerReason> = {
   [EnergyLedgerReason.SIGNUP_GRANT]: DbEnergyLedgerReason.SIGNUP_GRANT,
   [EnergyLedgerReason.BADGE_REWARD]: DbEnergyLedgerReason.BADGE_REWARD,
   [EnergyLedgerReason.PURCHASE]: DbEnergyLedgerReason.PURCHASE,
+  [EnergyLedgerReason.GIFT_CODE]: DbEnergyLedgerReason.GIFT_CODE,
 };
 
 export function toDbReason(reason: EnergyLedgerReason): DbEnergyLedgerReason {

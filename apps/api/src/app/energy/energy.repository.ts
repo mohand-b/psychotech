@@ -1,8 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { EnergyLedgerReason, EnergyWallet, Prisma } from '@prisma/client';
+import {
+  EnergyLedgerReason,
+  EnergyWallet,
+  GiftCode,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 type PrismaClientLike = Prisma.TransactionClient;
+
+export type GiftCodeWithCount = GiftCode & {
+  _count: { redemptions: number };
+};
 
 @Injectable()
 export class EnergyRepository {
@@ -51,6 +60,50 @@ export class EnergyRepository {
       },
     });
     return wallet;
+  }
+
+  findGiftCode(code: string): Promise<GiftCodeWithCount | null> {
+    return this.prisma.giftCode.findUnique({
+      where: { code },
+      include: { _count: { select: { redemptions: true } } },
+    });
+  }
+
+  async redeemGiftCode(
+    userId: string,
+    giftCodeId: string,
+    amount: number,
+  ): Promise<EnergyWallet | null> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        await tx.giftRedemption.create({
+          data: { codeId: giftCodeId, userId },
+        });
+        const wallet = await tx.energyWallet.upsert({
+          where: { userId },
+          create: { userId, balance: amount },
+          update: { balance: { increment: amount } },
+        });
+        await tx.energyLedger.create({
+          data: {
+            userId,
+            delta: amount,
+            reason: EnergyLedgerReason.GIFT_CODE,
+            balanceAfter: wallet.balance,
+            ref: giftCodeId,
+          },
+        });
+        return wallet;
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        return null;
+      }
+      throw error;
+    }
   }
 
   async hasLedgerRef(userId: string, ref: string): Promise<boolean> {

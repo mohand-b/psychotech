@@ -25,7 +25,23 @@ const repository = {
   findWallet: vi.fn(),
   spend: vi.fn(),
   hasLedgerRef: vi.fn(),
+  findGiftCode: vi.fn(),
+  redeemGiftCode: vi.fn(),
 };
+
+function buildGiftCode(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'gift-1',
+    code: 'BIENVENUE-2026',
+    energyAmount: 10,
+    active: true,
+    expiresAt: null,
+    maxRedemptions: null,
+    createdAt: new Date('2026-08-01T00:00:00Z'),
+    _count: { redemptions: 0 },
+    ...overrides,
+  };
+}
 
 const service = new EnergyService(repository as unknown as EnergyRepository);
 
@@ -52,6 +68,55 @@ describe('EnergyService.getState', () => {
 
     expect(state.balance).toBe(120);
     expect(state.canStartFull).toBe(true);
+  });
+});
+
+describe('EnergyService.redeemGiftCode', () => {
+  it('normalizes the input, credits the amount and returns the new balance', async () => {
+    repository.findGiftCode.mockResolvedValue(buildGiftCode());
+    repository.redeemGiftCode.mockResolvedValue(buildWallet({ balance: 13 }));
+
+    const result = await service.redeemGiftCode('user-1', '  bienvenue-2026 ');
+
+    expect(repository.findGiftCode).toHaveBeenCalledWith('BIENVENUE-2026');
+    expect(repository.redeemGiftCode).toHaveBeenCalledWith(
+      'user-1',
+      'gift-1',
+      10,
+    );
+    expect(result).toEqual({ granted: 10, balance: 13 });
+  });
+
+  it('rejects an unknown code', async () => {
+    repository.findGiftCode.mockResolvedValue(null);
+
+    await expect(service.redeemGiftCode('user-1', 'FAUX-CODE')).rejects.toThrow(
+      'GIFT_CODE_INVALID',
+    );
+    expect(repository.redeemGiftCode).not.toHaveBeenCalled();
+  });
+
+  it('rejects an inactive, expired or exhausted code', async () => {
+    for (const overrides of [
+      { active: false },
+      { expiresAt: new Date('2026-01-01T00:00:00Z') },
+      { maxRedemptions: 2, _count: { redemptions: 2 } },
+    ]) {
+      repository.findGiftCode.mockResolvedValue(buildGiftCode(overrides));
+      await expect(
+        service.redeemGiftCode('user-1', 'BIENVENUE-2026'),
+      ).rejects.toThrow('GIFT_CODE_INVALID');
+    }
+    expect(repository.redeemGiftCode).not.toHaveBeenCalled();
+  });
+
+  it('rejects a second redemption by the same user', async () => {
+    repository.findGiftCode.mockResolvedValue(buildGiftCode());
+    repository.redeemGiftCode.mockResolvedValue(null);
+
+    await expect(
+      service.redeemGiftCode('user-1', 'BIENVENUE-2026'),
+    ).rejects.toThrow('GIFT_CODE_INVALID');
   });
 });
 
