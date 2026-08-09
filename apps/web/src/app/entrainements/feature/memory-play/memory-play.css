@@ -291,6 +291,7 @@
 .memo__slot--skipped {
   border: 2px dashed var(--border);
   background: var(--surface-muted);
+  color: var(--label);
 }
 
 .memo__pad {
@@ -339,9 +340,7 @@
 }
 
 .memo__key--skip {
-  grid-column: 1 / -1;
-  gap: 8px;
-  height: 40px;
+  gap: 6px;
   background: transparent;
   border-style: dashed;
   font: 600 13px/18px var(--font-ui);
@@ -353,30 +352,19 @@
   cursor: not-allowed;
 }
 
-.memo__key--action {
-  display: none;
-  font: 600 15px/20px var(--font-ui);
+.memo__key--erase {
+  color: var(--text-secondary);
 }
 
-.memo__key--action:disabled {
+.memo__key--erase:disabled {
   color: var(--text-disabled);
   cursor: not-allowed;
-}
-
-.memo__key--validate {
-  background: var(--axis-plain);
-  border-color: var(--axis-plain);
-  color: var(--card);
-}
-
-.memo__key--validate:hover:not(:disabled) {
-  background: var(--axis-plain);
-  border-color: var(--axis-plain);
-}
-
-.memo__key--validate:disabled {
-  background: var(--surface-muted);
+  background: var(--card);
   border-color: var(--border);
+}
+
+.memo__pad-validate {
+  display: none;
 }
 
 .memo__actions {
@@ -454,8 +442,9 @@
     height: 48px;
   }
 
-  .memo__key--action {
-    display: inline-flex;
+  .memo__pad-validate {
+    display: block;
+    grid-column: 1 / -1;
   }
 
   .memo__actions {
@@ -468,6 +457,6 @@
 
   .memo__stage {
     justify-content: center;
-    padding-bottom: calc(264px + var(--safe-bottom));
+    padding-bottom: calc(308px + var(--safe-bottom));
   }
 }

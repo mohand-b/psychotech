@@ -111,7 +111,8 @@
           "
           [class.memo__slot--current]="$index === input().length"
         >
-          @if ($index < input().length) { {{ input()[$index] }} }
+          @if ($index < input().length) { @if (input()[$index] !== null) { {{
+          input()[$index] }} } @else { – } }
         </span>
         }
       </div>
@@ -134,14 +135,6 @@
       </button>
       <button
         type="button"
-        class="memo__key memo__key--action"
-        [disabled]="input().length === 0"
-        (click)="erase()"
-      >
-        Effacer
-      </button>
-      <button
-        type="button"
         class="memo__key memo__key--zero t-mono"
         (click)="press(0)"
       >
@@ -149,24 +142,27 @@
       </button>
       <button
         type="button"
-        class="memo__key memo__key--action memo__key--validate"
-        [disabled]="input().length !== sequence.length || submitting()"
-        (click)="validate()"
-      >
-        Valider
-      </button>
-    </div>
-
-    <div class="memo__actions">
-      <ui-button
-        color="neutral"
-        appearance="ghost"
-        [icon]="eraseIcon"
+        class="memo__key memo__key--erase"
+        aria-label="Effacer"
         [disabled]="input().length === 0"
         (click)="erase()"
       >
-        Effacer
-      </ui-button>
+        <ui-icon [img]="eraseIcon" [size]="18" />
+      </button>
+      <div class="memo__pad-validate">
+        <ui-button
+          [color]="buttonColor"
+          block="mobile"
+          relief="mobile"
+          [disabled]="input().length !== sequence.length || submitting()"
+          (click)="validate()"
+        >
+          Valider
+        </ui-button>
+      </div>
+    </div>
+
+    <div class="memo__actions">
       <ui-button
         [color]="buttonColor"
         [iconEnd]="validateIcon"
@@ -178,7 +174,8 @@
     </div>
 
     <p class="memo__mention">
-      0-9 au clavier · Espace passe · Retour efface · Entrée valide
+      0-9 au clavier · Espace laisse la case vide · Retour efface · Entrée
+      valide
     </p>
     } }
   </div>

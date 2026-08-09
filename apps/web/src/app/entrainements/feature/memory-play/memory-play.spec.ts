@@ -153,7 +153,7 @@ describe('MemoryPlay (passer un emplacement)', () => {
     let cells = slots(result.element);
     expect(cells[0].classList).toContain('memo__slot--skipped');
     expect(cells[0].classList).not.toContain('memo__slot--filled');
-    expect(cells[0].textContent?.trim()).toBe('');
+    expect(cells[0].textContent?.trim()).toBe('–');
     expect(cells[1].classList).toContain('memo__slot--current');
 
     pressKey(result, '5');
