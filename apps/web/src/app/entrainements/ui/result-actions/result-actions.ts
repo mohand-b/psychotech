@@ -11,6 +11,7 @@ import { Button } from '../../../shared/ui/button/button';
 @Component({
   selector: 'ui-result-actions',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'motion-fade motion-delay-4' },
   imports: [ActionFooter, Button],
   template: `
     <ui-action-footer>

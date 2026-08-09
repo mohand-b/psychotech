@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 @Component({
   selector: 'ui-result-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'motion-rise motion-delay-2' },
   template: `
     <ng-content select="[panelStart]" />
     <ng-content select="[panelEnd]" />
