@@ -168,10 +168,20 @@ function completedSimulation(facts: BadgeFacts): boolean {
 function examBestScoreCondition(threshold: number): BadgeCondition {
   return {
     id: `exam-best-${threshold}`,
-    label: `Meilleur score ≥ ${threshold}`,
+    label: `Score ≥ ${threshold}`,
     met: (facts) =>
       completedSimulation(facts) &&
       (facts.session?.simulation?.globalScore ?? 0) >= threshold,
+  };
+}
+
+function examFavorableCondition(): BadgeCondition {
+  return {
+    id: 'favorable',
+    label: 'Avis favorable',
+    met: (facts) =>
+      completedSimulation(facts) &&
+      facts.session?.simulation?.verdictFavorable === true,
   };
 }
 
@@ -185,7 +195,10 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: 0,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [examBestScoreCondition(EXAM_PROGRESSION_THRESHOLD)],
+    conditions: [
+      examFavorableCondition(),
+      examBestScoreCondition(EXAM_PROGRESSION_THRESHOLD),
+    ],
   },
   {
     id: BadgeId.EXAM_FAVORABLE,
@@ -196,7 +209,10 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: EXAM_FAVORABLE_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [examBestScoreCondition(EXAM_EXCELLENCE_THRESHOLD)],
+    conditions: [
+      examFavorableCondition(),
+      examBestScoreCondition(EXAM_EXCELLENCE_THRESHOLD),
+    ],
   },
   {
     id: BadgeId.EXAM_SOLID,
@@ -207,7 +223,10 @@ const EXAM_BADGES: BadgeDefinition[] = [
     energyReward: EXAM_GOLD_REWARD,
     events: [BadgeEvent.SESSION_COMPLETED],
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
-    conditions: [examBestScoreCondition(EXAM_PERFECTION_THRESHOLD)],
+    conditions: [
+      examFavorableCondition(),
+      examBestScoreCondition(EXAM_PERFECTION_THRESHOLD),
+    ],
   },
 ];
 

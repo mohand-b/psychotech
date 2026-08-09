@@ -51,6 +51,7 @@ function facts(overrides: Partial<BadgeFacts> = {}): BadgeFacts {
 function simulationSession(
   axisScores: number[],
   globalScore: number,
+  verdictFavorable = true,
 ): BadgeFacts['session'] {
   const axes: BadgeSessionAxisFacts[] = ALL_AXES.map((axis, index) => ({
     axis,
@@ -60,7 +61,7 @@ function simulationSession(
   return {
     mode: SessionMode.FULL,
     axes,
-    simulation: { globalScore },
+    simulation: { globalScore, verdictFavorable },
   };
 }
 
@@ -248,6 +249,21 @@ describe('exam badges', () => {
     expect(badgeEarned(premierDeLaClasse, withScore(94.9))).toBe(false);
     expect(badgeEarned(premierDeLaClasse, withScore(95))).toBe(true);
     expect(badgeEarned(aguerri, facts())).toBe(false);
+  });
+
+  it('withholds every exam badge without a favorable verdict, whatever the score', () => {
+    for (const id of [
+      BadgeId.EXAM_FIRST,
+      BadgeId.EXAM_FAVORABLE,
+      BadgeId.EXAM_SOLID,
+    ]) {
+      expect(
+        badgeEarned(
+          badge(id),
+          facts({ session: simulationSession(AXIS_SCORES, 96, false) }),
+        ),
+      ).toBe(false);
+    }
   });
 
   it('never awards an exam badge from a targeted session score', () => {

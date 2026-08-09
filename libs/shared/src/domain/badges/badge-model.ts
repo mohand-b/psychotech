@@ -62,6 +62,7 @@ export interface BadgeSessionAxisFacts {
 
 export interface BadgeSimulationFacts {
   globalScore: number;
+  verdictFavorable: boolean;
 }
 
 export interface BadgeSessionFacts {
