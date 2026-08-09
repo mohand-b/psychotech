@@ -732,7 +732,10 @@ export class SessionsService {
               score: best.score,
               perfection: perfectionByAxis.get(best.axis) ?? false,
             })),
-            simulation: { globalScore: evaluation.globalScore },
+            simulation: {
+              globalScore: evaluation.globalScore,
+              verdictFavorable: evaluation.isAdmissible,
+            },
           },
           sessionId,
         ),

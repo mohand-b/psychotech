@@ -2088,7 +2088,7 @@ describe('SessionsService.complete', () => {
       {
         mode: SessionMode.FULL,
         axes: [{ axis: AxisType.LOGIC, score: 75, perfection: false }],
-        simulation: { globalScore: 75 },
+        simulation: { globalScore: 75, verdictFavorable: true },
       },
       sessionId,
     );

@@ -102,7 +102,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
       axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
-      simulation: { globalScore: 86 },
+      simulation: { globalScore: 86, verdictFavorable: true },
     });
 
     const badgeIds = won.map((badge) => badge.badgeId);
@@ -130,7 +130,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
       axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
-      simulation: { globalScore: 86 },
+      simulation: { globalScore: 86, verdictFavorable: true },
     });
 
     expect(won).toEqual([]);
@@ -145,7 +145,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
       axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
-      simulation: { globalScore: 86 },
+      simulation: { globalScore: 86, verdictFavorable: true },
     });
 
     expect(won).toEqual([]);
@@ -199,7 +199,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
         { axis: AxisType.LOGIC, score: 80, perfection: false },
         { axis: AxisType.MEMORY, score: 75, perfection: false },
       ],
-      simulation: { globalScore: 96 },
+      simulation: { globalScore: 96, verdictFavorable: true },
     });
 
     const solid = won.find((badge) => badge.badgeId === BadgeId.EXAM_SOLID);
