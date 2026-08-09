@@ -128,6 +128,9 @@ function buildEntry(
 }
 
 function conditionsIntroFor(entry: BadgeEntry): string {
+  if (entry.definition.family === BadgeFamily.EXAM) {
+    return 'Dans le même examen :';
+  }
   return CONDITION_COUNT_INTROS[entry.conditions.length] ?? 'Conditions :';
 }
 

@@ -16,7 +16,7 @@ const AGUERRI: EarnedBadgeDto = {
   conditions: [
     {
       id: 'exam-best-70',
-      label: 'Meilleur score ≥ 70',
+      label: 'Score ≥ 70',
       met: true,
       justValidated: true,
     },
@@ -30,7 +30,7 @@ const CERTIFIE: EarnedBadgeDto = {
   conditions: [
     {
       id: 'exam-best-85',
-      label: 'Meilleur score ≥ 85',
+      label: 'Score ≥ 85',
       met: true,
       justValidated: true,
     },
@@ -112,7 +112,7 @@ describe('BadgeCelebration', () => {
     fixture.detectChanges();
 
     const card = cardOf(fixture);
-    expect(card?.textContent).toContain('Meilleur score ≥ 70');
+    expect(card?.textContent).toContain('Score ≥ 70');
     expect(card?.querySelector('.cb__strike')).not.toBeNull();
     expect(card?.querySelector('.cb__gain')).toBeNull();
   });
