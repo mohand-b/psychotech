@@ -2,6 +2,7 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { EarnedBadgeDto } from '@psychotech/shared';
 import { tap } from 'rxjs';
+import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgeStore } from '../badges/badge.store';
 
 function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
@@ -30,12 +31,16 @@ function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
  */
 export const newBadgesInterceptor: HttpInterceptorFn = (request, next) => {
   const store = inject(BadgeStore);
+  const energyFacade = inject(EnergyFacade);
   return next(request).pipe(
     tap((event) => {
       if (event instanceof HttpResponse) {
         const badges = earnedBadgesOf(event.body);
         if (badges) {
           store.enqueue(badges);
+          if (badges.some((badge) => (badge.gain ?? 0) > 0)) {
+            energyFacade.load().subscribe({ error: () => undefined });
+          }
         }
       }
     }),
