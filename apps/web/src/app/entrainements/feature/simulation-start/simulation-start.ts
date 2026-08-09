@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -56,6 +57,7 @@ interface AdviceItem {
     Button,
     ChevronStepper,
     Icon,
+    NgTemplateOutlet,
     RouterLink,
   ],
   templateUrl: './simulation-start.html',
@@ -130,6 +132,10 @@ export class SimulationStart {
   protected readonly balance = computed(
     () => this.energyFacade.state()?.balance ?? 0,
   );
+
+  protected asCourseAxis(axis: RailwayPlayableAxis): RailwayPlayableAxis {
+    return axis;
+  }
 
   protected onAxisExplored(axis: AxisType): void {
     const next = axis as RailwayPlayableAxis;

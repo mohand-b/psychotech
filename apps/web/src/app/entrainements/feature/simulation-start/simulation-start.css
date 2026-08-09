@@ -78,6 +78,16 @@
 .simb__panel-viewport {
   position: relative;
   overflow: hidden;
+  display: grid;
+}
+
+.simb__axis-panel--sizer {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.simb__axis-panel--live {
+  grid-area: 1 / 1;
 }
 
 .simb__course ui-chevron-stepper {

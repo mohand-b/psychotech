@@ -38,9 +38,17 @@
           (activeAxisChange)="onAxisExplored($event)"
         />
         <div class="simb__panel-viewport">
+          @for (axis of courseAxes; track axis) {
+          <div class="simb__axis-panel simb__axis-panel--sizer flex items-center" aria-hidden="true">
+            <ng-container
+              [ngTemplateOutlet]="axisPanelContent"
+              [ngTemplateOutletContext]="{ $implicit: axis }"
+            />
+          </div>
+          }
           @for (axis of exploredKeys(); track axis) {
           <div
-            class="simb__axis-panel flex items-center"
+            class="simb__axis-panel simb__axis-panel--live flex items-center"
             [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
             [class.simb__axis-panel--backward]="
                 panelDirection() === 'backward'
@@ -48,31 +56,38 @@
             [animate.leave]="panelLeaveClass()"
             [style.background]="presentations[axis].pastelVar"
           >
-            <span class="simb__axis-icon">
-              <ui-axis-icon [axis]="axis" [size]="cardIconSize" />
-            </span>
-            <div class="simb__axis-text flex flex-col flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <span
-                  class="simb__axis-name"
-                  [style.color]="presentations[axis].textVar"
-                  >{{ presentations[axis].label }}</span
-                >
-                <span
-                  class="simb__axis-duration flex items-center"
-                  [style.color]="presentations[axis].textVar"
-                >
-                  <ui-icon [img]="durationIcon" [size]="13" [strokeWidth]="2" />
-                  <span class="t-mono">{{ course[axis].duration }}</span>
-                </span>
-              </div>
-              <span class="simb__axis-instruction"
-                >{{ course[axis].instruction }}</span
-              >
-            </div>
+            <ng-container
+              [ngTemplateOutlet]="axisPanelContent"
+              [ngTemplateOutletContext]="{ $implicit: axis }"
+            />
           </div>
           }
         </div>
+        <ng-template #axisPanelContent let-axis>
+          @let panelAxis = asCourseAxis(axis);
+          <span class="simb__axis-icon">
+            <ui-axis-icon [axis]="panelAxis" [size]="cardIconSize" />
+          </span>
+          <div class="simb__axis-text flex flex-col flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <span
+                class="simb__axis-name"
+                [style.color]="presentations[panelAxis].textVar"
+                >{{ presentations[panelAxis].label }}</span
+              >
+              <span
+                class="simb__axis-duration flex items-center"
+                [style.color]="presentations[panelAxis].textVar"
+              >
+                <ui-icon [img]="durationIcon" [size]="13" [strokeWidth]="2" />
+                <span class="t-mono">{{ course[panelAxis].duration }}</span>
+              </span>
+            </div>
+            <span class="simb__axis-instruction"
+              >{{ course[panelAxis].instruction }}</span
+            >
+          </div>
+        </ng-template>
       </div>
     </div>
 
