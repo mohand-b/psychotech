@@ -1,7 +1,6 @@
 ﻿import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, SessionAxis } from '@prisma/client';
@@ -14,7 +13,6 @@ import {
   Sector,
   SessionMode,
   LogicFamilyFilter,
-  SimulationStampQualifier,
   SimulationVerdict,
   SimulationVerdictReasonKind,
   TrainingOptionId,
@@ -110,7 +108,6 @@ function walk(
 
 const repository = {
   createSession: vi.fn(),
-  findUserEmailVerifiedAt: vi.fn(),
   findUserSession: vi.fn(),
   findSectorConfig: vi.fn(),
   findStreakContext: vi.fn(),
@@ -148,45 +145,12 @@ const SECTOR_CONFIG = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  repository.findUserEmailVerifiedAt.mockResolvedValue(
-    new Date('2026-08-06T10:00:00Z'),
-  );
   repository.findStreakContext.mockResolvedValue({
     timezone: 'Europe/Paris',
     streak: null,
   });
 });
 
-describe('SessionsService.start email gate', () => {
-  it('rejects an energy-consuming session for an unverified account', async () => {
-    repository.findUserEmailVerifiedAt.mockResolvedValue(null);
-
-    await expect(
-      service.start('user-1', {
-        mode: SessionMode.TARGETED,
-        sector: Sector.RAILWAY,
-        axis: AxisType.LOGIC,
-      }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(repository.createSession).not.toHaveBeenCalled();
-  });
-
-  it('keeps tutorials open for an unverified account', async () => {
-    repository.findUserEmailVerifiedAt.mockResolvedValue(null);
-    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
-    repository.createSession.mockResolvedValue(
-      buildSession({ mode: 'TUTORIAL', energyCost: 0 }),
-    );
-
-    await service.start('user-1', {
-      mode: SessionMode.TUTORIAL,
-      sector: Sector.RAILWAY,
-      axis: AxisType.LOGIC,
-    });
-
-    expect(repository.createSession).toHaveBeenCalledTimes(1);
-  });
-});
 
 describe('SessionsService.start', () => {
   it('debits one energy inside the creation transaction of a targeted session', async () => {
@@ -2124,10 +2088,7 @@ describe('SessionsService.complete', () => {
       {
         mode: SessionMode.FULL,
         axes: [{ axis: AxisType.LOGIC, score: 75, perfection: false }],
-        simulation: {
-          verdictFavorable: true,
-          qualifier: SimulationStampQualifier.COMFORTABLE,
-        },
+        simulation: { globalScore: 75 },
       },
       sessionId,
     );
