@@ -194,6 +194,17 @@ export class SimulationSummary {
       : [];
   });
 
+  protected readonly radarProgress = computed(() => {
+    const summary = this.summary();
+    if (!summary) {
+      return 0;
+    }
+    if (this.reveal.completed() || summary.globalScore <= 0) {
+      return 1;
+    }
+    return Math.min(1, Math.max(0, this.reveal.value() / summary.globalScore));
+  });
+
   protected isUnderEliminatory(axis: AxisType): boolean {
     return this.summary()?.eliminatoryAxes.includes(axis) ?? false;
   }

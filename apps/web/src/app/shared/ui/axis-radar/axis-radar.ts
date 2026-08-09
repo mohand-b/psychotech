@@ -27,6 +27,8 @@ const CENTER_X = 85;
 const CENTER_Y = 64;
 const RADIUS = 48;
 const MESH_LEVELS = [1 / 3, 2 / 3, 1];
+const BUILD_START_FRACTION = 0.1;
+const BUILD_STAGGER_STEP = 0.06;
 
 const RADAR_LABELS = [
   { text: 'Logique', x: 85, y: 9, anchor: 'middle' },
@@ -138,6 +140,7 @@ const RADAR_LABELS = [
 export class AxisRadar {
   readonly entries = input.required<readonly AxisRadarEntry[]>();
   readonly baseline = input<readonly AxisRadarEntry[]>([]);
+  readonly progress = input(1);
 
   protected readonly viewWidth = VIEW_WIDTH;
   protected readonly viewHeight = VIEW_HEIGHT;
@@ -155,7 +158,7 @@ export class AxisRadar {
 
   protected readonly areaPoints = computed(() =>
     polygonPoints((index) =>
-      pointAt(index, (this.entries()[index]?.score ?? 0) / 100),
+      pointAt(index, this.builtFraction(this.entries()[index]?.score ?? 0, index)),
     ),
   );
 
@@ -169,10 +172,25 @@ export class AxisRadar {
 
   protected readonly vertices = computed<RadarVertex[]>(() =>
     this.entries().map((entry, index) => ({
-      ...pointAt(index, entry.score / 100),
+      ...pointAt(index, this.builtFraction(entry.score, index)),
       colorVar: AXIS_PRESENTATION[entry.axis].plainVar,
     })),
   );
+
+  private builtFraction(score: number, index: number): number {
+    const target = score / 100;
+    const raw = this.progress();
+    if (raw >= 1) {
+      return target;
+    }
+    const count = this.entries().length;
+    const spread = 1 + (count - 1) * BUILD_STAGGER_STEP;
+    const staggered = Math.min(
+      1,
+      Math.max(0, raw * spread - index * BUILD_STAGGER_STEP),
+    );
+    return BUILD_START_FRACTION + (target - BUILD_START_FRACTION) * staggered;
+  }
 }
 
 function pointAt(index: number, fraction: number): RadarPoint {
