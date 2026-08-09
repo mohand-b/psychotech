@@ -15,7 +15,6 @@ import {
   NavigationError,
   provideRouter,
   withNavigationErrorHandler,
-  withViewTransitions,
 } from '@angular/router';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { AuthFacade } from './auth/data-access/auth.facade';
@@ -36,11 +35,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: StaleChunkErrorHandler },
-    provideRouter(
-      appRoutes,
-      withNavigationErrorHandler(reloadOnStaleChunk),
-      withViewTransitions(),
-    ),
+    provideRouter(appRoutes, withNavigationErrorHandler(reloadOnStaleChunk)),
     provideHttpClient(
       withFetch(),
       withInterceptors([

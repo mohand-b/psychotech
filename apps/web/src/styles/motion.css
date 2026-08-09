@@ -10,7 +10,7 @@
 @keyframes motion-rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -21,7 +21,7 @@
 @keyframes motion-drop {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;
@@ -45,6 +45,7 @@
 
 .motion-fade {
   animation: motion-fade var(--motion-enter) var(--ease-glide) backwards;
+  animation-delay: var(--motion-base-delay, 80ms);
 }
 
 .motion-fade-micro {
@@ -72,69 +73,55 @@
 
 .motion-rise {
   animation: motion-rise var(--motion-enter) var(--ease-glide) backwards;
+  animation-delay: var(--motion-base-delay, 80ms);
 }
 
 .motion-drop {
   animation: motion-drop var(--motion-enter) var(--ease-glide) backwards;
+  animation-delay: var(--motion-base-delay, 80ms);
 }
 
 .motion-pop {
   animation: motion-pop var(--motion-deliberate) var(--ease-bounce) backwards;
+  animation-delay: var(--motion-base-delay, 80ms);
 }
 
 .motion-stagger {
-  animation-delay: min(
-    calc(var(--motion-index, 0) * var(--motion-stagger-step)),
-    var(--motion-stagger-cap)
+  animation-delay: calc(
+    var(--motion-base-delay, 80ms) +
+      min(
+        calc(var(--motion-index, 0) * var(--motion-stagger-step)),
+        var(--motion-stagger-cap)
+      )
   );
 }
 
 .motion-delay-1 {
-  animation-delay: calc(1 * var(--motion-stagger-step));
+  animation-delay: calc(
+    var(--motion-base-delay, 80ms) + 1 * var(--motion-stagger-step)
+  );
 }
 
 .motion-delay-2 {
-  animation-delay: calc(2 * var(--motion-stagger-step));
+  animation-delay: calc(
+    var(--motion-base-delay, 80ms) + 2 * var(--motion-stagger-step)
+  );
 }
 
 .motion-delay-3 {
-  animation-delay: calc(3 * var(--motion-stagger-step));
+  animation-delay: calc(
+    var(--motion-base-delay, 80ms) + 3 * var(--motion-stagger-step)
+  );
 }
 
 .motion-delay-4 {
-  animation-delay: calc(4 * var(--motion-stagger-step));
+  animation-delay: calc(
+    var(--motion-base-delay, 80ms) + 4 * var(--motion-stagger-step)
+  );
 }
 
 .motion-off {
   animation: none !important;
-}
-
-@keyframes motion-route-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-@keyframes motion-route-out {
-  to {
-    opacity: 0;
-  }
-}
-
-::view-transition-old(root) {
-  animation: motion-route-out var(--motion-micro) var(--ease-settle) both;
-}
-
-::view-transition-new(root) {
-  animation: motion-route-in var(--motion-enter) var(--ease-glide) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 1ms;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
