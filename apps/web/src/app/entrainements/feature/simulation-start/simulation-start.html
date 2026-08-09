@@ -119,14 +119,7 @@
     </div>
   </div>
 
-  @if (emailUnverified()) {
-  <span class="simb__short flex items-center">
-    Vérifiez votre adresse e-mail pour lancer une séance.
-    <a class="simb__short-link" routerLink="/verification-email"
-      >Vérifier mon adresse</a
-    >
-  </span>
-  } @else if (energyShort()) {
+  @if (energyShort()) {
   <span class="simb__short flex items-center">
     Il vous faut {{ energyCost }} crédits, vous en avez {{ balance() }}.
     <a class="simb__short-link" routerLink="/credits">Recharger des crédits</a>
@@ -139,7 +132,7 @@
       size="lg"
       block="mobile"
       [loading]="starting()"
-      [disabled]="emailUnverified() || energyShort()"
+      [disabled]="energyShort()"
       (click)="start()"
     >
       <span class="simb__cta-content">

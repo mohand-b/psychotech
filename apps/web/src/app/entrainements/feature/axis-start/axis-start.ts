@@ -75,12 +75,6 @@ export class AxisStart {
         ?.isCritical ?? false,
   );
 
-  protected readonly emailUnverified = computed(
-    () =>
-      !this.tutorial &&
-      this.authFacade.currentUser()?.emailVerifiedAt === null,
-  );
-
   protected readonly energyLocked = computed(
     () =>
       !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
@@ -128,7 +122,7 @@ export class AxisStart {
   }
 
   protected start(): void {
-    if (this.starting() || this.emailUnverified() || this.energyLocked()) {
+    if (this.starting() || this.energyLocked()) {
       return;
     }
     this.starting.set(true);

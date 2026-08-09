@@ -325,32 +325,9 @@ describe('AxisStart - crédits', () => {
   });
 });
 
-describe('AxisStart - vérification e-mail', () => {
-  it('locks the launch with a verification path when the email is unverified', async () => {
-    const result = await setup('logique', false, {
-      emailVerifiedAt: null,
-      energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
-    });
-
-    expect(
-      result.element.querySelector<HTMLButtonElement>('.axis-start__cta button')
-        ?.disabled,
-    ).toBe(true);
-    expect(result.element.textContent).toContain(
-      'Vérifiez votre adresse e-mail pour lancer une séance.',
-    );
-    const link = result.element.querySelector('.axis-start__recharge-link');
-    expect(link?.getAttribute('href')).toBe('/verification-email');
-    expect(result.element.textContent).not.toContain(
-      "Vous n'avez plus assez de crédits.",
-    );
-
-    clickStart(result);
-    expect(result.start).not.toHaveBeenCalled();
-  });
-
-  it('keeps the discovery mode open for an unverified account', async () => {
-    const result = await setup('logique', true, { emailVerifiedAt: null });
+describe('AxisStart - compte non vérifié', () => {
+  it('keeps the launch open for an unverified account', async () => {
+    const result = await setup('logique', false, { emailVerifiedAt: null });
 
     expect(
       result.element.querySelector<HTMLButtonElement>('.axis-start__cta button')

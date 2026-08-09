@@ -26,14 +26,7 @@
   <p class="axis-start__note">
     La découverte est toujours identique et ne consomme aucun crédit.
   </p>
-  } @if (emailUnverified()) {
-  <p class="axis-start__note axis-start__note--short">
-    Vérifiez votre adresse e-mail pour lancer une séance.
-    <a class="axis-start__recharge-link" routerLink="/verification-email"
-      >Vérifier mon adresse</a
-    >
-  </p>
-  } @else if (energyLocked()) {
+  } @if (energyLocked()) {
   <p class="axis-start__note axis-start__note--short">
     Vous n'avez plus assez de crédits.
     <a class="axis-start__recharge-link" routerLink="/credits"
@@ -48,7 +41,7 @@
       size="lg"
       block="mobile"
       [loading]="starting()"
-      [disabled]="emailUnverified() || energyLocked()"
+      [disabled]="energyLocked()"
       (click)="start()"
     >
       <span class="axis-start__cta-content">

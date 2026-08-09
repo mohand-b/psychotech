@@ -174,23 +174,12 @@ describe('SimulationStart', () => {
     expect(energyLoad).toHaveBeenCalled();
   });
 
-  it('locks the launch with a verification path when the email is unverified', async () => {
-    const { fixture, startFull } = await setup({
-      emailVerifiedAt: null,
-      energyState: buildEnergyState({ balance: 0, canStartFull: false }),
-    });
-    const locked = fixture.nativeElement.querySelector(
+  it('keeps the launch open for an unverified account', async () => {
+    const { fixture } = await setup({ emailVerifiedAt: null });
+    const cta = fixture.nativeElement.querySelector(
       '.simb__cta button',
     ) as HTMLButtonElement;
-    expect(locked.disabled).toBe(true);
-    expect(text(fixture)).toContain(
-      'Vérifiez votre adresse e-mail pour lancer une séance.',
-    );
-    const link = fixture.nativeElement.querySelector('.simb__short-link');
-    expect(link?.getAttribute('href')).toBe('/verification-email');
-    expect(text(fixture)).not.toContain('Il vous faut');
-
-    locked.click();
-    expect(startFull).not.toHaveBeenCalled();
+    expect(cta.disabled).toBe(false);
+    expect(text(fixture)).not.toContain('Vérifiez votre adresse e-mail');
   });
 });
