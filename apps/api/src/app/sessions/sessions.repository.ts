@@ -180,14 +180,6 @@ export class SessionsRepository {
     });
   }
 
-  async findUserEmailVerifiedAt(userId: string): Promise<Date | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { emailVerifiedAt: true },
-    });
-    return user?.emailVerifiedAt ?? null;
-  }
-
   async findSectorConfig(sector: Sector): Promise<SectorConfigData | null> {
     const config = await this.prisma.sectorConfig.findUnique({
       where: { sector: mapEnumValue(DbSector, sector) },

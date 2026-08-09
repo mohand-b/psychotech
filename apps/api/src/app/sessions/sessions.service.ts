@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,7 +16,6 @@ import {
   DiscriminationRawResultDto,
   BadgeEvent,
   DiscriminationTrialAnswerDto,
-  EMAIL_NOT_VERIFIED_ERROR_CODE,
   EnergyLedgerReason,
   LOGIC_CONTENT_VERSION_V2,
   SESSION_CONTENT_VERSION,
@@ -51,7 +49,6 @@ import {
   analyzeReactivity,
   avisFromScore,
   buildSimulationAppreciation,
-  buildSimulationStamp,
   buildSimulationSummary,
   computeSimulationVerdict,
   discriminationPerfectionAchieved,
@@ -122,9 +119,6 @@ export class SessionsService {
   async start(userId: string, request: StartSessionRequest): Promise<SessionDto> {
     const axes = resolveSessionAxes(request.mode, request.axis);
     const cost = energyCost(request.mode);
-    if (request.mode !== SessionMode.TUTORIAL) {
-      await this.assertEmailVerified(userId);
-    }
     const enabledOptions = request.options?.enabledOptions ?? [];
     if (enabledOptions.length > 0) {
       if (request.mode !== SessionMode.TARGETED) {
@@ -268,15 +262,6 @@ export class SessionsService {
         ),
     );
     return toSessionDto(completed.session);
-  }
-
-  private async assertEmailVerified(userId: string): Promise<void> {
-    const verifiedAt = await this.repository.findUserEmailVerifiedAt(userId);
-    if (verifiedAt === null) {
-      throw new ForbiddenException({
-        message: EMAIL_NOT_VERIFIED_ERROR_CODE,
-      });
-    }
   }
 
   private async completeFullSessionAxis(
@@ -747,14 +732,7 @@ export class SessionsService {
               score: best.score,
               perfection: perfectionByAxis.get(best.axis) ?? false,
             })),
-            simulation: {
-              verdictFavorable: evaluation.isAdmissible,
-              qualifier: buildSimulationStamp(
-                evaluation.globalScore,
-                session.sectorThreshold,
-                evaluation.isEliminated,
-              ).qualifier,
-            },
+            simulation: { globalScore: evaluation.globalScore },
           },
           sessionId,
         ),
