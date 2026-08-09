@@ -5,6 +5,7 @@
   computed,
   effect,
   inject,
+  linkedSignal,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -194,7 +195,7 @@ export class SimulationSummary {
       : [];
   });
 
-  protected readonly radarProgress = computed(() => {
+  private readonly rawRadarProgress = computed(() => {
     const summary = this.summary();
     if (!summary) {
       return 0;
@@ -203,6 +204,11 @@ export class SimulationSummary {
       return 1;
     }
     return Math.min(1, Math.max(0, this.reveal.value() / summary.globalScore));
+  });
+
+  protected readonly radarProgress = linkedSignal<number, number>({
+    source: this.rawRadarProgress,
+    computation: (raw, previous) => Math.max(previous?.value ?? 0, raw),
   });
 
   protected isUnderEliminatory(axis: AxisType): boolean {
