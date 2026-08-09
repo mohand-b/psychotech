@@ -31,7 +31,7 @@ export interface BadgeAnnounceView {
       title="Revoir la célébration"
       (click)="replay.emit()"
     >
-      <span class="announce__thumbs flex items-center">
+      <span class="announce__thumbs">
         @for (thumb of view().thumbs; track thumb.name) {
           <img
             class="announce__thumb"
@@ -87,7 +87,11 @@ export interface BadgeAnnounceView {
       }
     }
     .announce__thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       gap: 4px;
+      max-width: calc(6 * 30px + 5 * 4px);
       flex-shrink: 0;
     }
     .announce__thumb {
