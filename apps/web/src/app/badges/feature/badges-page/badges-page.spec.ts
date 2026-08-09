@@ -87,9 +87,9 @@ describe('BadgesPage', () => {
     expect(text).toContain('Examen blanc');
     expect(text).toContain('Transverses');
     expect(text).toContain('Meilleur score ≥ 70');
-    expect(text).toContain('Toutes les réponses justes, aucun timeout');
+    expect(text).toContain('Toutes les réponses correctes');
     expect(text).toContain('Parcours terminé sans aucune sortie de couloir');
-    expect(text).toContain('Terminer un premier examen blanc');
+    expect(text).toContain('Meilleur score ≥ 95');
     expect(text).toContain('0');
     expect(text).toContain('sur 20 badges');
   });

@@ -15,8 +15,8 @@ const AGUERRI: EarnedBadgeDto = {
   gain: null,
   conditions: [
     {
-      id: 'first-exam',
-      label: 'Terminer un premier examen blanc',
+      id: 'exam-best-70',
+      label: 'Meilleur score ≥ 70',
       met: true,
       justValidated: true,
     },
@@ -29,8 +29,8 @@ const CERTIFIE: EarnedBadgeDto = {
   gain: 2,
   conditions: [
     {
-      id: 'first-favorable',
-      label: 'Premier examen blanc au verdict favorable',
+      id: 'exam-best-85',
+      label: 'Meilleur score ≥ 85',
       met: true,
       justValidated: true,
     },
@@ -112,7 +112,7 @@ describe('BadgeCelebration', () => {
     fixture.detectChanges();
 
     const card = cardOf(fixture);
-    expect(card?.textContent).toContain('Terminer un premier examen blanc');
+    expect(card?.textContent).toContain('Meilleur score ≥ 70');
     expect(card?.querySelector('.cb__strike')).not.toBeNull();
     expect(card?.querySelector('.cb__gain')).toBeNull();
   });

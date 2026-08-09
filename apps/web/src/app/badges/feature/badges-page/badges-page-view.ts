@@ -5,6 +5,9 @@ import {
   BADGE_EXCELLENCE_THRESHOLD,
   BADGE_PROGRESSION_THRESHOLD,
   BADGE_SECTOR_THRESHOLD,
+  EXAM_EXCELLENCE_THRESHOLD,
+  EXAM_PERFECTION_THRESHOLD,
+  EXAM_PROGRESSION_THRESHOLD,
   BadgeDefinition,
   BadgeFamily,
   BadgeId,
@@ -125,9 +128,6 @@ function buildEntry(
 }
 
 function conditionsIntroFor(entry: BadgeEntry): string {
-  if (entry.definition.id === BadgeId.EXAM_SOLID) {
-    return 'Dans le même examen :';
-  }
   return CONDITION_COUNT_INTROS[entry.conditions.length] ?? 'Conditions :';
 }
 
@@ -212,6 +212,12 @@ const TIER_SCORE_TARGETS: Partial<Record<BadgeTier, number>> = {
   [BadgeTier.SILVER]: BADGE_EXCELLENCE_THRESHOLD,
 };
 
+const EXAM_SCORE_TARGETS: Partial<Record<BadgeId, number>> = {
+  [BadgeId.EXAM_FIRST]: EXAM_PROGRESSION_THRESHOLD,
+  [BadgeId.EXAM_FAVORABLE]: EXAM_EXCELLENCE_THRESHOLD,
+  [BadgeId.EXAM_SOLID]: EXAM_PERFECTION_THRESHOLD,
+};
+
 function axisDeficits(
   sector: Sector,
   outlook: BadgeOutlook,
@@ -234,17 +240,14 @@ function bindingAxisDeficit(
   );
 }
 
-function examDeficit(outlook: BadgeOutlook): number {
+function examDeficit(outlook: BadgeOutlook, target: number): number {
   if (outlook.lastExamScore === null) {
     const deficits = axisDeficits(Sector.RAILWAY, outlook);
-    return (
-      deficits.reduce((sum, entry) => sum + entry.deficit, 0) / deficits.length
-    );
+    const axisAverage =
+      deficits.reduce((sum, entry) => sum + entry.deficit, 0) / deficits.length;
+    return axisAverage + Math.max(0, target - BADGE_SECTOR_THRESHOLD);
   }
-  return Math.max(
-    0,
-    (outlook.examThreshold ?? BADGE_SECTOR_THRESHOLD) - outlook.lastExamScore,
-  );
+  return Math.max(0, target - outlook.lastExamScore);
 }
 
 function effortOf(
@@ -270,17 +273,9 @@ function effortOf(
       target - (outlook.bestScores[definition.axis] ?? 0),
     );
   }
-  if (definition.id === BadgeId.EXAM_FIRST) {
-    return SESSION_EFFORT_POINTS;
-  }
-  if (definition.id === BadgeId.EXAM_FAVORABLE) {
-    return SESSION_EFFORT_POINTS + examDeficit(outlook);
-  }
-  if (definition.id === BadgeId.EXAM_SOLID) {
-    return (
-      SESSION_EFFORT_POINTS +
-      Math.max(examDeficit(outlook), bindingAxisDeficit(sector, outlook).deficit)
-    );
+  const examTarget = EXAM_SCORE_TARGETS[definition.id];
+  if (examTarget !== undefined) {
+    return SESSION_EFFORT_POINTS + examDeficit(outlook, examTarget);
   }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
     return Math.max(
@@ -316,11 +311,9 @@ function closestProgress(
       ? `Plus que ${pointsLabel(binding.deficit)} en ${AXIS_META[binding.axis].label}`
       : null;
   }
-  if (
-    definition.id === BadgeId.EXAM_FAVORABLE &&
-    outlook.lastExamScore !== null
-  ) {
-    const deficit = examDeficit(outlook);
+  const examTarget = EXAM_SCORE_TARGETS[definition.id];
+  if (examTarget !== undefined && outlook.lastExamScore !== null) {
+    const deficit = examDeficit(outlook, examTarget);
     return deficit > 0
       ? `Dernier examen à ${outlook.lastExamScore} · plus que ${pointsLabel(deficit)}`
       : null;
