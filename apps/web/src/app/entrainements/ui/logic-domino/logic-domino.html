@@ -110,6 +110,16 @@
             {{ digit }}
           </button>
         }
+        <button
+          type="button"
+          class="dom__key dom__key--erase"
+          title="Effacer la dernière face"
+          aria-label="Effacer la dernière face"
+          [disabled]="disabled()"
+          (click)="eraseLast()"
+        >
+          <ui-icon [img]="eraseIcon" [size]="18" />
+        </button>
       </div>
       <button
         type="button"

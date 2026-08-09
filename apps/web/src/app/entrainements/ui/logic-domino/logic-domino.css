@@ -205,6 +205,13 @@
   outline-offset: 2px;
 }
 
+.dom__key--erase {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
 .dom__erase {
   width: 42px;
   height: 48px;
@@ -307,7 +314,7 @@
 
   .dom__entry-row {
     display: grid;
-    grid-template-columns: 1fr 48px;
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
@@ -333,23 +340,22 @@
   }
 
   .dom__erase {
-    width: 48px;
-    min-height: 44px;
-    height: auto;
-    border: 1px solid var(--border);
-    background: var(--card);
+    display: none;
   }
 
   .dom__pad {
-    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
 
   .dom__key {
     width: auto;
     min-height: 48px;
+  }
+
+  .dom__key--erase {
+    display: inline-flex;
   }
 
   .dom__help--desktop {

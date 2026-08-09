@@ -417,6 +417,20 @@ export class LogicPlay {
     this.activeFace.set(face);
   }
 
+  protected eraseLastDominoFace(): void {
+    if (this.locked() || !this.loaded() || !this.dominoItem()) {
+      return;
+    }
+    const index = this.currentIndex();
+    const answer = this.dominoAnswers()[index] ?? EMPTY_DOMINO_ANSWER;
+    const face: DominoAnswerFace = answer.bottom !== null ? 'bottom' : 'top';
+    this.dominoAnswers.update((answers) => ({
+      ...answers,
+      [index]: { ...(answers[index] ?? EMPTY_DOMINO_ANSWER), [face]: null },
+    }));
+    this.activeFace.set(face);
+  }
+
   protected clearDominoAnswer(): void {
     if (this.locked() || !this.loaded() || !this.dominoItem()) {
       return;

@@ -42,12 +42,37 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
           <button
             type="button"
             class="pad__key t-mono"
+            [class.pad__key--zero]="digit === 0"
             [disabled]="disabled()"
             (click)="onDigit(digit)"
           >
             {{ digit }}
           </button>
         }
+        <button
+          type="button"
+          class="pad__key pad__key--erase"
+          title="Effacer le dernier chiffre"
+          aria-label="Effacer le dernier chiffre"
+          [disabled]="disabled()"
+          (click)="onErase()"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"></path>
+            <line x1="18" x2="12" y1="9" y2="15"></line>
+            <line x1="12" x2="18" y1="9" y2="15"></line>
+          </svg>
+        </button>
       </div>
       <button
         type="button"
@@ -138,6 +163,12 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
       outline: 2px solid var(--axis-logic);
       outline-offset: 2px;
     }
+    .pad__key--erase {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: var(--label);
+    }
     .pad__clear {
       display: inline-flex;
       align-items: center;
@@ -160,8 +191,8 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
     @media (max-width: 767px) {
       .pad {
         display: grid;
-        grid-template-columns: 1fr 48px;
-        gap: 10px 8px;
+        grid-template-columns: 1fr;
+        gap: 10px;
       }
       .pad__chip {
         min-height: 44px;
@@ -176,22 +207,26 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
         display: none;
       }
       .pad__keys {
-        grid-column: 1 / -1;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 4px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
       }
       .pad__key {
         width: auto;
         height: 48px;
         font-size: 17px;
       }
+      .pad__key--zero {
+        grid-column: 2;
+        grid-row: 4;
+      }
+      .pad__key--erase {
+        display: inline-flex;
+        grid-column: 3;
+        grid-row: 4;
+      }
       .pad__clear {
-        width: 48px;
-        min-height: 44px;
-        height: auto;
-        border: 1px solid var(--border);
-        background: var(--card);
+        display: none;
       }
     }
   `,
@@ -206,6 +241,13 @@ export class TriangleInput {
 
   protected onDigit(digit: number): void {
     const next = appendTriangleInputDigit(this.value(), digit);
+    if (next !== this.value()) {
+      this.valueChange.emit(next);
+    }
+  }
+
+  protected onErase(): void {
+    const next = eraseTriangleInputDigit(this.value());
     if (next !== this.value()) {
       this.valueChange.emit(next);
     }

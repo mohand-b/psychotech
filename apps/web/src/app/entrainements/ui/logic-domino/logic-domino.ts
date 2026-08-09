@@ -33,6 +33,7 @@ export class LogicDomino {
   readonly faceSelected = output<DominoAnswerFace>();
   readonly digitEntered = output<DominoFace>();
   readonly cleared = output<void>();
+  readonly lastFaceErased = output<void>();
   readonly hintOpened = output<void>();
 
   protected readonly chevronIcon = ArrowRight;
@@ -68,6 +69,12 @@ export class LogicDomino {
   protected clear(): void {
     if (!this.disabled()) {
       this.cleared.emit();
+    }
+  }
+
+  protected eraseLast(): void {
+    if (!this.disabled()) {
+      this.lastFaceErased.emit();
     }
   }
 }

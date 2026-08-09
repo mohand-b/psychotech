@@ -557,7 +557,7 @@ describe('LogicPlay (triangles v3)', () => {
     goToItem(result, v3Triangles[0].index);
     const keys =
       result.element.querySelectorAll<HTMLButtonElement>('.pad__key');
-    expect(keys).toHaveLength(10);
+    expect(keys).toHaveLength(11);
     expect(
       result.element.querySelector('.pad__chip-value')?.classList,
     ).toContain('pad__chip-value--empty');

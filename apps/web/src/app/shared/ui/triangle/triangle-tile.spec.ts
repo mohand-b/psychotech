@@ -69,7 +69,7 @@ describe('TriangleTile', () => {
     );
     const element: HTMLElement = fixture.nativeElement;
     const keys = element.querySelectorAll<HTMLButtonElement>('.pad__key');
-    expect(keys).toHaveLength(10);
+    expect(keys).toHaveLength(11);
     keys[5].click();
     fixture.componentRef.setInput('value', 5);
     fixture.detectChanges();
@@ -77,8 +77,9 @@ describe('TriangleTile', () => {
     fixture.componentRef.setInput('value', 52);
     fixture.detectChanges();
     keys[9].click();
+    keys[10].click();
     element.querySelector<HTMLButtonElement>('.pad__clear')?.click();
-    expect(values).toEqual([5, 52, null]);
+    expect(values).toEqual([5, 52, 5, null]);
   });
 
   it('rend une série générée avec son « ? » sur le dernier triangle', () => {
