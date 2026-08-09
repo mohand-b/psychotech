@@ -53,3 +53,4 @@ __screenshots__/
 .nx/migrate-runs
 .idea
 apps/web.zip
+apps/web/public/e2e-payloads.json
