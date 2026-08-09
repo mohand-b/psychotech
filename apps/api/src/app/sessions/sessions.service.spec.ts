@@ -14,6 +14,7 @@ import {
   Sector,
   SessionMode,
   LogicFamilyFilter,
+  SimulationStampQualifier,
   SimulationVerdict,
   SimulationVerdictReasonKind,
   TrainingOptionId,
@@ -2122,8 +2123,11 @@ describe('SessionsService.complete', () => {
       BadgeEvent.SESSION_COMPLETED,
       {
         mode: SessionMode.FULL,
-        axes: [{ axis: AxisType.LOGIC, score: 75 }],
-        simulation: { verdictFavorable: true },
+        axes: [{ axis: AxisType.LOGIC, score: 75, perfection: false }],
+        simulation: {
+          verdictFavorable: true,
+          qualifier: SimulationStampQualifier.COMFORTABLE,
+        },
       },
       sessionId,
     );

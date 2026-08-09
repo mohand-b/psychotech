@@ -6,6 +6,7 @@ import {
   EarnedBadgeDto,
   Sector,
   SessionMode,
+  SimulationStampQualifier,
 } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgeCollector } from './badge-collector';
@@ -76,7 +77,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.LOGIC, score: 72 }],
+      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false }],
       simulation: null,
     });
 
@@ -101,8 +102,11 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60 }],
-      simulation: { verdictFavorable: true },
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      simulation: {
+        verdictFavorable: true,
+        qualifier: SimulationStampQualifier.JUST,
+      },
     });
 
     const badgeIds = won.map((badge) => badge.badgeId);
@@ -129,8 +133,11 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60 }],
-      simulation: { verdictFavorable: true },
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      simulation: {
+        verdictFavorable: true,
+        qualifier: SimulationStampQualifier.JUST,
+      },
     });
 
     expect(won).toEqual([]);
@@ -144,22 +151,25 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60 }],
-      simulation: { verdictFavorable: true },
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      simulation: {
+        verdictFavorable: true,
+        qualifier: SimulationStampQualifier.JUST,
+      },
     });
 
     expect(won).toEqual([]);
     expect(repository.creditRewardWithin).not.toHaveBeenCalled();
   });
 
-  it('awards the gold badge only at a perfect best score of 100', async () => {
+  it('awards the gold badge on the perfection proof, whatever the score', async () => {
     repository.buildFactsSourceWithin.mockResolvedValue(
-      factsSource({ bestScores: { [AxisType.MEMORY]: 100 } }),
+      factsSource({ bestScores: { [AxisType.MEMORY]: 96 } }),
     );
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.MEMORY, score: 100 }],
+      axes: [{ axis: AxisType.MEMORY, score: 96, perfection: true }],
       simulation: null,
     });
 
@@ -167,6 +177,23 @@ describe('BadgesService.evaluateWithin — session completed', () => {
       BadgeId.MEMORY_PROGRESSION,
       BadgeId.MEMORY_EXCELLENCE,
       BadgeId.MEMORY_PERFECTION,
+    ]);
+  });
+
+  it('withholds the gold badge on a perfect score without the perfection proof', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ bestScores: { [AxisType.MEMORY]: 100 } }),
+    );
+
+    const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
+      mode: SessionMode.TARGETED,
+      axes: [{ axis: AxisType.MEMORY, score: 100, perfection: false }],
+      simulation: null,
+    });
+
+    expect(won.map((badge) => badge.badgeId)).toEqual([
+      BadgeId.MEMORY_PROGRESSION,
+      BadgeId.MEMORY_EXCELLENCE,
     ]);
   });
 
@@ -179,10 +206,13 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
       axes: [
-        { axis: AxisType.LOGIC, score: 80 },
-        { axis: AxisType.MEMORY, score: 75 },
+        { axis: AxisType.LOGIC, score: 80, perfection: false },
+        { axis: AxisType.MEMORY, score: 75, perfection: false },
       ],
-      simulation: { verdictFavorable: true },
+      simulation: {
+        verdictFavorable: true,
+        qualifier: SimulationStampQualifier.SOLID,
+      },
     });
 
     const solid = won.find((badge) => badge.badgeId === BadgeId.EXAM_SOLID);
@@ -218,7 +248,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.REACTIVITY, score: 71 }],
+      axes: [{ axis: AxisType.REACTIVITY, score: 71, perfection: false }],
       simulation: null,
     });
 
@@ -280,7 +310,7 @@ describe('BadgesService.evaluateWithin — outside a collection scope', () => {
 
     await service.evaluateWithin(tx, 'user-1', BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.LOGIC, score: 72 }],
+      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false }],
       simulation: null,
     });
 

@@ -251,7 +251,7 @@ describe('Profile - confidentialité', () => {
     fixture.detectChanges();
 
     expect(updateProfile).toHaveBeenCalledWith({ showInFeed: true });
-    expect(element(fixture).textContent).toContain('Mohand a décroché Déclic');
+    expect(element(fixture).textContent).toContain('Mohand a décroché Cartésien');
   });
 });
 

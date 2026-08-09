@@ -1,5 +1,6 @@
 import { AxisType, Sector, SessionMode } from '../../enums';
 import { SECTOR_AXES } from '../sector-axes';
+import { SimulationStampQualifier } from '../verdict-stamp';
 import {
   BadgeCondition,
   BadgeDefinition,
@@ -13,7 +14,6 @@ import {
 
 export const BADGE_PROGRESSION_THRESHOLD = 70;
 export const BADGE_EXCELLENCE_THRESHOLD = 85;
-export const BADGE_PERFECTION_SCORE = 100;
 export const BADGE_SECTOR_THRESHOLD = 70;
 export const BADGE_EXAM_AXIS_FLOOR = 70;
 
@@ -40,10 +40,22 @@ function bestScoreCondition(
   };
 }
 
+function perfectionCondition(axis: AxisType, label: string): BadgeCondition {
+  return {
+    id: 'perfection',
+    label,
+    met: (facts) =>
+      facts.session?.axes.some(
+        (axisFacts) => axisFacts.axis === axis && axisFacts.perfection,
+      ) ?? false,
+  };
+}
+
 function axisBadges(
   axis: AxisType,
   ids: readonly [BadgeId, BadgeId, BadgeId],
   names: readonly [string, string, string],
+  perfectionLabel: string,
 ): BadgeDefinition[] {
   const common = {
     family: BadgeFamily.AXIS,
@@ -86,13 +98,7 @@ function axisBadges(
       tier: BadgeTier.GOLD,
       displayName: names[2],
       energyReward: AXIS_GOLD_REWARD,
-      conditions: [
-        bestScoreCondition(
-          axis,
-          BADGE_PERFECTION_SCORE,
-          `Score parfait de ${BADGE_PERFECTION_SCORE}`,
-        ),
-      ],
+      conditions: [perfectionCondition(axis, perfectionLabel)],
     },
   ];
 }
@@ -105,7 +111,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.LOGIC_EXCELLENCE,
       BadgeId.LOGIC_PERFECTION,
     ],
-    ['Déclic', 'Implacable', 'Infaillible'],
+    ['Cartésien', 'Esprit affûté', 'Mentaliste'],
+    'Toutes les réponses justes, aucun timeout',
   ),
   ...axisBadges(
     AxisType.MEMORY,
@@ -114,7 +121,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MEMORY_EXCELLENCE,
       BadgeId.MEMORY_PERFECTION,
     ],
-    ['Mémoire vive', "Mémoire d'acier", 'Mémoire absolue'],
+    ['Tête bien pleine', "Mémoire d'éléphant", 'Disque dur'],
+    'Une séquence de 8 éléments restituée, ordre normal ou inversé',
   ),
   ...axisBadges(
     AxisType.VISUAL_DISCRIMINATION,
@@ -123,7 +131,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.DISCRIMINATION_EXCELLENCE,
       BadgeId.DISCRIMINATION_PERFECTION,
     ],
-    ['Bon œil', 'Œil de lynx', 'Vigie'],
+    ['Fin limier', 'Œil de lynx', 'Radar'],
+    'Zéro fausse alerte, zéro cible manquée',
   ),
   ...axisBadges(
     AxisType.REACTIVITY,
@@ -132,7 +141,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.REACTIVITY_EXCELLENCE,
       BadgeId.REACTIVITY_PERFECTION,
     ],
-    ['Bons réflexes', 'Au quart de tour', 'Sang-froid'],
+    ['Réflexe', 'Sixième sens', 'Éclair'],
+    'Zéro anticipation, zéro omission, zéro mauvaise commande',
   ),
   ...axisBadges(
     AxisType.MOTOR_SKILLS,
@@ -141,7 +151,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MOTOR_EXCELLENCE,
       BadgeId.MOTOR_PERFECTION,
     ],
-    ['Prise en main', 'Main sûre', 'Millimétré'],
+    ['Main sûre', 'Chirurgien', 'Orfèvre'],
+    'Parcours terminé sans aucune sortie de couloir',
   ),
 ];
 
@@ -153,11 +164,22 @@ function completedSimulation(facts: BadgeFacts): boolean {
   );
 }
 
+function solidFavorableVerdict(facts: BadgeFacts): boolean {
+  const simulation = facts.session?.simulation ?? null;
+  return (
+    completedSimulation(facts) &&
+    simulation !== null &&
+    simulation.verdictFavorable &&
+    (simulation.qualifier === SimulationStampQualifier.SOLID ||
+      simulation.qualifier === SimulationStampQualifier.EXCELLENT)
+  );
+}
+
 const EXAM_BADGES: BadgeDefinition[] = [
   {
     id: BadgeId.EXAM_FIRST,
     family: BadgeFamily.EXAM,
-    displayName: 'Baptême',
+    displayName: 'Aguerri',
     axis: null,
     tier: BadgeTier.BRONZE,
     energyReward: 0,
@@ -174,7 +196,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
   {
     id: BadgeId.EXAM_FAVORABLE,
     family: BadgeFamily.EXAM,
-    displayName: 'Apte',
+    displayName: 'Certifié',
     axis: null,
     tier: BadgeTier.SILVER,
     energyReward: EXAM_FAVORABLE_REWARD,
@@ -183,7 +205,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
     conditions: [
       {
         id: 'first-favorable',
-        label: 'Verdict favorable',
+        label: 'Premier examen blanc au verdict favorable',
         met: (facts) =>
           completedSimulation(facts) &&
           facts.session?.simulation?.verdictFavorable === true,
@@ -193,7 +215,7 @@ const EXAM_BADGES: BadgeDefinition[] = [
   {
     id: BadgeId.EXAM_SOLID,
     family: BadgeFamily.EXAM,
-    displayName: 'Sans réserve',
+    displayName: 'Premier de la classe',
     axis: null,
     tier: BadgeTier.GOLD,
     energyReward: EXAM_GOLD_REWARD,
@@ -201,15 +223,13 @@ const EXAM_BADGES: BadgeDefinition[] = [
     rarityDenominator: BadgeRarityDenominator.EXAM_FINISHERS,
     conditions: [
       {
-        id: 'favorable',
-        label: 'Verdict favorable',
-        met: (facts) =>
-          completedSimulation(facts) &&
-          facts.session?.simulation?.verdictFavorable === true,
+        id: 'favorable-solid',
+        label: 'Un examen blanc au verdict favorable avec qualificatif SOLIDE',
+        met: solidFavorableVerdict,
       },
       {
         id: 'no-axis-under-70',
-        label: `Aucun axe sous ${BADGE_EXAM_AXIS_FLOOR}`,
+        label: `Aucun axe sous ${BADGE_EXAM_AXIS_FLOOR} dans ce même examen`,
         met: (facts) =>
           completedSimulation(facts) &&
           (facts.session?.axes.length ?? 0) > 0 &&

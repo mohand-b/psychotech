@@ -90,7 +90,7 @@ describe('Energie', () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('+25');
     expect(text).toContain('Sur les rails');
-    expect(text).toContain('Sans réserve');
+    expect(text).toContain('Premier de la classe');
     expect(text).toContain('Premiers pas');
     expect(text).toContain('+3');
     expect(text).toContain('+2');

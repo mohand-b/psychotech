@@ -51,8 +51,10 @@ import {
   analyzeReactivity,
   avisFromScore,
   buildSimulationAppreciation,
+  buildSimulationStamp,
   buildSimulationSummary,
   computeSimulationVerdict,
+  discriminationPerfectionAchieved,
   deriveMotorSkillsMetrics,
   generateDiscriminationSession,
   generateLegacyLogicSession,
@@ -62,7 +64,11 @@ import {
   generateMemorySession,
   generateMotricityCourses,
   generateReactivitySession,
+  logicPerfectionAchieved,
+  memoryPerfectionAchieved,
   motricityCourseFinished,
+  motricityPerfectionAchieved,
+  reactivityPerfectionAchieved,
   scoreDiscriminationSession,
   scoreLegacyLogicSession,
   scoreLogicSession,
@@ -206,11 +212,14 @@ export class SessionsService {
     if (!target) {
       throw new BadRequestException('The axis is not part of this session');
     }
+    const contentContext = this.logicContentContext(session);
     const { rawResult, score } = this.scoreRawAnswers(
-      this.logicContentContext(session),
+      contentContext,
       axis,
       request,
     );
+    const excludeFromBest =
+      session.logicFamily != null || sessionUntimed(session);
     const streakContext = await this.repository.findStreakContext(userId);
     const completedAt = new Date();
     const streak = computeStreakUpdate(
@@ -225,7 +234,7 @@ export class SessionsService {
         axis,
         rawResult,
         score,
-        excludeFromBest: session.logicFamily != null || sessionUntimed(session),
+        excludeFromBest,
         controlModality: request.controlModality ?? null,
         startedAt: target.startedAt ?? session.startedAt,
         completedAt,
@@ -242,7 +251,17 @@ export class SessionsService {
           BadgeEvent.SESSION_COMPLETED,
           {
             mode: SessionMode.TARGETED,
-            axes: score ? [{ axis, score: score.normalizedScore }] : [],
+            axes: score
+              ? [
+                  {
+                    axis,
+                    score: score.normalizedScore,
+                    perfection: excludeFromBest
+                      ? false
+                      : this.axisPerfectionFrom(contentContext, rawResult),
+                  },
+                ]
+              : [],
             simulation: null,
           },
           sessionId,
@@ -359,6 +378,54 @@ export class SessionsService {
                 (rawResult as ReactivityRawResultDto).waitPresses,
               );
     return { rawResult, score };
+  }
+
+  private axisPerfectionFrom(
+    context: LogicContentContext,
+    rawResult: AxisRawResultDto,
+  ): boolean {
+    if (rawResult.axis === AxisType.LOGIC) {
+      const scored =
+        context.contentVersion >= LOGIC_CONTENT_VERSION_V2
+          ? scoreLogicSession(
+              generateLogicSession(
+                context.seed,
+                context.logicFamily,
+                context.contentVersion,
+              ),
+              rawResult.items,
+            )
+          : scoreLegacyLogicSession(
+              generateLegacyLogicSession(context.seed),
+              rawResult.items,
+            );
+      return logicPerfectionAchieved(scored);
+    }
+    if (rawResult.axis === AxisType.MEMORY) {
+      const sequences = generateMemorySession(context.seed);
+      return memoryPerfectionAchieved(
+        sequences,
+        scoreMemorySession(sequences, rawResult.sequences),
+      );
+    }
+    if (rawResult.axis === AxisType.VISUAL_DISCRIMINATION) {
+      return discriminationPerfectionAchieved(
+        scoreDiscriminationSession(
+          generateDiscriminationSession(context.seed),
+          rawResult.trials,
+        ),
+      );
+    }
+    if (rawResult.axis === AxisType.REACTIVITY) {
+      return reactivityPerfectionAchieved(
+        scoreReactivitySession(
+          generateReactivitySession(context.seed),
+          rawResult.stimuli,
+          rawResult.waitPresses,
+        ),
+      );
+    }
+    return motricityPerfectionAchieved(rawResult.courses);
   }
 
   private scoreLogicAnswers(
@@ -601,8 +668,11 @@ export class SessionsService {
     const weightByAxis = new Map(
       config.weights.map((weight) => [weight.axis, weight]),
     );
+    const contentContext = this.logicContentContext(session);
+    const untimed = sessionUntimed(session);
     const scores: AxisScore[] = [];
     const axisBests: AxisBestInput[] = [];
+    const perfectionByAxis = new Map<AxisType, boolean>();
     for (const result of session.axisResults) {
       if (result.skipped) {
         continue;
@@ -629,6 +699,15 @@ export class SessionsService {
         band: mapEnumValue(ScoreBand, band),
         sessionAxisId: result.id,
       });
+      perfectionByAxis.set(
+        axis,
+        !untimed &&
+          result.metrics !== null &&
+          this.axisPerfectionFrom(
+            contentContext,
+            result.metrics as unknown as AxisRawResultDto,
+          ),
+      );
     }
     const evaluation = this.scoringService.evaluateSession(scores, thresholds);
     const streakContext = await this.repository.findStreakContext(userId);
@@ -666,8 +745,16 @@ export class SessionsService {
             axes: axisBests.map((best) => ({
               axis: best.axis,
               score: best.score,
+              perfection: perfectionByAxis.get(best.axis) ?? false,
             })),
-            simulation: { verdictFavorable: evaluation.isAdmissible },
+            simulation: {
+              verdictFavorable: evaluation.isAdmissible,
+              qualifier: buildSimulationStamp(
+                evaluation.globalScore,
+                session.sectorThreshold,
+                evaluation.isEliminated,
+              ).qualifier,
+            },
           },
           sessionId,
         ),

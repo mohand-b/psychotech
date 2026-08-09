@@ -87,7 +87,8 @@ describe('BadgesPage', () => {
     expect(text).toContain('Examen blanc');
     expect(text).toContain('Transverses');
     expect(text).toContain('Meilleur score ≥ 70');
-    expect(text).toContain('Score parfait de 100');
+    expect(text).toContain('Toutes les réponses justes, aucun timeout');
+    expect(text).toContain('Parcours terminé sans aucune sortie de couloir');
     expect(text).toContain('Terminer un premier examen blanc');
     expect(text).toContain('0');
     expect(text).toContain('sur 20 badges');
@@ -200,7 +201,7 @@ describe('BadgesPage', () => {
       ],
     });
     const closest = fixture.nativeElement.querySelector('.badges__closest');
-    expect(closest.textContent).toContain('Mémoire vive');
+    expect(closest.textContent).toContain('Tête bien pleine');
     expect(closest.textContent).toContain(
       'Votre meilleur score 65 · plus que 5 points',
     );

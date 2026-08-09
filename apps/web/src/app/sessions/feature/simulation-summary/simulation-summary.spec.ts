@@ -523,7 +523,7 @@ describe('SimulationSummary', () => {
     const { fixture } = await setup(buildSummary({ earnedBadges }));
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card).not.toBeNull();
-    expect(card.textContent).toContain('Apte rejoint votre collection');
+    expect(card.textContent).toContain('Certifié rejoint votre collection');
     expect(card.textContent).toContain('+2');
     expect(card.textContent).toContain('crédits ajoutés à votre solde');
   });

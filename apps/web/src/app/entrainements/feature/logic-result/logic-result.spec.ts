@@ -321,7 +321,7 @@ describe('LogicResult - badges débloqués', () => {
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card).not.toBeNull();
     expect(card.textContent).toContain(
-      'Déclic et Premiers pas rejoignent votre collection',
+      'Cartésien et Premiers pas rejoignent votre collection',
     );
     expect(card.textContent).toContain('+5');
     expect(card.textContent).toContain('crédits ajoutés à votre solde');
@@ -335,7 +335,7 @@ describe('LogicResult - badges débloqués', () => {
       }),
     );
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
-    expect(card.textContent).toContain('Déclic rejoint votre collection');
+    expect(card.textContent).toContain('Cartésien rejoint votre collection');
     expect(card.textContent).toContain("Badge d'axe · Logique · Bronze");
   });
 

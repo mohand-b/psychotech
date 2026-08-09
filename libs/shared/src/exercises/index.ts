@@ -1,5 +1,6 @@
 export * from './rng';
 export * from './axis-findings';
+export * from './axis-perfection';
 export * from './logic';
 export * from './matrix';
 export * from './domino';

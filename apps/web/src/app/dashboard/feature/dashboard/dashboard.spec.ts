@@ -475,8 +475,8 @@ describe('Dashboard - fil des obtentions', () => {
     const banner = fixture.nativeElement.querySelector('.feed');
     expect(banner).not.toBeNull();
     expect(banner?.textContent).toContain('En ce moment');
-    expect(banner?.textContent).toContain('Léa a décroché Sang-froid');
-    expect(banner?.textContent).toContain('Un candidat a décroché Apte');
+    expect(banner?.textContent).toContain('Léa a décroché Éclair');
+    expect(banner?.textContent).toContain('Un candidat a décroché Certifié');
     expect(banner?.textContent).toContain('il y a');
     const arts = banner?.querySelectorAll('.feed__art');
     expect(arts?.length).toBe(4);

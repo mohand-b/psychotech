@@ -9,7 +9,7 @@ import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { BadgesApi } from '../../data-access/badges.api';
 import { BadgeCelebration } from './badge-celebration';
 
-const BAPTEME: EarnedBadgeDto = {
+const AGUERRI: EarnedBadgeDto = {
   badgeId: BadgeId.EXAM_FIRST,
   earnedAt: '2026-08-07T10:00:00.000Z',
   gain: null,
@@ -23,14 +23,14 @@ const BAPTEME: EarnedBadgeDto = {
   ],
 };
 
-const APTE: EarnedBadgeDto = {
+const CERTIFIE: EarnedBadgeDto = {
   badgeId: BadgeId.EXAM_FAVORABLE,
   earnedAt: '2026-08-07T10:00:01.000Z',
   gain: 2,
   conditions: [
     {
-      id: 'favorable',
-      label: 'Verdict favorable',
+      id: 'first-favorable',
+      label: 'Premier examen blanc au verdict favorable',
       met: true,
       justValidated: true,
     },
@@ -69,23 +69,23 @@ function cardOf(fixture: { nativeElement: HTMLElement }): HTMLElement | null {
 
 describe('BadgeCelebration', () => {
   it('celebrates a reconciled unacknowledged badge at shell load', async () => {
-    const { fixture } = await setup([APTE]);
+    const { fixture } = await setup([CERTIFIE]);
     fixture.detectChanges();
     const card = cardOf(fixture);
     expect(card).not.toBeNull();
-    expect(card?.textContent).toContain('Apte');
+    expect(card?.textContent).toContain('Certifié');
     expect(card?.textContent).toContain('+2');
     expect(card?.textContent).toContain('ajoutés à votre solde');
   });
 
   it('chains two badges on the advance event and acknowledges each one', async () => {
     const { fixture, store, acknowledge } = await setup();
-    store.enqueue([BAPTEME, APTE]);
+    store.enqueue([AGUERRI, CERTIFIE]);
     fixture.detectChanges();
 
     let card = cardOf(fixture);
     expect(card?.textContent).toContain('Badge 1 sur 2');
-    expect(card?.textContent).toContain('Baptême');
+    expect(card?.textContent).toContain('Aguerri');
     expect(card?.textContent).toContain('Badge suivant');
 
     card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
@@ -95,7 +95,7 @@ describe('BadgeCelebration', () => {
 
     card = cardOf(fixture);
     expect(card?.textContent).toContain('Badge 2 sur 2');
-    expect(card?.textContent).toContain('Apte');
+    expect(card?.textContent).toContain('Certifié');
     expect(card?.textContent).toContain('Continuer');
     expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
 
@@ -108,7 +108,7 @@ describe('BadgeCelebration', () => {
 
   it('shows the struck condition and no gain line for a badge without credits', async () => {
     const { fixture, store } = await setup();
-    store.enqueue([BAPTEME]);
+    store.enqueue([AGUERRI]);
     fixture.detectChanges();
 
     const card = cardOf(fixture);
@@ -119,7 +119,7 @@ describe('BadgeCelebration', () => {
 
   it('acknowledges every queued badge when closed from the overlay', async () => {
     const { fixture, store, acknowledge } = await setup();
-    store.enqueue([BAPTEME, APTE]);
+    store.enqueue([AGUERRI, CERTIFIE]);
     fixture.detectChanges();
 
     (fixture.nativeElement as HTMLElement)

@@ -11,7 +11,9 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
+  BADGE_BY_ID,
   BADGE_CATALOG,
+  BadgeId,
   BadgeStatusDto,
   DELETE_ACCOUNT_CONFIRMATION,
   ENERGY_PACK_BY_ID,
@@ -413,6 +415,9 @@ export class Profile {
   protected readonly previewWho = computed(() =>
     this.showInFeed() ? (this.user()?.firstName ?? '') : 'Un candidat',
   );
+
+  protected readonly previewBadgeName =
+    BADGE_BY_ID.get(BadgeId.LOGIC_PROGRESSION)?.displayName ?? '';
 
   protected readonly receipts = computed<ReceiptView[] | null>(() => {
     const purchases = this.purchasesResource.value();
