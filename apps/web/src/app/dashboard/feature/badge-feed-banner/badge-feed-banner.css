@@ -129,22 +129,9 @@
     padding-right: 18px;
   }
 
-  .feed__viewport {
-    overflow-x: auto;
-  }
-
-  .feed__track {
-    animation: none;
-  }
-
   .feed__entry {
     gap: 7px;
     padding-right: 28px;
-  }
-
-  .feed__entry--echo,
-  .feed__fade {
-    display: none;
   }
 
   .feed__text {
