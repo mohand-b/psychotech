@@ -88,7 +88,8 @@ describe('BadgesPage', () => {
     expect(text).toContain('Transverses');
     expect(text).toContain('Meilleur score ≥ 70');
     expect(text).toContain('Toutes les réponses correctes');
-    expect(text).toContain('Parcours terminé sans aucune sortie de couloir');
+    expect(text).toContain('Aucune sortie de couloir');
+    expect(text).toContain('Aucun contact avec les bords');
     expect(text).toContain('Score ≥ 95');
     expect(text).toContain('Avis favorable');
     expect(text).toContain('Dans le même examen :');

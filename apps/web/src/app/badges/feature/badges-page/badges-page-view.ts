@@ -210,10 +210,12 @@ const SESSION_EFFORT_POINTS = 10;
 const ACTION_EFFORT_POINTS = 4;
 const MIN_EFFORT_POINTS = 1;
 
-const TIER_SCORE_TARGETS: Partial<Record<BadgeTier, number>> = {
-  [BadgeTier.BRONZE]: BADGE_PROGRESSION_THRESHOLD,
-  [BadgeTier.SILVER]: BADGE_EXCELLENCE_THRESHOLD,
-};
+function axisScoreTarget(definition: BadgeDefinition): number | undefined {
+  const condition = definition.conditions.find((entry) =>
+    entry.id.startsWith('best-'),
+  );
+  return condition ? Number(condition.id.slice('best-'.length)) : undefined;
+}
 
 const EXAM_SCORE_TARGETS: Partial<Record<BadgeId, number>> = {
   [BadgeId.EXAM_FIRST]: EXAM_PROGRESSION_THRESHOLD,
@@ -260,7 +262,7 @@ function effortOf(
 ): number {
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
-    const target = TIER_SCORE_TARGETS[definition.tier ?? BadgeTier.BRONZE];
+    const target = axisScoreTarget(definition);
     if (target === undefined) {
       return (
         SESSION_EFFORT_POINTS +
@@ -302,7 +304,7 @@ function closestProgress(
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
     const best = outlook.bestScores[definition.axis];
-    const target = TIER_SCORE_TARGETS[definition.tier ?? BadgeTier.BRONZE];
+    const target = axisScoreTarget(definition);
     if (target === undefined || best === undefined || best >= target) {
       return null;
     }
