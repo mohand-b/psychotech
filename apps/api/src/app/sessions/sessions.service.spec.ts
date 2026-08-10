@@ -2087,7 +2087,9 @@ describe('SessionsService.complete', () => {
       BadgeEvent.SESSION_COMPLETED,
       {
         mode: SessionMode.FULL,
-        axes: [{ axis: AxisType.LOGIC, score: 75, perfection: false }],
+        axes: [
+          { axis: AxisType.LOGIC, score: 75, perfection: false, exitFree: false },
+        ],
         simulation: { globalScore: 75, verdictFavorable: true },
       },
       sessionId,

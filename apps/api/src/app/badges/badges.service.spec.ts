@@ -76,7 +76,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false }],
+      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false, exitFree: false }],
       simulation: null,
     });
 
@@ -101,7 +101,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false, exitFree: false }],
       simulation: { globalScore: 86, verdictFavorable: true },
     });
 
@@ -129,7 +129,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false, exitFree: false }],
       simulation: { globalScore: 86, verdictFavorable: true },
     });
 
@@ -144,7 +144,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
-      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false }],
+      axes: [{ axis: AxisType.LOGIC, score: 60, perfection: false, exitFree: false }],
       simulation: { globalScore: 86, verdictFavorable: true },
     });
 
@@ -159,7 +159,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.MEMORY, score: 96, perfection: true }],
+      axes: [{ axis: AxisType.MEMORY, score: 96, perfection: true, exitFree: false }],
       simulation: null,
     });
 
@@ -177,7 +177,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.MEMORY, score: 100, perfection: false }],
+      axes: [{ axis: AxisType.MEMORY, score: 100, perfection: false, exitFree: false }],
       simulation: null,
     });
 
@@ -196,8 +196,8 @@ describe('BadgesService.evaluateWithin — session completed', () => {
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.FULL,
       axes: [
-        { axis: AxisType.LOGIC, score: 80, perfection: false },
-        { axis: AxisType.MEMORY, score: 75, perfection: false },
+        { axis: AxisType.LOGIC, score: 80, perfection: false, exitFree: false },
+        { axis: AxisType.MEMORY, score: 75, perfection: false, exitFree: false },
       ],
       simulation: { globalScore: 96, verdictFavorable: true },
     });
@@ -235,7 +235,7 @@ describe('BadgesService.evaluateWithin — session completed', () => {
 
     const won = await evaluateCollecting(BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.REACTIVITY, score: 71, perfection: false }],
+      axes: [{ axis: AxisType.REACTIVITY, score: 71, perfection: false, exitFree: false }],
       simulation: null,
     });
 
@@ -297,7 +297,7 @@ describe('BadgesService.evaluateWithin — outside a collection scope', () => {
 
     await service.evaluateWithin(tx, 'user-1', BadgeEvent.SESSION_COMPLETED, {
       mode: SessionMode.TARGETED,
-      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false }],
+      axes: [{ axis: AxisType.LOGIC, score: 72, perfection: false, exitFree: false }],
       simulation: null,
     });
 

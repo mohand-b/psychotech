@@ -64,6 +64,7 @@ import {
   logicPerfectionAchieved,
   memoryPerfectionAchieved,
   motricityCourseFinished,
+  motricityExitFreeAchieved,
   motricityPerfectionAchieved,
   reactivityPerfectionAchieved,
   scoreDiscriminationSession,
@@ -106,6 +107,13 @@ interface LogicContentContext {
   contentVersion: number;
   logicFamily: LogicFamilyFilter | null;
 }
+
+interface AxisProofFacts {
+  perfection: boolean;
+  exitFree: boolean;
+}
+
+const NO_AXIS_PROOFS: AxisProofFacts = { perfection: false, exitFree: false };
 
 @Injectable()
 export class SessionsService {
@@ -250,9 +258,9 @@ export class SessionsService {
                   {
                     axis,
                     score: score.normalizedScore,
-                    perfection: excludeFromBest
-                      ? false
-                      : this.axisPerfectionFrom(contentContext, rawResult),
+                    ...(excludeFromBest
+                      ? NO_AXIS_PROOFS
+                      : this.axisProofsFrom(contentContext, rawResult)),
                   },
                 ]
               : [],
@@ -365,10 +373,10 @@ export class SessionsService {
     return { rawResult, score };
   }
 
-  private axisPerfectionFrom(
+  private axisProofsFrom(
     context: LogicContentContext,
     rawResult: AxisRawResultDto,
-  ): boolean {
+  ): AxisProofFacts {
     if (rawResult.axis === AxisType.LOGIC) {
       const scored =
         context.contentVersion >= LOGIC_CONTENT_VERSION_V2
@@ -384,33 +392,45 @@ export class SessionsService {
               generateLegacyLogicSession(context.seed),
               rawResult.items,
             );
-      return logicPerfectionAchieved(scored);
+      return { perfection: logicPerfectionAchieved(scored), exitFree: false };
     }
     if (rawResult.axis === AxisType.MEMORY) {
       const sequences = generateMemorySession(context.seed);
-      return memoryPerfectionAchieved(
-        sequences,
-        scoreMemorySession(sequences, rawResult.sequences),
-      );
+      return {
+        perfection: memoryPerfectionAchieved(
+          sequences,
+          scoreMemorySession(sequences, rawResult.sequences),
+        ),
+        exitFree: false,
+      };
     }
     if (rawResult.axis === AxisType.VISUAL_DISCRIMINATION) {
-      return discriminationPerfectionAchieved(
-        scoreDiscriminationSession(
-          generateDiscriminationSession(context.seed),
-          rawResult.trials,
+      return {
+        perfection: discriminationPerfectionAchieved(
+          scoreDiscriminationSession(
+            generateDiscriminationSession(context.seed),
+            rawResult.trials,
+          ),
         ),
-      );
+        exitFree: false,
+      };
     }
     if (rawResult.axis === AxisType.REACTIVITY) {
-      return reactivityPerfectionAchieved(
-        scoreReactivitySession(
-          generateReactivitySession(context.seed),
-          rawResult.stimuli,
-          rawResult.waitPresses,
+      return {
+        perfection: reactivityPerfectionAchieved(
+          scoreReactivitySession(
+            generateReactivitySession(context.seed),
+            rawResult.stimuli,
+            rawResult.waitPresses,
+          ),
         ),
-      );
+        exitFree: false,
+      };
     }
-    return motricityPerfectionAchieved(rawResult.courses);
+    return {
+      perfection: motricityPerfectionAchieved(rawResult.courses),
+      exitFree: motricityExitFreeAchieved(rawResult.courses),
+    };
   }
 
   private scoreLogicAnswers(
@@ -657,7 +677,7 @@ export class SessionsService {
     const untimed = sessionUntimed(session);
     const scores: AxisScore[] = [];
     const axisBests: AxisBestInput[] = [];
-    const perfectionByAxis = new Map<AxisType, boolean>();
+    const proofsByAxis = new Map<AxisType, AxisProofFacts>();
     for (const result of session.axisResults) {
       if (result.skipped) {
         continue;
@@ -684,14 +704,14 @@ export class SessionsService {
         band: mapEnumValue(ScoreBand, band),
         sessionAxisId: result.id,
       });
-      perfectionByAxis.set(
+      proofsByAxis.set(
         axis,
-        !untimed &&
-          result.metrics !== null &&
-          this.axisPerfectionFrom(
-            contentContext,
-            result.metrics as unknown as AxisRawResultDto,
-          ),
+        untimed || result.metrics === null
+          ? NO_AXIS_PROOFS
+          : this.axisProofsFrom(
+              contentContext,
+              result.metrics as unknown as AxisRawResultDto,
+            ),
       );
     }
     const evaluation = this.scoringService.evaluateSession(scores, thresholds);
@@ -730,7 +750,7 @@ export class SessionsService {
             axes: axisBests.map((best) => ({
               axis: best.axis,
               score: best.score,
-              perfection: perfectionByAxis.get(best.axis) ?? false,
+              ...(proofsByAxis.get(best.axis) ?? NO_AXIS_PROOFS),
             })),
             simulation: {
               globalScore: evaluation.globalScore,
