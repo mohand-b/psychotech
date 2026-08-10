@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LEGAL_LAST_UPDATED } from '@psychotech/shared';
@@ -20,8 +19,6 @@ import { LegalDocumentView } from '../../ui/legal-document/legal-document';
 })
 export class LegalPage {
   private readonly route = inject(ActivatedRoute);
-  private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
 
   private readonly routeData = toSignal(this.route.data, {
     initialValue: this.route.snapshot.data,
@@ -37,14 +34,4 @@ export class LegalPage {
   protected readonly showTodoNotice = computed(() =>
     legalDocumentHasTodo(this.document()),
   );
-
-  constructor() {
-    const document = this.document();
-    this.title.setTitle(`${document.title} · PsychoTech`);
-    this.meta.updateTag({
-      name: 'description',
-      content: document.metaDescription,
-    });
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
-  }
 }
