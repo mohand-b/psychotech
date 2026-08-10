@@ -13,9 +13,10 @@ import { Check, CircleAlert } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AuthFacade } from '../../data-access/auth.facade';
+import { isTechnicalHttpError } from '../../data-access/technical-error';
 import { ResendVerificationState } from '../resend-verification-state';
 
-type VerificationViewState = 'PENDING' | EmailVerificationOutcome;
+type VerificationViewState = 'PENDING' | 'ERROR' | EmailVerificationOutcome;
 
 const VIEW_TITLES: Record<VerificationViewState, string> = {
   PENDING: 'Vérification en cours',
@@ -23,6 +24,7 @@ const VIEW_TITLES: Record<VerificationViewState, string> = {
   ALREADY_VERIFIED: 'Adresse déjà vérifiée',
   EXPIRED: 'Lien expiré',
   INVALID: 'Lien invalide',
+  ERROR: 'Vérification impossible',
 };
 
 @Component({
@@ -66,7 +68,8 @@ export class Verification {
             this.refreshConnectedAccount();
           }
         },
-        error: () => this.state.set('INVALID'),
+        error: (error: unknown) =>
+          this.state.set(isTechnicalHttpError(error) ? 'ERROR' : 'INVALID'),
       });
   }
 
@@ -103,6 +106,8 @@ export class Verification {
           : "Ce lien n'est plus valable. Connectez-vous pour renvoyer un email de vérification.";
       case 'INVALID':
         return "Ce lien de vérification n'est pas reconnu. Ouvrez le lien reçu par email.";
+      case 'ERROR':
+        return 'Un problème technique a interrompu la vérification. Votre lien reste valable : réessayez dans un instant.';
     }
   }
 }

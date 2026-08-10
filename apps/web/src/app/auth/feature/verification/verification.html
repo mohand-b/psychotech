@@ -8,7 +8,9 @@
         <ui-icon [img]="checkIcon" [size]="30" [strokeWidth]="2.4" />
       </span>
     </span>
-  } @else if (state() === 'EXPIRED' || state() === 'INVALID') {
+  } @else if (
+    state() === 'EXPIRED' || state() === 'INVALID' || state() === 'ERROR'
+  ) {
     <span class="authcard__icon-slot">
       <span class="authcard__icon authcard__icon--warn">
         <ui-icon [img]="alertIcon" [size]="30" [strokeWidth]="2" />

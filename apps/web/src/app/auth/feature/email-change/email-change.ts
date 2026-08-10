@@ -10,9 +10,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmailChangeOutcome } from '@psychotech/shared';
 import { AuthFacade } from '../../data-access/auth.facade';
+import { isTechnicalHttpError } from '../../data-access/technical-error';
 import { Button } from '../../../shared/ui/button/button';
 
-type ViewState = EmailChangeOutcome | 'PENDING' | 'MISSING';
+type ViewState = EmailChangeOutcome | 'PENDING' | 'MISSING' | 'ERROR';
 
 const TITLES: Record<ViewState, string> = {
   PENDING: 'Vérification en cours…',
@@ -21,6 +22,7 @@ const TITLES: Record<ViewState, string> = {
   ALREADY_USED: 'Lien déjà utilisé',
   EXPIRED: 'Lien expiré',
   INVALID: 'Lien invalide',
+  ERROR: 'Vérification impossible',
 };
 
 const SUBTITLES: Record<ViewState, string> = {
@@ -34,6 +36,8 @@ const SUBTITLES: Record<ViewState, string> = {
     'Ce lien a dépassé sa durée de validité de 24 heures. Redemandez un changement depuis votre profil.',
   INVALID:
     "Ce lien n'est pas reconnu. Redemandez un changement d'adresse depuis votre profil.",
+  ERROR:
+    'Un problème technique a interrompu la vérification. Votre lien reste valable : réessayez dans un instant.',
 };
 
 @Component({
@@ -106,7 +110,8 @@ export class EmailChange {
               .subscribe({ error: () => undefined });
           }
         },
-        error: () => this.state.set('INVALID'),
+        error: (error: unknown) =>
+          this.state.set(isTechnicalHttpError(error) ? 'ERROR' : 'INVALID'),
       });
   }
 

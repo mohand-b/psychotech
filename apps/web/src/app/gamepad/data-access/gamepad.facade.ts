@@ -30,6 +30,7 @@ import { GamepadTransport } from './gamepad-transport';
 import { GamepadApi } from './gamepad.api';
 
 const RTT_WINDOW_SIZE = 10;
+const GAMEPAD_PING_STALE_MS = 2 * GAMEPAD_PING_INTERVAL_MS;
 
 @Injectable({ providedIn: 'root' })
 export class GamepadFacade {
@@ -204,6 +205,12 @@ export class GamepadFacade {
       return;
     }
     this.pingTimerId = window.setInterval(() => {
+      const staleBefore = performance.now() - GAMEPAD_PING_STALE_MS;
+      for (const [id, sentAt] of this.pendingPings) {
+        if (sentAt < staleBefore) {
+          this.pendingPings.delete(id);
+        }
+      }
       this.pingCounter += 1;
       this.pendingPings.set(this.pingCounter, performance.now());
       this.transport?.send({
@@ -219,6 +226,7 @@ export class GamepadFacade {
       window.clearInterval(this.pingTimerId);
       this.pingTimerId = null;
     }
+    this.pendingPings.clear();
   }
 
   private armExpiryTimer(pairing: GamepadPairingDto): void {

@@ -100,7 +100,7 @@ export class AuthFacade {
   deleteAccount(payload: DeleteAccountDto): Observable<void> {
     return this.api
       .deleteAccount(payload)
-      .pipe(finalize(() => this.store.setCurrentUser(null)));
+      .pipe(tap(() => this.store.setCurrentUser(null)));
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {

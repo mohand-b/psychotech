@@ -21,6 +21,7 @@ export class BadgeCelebrationFacade {
   private readonly router = inject(Router);
 
   private readonly acknowledgedIds = new Set<BadgeId>();
+  private readonly failedAcks = new Set<BadgeId>();
 
   readonly current: Signal<EarnedBadgeDto | null> = this.store.current;
   readonly phase: Signal<BadgeCelebrationPhase> = this.store.phase;
@@ -44,6 +45,7 @@ export class BadgeCelebrationFacade {
   }
 
   reconcileUnacknowledged(): void {
+    this.retryFailedAcks();
     this.api.unacknowledged().subscribe({
       next: (badges) =>
         this.store.enqueue(
@@ -89,9 +91,22 @@ export class BadgeCelebrationFacade {
       return;
     }
     this.acknowledgedIds.add(badge.badgeId);
-    this.api.acknowledge(badge.badgeId).subscribe({ error: () => undefined });
+    this.sendAcknowledge(badge.badgeId);
     if ((badge.gain ?? 0) > 0) {
       this.energyFacade.load().subscribe({ error: () => undefined });
+    }
+  }
+
+  private sendAcknowledge(badgeId: BadgeId): void {
+    this.api.acknowledge(badgeId).subscribe({
+      next: () => this.failedAcks.delete(badgeId),
+      error: () => this.failedAcks.add(badgeId),
+    });
+  }
+
+  private retryFailedAcks(): void {
+    for (const badgeId of this.failedAcks) {
+      this.sendAcknowledge(badgeId);
     }
   }
 }
