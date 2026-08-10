@@ -490,8 +490,18 @@
   padding: 18px 24px;
 }
 
+.profil__credits-stack {
+  gap: 2px;
+  min-width: 0;
+}
+
 .profil__credits-line {
   gap: 7px;
+}
+
+.profil__credits-exp {
+  font: 400 11.5px/1.4 var(--font-ui);
+  color: var(--label);
 }
 
 .profil__credits-value {
@@ -823,8 +833,28 @@
   .profil__sector,
   .profil__privacy,
   .profil__credits {
+    padding: 0 16px 2px;
+  }
+
+  .profil__credits-value {
+    font-size: 24px;
+  }
+
+  .profil__credits-cta {
+    display: none;
+  }
+
+  .profil__credits-recharge {
+    padding: 14px 16px 18px;
+  }
+
+  .profil__receipts-head {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .profil__receipts-note {
+    display: none;
   }
 
   .profil__preview {
@@ -838,30 +868,36 @@
   }
 
   .profil__receipt {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
-      'label price'
-      'date link';
-    gap: 4px 12px;
-    padding: 10px 16px;
+      'label price link'
+      'date price link';
+    gap: 2px 12px;
+    min-height: 56px;
+    padding: 8px 16px;
   }
 
   .profil__receipt-date {
     grid-area: date;
     font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text-disabled);
   }
 
   .profil__receipt-label {
     grid-area: label;
+    font-weight: 600;
   }
 
   .profil__receipt-price {
     grid-area: price;
+    align-self: center;
   }
 
   .profil__receipt-link,
   .profil__receipt-link--off {
     grid-area: link;
+    align-self: center;
     justify-self: end;
   }
 }

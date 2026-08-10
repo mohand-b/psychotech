@@ -416,6 +416,10 @@ export class Profile {
       : !this.canSave(),
   );
 
+  protected readonly mobileCancelDisabled = computed(() =>
+    this.section() === 'security' ? !this.securityDirty() : !this.dirty(),
+  );
+
   protected mobileCancel(): void {
     if (this.section() === 'security') {
       this.cancelSecurity();
