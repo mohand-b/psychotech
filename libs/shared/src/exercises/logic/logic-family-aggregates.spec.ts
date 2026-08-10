@@ -74,7 +74,7 @@ describe('computeLogicFamilyAggregates', () => {
     expect(numeric.total).toBe(10);
     expect(numeric.attempted).toBe(4);
     expect(numeric.correct).toBe(4);
-    expect(numeric.ratePct).toBe(100);
+    expect(numeric.ratePct).toBe(40);
     expect(numeric.timeMs).toBe(20000);
     const domino = aggregates[1];
     expect(domino.attempted).toBe(10);
@@ -112,7 +112,7 @@ describe('computeLogicFamilyAggregates', () => {
     ).toHaveLength(2);
   });
 
-  it('départage deux familles à taux égal par le nombre de justes', () => {
+  it('compte les passés contre la famille et retire la force au demi-plein', () => {
     const answers = items.map((item, index) => {
       if (item.family === LogicFamily.NUMERIC) {
         return answerFor(item, index, index < 5 ? 'correct' : 'skipped');
@@ -129,10 +129,43 @@ describe('computeLogicFamilyAggregates', () => {
     const domino = aggregates.find(
       (entry) => entry.family === LogicFamily.DOMINO,
     );
-    expect(numeric?.ratePct).toBe(100);
+    expect(numeric?.ratePct).toBe(50);
     expect(domino?.ratePct).toBe(100);
     expect(domino?.marker).toBe('STRENGTH');
     expect(numeric?.marker).toBeNull();
+  });
+
+  it('applique les ratios actés : 6 justes + 4 passés font 60, 9 justes + 1 erreur font 90', () => {
+    const seenByFamily = new Map<LogicFamily, number>();
+    const answers = items.map((item, index) => {
+      const position = seenByFamily.get(item.family) ?? 0;
+      seenByFamily.set(item.family, position + 1);
+      if (item.family === LogicFamily.DOMINO) {
+        return answerFor(item, index, position < 6 ? 'correct' : 'skipped');
+      }
+      if (item.family === LogicFamily.NUMERIC) {
+        return answerFor(item, index, position < 9 ? 'correct' : 'wrong');
+      }
+      return answerFor(item, index, 'correct');
+    });
+    const aggregates = computeLogicFamilyAggregates(items, answers, null);
+    const byFamily = new Map(aggregates.map((entry) => [entry.family, entry]));
+    expect(byFamily.get(LogicFamily.DOMINO)?.correct).toBe(6);
+    expect(byFamily.get(LogicFamily.DOMINO)?.ratePct).toBe(60);
+    expect(byFamily.get(LogicFamily.NUMERIC)?.ratePct).toBe(90);
+  });
+
+  it('compte les items jamais atteints contre leur famille', () => {
+    const answers = items
+      .filter((item) => item.family !== LogicFamily.MATRIX_II)
+      .map((item) => answerFor(item, item.index, 'correct'));
+    const aggregates = computeLogicFamilyAggregates(items, answers, null);
+    const matrixDeduction = aggregates.find(
+      (entry) => entry.family === LogicFamily.MATRIX_II,
+    );
+    expect(matrixDeduction?.total).toBe(10);
+    expect(matrixDeduction?.correct).toBe(0);
+    expect(matrixDeduction?.ratePct).toBe(0);
   });
 
   it('réserve la force aux taux de 80 au moins et marque toute famille sous 30', () => {
@@ -173,7 +206,7 @@ describe('computeLogicFamilyAggregates', () => {
       LOGIC_CONTENT_VERSION_V3,
     );
     const answers = filtered.map((item, index) =>
-      answerFor(item, index, index % 2 === 0 ? 'correct' : 'wrong'),
+      answerFor(item, index, index % 2 === 0 ? 'correct' : 'skipped'),
     );
     const aggregates = computeLogicFamilyAggregates(
       filtered,
@@ -182,6 +215,7 @@ describe('computeLogicFamilyAggregates', () => {
     );
     expect(aggregates).toHaveLength(1);
     expect(aggregates[0].total).toBe(40);
+    expect(aggregates[0].ratePct).toBe(50);
     expect(aggregates[0].marker).toBeNull();
   });
 

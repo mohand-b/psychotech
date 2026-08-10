@@ -130,9 +130,7 @@ export function computeLogicFamilyAggregates(
   const aggregates = [...byFamily.values()].map((entry) => ({
     ...entry,
     ratePct:
-      entry.attempted === 0
-        ? 0
-        : Math.round((entry.correct / entry.attempted) * 100),
+      entry.total === 0 ? 0 : Math.round((entry.correct / entry.total) * 100),
   }));
   if (familyFilter !== null || aggregates.length < 2) {
     return aggregates;
