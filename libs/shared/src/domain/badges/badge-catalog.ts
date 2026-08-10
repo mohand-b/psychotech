@@ -52,11 +52,23 @@ function perfectionCondition(axis: AxisType, label: string): BadgeCondition {
   };
 }
 
+function exitFreeCondition(axis: AxisType, label: string): BadgeCondition {
+  return {
+    id: 'exit-free',
+    label,
+    met: (facts) =>
+      facts.session?.axes.some(
+        (axisFacts) => axisFacts.axis === axis && axisFacts.exitFree,
+      ) ?? false,
+  };
+}
+
 function axisBadges(
   axis: AxisType,
   ids: readonly [BadgeId, BadgeId, BadgeId],
   names: readonly [string, string, string],
   perfectionLabel: string,
+  silverCondition?: BadgeCondition,
 ): BadgeDefinition[] {
   const common = {
     family: BadgeFamily.AXIS,
@@ -86,11 +98,12 @@ function axisBadges(
       displayName: names[1],
       energyReward: AXIS_SILVER_REWARD,
       conditions: [
-        bestScoreCondition(
-          axis,
-          BADGE_EXCELLENCE_THRESHOLD,
-          `Meilleur score ≥ ${BADGE_EXCELLENCE_THRESHOLD}`,
-        ),
+        silverCondition ??
+          bestScoreCondition(
+            axis,
+            BADGE_EXCELLENCE_THRESHOLD,
+            `Meilleur score ≥ ${BADGE_EXCELLENCE_THRESHOLD}`,
+          ),
       ],
     },
     {
@@ -153,7 +166,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MOTOR_PERFECTION,
     ],
     ['Main sûre', 'Chirurgien', 'Orfèvre'],
-    'Parcours terminé sans aucune sortie de couloir',
+    'Aucun contact avec les bords',
+    exitFreeCondition(AxisType.MOTOR_SKILLS, 'Aucune sortie de couloir'),
   ),
 ];
 

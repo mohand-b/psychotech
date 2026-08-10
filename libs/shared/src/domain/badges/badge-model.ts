@@ -58,6 +58,7 @@ export interface BadgeSessionAxisFacts {
   axis: AxisType;
   score: number;
   perfection: boolean;
+  exitFree: boolean;
 }
 
 export interface BadgeSimulationFacts {

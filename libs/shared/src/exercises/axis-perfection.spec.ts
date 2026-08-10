@@ -9,6 +9,7 @@ import {
   discriminationPerfectionAchieved,
   logicPerfectionAchieved,
   memoryPerfectionAchieved,
+  motricityExitFreeAchieved,
   motricityPerfectionAchieved,
   reactivityPerfectionAchieved,
 } from './axis-perfection';
@@ -284,13 +285,14 @@ describe('motricityPerfectionAchieved', () => {
       return { index: course.index, samples };
     });
 
-  it('holds on completed courses without a single corridor exit', () => {
+  it('holds gold and silver on completed courses without any contact', () => {
     const scored = scoreMotricitySession(
       centerlineTrajectories(2, 2),
       SEED,
     );
     expect(scored.score).toBe(100);
     expect(motricityPerfectionAchieved(scored.courses)).toBe(true);
+    expect(motricityExitFreeAchieved(scored.courses)).toBe(true);
   });
 
   it('falls on a single corridor exit even when every course is completed', () => {
@@ -302,14 +304,24 @@ describe('motricityPerfectionAchieved', () => {
       scored.courses.some((course) => course.majorErrors > 0),
     ).toBe(true);
     expect(motricityPerfectionAchieved(scored.courses)).toBe(false);
+    expect(motricityExitFreeAchieved(scored.courses)).toBe(false);
+  });
+
+  it('keeps silver but never gold on a run with contacts and no exit', () => {
+    const courses = [
+      { progressionPct: 100, minorErrors: 2, majorErrors: 0 },
+      { progressionPct: 100, minorErrors: 0, majorErrors: 0 },
+    ];
+    expect(motricityExitFreeAchieved(courses)).toBe(true);
+    expect(motricityPerfectionAchieved(courses)).toBe(false);
   });
 
   it('falls when a course is not completed', () => {
-    expect(
-      motricityPerfectionAchieved([
-        { progressionPct: 100, majorErrors: 0 },
-        { progressionPct: 96, majorErrors: 0 },
-      ]),
-    ).toBe(false);
+    const courses = [
+      { progressionPct: 100, minorErrors: 0, majorErrors: 0 },
+      { progressionPct: 96, minorErrors: 0, majorErrors: 0 },
+    ];
+    expect(motricityExitFreeAchieved(courses)).toBe(false);
+    expect(motricityPerfectionAchieved(courses)).toBe(false);
   });
 });

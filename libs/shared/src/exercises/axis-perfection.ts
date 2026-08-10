@@ -48,10 +48,11 @@ export function reactivityPerfectionAchieved(
 
 export interface MotricityPerfectionCourse {
   progressionPct: number;
+  minorErrors: number;
   majorErrors: number;
 }
 
-export function motricityPerfectionAchieved(
+export function motricityExitFreeAchieved(
   courses: MotricityPerfectionCourse[],
 ): boolean {
   return (
@@ -59,5 +60,14 @@ export function motricityPerfectionAchieved(
     courses.every(
       (course) => course.progressionPct >= 100 && course.majorErrors === 0,
     )
+  );
+}
+
+export function motricityPerfectionAchieved(
+  courses: MotricityPerfectionCourse[],
+): boolean {
+  return (
+    motricityExitFreeAchieved(courses) &&
+    courses.every((course) => course.minorErrors === 0)
   );
 }

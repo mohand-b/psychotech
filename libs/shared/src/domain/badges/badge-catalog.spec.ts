@@ -57,6 +57,7 @@ function simulationSession(
     axis,
     score: axisScores[index],
     perfection: false,
+    exitFree: false,
   }));
   return {
     mode: SessionMode.FULL,
@@ -69,10 +70,11 @@ function targetedSession(
   axis: AxisType,
   score: number,
   perfection: boolean,
+  exitFree = false,
 ): BadgeFacts['session'] {
   return {
     mode: SessionMode.TARGETED,
-    axes: [{ axis, score, perfection }],
+    axes: [{ axis, score, perfection, exitFree }],
     simulation: null,
   };
 }
@@ -219,6 +221,37 @@ describe('axis perfection badges', () => {
         ),
       ).toBe(false);
     }
+  });
+
+  it('awards the motricity silver on an exit-free run, never on the best score alone', () => {
+    const chirurgien = badge(BadgeId.MOTOR_EXCELLENCE);
+    expect(
+      badgeEarned(
+        chirurgien,
+        facts({
+          session: targetedSession(AxisType.MOTOR_SKILLS, 62, false, true),
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      badgeEarned(
+        chirurgien,
+        facts({
+          bestScores: { [AxisType.MOTOR_SKILLS]: 100 },
+          session: targetedSession(AxisType.MOTOR_SKILLS, 100, false, false),
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('keeps the other silvers on the best score at 85', () => {
+    const sixiemeSens = badge(BadgeId.REACTIVITY_EXCELLENCE);
+    expect(
+      badgeEarned(
+        sixiemeSens,
+        facts({ bestScores: { [AxisType.REACTIVITY]: 85 } }),
+      ),
+    ).toBe(true);
   });
 
   it('ignores a perfection proof carried by another axis', () => {
