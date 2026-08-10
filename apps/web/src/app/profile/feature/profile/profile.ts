@@ -28,6 +28,7 @@ import {
   CircleAlert,
   Eye,
   Lock,
+  LogOut,
   LucideIconData,
   Radar,
   ReceiptText,
@@ -118,6 +119,7 @@ export class Profile {
   protected readonly backIcon = ArrowLeft;
   protected readonly checkIcon = Check;
   protected readonly alertIcon = CircleAlert;
+  protected readonly logoutIcon = LogOut;
   protected readonly deleteConfirmation = DELETE_ACCOUNT_CONFIRMATION;
   protected readonly readValue = inputValue;
   protected readonly upcomingSectors = UPCOMING_SECTORS;

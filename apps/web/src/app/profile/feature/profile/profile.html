@@ -343,6 +343,17 @@
               Supprimer
             </ui-button>
           </section>
+
+          <ui-button
+            class="md:hidden"
+            color="neutral"
+            appearance="ghost"
+            [block]="true"
+            [icon]="logoutIcon"
+            (click)="logout()"
+          >
+            Déconnexion
+          </ui-button>
         }
 
         @case ('security') {
