@@ -37,6 +37,7 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { API_BASE_URL } from '../../../core/http/api-base-url.token';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
@@ -93,7 +94,15 @@ const UPCOMING_SECTORS = ['Médical', 'Aviation', 'Sécurité', 'Conduite'];
 @Component({
   selector: 'app-profile',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, Button, Icon, PasswordStrengthMeter, RouterLink, Toggle],
+  imports: [
+    ActionFooter,
+    AxisIcon,
+    Button,
+    Icon,
+    PasswordStrengthMeter,
+    RouterLink,
+    Toggle,
+  ],
   providers: [ProgressionFacade],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
@@ -347,6 +356,81 @@ export class Profile {
   protected readonly confirmationValid = computed(() =>
     passwordsMatch(this.newPassword(), this.confirmation()),
   );
+
+  protected readonly securityDirty = computed(
+    () =>
+      this.currentPassword().length > 0 ||
+      this.newPassword().length > 0 ||
+      this.confirmation().length > 0,
+  );
+
+  protected cancelSecurity(): void {
+    this.currentPassword.set('');
+    this.newPassword.set('');
+    this.confirmation.set('');
+    this.securityError.set(null);
+    this.pwDone.set(false);
+  }
+
+  protected readonly mobileFooterVisible = computed(
+    () => this.section() === 'account' || this.section() === 'security',
+  );
+
+  protected readonly mobileFooterStatus = computed<{
+    label: string;
+    tone: 'muted' | 'warn' | 'ok' | 'error';
+  }>(() => {
+    if (this.section() === 'security') {
+      const error = this.securityError();
+      if (error) {
+        return { label: error, tone: 'error' };
+      }
+      if (this.pwDone()) {
+        return { label: 'Mot de passe mis à jour', tone: 'ok' };
+      }
+      if (this.securityDirty()) {
+        return { label: 'Modifications non enregistrées', tone: 'warn' };
+      }
+      return { label: 'Aucune modification en attente', tone: 'muted' };
+    }
+    const error = this.accountError();
+    if (error) {
+      return { label: error, tone: 'error' };
+    }
+    if (this.dirty()) {
+      return { label: 'Modifications non enregistrées', tone: 'warn' };
+    }
+    if (this.saved()) {
+      return { label: 'Modifications enregistrées', tone: 'ok' };
+    }
+    return { label: 'Aucune modification en attente', tone: 'muted' };
+  });
+
+  protected readonly mobileSaving = computed(() =>
+    this.section() === 'security' ? this.pwSaving() : this.saving(),
+  );
+
+  protected readonly mobileSaveDisabled = computed(() =>
+    this.section() === 'security'
+      ? !this.canUpdatePassword()
+      : !this.canSave(),
+  );
+
+  protected mobileCancel(): void {
+    if (this.section() === 'security') {
+      this.cancelSecurity();
+    } else {
+      this.cancelEdit();
+    }
+  }
+
+  protected mobileSave(): void {
+    if (this.section() === 'security') {
+      this.updatePassword();
+    } else {
+      this.save();
+    }
+  }
 
   protected readonly canUpdatePassword = computed(
     () =>

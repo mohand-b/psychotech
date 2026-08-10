@@ -296,27 +296,6 @@
                   d'adresse.</span
                 >
               </label>
-              <div class="profilm__actions flex">
-                <ui-button
-                  class="flex-1"
-                  color="neutral"
-                  appearance="outlined"
-                  [block]="true"
-                  (click)="cancelEdit()"
-                >
-                  Annuler
-                </ui-button>
-                <ui-button
-                  class="flex-1"
-                  color="brand"
-                  [block]="true"
-                  [disabled]="!canSave()"
-                  [loading]="saving()"
-                  (click)="save()"
-                >
-                  Enregistrer
-                </ui-button>
-              </div>
             </div>
 
             <div class="profil__metas">
@@ -425,7 +404,7 @@
                   </span>
                 </span>
               </div>
-              <div class="profil__sec-field">
+              <div class="profil__sec-field profil__sec-field--submit">
                 <span class="md:inline hidden"></span>
                 <span class="flex items-center profil__sec-actions">
                   <ui-button
@@ -601,6 +580,47 @@
     </div>
   </div>
 </div>
+
+@if (mobileFooterVisible()) {
+  <ui-action-footer class="md:hidden">
+    <div class="profilm__footer flex flex-col">
+      @if (mobileFooterStatus(); as status) {
+        <span
+          class="profilm__status flex items-center"
+          [class.profilm__status--warn]="status.tone === 'warn'"
+          [class.profilm__status--ok]="status.tone === 'ok'"
+          [class.profilm__status--error]="status.tone === 'error'"
+        >
+          @if (status.tone === 'ok') {
+            <ui-icon [img]="checkIcon" [size]="13" [strokeWidth]="2.4" />
+          }
+          {{ status.label }}
+        </span>
+      }
+      <div class="profilm__footer-actions flex">
+        <ui-button
+          class="profilm__footer-cancel"
+          color="neutral"
+          appearance="outlined"
+          [block]="true"
+          (click)="mobileCancel()"
+        >
+          Annuler
+        </ui-button>
+        <ui-button
+          class="profilm__footer-save"
+          color="brand"
+          [block]="true"
+          [disabled]="mobileSaveDisabled()"
+          [loading]="mobileSaving()"
+          (click)="mobileSave()"
+        >
+          Enregistrer
+        </ui-button>
+      </div>
+    </div>
+  </ui-action-footer>
+}
 
 @if (deleteOpen()) {
   <div
