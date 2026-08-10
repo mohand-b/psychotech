@@ -11,4 +11,9 @@ import { RouterLink } from '@angular/router';
 export class LandingHeader {
   readonly scrolled = input(false);
   readonly authenticated = input(false);
+  readonly onLanding = input(true);
+
+  protected anchor(id: string): string {
+    return this.onLanding() ? `#${id}` : `/#${id}`;
+  }
 }

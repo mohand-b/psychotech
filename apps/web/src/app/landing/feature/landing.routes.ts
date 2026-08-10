@@ -6,4 +6,8 @@ export const landingRoutes: Route[] = [
     pathMatch: 'full',
     loadComponent: () => import('./landing/landing').then((m) => m.Landing),
   },
+  {
+    path: 'tarifs',
+    loadComponent: () => import('./tarifs/tarifs').then((m) => m.Tarifs),
+  },
 ];

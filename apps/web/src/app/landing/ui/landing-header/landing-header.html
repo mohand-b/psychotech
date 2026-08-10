@@ -1,12 +1,15 @@
 <header class="header" [class.header--glass]="scrolled()">
   <div class="header__inner">
-    <a href="#hero" class="header__logo">
+    <a [href]="anchor('hero')" class="header__logo">
       Psycho<span class="header__logo-accent">Tech</span>
     </a>
     <nav class="header__nav" aria-label="Sections">
-      <a href="#axes" class="header__link">Les axes</a>
-      <a href="#fonctionnement" class="header__link">Fonctionnement</a>
-      <a href="#faq" class="header__link">FAQ</a>
+      <a [href]="anchor('axes')" class="header__link">Les axes</a>
+      <a [href]="anchor('fonctionnement')" class="header__link"
+        >Fonctionnement</a
+      >
+      <a [href]="anchor('faq')" class="header__link">FAQ</a>
+      <a routerLink="/tarifs" class="header__link">Tarifs</a>
     </nav>
     <div class="header__actions">
       @if (authenticated()) {

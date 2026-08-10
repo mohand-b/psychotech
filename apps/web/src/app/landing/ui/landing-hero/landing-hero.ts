@@ -22,7 +22,9 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const AXES_WITH_ICON: ReadonlySet<AxisType> = new Set(
   SECTOR_AXES[Sector.RAILWAY],

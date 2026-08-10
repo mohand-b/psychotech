@@ -19,7 +19,6 @@ import { authConfig } from './config/auth.config';
 import { mailConfig } from './config/mail.config';
 import { billingConfig } from './config/billing.config';
 import { validateEnvironment } from './config/environment.validation';
-import { webAppServingImports } from './config/web-app-serving';
 
 @Module({
   imports: [
@@ -29,7 +28,6 @@ import { webAppServingImports } from './config/web-app-serving';
       load: [authConfig, billingConfig, mailConfig],
       validate: validateEnvironment,
     }),
-    ...webAppServingImports(),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,

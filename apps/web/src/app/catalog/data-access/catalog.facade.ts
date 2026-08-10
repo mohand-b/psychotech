@@ -1,5 +1,6 @@
+import { isPlatformServer } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { Injectable, Signal, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, Signal, inject, signal } from '@angular/core';
 import {
   Sector,
   SectorReferentialDto,
@@ -10,11 +11,12 @@ import { API_BASE_URL } from '../../core/http/api-base-url.token';
 @Injectable({ providedIn: 'root' })
 export class CatalogFacade {
   private readonly baseUrl = inject(API_BASE_URL);
+  private readonly isServer = isPlatformServer(inject(PLATFORM_ID));
 
   private readonly referentialSector = signal<Sector | null>(null);
 
   private readonly sectorsResource = httpResource<SectorSummaryDto[]>(
-    () => `${this.baseUrl}/catalog/sectors`,
+    () => (this.isServer ? undefined : `${this.baseUrl}/catalog/sectors`),
     { defaultValue: [] },
   );
 

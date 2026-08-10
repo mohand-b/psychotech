@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { WsAdapter } from '@nestjs/platform-ws';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
+import { applyWebAppServing } from './app/config/web-app-serving';
 
 const JSON_BODY_LIMIT = '3mb';
 const DEFAULT_PORT = 3000;
@@ -31,6 +32,7 @@ async function bootstrap() {
   });
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  applyWebAppServing(app);
   app.useWebSocketAdapter(new WsAdapter(app));
   app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
   app.use(cookieParser());

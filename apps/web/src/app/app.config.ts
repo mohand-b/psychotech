@@ -1,10 +1,16 @@
 import {
   ApplicationConfig,
   ErrorHandler,
+  PLATFORM_ID,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   inject,
 } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import {
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
 import {
   provideHttpClient,
   withFetch,
@@ -34,6 +40,7 @@ function reloadOnStaleChunk(event: NavigationError): void {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideClientHydration(withEventReplay()),
     { provide: ErrorHandler, useClass: StaleChunkErrorHandler },
     provideRouter(appRoutes, withNavigationErrorHandler(reloadOnStaleChunk)),
     provideHttpClient(
@@ -49,6 +56,9 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideAppInitializer(() => {
+      if (isPlatformServer(inject(PLATFORM_ID))) {
+        return undefined;
+      }
       const authFacade = inject(AuthFacade);
       return firstValueFrom(
         authFacade.loadCurrentUser().pipe(catchError(() => of(null))),

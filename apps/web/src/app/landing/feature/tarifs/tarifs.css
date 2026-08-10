@@ -1,0 +1,198 @@
+:host {
+  display: block;
+  background: var(--landing-bg);
+}
+
+.tarifs__sentinel {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: 1px;
+}
+
+.tarifs {
+  background: var(--landing-bg);
+  padding-top: calc(64px + env(safe-area-inset-top));
+}
+
+.tarifs__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 72px 32px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.tarifs__head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+  align-items: center;
+}
+
+.tarifs__eyebrow {
+  font: 600 11px/14px var(--landing-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--landing-accent-soft);
+}
+
+.tarifs__title {
+  margin: 0;
+  font: 600 44px/1.08 var(--landing-font-display);
+  letter-spacing: -0.025em;
+  color: var(--landing-text);
+  max-width: 680px;
+}
+
+.tarifs__text {
+  margin: 0;
+  font: 400 16px/1.55 var(--landing-font-ui);
+  color: var(--landing-text-body);
+  max-width: 560px;
+}
+
+.tarifs__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.tarifs__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: var(--landing-border-soft);
+  border: 1px solid var(--landing-border);
+  border-radius: 18px;
+  padding: 30px 28px;
+}
+
+.tarifs__card--highlighted {
+  border-color: var(--landing-accent);
+  background: rgba(124, 92, 252, 0.1);
+}
+
+.tarifs__badge {
+  position: absolute;
+  top: -12px;
+  left: 28px;
+  background: var(--landing-accent);
+  color: var(--landing-text);
+  font: 600 11px/14px var(--landing-font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.tarifs__card-title {
+  margin: 0;
+  font: 600 20px/1.2 var(--landing-font-display);
+  color: var(--landing-text);
+}
+
+.tarifs__price {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.tarifs__price-value {
+  font: 600 38px/1 var(--landing-font-display);
+  letter-spacing: -0.02em;
+  color: var(--landing-text);
+}
+
+.tarifs__price-note {
+  font: 400 13px/1.4 var(--landing-font-ui);
+  color: var(--landing-text-muted);
+}
+
+.tarifs__credits {
+  margin: 0;
+  font: 400 14px/1.5 var(--landing-font-ui);
+  color: var(--landing-text-body);
+}
+
+.tarifs__credits-value {
+  font-weight: 600;
+  color: var(--landing-text);
+}
+
+.tarifs__features {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--landing-border);
+  padding-top: 18px;
+}
+
+.tarifs__features li {
+  position: relative;
+  padding-left: 22px;
+  font: 400 13.5px/1.5 var(--landing-font-ui);
+  color: var(--landing-text-body);
+}
+
+.tarifs__features li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--landing-accent);
+}
+
+.tarifs__footnote {
+  margin: 0 auto;
+  font: 400 13.5px/1.6 var(--landing-font-ui);
+  color: var(--landing-text-muted);
+  text-align: center;
+  max-width: 620px;
+}
+
+@media (max-width: 900px) {
+  .tarifs__grid {
+    grid-template-columns: 1fr;
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .tarifs__inner {
+    padding: 56px 20px 44px;
+    gap: 32px;
+  }
+
+  .tarifs__title {
+    font-size: 30px;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .tarifs__text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .tarifs__card {
+    padding: 26px 22px;
+  }
+
+  .tarifs__price-value {
+    font-size: 32px;
+  }
+}

@@ -1,0 +1,63 @@
+<span #sentinel class="tarifs__sentinel" aria-hidden="true"></span>
+<app-landing-header
+  [scrolled]="scrolled()"
+  [authenticated]="authenticated()"
+  [onLanding]="false"
+/>
+
+<main class="tarifs">
+  <div class="tarifs__inner">
+    <header class="tarifs__head" appLandingReveal>
+      <span class="tarifs__eyebrow">Tarifs</span>
+      <h1 class="tarifs__title">Des packs de crédits, sans abonnement</h1>
+      <p class="tarifs__text">
+        Un crédit lance un entraînement ciblé, cinq crédits lancent un examen
+        blanc complet. Vos crédits n'expirent jamais et
+        {{ signupGrant }} crédits vous sont offerts à l'inscription.
+      </p>
+    </header>
+
+    <div class="tarifs__grid">
+      @for (pack of packs; track pack.title) {
+        <article
+          class="tarifs__card"
+          [class.tarifs__card--highlighted]="pack.highlighted"
+          appLandingReveal
+        >
+          @if (pack.highlighted) {
+            <span class="tarifs__badge">Le plus choisi</span>
+          }
+          <h2 class="tarifs__card-title">{{ pack.title }}</h2>
+          <p class="tarifs__price">
+            <span class="tarifs__price-value">{{ pack.priceLabel }}</span>
+            <span class="tarifs__price-note">paiement unique</span>
+          </p>
+          <p class="tarifs__credits">
+            <span class="tarifs__credits-value">{{ pack.credits }}</span>
+            crédits · soit {{ pack.unitLabel }} le crédit
+          </p>
+          <ul class="tarifs__features">
+            <li>
+              Jusqu'à {{ pack.examCount }} examens blancs complets, 5 axes
+              enchaînés
+            </li>
+            <li>
+              Ou {{ pack.credits }} entraînements ciblés, un axe à la fois
+            </li>
+            <li>Exercices renouvelés à chaque session</li>
+            <li>Crédits sans date d'expiration</li>
+          </ul>
+        </article>
+      }
+    </div>
+
+    <p class="tarifs__footnote" appLandingReveal>
+      Paiement unique et sécurisé via Stripe. Aucun abonnement, aucune
+      reconduction : vous achetez des crédits quand vous en avez besoin. Le
+      mode découverte de chaque épreuve reste gratuit, sans carte bancaire.
+    </p>
+  </div>
+</main>
+
+<app-landing-cta [authenticated]="authenticated()" />
+<app-landing-footer />
