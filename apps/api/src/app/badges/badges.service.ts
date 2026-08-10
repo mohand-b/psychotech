@@ -23,7 +23,6 @@ import {
   toReconciledEarnedBadgeDto,
 } from './badges.mappers';
 
-export const FEED_VISIBILITY_THRESHOLD = 100;
 export const FEED_LIMIT = 20;
 
 type PrismaClientLike = Prisma.TransactionClient;
@@ -117,12 +116,9 @@ export class BadgesService {
   }
 
   async getFeed(): Promise<BadgeFeedDto> {
-    const eligibleCount = await this.repository.countVerifiedAccounts();
-    if (eligibleCount < FEED_VISIBILITY_THRESHOLD) {
-      return { visible: false, entries: [] };
-    }
     const rows = await this.repository.findRecentEarned(FEED_LIMIT);
-    return { visible: true, entries: toBadgeFeedEntries(rows) };
+    const entries = toBadgeFeedEntries(rows);
+    return { visible: entries.length > 0, entries };
   }
 
   async getForSession(

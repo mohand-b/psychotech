@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgeCollector } from './badge-collector';
 import { FEED_ANONYMOUS_LABEL } from './badges.mappers';
 import { BadgesRepository, RecentEarnedBadge } from './badges.repository';
-import { BadgesService, FEED_VISIBILITY_THRESHOLD } from './badges.service';
+import { BadgesService } from './badges.service';
 
 function row(
   overrides: Partial<RecentEarnedBadge> & {
@@ -26,7 +26,6 @@ function row(
 }
 
 const repository = {
-  countVerifiedAccounts: vi.fn(),
   findRecentEarned: vi.fn(),
 };
 
@@ -37,9 +36,6 @@ const service = new BadgesService(
 
 beforeEach(() => {
   vi.clearAllMocks();
-  repository.countVerifiedAccounts.mockResolvedValue(
-    FEED_VISIBILITY_THRESHOLD,
-  );
   repository.findRecentEarned.mockResolvedValue([]);
 });
 
@@ -130,18 +126,12 @@ describe('BadgesService.getFeed', () => {
     ]);
   });
 
-  it('returns a hidden state without any entry below the eligibility threshold', async () => {
-    repository.countVerifiedAccounts.mockResolvedValue(
-      FEED_VISIBILITY_THRESHOLD - 1,
-    );
-    repository.findRecentEarned.mockResolvedValue([
-      row({ user: { showInFeed: true } }),
-    ]);
+  it('returns a hidden state only when nobody has earned a badge yet', async () => {
+    repository.findRecentEarned.mockResolvedValue([]);
 
     const feed = await service.getFeed();
 
     expect(feed).toEqual({ visible: false, entries: [] });
-    expect(repository.findRecentEarned).not.toHaveBeenCalled();
   });
 
   it('carries the badge id, sector and earning date of each entry', async () => {
