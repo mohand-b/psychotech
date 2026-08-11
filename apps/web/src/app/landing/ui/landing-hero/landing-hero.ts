@@ -132,14 +132,6 @@ export class LandingHero {
       }
       this.zone.runOutsideAngular(() => {
         const context = gsap.context(() => {
-          gsap.to('.hero__animate', {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            stagger: 0.12,
-            delay: 0.1,
-          });
           gsap.to('.hero__media--parallax .hero__image', {
             yPercent: -8,
             ease: 'none',
