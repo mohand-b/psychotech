@@ -53,6 +53,7 @@ import {
   computeSimulationVerdict,
   discriminationPerfectionAchieved,
   deriveMotorSkillsMetrics,
+  excludedFromRecords,
   generateDiscriminationSession,
   generateLegacyLogicSession,
   computeLogicFamilyAggregates,
@@ -220,8 +221,10 @@ export class SessionsService {
       axis,
       request,
     );
-    const excludeFromBest =
-      session.logicFamily != null || sessionUntimed(session);
+    const excludeFromBest = excludedFromRecords(
+      session.logicFamily,
+      session.trainingOptions,
+    );
     const streakContext = await this.repository.findStreakContext(userId);
     const completedAt = new Date();
     const streak = computeStreakUpdate(
