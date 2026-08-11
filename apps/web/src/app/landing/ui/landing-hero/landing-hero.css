@@ -74,8 +74,8 @@
   object-position: center;
 }
 
-.hero__media--parallax .hero__image {
-  height: 116%;
+.hero__media--parallax {
+  bottom: -16%;
 }
 
 .hero__veil {
