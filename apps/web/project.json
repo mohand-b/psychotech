@@ -6,10 +6,19 @@
   "sourceRoot": "apps/web/src",
   "tags": [],
   "targets": {
+    "sitemap": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node apps/web/tools/generate-sitemap.mjs"
+      }
+    },
     "build": {
       "executor": "@angular/build:application",
       "outputs": [
         "{options.outputPath}"
+      ],
+      "dependsOn": [
+        "sitemap"
       ],
       "defaultConfiguration": "production",
       "options": {

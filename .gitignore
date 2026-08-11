@@ -54,3 +54,5 @@ __screenshots__/
 .idea
 apps/web.zip
 apps/web/public/e2e-payloads.json
+
+apps/web/public/sitemap.xml

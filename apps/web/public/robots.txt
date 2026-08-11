@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /entrainements
+Disallow: /sessions
+Disallow: /progression
+Disallow: /badges
+Disallow: /credits
+Disallow: /profil
+Disallow: /manette
+Disallow: /ui-kit
+Disallow: /verification
+Disallow: /verification-changement
+Disallow: /verification-email
+
+Sitemap: https://psychotechtraining.com/sitemap.xml
