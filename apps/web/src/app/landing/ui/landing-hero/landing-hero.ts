@@ -9,6 +9,7 @@ import {
   input,
   NgZone,
 } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
@@ -42,6 +43,8 @@ interface SectorBand {
   name: string;
   icon: LucideIconData;
   image: string;
+  width: number;
+  height: number;
   alt: string;
   description: string;
   axes: HeroAxis[];
@@ -63,7 +66,7 @@ function axesFor(sector: Sector): HeroAxis[] {
 @Component({
   selector: 'app-landing-hero',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, RouterLink, Icon],
+  imports: [AxisIcon, NgOptimizedImage, RouterLink, Icon],
   templateUrl: './landing-hero.html',
   styleUrl: './landing-hero.css',
 })
@@ -89,7 +92,9 @@ export class LandingHero {
     {
       name: 'Aviation',
       icon: SECTOR_PRESENTATION[Sector.AVIATION].icon,
-      image: '/sectors/aviation',
+      image: '/sectors/aviation.webp',
+      width: 2000,
+      height: 1116,
       alt: 'Secteur aérien',
       description:
         'Sélections du personnel navigant et des métiers du contrôle aérien, où le palier psychotechnique est déterminant.',
@@ -98,7 +103,9 @@ export class LandingHero {
     {
       name: 'Sécurité',
       icon: SECTOR_PRESENTATION[Sector.SECURITY].icon,
-      image: '/sectors/security',
+      image: '/sectors/security.webp',
+      width: 2000,
+      height: 1116,
       alt: 'Secteur sécurité',
       description:
         'Concours et tests d’aptitude des métiers de la sûreté, exigeants sur la vigilance et la prise de décision.',
@@ -107,7 +114,9 @@ export class LandingHero {
     {
       name: 'Conduite',
       icon: SECTOR_PRESENTATION[Sector.DRIVING].icon,
-      image: '/sectors/driving',
+      image: '/sectors/driving.webp',
+      width: 2000,
+      height: 1116,
       alt: 'Secteur conduite',
       description:
         'Sélections des métiers de la conduite et du transport, centrées sur la vigilance, la perception et la coordination.',
@@ -116,7 +125,9 @@ export class LandingHero {
     {
       name: 'Médical',
       icon: SECTOR_PRESENTATION[Sector.HEALTHCARE].icon,
-      image: '/sectors/medical',
+      image: '/sectors/medical.webp',
+      width: 1376,
+      height: 768,
       alt: 'Secteur médical',
       description:
         'Épreuves d’admission des filières de soin, sous forte charge cognitive et attentionnelle.',

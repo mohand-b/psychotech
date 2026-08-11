@@ -1,15 +1,16 @@
 <section class="hero" aria-label="Secteurs couverts">
   <div class="hero__row">
     <article class="hero__panel hero__panel--dominant">
-      <picture class="hero__media hero__media--parallax">
-        <source srcset="/sectors/railway.webp" type="image/webp" />
+      <span class="hero__media hero__media--parallax">
         <img
           class="hero__image"
-          src="/sectors/railway.jpg"
+          ngSrc="/sectors/railway.webp"
+          width="2000"
+          height="1116"
           alt="Secteur ferroviaire"
-          fetchpriority="high"
+          priority
         />
-      </picture>
+      </span>
       <span class="hero__veil hero__veil--dominant" aria-hidden="true"></span>
       <span class="hero__glow" aria-hidden="true"></span>
 
@@ -57,15 +58,15 @@
 
     @for (band of bands; track band.name) {
       <article class="hero__panel hero__panel--band">
-        <picture class="hero__media">
-          <source [srcset]="band.image + '.webp'" type="image/webp" />
+        <span class="hero__media">
           <img
             class="hero__image"
-            [src]="band.image + '.jpg'"
+            [ngSrc]="band.image"
+            [width]="band.width"
+            [height]="band.height"
             [alt]="band.alt"
-            loading="lazy"
           />
-        </picture>
+        </span>
         <span class="hero__veil hero__veil--band" aria-hidden="true"></span>
 
         <div class="hero__band-rest" aria-hidden="true">
@@ -109,15 +110,16 @@
   </div>
 
   <div class="hero__stacked">
-    <picture class="hero__stacked-media">
-      <source srcset="/sectors/railway.webp" type="image/webp" />
+    <span class="hero__stacked-media">
       <img
         class="hero__stacked-image"
-        src="/sectors/railway.jpg"
+        ngSrc="/sectors/railway.webp"
+        width="2000"
+        height="1116"
         alt="Secteur ferroviaire"
-        fetchpriority="high"
+        priority
       />
-    </picture>
+    </span>
     <span class="hero__stacked-veil" aria-hidden="true"></span>
     <span class="hero__stacked-glow" aria-hidden="true"></span>
     <div class="hero__stacked-content">
@@ -175,15 +177,15 @@
           <div class="hero__stacked-cards">
             @for (band of bands; track band.name) {
               <span class="hero__stacked-card">
-                <picture class="hero__stacked-card-media">
-                  <source [srcset]="band.image + '.webp'" type="image/webp" />
+                <span class="hero__stacked-card-media">
                   <img
                     class="hero__stacked-card-image"
-                    [src]="band.image + '.jpg'"
+                    [ngSrc]="band.image"
+                    [width]="band.width"
+                    [height]="band.height"
                     [alt]="band.alt"
-                    loading="lazy"
                   />
-                </picture>
+                </span>
                 <span class="hero__stacked-card-veil" aria-hidden="true"></span>
                 <span class="hero__stacked-card-soon">Bientôt</span>
                 <span class="hero__stacked-card-name">

@@ -13,6 +13,7 @@ import {
 } from './route-seo';
 
 const JSONLD_MARKER = 'data-seo-jsonld';
+const FONT_PRELOAD_MARKER = 'data-seo-font';
 
 @Injectable({ providedIn: 'root' })
 export class Seo {
@@ -77,6 +78,7 @@ export class Seo {
     });
     this.setCanonical(indexable ? canonicalUrl : null);
     this.setStructuredData(seo.structuredData ?? []);
+    this.setFontPreloads(seo.preloadFonts ?? []);
   }
 
   private canonicalUrl(): string {
@@ -99,6 +101,23 @@ export class Seo {
       head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  private setFontPreloads(paths: string[]): void {
+    const head = this.document.head;
+    head
+      .querySelectorAll(`link[${FONT_PRELOAD_MARKER}]`)
+      .forEach((node) => node.remove());
+    for (const path of paths) {
+      const link = this.document.createElement('link');
+      link.setAttribute('rel', 'preload');
+      link.setAttribute('as', 'font');
+      link.setAttribute('type', 'font/woff2');
+      link.setAttribute('crossorigin', 'anonymous');
+      link.setAttribute('href', path);
+      link.setAttribute(FONT_PRELOAD_MARKER, '');
+      head.appendChild(link);
+    }
   }
 
   private setStructuredData(entries: object[]): void {

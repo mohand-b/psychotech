@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import {
   CANONICAL_ORIGIN,
+  LANDING_DISPLAY_FONT_PATH,
   OG_IMAGE_PATH,
   RouteSeo,
   SITE_NAME,
@@ -39,12 +40,14 @@ const LANDING_SEO: RouteSeo = {
   description:
     "Entraînez-vous aux 5 familles d'épreuves psychotechniques des sélections ferroviaires : logique, mémoire, discrimination visuelle, réactivité et motricité.",
   structuredData: LANDING_STRUCTURED_DATA,
+  preloadFonts: [LANDING_DISPLAY_FONT_PATH],
 };
 
 const TARIFS_SEO: RouteSeo = {
   title: 'Tarifs : packs de crédits sans abonnement | PsychoTech Training',
   description:
     'Des packs de crédits sans abonnement pour préparer les épreuves psychotechniques ferroviaires : 15, 50 ou 120 crédits, paiement unique, sans expiration.',
+  preloadFonts: [LANDING_DISPLAY_FONT_PATH],
 };
 
 export const landingRoutes: Route[] = [
