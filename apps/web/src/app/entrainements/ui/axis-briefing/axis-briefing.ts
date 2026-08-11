@@ -12,6 +12,7 @@ import {
   RailwayPlayableAxis,
   Sector,
   TrainingOptionId,
+  excludedFromRecords,
   trainingOptionsForAxis,
 } from '@psychotech/shared';
 import {
@@ -22,6 +23,7 @@ import {
   Dices,
   Grid3x3,
   Hash,
+  Info,
   Keyboard,
   LayoutGrid,
   LucideIconData,
@@ -320,6 +322,20 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
               </div>
             </div>
           }
+          @if (recordsExcluded()) {
+            <p class="axis-briefing__records-note">
+              <ui-icon
+                class="axis-briefing__records-note-icon"
+                [img]="infoIcon"
+                [size]="14"
+              />
+              <span
+                >Avec ce réglage, la session s'écarte des conditions réelles :
+                elle ne comptera ni dans votre meilleur score, ni pour les
+                badges.</span
+              >
+            </p>
+          }
         </article>
       }
 
@@ -441,7 +457,12 @@ export class AxisBriefing {
     () => this.axis() === AxisType.MOTOR_SKILLS && !this.tutorial(),
   );
 
+  protected readonly recordsExcluded = computed(() =>
+    excludedFromRecords(this.logicFamily(), this.enabledOptions()),
+  );
+
   protected readonly familySegments = LOGIC_FAMILY_SEGMENTS;
+  protected readonly infoIcon = Info;
   protected readonly keyboardIcon = Keyboard;
   protected readonly mappingArrowIcon = ArrowRight;
   protected readonly mappingDownIcon = ArrowDown;

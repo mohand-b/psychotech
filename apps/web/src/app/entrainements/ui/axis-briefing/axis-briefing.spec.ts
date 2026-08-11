@@ -84,6 +84,13 @@ function texts(fixture: ComponentFixture<AxisBriefing>, selector: string) {
   );
 }
 
+function recordsNote(
+  fixture: ComponentFixture<AxisBriefing>,
+): HTMLElement | null {
+  const element: HTMLElement = fixture.nativeElement;
+  return element.querySelector('.axis-briefing__records-note');
+}
+
 function keycaps(root: ParentNode): string[] {
   return Array.from(root.querySelectorAll('ui-keycap')).map(
     (node) => node.textContent?.trim() ?? '',
@@ -278,6 +285,58 @@ describe('AxisBriefing (gabarit unifié)', () => {
       enabledOptions: [TrainingOptionId.NO_TIMER],
     });
     expect(discovery.nativeElement.textContent).not.toContain('temps libre');
+  });
+
+  it('warns that a family-filtered or untimed session counts neither for the best score nor for badges', () => {
+    expect(recordsNote(render(AxisType.LOGIC))).toBeNull();
+    expect(
+      recordsNote(
+        render(AxisType.LOGIC, {
+          enabledOptions: [TrainingOptionId.LOGIC_HELP],
+        }),
+      ),
+    ).toBeNull();
+
+    const note = recordsNote(
+      render(AxisType.LOGIC, { logicFamily: LogicFamilyFilter.MATRIX }),
+    );
+    expect(note).not.toBeNull();
+    expect(note?.textContent).toContain("s'écarte des conditions réelles");
+    expect(note?.textContent).toContain('ni dans votre meilleur score');
+    expect(note?.textContent).toContain('ni pour les badges');
+
+    expect(
+      recordsNote(
+        render(AxisType.LOGIC, {
+          enabledOptions: [TrainingOptionId.NO_TIMER],
+        }),
+      ),
+    ).not.toBeNull();
+    expect(
+      recordsNote(
+        render(AxisType.VISUAL_DISCRIMINATION, {
+          enabledOptions: [TrainingOptionId.NO_TIMER],
+        }),
+      ),
+    ).not.toBeNull();
+  });
+
+  it('reveals the records note as soon as a family segment is selected', () => {
+    const fixture = render(AxisType.LOGIC);
+    const element: HTMLElement = fixture.nativeElement;
+    const segments = Array.from(
+      element.querySelectorAll<HTMLButtonElement>(
+        '.axis-briefing__family-segment',
+      ),
+    );
+
+    segments[3].click();
+    fixture.detectChanges();
+    expect(recordsNote(fixture)).not.toBeNull();
+
+    segments[0].click();
+    fixture.detectChanges();
+    expect(recordsNote(fixture)).toBeNull();
   });
 
   it('shows no family selector outside the logic axis nor on the discovery briefing', () => {

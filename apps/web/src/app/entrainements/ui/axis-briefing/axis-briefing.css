@@ -309,6 +309,24 @@
   padding-top: 1.125rem;
 }
 
+.axis-briefing__records-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 1.125rem;
+  font: 400 0.78125rem/1.45 var(--font-ui);
+  color: var(--label);
+}
+
+.axis-briefing__records-note-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-top: 0.0625rem;
+  color: var(--axis-text);
+}
+
 .axis-briefing__family-segments {
   display: flex;
   gap: 0.1875rem;
