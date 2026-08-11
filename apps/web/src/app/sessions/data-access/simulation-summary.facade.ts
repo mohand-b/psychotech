@@ -22,6 +22,7 @@ export class SimulationSummaryFacade {
     if (cached?.sessionId === sessionId) {
       return of(cached);
     }
+    this.summarySignal.set(null);
     return this.api
       .simulationSummary(sessionId)
       .pipe(tap((summary) => this.summarySignal.set(summary)));
