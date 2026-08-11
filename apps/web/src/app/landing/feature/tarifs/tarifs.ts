@@ -36,7 +36,7 @@ const HIGHLIGHTED_PACK = EnergyPackId.PRE_EXAM;
 function formatEuros(cents: number): string {
   const euros = Math.floor(cents / 100);
   const decimals = `${cents % 100}`.padStart(2, '0');
-  return `${euros},${decimals} €`;
+  return `${euros},${decimals}\u00A0€`;
 }
 
 function toPackView(pack: EnergyPackDefinition): PackView {
