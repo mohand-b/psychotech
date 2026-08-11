@@ -1,7 +1,8 @@
-import { AxisType } from '../enums';
+import { AxisType, LogicFamilyFilter } from '../enums';
 import {
   AXIS_TRAINING_OPTIONS,
   TrainingOptionId,
+  excludedFromRecords,
   trainingOptionsForAxis,
 } from './training-options';
 
@@ -32,6 +33,29 @@ describe('AXIS_TRAINING_OPTIONS', () => {
 
   it('offers no option for memory', () => {
     expect(trainingOptionsForAxis(AxisType.MEMORY)).toEqual([]);
+  });
+
+  it('excludes from records any session with a family filter or without timer', () => {
+    expect(excludedFromRecords(LogicFamilyFilter.MATRIX, [])).toBe(true);
+    expect(excludedFromRecords(null, [TrainingOptionId.NO_TIMER])).toBe(true);
+    expect(
+      excludedFromRecords(LogicFamilyFilter.DOMINO, [
+        TrainingOptionId.NO_TIMER,
+      ]),
+    ).toBe(true);
+  });
+
+  it('keeps in records a session with only non-distorting options', () => {
+    expect(excludedFromRecords(null, [])).toBe(false);
+    expect(excludedFromRecords(null, [TrainingOptionId.LOGIC_HELP])).toBe(
+      false,
+    );
+    expect(
+      excludedFromRecords(null, [TrainingOptionId.REACTIVITY_LIVE_METRICS]),
+    ).toBe(false);
+    expect(
+      excludedFromRecords(null, [TrainingOptionId.MOTOR_LIVE_ERROR_COUNTERS]),
+    ).toBe(false);
   });
 
   it('keeps labels and descriptions free of em dashes', () => {

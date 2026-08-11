@@ -54,3 +54,12 @@ export const AXIS_TRAINING_OPTIONS: Partial<
 export function trainingOptionsForAxis(axis: AxisType): TrainingOption[] {
   return AXIS_TRAINING_OPTIONS[axis] ?? [];
 }
+
+export function excludedFromRecords(
+  logicFamily: string | null,
+  trainingOptions: readonly string[],
+): boolean {
+  return (
+    logicFamily !== null || trainingOptions.includes(TrainingOptionId.NO_TIMER)
+  );
+}
