@@ -11,13 +11,16 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 import {
+  BadgeEvent,
   ChangePasswordDto,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
   LEGAL_TERMS_VERSION,
   LoginDto,
   RegisterDto,
+  Sector,
   UserProfileDto,
 } from '@psychotech/shared';
+import { BadgesService } from '../badges/badges.service';
 import { MailConfig } from '../config/mail.config';
 import { toUserProfileDto } from '../users/users.mappers';
 import { UsersRepository } from '../users/users.repository';
@@ -26,6 +29,9 @@ import { AuthTokens } from './auth.cookie.service';
 import { MAILER, MailerPort } from '../mail/mailer.port';
 import { buildNoticeEmail } from '../mail/mail-templates';
 import { AuthRepository } from './auth.repository';
+import { normalizeEmail } from './email-normalization';
+import { GoogleOAuthError } from './google/google-oauth.error';
+import { GoogleIdentityClaims } from './google/google-oauth.service';
 import { PasswordHasher } from './password.service';
 import { AccessTokenPayload, TokenService } from './token.service';
 
@@ -36,6 +42,10 @@ export interface AuthResult {
   user: UserProfileDto;
   tokens: AuthTokens;
   csrfToken: string;
+}
+
+export interface GoogleSignInContext {
+  sector?: Sector;
 }
 
 @Injectable()
@@ -49,6 +59,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly usersRepository: UsersRepository,
     private readonly emailVerification: EmailVerificationService,
+    private readonly badgesService: BadgesService,
     @Inject(MAILER) private readonly mailer: MailerPort,
     configService: ConfigService,
   ) {
@@ -56,7 +67,8 @@ export class AuthService {
   }
 
   async register(input: RegisterDto): Promise<AuthResult> {
-    const existing = await this.repository.findByEmail(input.email);
+    const email = normalizeEmail(input.email);
+    const existing = await this.repository.findByEmailInsensitive(email);
     if (existing) {
       throw new ConflictException('Email already registered');
     }
@@ -65,7 +77,7 @@ export class AuthService {
     }
     const passwordHash = await this.passwordHasher.hash(input.password);
     const user = await this.repository.createAccount({
-      email: input.email,
+      email,
       passwordHash,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -80,7 +92,9 @@ export class AuthService {
   }
 
   async login(input: LoginDto): Promise<AuthResult> {
-    const user = await this.repository.findByEmail(input.email);
+    const user = await this.repository.findByEmailInsensitive(
+      normalizeEmail(input.email),
+    );
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -90,6 +104,50 @@ export class AuthService {
     }
     await this.repository.markLogin(user.id, new Date());
     return this.issueSession(user);
+  }
+
+  async googleSignIn(
+    claims: GoogleIdentityClaims,
+    context: GoogleSignInContext,
+  ): Promise<AuthResult> {
+    const email = normalizeEmail(claims.email);
+    const sector = context.sector ?? Sector.RAILWAY;
+    if (!(await this.usersRepository.isSectorActive(sector))) {
+      throw new GoogleOAuthError('GOOGLE_FAILED', 'Inactive sector');
+    }
+    const now = new Date();
+    const outcome = await this.repository.googleSignIn(
+      {
+        providerAccountId: claims.providerAccountId,
+        email,
+        emailVerified: claims.emailVerified,
+        firstName: claims.givenName ?? this.emailLocalPart(email),
+        lastName: claims.familyName ?? '',
+        timezone: DEFAULT_TIMEZONE,
+        currentSector: sector,
+        termsVersion: LEGAL_TERMS_VERSION,
+        termsAcceptedAt: now,
+        now,
+      },
+      (tx, userId) =>
+        this.badgesService.evaluateWithin(
+          tx,
+          userId,
+          BadgeEvent.ACCOUNT_VERIFIED,
+          null,
+        ),
+    );
+    if (outcome.kind === 'CONFLICT_OTHER_GOOGLE') {
+      throw new GoogleOAuthError('GOOGLE_CONFLICT');
+    }
+    if (outcome.kind === 'UNVERIFIED_LINK_REFUSED') {
+      throw new GoogleOAuthError('GOOGLE_UNVERIFIED');
+    }
+    if (outcome.kind === 'CREATED' && !claims.emailVerified) {
+      await this.emailVerification.sendInitialVerification(outcome.user);
+    }
+    await this.repository.markLogin(outcome.user.id, new Date());
+    return this.issueSession(outcome.user);
   }
 
   async refresh(refreshToken: string | undefined): Promise<AuthResult> {
@@ -194,6 +252,11 @@ export class AuthService {
       tokens: { accessToken, refreshToken },
       csrfToken: randomBytes(CSRF_TOKEN_BYTES).toString('hex'),
     };
+  }
+
+  private emailLocalPart(email: string): string {
+    const separatorIndex = email.indexOf('@');
+    return separatorIndex > 0 ? email.slice(0, separatorIndex) : email;
   }
 
   private async safeVerifyRefresh(

@@ -5,8 +5,11 @@ import { authConfig } from '../config/auth.config';
 import {
   ACCESS_TOKEN_COOKIE,
   CSRF_TOKEN_COOKIE,
+  GOOGLE_STATE_COOKIE,
+  GOOGLE_STATE_COOKIE_PATH,
   REFRESH_TOKEN_COOKIE,
 } from './auth.constants';
+import { GOOGLE_STATE_TTL_SECONDS } from './google/google-oauth.service';
 
 export interface AuthTokens {
   accessToken: string;
@@ -41,6 +44,17 @@ export class AuthCookieService {
     );
   }
 
+  setGoogleStateCookie(response: Response, stateToken: string): void {
+    response.cookie(GOOGLE_STATE_COOKIE, stateToken, {
+      ...this.googleStateOptions(),
+      maxAge: GOOGLE_STATE_TTL_SECONDS * 1000,
+    });
+  }
+
+  clearGoogleStateCookie(response: Response): void {
+    response.clearCookie(GOOGLE_STATE_COOKIE, this.googleStateOptions());
+  }
+
   clearAuthCookies(response: Response): void {
     const base = this.baseOptions();
     response.clearCookie(ACCESS_TOKEN_COOKIE, { ...base, httpOnly: true });
@@ -58,6 +72,16 @@ export class AuthCookieService {
       sameSite: this.config.cookie.sameSite,
       domain: this.config.cookie.domain,
       path: '/',
+    };
+  }
+
+  private googleStateOptions(): CookieOptions {
+    return {
+      httpOnly: true,
+      secure: this.config.cookie.secure,
+      sameSite: 'lax',
+      domain: this.config.cookie.domain,
+      path: GOOGLE_STATE_COOKIE_PATH,
     };
   }
 }

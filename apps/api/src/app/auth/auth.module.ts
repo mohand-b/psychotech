@@ -12,6 +12,8 @@ import { EmailChangeRepository } from './email-change.repository';
 import { EmailChangeService } from './email-change.service';
 import { EmailVerificationRepository } from './email-verification.repository';
 import { EmailVerificationService } from './email-verification.service';
+import { GoogleOAuthController } from './google/google-oauth.controller';
+import { GoogleOAuthService } from './google/google-oauth.service';
 import { CsrfGuard } from './guards/csrf.guard';
 import { IpRateLimitService } from './ip-rate-limit.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -20,10 +22,11 @@ import { TokenService } from './token.service';
 
 @Module({
   imports: [JwtModule.register({}), UsersModule, MailModule, BadgesModule],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleOAuthController],
   providers: [
     AuthService,
     AuthRepository,
+    GoogleOAuthService,
     EmailVerificationService,
     EmailVerificationRepository,
     EmailChangeService,

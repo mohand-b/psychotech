@@ -16,6 +16,7 @@ import { SessionsModule } from './sessions/sessions.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
+import { googleConfig } from './config/google.config';
 import { mailConfig } from './config/mail.config';
 import { billingConfig } from './config/billing.config';
 import { validateEnvironment } from './config/environment.validation';
@@ -25,7 +26,7 @@ import { validateEnvironment } from './config/environment.validation';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: 'apps/api/.env',
-      load: [authConfig, billingConfig, mailConfig],
+      load: [authConfig, billingConfig, googleConfig, mailConfig],
       validate: validateEnvironment,
     }),
     ScheduleModule.forRoot(),

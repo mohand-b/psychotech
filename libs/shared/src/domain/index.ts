@@ -12,6 +12,7 @@ export * from './session-vocabulary';
 export * from './simulation-appreciation';
 export * from './simulation-summary';
 export * from './simulation-verdict';
+export * from './sso-rules';
 export * from './training-options';
 export * from './verdict-band';
 export * from './verdict-stamp';

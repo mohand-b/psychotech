@@ -20,7 +20,7 @@ const repository = {
 
 const authRepository = {
   findById: vi.fn(),
-  findByEmail: vi.fn(),
+  findByEmailInsensitive: vi.fn(),
   setPendingEmail: vi.fn(),
 };
 
@@ -40,7 +40,7 @@ const service = new EmailChangeService(
 beforeEach(() => {
   vi.clearAllMocks();
   authRepository.findById.mockResolvedValue(USER);
-  authRepository.findByEmail.mockResolvedValue(null);
+  authRepository.findByEmailInsensitive.mockResolvedValue(null);
   repository.findByUserId.mockResolvedValue(null);
   repository.replaceRequest.mockResolvedValue({});
   mailer.send.mockResolvedValue(undefined);
@@ -70,7 +70,7 @@ describe('EmailChangeService.request', () => {
   });
 
   it('rejects an address already held by another account', async () => {
-    authRepository.findByEmail.mockResolvedValue({ id: 'user-2' });
+    authRepository.findByEmailInsensitive.mockResolvedValue({ id: 'user-2' });
 
     await expect(
       service.request('user-1', 'prise@exemple.fr'),

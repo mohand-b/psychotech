@@ -95,6 +95,10 @@ enum ControlModality {
   TOUCH_JOYSTICKS
 }
 
+enum AuthProvider {
+  GOOGLE
+}
+
 model User {
   id               String   @id @default(uuid())
   email            String   @unique
@@ -127,6 +131,20 @@ model User {
   badges            UserBadge[]
   energyLedger      EnergyLedger[]
   giftRedemptions   GiftRedemption[]
+  identities        UserIdentity[]
+}
+
+model UserIdentity {
+  id                String       @id @default(uuid())
+  userId            String
+  provider          AuthProvider
+  providerAccountId String
+  createdAt         DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@unique([userId, provider])
 }
 
 model EmailChange {

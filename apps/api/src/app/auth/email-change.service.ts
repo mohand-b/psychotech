@@ -17,6 +17,7 @@ import { MAILER, MailerPort } from '../mail/mailer.port';
 import { buildNoticeEmail, buildVerificationEmail } from '../mail/mail-templates';
 import { AuthRepository } from './auth.repository';
 import { EmailChangeRepository } from './email-change.repository';
+import { normalizeEmail } from './email-normalization';
 
 const TOKEN_BYTES = 32;
 const TOKEN_TTL_HOURS = 24;
@@ -27,10 +28,6 @@ const MS_PER_SECOND = 1000;
 const SECONDS_PER_HOUR = 3600;
 
 export const EMAIL_TAKEN_ERROR_CODE = 'EMAIL_TAKEN';
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
 
 @Injectable()
 export class EmailChangeService {
@@ -60,7 +57,7 @@ export class EmailChangeService {
         'The new address must differ from the current one',
       );
     }
-    const holder = await this.authRepository.findByEmail(newEmail);
+    const holder = await this.authRepository.findByEmailInsensitive(newEmail);
     if (holder && holder.id !== userId) {
       throw new BadRequestException(EMAIL_TAKEN_ERROR_CODE);
     }
