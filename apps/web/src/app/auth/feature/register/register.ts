@@ -8,10 +8,11 @@ import {
   linkedSignal,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   PASSWORD_MIN_LENGTH,
+  SSO_ERROR_QUERY_PARAM,
   Sector,
   SectorSummaryDto,
 } from '@psychotech/shared';
@@ -21,13 +22,14 @@ import { Button } from '../../../shared/ui/button/button';
 import { FormField } from '../../../shared/ui/form-field/form-field';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { PasswordField } from '../../../shared/ui/password-field/password-field';
-import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
-import { passwordsMatch } from '../../../shared/util/password-match';
 import { AuthFacade } from '../../data-access/auth.facade';
 import { LegalDocumentId } from '../../../legal/data/legal-documents';
 import { LegalOverlay } from '../../../legal/ui/legal-overlay/legal-overlay';
+import { AuthSeparator } from '../../ui/auth-separator/auth-separator';
+import { GoogleSignInButton } from '../../ui/google-sign-in-button/google-sign-in-button';
 import { emailErrorMessage } from '../email-validation';
+import { ssoErrorMessageFromParam } from '../sso-error-messages';
 
 interface SectorOption {
   value: string;
@@ -44,8 +46,9 @@ interface SectorOption {
     FormField,
     Icon,
     PasswordField,
-    PasswordStrengthMeter,
     LegalOverlay,
+    AuthSeparator,
+    GoogleSignInButton,
   ],
   templateUrl: './register.html',
   styleUrls: ['../auth-panel.css', './register.css'],
@@ -55,6 +58,7 @@ export class Register {
   private readonly destroyRef = inject(DestroyRef);
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly arrowIcon = ArrowRight;
   protected readonly pending = this.authFacade.pending;
@@ -69,7 +73,6 @@ export class Register {
   protected readonly lastName = signal('');
   protected readonly email = signal('');
   protected readonly password = signal('');
-  protected readonly confirmation = signal('');
 
   protected readonly legalDocumentId = signal<LegalDocumentId | null>(null);
   protected readonly legalAnchor = signal<string | null>(null);
@@ -77,6 +80,24 @@ export class Register {
 
   protected readonly submitted = signal(false);
   protected readonly serverError = signal<string | null>(null);
+
+  private readonly queryParams = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
+
+  protected readonly ssoError = linkedSignal(() =>
+    ssoErrorMessageFromParam(this.queryParams().get(SSO_ERROR_QUERY_PARAM)),
+  );
+
+  protected readonly displayedError = computed(
+    () => this.serverError() ?? this.ssoError(),
+  );
+
+  constructor() {
+    if (this.route.snapshot.queryParamMap.get(SSO_ERROR_QUERY_PARAM) !== null) {
+      this.step.set(2);
+    }
+  }
 
   protected readonly sectorOptions = computed<readonly SectorOption[]>(() =>
     this.catalogFacade.sectors().map((sector: SectorSummaryDto) => ({
@@ -109,6 +130,13 @@ export class Register {
         ?.label ?? '',
   );
 
+  protected readonly googleHref = computed(() =>
+    this.authFacade.googleStartUrl({
+      from: 'register',
+      sector: this.sector() as Sector,
+    }),
+  );
+
   protected sectorIcon(value: string) {
     return SECTOR_PRESENTATION[value as Sector].icon;
   }
@@ -117,10 +145,6 @@ export class Register {
     this.stepDirection.set(target > this.step() ? 'forward' : 'back');
     this.step.set(target);
   }
-
-  protected readonly confirmationValid = computed(() =>
-    passwordsMatch(this.password(), this.confirmation()),
-  );
 
   protected readonly firstNameError = computed(() =>
     this.submitted() && this.firstName().trim() === '' ? 'Prénom requis' : null,
@@ -141,17 +165,6 @@ export class Register {
     return this.password().length < PASSWORD_MIN_LENGTH
       ? 'Au moins 8 caractères'
       : null;
-  });
-  protected readonly confirmationError = computed(() => {
-    if (!this.submitted()) {
-      return null;
-    }
-    if (this.confirmation() === '') {
-      return 'Confirmation requise';
-    }
-    return this.confirmationValid()
-      ? null
-      : 'Les mots de passe ne correspondent pas';
   });
 
   protected openLegal(
@@ -199,12 +212,12 @@ export class Register {
     }
     this.submitted.set(true);
     this.serverError.set(null);
+    this.ssoError.set(null);
     if (
       this.firstNameError() ||
       this.lastNameError() ||
       this.emailError() ||
-      this.passwordError() ||
-      this.confirmationError()
+      this.passwordError()
     ) {
       return;
     }

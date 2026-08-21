@@ -1,5 +1,8 @@
 @if (sectorOptions().length > 0) {
-<div class="auth__panel register__panel">
+<div
+  class="auth__panel register__panel"
+  [class.register__panel--wide]="step() === 1"
+>
   <div class="register__progress">
     <span class="register__progress-bar register__progress-bar--done"></span>
     <span
@@ -37,7 +40,7 @@
           <span class="register__sector-copy">
             <span class="register__sector-name">{{ option.label }}</span>
             <span class="register__sector-desc"
-              >Entraînement par axe, scoring calibré<span
+              >5 axes d'entraînement, scoring calibré<span
                 class="register__sector-desc-tail"
               >
                 sur les sélections du secteur</span
@@ -108,7 +111,9 @@
     >
       <div class="register__head">
         <h1 class="auth__title">Créer un compte</h1>
-        <p class="auth__subtitle">Quelques secondes suffisent pour démarrer.</p>
+        <p class="auth__subtitle">
+          L'inscription est gratuite, aucune carte bancaire requise.
+        </p>
       </div>
 
       <button type="button" class="register__sector-chip" (click)="goToStep(1)">
@@ -119,6 +124,31 @@
         <span class="register__sector-chip-edit">Modifier</span>
       </button>
 
+      <div class="register__sso">
+        <ui-google-sign-in-button
+          [href]="googleHref()"
+          label="S'inscrire avec Google"
+        />
+        <span class="register__sso-note"
+          >En continuant avec Google, vous acceptez les
+          <a
+            class="register__sso-link"
+            href="/cgu"
+            (click)="openLegal($event, 'cgu', 'cgu')"
+            >conditions d'utilisation</a
+          >
+          et la
+          <a
+            class="register__sso-link"
+            href="/confidentialite"
+            (click)="openLegal($event, 'confidentialite', 'responsable')"
+            >politique de confidentialité</a
+          >.</span
+        >
+      </div>
+
+      <ui-auth-separator />
+
       <div
         class="auth__fields register__fields"
         tabindex="-1"
@@ -126,16 +156,16 @@
       >
         <div class="register__names">
           <ui-form-field
-            label="Prénom"
-            placeholder="Votre prénom"
-            [(value)]="firstName"
-            [error]="firstNameError()"
-          />
-          <ui-form-field
             label="Nom"
-            placeholder="Votre nom"
+            placeholder="Boudjema"
             [(value)]="lastName"
             [error]="lastNameError()"
+          />
+          <ui-form-field
+            label="Prénom"
+            placeholder="Mohand"
+            [(value)]="firstName"
+            [error]="firstNameError()"
           />
         </div>
         <ui-form-field
@@ -145,21 +175,11 @@
           [(value)]="email"
           [error]="emailError()"
         />
-        <div class="register__password">
-          <ui-password-field
-            label="Mot de passe"
-            placeholder="8 caractères minimum"
-            [(value)]="password"
-            [error]="passwordError()"
-          />
-          <ui-password-strength-meter [value]="password()" />
-        </div>
         <ui-password-field
-          label="Confirmer le mot de passe"
-          placeholder="Votre mot de passe"
-          [(value)]="confirmation"
-          [valid]="confirmationValid()"
-          [error]="confirmationError()"
+          label="Mot de passe"
+          placeholder="8 caractères minimum"
+          [(value)]="password"
+          [error]="passwordError()"
         />
         <span class="register__cgu">
           <button
@@ -204,7 +224,7 @@
         </span>
       </div>
 
-      @if (serverError(); as message) {
+      @if (displayedError(); as message) {
       <span class="auth__server-error" role="alert">
         <svg
           width="14"

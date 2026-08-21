@@ -7,6 +7,10 @@
   gap: 14px;
 }
 
+.register__panel--wide {
+  width: 496px;
+}
+
 .register__panel > * {
   animation: none;
 }
@@ -275,10 +279,26 @@
   gap: 12px;
 }
 
-.register__password {
+.register__sso {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
+}
+
+.register__sso-note {
+  font: 400 12px/1.5 var(--font-ui);
+  color: var(--text-disabled);
+  text-align: center;
+}
+
+.register__sso-link {
+  color: var(--label);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.register__sso-link:hover {
+  color: var(--brand);
 }
 
 .register__cgu {

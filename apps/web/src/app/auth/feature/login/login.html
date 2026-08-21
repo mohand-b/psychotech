@@ -6,6 +6,13 @@
     </p>
   </div>
 
+  <ui-google-sign-in-button
+    [href]="googleHref()"
+    label="Continuer avec Google"
+  />
+
+  <ui-auth-separator />
+
   <div
     class="auth__fields"
     tabindex="-1"
@@ -26,7 +33,7 @@
     />
   </div>
 
-  @if (serverError(); as message) {
+  @if (displayedError(); as message) {
   <span class="auth__server-error" role="alert">
     <svg
       width="14"

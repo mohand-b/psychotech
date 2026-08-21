@@ -20,6 +20,8 @@ export const SSO_ORIGINS = ['login', 'register'] as const;
 export type SsoOrigin = (typeof SSO_ORIGINS)[number];
 
 export const SSO_RETURN_URL_QUERY_PARAM = 'returnUrl';
+export const SSO_FROM_QUERY_PARAM = 'from';
+export const SSO_SECTOR_QUERY_PARAM = 'sector';
 
 export function isSafeReturnUrl(value: string): boolean {
   return value.startsWith('/') && !value.startsWith('//') && !value.includes('\\');
