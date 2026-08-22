@@ -400,6 +400,16 @@
   background: var(--brand-hover);
 }
 
+@media (max-width: 767px) {
+  .cb__cta {
+    border-bottom: 3px solid var(--brand-relief);
+  }
+
+  .cb__cta:active {
+    border-bottom-color: transparent;
+  }
+}
+
 .cb__card--settled :is(
     .cb__micro,
     .cb__badge,
