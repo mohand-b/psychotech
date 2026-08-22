@@ -1087,7 +1087,8 @@
     flex-direction: row;
     align-items: center;
     gap: 12px;
-    padding: 11px 2px;
+    margin-inline: -16px;
+    padding: 11px 16px;
     min-height: 52px;
   }
 
