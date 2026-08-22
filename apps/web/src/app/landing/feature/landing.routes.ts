@@ -20,7 +20,8 @@ const LANDING_STRUCTURED_DATA: object[] = [
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
-    url: CANONICAL_ORIGIN,
+    alternateName: ['PsychoTechTraining', 'psychotechtraining.com'],
+    url: `${CANONICAL_ORIGIN}/`,
     inLanguage: 'fr',
   },
   {
@@ -34,9 +35,8 @@ const LANDING_STRUCTURED_DATA: object[] = [
   },
 ];
 
-const LANDING_SEO: RouteSeo = {
-  title:
-    'Tests psychotechniques ferroviaires : entraînement en ligne | PsychoTech Training',
+export const LANDING_SEO: RouteSeo = {
+  title: 'Tests psychotechniques ferroviaires : entraînement en ligne',
   description:
     "Entraînez-vous aux 5 familles d'épreuves psychotechniques des sélections ferroviaires : logique, mémoire, discrimination visuelle, réactivité et motricité.",
   structuredData: LANDING_STRUCTURED_DATA,
