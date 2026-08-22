@@ -1,10 +1,17 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
+  effect,
+  inject,
   input,
+  signal,
+  untracked,
 } from '@angular/core';
 import { AxisType, roundToTenth } from '@psychotech/shared';
+import { animate } from 'motion';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 
 export interface AxisRadarEntry {
@@ -29,6 +36,8 @@ const RADIUS = 48;
 const MESH_LEVELS = [1 / 3, 2 / 3, 1];
 const BUILD_START_FRACTION = 0.1;
 const BUILD_STAGGER_STEP = 0.06;
+const MORPH_DURATION_SEC = 0.45;
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 const RADAR_LABELS = [
   { text: 'Logique', x: 85, y: 9, anchor: 'middle' },
@@ -142,6 +151,88 @@ export class AxisRadar {
   readonly baseline = input<readonly AxisRadarEntry[]>([]);
   readonly progress = input(1);
 
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // Scores réellement dessinés. Ils rejoignent ceux de `entries` en glissant,
+  // pour qu'un changement de jeu de données déforme le polygone au lieu de le
+  // remplacer d'un coup.
+  private readonly drawnScores = signal<number[]>([]);
+  private stopMorph: (() => void) | null = null;
+  private pendingScores: number[] | null = null;
+
+  constructor() {
+    effect(() => {
+      const target = this.entries().map((entry) => entry.score);
+      const drawn = untracked(this.drawnScores);
+      if (drawn.length !== target.length || !this.canMorph()) {
+        this.settleOn(target);
+        return;
+      }
+      if (target.every((score, index) => score === drawn[index])) {
+        return;
+      }
+      this.morph(drawn, target);
+    });
+    this.watchVisibility();
+    this.destroyRef.onDestroy(() => this.stopMorph?.());
+  }
+
+  // Une animation ne doit jamais retenir la donnée : dès que l'onglet passe en
+  // arrière-plan, les frames s'arrêtent et le polygone resterait figé sur le
+  // jeu précédent, donc sur un profil faux. On le pose alors d'un coup.
+  private watchVisibility(): void {
+    if (typeof this.document.addEventListener !== 'function') {
+      return;
+    }
+    const onVisibilityChange = (): void => {
+      if (this.document.visibilityState === 'hidden' && this.pendingScores) {
+        this.settleOn(this.pendingScores);
+      }
+    };
+    this.document.addEventListener('visibilitychange', onVisibilityChange);
+    this.destroyRef.onDestroy(() =>
+      this.document.removeEventListener('visibilitychange', onVisibilityChange),
+    );
+  }
+
+  private canMorph(): boolean {
+    const view = this.document.defaultView;
+    if (typeof view?.matchMedia !== 'function') {
+      return false;
+    }
+    if (this.document.visibilityState === 'hidden') {
+      return false;
+    }
+    return !view.matchMedia(REDUCED_MOTION_QUERY).matches;
+  }
+
+  private settleOn(scores: number[]): void {
+    this.stopMorph?.();
+    this.stopMorph = null;
+    this.pendingScores = null;
+    this.drawnScores.set(scores);
+  }
+
+  private morph(from: number[], to: number[]): void {
+    this.stopMorph?.();
+    this.pendingScores = to;
+    try {
+      const controls = animate(0, 1, {
+        duration: MORPH_DURATION_SEC,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (fraction: number) =>
+          this.drawnScores.set(
+            from.map((score, index) => score + (to[index] - score) * fraction),
+          ),
+        onComplete: () => this.settleOn(to),
+      });
+      this.stopMorph = () => controls.stop();
+    } catch {
+      this.settleOn(to);
+    }
+  }
+
   protected readonly viewWidth = VIEW_WIDTH;
   protected readonly viewHeight = VIEW_HEIGHT;
   protected readonly centerX = CENTER_X;
@@ -158,7 +249,7 @@ export class AxisRadar {
 
   protected readonly areaPoints = computed(() =>
     polygonPoints((index) =>
-      pointAt(index, this.builtFraction(this.entries()[index]?.score ?? 0, index)),
+      pointAt(index, this.builtFraction(this.drawnScores()[index] ?? 0, index)),
     ),
   );
 
@@ -172,7 +263,10 @@ export class AxisRadar {
 
   protected readonly vertices = computed<RadarVertex[]>(() =>
     this.entries().map((entry, index) => ({
-      ...pointAt(index, this.builtFraction(entry.score, index)),
+      ...pointAt(
+        index,
+        this.builtFraction(this.drawnScores()[index] ?? entry.score, index),
+      ),
       colorVar: AXIS_PRESENTATION[entry.axis].plainVar,
     })),
   );
