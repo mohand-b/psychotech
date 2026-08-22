@@ -113,7 +113,8 @@ describe('BadgeCelebration', () => {
 
     const card = cardOf(fixture);
     expect(card?.textContent).toContain('Score ≥ 70');
-    expect(card?.querySelector('.cb__strike')).not.toBeNull();
+    const struck = card?.querySelector('.cb__condition .cb__condition-text');
+    expect(struck?.textContent?.trim()).toBe('Score ≥ 70');
     expect(card?.querySelector('.cb__gain')).toBeNull();
   });
 

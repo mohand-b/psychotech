@@ -68,11 +68,7 @@
             class="cb__condition"
             [class.cb__condition--prior]="!condition.justValidated"
           >
-            {{ condition.label }}
-            <span
-              class="cb__strike"
-              [class.cb__strike--static]="!condition.justValidated"
-            ></span>
+            <span class="cb__condition-text">{{ condition.label }}</span>
           </span>
         }
       </span>

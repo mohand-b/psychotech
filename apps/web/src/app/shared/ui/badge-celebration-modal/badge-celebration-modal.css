@@ -35,7 +35,7 @@
 
 @keyframes cbStrike {
   from {
-    width: 0;
+    background-size: 0 var(--cb-strike-height);
   }
 }
 
@@ -308,29 +308,32 @@
 }
 
 .cb__condition {
-  position: relative;
   display: inline-block;
   font: 500 13.5px/1.5 var(--font-ui);
   color: var(--success-text);
   animation: cbTurn 300ms ease 1150ms backwards;
 }
 
-.cb__condition--prior {
-  animation: none;
-}
-
-.cb__strike {
-  position: absolute;
-  left: 0;
-  top: 54%;
-  width: 100%;
-  height: 1.5px;
-  border-radius: 1px;
-  background: var(--success-text);
+/* La barre est peinte en fond du texte, pas posée en absolu sur le bloc : elle
+   se découpe donc avec lui et traverse chaque ligne à sa propre hauteur. Une
+   barre unique se retrouvait dans l'interligne dès que la condition passait
+   sur deux lignes. */
+.cb__condition-text {
+  --cb-strike-height: 1.5px;
+  background-image: linear-gradient(
+    var(--success-text),
+    var(--success-text)
+  );
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  background-size: 100% var(--cb-strike-height);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   animation: cbStrike 320ms cubic-bezier(0.4, 0, 0.2, 1) 1150ms backwards;
 }
 
-.cb__strike--static {
+.cb__condition--prior,
+.cb__condition--prior .cb__condition-text {
   animation: none;
 }
 
@@ -404,7 +407,7 @@
     .cb__name,
     .cb__tier,
     .cb__condition,
-    .cb__strike,
+    .cb__condition-text,
     .cb__coin,
     .cb__gain-amount,
     .cb__gain-note,
@@ -428,7 +431,7 @@
       .cb__name,
       .cb__tier,
       .cb__condition,
-      .cb__strike,
+      .cb__condition-text,
       .cb__coin,
       .cb__gain-amount,
       .cb__gain-note,
