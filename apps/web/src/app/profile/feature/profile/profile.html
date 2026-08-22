@@ -3,11 +3,6 @@
     <ui-icon [img]="backIcon" [size]="18" [strokeWidth]="2" />
   </a>
   <span class="profilm__bar-title">Mon profil</span>
-  <span class="flex-1"></span>
-  <a class="profilm__solde flex items-center" routerLink="/credits">
-    <ui-axis-icon axis="credit" [size]="13" />
-    <span class="t-mono">{{ balance() }}</span>
-  </a>
 </header>
 <div class="profilm__tabs md:hidden flex">
   @for (item of navItems; track item.id) {
