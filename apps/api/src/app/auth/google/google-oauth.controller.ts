@@ -83,6 +83,7 @@ export class GoogleOAuthController {
 
   private toErrorCode(caught: unknown): SsoErrorCode {
     if (caught instanceof GoogleOAuthError) {
+      this.logger.warn(`Google sign-in refused (${caught.code}): ${caught.message}`);
       return caught.code;
     }
     this.logger.error(
