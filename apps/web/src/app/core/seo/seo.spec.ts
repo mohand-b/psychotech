@@ -59,7 +59,19 @@ describe('Seo structured data', () => {
     expect(website).toBeDefined();
     expect(website.name).toBe(SITE_NAME);
     expect(website.url).toBe(`${CANONICAL_ORIGIN}/`);
-    expect(website.alternateName).toContain('psychotechtraining.com');
+    expect(website.alternateName).toContain(SITE_NAME.replace(/\s/g, ''));
+  });
+
+  it('never offers the bare domain as an alternate name, which would license search engines to keep showing it', async () => {
+    await applyLanding();
+
+    const website = jsonLdNodes()
+      .map((node) => JSON.parse(node.textContent ?? '{}'))
+      .find((entry) => entry['@type'] === 'WebSite');
+
+    expect(website.alternateName).not.toContain(
+      new URL(CANONICAL_ORIGIN).hostname,
+    );
   });
 
   it('keeps a single WebSite node so the home never declares two identities', async () => {

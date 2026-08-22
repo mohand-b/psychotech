@@ -20,7 +20,7 @@ const LANDING_STRUCTURED_DATA: object[] = [
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
-    alternateName: ['PsychoTechTraining', 'psychotechtraining.com'],
+    alternateName: ['PsychoTechTraining'],
     url: `${CANONICAL_ORIGIN}/`,
     inLanguage: 'fr',
   },
