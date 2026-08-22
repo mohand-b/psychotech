@@ -31,6 +31,27 @@ function areaPoints(fixture: ComponentFixture<RadarHost>): string {
   return element.querySelector('.radar__area')?.getAttribute('points') ?? '';
 }
 
+const MORPH_TIMEOUT_MS = 2000;
+const MORPH_POLL_INTERVAL_MS = 16;
+
+// Le morph avance au rythme des frames, que jsdom sert quand il veut : attendre
+// une durée fixe rend le test dépendant de la charge de la machine.
+async function waitForShapeChange(
+  fixture: ComponentFixture<RadarHost>,
+  previous: string,
+): Promise<string> {
+  const deadline = Date.now() + MORPH_TIMEOUT_MS;
+  let current = areaPoints(fixture);
+  while (current === previous && Date.now() < deadline) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, MORPH_POLL_INTERVAL_MS),
+    );
+    fixture.detectChanges();
+    current = areaPoints(fixture);
+  }
+  return current;
+}
+
 describe('AxisRadar', () => {
   let reducedMotion: boolean;
   const originalMatchMedia = window.matchMedia;
@@ -71,10 +92,7 @@ describe('AxisRadar', () => {
 
     expect(areaPoints(fixture)).toBe(before);
 
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    fixture.detectChanges();
-
-    const midway = areaPoints(fixture);
+    const midway = await waitForShapeChange(fixture, before);
     expect(midway).not.toBe(before);
   });
 
