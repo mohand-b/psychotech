@@ -41,3 +41,38 @@ export interface ResendVerificationResponseDto {
   sent: boolean;
   retryAfterSeconds: number | null;
 }
+
+export interface RequestPasswordResetDto {
+  email: string;
+}
+
+export interface RequestPasswordResetResponseDto {
+  accepted: true;
+}
+
+export type PasswordResetTokenOutcome =
+  | 'VALID'
+  | 'INVALID'
+  | 'EXPIRED'
+  | 'ALREADY_USED';
+
+export interface PasswordResetTokenCheckDto {
+  outcome: PasswordResetTokenOutcome;
+  email: string | null;
+  definesFirstPassword: boolean;
+}
+
+export type PasswordResetOutcome =
+  | 'RESET'
+  | 'INVALID'
+  | 'EXPIRED'
+  | 'ALREADY_USED';
+
+export interface ResetPasswordDto {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponseDto {
+  outcome: PasswordResetOutcome;
+}

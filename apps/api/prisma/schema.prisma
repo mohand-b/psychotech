@@ -124,6 +124,7 @@ model User {
   energyWallet      EnergyWallet?
   emailVerification EmailVerification?
   emailChange       EmailChange?
+  passwordReset     PasswordReset?
   packPurchases     PackPurchase[]
   streak            Streak?
   sessions          Session[]
@@ -145,6 +146,19 @@ model UserIdentity {
 
   @@unique([provider, providerAccountId])
   @@unique([userId, provider])
+}
+
+model PasswordReset {
+  id         String    @id @default(uuid())
+  userId     String    @unique
+  tokenHash  String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  sentCount  Int       @default(1)
+  lastSentAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model EmailChange {

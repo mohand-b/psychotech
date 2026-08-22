@@ -1,3 +1,5 @@
+import { PASSWORD_RESET_TTL_MINUTES } from '@psychotech/shared';
+
 export interface VerificationEmailInput {
   firstName: string;
   email: string;
@@ -10,6 +12,14 @@ export interface NoticeEmailInput {
   firstName: string;
   title: string;
   paragraphs: string[];
+  baseUrl: string;
+}
+
+export interface PasswordResetEmailInput {
+  firstName: string;
+  email: string;
+  link: string;
+  variant: 'reset' | 'define';
   baseUrl: string;
 }
 
@@ -157,6 +167,43 @@ export function buildVerificationEmail(input: VerificationEmailInput): {
     subject: signup
       ? 'Confirmez votre adresse email'
       : 'Confirmez votre nouvelle adresse email',
+    html: renderHtml(content),
+    text: renderText(content, plainBody),
+  };
+}
+
+export function buildPasswordResetEmail(input: PasswordResetEmailInput): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const define = input.variant === 'define';
+  const emailHtml = `<span style="font-weight: 600; color: ${INK};">${escapeHtml(input.email)}</span>`;
+  const content: EmailContent = {
+    title: define
+      ? 'Définissez votre mot de passe'
+      : 'Réinitialisez votre mot de passe',
+    intro: `Bonjour ${input.firstName},`,
+    body: define
+      ? `Votre compte PsychoTech ${emailHtml} se connecte aujourd'hui avec Google. Définissez un mot de passe pour pouvoir aussi vous connecter sans passer par Google : les deux méthodes fonctionneront ensuite sur ce même compte.`
+      : `Vous avez demandé à réinitialiser le mot de passe du compte PsychoTech ${emailHtml}. Choisissez-en un nouveau pour retrouver votre accès.`,
+    cta: {
+      label: define ? 'Définir mon mot de passe' : 'Choisir un nouveau mot de passe',
+      link: input.link,
+    },
+    afterCta: `Ce lien est valable ${PASSWORD_RESET_TTL_MINUTES} minutes et ne peut servir qu'une seule fois.`,
+    fallbackLink: input.link,
+    outro:
+      "Si vous n'êtes pas à l'origine de cette demande, ignorez cet email : votre mot de passe actuel reste valable et aucune action ne sera effectuée.",
+    baseUrl: input.baseUrl,
+  };
+  const plainBody = define
+    ? `Votre compte PsychoTech ${input.email} se connecte aujourd'hui avec Google. Définissez un mot de passe pour pouvoir aussi vous connecter sans passer par Google : les deux méthodes fonctionneront ensuite sur ce même compte.`
+    : `Vous avez demandé à réinitialiser le mot de passe du compte PsychoTech ${input.email}. Choisissez-en un nouveau pour retrouver votre accès.`;
+  return {
+    subject: define
+      ? 'Définissez votre mot de passe PsychoTech'
+      : 'Réinitialisez votre mot de passe PsychoTech',
     html: renderHtml(content),
     text: renderText(content, plainBody),
   };

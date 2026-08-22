@@ -148,6 +148,31 @@ function repositoryWith(tx: GoogleTx): AuthRepository {
   return new AuthRepository(prisma as unknown as PrismaService);
 }
 
+describe('AuthRepository.updatePasswordHash', () => {
+  it('discards any pending reset request so an old link cannot be replayed', async () => {
+    const tx = {
+      passwordReset: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
+      user: { update: vi.fn().mockResolvedValue(buildUser()) },
+    };
+    const prisma = {
+      $transaction: vi.fn((callback: (client: typeof tx) => unknown) =>
+        callback(tx),
+      ),
+    };
+    const repository = new AuthRepository(prisma as unknown as PrismaService);
+
+    await repository.updatePasswordHash('user-1', 'new-hash');
+
+    expect(tx.passwordReset.deleteMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+    });
+    expect(tx.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { passwordHash: 'new-hash', passwordChangedAt: expect.any(Date) },
+    });
+  });
+});
+
 describe('AuthRepository.googleSignIn', () => {
   it('creates a verified Google-only account with a single signup grant and the badge event in the same transaction', async () => {
     const tx = buildGoogleTx();

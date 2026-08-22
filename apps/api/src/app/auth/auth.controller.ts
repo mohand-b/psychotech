@@ -11,7 +11,10 @@ import {
 } from '@nestjs/common';
 import {
   EmailChangeRequestResponseDto,
+  PasswordResetTokenCheckDto,
+  RequestPasswordResetResponseDto,
   ResendVerificationResponseDto,
+  ResetPasswordResponseDto,
   UserProfileDto,
   VerifyEmailChangeResponseDto,
   VerifyEmailResponseDto,
@@ -31,14 +34,22 @@ import { DeleteAccountRequest } from './dto/delete-account.request';
 import { RequestEmailChangeRequest } from './dto/request-email-change.request';
 import { VerifyEmailChangeRequest } from './dto/verify-email-change.request';
 import { VerifyEmailRequest } from './dto/verify-email.request';
+import { CheckPasswordResetRequest } from './dto/check-password-reset.request';
+import { RequestPasswordResetRequest } from './dto/request-password-reset.request';
+import { ResetPasswordRequest } from './dto/reset-password.request';
 import { EmailChangeService } from './email-change.service';
 import { EmailVerificationService } from './email-verification.service';
 import { IpRateLimitService } from './ip-rate-limit.service';
+import { normalizeEmail } from './email-normalization';
+import { PasswordResetService } from './password-reset.service';
 
 const VERIFY_IP_LIMIT = { limit: 30, windowMs: 3_600_000 };
 const RESEND_IP_LIMIT = { limit: 10, windowMs: 3_600_000 };
 const EMAIL_CHANGE_LIMIT = { limit: 10, windowMs: 3_600_000 };
 const DELETE_LIMIT = { limit: 5, windowMs: 3_600_000 };
+const FORGOT_IP_LIMIT = { limit: 10, windowMs: 3_600_000 };
+const FORGOT_EMAIL_LIMIT = { limit: 5, windowMs: 86_400_000 };
+const RESET_IP_LIMIT = { limit: 30, windowMs: 3_600_000 };
 
 interface RequestWithCookies extends Request {
   cookies: Record<string, string | undefined>;
@@ -51,8 +62,49 @@ export class AuthController {
     private readonly cookies: AuthCookieService,
     private readonly emailVerification: EmailVerificationService,
     private readonly emailChange: EmailChangeService,
+    private readonly passwordReset: PasswordResetService,
     private readonly ipRateLimit: IpRateLimitService,
   ) {}
+
+  @Public()
+  @SkipCsrf()
+  @HttpCode(HttpStatus.OK)
+  @Post('password/forgot')
+  requestPasswordReset(
+    @Body() request: RequestPasswordResetRequest,
+    @Ip() ip: string,
+  ): RequestPasswordResetResponseDto {
+    this.ipRateLimit.assertAllowed(`forgot:${ip}`, FORGOT_IP_LIMIT);
+    this.ipRateLimit.assertAllowed(
+      `forgot:email:${normalizeEmail(request.email)}`,
+      FORGOT_EMAIL_LIMIT,
+    );
+    return this.passwordReset.request(request.email);
+  }
+
+  @Public()
+  @SkipCsrf()
+  @HttpCode(HttpStatus.OK)
+  @Post('password/reset/check')
+  checkPasswordReset(
+    @Body() request: CheckPasswordResetRequest,
+    @Ip() ip: string,
+  ): Promise<PasswordResetTokenCheckDto> {
+    this.ipRateLimit.assertAllowed(`reset-check:${ip}`, RESET_IP_LIMIT);
+    return this.passwordReset.check(request.token);
+  }
+
+  @Public()
+  @SkipCsrf()
+  @HttpCode(HttpStatus.OK)
+  @Post('password/reset')
+  resetPassword(
+    @Body() request: ResetPasswordRequest,
+    @Ip() ip: string,
+  ): Promise<ResetPasswordResponseDto> {
+    this.ipRateLimit.assertAllowed(`reset:${ip}`, RESET_IP_LIMIT);
+    return this.passwordReset.reset(request.token, request.password);
+  }
 
   @Public()
   @SkipCsrf()

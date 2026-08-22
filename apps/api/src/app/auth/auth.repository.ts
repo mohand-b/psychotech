@@ -119,9 +119,12 @@ export class AuthRepository {
   }
 
   updatePasswordHash(userId: string, passwordHash: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash, passwordChangedAt: new Date() },
+    return this.prisma.$transaction(async (tx) => {
+      await tx.passwordReset.deleteMany({ where: { userId } });
+      return tx.user.update({
+        where: { id: userId },
+        data: { passwordHash, passwordChangedAt: new Date() },
+      });
     });
   }
 

@@ -12,6 +12,8 @@ import { EmailChangeRepository } from './email-change.repository';
 import { EmailChangeService } from './email-change.service';
 import { EmailVerificationRepository } from './email-verification.repository';
 import { EmailVerificationService } from './email-verification.service';
+import { PasswordResetRepository } from './password-reset.repository';
+import { PasswordResetService } from './password-reset.service';
 import { GoogleOAuthController } from './google/google-oauth.controller';
 import { GoogleOAuthService } from './google/google-oauth.service';
 import { CsrfGuard } from './guards/csrf.guard';
@@ -31,6 +33,8 @@ import { TokenService } from './token.service';
     EmailVerificationRepository,
     EmailChangeService,
     EmailChangeRepository,
+    PasswordResetService,
+    PasswordResetRepository,
     IpRateLimitService,
     PasswordHasher,
     TokenService,
