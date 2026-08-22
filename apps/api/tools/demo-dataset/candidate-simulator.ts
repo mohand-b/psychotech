@@ -321,6 +321,36 @@ export function simulateReactivityAnswers(
   return { stimuli: answers, waitPresses };
 }
 
+// Une passe sans la moindre faute : bonne commande partout, aucun oubli,
+// aucun appui d'attente. Les temps restent rapides mais au-dessus de
+// REACTIVITY_ANTICIPATION_TR_MS (150 ms), sous lequel le scoreur requalifie
+// un appui en anticipation — c'est ce qui empêchait la perfection quand on se
+// contentait de pousser l'habileté à 1.
+const REACTIVITY_FLAWLESS_MEDIAN_MS = 265;
+const REACTIVITY_FLAWLESS_SIGMA = 0.12;
+const REACTIVITY_FLAWLESS_MIN_MS = 200;
+const REACTIVITY_FLAWLESS_MAX_MS = 700;
+
+export function simulateFlawlessReactivityAnswers(
+  stimuli: readonly ReactivityStimulus[],
+  rng: SeededRng,
+): SimulatedReactivity {
+  return {
+    stimuli: stimuli.map((stimulus) => ({
+      index: stimulus.index,
+      commandPressed: REACTIVITY_COMMAND_BY_TYPE[stimulus.type],
+      trMs: lognormalMs(
+        rng,
+        REACTIVITY_FLAWLESS_MEDIAN_MS,
+        REACTIVITY_FLAWLESS_SIGMA,
+        REACTIVITY_FLAWLESS_MIN_MS,
+        REACTIVITY_FLAWLESS_MAX_MS,
+      ),
+    })),
+    waitPresses: [],
+  };
+}
+
 interface TraversalCursor {
   samples: MotricitySampleDto[];
   elapsedMs: number;
