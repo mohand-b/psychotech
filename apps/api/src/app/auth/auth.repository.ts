@@ -47,6 +47,14 @@ export type GoogleSignInOutcome =
   | { kind: 'CONFLICT_OTHER_GOOGLE' }
   | { kind: 'UNVERIFIED_LINK_REFUSED' };
 
+const ACCOUNT_TRANSACTION_TIMEOUT_MS = 15_000;
+const ACCOUNT_TRANSACTION_MAX_WAIT_MS = 5_000;
+
+const ACCOUNT_TRANSACTION_OPTIONS = {
+  timeout: ACCOUNT_TRANSACTION_TIMEOUT_MS,
+  maxWait: ACCOUNT_TRANSACTION_MAX_WAIT_MS,
+};
+
 function isUniqueConstraintViolation(error: unknown): boolean {
   return (
     error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -69,18 +77,20 @@ export class AuthRepository {
   }
 
   createAccount(data: CreateAccountData): Promise<User> {
-    return this.prisma.$transaction((tx) =>
-      this.createUserWithSignupGrant(tx, {
-        email: data.email,
-        passwordHash: data.passwordHash,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        timezone: data.timezone,
-        locale: data.locale,
-        currentSector: mapEnumValue(DbSector, data.currentSector),
-        termsVersion: data.termsVersion,
-        termsAcceptedAt: data.termsAcceptedAt,
-      }),
+    return this.prisma.$transaction(
+      (tx) =>
+        this.createUserWithSignupGrant(tx, {
+          email: data.email,
+          passwordHash: data.passwordHash,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          timezone: data.timezone,
+          locale: data.locale,
+          currentSector: mapEnumValue(DbSector, data.currentSector),
+          termsVersion: data.termsVersion,
+          termsAcceptedAt: data.termsAcceptedAt,
+        }),
+      ACCOUNT_TRANSACTION_OPTIONS,
     );
   }
 
@@ -214,7 +224,7 @@ export class AuthRepository {
         await onVerified(tx, user.id);
       }
       return { kind: 'CREATED', user, verifiedNow: data.emailVerified };
-    });
+    }, ACCOUNT_TRANSACTION_OPTIONS);
   }
 
   private async createUserWithSignupGrant(

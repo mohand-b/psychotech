@@ -67,6 +67,30 @@ describe('AuthRepository.createAccount', () => {
       },
     });
   });
+
+  it('leaves the account creation more than the default five seconds so a cold database does not abort it', async () => {
+    const tx = {
+      user: { create: vi.fn().mockResolvedValue(buildUser()) },
+      energyLedger: { create: vi.fn().mockResolvedValue({}) },
+    };
+    const prisma = {
+      $transaction: vi.fn((callback: (client: typeof tx) => unknown) => callback(tx)),
+    };
+    const repository = new AuthRepository(prisma as unknown as PrismaService);
+
+    await repository.createAccount({
+      email: 'alice@example.com',
+      passwordHash: 'hashed-password',
+      firstName: 'Alice',
+      lastName: 'Martin',
+      timezone: 'Europe/Paris',
+      currentSector: 'RAILWAY',
+    });
+
+    const options = prisma.$transaction.mock.calls[0][1];
+    expect(options.timeout).toBeGreaterThan(5000);
+    expect(options.maxWait).toBeGreaterThan(0);
+  });
 });
 
 interface GoogleTx {
@@ -289,6 +313,20 @@ describe('AuthRepository.googleSignIn', () => {
     expect(prisma.$transaction).toHaveBeenCalledTimes(2);
     expect(outcome.kind).toBe('SIGNED_IN');
     expect(winnerTx.energyLedger.create).not.toHaveBeenCalled();
+  });
+
+  it('leaves the google account creation more than the default five seconds so a cold database does not abort it', async () => {
+    const tx = buildGoogleTx();
+    const prisma = {
+      $transaction: vi.fn((callback: (client: GoogleTx) => unknown) => callback(tx)),
+    };
+    const repository = new AuthRepository(prisma as unknown as PrismaService);
+
+    await repository.googleSignIn(buildGoogleData(), vi.fn());
+
+    const options = prisma.$transaction.mock.calls[0][1];
+    expect(options.timeout).toBeGreaterThan(5000);
+    expect(options.maxWait).toBeGreaterThan(0);
   });
 
   it('rethrows non-unique-constraint transaction failures without retrying', async () => {
