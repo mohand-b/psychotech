@@ -14,6 +14,12 @@ const REGISTER_SEO: RouteSeo = {
     "Créez votre compte gratuitement : mode découverte des 5 épreuves psychotechniques ferroviaires en accès libre et 3 crédits offerts à l'inscription.",
 };
 
+const FORGOT_PASSWORD_SEO: RouteSeo = {
+  title: 'Mot de passe oublié | PsychoTech Training',
+  description:
+    'Recevez un lien sécurisé pour définir un nouveau mot de passe et retrouver l’accès à votre espace PsychoTech Training.',
+};
+
 export const authRoutes: Route[] = [
   {
     path: '',
@@ -32,6 +38,20 @@ export const authRoutes: Route[] = [
         loadComponent: () =>
           import('./register/register').then((m) => m.Register),
         data: { seo: REGISTER_SEO },
+      },
+      {
+        path: 'mot-de-passe-oublie',
+        canMatch: [guestGuard],
+        loadComponent: () =>
+          import('./forgot-password/forgot-password').then(
+            (m) => m.ForgotPassword,
+          ),
+        data: { seo: FORGOT_PASSWORD_SEO },
+      },
+      {
+        path: 'nouveau-mot-de-passe',
+        loadComponent: () =>
+          import('./reset-password/reset-password').then((m) => m.ResetPassword),
       },
       {
         path: 'verification',

@@ -5,8 +5,11 @@ import {
   DeleteAccountDto,
   EmailChangeRequestResponseDto,
   LoginDto,
+  PasswordResetTokenCheckDto,
   RegisterDto,
+  RequestPasswordResetResponseDto,
   ResendVerificationResponseDto,
+  ResetPasswordResponseDto,
   SSO_FROM_QUERY_PARAM,
   SSO_RETURN_URL_QUERY_PARAM,
   SSO_SECTOR_QUERY_PARAM,
@@ -108,6 +111,23 @@ export class AuthFacade {
 
   verifyEmailChange(token: string): Observable<VerifyEmailChangeResponseDto> {
     return this.api.verifyEmailChange(token);
+  }
+
+  requestPasswordReset(
+    email: string,
+  ): Observable<RequestPasswordResetResponseDto> {
+    return this.api.requestPasswordReset({ email });
+  }
+
+  checkPasswordReset(token: string): Observable<PasswordResetTokenCheckDto> {
+    return this.api.checkPasswordReset(token);
+  }
+
+  resetPassword(
+    token: string,
+    password: string,
+  ): Observable<ResetPasswordResponseDto> {
+    return this.api.resetPassword({ token, password });
   }
 
   deleteAccount(payload: DeleteAccountDto): Observable<void> {

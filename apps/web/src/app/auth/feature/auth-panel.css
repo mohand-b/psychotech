@@ -36,6 +36,17 @@
   gap: 10px;
 }
 
+.auth__forgot {
+  align-self: flex-end;
+  font: 500 13px/18px var(--font-ui);
+  color: var(--label);
+  text-decoration: none;
+}
+
+.auth__forgot:hover {
+  color: var(--ink);
+}
+
 .auth__server-error {
   display: inline-flex;
   align-items: center;

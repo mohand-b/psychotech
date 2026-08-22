@@ -31,6 +31,9 @@
       [(value)]="password"
       [error]="passwordError()"
     />
+    <a class="auth__forgot" routerLink="/mot-de-passe-oublie"
+      >Mot de passe oublié&nbsp;?</a
+    >
   </div>
 
   @if (displayedError(); as message) {

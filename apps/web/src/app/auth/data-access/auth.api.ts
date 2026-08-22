@@ -5,9 +5,14 @@ import {
   DeleteAccountDto,
   EmailChangeRequestResponseDto,
   LoginDto,
+  PasswordResetTokenCheckDto,
   RegisterDto,
   RequestEmailChangeDto,
+  RequestPasswordResetDto,
+  RequestPasswordResetResponseDto,
   ResendVerificationResponseDto,
+  ResetPasswordDto,
+  ResetPasswordResponseDto,
   UpdateUserProfileDto,
   UserProfileDto,
   VerifyEmailChangeResponseDto,
@@ -86,6 +91,31 @@ export class AuthApi {
     return this.http.post<VerifyEmailChangeResponseDto>(
       `${this.baseUrl}/auth/email/change/verify`,
       { token },
+    );
+  }
+
+  requestPasswordReset(
+    payload: RequestPasswordResetDto,
+  ): Observable<RequestPasswordResetResponseDto> {
+    return this.http.post<RequestPasswordResetResponseDto>(
+      `${this.baseUrl}/auth/password/forgot`,
+      payload,
+    );
+  }
+
+  checkPasswordReset(token: string): Observable<PasswordResetTokenCheckDto> {
+    return this.http.post<PasswordResetTokenCheckDto>(
+      `${this.baseUrl}/auth/password/reset/check`,
+      { token },
+    );
+  }
+
+  resetPassword(
+    payload: ResetPasswordDto,
+  ): Observable<ResetPasswordResponseDto> {
+    return this.http.post<ResetPasswordResponseDto>(
+      `${this.baseUrl}/auth/password/reset`,
+      payload,
     );
   }
 
