@@ -20,6 +20,7 @@ import { PasswordResetRepository } from './password-reset.repository';
 import { PasswordHasher } from './password.service';
 import { resendRetryAfterSeconds } from './resend-throttle';
 
+const PASSWORD_RESET_WINDOW_HOURS = 1;
 const TOKEN_BYTES = 32;
 const MS_PER_MINUTE = 60_000;
 const DEFAULT_APP_BASE_URL = 'http://localhost:4200';
@@ -52,7 +53,11 @@ export class PasswordResetService {
       }
       const existing = await this.repository.findByUserId(user.id);
       const now = new Date();
-      if (existing && resendRetryAfterSeconds(existing, now) !== null) {
+      if (
+        existing &&
+        resendRetryAfterSeconds(existing, now, PASSWORD_RESET_WINDOW_HOURS) !==
+          null
+      ) {
         return;
       }
       const token = randomBytes(TOKEN_BYTES).toString('hex');

@@ -161,6 +161,20 @@ describe('PasswordResetService.deliverResetLink', () => {
     expect(mailer.send).not.toHaveBeenCalled();
   });
 
+  it('sends again once the hour is past, rather than staying mute for a whole day', async () => {
+    authRepository.findByEmailInsensitive.mockResolvedValue(buildUser());
+    repository.findByUserId.mockResolvedValue(
+      buildRecord({
+        sentCount: 5,
+        lastSentAt: new Date(Date.now() - 61 * 60_000),
+      }),
+    );
+
+    await service.deliverResetLink('alice@example.com');
+
+    expect(mailer.send).toHaveBeenCalledTimes(1);
+  });
+
   it('invites a google-only account to define a password rather than reset one', async () => {
     authRepository.findByEmailInsensitive.mockResolvedValue(
       buildUser({ passwordHash: null }),

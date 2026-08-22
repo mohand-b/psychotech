@@ -13,13 +13,14 @@ export interface ResendCounters {
 export function resendRetryAfterSeconds(
   counters: ResendCounters,
   now: Date,
+  windowHours: number = RESEND_WINDOW_HOURS,
 ): number | null {
   const sinceLastSend =
     (now.getTime() - counters.lastSentAt.getTime()) / MS_PER_SECOND;
   if (sinceLastSend < RESEND_MIN_INTERVAL_SECONDS) {
     return Math.ceil(RESEND_MIN_INTERVAL_SECONDS - sinceLastSend);
   }
-  const windowSeconds = RESEND_WINDOW_HOURS * SECONDS_PER_HOUR;
+  const windowSeconds = windowHours * SECONDS_PER_HOUR;
   if (counters.sentCount >= RESEND_WINDOW_LIMIT && sinceLastSend < windowSeconds) {
     return Math.ceil(windowSeconds - sinceLastSend);
   }
