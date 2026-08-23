@@ -12,6 +12,13 @@
         "command": "node apps/web/tools/generate-sitemap.mjs"
       }
     },
+    "seo-check": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node tools/scripts/check-seo-ssr.mjs"
+      }
+    },
     "build": {
       "executor": "@angular/build:application",
       "outputs": [
