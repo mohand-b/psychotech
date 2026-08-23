@@ -16,6 +16,7 @@ import {
   LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
 } from '@psychotech/shared';
+import { SITE_NAME } from '../../core/seo/route-seo';
 
 export type LegalDocumentId =
   | 'mentions-legales'
@@ -58,6 +59,8 @@ function todo(text: string): LegalRun {
   return { text, todo: true };
 }
 
+const SITE_HOME_LINK: LegalRun = { text: SITE_NAME, href: '/' };
+
 function value(text: string, fallback: string): LegalRun {
   return text ? { text } : todo(fallback);
 }
@@ -83,7 +86,9 @@ const MENTIONS_LEGALES: LegalDocument = {
         {
           kind: 'text',
           runs: [
-            { text: 'Le site et l’application PsychoTech sont édités par ' },
+            { text: 'Le site et l’application ' },
+            SITE_HOME_LINK,
+            { text: ' sont édités par ' },
             value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', ' },
             value(LEGAL_COMPANY.legalForm, 'statut'),
@@ -224,8 +229,10 @@ const CONFIDENTIALITE: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Le responsable du traitement de vos données personnelles est ',
+              text: 'Le responsable du traitement des données personnelles collectées sur ',
             },
+            SITE_HOME_LINK,
+            { text: ' est ' },
             value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', dont les coordonnées figurent dans les ' },
             { text: 'mentions légales', href: '/mentions-legales' },
@@ -448,8 +455,10 @@ const CGV: LegalDocument = {
         {
           kind: 'text',
           runs: [
+            { text: 'Les présentes conditions régissent la souscription et l’utilisation des offres payantes de ' },
+            SITE_HOME_LINK,
             {
-              text: 'Les présentes conditions régissent la souscription et l’utilisation des abonnements PsychoTech par tout consommateur majeur. La création d’un compte vaut acceptation sans réserve.',
+              text: ' par tout consommateur majeur. La création d’un compte vaut acceptation sans réserve.',
             },
           ],
         },
@@ -641,7 +650,11 @@ const CGU: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'En cochant la case « J’accepte les conditions d’utilisation » lors de la création de votre compte, vous acceptez le présent document. Il régit votre usage du service, indépendamment de tout paiement : les ',
+              text: 'En cochant la case « J’accepte les conditions d’utilisation » lors de la création de votre compte, vous acceptez le présent document. Il régit votre usage de ',
+            },
+            SITE_HOME_LINK,
+            {
+              text: ', indépendamment de tout paiement : les ',
             },
             { text: 'conditions générales de vente', href: '/cgv' },
             { text: ' s’y ajoutent dès que vous souscrivez une formule payante.' },
