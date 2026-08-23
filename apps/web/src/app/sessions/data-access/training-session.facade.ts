@@ -209,6 +209,10 @@ export class TrainingSessionFacade {
     this.store.rebaseAnchor();
   }
 
+  elapsedPlayMs(): number {
+    return Math.max(0, Date.now() - this.store.anchorMs());
+  }
+
   readonly remainingSec: Signal<number | null> = computed(() => {
     const override = this.effectiveCountdown();
     if (override) {
@@ -428,16 +432,19 @@ export class TrainingSessionFacade {
 
   completeTargetedDiscrimination(
     trials: DiscriminationTrialAnswerDto[],
+    playedMs: number,
   ): Observable<SessionDto> {
     const session = this.store.session();
     const axis = this.axis();
     if (!session || !axis) {
       return throwError(() => new Error('No active training session'));
     }
-    return this.api.completeTargeted(session.id, axis, { axis, trials }).pipe(
-      this.recoverAlreadySubmitted(session.id),
-      tap((completed) => this.install(completed)),
-    );
+    return this.api
+      .completeTargeted(session.id, axis, { axis, trials, playedMs })
+      .pipe(
+        this.recoverAlreadySubmitted(session.id),
+        tap((completed) => this.install(completed)),
+      );
   }
 
   completeTargetedMotricity(

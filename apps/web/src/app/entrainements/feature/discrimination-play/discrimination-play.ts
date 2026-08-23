@@ -271,9 +271,11 @@ export class DiscriminationPlay {
     for (let index = recorded.length; index < this.total; index += 1) {
       answers.push({ index, answer: null, timeMs: 0 });
     }
+    const playedMs = this.facade.elapsedPlayMs();
     this.resultWait.submit({
       axis: this.axis,
-      complete: () => this.facade.completeTargetedDiscrimination(answers),
+      complete: () =>
+        this.facade.completeTargetedDiscrimination(answers, playedMs),
       onSilentFailure: () => {
         this.hasSubmitted = false;
         this.submitting.set(false);

@@ -169,7 +169,7 @@ describe('TutorialSessionFacade', () => {
     setup(AxisType.VISUAL_DISCRIMINATION);
     const runFacade = TestBed.inject(TutorialRunFacade);
     runInInjectionContext(tutorialInjector, () => {
-      facade.completeTargetedDiscrimination([]).subscribe();
+      facade.completeTargetedDiscrimination([], 0).subscribe();
     });
     expect(runFacade.result()?.axis).toBe(AxisType.VISUAL_DISCRIMINATION);
   });
