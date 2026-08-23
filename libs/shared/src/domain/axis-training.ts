@@ -84,6 +84,17 @@ export const FULL_SESSION_AXIS_ORDER: readonly RailwayPlayableAxis[] = [
   AxisType.MOTOR_SKILLS,
 ];
 
+export function globalTimerDurationSec(axis: AxisType): number | null {
+  switch (axis) {
+    case AxisType.LOGIC:
+    case AxisType.VISUAL_DISCRIMINATION:
+    case AxisType.REACTIVITY:
+      return AXIS_TRAINING[axis].timer.durationSec;
+    default:
+      return null;
+  }
+}
+
 export function axisMaxDurationSec(axis: RailwayPlayableAxis): number {
   const training = AXIS_TRAINING[axis];
   switch (training.axis) {
