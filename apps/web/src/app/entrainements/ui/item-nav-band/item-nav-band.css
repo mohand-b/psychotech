@@ -206,23 +206,6 @@
     color: var(--ink);
   }
 
-  .band__timer {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 7px 12px;
-    color: var(--text-secondary);
-  }
-
-  .band__timer-value {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-  }
-
   .band__items {
     min-width: 0;
     justify-content: flex-start;
