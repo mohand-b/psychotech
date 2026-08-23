@@ -6,6 +6,7 @@ import {
   FULL_SESSION_AXIS_ORDER,
   SessionMode,
   TrainingOptionId,
+  globalTimerDurationSec,
 } from '@psychotech/shared';
 import { localDayNumber, previousLocalDayNumber } from '../common/timezone.util';
 
@@ -42,10 +43,40 @@ export function finishedAxisCount(
   ).length;
 }
 
+// Un axe à chrono global est joué jusqu'au bout dès que le chrono est écoulé,
+// même s'il reste des items sans réponse : le temps fait foi, pas le remplissage.
+// Les deux horloges sont nécessaires et aucune ne suffit seule. Le client seul
+// se forge ; le serveur seul surestime, car il ne date que le début de session,
+// qui peut précéder de loin le début de l'axe sur une session reprise.
+export function globalTimerExhausted(
+  axis: AxisType,
+  session: { trainingOptions: string[] },
+  axisStartedAt: Date,
+  now: Date,
+  playedMs: number | undefined,
+): boolean {
+  if (sessionUntimed(session) || playedMs === undefined) {
+    return false;
+  }
+  const durationSec = globalTimerDurationSec(axis);
+  if (durationSec === null) {
+    return false;
+  }
+  const durationMs = durationSec * 1000;
+  return (
+    playedMs >= durationMs &&
+    now.getTime() - axisStartedAt.getTime() >= durationMs
+  );
+}
+
 export function axisContentFullyPlayed(
   rawResult: AxisRawResultDto,
   playedMs: number | undefined,
+  timerExhausted: boolean,
 ): boolean {
+  if (timerExhausted) {
+    return true;
+  }
   if (rawResult.axis === AxisType.LOGIC) {
     const training = AXIS_TRAINING[AxisType.LOGIC];
     const activeMs = rawResult.items.reduce(

@@ -5,6 +5,7 @@
 } from '@nestjs/common';
 import { Prisma, SessionAxis } from '@prisma/client';
 import {
+  AXIS_TRAINING,
   AxisType,
   BadgeEvent,
   ControlModality,
@@ -730,6 +731,34 @@ describe('SessionsService.completeAxis (discrimination)', () => {
       }),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(repository.completeTargetedSession).not.toHaveBeenCalled();
+  });
+
+  it('returns a result for a run the timer cut short, unanswered trials included', async () => {
+    repository.findUserSession.mockResolvedValue(discriminationSession());
+    repository.completeTargetedSession.mockResolvedValue({
+      session: buildSession({
+        mode: 'TARGETED',
+        status: 'COMPLETED',
+        axisResults: [buildAxis({ axis: 'VISUAL_DISCRIMINATION' })],
+      }),
+    });
+    const unanswered = trialAnswers
+      .slice(12)
+      .map((trial) => ({ ...trial, answer: null, timeMs: 0 }));
+
+    await service.completeAxis(
+      'user-1',
+      sessionId,
+      AxisType.VISUAL_DISCRIMINATION,
+      {
+        axis: AxisType.VISUAL_DISCRIMINATION,
+        trials: [...trialAnswers.slice(0, 12), ...unanswered],
+        playedMs:
+          AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION].timer.durationSec * 1000,
+      },
+    );
+
+    expect(repository.completeTargetedSession).toHaveBeenCalledTimes(1);
   });
 });
 

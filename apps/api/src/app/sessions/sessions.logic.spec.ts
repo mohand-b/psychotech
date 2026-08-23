@@ -2,13 +2,17 @@ import { BadRequestException } from '@nestjs/common';
 import {
   AXIS_TRAINING,
   AxisType,
+  DiscriminationTrialAnswerDto,
   FULL_SESSION_AXIS_ORDER,
   SessionMode,
+  TrainingOptionId,
 } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
   activePlayDurationSec,
+  axisContentFullyPlayed,
   computeStreakUpdate,
+  globalTimerExhausted,
   resolveHistoryScope,
   resolveSessionAxes,
 } from './sessions.logic';
@@ -168,5 +172,131 @@ describe('computeStreakUpdate', () => {
     );
     expect(streak.current).toBe(1);
     expect(streak.longest).toBe(7);
+  });
+});
+
+describe('globalTimerExhausted', () => {
+  const timed = { trainingOptions: [] };
+  const untimed = { trainingOptions: [TrainingOptionId.NO_TIMER] };
+  const startedAt = new Date('2026-06-13T10:00:00Z');
+  const durationMs =
+    AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION].timer.durationSec * 1000;
+
+  it('declares the timer spent when both clocks reached its duration', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        timed,
+        startedAt,
+        new Date(startedAt.getTime() + durationMs),
+        durationMs,
+      ),
+    ).toBe(true);
+  });
+
+  it('keeps the timer running one millisecond short of its duration', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        timed,
+        startedAt,
+        new Date(startedAt.getTime() + durationMs - 1),
+        durationMs,
+      ),
+    ).toBe(false);
+  });
+
+  it('refuses a play time the server clock could not have allowed', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        timed,
+        startedAt,
+        new Date(startedAt.getTime() + 2000),
+        durationMs * 10,
+      ),
+    ).toBe(false);
+  });
+
+  it('refuses a stale session where only the server clock ran out', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        timed,
+        startedAt,
+        new Date(startedAt.getTime() + durationMs * 100),
+        5000,
+      ),
+    ).toBe(false);
+  });
+
+  it('refuses a completion that reports no play time at all', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        timed,
+        startedAt,
+        new Date(startedAt.getTime() + durationMs),
+        undefined,
+      ),
+    ).toBe(false);
+  });
+
+  it('never spends a timer an untimed session does not run', () => {
+    expect(
+      globalTimerExhausted(
+        AxisType.VISUAL_DISCRIMINATION,
+        untimed,
+        startedAt,
+        new Date(startedAt.getTime() + durationMs * 10),
+        durationMs * 10,
+      ),
+    ).toBe(false);
+  });
+
+  it.each([AxisType.MEMORY, AxisType.MOTOR_SKILLS])(
+    'never spends a global timer on %s, played exercise by exercise',
+    (axis) => {
+      expect(
+        globalTimerExhausted(
+          axis,
+          timed,
+          startedAt,
+          new Date(startedAt.getTime() + durationMs * 10),
+          durationMs * 10,
+        ),
+      ).toBe(false);
+    },
+  );
+});
+
+describe('axisContentFullyPlayed on an expired timer', () => {
+  const answeredTrials = (count: number): DiscriminationTrialAnswerDto[] =>
+    Array.from({ length: count }, (_, index) => ({
+      index,
+      answer: 'IDENTICAL' as const,
+      timeMs: 900,
+    }));
+
+  const unansweredTrials = (from: number): DiscriminationTrialAnswerDto[] =>
+    Array.from(
+      {
+        length:
+          AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION].exerciseCount - from,
+      },
+      (_, offset) => ({ index: from + offset, answer: null, timeMs: 0 }),
+    );
+
+  const partialRun = {
+    axis: AxisType.VISUAL_DISCRIMINATION as const,
+    trials: [...answeredTrials(9), ...unansweredTrials(9)],
+  };
+
+  it('accepts a discrimination run left unfinished when the timer ran out', () => {
+    expect(axisContentFullyPlayed(partialRun, undefined, true)).toBe(true);
+  });
+
+  it('still refuses the very same run while the timer had time left', () => {
+    expect(axisContentFullyPlayed(partialRun, undefined, false)).toBe(false);
   });
 });

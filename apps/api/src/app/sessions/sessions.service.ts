@@ -90,6 +90,7 @@ import {
   SESSION_HISTORY_PAGE_SIZE,
   axisContentFullyPlayed,
   computeStreakUpdate,
+  globalTimerExhausted,
   resolveHistoryScope,
   resolveSessionAxes,
   sessionUntimed,
@@ -216,10 +217,18 @@ export class SessionsService {
       throw new BadRequestException('The axis is not part of this session');
     }
     const contentContext = this.logicContentContext(session);
+    const axisStartedAt = target.startedAt ?? session.startedAt;
     const { rawResult, score } = this.scoreRawAnswers(
       contentContext,
       axis,
       request,
+      globalTimerExhausted(
+        axis,
+        session,
+        axisStartedAt,
+        new Date(),
+        request.playedMs,
+      ),
     );
     const excludeFromBest = excludedFromRecords(
       session.logicFamily,
@@ -241,7 +250,7 @@ export class SessionsService {
         score,
         excludeFromBest,
         controlModality: request.controlModality ?? null,
-        startedAt: target.startedAt ?? session.startedAt,
+        startedAt: axisStartedAt,
         completedAt,
         streak: {
           current: streak.current,
@@ -290,20 +299,28 @@ export class SessionsService {
         'The axis is not the current axis of the simulation',
       );
     }
+    const previousAxis = orderedAxes[session.currentAxisIndex - 1];
+    const axisStartedAt =
+      currentAxis.startedAt ?? previousAxis?.completedAt ?? session.startedAt;
     const { rawResult, score } = this.scoreRawAnswers(
       this.logicContentContext(session),
       axis,
       request,
+      globalTimerExhausted(
+        axis,
+        session,
+        axisStartedAt,
+        new Date(),
+        request.playedMs,
+      ),
     );
-    const previousAxis = orderedAxes[session.currentAxisIndex - 1];
     await this.repository.completeFullSessionAxis({
       sessionId: session.id,
       axis,
       rawResult,
       score,
       controlModality: request.controlModality ?? null,
-      startedAt:
-        currentAxis.startedAt ?? previousAxis?.completedAt ?? session.startedAt,
+      startedAt: axisStartedAt,
       completedAt: new Date(),
       nextAxisIndex: session.currentAxisIndex + 1,
     });
@@ -333,6 +350,7 @@ export class SessionsService {
     context: LogicContentContext,
     axis: AxisType,
     request: CompleteTargetedSessionRequest,
+    timerExhausted: boolean,
   ): {
     rawResult: AxisRawResultDto;
     score: { normalizedScore: number; band: ScoreBand };
@@ -358,7 +376,7 @@ export class SessionsService {
                 request.stimuli ?? [],
                 request.waitPresses ?? [],
               );
-    if (!axisContentFullyPlayed(rawResult, request.playedMs)) {
+    if (!axisContentFullyPlayed(rawResult, request.playedMs, timerExhausted)) {
       throw new ConflictException('The session content is not fully played');
     }
     const score =
