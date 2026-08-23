@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  SITE_COPYRIGHT_YEAR,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from '../../../core/seo/route-seo';
 import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
 
 @Component({
@@ -36,7 +41,9 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
       <div class="footer__bottom">
         <div class="footer__bottom-inner">
           <span class="footer__mention"
-            >© 2026 PsychoTech. Tous droits réservés.</span
+            >© {{ copyrightYear }}
+            <a class="footer__mention-link" routerLink="/">{{ siteName }}</a>
+            — {{ tagline }}</span
           >
           <span class="footer__mention"
             >Conçu pour les candidats aux sélections professionnelles.</span
@@ -110,6 +117,13 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
       font: 400 13px/18px var(--landing-font-ui);
       color: rgba(255, 255, 255, 0.35);
     }
+    .footer__mention-link {
+      color: inherit;
+      text-decoration: none;
+    }
+    .footer__mention-link:hover {
+      color: var(--landing-text);
+    }
     @media (max-width: 767px) {
       .footer__grid {
         padding: 40px 20px 28px;
@@ -148,4 +162,7 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
 })
 export class LandingFooter {
   protected readonly legalLinks = LEGAL_DOCUMENTS;
+  protected readonly siteName = SITE_NAME;
+  protected readonly tagline = SITE_TAGLINE;
+  protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
 }

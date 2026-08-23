@@ -1,6 +1,6 @@
 <header class="header" [class.header--glass]="scrolled()">
   <div class="header__inner">
-    <a [href]="anchor('hero')" class="header__logo">
+    <a [href]="anchor('hero')" class="header__logo" [attr.aria-label]="siteName">
       Psycho<span class="header__logo-accent">Tech</span>
     </a>
     <nav class="header__nav" aria-label="Sections">

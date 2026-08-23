@@ -1,7 +1,7 @@
 <div class="legal">
   <header class="legal__header">
     <div class="legal__header-inner">
-      <a class="legal__logo" routerLink="/"
+      <a class="legal__logo" routerLink="/" [attr.aria-label]="siteName"
         >Psycho<span class="legal__logo-accent">Tech</span></a
       >
       <span class="legal__spacer"></span>
@@ -76,7 +76,9 @@
   <footer class="legal__footer">
     <div class="legal__footer-inner">
       <span class="legal__footer-copy"
-        >© 2026 PsychoTech. Tous droits réservés.</span
+        >© {{ copyrightYear }}
+        <a class="legal__footer-copy-link" routerLink="/">{{ siteName }}</a>
+        — {{ tagline }}</span
       >
       <nav class="legal__footer-links" aria-label="Informations légales">
         @for (entry of documents; track entry.id) {

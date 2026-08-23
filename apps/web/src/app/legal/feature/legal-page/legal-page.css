@@ -167,6 +167,15 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
+.legal__footer-copy-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.legal__footer-copy-link:hover {
+  color: var(--landing-text);
+}
+
 .legal__footer-links {
   display: flex;
   align-items: center;

@@ -3,6 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LEGAL_LAST_UPDATED } from '@psychotech/shared';
 import {
+  SITE_COPYRIGHT_YEAR,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from '../../../core/seo/route-seo';
+import {
   LEGAL_DOCUMENTS,
   LegalDocumentId,
   legalDocumentById,
@@ -26,6 +31,9 @@ export class LegalPage {
 
   protected readonly documents = LEGAL_DOCUMENTS;
   protected readonly lastUpdated = LEGAL_LAST_UPDATED;
+  protected readonly siteName = SITE_NAME;
+  protected readonly tagline = SITE_TAGLINE;
+  protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
 
   protected readonly document = computed(() =>
     legalDocumentById(this.routeData()['documentId'] as LegalDocumentId),
