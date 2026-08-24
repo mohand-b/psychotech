@@ -246,22 +246,6 @@
   font: 600 14px/1.4 var(--font-ui);
 }
 
-.prog__axis-critical {
-  align-self: flex-start;
-  background: var(--surface-muted);
-  color: var(--text-secondary);
-  border-radius: var(--radius-badge);
-  padding: 2px 7px;
-  font: 600 10px/1.4 var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.prog__axis-priority {
-  color: var(--warning-text);
-  font: 600 11px/1.4 var(--font-ui);
-}
-
 .prog__axis-spark {
   width: 100%;
   height: 30px;
@@ -516,15 +500,6 @@
   .prog__axis-ident {
     flex: 1;
     gap: 12px;
-  }
-
-  .prog__axis-critical {
-    font-size: 9.5px;
-    padding: 2px 6px;
-  }
-
-  .prog__axis-priority {
-    font-size: 10.5px;
   }
 
   .prog__axis-spark {

@@ -349,26 +349,18 @@ describe('Progression', () => {
     ).toContain('70');
   });
 
-  it('separates the sector property from the diagnosis, never merged', async () => {
+  it('carries no axis label beyond its name', async () => {
     const { fixture } = await setup(populatedProgression());
-    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
+    const text = textOf(fixture);
 
-    // Mémoire : meilleur score 61, sous le seuil de vigilance de 65.
+    expect(text).not.toContain('Axe critique');
+    expect(text).not.toContain('À travailler en priorité');
+    expect(text).not.toContain('Votre point fort');
     expect(
-      (rows[1] as HTMLElement).querySelector('.prog__axis-priority')
-        ?.textContent,
-    ).toContain('À travailler en priorité');
-    expect(
-      (rows[1] as HTMLElement).querySelector('.prog__axis-critical'),
+      fixture.nativeElement.querySelector('.prog__axis-critical'),
     ).toBeNull();
-
-    // Réactivité : axe critique du secteur, meilleur score au-dessus de 65.
     expect(
-      (rows[3] as HTMLElement).querySelector('.prog__axis-critical')
-        ?.textContent,
-    ).toContain('Axe critique');
-    expect(
-      (rows[3] as HTMLElement).querySelector('.prog__axis-priority'),
+      fixture.nativeElement.querySelector('.prog__axis-priority'),
     ).toBeNull();
   });
 

@@ -59,8 +59,6 @@ const SPARKLINE_GEOMETRY: SparklineGeometry = {
 interface AxisRowView {
   axis: AxisType;
   presentation: AxisPresentation;
-  critical: boolean;
-  needsWork: boolean;
   neverPlayed: boolean;
   bestScore: number | null;
   lastScore: number | null;
@@ -205,8 +203,6 @@ export class Progression {
     return {
       axis: axis.axis,
       presentation: AXIS_PRESENTATION[axis.axis],
-      critical: overview?.isCriticalAxis ?? false,
-      needsWork: overview?.needsWork ?? false,
       neverPlayed,
       bestScore:
         overview?.bestScore == null ? null : Math.round(overview.bestScore),
