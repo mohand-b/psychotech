@@ -533,6 +533,23 @@ describe('SimulationSummary', () => {
     expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
 
+  it('closes the report with the badges, after the axis detail', async () => {
+    const earnedBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
+    const { fixture } = await setup(buildSummary({ earnedBadges }));
+    const element: HTMLElement = fixture.nativeElement;
+
+    const card = element.querySelector('ui-badge-announce');
+    const axisDetail = element.querySelector('.bilan__columns');
+    if (!card || !axisDetail) {
+      throw new Error('Le bilan doit porter le détail par axe et les badges');
+    }
+
+    expect(
+      axisDetail.compareDocumentPosition(card) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it('navigates to the targeted preparation of the recommended axis', async () => {
     const { fixture, navigate } = await setup(buildSummary());
     const button = fixture.nativeElement.querySelector(

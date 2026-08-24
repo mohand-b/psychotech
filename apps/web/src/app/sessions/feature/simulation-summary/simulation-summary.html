@@ -66,10 +66,6 @@
       </div>
     </header>
 
-    @if (celebration.announceView(); as announce) {
-      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
-    }
-
     <div class="bilan__columns">
       <div class="bilan__axes">
         <span class="t-label bilan__section-label">Détail par axe</span>
@@ -342,6 +338,10 @@
           }
         </div>
       </div>
+    }
+
+    @if (celebration.announceView(); as announce) {
+      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
     }
 
     <ui-action-footer>
