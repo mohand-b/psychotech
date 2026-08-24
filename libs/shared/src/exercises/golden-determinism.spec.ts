@@ -98,7 +98,9 @@ describe('golden determinism: same seed, same items, same scores', () => {
     expect(discSig).toBe(
       'iiididdidiiddidddiddiidiididiiiididi',
     );
-    expect(discScore).toBe(79);
+    // 79 -> 77 : la chaîne golden ne traite que 30 essais sur 36, et depuis la
+    // règle du 10/08/2026 les 6 essais jamais atteints pèsent sur la précision.
+    expect(discScore).toBe(77);
   });
 
   it('freezes the reactivity chain', () => {

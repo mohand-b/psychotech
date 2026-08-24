@@ -7,10 +7,11 @@ export type DiscriminationOutcome =
   | 'FALSE_POSITIVE'
   | 'FALSE_NEGATIVE';
 
-export const DISCRIMINATION_PRECISION_WEIGHT = 0.55;
-export const DISCRIMINATION_COVERAGE_WEIGHT = 0.2;
-export const DISCRIMINATION_SPEED_WEIGHT = 0.25;
-export const DISCRIMINATION_SPEED_BEST_MS = 1500;
+export const DISCRIMINATION_PRECISION_WEIGHT = 0.7;
+export const DISCRIMINATION_SPEED_WEIGHT = 0.3;
+// 2500 ms est le seuil d'excellence : un candidat qui répond juste partout à ce
+// rythme atteint 100. Au-delà de 5400 ms la vitesse ne rapporte plus rien.
+export const DISCRIMINATION_SPEED_BEST_MS = 2500;
 export const DISCRIMINATION_SPEED_WORST_MS = 5400;
 export const DISCRIMINATION_FP_PENALTY_THRESHOLD_PCT = 20;
 export const DISCRIMINATION_FP_PENALTY_FACTOR = 0.5;
@@ -72,11 +73,12 @@ export function scoreDiscriminationSession(
   ).length;
   const identicalCount = trials.filter(({ identical }) => identical).length;
 
-  const answeredCount = entries.filter(({ answered }) => answered).length;
+  // Le dénominateur est TOUJOURS le nombre total d'essais de la session : un
+  // essai jamais atteint à l'expiration du chrono est une cible manquée, pas un
+  // essai à retirer du calcul. Répondre juste à 10 essais sur 36 est une session
+  // faible, pas une session précise.
   const precision =
-    answeredCount === 0 ? 0 : (correctCount / answeredCount) * 100;
-  const coverage =
-    trials.length === 0 ? 0 : (answeredCount / trials.length) * 100;
+    trials.length === 0 ? 0 : (correctCount / trials.length) * 100;
   const correctTimes = entries
     .filter(({ outcome, timeMs }) => isCorrect(outcome) && timeMs !== null)
     .map(({ timeMs }) => timeMs as number);
@@ -106,7 +108,6 @@ export function scoreDiscriminationSession(
       Math.max(
         0,
         DISCRIMINATION_PRECISION_WEIGHT * precision +
-          DISCRIMINATION_COVERAGE_WEIGHT * coverage +
           DISCRIMINATION_SPEED_WEIGHT * speed -
           penalty,
       ),

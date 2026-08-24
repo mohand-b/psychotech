@@ -39,6 +39,18 @@ const DISCRIMINATION_PROFILES: DiscriminationProfile[] = [
   { band: 'faible', decisionMs: 5500, accuracy: 0.7 },
 ];
 
+// Bandes propres au Visuel. Deux d'entre elles s'écartent des bandes communes
+// depuis la règle du 10/08/2026 : les essais jamais atteints pèsent désormais
+// sur la précision, si bien qu'un profil qui n'épuise pas les 36 essais décroche
+// mécaniquement. « faible » ne traite que 21 essais sur 36, « bon » les traite
+// tous et gagne au contraire au changement de barème de vitesse.
+const DISCRIMINATION_BANDS: Record<string, AnchorBand> = {
+  excellent: ANCHOR_BANDS.excellent,
+  bon: { min: 84, max: 93 },
+  moyen: ANCHOR_BANDS.moyen,
+  faible: { min: 23, max: 34 },
+};
+
 interface ReactivityProfile {
   band: keyof typeof ANCHOR_BANDS;
   trMs: number;
@@ -127,7 +139,7 @@ describe('discrimination scoring anchors', () => {
       const average = averageOverSeeds((seed) =>
         discriminationScoreFor(profile, seed),
       );
-      const band = ANCHOR_BANDS[profile.band];
+      const band = DISCRIMINATION_BANDS[profile.band];
       expect(average).toBeGreaterThanOrEqual(band.min);
       expect(average).toBeLessThanOrEqual(band.max);
     },
