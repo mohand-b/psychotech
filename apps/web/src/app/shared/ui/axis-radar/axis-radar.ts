@@ -53,6 +53,7 @@ const RADAR_LABELS = [
   template: `
     <svg
       class="radar"
+      [class.radar--outlined]="outlined()"
       [attr.viewBox]="'0 0 ' + viewWidth + ' ' + viewHeight"
       role="img"
       aria-label="Profil par axe"
@@ -131,6 +132,10 @@ const RADAR_LABELS = [
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
     }
+    .radar--outlined .radar__baseline,
+    .radar--outlined .radar__area {
+      fill: none;
+    }
     .radar__dot {
       stroke: var(--card);
       stroke-width: 0.8;
@@ -150,6 +155,7 @@ export class AxisRadar {
   readonly entries = input.required<readonly AxisRadarEntry[]>();
   readonly baseline = input<readonly AxisRadarEntry[]>([]);
   readonly progress = input(1);
+  readonly outlined = input(false);
 
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);

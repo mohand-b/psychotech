@@ -122,3 +122,49 @@ describe('AxisRadar', () => {
     expect(areaPoints(fixture)).toBe('85,64 85,64 85,64 85,64 85,64');
   });
 });
+
+@Component({
+  imports: [AxisRadar],
+  template: `<ui-axis-radar
+    [entries]="entries"
+    [baseline]="baseline"
+    [outlined]="outlined()"
+  />`,
+})
+class OutlinedRadarHost {
+  readonly entries = LAST_SESSION;
+  readonly baseline = BEST_SCORES;
+  readonly outlined = signal(false);
+}
+
+describe('AxisRadar outlined variant', () => {
+  async function setup() {
+    await TestBed.configureTestingModule({
+      imports: [OutlinedRadarHost],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(OutlinedRadarHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('fills both polygons by default', async () => {
+    const fixture = await setup();
+    const svg: HTMLElement = fixture.nativeElement.querySelector('.radar');
+
+    expect(svg.classList.contains('radar--outlined')).toBe(false);
+  });
+
+  it('drops the fill of both polygons when outlined', async () => {
+    const fixture = await setup();
+    fixture.componentInstance.outlined.set(true);
+    fixture.detectChanges();
+    const svg: HTMLElement = fixture.nativeElement.querySelector('.radar');
+
+    expect(svg.classList.contains('radar--outlined')).toBe(true);
+    expect(svg.querySelector('.radar__area')).not.toBeNull();
+    expect(svg.querySelector('.radar__baseline')).not.toBeNull();
+  });
+});

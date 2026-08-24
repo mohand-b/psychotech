@@ -214,7 +214,11 @@
         >
         @if (radarLast().length > 0) {
           <div class="prog__radar-box">
-            <ui-axis-radar [entries]="radarLast()" [baseline]="radarFirst()" />
+            <ui-axis-radar
+              [entries]="radarLast()"
+              [baseline]="radarFirst()"
+              [outlined]="true"
+            />
           </div>
           <div class="prog__radar-legend">
             @if (radarFirst().length > 0 && radarFirstDate(); as firstDate) {
