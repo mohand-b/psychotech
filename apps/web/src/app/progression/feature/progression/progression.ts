@@ -13,12 +13,14 @@ import {
   FULL_SESSION_LABEL_PLURAL_LOWER,
   Sector,
   SessionMode,
+  TrainingsAxisOverviewDto,
   fullSessionCountLabel,
   roundToTenth,
 } from '@psychotech/shared';
 import { ChevronRight } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
+import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import {
   AxisRadar,
   AxisRadarEntry,
@@ -41,20 +43,31 @@ import {
 } from '../../../shared/util/format-session-date';
 import { ProgressionFacade } from '../../data-access/progression.facade';
 import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
+import {
+  AxisTrendDirection,
+  SparklineGeometry,
+  axisScoresWithinWindow,
+  axisTrend,
+  sparklinePoints,
+  sparklineY,
+} from './axis-row-metrics';
 
 const EVOLUTION_DISPLAY_LIMIT = 10;
-const SPARKLINE_WIDTH = 140;
-const SPARKLINE_TOP = 4;
-const SPARKLINE_BOTTOM = 24;
+const SPARKLINE_GEOMETRY: SparklineGeometry = {
+  width: 140,
+  top: 4,
+  bottom: 24,
+};
 
 interface AxisRowView {
   axis: AxisType;
   presentation: AxisPresentation;
-  tag: string | null;
-  tagColorVar: string;
-  score: number | null;
-  deltaLabel: string | null;
-  deltaPositive: boolean;
+  critical: boolean;
+  needsWork: boolean;
+  neverPlayed: boolean;
+  bestScore: number | null;
+  lastScore: number | null;
+  trend: AxisTrendDirection | null;
   sparklinePoints: string | null;
   clickable: boolean;
 }
@@ -74,7 +87,7 @@ function relativeDayLabel(iso: string): string {
   selector: 'app-progression',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AxisIcon, AxisRadar, EvolutionChart, Icon, SectorChip, Skeleton],
-  providers: [ProgressionFacade],
+  providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './progression.html',
   styleUrl: './progression.css',
 })
@@ -82,6 +95,7 @@ export class Progression {
   private readonly facade = inject(ProgressionFacade);
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
+  private readonly overviewFacade = inject(TrainingsOverviewFacade);
   private readonly router = inject(Router);
   private readonly now = new Date();
 
@@ -92,6 +106,7 @@ export class Progression {
 
   constructor() {
     this.catalogFacade.loadSectorReferential(this.sector);
+    this.overviewFacade.load(this.sector);
   }
 
   protected readonly progression = this.facade.progression;
@@ -174,93 +189,55 @@ export class Progression {
     return evolution.slice(-EVOLUTION_DISPLAY_LIMIT);
   });
 
+  // La barre de seuil et les cinq courbes partagent la même géométrie : c'est
+  // ce qui rend les lignes comparables entre elles.
+  protected readonly sparklineThresholdY = computed(() =>
+    sparklineY(this.threshold(), SPARKLINE_GEOMETRY),
+  );
+
+  protected trendArrow(trend: AxisTrendDirection): string {
+    return trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
+  }
+
+  protected trendLabel(trend: AxisTrendDirection): string {
+    return trend === 'up'
+      ? 'En progression sur vos dernières sessions'
+      : trend === 'down'
+        ? 'En recul sur vos dernières sessions'
+        : 'Stable sur vos dernières sessions';
+  }
+
   protected readonly axisRows = computed<AxisRowView[]>(() => {
     const axes = this.progression()?.axes ?? [];
-    const critical = new Set(
-      (this.catalogFacade.sectorReferential()?.axes ?? [])
-        .filter((axis) => axis.isCritical)
-        .map((axis) => axis.code),
+    const overviewByAxis = new Map(
+      (this.overviewFacade.overview()?.axes ?? []).map((axis) => [
+        axis.axis,
+        axis,
+      ]),
     );
-    const played = axes.filter((axis) => axis.currentScore !== null);
-    const weakest =
-      played.length >= 2
-        ? [...played].sort(
-            (a, b) => (a.currentScore ?? 0) - (b.currentScore ?? 0),
-          )[0]
-        : null;
-    const strongest =
-      played.length >= 2
-        ? [...played].sort(
-            (a, b) => (b.currentScore ?? 0) - (a.currentScore ?? 0),
-          )[0]
-        : null;
-    return axes.map((axis) =>
-      this.buildRow(axis, critical, weakest, strongest),
-    );
+    return axes.map((axis) => this.buildRow(axis, overviewByAxis.get(axis.axis)));
   });
 
   private buildRow(
     axis: AxisProgressionDto,
-    critical: Set<AxisType>,
-    weakest: AxisProgressionDto | null,
-    strongest: AxisProgressionDto | null,
+    overview: TrainingsAxisOverviewDto | undefined,
   ): AxisRowView {
-    const delta =
-      axis.deltaOver30Days === null ? null : Math.round(axis.deltaOver30Days);
-    const tag =
-      axis.currentScore === null
-        ? 'Pas encore joué'
-        : axis.axis === weakest?.axis
-          ? 'À travailler en priorité'
-          : critical.has(axis.axis)
-            ? `Axe critique du ${this.sectorLabel.toLowerCase()}`
-            : axis.axis === strongest?.axis
-              ? 'Votre point fort'
-              : null;
-    const presentation = AXIS_PRESENTATION[axis.axis];
+    const scores = axisScoresWithinWindow(axis.sparkline, this.now);
+    const neverPlayed = overview?.neverPlayed ?? axis.currentScore === null;
     return {
       axis: axis.axis,
-      presentation,
-      tag,
-      tagColorVar:
-        tag === 'Votre point fort'
-          ? 'var(--success-text)'
-          : tag === 'Pas encore joué'
-            ? 'var(--label)'
-            : critical.has(axis.axis)
-              ? presentation.textVar
-              : 'var(--warning-text)',
-      score: axis.currentScore === null ? null : Math.round(axis.currentScore),
-      deltaLabel:
-        delta === null ? null : `${delta >= 0 ? '+' : '−'}${Math.abs(delta)}`,
-      deltaPositive: delta !== null && delta >= 0,
-      sparklinePoints: this.sparklineFor(axis),
+      presentation: AXIS_PRESENTATION[axis.axis],
+      critical: overview?.isCriticalAxis ?? false,
+      needsWork: overview?.needsWork ?? false,
+      neverPlayed,
+      bestScore:
+        overview?.bestScore == null ? null : Math.round(overview.bestScore),
+      lastScore:
+        axis.currentScore === null ? null : Math.round(axis.currentScore),
+      trend: axisTrend(scores),
+      sparklinePoints: sparklinePoints(scores, SPARKLINE_GEOMETRY),
       clickable: axis.lastSessionId !== null,
     };
-  }
-
-  private sparklineFor(axis: AxisProgressionDto): string | null {
-    const scores = axis.sparkline.map((point) => point.score);
-    if (scores.length < 2) {
-      return null;
-    }
-    const min = Math.min(...scores);
-    const max = Math.max(...scores);
-    const range = max - min || 1;
-    return scores
-      .map((score, index) => {
-        const x =
-          Math.round(((index * SPARKLINE_WIDTH) / (scores.length - 1)) * 10) /
-          10;
-        const y =
-          Math.round(
-            (SPARKLINE_TOP +
-              ((max - score) / range) * (SPARKLINE_BOTTOM - SPARKLINE_TOP)) *
-              10,
-          ) / 10;
-        return `${x},${y}`;
-      })
-      .join(' ');
   }
 
   protected readonly radarLast = computed<AxisRadarEntry[]>(() =>

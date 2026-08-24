@@ -9,10 +9,12 @@ import {
   Sector,
   SectorReferentialDto,
   SessionMode,
+  TrainingsOverviewDto,
   UserProfileDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
+import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../data-access/progression.facade';
 import { Progression } from './progression';
 
@@ -47,6 +49,65 @@ const REFERENTIAL: SectorReferentialDto = {
     isCritical: axis === AxisType.REACTIVITY,
   })),
 };
+
+const DAY_MS = 86_400_000;
+
+// Les dates sont relatives à maintenant : la fenêtre de 30 jours de la page se
+// lit sur l'horloge réelle, un jeu de dates figées sortirait de la fenêtre.
+function daysAgo(days: number): string {
+  return new Date(Date.now() - days * DAY_MS).toISOString();
+}
+
+// Un historique par axe pour couvrir les quatre états de tendance de la spec.
+const AXIS_HISTORY: Partial<Record<AxisType, number[]>> = {
+  [AxisType.LOGIC]: [70, 70, 70, 76, 78, 82],
+  [AxisType.MEMORY]: [70, 70, 70, 64, 62, 61],
+  [AxisType.VISUAL_DISCRIMINATION]: [78, 78, 78, 78, 79, 78],
+  [AxisType.REACTIVITY]: [68, 70],
+};
+
+const AXIS_BEST: Partial<Record<AxisType, number>> = {
+  [AxisType.LOGIC]: 82,
+  [AxisType.MEMORY]: 61,
+  [AxisType.VISUAL_DISCRIMINATION]: 79,
+  [AxisType.REACTIVITY]: 70,
+};
+
+function historyOf(axis: AxisType): number[] {
+  return AXIS_HISTORY[axis] ?? [];
+}
+
+function bestOf(axis: AxisType): number | null {
+  return AXIS_BEST[axis] ?? null;
+}
+
+function populatedOverview(): TrainingsOverviewDto {
+  return {
+    lastSimulation: null,
+    vigilanceThreshold: 65,
+    axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
+      axis,
+      bestScore: bestOf(axis),
+      neverPlayed: bestOf(axis) === null,
+      isCriticalAxis: axis === AxisType.REACTIVITY,
+      needsWork: (bestOf(axis) ?? 100) < 65,
+    })),
+  };
+}
+
+function emptyOverview(): TrainingsOverviewDto {
+  return {
+    lastSimulation: null,
+    vigilanceThreshold: 65,
+    axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
+      axis,
+      bestScore: null,
+      neverPlayed: true,
+      isCriticalAxis: axis === AxisType.REACTIVITY,
+      needsWork: false,
+    })),
+  };
+}
 
 function populatedProgression(): ProgressionDto {
   const scores: Record<AxisType, number> = {
@@ -97,10 +158,10 @@ function populatedProgression(): ProgressionDto {
       currentScore: scores[axis],
       band: ScoreBand.ACCEPTABLE,
       deltaOver30Days: axis === AxisType.LOGIC ? 6 : 2,
-      sparkline: [
-        { date: '2026-06-01T10:00:00.000Z', score: scores[axis] - 6 },
-        { date: '2026-07-15T10:00:00.000Z', score: scores[axis] },
-      ],
+      sparkline: historyOf(axis).map((score, index) => ({
+        date: daysAgo(historyOf(axis).length - index),
+        score,
+      })),
       featuredMetric: null,
       lastSessionId: axis === AxisType.LOGIC ? 'targeted-9' : 'sim-3',
       lastSessionMode:
@@ -151,7 +212,10 @@ function emptyProgression(): ProgressionDto {
   };
 }
 
-async function setup(progression: ProgressionDto) {
+async function setup(
+  progression: ProgressionDto,
+  overview: TrainingsOverviewDto = populatedOverview(),
+) {
   await TestBed.configureTestingModule({
     imports: [Progression],
     providers: [
@@ -174,6 +238,14 @@ async function setup(progression: ProgressionDto) {
             useValue: {
               progression: signal<ProgressionDto | null>(progression),
               loading: signal(false),
+            },
+          },
+          {
+            provide: TrainingsOverviewFacade,
+            useValue: {
+              overview: signal<TrainingsOverviewDto | null>(overview),
+              loading: signal(false),
+              load: vi.fn(),
             },
           },
         ],
@@ -242,14 +314,94 @@ describe('Progression', () => {
     expect(navigate).toHaveBeenCalledWith(['/sessions', 'sim-1', 'resultat']);
   });
 
-  it('tags the weakest, critical and strongest axes and shows integer scores', async () => {
+  it('leads each axis with its best score, never with the last session', async () => {
     const { fixture } = await setup(populatedProgression());
-    const text = textOf(fixture);
-    expect(text).toContain('À travailler en priorité');
-    expect(text).toContain('Axe critique du ferroviaire');
-    expect(text).toContain('Votre point fort');
-    expect(text).toContain('82');
-    expect(text).toContain('+6');
+    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
+
+    // Discrimination : meilleur 79, dernière session 78.
+    const discrimination = rows[2] as HTMLElement;
+    expect(
+      discrimination.querySelector('.prog__axis-score-value')?.textContent,
+    ).toContain('79');
+    expect(
+      discrimination.querySelector('.prog__axis-last')?.textContent,
+    ).toContain('78');
+  });
+
+  it('shows an arrow built on two rolling averages, never a delta between two sessions', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
+    const arrowOf = (index: number) =>
+      (rows[index] as HTMLElement)
+        .querySelector('.prog__axis-trend')
+        ?.textContent?.trim() ?? null;
+
+    expect(arrowOf(0)).toBe('↗');
+    expect(arrowOf(1)).toBe('↘');
+    expect(arrowOf(2)).toBe('→');
+    expect(textOf(fixture)).not.toContain('+6');
+  });
+
+  it('stays silent on the trend below four sessions in the window', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
+
+    // Réactivité : 2 sessions seulement.
+    expect(
+      (rows[3] as HTMLElement).querySelector('.prog__axis-trend'),
+    ).toBeNull();
+    expect(
+      (rows[3] as HTMLElement).querySelector('.prog__axis-score-value')
+        ?.textContent,
+    ).toContain('70');
+  });
+
+  it('separates the sector property from the diagnosis, never merged', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
+
+    // Mémoire : meilleur score 61, sous le seuil de vigilance de 65.
+    expect(
+      (rows[1] as HTMLElement).querySelector('.prog__axis-priority')
+        ?.textContent,
+    ).toContain('À travailler en priorité');
+    expect(
+      (rows[1] as HTMLElement).querySelector('.prog__axis-critical'),
+    ).toBeNull();
+
+    // Réactivité : axe critique du secteur, meilleur score au-dessus de 65.
+    expect(
+      (rows[3] as HTMLElement).querySelector('.prog__axis-critical')
+        ?.textContent,
+    ).toContain('Axe critique');
+    expect(
+      (rows[3] as HTMLElement).querySelector('.prog__axis-priority'),
+    ).toBeNull();
+  });
+
+  it('gives the five sparklines the same scale and the same threshold line', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const lines = fixture.nativeElement.querySelectorAll(
+      '.prog__axis-spark-threshold',
+    ) as NodeListOf<SVGLineElement>;
+
+    expect(lines).toHaveLength(5);
+    const heights = Array.from(lines).map((line) => line.getAttribute('y1'));
+    expect(new Set(heights).size).toBe(1);
+    // Seuil 70 sur une échelle fixe 0-100 entre y=24 et y=4.
+    expect(heights[0]).toBe('10');
+  });
+
+  it('announces an axis never played without a sparkline nor a trend', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const motor = fixture.nativeElement.querySelectorAll('.prog__axis-row')[4];
+
+    expect(motor.querySelector('.prog__axis-unplayed')?.textContent).toContain(
+      'Aucune session',
+    );
+    expect(motor.querySelector('.prog__axis-score-value')).toBeNull();
+    expect(motor.querySelector('.prog__axis-trend')).toBeNull();
+    expect(motor.querySelector('polyline')).toBeNull();
   });
 
   it('routes an axis row to its latest result by session mode', async () => {
@@ -268,12 +420,12 @@ describe('Progression', () => {
   });
 
   it('renders sober empty states for an account without completed sessions', async () => {
-    const { fixture } = await setup(emptyProgression());
+    const { fixture } = await setup(emptyProgression(), emptyOverview());
     const text = textOf(fixture);
     expect(text).toContain('Aucun examen blanc terminé');
     expect(text).toContain('Dès votre deuxième examen blanc');
     expect(text).toContain("Aucun examen blanc pour l'instant");
-    expect(text).toContain('Pas encore joué');
+    expect(text).toContain('Aucune session');
     expect(text).toContain(
       'Votre profil par axe se dessinera après votre premier examen blanc.',
     );

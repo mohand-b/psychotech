@@ -164,10 +164,13 @@
               </span>
               <span class="prog__axis-copy">
                 <span class="prog__axis-name">{{ row.presentation.label }}</span>
-                @if (row.tag) {
-                  <span class="prog__axis-tag" [style.color]="row.tagColorVar">{{
-                    row.tag
-                  }}</span>
+                @if (row.critical) {
+                  <span class="prog__axis-critical">Axe critique</span>
+                }
+                @if (row.needsWork) {
+                  <span class="prog__axis-priority"
+                    >À travailler en priorité</span
+                  >
                 }
               </span>
             </span>
@@ -175,7 +178,15 @@
               class="prog__axis-spark"
               viewBox="0 0 140 28"
               preserveAspectRatio="none"
+              aria-hidden="true"
             >
+              <line
+                class="prog__axis-spark-threshold"
+                x1="0"
+                [attr.y1]="sparklineThresholdY()"
+                x2="140"
+                [attr.y2]="sparklineThresholdY()"
+              />
               @if (row.sparklinePoints; as points) {
                 <polyline
                   [attr.points]="points"
@@ -187,24 +198,40 @@
               }
             </svg>
             <span class="prog__axis-score">
-              <span class="prog__axis-score-value t-mono">{{
-                row.score === null ? '-' : row.score
-              }}</span>
-              @if (row.deltaLabel) {
-                <span
-                  class="prog__axis-delta t-mono"
-                  [class.prog__axis-delta--up]="row.deltaPositive"
-                  [class.prog__axis-delta--down]="!row.deltaPositive"
-                  >{{ row.deltaLabel }}</span
-                >
+              @if (row.neverPlayed) {
+                <span class="prog__axis-unplayed">Aucune session</span>
+              } @else {
+                <span class="prog__axis-score-main">
+                  <span class="prog__axis-score-value t-mono">{{
+                    row.bestScore === null ? '-' : row.bestScore
+                  }}</span>
+                  @if (row.trend; as trend) {
+                    <span
+                      class="prog__axis-trend"
+                      [class.prog__axis-trend--up]="trend === 'up'"
+                      [class.prog__axis-trend--down]="trend === 'down'"
+                      role="img"
+                      [attr.aria-label]="trendLabel(trend)"
+                      >{{ trendArrow(trend) }}</span
+                    >
+                  }
+                </span>
+                @if (row.lastScore !== null) {
+                  <span class="prog__axis-last"
+                    >Dernière session&nbsp;:
+                    <span class="t-mono">{{ row.lastScore }}</span></span
+                  >
+                }
               }
             </span>
             <ui-icon class="prog__axis-chevron" [img]="chevronIcon" [size]="15" />
           </button>
         }
         <span class="prog__caption prog__axes-caption"
-          >Le score affiché est votre dernier résultat sur l'axe, avec son gain
-          sur 30 jours. Chaque ligne ouvre le détail.</span
+          >Le chiffre est votre meilleur score sur l'axe. La flèche compare la
+          moyenne de vos 3 dernières sessions aux 3 précédentes, et le pointillé
+          marque le seuil de <span class="t-mono">{{ threshold() }}</span
+          >. Chaque ligne ouvre le détail.</span
         >
       </section>
 
