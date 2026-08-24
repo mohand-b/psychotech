@@ -272,13 +272,6 @@
   stroke-width: 1.5;
 }
 
-.prog__axis-spark-threshold {
-  stroke: var(--border-hover);
-  stroke-width: 1;
-  stroke-dasharray: 3 3;
-  vector-effect: non-scaling-stroke;
-}
-
 .prog__axis-score {
   display: flex;
   flex-direction: column;
@@ -286,30 +279,9 @@
   gap: 1px;
 }
 
-.prog__axis-score-main {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
 .prog__axis-score-value {
   font-size: 20px;
   font-weight: 600;
-}
-
-.prog__axis-trend {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--label);
-}
-
-.prog__axis-trend--up {
-  color: var(--success);
-}
-
-.prog__axis-trend--down {
-  color: var(--warning-text);
 }
 
 .prog__axis-last {
@@ -574,10 +546,6 @@
 
   .prog__axis-score-value {
     font-size: 17px;
-  }
-
-  .prog__axis-trend {
-    font-size: 13px;
   }
 
   .prog__axis-last,

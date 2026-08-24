@@ -2,8 +2,7 @@ import { AxisSparklinePointDto } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
   axisScoresWithinWindow,
-  axisTrend,
-  sparklineY,
+  sparklineDomain,
   sparklinePoints,
 } from './axis-row-metrics';
 
@@ -27,52 +26,26 @@ describe('axisScoresWithinWindow', () => {
   });
 });
 
-describe('axisTrend', () => {
-  it('stays silent below four sessions, whatever the scores say', () => {
-    expect(axisTrend([10, 90, 10])).toBeNull();
+describe('sparklineDomain', () => {
+  it('frames the sessions of the axis, not the whole score range', () => {
+    const domain = sparklineDomain([70, 74]);
+
+    expect(domain.min).toBeGreaterThan(60);
+    expect(domain.max).toBeLessThan(80);
   });
 
-  it('rises when the recent average gains at least three points', () => {
-    expect(axisTrend([50, 50, 50, 53, 54, 55])).toBe('up');
+  it('leaves a margin so the extremes never touch the edges', () => {
+    const domain = sparklineDomain([70, 80]);
+
+    expect(domain.min).toBeLessThan(70);
+    expect(domain.max).toBeGreaterThan(80);
   });
 
-  it('falls when the recent average loses at least three points', () => {
-    expect(axisTrend([60, 60, 60, 57, 56, 55])).toBe('down');
-  });
+  it('opens a readable window around a perfectly flat history', () => {
+    const domain = sparklineDomain([64, 64, 64]);
 
-  it('stays flat inside the three point corridor', () => {
-    expect(axisTrend([60, 60, 60, 61, 62, 62])).toBe('flat');
-  });
-
-  it('absorbs a single collapse instead of reading it as the new level', () => {
-    // Une contre-performance isolée à 20 sur un niveau installé à 70 : la
-    // moyenne recule, mais l'axe n'est pas rétrogradé sur le seul dernier point.
-    expect(axisTrend([70, 70, 70, 72, 71, 20])).toBe('down');
-    // Deux points de mieux ne sont pas une progression.
-    expect(axisTrend([70, 70, 70, 71, 72, 73])).toBe('flat');
-    expect(axisTrend([70, 70, 70, 73, 74, 75])).toBe('up');
-  });
-
-  it('compares against the sessions available when fewer than six exist', () => {
-    expect(axisTrend([40, 50, 50, 50])).toBe('up');
-  });
-});
-
-describe('sparklineY', () => {
-  it('pins the scale to zero and one hundred, never to the data range', () => {
-    expect(sparklineY(0, GEOMETRY)).toBe(GEOMETRY.bottom);
-    expect(sparklineY(100, GEOMETRY)).toBe(GEOMETRY.top);
-    expect(sparklineY(50, GEOMETRY)).toBe(14);
-  });
-
-  it('places a given score at the same height whatever the other scores', () => {
-    expect(sparklineY(70, GEOMETRY)).toBe(sparklineY(70, GEOMETRY));
-    expect(sparklineY(70, GEOMETRY)).toBe(10);
-  });
-
-  it('clamps a score outside the scale', () => {
-    expect(sparklineY(140, GEOMETRY)).toBe(GEOMETRY.top);
-    expect(sparklineY(-20, GEOMETRY)).toBe(GEOMETRY.bottom);
+    expect(domain.min).toBeLessThan(64);
+    expect(domain.max).toBeGreaterThan(64);
   });
 });
 
@@ -83,12 +56,36 @@ describe('sparklinePoints', () => {
   });
 
   it('spreads the sessions over the full width', () => {
-    expect(sparklinePoints([0, 100], GEOMETRY)).toBe('0,24 140,4');
+    const points = sparklinePoints([70, 74], GEOMETRY)?.split(' ') ?? [];
+
+    expect(points).toHaveLength(2);
+    expect(points[0].startsWith('0,')).toBe(true);
+    expect(points[1].startsWith('140,')).toBe(true);
   });
 
-  it('gives two axes of equal score the same polyline', () => {
-    expect(sparklinePoints([40, 80], GEOMETRY)).toBe(
-      sparklinePoints([40, 80], GEOMETRY),
-    );
+  // Le défaut corrigé : sur une échelle 0-100, quatre points d'écart tenaient
+  // dans moins d'un pixel et la courbe paraissait plate.
+  it('turns a small real gap into a visible slope', () => {
+    const heights = (sparklinePoints([70, 74], GEOMETRY) ?? '')
+      .split(' ')
+      .map((pair) => Number(pair.split(',')[1]));
+
+    expect(heights[0] - heights[1]).toBeGreaterThan(10);
+  });
+
+  it('keeps a flat history flat and centred', () => {
+    const heights = (sparklinePoints([64, 64, 64], GEOMETRY) ?? '')
+      .split(' ')
+      .map((pair) => Number(pair.split(',')[1]));
+
+    expect(new Set(heights).size).toBe(1);
+    expect(heights[0]).toBe((GEOMETRY.top + GEOMETRY.bottom) / 2);
+  });
+
+  it('gives the same shape to two axes that moved the same way', () => {
+    const low = sparklinePoints([20, 24, 22], GEOMETRY);
+    const high = sparklinePoints([80, 84, 82], GEOMETRY);
+
+    expect(low).toBe(high);
   });
 });

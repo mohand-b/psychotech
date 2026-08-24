@@ -44,12 +44,9 @@ import {
 import { ProgressionFacade } from '../../data-access/progression.facade';
 import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
 import {
-  AxisTrendDirection,
   SparklineGeometry,
   axisScoresWithinWindow,
-  axisTrend,
   sparklinePoints,
-  sparklineY,
 } from './axis-row-metrics';
 
 const EVOLUTION_DISPLAY_LIMIT = 10;
@@ -67,7 +64,6 @@ interface AxisRowView {
   neverPlayed: boolean;
   bestScore: number | null;
   lastScore: number | null;
-  trend: AxisTrendDirection | null;
   sparklinePoints: string | null;
   clickable: boolean;
 }
@@ -189,24 +185,6 @@ export class Progression {
     return evolution.slice(-EVOLUTION_DISPLAY_LIMIT);
   });
 
-  // La barre de seuil et les cinq courbes partagent la même géométrie : c'est
-  // ce qui rend les lignes comparables entre elles.
-  protected readonly sparklineThresholdY = computed(() =>
-    sparklineY(this.threshold(), SPARKLINE_GEOMETRY),
-  );
-
-  protected trendArrow(trend: AxisTrendDirection): string {
-    return trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
-  }
-
-  protected trendLabel(trend: AxisTrendDirection): string {
-    return trend === 'up'
-      ? 'En progression sur vos dernières sessions'
-      : trend === 'down'
-        ? 'En recul sur vos dernières sessions'
-        : 'Stable sur vos dernières sessions';
-  }
-
   protected readonly axisRows = computed<AxisRowView[]>(() => {
     const axes = this.progression()?.axes ?? [];
     const overviewByAxis = new Map(
@@ -234,7 +212,6 @@ export class Progression {
         overview?.bestScore == null ? null : Math.round(overview.bestScore),
       lastScore:
         axis.currentScore === null ? null : Math.round(axis.currentScore),
-      trend: axisTrend(scores),
       sparklinePoints: sparklinePoints(scores, SPARKLINE_GEOMETRY),
       clickable: axis.lastSessionId !== null,
     };

@@ -180,13 +180,6 @@
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              <line
-                class="prog__axis-spark-threshold"
-                x1="0"
-                [attr.y1]="sparklineThresholdY()"
-                x2="140"
-                [attr.y2]="sparklineThresholdY()"
-              />
               @if (row.sparklinePoints; as points) {
                 <polyline
                   [attr.points]="points"
@@ -201,21 +194,9 @@
               @if (row.neverPlayed) {
                 <span class="prog__axis-unplayed">Aucune session</span>
               } @else {
-                <span class="prog__axis-score-main">
-                  <span class="prog__axis-score-value t-mono">{{
-                    row.bestScore === null ? '-' : row.bestScore
-                  }}</span>
-                  @if (row.trend; as trend) {
-                    <span
-                      class="prog__axis-trend"
-                      [class.prog__axis-trend--up]="trend === 'up'"
-                      [class.prog__axis-trend--down]="trend === 'down'"
-                      role="img"
-                      [attr.aria-label]="trendLabel(trend)"
-                      >{{ trendArrow(trend) }}</span
-                    >
-                  }
-                </span>
+                <span class="prog__axis-score-value t-mono">{{
+                  row.bestScore === null ? '-' : row.bestScore
+                }}</span>
                 @if (row.lastScore !== null) {
                   <span class="prog__axis-last"
                     >Dernière session&nbsp;:
@@ -228,10 +209,8 @@
           </button>
         }
         <span class="prog__caption prog__axes-caption"
-          >Le chiffre est votre meilleur score sur l'axe. La flèche compare la
-          moyenne de vos 3 dernières sessions aux 3 précédentes, et le pointillé
-          marque le seuil de <span class="t-mono">{{ threshold() }}</span
-          >. Chaque ligne ouvre le détail.</span
+          >Le chiffre est votre meilleur score sur l'axe&nbsp;; la courbe, vos
+          sessions des 30 derniers jours.</span
         >
       </section>
 

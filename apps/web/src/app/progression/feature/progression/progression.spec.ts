@@ -328,28 +328,21 @@ describe('Progression', () => {
     ).toContain('78');
   });
 
-  it('shows an arrow built on two rolling averages, never a delta between two sessions', async () => {
+  it('leaves the curve alone: no trend arrow, no delta between two sessions', async () => {
     const { fixture } = await setup(populatedProgression());
-    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
-    const arrowOf = (index: number) =>
-      (rows[index] as HTMLElement)
-        .querySelector('.prog__axis-trend')
-        ?.textContent?.trim() ?? null;
+    const text = textOf(fixture);
 
-    expect(arrowOf(0)).toBe('↗');
-    expect(arrowOf(1)).toBe('↘');
-    expect(arrowOf(2)).toBe('→');
-    expect(textOf(fixture)).not.toContain('+6');
+    expect(fixture.nativeElement.querySelector('.prog__axis-trend')).toBeNull();
+    expect(text).not.toContain('↗');
+    expect(text).not.toContain('↘');
+    expect(text).not.toContain('+6');
   });
 
-  it('stays silent on the trend below four sessions in the window', async () => {
+  it('shows a single session as a score without drawing a line', async () => {
     const { fixture } = await setup(populatedProgression());
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
-    // Réactivité : 2 sessions seulement.
-    expect(
-      (rows[3] as HTMLElement).querySelector('.prog__axis-trend'),
-    ).toBeNull();
+    // Réactivité : 2 sessions dans la fenêtre, la courbe reste traçable.
     expect(
       (rows[3] as HTMLElement).querySelector('.prog__axis-score-value')
         ?.textContent,
@@ -379,17 +372,26 @@ describe('Progression', () => {
     ).toBeNull();
   });
 
-  it('gives the five sparklines the same scale and the same threshold line', async () => {
+  it('draws no threshold rule inside the sparklines', async () => {
     const { fixture } = await setup(populatedProgression());
-    const lines = fixture.nativeElement.querySelectorAll(
-      '.prog__axis-spark-threshold',
-    ) as NodeListOf<SVGLineElement>;
 
-    expect(lines).toHaveLength(5);
-    const heights = Array.from(lines).map((line) => line.getAttribute('y1'));
-    expect(new Set(heights).size).toBe(1);
-    // Seuil 70 sur une échelle fixe 0-100 entre y=24 et y=4.
-    expect(heights[0]).toBe('10');
+    expect(
+      fixture.nativeElement.querySelectorAll('.prog__axis-spark line'),
+    ).toHaveLength(0);
+  });
+
+  it('scales each curve on its own sessions so the movement shows', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const polyline = fixture.nativeElement
+      .querySelectorAll('.prog__axis-row')[2]
+      .querySelector('polyline') as SVGPolylineElement;
+
+    // Discrimination : 78-79 sur la période. À échelle fixe 0-100 la courbe
+    // tenait dans un cinquième de pixel ; ici elle occupe la hauteur utile.
+    const heights = (polyline.getAttribute('points') ?? '')
+      .split(' ')
+      .map((pair) => Number(pair.split(',')[1]));
+    expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(10);
   });
 
   it('announces an axis never played without a sparkline nor a trend', async () => {
