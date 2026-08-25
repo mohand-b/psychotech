@@ -407,7 +407,7 @@ function slowButAccurate(scored: LogicSessionScore): AxisFinding | null {
   return {
     id: 'LOGIC_SLOW_ACCURATE',
     severity: RecommendationPriority.HIGH,
-    finding: `${Math.round(scored.precision)} % de précision mais ${scored.unreachedCount} items jamais atteints : le rythme limite votre score`,
+    finding: `${Math.round(scored.precision)}% de précision mais ${scored.unreachedCount} items jamais atteints : le rythme limite votre score`,
     recommendation:
       'Votre précision est acquise : accélérez sur les suites simples pour finir la série.',
   };

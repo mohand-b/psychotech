@@ -17,7 +17,7 @@ function inverseGap(scored: MemorySessionScore): AxisFinding | null {
   return {
     id: 'MEMORY_INVERSE_GAP',
     severity: RecommendationPriority.HIGH,
-    finding: `${asPct(scored.normalAvg)} % de restitution en ordre normal contre ${asPct(scored.inverseAvg)} % en ordre inversé`,
+    finding: `${asPct(scored.normalAvg)}% de restitution en ordre normal contre ${asPct(scored.inverseAvg)}% en ordre inversé`,
     recommendation:
       'Travaillez la restitution à l’envers : balayez mentalement la séquence depuis la fin avant de saisir.',
   };

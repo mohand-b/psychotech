@@ -53,8 +53,8 @@ describe('analyzeMemory', () => {
     const gap = findings.find(({ id }) => id === 'MEMORY_INVERSE_GAP');
     expect(gap).toBeDefined();
     expect(gap?.severity).toBe(RecommendationPriority.HIGH);
-    expect(gap?.finding).toContain('90 %');
-    expect(gap?.finding).toContain('50 %');
+    expect(gap?.finding).toContain('90%');
+    expect(gap?.finding).toContain('50%');
   });
 
   it('stays silent on the inverse gap when both orders align', () => {

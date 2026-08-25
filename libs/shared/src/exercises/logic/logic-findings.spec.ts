@@ -168,7 +168,7 @@ describe('analyzeLogic', () => {
     const slow = findings.find(({ id }) => id === 'LOGIC_SLOW_ACCURATE');
     expect(slow).toBeDefined();
     expect(slow?.severity).toBe(RecommendationPriority.HIGH);
-    expect(slow?.finding).toContain('100 % de précision');
+    expect(slow?.finding).toContain('100% de précision');
     expect(slow?.finding).toContain('2 items jamais atteints');
   });
 
