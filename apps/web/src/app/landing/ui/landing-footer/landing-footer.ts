@@ -43,7 +43,7 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
           <span class="footer__mention"
             >© {{ copyrightYear }}
             <a class="footer__mention-link" routerLink="/">{{ siteName }}</a>
-            — {{ tagline }}</span
+            · {{ tagline }}</span
           >
           <span class="footer__mention"
             >Conçu pour les candidats aux sélections professionnelles.</span
