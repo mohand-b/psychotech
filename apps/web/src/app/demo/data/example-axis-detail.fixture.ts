@@ -1,10 +1,12 @@
 import {
+  AxisFindingsEntry,
   AxisType,
   ControlModality,
   DiscriminationTrialAnswerDto,
   LogicFamily,
   LogicItemAnswerDto,
   LogicNumericStructure,
+  LogicRuleItem,
   MOTRICITY_FINAL_COURSE_WEIGHT,
   MemorySequenceAnswerDto,
   MotorSkillsMetrics,
@@ -16,6 +18,11 @@ import {
   ScoreBand,
   Sector,
   TargetedAxisResultDto,
+  analyzeDiscrimination,
+  analyzeLogic,
+  analyzeMemory,
+  analyzeMotricity,
+  analyzeReactivity,
   avisFromScore,
   createSeededRng,
   expectedMemoryAnswer,
@@ -260,6 +267,68 @@ function motricityScore(): number {
   );
   const totalWeight = scores.length - 1 + MOTRICITY_FINAL_COURSE_WEIGHT;
   return Math.round(weightedSum / totalWeight);
+}
+
+export function exampleAxisFindings(): AxisFindingsEntry[] {
+  const logicItems = generateLogicSession(
+    EXAMPLE_SEED,
+    null,
+    SESSION_CONTENT_VERSION,
+  );
+  const logicResponses = logicAnswers();
+  const logicRuleItems: LogicRuleItem[] = logicItems.map((item) => ({
+    index: item.index,
+    ruleId: item.rule.id,
+    difficulty: item.difficulty,
+    sequence: [],
+    choices: [],
+    answerIndex: 0,
+    points: item.points,
+  }));
+  const memorySequences = generateMemorySession(EXAMPLE_SEED);
+
+  return [
+    {
+      axis: AxisType.LOGIC,
+      findings: analyzeLogic(
+        logicRuleItems,
+        scoreLogicSession(logicItems, logicResponses),
+        logicResponses,
+        logicItems,
+        null,
+      ),
+    },
+    {
+      axis: AxisType.MEMORY,
+      findings: analyzeMemory(
+        memorySequences,
+        scoreMemorySession(memorySequences, memoryAnswers()),
+      ),
+    },
+    {
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      findings: analyzeDiscrimination(
+        scoreDiscriminationSession(
+          generateDiscriminationSession(EXAMPLE_SEED),
+          discriminationAnswers(),
+        ),
+      ),
+    },
+    {
+      axis: AxisType.REACTIVITY,
+      findings: analyzeReactivity(
+        scoreReactivitySession(
+          generateReactivitySession(EXAMPLE_SEED),
+          reactivityAnswers(),
+          [],
+        ),
+      ),
+    },
+    {
+      axis: AxisType.MOTOR_SKILLS,
+      findings: analyzeMotricity(MOTRICITY_METRICS),
+    },
+  ];
 }
 
 export function exampleAxisScores(): Record<AxisType, number> {

@@ -1,7 +1,6 @@
 import {
   AxisFindingsEntry,
   AxisType,
-  RecommendationPriority,
   SECTOR_LABELS,
   Sector,
   SimulationAxisSummaryDto,
@@ -12,7 +11,10 @@ import {
   computeSimulationVerdict,
   roundToTenth,
 } from '@psychotech/shared';
-import { exampleAxisScores } from './example-axis-detail.fixture';
+import {
+  exampleAxisFindings,
+  exampleAxisScores,
+} from './example-axis-detail.fixture';
 
 const ADMISSIBILITY_THRESHOLD = 70;
 const VIGILANCE_THRESHOLD = 65;
@@ -28,61 +30,12 @@ const AXIS_COEFFICIENT: Record<string, number> = {
 
 const CRITICAL_COEFFICIENT = 1.2;
 
-interface FixtureAxis {
-  axis: AxisType;
-  findings: { id: string; finding: string; recommendation: string }[];
-}
-
-const FIXTURE_AXES: FixtureAxis[] = [
-  {
-    axis: AxisType.LOGIC,
-    findings: [
-      {
-        id: 'logic-time-management',
-        finding:
-          '6 items jamais atteints alors que vos réponses données sont presque toutes justes',
-        recommendation:
-          'Passez plus vite sur un item qui résiste : la fonction Passer existe pour ça',
-      },
-    ],
-  },
-  {
-    axis: AxisType.MEMORY,
-    findings: [],
-  },
-  {
-    axis: AxisType.VISUAL_DISCRIMINATION,
-    findings: [],
-  },
-  {
-    axis: AxisType.REACTIVITY,
-    findings: [
-      {
-        id: 'reactivity-drift',
-        finding:
-          'Vos temps de réaction se dégradent de 9 ms par signal sur le dernier tiers',
-        recommendation:
-          'Travaillez la tenue dans la durée : la fatigue vous coûte plus que la vitesse brute',
-      },
-    ],
-  },
-  {
-    axis: AxisType.MOTOR_SKILLS,
-    findings: [
-      {
-        id: 'motricity-diagonals',
-        finding: '3 sorties sur 4 se produisent dans les tronçons en diagonale',
-        recommendation:
-          'Entraînez la coordination des deux mains : les diagonales demandent les deux axes à la fois',
-      },
-      {
-        id: 'motricity-unfinished',
-        finding: 'Deux parcours sur trois ne sont pas menés à leur terme',
-        recommendation:
-          'Cherchez la régularité avant la vitesse : un parcours fini proprement vaut mieux',
-      },
-    ],
-  },
+const EXAMPLE_AXIS_ORDER: AxisType[] = [
+  AxisType.LOGIC,
+  AxisType.MEMORY,
+  AxisType.VISUAL_DISCRIMINATION,
+  AxisType.REACTIVITY,
+  AxisType.MOTOR_SKILLS,
 ];
 
 function isCritical(axis: AxisType): boolean {
@@ -90,11 +43,11 @@ function isCritical(axis: AxisType): boolean {
 }
 
 function weightedGlobalScore(scores: Record<AxisType, number>): number {
-  const totals = FIXTURE_AXES.reduce(
-    (acc, entry) => {
-      const coefficient = AXIS_COEFFICIENT[entry.axis] ?? 1;
+  const totals = EXAMPLE_AXIS_ORDER.reduce(
+    (acc, axis) => {
+      const coefficient = AXIS_COEFFICIENT[axis] ?? 1;
       return {
-        weighted: acc.weighted + scores[entry.axis] * coefficient,
+        weighted: acc.weighted + scores[axis] * coefficient,
         coefficients: acc.coefficients + coefficient,
       };
     },
@@ -108,12 +61,12 @@ export function buildExampleBilan(completedAt: string): SimulationSummaryDto {
   const scores = exampleAxisScores();
   const globalScore = weightedGlobalScore(scores);
 
-  const axes: SimulationAxisSummaryDto[] = FIXTURE_AXES.map((entry) => ({
-    axis: entry.axis,
-    score: scores[entry.axis],
-    band: avisFromScore(scores[entry.axis]),
-    isCritical: isCritical(entry.axis),
-    eliminatoryThreshold: isCritical(entry.axis) ? ELIMINATORY_THRESHOLD : null,
+  const axes: SimulationAxisSummaryDto[] = EXAMPLE_AXIS_ORDER.map((axis) => ({
+    axis,
+    score: scores[axis],
+    band: avisFromScore(scores[axis]),
+    isCritical: isCritical(axis),
+    eliminatoryThreshold: isCritical(axis) ? ELIMINATORY_THRESHOLD : null,
     vigilanceThreshold: VIGILANCE_THRESHOLD,
     observables: [],
   }));
@@ -125,13 +78,7 @@ export function buildExampleBilan(completedAt: string): SimulationSummaryDto {
     isCritical: critical,
   }));
 
-  const findingsByAxis: AxisFindingsEntry[] = FIXTURE_AXES.map((entry) => ({
-    axis: entry.axis,
-    findings: entry.findings.map((finding) => ({
-      ...finding,
-      severity: RecommendationPriority.HIGH,
-    })),
-  }));
+  const findingsByAxis: AxisFindingsEntry[] = exampleAxisFindings();
 
   const selection = buildSimulationSummary(
     outcomes,
