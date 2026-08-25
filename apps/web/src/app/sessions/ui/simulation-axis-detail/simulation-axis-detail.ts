@@ -91,6 +91,7 @@ const DETAIL_CONTENT: Record<string, AxisDetailContent> = {
 })
 export class SimulationAxisDetail {
   readonly detail = input.required<TargetedAxisResultDto>();
+  readonly showReview = input(true);
   readonly review = output<void>();
 
   protected readonly axisTypes = AxisType;

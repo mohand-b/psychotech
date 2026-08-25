@@ -237,6 +237,25 @@
   color: var(--text-secondary);
 }
 
+.bilan__example-copy {
+  flex: 1;
+  min-width: 200px;
+}
+
+.bilan__example-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font: 500 13px/1 var(--font-ui);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bilan__example-back:hover {
+  color: var(--ink);
+}
+
 .bilan__example-tag {
   background: var(--surface-muted);
   color: var(--ink);

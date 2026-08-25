@@ -1,10 +1,16 @@
 <section class="page-shell bilan">
   @if (isExample) {
-    <p class="bilan__example-notice">
+    <div class="bilan__example-notice">
       <span class="bilan__example-tag">Exemple de bilan</span>
-      Données fictives, présentées exactement comme le bilan que vous recevrez
-      après votre premier examen blanc.
-    </p>
+      <span class="bilan__example-copy">
+        Données fictives, présentées exactement comme le bilan que vous recevrez
+        après votre premier examen blanc.
+      </span>
+      <a class="bilan__example-back" routerLink="/">
+        <ui-icon [img]="backIcon" [size]="15" />
+        Retour au site
+      </a>
+    </div>
   }
   @if (summary(); as s) {
     <header class="bilan__hero">
@@ -141,6 +147,7 @@
                   @if (details()[axis.axis]; as detail) {
                     <ui-simulation-axis-detail
                       [detail]="detail"
+                      [showReview]="!isExample"
                       (review)="reviewAxis(axis.axis)"
                     />
                   } @else if (loadingAxis() === axis.axis) {

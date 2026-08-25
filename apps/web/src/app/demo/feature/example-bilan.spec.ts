@@ -113,6 +113,22 @@ describe('Public example bilan', () => {
     ).not.toBeNull();
   });
 
+  it('never offers to review answers that no visitor has given', async () => {
+    const { fixture } = await setup();
+    const rows = Array.from(
+      fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
+    ) as HTMLButtonElement[];
+
+    rows[0].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const detail = fixture.nativeElement.querySelector('.bilan__axis-detail');
+    expect(detail.querySelector('.detail__review')).toBeNull();
+    expect(detail.textContent).not.toContain('Revoir mes réponses');
+  });
+
   it('shows the same axis score in the row and in its detail', async () => {
     const { fixture } = await setup();
     const rows = Array.from(

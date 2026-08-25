@@ -9,7 +9,7 @@
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AxisType,
   FULL_SESSION_LABEL,
@@ -21,7 +21,7 @@ import {
   TargetedAxisResultDto,
   buildSimulationStamp,
 } from '@psychotech/shared';
-import { Lightbulb, Play } from 'lucide-angular';
+import { ArrowLeft, Lightbulb, Play } from 'lucide-angular';
 import {
   ResultCelebration,
   resultCelebrationFor,
@@ -77,6 +77,7 @@ const INERT_CELEBRATION: ResultCelebration = {
     StampBadge,
     ThresholdBar,
     ThresholdGauge,
+    RouterLink,
   ],
   providers: [ScoreReveal],
   templateUrl: './simulation-summary.html',
@@ -112,6 +113,7 @@ export class SimulationSummary {
       );
 
   protected readonly playIcon = Play;
+  protected readonly backIcon = ArrowLeft;
   protected readonly markerIcon = Lightbulb;
   protected readonly cardIconSize = AXIS_ICON_SIZE.card;
   protected readonly presentations = AXIS_PRESENTATION;
