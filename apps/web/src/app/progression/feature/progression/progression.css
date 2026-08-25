@@ -51,6 +51,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 22px 26px;
+  min-width: 0;
+  container-type: inline-size;
 }
 
 .prog__kpi + .prog__kpi {
@@ -92,14 +94,35 @@
 .prog__kpi-sub {
   font: 400 12px/1.4 var(--font-ui);
   color: var(--label);
+  white-space: nowrap;
 }
 
 .prog__kpi-sub .t-mono {
   font-size: 12px;
 }
 
-.prog__kpi-sub-short {
+/* Le détail des sessions ne doit jamais passer à la ligne. La formulation
+   courte est donc le défaut sûr : elle tient dans toutes les largeurs de
+   colonne. La longue demande 262 px au pire, elle n'apparaît que si la cellule
+   les offre — c'est la largeur de la colonne qui décide, pas celle de l'écran,
+   car quatre colonnes serrées peuvent l'étrangler à n'importe quelle taille de
+   fenêtre. */
+.prog__kpi-sub-long {
   display: none;
+}
+
+.prog__kpi-sub-short {
+  display: inline;
+}
+
+@container (min-width: 268px) {
+  .prog__kpi-sub-long {
+    display: inline;
+  }
+
+  .prog__kpi-sub-short {
+    display: none;
+  }
 }
 
 .prog__curve {
@@ -432,20 +455,16 @@
     font-size: 12px;
   }
 
+  /* Deux colonnes sur 390 px ne laissent que 134 px de contenu : le détail ne
+     tient sur une ligne dans aucune formulation, on le laisse se replier
+     plutôt que le tronquer. */
   .prog__kpi-sub {
     font-size: 11px;
-  }
-
-  .prog__kpi-sub-long {
-    display: none;
+    white-space: normal;
   }
 
   .prog__kpi-label-long {
     display: none;
-  }
-
-  .prog__kpi-sub-short {
-    display: inline;
   }
 
   .prog__curve {
