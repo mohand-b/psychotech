@@ -29,8 +29,6 @@ export const demoRoutes: Route[] = [
   {
     path: EXAMPLE_BILAN_PATH,
     data: { seo: EXAMPLE_BILAN_SEO, demo: true, hideMobileNav: true },
-    // La page publique rend le composant de bilan tel quel : seule la source de
-    // données change, par substitution de la façade sur cette route.
     providers: [
       { provide: SimulationSummaryFacade, useClass: ExampleBilanFacade },
     ],

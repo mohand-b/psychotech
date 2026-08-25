@@ -87,11 +87,7 @@
               <button
                 type="button"
                 class="bilan__axis-row"
-                [class.bilan__axis-row--static]="isExample"
-                [disabled]="isExample"
-                [attr.aria-expanded]="
-                  isExample ? null : openAxis() === axis.axis
-                "
+                [attr.aria-expanded]="openAxis() === axis.axis"
                 (click)="toggle(axis.axis)"
               >
                 <span class="bilan__axis-line">
@@ -116,7 +112,6 @@
                   >
                   <span
                     class="bilan__chevron"
-                    [class.bilan__chevron--hidden]="isExample"
                     [class.bilan__chevron--open]="openAxis() === axis.axis"
                   >
                     <svg

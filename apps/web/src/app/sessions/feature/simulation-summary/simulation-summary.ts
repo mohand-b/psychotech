@@ -97,8 +97,6 @@ export class SimulationSummary {
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
 
-  // Exemple public : mêmes composants, données fictives. Aucun badge à fêter,
-  // aucun acquittement, donc pas de scène de célébration à retenir ni à libérer.
   protected readonly isExample = this.route.snapshot.data['demo'] === true;
 
   protected readonly celebration: ResultCelebration = this.isExample

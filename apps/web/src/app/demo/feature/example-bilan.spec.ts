@@ -93,15 +93,44 @@ describe('Public example bilan', () => {
     expect(navigate).toHaveBeenCalledWith(['/register']);
   });
 
-  it('leaves the axis rows inert, since there is no session to open', async () => {
+  it('opens the axis detail from the fixture, without any network call', async () => {
     const { fixture } = await setup();
     const rows = Array.from(
       fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
     ) as HTMLButtonElement[];
 
-    expect(rows.every((row) => row.disabled)).toBe(true);
+    rows[0].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const detail = fixture.nativeElement.querySelector('.bilan__axis-detail');
+    expect(detail).not.toBeNull();
+    expect(detail.textContent).not.toContain('Détail indisponible');
+    expect(detail.textContent).not.toContain('Chargement du détail');
     expect(
-      fixture.nativeElement.querySelector('.bilan__axis-detail'),
-    ).toBeNull();
+      detail.querySelector('ui-simulation-axis-detail'),
+    ).not.toBeNull();
+  });
+
+  it('shows the same axis score in the row and in its detail', async () => {
+    const { fixture } = await setup();
+    const rows = Array.from(
+      fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
+    ) as HTMLElement[];
+    const rowScore = rows[2]
+      .querySelector('.bilan__axis-score')
+      ?.textContent?.trim();
+
+    (rows[2] as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const detailText: string =
+      fixture.nativeElement.querySelector('.bilan__axis-detail')?.textContent ??
+      '';
+    expect(rowScore).toBeTruthy();
+    expect(detailText.length).toBeGreaterThan(0);
   });
 });

@@ -31,8 +31,6 @@ describe('buildExampleBilan', () => {
     expect(summary.eliminatoryAxes).toEqual([]);
   });
 
-  // Le bracket « + 5 à + 14,9 au-dessus du seuil » : nettement admissible sans
-  // être hors d'atteinte. Il s'appelle COMFORTABLE dans le moteur.
   it('lands the global score in the comfortable bracket, above the threshold but reachable', () => {
     const stamp = buildSimulationStamp(
       summary.globalScore,

@@ -223,16 +223,6 @@
   transform: rotate(180deg);
 }
 
-.bilan__chevron--hidden {
-  visibility: hidden;
-}
-
-/* Exemple public : la ligne d'axe garde son gabarit mais n'ouvre rien, faute de
-   détail de session à charger. */
-.bilan__axis-row--static {
-  cursor: default;
-}
-
 .bilan__example-notice {
   display: flex;
   align-items: center;

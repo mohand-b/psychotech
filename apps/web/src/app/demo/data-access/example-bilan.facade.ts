@@ -1,17 +1,16 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import {
+  AxisType,
   SimulationSummaryDto,
   TargetedAxisResultDto,
 } from '@psychotech/shared';
 import { EMPTY, Observable, of } from 'rxjs';
+import { buildExampleAxisDetail } from '../data/example-axis-detail.fixture';
 import { buildExampleBilan } from '../data/example-bilan.fixture';
 
-// Date figée : le bilan public doit être identique d'un rendu à l'autre, y
-// compris au prerender, sinon le HTML servi diverge de celui hydraté.
+const EXAMPLE_STARTED_AT = '2026-06-14T18:00:00.000Z';
 const EXAMPLE_COMPLETED_AT = '2026-06-14T18:30:00.000Z';
 
-// Remplace la façade de session sur la route publique. Aucune requête, donc
-// aucun endpoint authentifié appelé, et aucun store applicatif touché.
 @Injectable()
 export class ExampleBilanFacade {
   private readonly summarySignal = signal<SimulationSummaryDto | null>(
@@ -26,9 +25,14 @@ export class ExampleBilanFacade {
     return summary ? of(summary) : EMPTY;
   }
 
-  // Aucun détail d'axe à charger : l'exemple n'a pas de session derrière lui, et
-  // la page rend ses lignes d'axe non dépliables.
-  loadAxisDetail(): Observable<TargetedAxisResultDto> {
-    return EMPTY;
+  loadAxisDetail(
+    sessionId: string,
+    axis: AxisType,
+  ): Observable<TargetedAxisResultDto> {
+    const detail = buildExampleAxisDetail(axis, {
+      startedAt: EXAMPLE_STARTED_AT,
+      completedAt: EXAMPLE_COMPLETED_AT,
+    });
+    return detail ? of(detail) : EMPTY;
   }
 }

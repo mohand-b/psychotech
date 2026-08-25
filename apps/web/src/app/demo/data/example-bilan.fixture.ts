@@ -12,10 +12,8 @@ import {
   computeSimulationVerdict,
   roundToTenth,
 } from '@psychotech/shared';
+import { exampleAxisScores } from './example-axis-detail.fixture';
 
-// Seuils et coefficients du secteur ferroviaire. Ils sont servis par le
-// référentiel en session réelle ; l'exemple public les fige pour rester
-// autonome, sans appel réseau.
 const ADMISSIBILITY_THRESHOLD = 70;
 const VIGILANCE_THRESHOLD = 65;
 const ELIMINATORY_THRESHOLD = 55;
@@ -32,22 +30,12 @@ const CRITICAL_COEFFICIENT = 1.2;
 
 interface FixtureAxis {
   axis: AxisType;
-  score: number;
-  observables: { label: string | null; value: string; caption: string | null }[];
   findings: { id: string; finding: string; recommendation: string }[];
 }
 
-// Un profil crédible : solide sans être parfait, avec une motricité qui traîne
-// sous le seuil de vigilance. Aucun score à 100, aucun axe éliminatoire.
 const FIXTURE_AXES: FixtureAxis[] = [
   {
     axis: AxisType.LOGIC,
-    score: 78,
-    observables: [
-      { label: 'Réussite', value: '31/40', caption: 'items justes' },
-      { label: 'Temps moyen', value: '11,4 s', caption: 'par item' },
-      { label: 'Profil', value: 'Lent-précis', caption: null },
-    ],
     findings: [
       {
         id: 'logic-time-management',
@@ -60,32 +48,14 @@ const FIXTURE_AXES: FixtureAxis[] = [
   },
   {
     axis: AxisType.MEMORY,
-    score: 84,
-    observables: [
-      { label: 'Longueur atteinte', value: '7', caption: 'ordre normal' },
-      { label: 'Longueur atteinte', value: '5', caption: 'ordre inversé' },
-      { label: 'Erreurs', value: 'Position', caption: 'dominantes' },
-    ],
     findings: [],
   },
   {
     axis: AxisType.VISUAL_DISCRIMINATION,
-    score: 81,
-    observables: [
-      { label: 'Réponses justes', value: '32/36', caption: null },
-      { label: 'Temps moyen', value: '2,6 s', caption: 'par essai' },
-      { label: 'Fausses alertes', value: '2', caption: null },
-    ],
     findings: [],
   },
   {
     axis: AxisType.REACTIVITY,
-    score: 76,
-    observables: [
-      { label: 'Temps de réaction', value: '452 ms', caption: 'moyenne' },
-      { label: 'Régularité', value: '± 78 ms', caption: null },
-      { label: 'Erreurs', value: '3', caption: 'sur 45 signaux' },
-    ],
     findings: [
       {
         id: 'reactivity-drift',
@@ -98,12 +68,6 @@ const FIXTURE_AXES: FixtureAxis[] = [
   },
   {
     axis: AxisType.MOTOR_SKILLS,
-    score: 62,
-    observables: [
-      { label: 'Progression', value: '84 %', caption: 'du parcours' },
-      { label: 'Sorties', value: '4', caption: 'hors couloir' },
-      { label: 'Écart moyen', value: '11 px', caption: 'à la trajectoire' },
-    ],
     findings: [
       {
         id: 'motricity-diagonals',
@@ -125,12 +89,12 @@ function isCritical(axis: AxisType): boolean {
   return (AXIS_COEFFICIENT[axis] ?? 1) >= CRITICAL_COEFFICIENT;
 }
 
-function weightedGlobalScore(): number {
+function weightedGlobalScore(scores: Record<AxisType, number>): number {
   const totals = FIXTURE_AXES.reduce(
     (acc, entry) => {
       const coefficient = AXIS_COEFFICIENT[entry.axis] ?? 1;
       return {
-        weighted: acc.weighted + entry.score * coefficient,
+        weighted: acc.weighted + scores[entry.axis] * coefficient,
         coefficients: acc.coefficients + coefficient,
       };
     },
@@ -139,21 +103,19 @@ function weightedGlobalScore(): number {
   return roundToTenth(totals.weighted / totals.coefficients);
 }
 
-// Tout ce qui est interprétation — verdict, tampon, synthèse, recommandations,
-// appréciation — sort des fonctions de production. La fixture ne fournit que ce
-// qu'une vraie session persiste : des scores et des observables.
 export function buildExampleBilan(completedAt: string): SimulationSummaryDto {
   const sector = Sector.RAILWAY;
-  const globalScore = weightedGlobalScore();
+  const scores = exampleAxisScores();
+  const globalScore = weightedGlobalScore(scores);
 
   const axes: SimulationAxisSummaryDto[] = FIXTURE_AXES.map((entry) => ({
     axis: entry.axis,
-    score: entry.score,
-    band: avisFromScore(entry.score),
+    score: scores[entry.axis],
+    band: avisFromScore(scores[entry.axis]),
     isCritical: isCritical(entry.axis),
     eliminatoryThreshold: isCritical(entry.axis) ? ELIMINATORY_THRESHOLD : null,
     vigilanceThreshold: VIGILANCE_THRESHOLD,
-    observables: entry.observables,
+    observables: [],
   }));
 
   const outcomes = axes.map(({ axis, score, band, isCritical: critical }) => ({
