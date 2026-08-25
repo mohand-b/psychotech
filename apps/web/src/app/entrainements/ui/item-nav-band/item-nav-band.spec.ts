@@ -29,7 +29,6 @@ describe('ItemNavBand', () => {
   let fixture: ComponentFixture<BandHost>;
 
   beforeEach(async () => {
-    // La bande recentre l'item courant ; le DOM de test n'implémente pas le défilement.
     Element.prototype.scrollIntoView = () => undefined;
     await TestBed.configureTestingModule({ imports: [BandHost] })
       .compileComponents();

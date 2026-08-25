@@ -62,9 +62,6 @@ describe('AxisRadar', () => {
     expect(areaPoints(fixture)).toContain(',');
   });
 
-  // Que le polygone rejoigne ensuite la nouvelle forme est couvert par les deux
-  // tests suivants, qui déclenchent l'arrivée sans dépendre des frames : le
-  // moteur d'animation n'en produit aucune dans un DOM simulé.
   it('leaves the polygon on its previous shape when the data set changes', async () => {
     const fixture = await setup();
     const before = areaPoints(fixture);

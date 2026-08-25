@@ -28,8 +28,6 @@ export function axisScoresWithinWindow(
     .map((point) => point.score);
 }
 
-// Échelle propre à l'axe : une échelle 0-100 commune écrase les écarts réels et
-// donne cinq lignes plates. La marge évite que les extrêmes touchent les bords.
 export function sparklineDomain(scores: readonly number[]): SparklineDomain {
   if (scores.length === 0) {
     return { min: 0, max: 1 };

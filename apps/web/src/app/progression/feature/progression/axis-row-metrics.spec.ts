@@ -63,8 +63,6 @@ describe('sparklinePoints', () => {
     expect(points[1].startsWith('140,')).toBe(true);
   });
 
-  // Le défaut corrigé : sur une échelle 0-100, quatre points d'écart tenaient
-  // dans moins d'un pixel et la courbe paraissait plate.
   it('turns a small real gap into a visible slope', () => {
     const heights = (sparklinePoints([70, 74], GEOMETRY) ?? '')
       .split(' ')

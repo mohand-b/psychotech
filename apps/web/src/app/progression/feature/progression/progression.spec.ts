@@ -52,13 +52,10 @@ const REFERENTIAL: SectorReferentialDto = {
 
 const DAY_MS = 86_400_000;
 
-// Les dates sont relatives à maintenant : la fenêtre de 30 jours de la page se
-// lit sur l'horloge réelle, un jeu de dates figées sortirait de la fenêtre.
 function daysAgo(days: number): string {
   return new Date(Date.now() - days * DAY_MS).toISOString();
 }
 
-// Un historique par axe pour couvrir les quatre états de tendance de la spec.
 const AXIS_HISTORY: Partial<Record<AxisType, number[]>> = {
   [AxisType.LOGIC]: [70, 70, 70, 76, 78, 82],
   [AxisType.MEMORY]: [70, 70, 70, 64, 62, 61],
@@ -318,7 +315,6 @@ describe('Progression', () => {
     const { fixture } = await setup(populatedProgression());
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
-    // Discrimination : meilleur 79, dernière session 78.
     const discrimination = rows[2] as HTMLElement;
     expect(
       discrimination.querySelector('.prog__axis-score-value')?.textContent,
@@ -342,7 +338,6 @@ describe('Progression', () => {
     const { fixture } = await setup(populatedProgression());
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
-    // Réactivité : 2 sessions dans la fenêtre, la courbe reste traçable.
     expect(
       (rows[3] as HTMLElement).querySelector('.prog__axis-score-value')
         ?.textContent,
@@ -378,8 +373,6 @@ describe('Progression', () => {
       .querySelectorAll('.prog__axis-row')[2]
       .querySelector('polyline') as SVGPolylineElement;
 
-    // Discrimination : 78-79 sur la période. À échelle fixe 0-100 la courbe
-    // tenait dans un cinquième de pixel ; ici elle occupe la hauteur utile.
     const heights = (polyline.getAttribute('points') ?? '')
       .split(' ')
       .map((pair) => Number(pair.split(',')[1]));

@@ -101,12 +101,6 @@
   font-size: 12px;
 }
 
-/* Le détail des sessions ne doit jamais passer à la ligne. La formulation
-   courte est donc le défaut sûr : elle tient dans toutes les largeurs de
-   colonne. La longue demande 262 px au pire, elle n'apparaît que si la cellule
-   les offre — c'est la largeur de la colonne qui décide, pas celle de l'écran,
-   car quatre colonnes serrées peuvent l'étrangler à n'importe quelle taille de
-   fenêtre. */
 .prog__kpi-sub-long {
   display: none;
 }
@@ -455,9 +449,6 @@
     font-size: 12px;
   }
 
-  /* Deux colonnes sur 390 px ne laissent que 134 px de contenu : le détail ne
-     tient sur une ligne dans aucune formulation, on le laisse se replier
-     plutôt que le tronquer. */
   .prog__kpi-sub {
     font-size: 11px;
     white-space: normal;
