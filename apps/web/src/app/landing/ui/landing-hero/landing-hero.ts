@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, CirclePlay, LucideIconData } from 'lucide-angular';
+import { ArrowRight, FileText, LucideIconData } from 'lucide-angular';
 import {
   AXIS_ICON_SIZE,
   AxisIcon,
@@ -83,7 +83,7 @@ export class LandingHero {
       ? 'Continuer ma préparation'
       : 'Commencer gratuitement',
   );
-  protected readonly playIcon = CirclePlay;
+  protected readonly reportIcon = FileText;
   protected readonly railwayAxes: readonly HeroAxis[] = axesFor(Sector.RAILWAY);
 
   protected readonly bands: readonly SectorBand[] = [

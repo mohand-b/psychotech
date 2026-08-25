@@ -46,6 +46,10 @@
   --hero-enter-index: 3;
 }
 
+.hero__example {
+  --hero-enter-index: 3;
+}
+
 .hero__axes-group,
 .hero__stacked-axes {
   --hero-enter-index: 4;
@@ -258,6 +262,24 @@
 }
 
 .hero__cta:focus-visible {
+  outline: 2px solid var(--landing-text);
+  outline-offset: 3px;
+}
+
+.hero__example {
+  align-self: flex-start;
+  color: var(--landing-text-muted);
+  font: 500 14px/1.4 var(--landing-font-ui);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: color 0.2s ease;
+}
+
+.hero__example:hover {
+  color: var(--landing-text);
+}
+
+.hero__example:focus-visible {
   outline: 2px solid var(--landing-text);
   outline-offset: 3px;
 }

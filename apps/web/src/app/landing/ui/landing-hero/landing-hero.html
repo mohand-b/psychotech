@@ -32,6 +32,9 @@
           <span>{{ ctaLabel() }}</span>
           <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
         </a>
+        <a routerLink="/exemple-de-bilan" class="hero__example hero__animate">
+          Voir un exemple de bilan
+        </a>
         <div class="hero__axes-group hero__animate">
           <span class="hero__axes-label">Axes évalués</span>
           <ul class="hero__axes" aria-label="Aptitudes évaluées">
@@ -138,9 +141,9 @@
           {{ ctaLabel() }}
           <ui-icon [img]="arrowIcon" [size]="16" [strokeWidth]="2" />
         </a>
-        <a href="#fonctionnement" class="hero__stacked-secondary">
-          <ui-icon [img]="playIcon" [size]="16" [strokeWidth]="2" />
-          Voir comment ça marche
+        <a routerLink="/exemple-de-bilan" class="hero__stacked-secondary">
+          <ui-icon [img]="reportIcon" [size]="16" [strokeWidth]="2" />
+          Voir un exemple de bilan
         </a>
       </div>
       <div class="hero__stacked-tail">
