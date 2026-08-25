@@ -35,6 +35,8 @@ export const EXAMPLE_SEED = 'exemple-de-bilan-2026';
 
 const EXAMPLE_SESSION_ID = 'exemple-de-bilan';
 
+const LOGIC_SKIPPED_INDEXES = [6, 17, 28];
+
 interface DetailContext {
   startedAt: string;
   completedAt: string;
@@ -64,15 +66,20 @@ function logicAnswers(): LogicItemAnswerDto[] {
   const rng = createSeededRng(`${EXAMPLE_SEED}:logic`);
   return items.map((item, index) => {
     const unreached = index >= items.length - 4;
-    const correct = !unreached && rng.next() > 0.09;
-    const timeMs = unreached ? 0 : 9000 + Math.round(rng.next() * 6000);
+    const skipped = LOGIC_SKIPPED_INDEXES.includes(index);
+    const correct = !unreached && !skipped && rng.next() > 0.04;
+    const timeMs = unreached
+      ? 0
+      : skipped
+        ? 5000 + Math.round(rng.next() * 4000)
+        : 9000 + Math.round(rng.next() * 6000);
     const shared = {
       index: item.index,
       timeMs,
       helpUsed: false,
       visited: !unreached,
     };
-    if (unreached) {
+    if (unreached || skipped) {
       return { ...shared, answerIndex: null };
     }
     if (item.family === LogicFamily.DOMINO) {
