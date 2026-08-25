@@ -1,4 +1,11 @@
 <section class="page-shell bilan">
+  @if (isExample) {
+    <p class="bilan__example-notice">
+      <span class="bilan__example-tag">Exemple de bilan</span>
+      Données fictives, présentées exactement comme le bilan que vous recevrez
+      après votre premier examen blanc.
+    </p>
+  }
   @if (summary(); as s) {
     <header class="bilan__hero">
       <div class="bilan__hero-main">
@@ -80,7 +87,11 @@
               <button
                 type="button"
                 class="bilan__axis-row"
-                [attr.aria-expanded]="openAxis() === axis.axis"
+                [class.bilan__axis-row--static]="isExample"
+                [disabled]="isExample"
+                [attr.aria-expanded]="
+                  isExample ? null : openAxis() === axis.axis
+                "
                 (click)="toggle(axis.axis)"
               >
                 <span class="bilan__axis-line">
@@ -105,6 +116,7 @@
                   >
                   <span
                     class="bilan__chevron"
+                    [class.bilan__chevron--hidden]="isExample"
                     [class.bilan__chevron--open]="openAxis() === axis.axis"
                   >
                     <svg
@@ -344,23 +356,39 @@
       <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
     }
 
-    <ui-action-footer>
-      <ui-button
-        color="brand"
-        [icon]="playIcon"
-        block="mobile"
-        (click)="newTraining()"
-      >
-        Nouvel entraînement
-      </ui-button>
-      <ui-button
-        color="neutral"
-        appearance="outlined"
-        block="mobile"
-        (click)="back()"
-      >
-        Retour aux entraînements
-      </ui-button>
-    </ui-action-footer>
+    @if (isExample) {
+      <ui-action-footer>
+        <ui-button color="brand" block="mobile" (click)="startForFree()">
+          Obtenez votre propre bilan — commencez gratuitement
+        </ui-button>
+        <ui-button
+          color="neutral"
+          appearance="outlined"
+          block="mobile"
+          (click)="discover()"
+        >
+          Découvrir PsychoTech Training
+        </ui-button>
+      </ui-action-footer>
+    } @else {
+      <ui-action-footer>
+        <ui-button
+          color="brand"
+          [icon]="playIcon"
+          block="mobile"
+          (click)="newTraining()"
+        >
+          Nouvel entraînement
+        </ui-button>
+        <ui-button
+          color="neutral"
+          appearance="outlined"
+          block="mobile"
+          (click)="back()"
+        >
+          Retour aux entraînements
+        </ui-button>
+      </ui-action-footer>
+    }
   }
 </section>

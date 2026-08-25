@@ -22,7 +22,10 @@ import {
   buildSimulationStamp,
 } from '@psychotech/shared';
 import { Lightbulb, Play } from 'lucide-angular';
-import { resultCelebrationFor } from '../../../badges/data-access/result-celebration';
+import {
+  ResultCelebration,
+  resultCelebrationFor,
+} from '../../../badges/data-access/result-celebration';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
@@ -52,6 +55,12 @@ import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
 
 const RADAR_PROGRESS_RESTART_DROP = 0.5;
+
+const INERT_CELEBRATION: ResultCelebration = {
+  announceView: signal(null).asReadonly(),
+  sceneReady: () => undefined,
+  replay: () => undefined,
+};
 
 @Component({
   selector: 'app-simulation-summary',
@@ -87,15 +96,22 @@ export class SimulationSummary {
 
   private readonly sessionId =
     this.route.snapshot.paramMap.get('sessionId') ?? '';
-  protected readonly celebration = resultCelebrationFor(
-    this.sessionId,
-    computed(() => {
-      const summary = this.facade.summary();
-      return summary
-        ? { badges: summary.earnedBadges ?? [], sector: summary.sector }
-        : null;
-    }),
-  );
+
+  // Exemple public : mêmes composants, données fictives. Aucun badge à fêter,
+  // aucun acquittement, donc pas de scène de célébration à retenir ni à libérer.
+  protected readonly isExample = this.route.snapshot.data['demo'] === true;
+
+  protected readonly celebration: ResultCelebration = this.isExample
+    ? INERT_CELEBRATION
+    : resultCelebrationFor(
+        this.sessionId,
+        computed(() => {
+          const summary = this.facade.summary();
+          return summary
+            ? { badges: summary.earnedBadges ?? [], sector: summary.sector }
+            : null;
+        }),
+      );
 
   protected readonly playIcon = Play;
   protected readonly markerIcon = Lightbulb;
@@ -239,6 +255,14 @@ export class SimulationSummary {
     return weakness.thresholdKind === SimulationThresholdKind.ELIMINATORY
       ? `Sous le seuil éliminatoire de l’axe : ${weakness.thresholdValue}`
       : `Sous le seuil de vigilance : ${weakness.thresholdValue}`;
+  }
+
+  protected startForFree(): void {
+    this.router.navigate(['/register']);
+  }
+
+  protected discover(): void {
+    this.router.navigate(['/']);
   }
 
   protected toggle(axis: AxisType): void {

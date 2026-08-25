@@ -239,7 +239,10 @@ async function setup(
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { paramMap: convertToParamMap({ sessionId: 'session-1' }) },
+          snapshot: {
+            paramMap: convertToParamMap({ sessionId: 'session-1' }),
+            data: {},
+          },
         },
       },
     ],
