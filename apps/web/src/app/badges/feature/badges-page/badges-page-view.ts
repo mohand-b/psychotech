@@ -119,7 +119,7 @@ function buildEntry(
         : null,
     rarityLabel:
       earned && status?.rarityPercent != null
-        ? `${status.rarityPercent} % des candidats l'ont obtenu`
+        ? `${status.rarityPercent}% des candidats l'ont obtenu`
         : null,
     conditions,
     metCount: conditions.filter((condition) => condition.met).length,

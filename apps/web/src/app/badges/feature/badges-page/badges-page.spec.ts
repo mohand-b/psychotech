@@ -149,8 +149,8 @@ describe('BadgesPage', () => {
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('Obtenu le 12/07/2026');
     expect(text).not.toContain('Palier maximal');
-    expect(text).toContain("28 % des candidats l'ont obtenu");
-    expect(text).toContain("6 % des candidats l'ont obtenu");
+    expect(text).toContain("28% des candidats l'ont obtenu");
+    expect(text).toContain("6% des candidats l'ont obtenu");
     expect(text).not.toContain('11 %');
   });
 

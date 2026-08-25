@@ -88,7 +88,7 @@ function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
         {
           label: 'Chiffres bien placés',
           main: `${Math.round(scored.placedPct)}`,
-          unit: ' %',
+          unit: '%',
         },
       ];
     }
@@ -152,7 +152,7 @@ function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
         {
           label: 'Parcours complété',
           main: `${Math.round(scored.progressionPct)}`,
-          unit: ' %',
+          unit: '%',
         },
         {
           label: 'Erreurs',

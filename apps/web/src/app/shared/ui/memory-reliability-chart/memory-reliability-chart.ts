@@ -15,7 +15,7 @@ const BAR_MIN_HEIGHT_PX = 5;
             <span
               class="chart__value t-mono"
               [class.chart__value--weak]="isWeak(reliability)"
-              >{{ reliability }} %</span
+              >{{ reliability }}%</span
             >
             <span
               class="chart__bar"

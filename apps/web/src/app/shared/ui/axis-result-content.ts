@@ -116,12 +116,12 @@ export function buildMemoryMetricRows(
     {
       label: 'Éléments restitués',
       value: `${scored.restitutedPct}`,
-      suffix: ' %',
+      suffix: '%',
     },
     {
       label: 'Éléments bien placés',
       value: `${scored.placedPct}`,
-      suffix: ' %',
+      suffix: '%',
     },
     {
       label: 'Restitutions hors délai',
