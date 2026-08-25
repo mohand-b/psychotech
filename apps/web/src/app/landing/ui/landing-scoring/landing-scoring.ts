@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
   selector: 'app-landing-scoring',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LandingReveal],
+  imports: [LandingReveal, RouterLink],
   template: `
     <section class="scoring">
       <div class="scoring__inner">
@@ -116,12 +117,40 @@ import { LandingReveal } from '../landing-reveal.directive';
             >
           </div>
         </div>
+        <p class="scoring__example" appLandingReveal="0.2s">
+          <a class="scoring__example-link" routerLink="/exemple-de-bilan"
+            >Voir un exemple de bilan</a
+          >
+          <span class="scoring__example-hint"
+            >le rapport complet remis après un examen blanc</span
+          >
+        </p>
       </div>
     </section>
   `,
   styles: `
     .scoring {
       background: var(--landing-bg);
+    }
+    .scoring__example {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 40px 0 0;
+    }
+    .scoring__example-link {
+      font: 600 15px/1.4 var(--landing-font-ui);
+      color: var(--landing-accent-soft);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+    }
+    .scoring__example-link:hover {
+      color: var(--landing-text);
+    }
+    .scoring__example-hint {
+      font: 400 13.5px/1.5 var(--landing-font-ui);
+      color: var(--landing-text-muted);
     }
     .scoring__inner {
       max-width: 1160px;
