@@ -8,6 +8,8 @@ import {
   MOTRICITY_FINAL_COURSE_WEIGHT,
   MemorySequenceAnswerDto,
   MotorSkillsMetrics,
+  MotricityCourseTimeline,
+  MotricityTimelinePoint,
   REACTIVITY_COMMAND_BY_TYPE,
   ReactivityStimulusAnswerDto,
   SESSION_CONTENT_VERSION,
@@ -25,6 +27,7 @@ import {
   scoreLogicSession,
   scoreMemorySession,
   scoreMotricityRecap,
+  roundToTenth,
   scoreReactivitySession,
 } from '@psychotech/shared';
 
@@ -153,6 +156,47 @@ function reactivityAnswers(): ReactivityStimulusAnswerDto[] {
   });
 }
 
+const MOTRICITY_SAMPLE_STEP_MS = 1500;
+const MOTRICITY_BASE_DEVIATION_PCT = 6;
+const MOTRICITY_EVENT_SPIKE_PCT = 34;
+const MOTRICITY_EVENT_SPIKE_WINDOW_MS = 2200;
+
+interface CourseShape {
+  index: number;
+  durationMs: number;
+  drift: number;
+  events: number[];
+}
+
+function motricityTimeline(shapes: CourseShape[]): MotricityCourseTimeline[] {
+  return shapes.map((shape) => {
+    const rng = createSeededRng(`${EXAMPLE_SEED}:motricity:${shape.index}`);
+    const points: MotricityTimelinePoint[] = [];
+    for (let tMs = 0; tMs <= shape.durationMs; tMs += MOTRICITY_SAMPLE_STEP_MS) {
+      const progress = tMs / shape.durationMs;
+      const spike = shape.events.reduce((peak, at) => {
+        const distance = Math.abs(tMs - at);
+        if (distance > MOTRICITY_EVENT_SPIKE_WINDOW_MS) {
+          return peak;
+        }
+        const closeness = 1 - distance / MOTRICITY_EVENT_SPIKE_WINDOW_MS;
+        return Math.max(peak, MOTRICITY_EVENT_SPIKE_PCT * closeness);
+      }, 0);
+      const wander = rng.next() * 5;
+      const deviationPct =
+        MOTRICITY_BASE_DEVIATION_PCT + shape.drift * progress + wander + spike;
+      points.push({ tMs, deviationPct: roundToTenth(deviationPct) });
+    }
+    return { courseIndex: shape.index, points };
+  });
+}
+
+const MOTRICITY_COURSE_SHAPES: CourseShape[] = [
+  { index: 0, durationMs: 61_000, drift: 3, events: [] },
+  { index: 1, durationMs: 74_000, drift: 6, events: [41_200] },
+  { index: 2, durationMs: 79_000, drift: 11, events: [33_800, 58_400] },
+];
+
 const MOTRICITY_METRICS: MotorSkillsMetrics = {
   axis: AxisType.MOTOR_SKILLS,
   minorErrors: 8,
@@ -190,7 +234,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
       jitterMs: null,
     },
   ],
-  timeline: [],
+  timeline: motricityTimeline(MOTRICITY_COURSE_SHAPES),
   events: [
     { courseIndex: 1, tMs: 41_200, type: 'EXIT', segment: 'DIAG', durationMs: 620 },
     { courseIndex: 2, tMs: 33_800, type: 'CONTACT', segment: 'DIAG' },
