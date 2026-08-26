@@ -516,6 +516,16 @@
     padding-bottom: 24px;
   }
 
+  .bilan__example-notice {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .bilan__example-copy {
+    min-width: 0;
+  }
+
   .bilan__hero {
     grid-template-columns: 1fr;
     gap: 14px;
