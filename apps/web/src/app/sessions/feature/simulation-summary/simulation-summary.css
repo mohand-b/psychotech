@@ -517,12 +517,21 @@
   }
 
   .bilan__example-notice {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+
+  .bilan__example-back {
+    order: 1;
+  }
+
+  .bilan__example-tag {
+    order: 2;
   }
 
   .bilan__example-copy {
+    order: 3;
+    flex-basis: 100%;
     min-width: 0;
   }
 
