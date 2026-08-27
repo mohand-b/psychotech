@@ -40,6 +40,23 @@
   text-decoration: underline;
 }
 
+.axis-start__guide-note {
+  margin: 0;
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--label);
+  text-align: center;
+}
+
+.axis-start__guide-link {
+  font-weight: 600;
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.axis-start__guide-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 767px) {
   .axis-start {
     gap: 0.75rem;

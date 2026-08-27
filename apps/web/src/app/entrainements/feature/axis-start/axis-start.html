@@ -53,5 +53,16 @@
         }
       </span>
     </ui-button>
+    @if (!tutorial && guideAnchor) {
+    <p class="axis-start__guide-note" actionFooterNote>
+      Première fois sur cette épreuve&nbsp;?
+      <a
+        class="axis-start__guide-link"
+        [routerLink]="guidePath"
+        [fragment]="guideAnchor"
+        >Consultez le guide des épreuves</a
+      >
+    </p>
+    }
   </ui-action-footer>
 </section>

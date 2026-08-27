@@ -27,6 +27,7 @@ import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
+import { GUIDE_PATH, guideAxisAnchor } from '../../../guide/util/guide-anchors';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { sectorReferentialFor } from '../sector-referential';
@@ -64,6 +65,8 @@ export class AxisStart {
   protected readonly buttonColor = axisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
   protected readonly showPairing = this.axis === AxisType.MOTOR_SKILLS;
+  protected readonly guidePath = GUIDE_PATH;
+  protected readonly guideAnchor = guideAxisAnchor(this.axis);
 
   protected readonly sector = computed(
     () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,

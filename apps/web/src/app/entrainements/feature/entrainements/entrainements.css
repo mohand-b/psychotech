@@ -986,6 +986,20 @@
   min-width: 0;
 }
 
+.tut__guide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  font: 600 13.5px/1.2 var(--font-ui);
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.tut__guide-link:hover {
+  color: var(--brand);
+}
+
 .tut__title {
   font: 600 15px/20px var(--font-ui);
   color: var(--ink);

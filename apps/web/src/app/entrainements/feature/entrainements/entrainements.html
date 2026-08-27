@@ -422,6 +422,10 @@
           enregistré.</span
         >
       </span>
+      <a class="tut__guide-link" [routerLink]="guidePath">
+        <ui-icon [img]="guideIcon" [size]="15" />
+        Guide des épreuves
+      </a>
     </div>
     <div class="tut__grid">
       @for (tutorial of tutorialAxes; track tutorial.axis) {

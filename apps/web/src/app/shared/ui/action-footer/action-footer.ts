@@ -18,6 +18,7 @@ const MOBILE_QUERY = '(max-width: 767px)';
   template: `
     <div class="action-footer__bar" #bar>
       <div class="action-footer__actions"><ng-content /></div>
+      <ng-content select="[actionFooterNote]" />
     </div>
     <div
       class="action-footer__spacer"
