@@ -16,7 +16,7 @@
       explique : le déroulé, la façon de répondre, ce qui est réellement mesuré,
       et l'équivalent dans un examen réel.
     </p>
-    <nav class="guide__anchors flex flex-wrap" aria-label="Les cinq axes">
+    <nav class="guide__anchors flex flex-wrap" aria-label="Les axes">
       @for (chip of axisChips; track chip.axis) {
         <a
           class="guide__anchor"
@@ -538,7 +538,10 @@
 
   <div class="guide__upcoming">
     @for (upcoming of upcomingAxes; track upcoming.axis) {
-      <article class="guide__upcoming-axis flex flex-col items-center">
+      <article
+        [id]="anchors[upcoming.axis]"
+        class="guide__upcoming-axis flex flex-col items-center"
+      >
         <ui-axis-icon [axis]="upcoming.axis" [size]="34" />
         <h2 class="guide__upcoming-name" [style.color]="upcoming.presentation.plainVar">
           {{ upcoming.presentation.label }}

@@ -20,11 +20,10 @@ import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_SCORE_ANCHOR,
-  GuideAxis,
 } from '../../util/guide-anchors';
 
 interface GuideAnchorChip {
-  axis: GuideAxis;
+  axis: AxisType;
   anchor: string;
   presentation: AxisPresentation;
 }
@@ -67,6 +66,15 @@ const UPCOMING_AXES_ORDER: readonly AxisType[] = [
   AxisType.VERBAL,
 ];
 
+const CHIP_AXES_ORDER: readonly AxisType[] = [
+  AxisType.LOGIC,
+  AxisType.MEMORY,
+  AxisType.VISUAL_DISCRIMINATION,
+  AxisType.REACTIVITY,
+  AxisType.MOTOR_SKILLS,
+  ...UPCOMING_AXES_ORDER,
+];
+
 const FRENCH_COLLATOR = new Intl.Collator('fr');
 
 function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
@@ -90,13 +98,12 @@ export class GuideHub {
   protected readonly scoreAnchor = GUIDE_SCORE_ANCHOR;
   protected readonly anchors = GUIDE_AXIS_ANCHORS;
 
-  protected readonly axisChips: readonly GuideAnchorChip[] = (
-    Object.entries(GUIDE_AXIS_ANCHORS) as [GuideAxis, string][]
-  ).map(([axis, anchor]) => ({
-    axis,
-    anchor,
-    presentation: AXIS_PRESENTATION[axis],
-  }));
+  protected readonly axisChips: readonly GuideAnchorChip[] =
+    CHIP_AXES_ORDER.map((axis) => ({
+      axis,
+      anchor: GUIDE_AXIS_ANCHORS[axis],
+      presentation: AXIS_PRESENTATION[axis],
+    }));
 
   protected readonly upcomingAxes: readonly GuideUpcomingAxis[] =
     UPCOMING_AXES_ORDER.map((axis) => ({

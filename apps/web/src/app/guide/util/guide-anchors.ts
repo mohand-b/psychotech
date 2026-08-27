@@ -4,20 +4,10 @@ import { AXIS_SLUGS } from '../../shared/util/axis-slug';
 export const GUIDE_PATH = '/guide';
 export const GUIDE_LOGIC_RULES_PATH = '/guide/logique';
 
-export const GUIDE_AXIS_ANCHORS = {
-  [AxisType.LOGIC]: AXIS_SLUGS[AxisType.LOGIC],
-  [AxisType.MEMORY]: AXIS_SLUGS[AxisType.MEMORY],
-  [AxisType.VISUAL_DISCRIMINATION]: AXIS_SLUGS[AxisType.VISUAL_DISCRIMINATION],
-  [AxisType.REACTIVITY]: AXIS_SLUGS[AxisType.REACTIVITY],
-  [AxisType.MOTOR_SKILLS]: AXIS_SLUGS[AxisType.MOTOR_SKILLS],
-} as const;
+export const GUIDE_AXIS_ANCHORS: Record<AxisType, string> = AXIS_SLUGS;
 
-export type GuideAxis = keyof typeof GUIDE_AXIS_ANCHORS;
-
-export function guideAxisAnchor(axis: AxisType): string | null {
-  return axis in GUIDE_AXIS_ANCHORS
-    ? GUIDE_AXIS_ANCHORS[axis as GuideAxis]
-    : null;
+export function guideAxisAnchor(axis: AxisType): string {
+  return GUIDE_AXIS_ANCHORS[axis];
 }
 
 export const GUIDE_SCORE_ANCHOR = 'score';
