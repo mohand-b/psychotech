@@ -148,7 +148,7 @@
 }
 
 .guide__family-name {
-  font: 600 16.5px/1.3 var(--font-grotesk);
+  font: 600 16.5px/1.3 var(--font-display);
 }
 
 .guide__family-mode {
@@ -249,11 +249,12 @@
 .guide__upcoming-axis {
   gap: 8px;
   padding: 10px 0 4px;
+  scroll-margin-top: 24px;
 }
 
 .guide__upcoming-name {
   margin: 0;
-  font: 600 19px/1.2 var(--font-grotesk);
+  font: 600 19px/1.2 var(--font-display);
   letter-spacing: -0.01em;
 }
 

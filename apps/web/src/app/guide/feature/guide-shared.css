@@ -44,7 +44,7 @@
 
 .guide__title {
   margin: 0;
-  font: 600 34px/1.12 var(--font-grotesk);
+  font: 600 34px/1.12 var(--font-display);
   letter-spacing: -0.02em;
 }
 
@@ -84,7 +84,7 @@
 
 .guide__section-title {
   margin: 0;
-  font: 600 27px/1.15 var(--font-grotesk);
+  font: 600 27px/1.15 var(--font-display);
   letter-spacing: -0.015em;
   color: var(--ax-text);
 }
