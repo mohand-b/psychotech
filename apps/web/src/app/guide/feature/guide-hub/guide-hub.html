@@ -1,0 +1,659 @@
+<header class="guide__bar safe-top md:hidden flex items-center">
+  <a class="guide__bar-back" routerLink="/dashboard" aria-label="Retour à l'accueil">
+    <ui-icon [img]="backIcon" [size]="20" [strokeWidth]="2.2" />
+  </a>
+  <span class="guide__bar-title">Guide des épreuves</span>
+</header>
+
+<main class="guide flex flex-col">
+  <div class="guide__head flex flex-col">
+    <span class="guide__eyebrow">Se préparer</span>
+    <h1 class="guide__title">Le guide des épreuves</h1>
+    <p class="guide__lead">
+      Chaque session est générée procéduralement : les exercices se renouvellent
+      à chaque fois, impossible d'apprendre les réponses par cœur. Seule la
+      logique de l'épreuve reste la même, et c'est elle que cette page vous
+      explique : le déroulé, la façon de répondre, ce qui est réellement mesuré,
+      et l'équivalent dans un examen réel.
+    </p>
+    <nav class="guide__anchors flex flex-wrap" aria-label="Les cinq axes">
+      @for (chip of axisChips; track chip.axis) {
+        <a
+          class="guide__anchor"
+          [routerLink]="[]"
+          [fragment]="chip.anchor"
+          [style.background]="chip.presentation.pastelVar"
+          [style.border-color]="chip.presentation.pastelBorderVar"
+          [style.color]="chip.presentation.textVar"
+        >
+          <ui-axis-icon [axis]="chip.axis" [size]="16" />
+          {{ chip.presentation.label }}
+        </a>
+      }
+      <a class="guide__anchor guide__anchor--neutral" [routerLink]="[]" [fragment]="scoreAnchor">
+        Votre score
+      </a>
+    </nav>
+    <p class="guide__pricing">
+      <span
+        >Le mode découverte de chaque épreuve est gratuit. Ensuite, un
+        entraînement ciblé coûte</span
+      >
+      <span class="guide__pricing-value t-mono">1</span>
+      <ui-axis-icon axis="credit" [size]="11" label="crédit" />
+      <span>et un examen blanc complet</span>
+      <span class="guide__pricing-value t-mono">5</span>
+      <span class="guide__pricing-end"
+        ><ui-axis-icon axis="credit" [size]="11" label="crédits" />.</span
+      >
+    </p>
+  </div>
+
+  <section [id]="anchors[AxisType.LOGIC]" class="guide__section guide__section--logic flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.LOGIC" [size]="68" />
+      <h2 class="guide__section-title">Logique</h2>
+      <p class="guide__section-tagline">Trouver la règle et l'appliquer, vite et juste.</p>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment ça se passe</span>
+      <p class="guide__body">
+        40 questions à traiter en 10 minutes, sous un chronomètre global. La
+        navigation est libre : vous pouvez répondre, passer, revenir sur
+        n'importe quelle question. Le bouton « Passer » laisse la question sans
+        réponse, mieux vaut une case vide qu'une erreur.
+      </p>
+      <p class="guide__body">
+        Les questions s'enchaînent en 4 blocs de 10, un par famille d'exercice,
+        de difficulté croissante sur 5 niveaux.
+      </p>
+      <span class="guide__stats flex flex-wrap">
+        <span class="guide__stat"><span class="guide__stat-value t-mono">40</span><span class="guide__stat-label">questions</span></span>
+        <span class="guide__stat"><span class="guide__stat-value t-mono">10:00</span><span class="guide__stat-label">chrono global</span></span>
+        <span class="guide__stat"><span class="guide__stat-value t-mono">4</span><span class="guide__stat-label">familles d'exercices</span></span>
+        <span class="guide__stat"><span class="guide__stat-value t-mono">5</span><span class="guide__stat-label">niveaux de difficulté</span></span>
+      </span>
+      <a class="guide__more" [routerLink]="logicRulesPath">
+        Consulter toutes les règles, famille par famille
+        <ui-icon [img]="arrowIcon" [size]="14" />
+      </a>
+    </article>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <svg class="guide__figure guide__figure--sequence" viewBox="0 0 320 56" aria-label="Exemple de suite numérique">
+          <rect class="sv-tile" x="2" y="6" width="48" height="44" rx="10"></rect><text class="sv-num" x="26" y="34" text-anchor="middle">3</text>
+          <rect class="sv-tile" x="58" y="6" width="48" height="44" rx="10"></rect><text class="sv-num" x="82" y="34" text-anchor="middle">6</text>
+          <rect class="sv-tile" x="114" y="6" width="48" height="44" rx="10"></rect><text class="sv-num" x="138" y="34" text-anchor="middle">12</text>
+          <rect class="sv-tile" x="170" y="6" width="48" height="44" rx="10"></rect><text class="sv-num" x="194" y="34" text-anchor="middle">24</text>
+          <rect class="sv-tile sv-tile--answer" x="226" y="6" width="48" height="44" rx="10" stroke-dasharray="5 4"></rect><text class="sv-num sv-num--answer" x="250" y="34" text-anchor="middle">?</text>
+        </svg>
+        <span class="guide__family-head flex flex-wrap">
+          <span class="guide__family-name">Suites numériques</span>
+          <span class="guide__family-mode">Choix parmi des propositions</span>
+        </span>
+        <p class="guide__family-body">
+          Une suite de nombres s'affiche, vous choisissez le terme suivant parmi
+          les propositions. Uniquement des nombres, jamais de lettres ni de
+          symboles.
+        </p>
+        <p class="guide__family-note">
+          Règles possibles : pas constant, pas croissant, chaque terme égal à la
+          somme des deux précédents, ajout de la somme des chiffres du terme.
+        </p>
+      </article>
+
+      <article class="guide__card flex flex-col">
+        <svg class="guide__figure guide__figure--triangle" viewBox="0 0 240 72" aria-label="Exemple de triangles chiffrés">
+          <polygon class="sv-shape" points="55,14 25,58 85,58"></polygon>
+          <text class="sv-vertex" x="55" y="10" text-anchor="middle">4</text>
+          <text class="sv-vertex" x="16" y="64" text-anchor="middle">2</text>
+          <text class="sv-vertex" x="94" y="64" text-anchor="middle">3</text>
+          <text class="sv-center" x="55" y="48" text-anchor="middle">9</text>
+          <polygon class="sv-shape" points="175,14 145,58 205,58"></polygon>
+          <text class="sv-vertex" x="175" y="10" text-anchor="middle">5</text>
+          <text class="sv-vertex" x="136" y="64" text-anchor="middle">3</text>
+          <text class="sv-vertex" x="214" y="64" text-anchor="middle">1</text>
+          <text class="sv-center sv-center--answer" x="175" y="48" text-anchor="middle">?</text>
+        </svg>
+        <span class="guide__family-head flex flex-wrap">
+          <span class="guide__family-name">Triangles chiffrés</span>
+          <span class="guide__family-mode">Saisie directe au clavier</span>
+        </span>
+        <p class="guide__family-body">
+          Des triangles portent trois nombres aux sommets, affichés à
+          l'extérieur (valeurs de 1 à 9), et un nombre au centre. Le centre
+          résulte d'une formule appliquée aux sommets : somme des trois, sommes
+          positionnelles (par exemple haut plus gauche, moins le droit),
+          produits (par exemple haut fois gauche, moins la droite). Vous
+          déduisez la formule des triangles complets et saisissez le centre
+          manquant.
+        </p>
+        <p class="guide__family-note">
+          Au niveau le plus difficile : des séries de 4 triangles où le centre
+          dépend aussi du triangle précédent.
+        </p>
+      </article>
+
+      <article class="guide__card flex flex-col">
+        <svg class="guide__figure guide__figure--domino" viewBox="0 0 220 68" aria-label="Exemple de suite de dominos">
+          <rect class="sv-domino" x="24" y="4" width="34" height="60" rx="8"></rect><line class="sv-domino-line" x1="24" y1="34" x2="58" y2="34"></line>
+          <circle class="sv-pip" cx="41" cy="19" r="3"></circle>
+          <circle class="sv-pip" cx="34" cy="42" r="3"></circle><circle class="sv-pip" cx="41" cy="49" r="3"></circle><circle class="sv-pip" cx="48" cy="56" r="3"></circle>
+          <rect class="sv-domino" x="93" y="4" width="34" height="60" rx="8"></rect><line class="sv-domino-line" x1="93" y1="34" x2="127" y2="34"></line>
+          <circle class="sv-pip" cx="103" cy="14" r="3"></circle><circle class="sv-pip" cx="117" cy="24" r="3"></circle>
+          <circle class="sv-pip" cx="103" cy="41" r="3"></circle><circle class="sv-pip" cx="117" cy="41" r="3"></circle><circle class="sv-pip" cx="103" cy="57" r="3"></circle><circle class="sv-pip" cx="117" cy="57" r="3"></circle>
+          <rect class="sv-domino sv-domino--answer" x="162" y="4" width="34" height="60" rx="8" stroke-dasharray="5 4"></rect><line class="sv-domino-line sv-domino-line--answer" x1="162" y1="34" x2="196" y2="34" stroke-dasharray="5 4"></line>
+          <text class="sv-center sv-center--answer" x="179" y="24" text-anchor="middle">?</text>
+          <text class="sv-center sv-center--answer" x="179" y="54" text-anchor="middle">?</text>
+        </svg>
+        <span class="guide__family-head flex flex-wrap">
+          <span class="guide__family-name">Dominos</span>
+          <span class="guide__family-mode">Saisie des deux faces</span>
+        </span>
+        <p class="guide__family-body">
+          Une suite de dominos dont vous déduisez le dernier : saisissez la
+          valeur du haut puis celle du bas, de 0 à 6. Particularité clé : les
+          valeurs bouclent, après 6 on revient à 0.
+        </p>
+        <p class="guide__family-note">
+          Règles possibles : progression constante, deux progressions
+          indépendantes haut et bas, alternances, pas croissant.
+        </p>
+      </article>
+
+      <article class="guide__card flex flex-col">
+        <svg class="guide__figure guide__figure--matrix" viewBox="0 0 132 132" aria-label="Exemple de matrice">
+          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><circle class="sv-glyph" cx="22" cy="22" r="9"></circle>
+          <rect class="sv-tile" x="46" y="2" width="40" height="40" rx="7"></rect><rect class="sv-glyph" x="57" y="13" width="18" height="18"></rect>
+          <rect class="sv-tile" x="90" y="2" width="40" height="40" rx="7"></rect><polygon class="sv-glyph" points="110,12 100,31 120,31"></polygon>
+          <rect class="sv-tile" x="2" y="46" width="40" height="40" rx="7"></rect><rect class="sv-glyph" x="13" y="57" width="18" height="18"></rect>
+          <rect class="sv-tile" x="46" y="46" width="40" height="40" rx="7"></rect><polygon class="sv-glyph" points="66,56 56,75 76,75"></polygon>
+          <rect class="sv-tile" x="90" y="46" width="40" height="40" rx="7"></rect><circle class="sv-glyph" cx="110" cy="66" r="9"></circle>
+          <rect class="sv-tile" x="2" y="90" width="40" height="40" rx="7"></rect><polygon class="sv-glyph" points="22,100 12,119 32,119"></polygon>
+          <rect class="sv-tile" x="46" y="90" width="40" height="40" rx="7"></rect><circle class="sv-glyph" cx="66" cy="110" r="9"></circle>
+          <rect class="sv-tile sv-tile--answer" x="90" y="90" width="40" height="40" rx="7" stroke-dasharray="5 4"></rect><text class="sv-center sv-center--answer sv-center--matrix" x="110" y="116" text-anchor="middle">?</text>
+        </svg>
+        <span class="guide__family-head flex flex-wrap">
+          <span class="guide__family-name">Matrices</span>
+          <span class="guide__family-mode">Choix parmi des propositions, A à D</span>
+        </span>
+        <p class="guide__family-body">
+          Une grille de 3 lignes et 3 colonnes de figures, dont la neuvième case
+          est masquée. Types de règles : matrices croisées (la case combine ce
+          que dit sa ligne et ce que dit sa colonne), distribution (chaque
+          élément apparaît exactement une fois par ligne et par colonne),
+          addition ou soustraction (la troisième colonne combine les deux
+          premières). Deux registres visuels : figures géométriques ou groupes
+          de traits à compter.
+        </p>
+        <p class="guide__family-note">
+          Attention : les mauvaises réponses sont conçues pour ressembler à la
+          bonne à un détail près. Vérifiez chaque couche (forme, contenu, décor,
+          nombre) avant de valider.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Votre score reflète d'abord votre précision, pondérée par la
+        difficulté : une question difficile réussie rapporte davantage. Votre
+        couverture du questionnaire compte aussi : passer une question vaut
+        mieux que ne jamais l'atteindre, l'idéal restant de parcourir les 40.
+      </p>
+      <p class="guide__body guide__body--small">
+        Votre bilan marque en outre vos familles : « Votre force » pour les
+        plus solides, « À travailler » pour celles qui vous coûtent des points.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Précision globale</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Questions répondues sur 40</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Questions passées</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Temps moyen par question</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Précision par famille</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        Les dominos et les matrices sont les grands classiques des batteries
+        psychotechniques ferroviaires : tests de type D70 ou D2000 pour les
+        dominos, matrices progressives de type Raven pour les grilles. Les
+        suites numériques complètent souvent le lot. Le format réel est
+        généralement un livret ou un écran, avec un chronomètre serré et un
+        barème qui favorise la précision.
+      </p>
+    </aside>
+  </section>
+
+  <section [id]="anchors[AxisType.MEMORY]" class="guide__section guide__section--memory flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.MEMORY" [size]="68" />
+      <h2 class="guide__section-title">Mémoire</h2>
+      <p class="guide__section-tagline">Retenir une séquence, la restituer dans l'ordre demandé.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          5 séquences de chiffres. Chaque chiffre s'affiche une seconde, l'un
+          après l'autre, puis vous restituez la séquence, avec 30 secondes au
+          plus par restitution.
+        </p>
+        <p class="guide__body">
+          Trois séquences en ordre normal (longueurs 4, 5 puis 6), puis deux en
+          ordre inverse (longueurs 4 puis 5) : vous restituez du dernier chiffre
+          vu au premier.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">5</span><span class="guide__stat-label">séquences</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">0:30</span><span class="guide__stat-label">par restitution</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2</span><span class="guide__stat-label">sens de restitution</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <p class="guide__body">
+          Au clavier (0 à 9) ou sur le pavé affiché à l'écran. Un chiffre oublié
+          n'est pas perdu : « Passer » laisse la case vide plutôt que de risquer
+          une erreur, Retour efface, Entrée valide.
+        </p>
+        <p class="guide__body guide__body--small">
+          En ordre inverse, prenez le temps de vous représenter la séquence
+          avant de saisir : la consigne rappelle toujours le sens demandé.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Chaque position restituée compte : un chiffre à la bonne place rapporte
+        pleinement, un chiffre présent mais mal placé rapporte moins, et une
+        intrusion (chiffre jamais montré) pénalise. La phase en ordre inverse
+        pèse davantage que la phase normale : plus exigeante, c'est elle qui
+        départage.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Longueur de séquence mémorisée maximale, ordre normal et inverse</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Fiabilité par position</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Répartition des erreurs, mal placé ou absent</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Séquences parfaites</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        La restitution de séries de chiffres à l'endroit puis à l'envers est un
+        standard des bilans d'attention et de mémoire immédiate. Certains
+        centres y ajoutent de la mémorisation visuelle : symboles, trajets.
+      </p>
+    </aside>
+  </section>
+
+  <section [id]="anchors[AxisType.VISUAL_DISCRIMINATION]" class="guide__section guide__section--discrimination flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.VISUAL_DISCRIMINATION" [size]="68" />
+      <h2 class="guide__section-title">Discrimination visuelle</h2>
+      <p class="guide__section-tagline">Repérer la moindre différence, sans fausse alerte.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          36 paires de séquences à comparer, 120 secondes au total. Chaque essai
+          montre deux chaînes côte à côte, de 5 à 8 éléments (la longueur
+          augmente au fil des essais), mêlant caractères et formes géométriques
+          orientées.
+        </p>
+        <p class="guide__body">
+          Quand les deux chaînes diffèrent, il n'y a qu'une seule différence,
+          piégeuse par construction : un caractère remplacé par son sosie (O et
+          0, B et 8), une forme remplacée par une voisine ou simplement pivotée.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">36</span><span class="guide__stat-label">essais</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">temps global</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">5 à 8</span><span class="guide__stat-label">éléments par chaîne</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <p class="guide__body">
+          « Identiques » ou « Différentes », au clic ou aux flèches du clavier :
+          flèche gauche pour Identiques, flèche droite pour Différentes. L'essai
+          suivant s'affiche immédiatement après votre réponse.
+        </p>
+        <p class="guide__body guide__body--small">
+          Tenez le rythme : les essais non traités à la fin du chronomètre
+          comptent comme des erreurs.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Votre score équilibre précision et vitesse. La précision se calcule sur
+        l'ensemble des essais : un essai jamais atteint à la fin du chronomètre
+        compte comme une erreur, il faut donc tenir le rythme. La vitesse se
+        mesure sur vos réponses correctes, essai par essai. Et déclarer
+        « Différentes » des paires identiques trop souvent finit par pénaliser
+        le score : la prudence excessive ne paie pas.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Précision</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Vitesse moyenne sur réponses correctes</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Essais atteints sur 36</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Fausses alertes</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Cibles manquées</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        Ce sont les tests de barrage et de comparaison de chaînes : repérer les
+        paires fautives dans des listes de codes, de plaques ou de références,
+        toujours très chronométrés. La consigne réelle valorise exactement le
+        même équilibre entre précision et cadence.
+      </p>
+    </aside>
+  </section>
+
+  <section [id]="anchors[AxisType.REACTIVITY]" class="guide__section guide__section--reactivity flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.REACTIVITY" [size]="68" />
+      <h2 class="guide__section-title">Réactivité</h2>
+      <p class="guide__section-tagline">Réagir vite, avec la bonne commande, sans faiblir.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          Une épreuve continue de 120 secondes : environ 60 stimuli
+          apparaissent à des positions et des intervalles imprévisibles, de 1,5
+          à 2,5 secondes entre deux. Trois couleurs, trois commandes. Vous avez
+          1,5 seconde pour répondre à chaque stimulus.
+        </p>
+        <p class="guide__body">
+          La difficulté monte par phases de 40 secondes : d'abord uniquement du
+          jaune, puis jaune et bleu, puis les trois couleurs.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">≈60</span><span class="guide__stat-label">stimuli</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">en continu</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">3</span><span class="guide__stat-label">phases de difficulté</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <span class="guide__commands flex flex-col">
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--yellow"></span><span class="guide__command-text">Rond jaune : commande gauche, flèche gauche au clavier</span></span>
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--blue"></span><span class="guide__command-text">Rond bleu : commande droite, flèche droite au clavier</span></span>
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--red"></span><span class="guide__command-text">Carré rouge : commande centrale, Espace au clavier</span></span>
+        </span>
+        <p class="guide__body guide__body--small">
+          Ne répondez qu'à ce qui est affiché : tout appui sans stimulus, ou
+          déclenché avant d'avoir pu percevoir le signal, est compté comme une
+          anticipation.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Le score combine la vitesse (votre temps de réaction moyen), la
+        régularité (un temps stable vaut mieux qu'une alternance d'éclairs et de
+        trous) et la fiabilité : chaque erreur (mauvaise commande, stimulus
+        manqué, appui anticipé) pèse sur l'ensemble du score.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Temps de réaction moyen</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Régularité, écart-type</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Anticipations</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Omissions</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Erreurs de commande</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Dérive de fatigue au fil de l'épreuve</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        C'est l'épreuve d'appareil à réactions composées, souvent sur boîtier à
+        boutons et pédales. Les recruteurs regardent autant la régularité et
+        l'absence de fautes que la vitesse brute, exactement comme ici.
+      </p>
+    </aside>
+  </section>
+
+  <section [id]="anchors[AxisType.MOTOR_SKILLS]" class="guide__section guide__section--motor flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.MOTOR_SKILLS" [size]="68" />
+      <h2 class="guide__section-title">Motricité</h2>
+      <p class="guide__section-tagline">Deux mains, un point, une trajectoire à tenir.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          3 parcours de 90 secondes maximum chacun, 10 secondes de pause entre
+          deux, difficulté croissante. Vous guidez un curseur du départ à
+          l'arrivée en restant dans un couloir.
+        </p>
+        <p class="guide__body">
+          Le principe est bimanuel : une commande pilote l'horizontal, l'autre
+          le vertical ; les tronçons en diagonale exigent les deux en même
+          temps.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">3</span><span class="guide__stat-label">parcours</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">1:30</span><span class="guide__stat-label">max par parcours</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2</span><span class="guide__stat-label">mains coordonnées</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <p class="guide__body">
+          Trois modalités selon votre appareil : au clavier, avec votre
+          téléphone utilisé comme manette (il devient vos deux manivelles), ou
+          au double joystick tactile.
+        </p>
+        <p class="guide__body guide__body--small">
+          Ralentissez à l'approche des virages : la vitesse ne rapporte rien, la
+          propreté du tracé fait tout.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Votre score suit votre progression sur les parcours : chaque contact
+        avec un bord coûte des points, une sortie de couloir en coûte nettement
+        plus. Le temps n'entre pas dans le score : un parcours terminé lentement
+        mais proprement est un parcours pleinement réussi. La seule contrainte
+        est la limite de 90 secondes par parcours.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Contacts avec les bords</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Sorties de couloir</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Parcours terminés</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Indépendance des deux mains</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Écart au centre du couloir tout au long du tracé</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        C'est le test de coordination bimanuelle : deux manivelles ou deux
+        joysticks pour suivre une piste. Les centres mesurent la précision du
+        tracé et la capacité à dissocier les deux mains ; la vitesse y est
+        secondaire.
+      </p>
+    </aside>
+  </section>
+
+  <div class="guide__upcoming">
+    @for (upcoming of upcomingAxes; track upcoming.axis) {
+      <article class="guide__upcoming-axis flex flex-col items-center">
+        <ui-axis-icon [axis]="upcoming.axis" [size]="34" />
+        <h2 class="guide__upcoming-name" [style.color]="upcoming.presentation.plainVar">
+          {{ upcoming.presentation.label }}
+        </h2>
+        <span class="guide__upcoming-tag">À venir</span>
+      </article>
+    }
+  </div>
+
+  <section [id]="scoreAnchor" class="guide__section flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <h2 class="guide__section-title guide__section-title--neutral">Comment vos résultats sont évalués</h2>
+      <p class="guide__section-tagline">
+        La même mécanique que les sélections réelles, calibrée sur votre
+        secteur : pondérations, axes critiques et seuil d'admissibilité.
+      </p>
+    </div>
+
+    <article class="guide__card guide__card--score flex flex-col">
+      <p class="guide__body">Chaque axe produit un score de 0 à 100, accompagné d'un avis.</p>
+      <p class="guide__bands flex items-center flex-wrap">
+        <span class="guide__band guide__band--bad">Insuffisant</span>
+        <span class="guide__band-arrow">→</span>
+        <span class="guide__band guide__band--weak">Fragile</span>
+        <span class="guide__band-arrow">→</span>
+        <span class="guide__band guide__band--acceptable">Acceptable</span>
+        <span class="guide__band-arrow">→</span>
+        <span class="guide__band guide__band--excellent">Excellent</span>
+      </p>
+      <p class="guide__body">
+        En examen blanc, le score global est la moyenne pondérée des axes de
+        votre secteur : chaque axe pèse selon son importance réelle dans
+        l'épreuve, et les plus déterminants sont dits critiques. Chaque secteur
+        évalue sa propre combinaison d'axes :
+      </p>
+
+      <div class="guide__sectors guide__sectors--table">
+        <div class="guide__sectors-row guide__sectors-row--head">
+          <span class="guide__sectors-corner">Axe</span>
+          @for (column of sectorColumns; track column.sector; let first = $first) {
+            <span class="guide__sectors-col flex flex-col items-center justify-center" [class.guide__sectors-col--current]="first">
+              <span class="guide__sectors-col-name" [class.guide__sectors-col-name--current]="first">{{ column.label }}</span>
+              <span class="guide__sectors-col-tag">{{ first ? 'Votre secteur' : 'À venir' }}</span>
+            </span>
+          }
+        </div>
+        @for (row of sectorTableRows; track row.axis; let last = $last) {
+          <div class="guide__sectors-row" [class.guide__sectors-row--last]="last">
+            <span class="guide__sectors-axis flex items-center">
+              <ui-axis-icon [axis]="row.axis" [size]="16" />
+              {{ row.presentation.label }}
+              @if (row.upcoming) {
+                <span class="guide__sectors-axis-tag">À venir</span>
+              }
+            </span>
+            @for (member of row.memberships; track $index; let first = $first) {
+              <span class="guide__sectors-cell flex items-center justify-center" [class.guide__sectors-cell--current]="first">
+                @if (member) {
+                  <span
+                    class="guide__sectors-dot"
+                    [class.guide__sectors-dot--active]="first"
+                    [style.background]="first ? row.presentation.plainVar : null"
+                  ></span>
+                }
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="guide__sectors guide__sectors--stack flex flex-col md:hidden">
+        @for (entry of sectorStack; track entry.column.sector; let last = $last) {
+          <div class="guide__stack-row flex flex-col" [class.guide__stack-row--current]="entry.current" [class.guide__stack-row--last]="last">
+            <span class="guide__stack-head flex">
+              <span class="guide__stack-name" [class.guide__stack-name--current]="entry.current">{{ entry.column.label }}</span>
+              <span class="guide__stack-tag">{{ entry.current ? 'Votre secteur' : 'À venir' }}</span>
+            </span>
+            <span class="guide__stack-axes flex items-center flex-wrap">
+              @for (axis of entry.axes; track axis.axis) {
+                <span class="guide__stack-axis" [class.guide__stack-axis--muted]="!entry.current" [title]="axis.presentation.label">
+                  <ui-axis-icon [axis]="axis.axis" [size]="entry.current ? 20 : 18" [label]="axis.presentation.label" />
+                </span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+
+      <p class="guide__body">
+        Le bilan situe ensuite votre score global par rapport au seuil
+        d'admissibilité du secteur, avec une zone de vigilance à son approche.
+      </p>
+      <p class="guide__warning">
+        <span class="guide__warning-label">Règle importante :</span> un axe
+        critique resté trop faible entraîne un avis défavorable, quel que soit
+        le score global, comme dans les sélections réelles où une épreuve
+        éliminatoire ne se rattrape pas.
+      </p>
+    </article>
+  </section>
+
+  <aside class="guide__card guide__real flex flex-col">
+    <span class="guide__real-head flex items-center justify-center">
+      <ui-icon [img]="honestyIcon" [size]="15" />
+      <span class="guide__real-label">Une préparation honnête</span>
+    </span>
+    <p class="guide__real-body">
+      PsychoTech reproduit aussi fidèlement que possible les épreuves des
+      sélections ferroviaires. Le format exact varie d'un centre d'évaluation à
+      l'autre : matériel, consignes, barèmes et durées peuvent différer de ce
+      que vous trouverez ici. C'est pourquoi chaque épreuve mesure un maximum de
+      métriques (précision, vitesse, régularité, résistance à la fatigue) : ce
+      sont les capacités évaluées partout, quel que soit l'habillage de
+      l'exercice. En les travaillant ici, vous serez prêt quelle que soit la
+      forme que prendra l'épreuve le jour de l'examen.
+    </p>
+  </aside>
+</main>

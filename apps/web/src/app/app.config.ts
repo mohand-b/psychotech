@@ -20,8 +20,10 @@ import {
 import {
   NavigationError,
   provideRouter,
+  withInMemoryScrolling,
   withNavigationErrorHandler,
 } from '@angular/router';
+import { ViewportScroller } from '@angular/common';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
@@ -37,12 +39,20 @@ function reloadOnStaleChunk(event: NavigationError): void {
   }
 }
 
+const MOBILE_HEADER_ANCHOR_OFFSET = 76;
+const DESKTOP_NAVBAR_ANCHOR_OFFSET = 88;
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(withEventReplay()),
     { provide: ErrorHandler, useClass: StaleChunkErrorHandler },
-    provideRouter(appRoutes, withNavigationErrorHandler(reloadOnStaleChunk)),
+    provideRouter(
+      appRoutes,
+      withNavigationErrorHandler(reloadOnStaleChunk),
+      withInMemoryScrolling({ anchorScrolling: 'enabled' }),
+    ),
     provideHttpClient(
       withFetch(),
       withInterceptors([
@@ -55,6 +65,19 @@ export const appConfig: ApplicationConfig = {
         headerName: 'X-XSRF-TOKEN',
       }),
     ),
+    provideAppInitializer(() => {
+      if (isPlatformServer(inject(PLATFORM_ID))) {
+        return;
+      }
+      const scroller = inject(ViewportScroller);
+      const mobileQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+      scroller.setOffset(() => [
+        0,
+        mobileQuery.matches
+          ? MOBILE_HEADER_ANCHOR_OFFSET
+          : DESKTOP_NAVBAR_ANCHOR_OFFSET,
+      ]);
+    }),
     provideAppInitializer(() => {
       if (isPlatformServer(inject(PLATFORM_ID))) {
         return undefined;

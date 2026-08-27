@@ -1,0 +1,387 @@
+<header class="guide__bar safe-top md:hidden flex items-center">
+  <a class="guide__bar-back" [routerLink]="hubPath" aria-label="Revenir au guide des épreuves">
+    <ui-icon [img]="backIcon" [size]="20" [strokeWidth]="2.2" />
+  </a>
+  <span class="guide__bar-title">Logique : les règles</span>
+</header>
+
+<main class="guide flex flex-col">
+  <div class="guide__head flex flex-col items-center">
+    <ui-axis-icon [axis]="AxisType.LOGIC" [size]="68" />
+    <h1 class="guide__title guide__title--logic">Logique : toutes les règles</h1>
+    <p class="guide__lead">
+      Le répertoire complet dans lequel chaque session puise. Les valeurs
+      changent à chaque tirage, jamais les mécanismes : les reconnaître d'un
+      coup d'œil est exactement ce que l'épreuve entraîne. La session : 40
+      questions en quatre blocs de 10, numérique (suites et triangles
+      mélangés), dominos, matrices I, matrices II, chaque bloc allant du plus
+      accessible au plus exigeant.
+    </p>
+    <nav class="guide__anchors justify-center flex flex-wrap" aria-label="Les quatre familles">
+      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.sequences">
+        Suites numériques<span class="guide__anchor-count t-mono">8 règles</span>
+      </a>
+      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.triangles">
+        Triangles chiffrés<span class="guide__anchor-count t-mono">8 formules</span>
+      </a>
+      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.dominos">
+        Dominos<span class="guide__anchor-count t-mono">4 recettes</span>
+      </a>
+      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.matrices">
+        Matrices<span class="guide__anchor-count t-mono">4 principes</span>
+      </a>
+    </nav>
+  </div>
+
+  <section [id]="anchors.sequences" class="guide__section flex flex-col">
+    <div class="rules__section-head flex flex-col">
+      <span class="rules__section-title-row flex flex-wrap">
+        <h2 class="rules__section-title">Suites numériques</h2>
+        <span class="rules__section-mode">Choix parmi 4 propositions</span>
+      </span>
+      <p class="rules__section-intro">
+        Une suite de nombres, uniquement des nombres : jamais de lettres ni de
+        symboles. Vous choisissez le terme suivant parmi 4 propositions conçues
+        pour ressembler à la bonne réponse, l'erreur typique d'un pas mal lu.
+        Huit règles en jeu, ni plus ni moins, du pas régulier aux suites qui se
+        combinent.
+      </p>
+    </div>
+    @for (group of sequenceGroups; track group.label) {
+      <div class="rules__group flex flex-col">
+        <span class="rules__group-label">{{ group.label }}</span>
+        <div class="rules__grid">
+          @for (rule of group.rules; track rule.name) {
+            <article class="guide__card guide__card--rule flex flex-col">
+              <span class="rules__rule-name">{{ rule.name }}</span>
+              <span class="rules__cells flex flex-wrap items-center">
+                @for (cell of rule.cells; track $index) {
+                  @switch (cell.kind) {
+                    @case ('op') {
+                      <span class="rules__cell-op t-mono">{{ cell.text }}</span>
+                    }
+                    @case ('answer') {
+                      <span class="rules__cell rules__cell--answer t-mono">{{ cell.text }}</span>
+                    }
+                    @default {
+                      <span class="rules__cell t-mono">{{ cell.text }}</span>
+                    }
+                  }
+                }
+              </span>
+              <p class="rules__lecture">{{ rule.lecture }}</p>
+              @if (rule.note) {
+                <span class="rules__note t-mono">{{ rule.note }}</span>
+              }
+            </article>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section [id]="anchors.triangles" class="guide__section flex flex-col">
+    <div class="rules__section-head flex flex-col">
+      <span class="rules__section-title-row flex flex-wrap">
+        <h2 class="rules__section-title">Triangles chiffrés</h2>
+        <span class="rules__section-mode">Saisie directe au clavier</span>
+      </span>
+      <p class="rules__section-intro">
+        Trois nombres aux sommets, affichés à l'extérieur du triangle, valeurs
+        de 1 à 9, et un nombre au centre, qui peut monter jusqu'à 90. Le centre
+        résulte d'une formule appliquée aux sommets : vous la déduisez des
+        triangles complets, puis saisissez le centre manquant. Le « ? » est
+        toujours le centre, jamais un sommet.
+      </p>
+    </div>
+    <div class="rules__grid">
+      <article class="guide__card guide__card--rule flex flex-col">
+        <span class="rules__rule-name">La somme des sommets</span>
+        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : somme">
+          <polygon class="sv-shape" points="58,16 24,66 92,66"></polygon>
+          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">4</text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">3</text>
+          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">2</text>
+          <text class="sv-center sv-center--lg" x="58" y="57" text-anchor="middle">9</text>
+        </svg>
+        <span class="rules__reading t-mono">4 + 3 + 2 = 9</span>
+        <p class="rules__lecture">Le centre = la somme des trois sommets. La formule d'entrée en matière.</p>
+      </article>
+      <article class="guide__card guide__card--rule flex flex-col">
+        <span class="rules__rule-name">Les sommes positionnelles</span>
+        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : somme positionnelle">
+          <polygon class="sv-shape" points="58,16 24,66 92,66"></polygon>
+          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">5</text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">4</text>
+          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">3</text>
+          <text class="sv-center sv-center--lg" x="58" y="57" text-anchor="middle">6</text>
+        </svg>
+        <span class="rules__reading t-mono">5 + 4 − 3 = 6</span>
+        <p class="rules__lecture">
+          Deux sommets s'additionnent, le troisième se soustrait. Trois
+          variantes : haut + gauche − droite, haut + droite − gauche, gauche +
+          droite − haut.
+        </p>
+      </article>
+      <article class="guide__card guide__card--rule flex flex-col">
+        <span class="rules__rule-name">Les produits</span>
+        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : produit">
+          <polygon class="sv-shape" points="58,16 24,66 92,66"></polygon>
+          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">3</text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">4</text>
+          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">2</text>
+          <text class="sv-center sv-center--lg" x="58" y="57" text-anchor="middle">10</text>
+        </svg>
+        <span class="rules__reading t-mono">3 × 4 − 2 = 10</span>
+        <p class="rules__lecture">
+          Deux sommets se multiplient, le troisième se soustrait. Trois
+          variantes : haut × gauche − droite, haut × droite − gauche, gauche ×
+          droite − haut.
+        </p>
+      </article>
+      <article class="guide__card guide__card--rule flex flex-col">
+        <span class="rules__rule-name">Liés au triangle précédent</span>
+        <svg class="rules__triangle rules__triangle--chain" viewBox="0 0 260 82" aria-label="Triangles enchaînés">
+          <polygon class="sv-shape" points="58,16 24,66 92,66"></polygon>
+          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">2</text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">3</text>
+          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">3</text>
+          <text class="sv-center sv-center--lg" x="58" y="57" text-anchor="middle">8</text>
+          <path class="sv-chain" d="M112 42h30"></path>
+          <path class="sv-chain" d="m138 37 6 5-6 5"></path>
+          <polygon class="sv-shape" points="200,16 166,66 234,66"></polygon>
+          <text class="sv-vertex sv-vertex--lg" x="200" y="11" text-anchor="middle">6</text>
+          <text class="sv-vertex sv-vertex--lg" x="158" y="73" text-anchor="end">5</text>
+          <text class="sv-vertex sv-vertex--lg" x="242" y="73" text-anchor="start">4</text>
+          <text class="sv-center sv-center--lg sv-center--answer" x="200" y="57" text-anchor="middle">?</text>
+        </svg>
+        <span class="rules__reading t-mono">6 + 5 + 4 − 8 = 7</span>
+        <p class="rules__lecture">
+          Au plus exigeant, 4 triangles s'enchaînent : le centre est la somme
+          des sommets moins le centre du triangle précédent, le premier triangle
+          donnant le point de départ.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section [id]="anchors.dominos" class="guide__section flex flex-col">
+    <div class="rules__section-head flex flex-col">
+      <span class="rules__section-title-row flex flex-wrap">
+        <h2 class="rules__section-title">Dominos</h2>
+        <span class="rules__section-mode">Saisie des deux faces</span>
+      </span>
+      <p class="rules__section-intro">
+        Une suite de 5 à 7 dominos dont vous déduisez le dernier : la face du
+        haut, puis celle du bas, de 0 à 6. Règle d'or à ne jamais oublier : les
+        valeurs bouclent, après 6 on revient à 0.
+      </p>
+    </div>
+    <div class="rules__grid">
+      @for (card of dominoCards; track card.name) {
+        <article class="guide__card guide__card--rule flex flex-col">
+          <span class="rules__rule-name">{{ card.name }}</span>
+          <span class="rules__dominoes flex flex-wrap items-center">
+            @for (tile of card.tiles; track $index) {
+              <span class="rules__domino flex flex-col" [class.rules__domino--answer]="tile.answer">
+                <span class="rules__domino-half">
+                  @if (tile.answer) {
+                    <span class="rules__domino-q t-mono">?</span>
+                  }
+                  @for (pip of tile.topPips; track $index) {
+                    <span class="rules__pip" [style.left]="pip.left" [style.top]="pip.top"></span>
+                  }
+                </span>
+                <span class="rules__domino-mid"></span>
+                <span class="rules__domino-half">
+                  @if (tile.answer) {
+                    <span class="rules__domino-q t-mono">?</span>
+                  }
+                  @for (pip of tile.bottomPips; track $index) {
+                    <span class="rules__pip" [style.left]="pip.left" [style.top]="pip.top"></span>
+                  }
+                </span>
+              </span>
+            }
+          </span>
+          <p class="rules__lecture">{{ card.caption }}</p>
+          @if (card.faceRules) {
+            <span class="rules__faces flex flex-col">
+              @for (face of card.faceRules; track face.label) {
+                <span class="rules__face flex flex-wrap items-baseline">
+                  <span class="rules__face-label">{{ face.label }}</span>
+                  <span class="rules__face-example t-mono">{{ face.example }}</span>
+                </span>
+              }
+            </span>
+          }
+          @if (card.loop) {
+            <span class="rules__loop flex flex-wrap items-center">
+              @for (chip of card.loop; track $index) {
+                <span class="rules__loop-chip t-mono" [class.rules__loop-chip--on]="chip.highlighted">{{ chip.text }}</span>
+              }
+            </span>
+          }
+        </article>
+      }
+    </div>
+  </section>
+
+  <section [id]="anchors.matrices" class="guide__section flex flex-col">
+    <div class="rules__section-head flex flex-col">
+      <span class="rules__section-title-row flex flex-wrap">
+        <h2 class="rules__section-title">Matrices</h2>
+        <span class="rules__section-mode">Choix parmi 4 propositions, A à D</span>
+      </span>
+      <p class="rules__section-intro">
+        Une grille de 3 lignes et 3 colonnes dont la neuvième case est masquée.
+        Deux registres visuels : des figures géométriques, ou des groupes de
+        traits à compter. La session les répartit en deux blocs : Matrices I
+        pour l'addition et les croisées, Matrices II pour la soustraction et la
+        distribution.
+      </p>
+    </div>
+    <div class="rules__grid">
+      <article class="guide__card guide__card--matrix flex items-center">
+        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : addition">
+          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+          <g class="sv-stroke">
+            <path d="M13 31 31 13"></path>
+            <path d="M59 13l18 18"></path>
+            <path d="M105 31l18-18"></path><path d="M105 13l18 18"></path>
+            <path d="M12 68h20"></path>
+            <path d="M68 58v20"></path>
+            <path d="M104 68h20"></path><path d="M114 58v20"></path>
+            <path d="M13 123l18-18"></path>
+            <path d="M68 104v20"></path>
+          </g>
+          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+        </svg>
+        <span class="rules__matrix-copy flex flex-col">
+          <span class="rules__rule-name">Addition</span>
+          <p class="rules__lecture">
+            Dans chaque ligne, la troisième case superpose les éléments des deux
+            premières. Ici : la diagonale et la barre verticale se cumulent. En
+            jeu, l'addition porte toujours sur des groupes de traits.
+          </p>
+        </span>
+      </article>
+
+      <article class="guide__card guide__card--matrix flex items-center">
+        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : soustraction">
+          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+          <g class="sv-stroke">
+            <path d="M13 31 31 13"></path><path d="M12 22h20"></path>
+            <path d="M58 22h20"></path>
+            <path d="M105 31l18-18"></path>
+            <path d="M22 58v20"></path><path d="M13 59l18 18"></path>
+            <path d="M59 59l18 18"></path>
+            <path d="M114 58v20"></path>
+            <path d="M13 123l18-18"></path><path d="M13 105l18 18"></path>
+            <path d="M59 123l18-18"></path>
+          </g>
+          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+        </svg>
+        <span class="rules__matrix-copy flex flex-col">
+          <span class="rules__rule-name">Soustraction</span>
+          <p class="rules__lecture">
+            Dans chaque ligne, les éléments communs aux deux premières cases
+            s'annulent : la troisième garde les autres. Ici, il ne reste que
+            l'autre diagonale. En jeu : sur des figures ou des groupes de
+            traits.
+          </p>
+        </span>
+      </article>
+
+      <article class="guide__card guide__card--matrix flex items-center">
+        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : croisées">
+          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+          <g class="sv-cross">
+            <circle class="sv-fill-none" cx="22" cy="22" r="11"></circle>
+            <circle class="sv-fill-mid" cx="68" cy="22" r="11"></circle>
+            <circle class="sv-fill-full" cx="114" cy="22" r="11"></circle>
+            <rect class="sv-fill-none" x="12" y="58" width="20" height="20"></rect>
+            <rect class="sv-fill-mid" x="58" y="58" width="20" height="20"></rect>
+            <rect class="sv-fill-full" x="104" y="58" width="20" height="20"></rect>
+            <path class="sv-fill-none" d="M22 103l10.5 18h-21z"></path>
+            <path class="sv-fill-mid" d="M68 103l10.5 18h-21z"></path>
+          </g>
+          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+        </svg>
+        <span class="rules__matrix-copy flex flex-col">
+          <span class="rules__rule-name">Croisées</span>
+          <p class="rules__lecture">
+            Chaque ligne garde une propriété, chaque colonne en garde une autre.
+            Ici : la ligne fixe le symbole, la colonne fixe le remplissage.
+          </p>
+          <p class="rules__variant">
+            Trois déclinaisons en jeu : en nombres de traits, en figures sur le
+            symbole et le décor, ou en traits sur leur nature et leur nombre.
+          </p>
+        </span>
+      </article>
+
+      <article class="guide__card guide__card--matrix flex items-center">
+        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : distribution">
+          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
+          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+          <g class="sv-outline">
+            <circle cx="22" cy="22" r="11"></circle>
+            <rect x="58" y="12" width="20" height="20"></rect>
+            <path d="M114 11l10.5 18h-21z"></path>
+            <rect x="12" y="58" width="20" height="20"></rect>
+            <path d="M68 57l10.5 18h-21z"></path>
+            <circle cx="114" cy="68" r="11"></circle>
+            <path d="M22 103l10.5 18h-21z"></path>
+            <circle cx="68" cy="114" r="11"></circle>
+          </g>
+          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+        </svg>
+        <span class="rules__matrix-copy flex flex-col">
+          <span class="rules__rule-name">Distribution</span>
+          <p class="rules__lecture">
+            Chaque élément apparaît exactement une fois par ligne et par
+            colonne. La case manquante est celle qui complète sa ligne et sa
+            colonne : ici, le carré.
+          </p>
+          <p class="rules__variant">
+            En jeu, la distribution porte toujours sur trois caractéristiques à
+            la fois : symbole, contenant et remplissage.
+          </p>
+        </span>
+      </article>
+
+      <article class="guide__card guide__card--trap flex flex-col justify-center">
+        <span class="rules__rule-name">Le piège des propositions</span>
+        <p class="rules__lecture">
+          Les mauvaises réponses sont conçues pour ressembler à la bonne à un
+          détail près. Avant de valider, vérifiez chaque couche l'une après
+          l'autre : la forme, le contenu, le décor, le nombre.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <aside class="rules__footer flex flex-col items-center">
+    <span class="rules__footer-rule flex items-center">
+      <span class="rules__footer-line"></span>
+      <span class="rules__footer-label">Pour s'exercer</span>
+      <span class="rules__footer-line"></span>
+    </span>
+    <p class="rules__footer-note">
+      Le mode découverte de la Logique est gratuit et illustre chaque famille.
+    </p>
+    <span class="rules__footer-links flex items-center justify-center">
+      <a class="rules__footer-link" [routerLink]="discoveryLink">Essayer le mode découverte</a>
+      <span class="rules__footer-dot">·</span>
+      <a class="rules__footer-link" [routerLink]="hubPath" [fragment]="hubLogicAnchor">Revenir au guide des épreuves</a>
+    </span>
+  </aside>
+</main>

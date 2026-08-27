@@ -4,6 +4,7 @@ import { badgesRoutes } from '../badges/feature/badges.routes';
 import { dashboardRoutes } from '../dashboard/feature/dashboard.routes';
 import { energyRoutes } from '../energy/feature/energy.routes';
 import { entrainementsRoutes } from '../entrainements/feature/entrainements.routes';
+import { guideRoutes } from '../guide/feature/guide.routes';
 import { profileRoutes } from '../profile/feature/profile.routes';
 import { progressionRoutes } from '../progression/feature/progression.routes';
 import { sessionsRoutes } from '../sessions/feature/sessions.routes';
@@ -21,6 +22,7 @@ export const connectedRoutes: Route[] = [
       ...dashboardRoutes,
       ...energyRoutes,
       ...entrainementsRoutes,
+      ...guideRoutes,
       ...sessionsRoutes,
       ...profileRoutes,
       ...progressionRoutes,

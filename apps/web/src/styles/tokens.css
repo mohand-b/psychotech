@@ -108,9 +108,14 @@
   --legal-notice-ink: #4b3fa8;
   --legal-anchor: #5a3bd6;
   --legal-table-bg: #fafbfc;
+
+  --danger-pastel-bd: #f9c6c6;
+  --guide-sector-highlight: #f8f6fe;
+  --guide-band-acceptable: #2f8f4e;
   --scrollbar-thumb-inverse: rgba(255, 255, 255, 0.24);
 
   --font-display: 'Baloo 2', sans-serif;
+  --font-grotesk: 'Space Grotesk', sans-serif;
   --font-ui: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-stamp: 'Special Elite', 'JetBrains Mono', monospace;
