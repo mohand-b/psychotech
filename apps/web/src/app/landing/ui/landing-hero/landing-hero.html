@@ -85,15 +85,8 @@
                   [attr.aria-label]="axis.label"
                   [attr.title]="axis.label"
                 >
-                  <span
-                    class="hero__axis-icon"
-                    [class.hero__axis-icon--dot]="!axis.hasIcon"
-                  >
-                    @if (axis.hasIcon) {
-                      <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
-                    } @else {
-                      <span class="hero__axis-dot" aria-hidden="true"></span>
-                    }
+                  <span class="hero__axis-icon">
+                    <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
                   </span>
                 </li>
               }

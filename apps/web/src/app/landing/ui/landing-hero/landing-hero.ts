@@ -27,15 +27,10 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const AXES_WITH_ICON: ReadonlySet<AxisType> = new Set(
-  SECTOR_AXES[Sector.RAILWAY],
-);
-
 interface HeroAxis {
   axis: AxisType;
   label: string;
   shortLabel: string;
-  hasIcon: boolean;
   colorVar: string;
 }
 
@@ -55,7 +50,6 @@ function axesFor(sector: Sector): HeroAxis[] {
       axis,
       label: presentation.label,
       shortLabel: presentation.label.split(' ')[0],
-      hasIcon: AXES_WITH_ICON.has(axis),
       colorVar: presentation.plainVar,
     };
   });

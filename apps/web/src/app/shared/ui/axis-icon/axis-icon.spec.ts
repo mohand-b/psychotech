@@ -75,7 +75,18 @@ describe('AxisIcon', () => {
     expect(labelled?.getAttribute('alt')).toBe('Logique');
   });
 
-  it('renders nothing for an axis without a definitive asset', async () => {
-    expect(await setup(AxisType.ATTENTION)).toBeNull();
+  it('maps the four upcoming axes to their definitive assets', async () => {
+    expect((await setup(AxisType.ATTENTION))?.getAttribute('src')).toBe(
+      '/icons/icone-attention.svg',
+    );
+    expect((await setup(AxisType.NUMERICAL))?.getAttribute('src')).toBe(
+      '/icons/icone-numerique.svg',
+    );
+    expect((await setup(AxisType.VERBAL))?.getAttribute('src')).toBe(
+      '/icons/icone-verbal.svg',
+    );
+    expect((await setup(AxisType.SPATIAL))?.getAttribute('src')).toBe(
+      '/icons/icone-spatial.svg',
+    );
   });
 });

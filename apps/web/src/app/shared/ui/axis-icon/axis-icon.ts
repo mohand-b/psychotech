@@ -14,15 +14,16 @@ export const AXIS_ICON_SIZE = {
   hero: 44,
 } as const;
 
-const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
-  examen: string;
-  credit: string;
-} = {
+const AXIS_ICON_PATHS: Record<AxisIconId, string> = {
   [AxisType.LOGIC]: '/icons/icone-logique.svg',
   [AxisType.MEMORY]: '/icons/icone-memoire.svg',
   [AxisType.VISUAL_DISCRIMINATION]: '/icons/icone-discrimination.svg',
   [AxisType.REACTIVITY]: '/icons/icone-reactivite.svg',
   [AxisType.MOTOR_SKILLS]: '/icons/icone-motricite.svg',
+  [AxisType.ATTENTION]: '/icons/icone-attention.svg',
+  [AxisType.NUMERICAL]: '/icons/icone-numerique.svg',
+  [AxisType.VERBAL]: '/icons/icone-verbal.svg',
+  [AxisType.SPATIAL]: '/icons/icone-spatial.svg',
   examen: '/icons/icone-examen.svg',
   credit: '/icons/icone-piece.svg',
 };
@@ -35,15 +36,13 @@ const AXIS_ICON_PATHS: Partial<Record<AxisType, string>> & {
     '[style.height.px]': 'size()',
   },
   template: `
-    @if (src(); as path) {
-      <img
-        [src]="path"
-        [width]="size()"
-        [height]="size()"
-        [alt]="label() ?? ''"
-        [attr.aria-hidden]="label() ? null : true"
-      />
-    }
+    <img
+      [src]="src()"
+      [width]="size()"
+      [height]="size()"
+      [alt]="label() ?? ''"
+      [attr.aria-hidden]="label() ? null : true"
+    />
   `,
   styles: `
     :host {
@@ -63,10 +62,5 @@ export class AxisIcon {
   readonly size = input<number>(AXIS_ICON_SIZE.chip);
   readonly label = input<string | null>(null);
 
-  protected readonly src = computed(() => {
-    const axis = this.axis();
-    return axis === 'examen' || axis === 'credit'
-      ? AXIS_ICON_PATHS[axis]
-      : (AXIS_ICON_PATHS[axis] ?? null);
-  });
+  protected readonly src = computed(() => AXIS_ICON_PATHS[this.axis()]);
 }

@@ -323,21 +323,6 @@
     box-shadow 0.18s ease-out;
 }
 
-.hero__axis-icon--dot {
-  width: 22px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero__axis-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--axis-color);
-}
-
-
 .hero__axis:hover .hero__axis-icon {
   transform: scale(1.05);
   box-shadow: 0 5px 16px -6px color-mix(in srgb, var(--axis-color) 60%, transparent);
