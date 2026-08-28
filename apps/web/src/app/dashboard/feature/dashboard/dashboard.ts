@@ -208,7 +208,7 @@ export class Dashboard {
     return null;
   });
 
-  protected readonly earnableRemainder = computed<number | null>(() => {
+  private readonly earnableBadgeReward = computed<number | null>(() => {
     const statuses = this.badgeStatusesResource.value();
     if (!statuses) {
       return null;
@@ -218,11 +218,19 @@ export class Dashboard {
         .filter((status) => status.earnedAt !== null)
         .map((status) => status.badgeId),
     );
-    const remainder = [...BADGE_BY_ID.values()]
+    return [...BADGE_BY_ID.values()]
       .filter((definition) => !earnedIds.has(definition.id))
       .reduce((sum, definition) => sum + definition.energyReward, 0);
-    return remainder > 0 ? remainder : null;
   });
+
+  protected readonly earnableRemainder = computed<number | null>(() => {
+    const reward = this.earnableBadgeReward();
+    return reward !== null && reward > 0 ? reward : null;
+  });
+
+  protected readonly allBadgeRewardsEarned = computed(
+    () => this.earnableBadgeReward() === 0,
+  );
 
   protected readonly energyLabel = computed(() =>
     this.balance() === 0 ? 'Crédits épuisés' : 'Crédits disponibles',

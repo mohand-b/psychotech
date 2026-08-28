@@ -159,6 +159,13 @@
             >
             <ui-icon [img]="chevronIcon" [size]="14" />
           </a>
+        } @else if (allBadgeRewardsEarned()) {
+          <a class="home__credits-badges flex items-center" routerLink="/badges">
+            <span class="home__credits-badges-text"
+              >Récompenses de badges toutes gagnées</span
+            >
+            <ui-icon [img]="chevronIcon" [size]="14" />
+          </a>
         }
       </section>
 
