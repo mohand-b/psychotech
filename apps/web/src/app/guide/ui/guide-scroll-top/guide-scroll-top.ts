@@ -2,9 +2,12 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, Scroll } from '@angular/router';
 import { ArrowUp } from 'lucide-angular';
 import { Icon } from '../../../shared/ui/icon/icon';
 
@@ -77,6 +80,19 @@ export class GuideScrollTop {
 
   protected readonly icon = ArrowUp;
   protected readonly visible = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.onScroll());
+    inject(Router)
+      .events.pipe(takeUntilDestroyed())
+      .subscribe((event) => {
+        if (event instanceof Scroll) {
+          this.document.defaultView?.requestAnimationFrame(() =>
+            this.onScroll(),
+          );
+        }
+      });
+  }
 
   protected onScroll(): void {
     this.visible.set(
