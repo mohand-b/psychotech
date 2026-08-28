@@ -285,7 +285,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
       },
       {
         id: 'logic-guide',
-        label: 'Guide Logique lu',
+        label: 'Règles Logique lues',
         met: (facts) => facts.user.logicGuideRead,
       },
     ],
