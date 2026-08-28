@@ -36,6 +36,8 @@ export interface TriangleLogicItem extends LogicItemBase {
   structure: LogicNumericStructure.TRIANGLE;
   triangle: TriangleItem;
   answer: number;
+  choices: string[];
+  answerIndex: number;
 }
 
 export interface DominoLogicItem extends LogicItemBase {

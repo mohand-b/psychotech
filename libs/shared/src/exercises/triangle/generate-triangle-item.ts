@@ -172,6 +172,67 @@ function isAmbiguousAgainstCatalog(
   return false;
 }
 
+function patternPredictions(
+  item: TriangleItem,
+  pattern: TrianglePattern,
+): number[] {
+  const last = item.triangles[item.missing.triangleIndex];
+  const previousCenter =
+    item.missing.triangleIndex > 0
+      ? item.triangles[item.missing.triangleIndex - 1].center
+      : null;
+  if (item.missing.slot === TriangleSlot.CENTER) {
+    const predicted = pattern.compute(last, previousCenter);
+    return predicted === null ? [] : [predicted];
+  }
+  return vertexSolutions(pattern, last, item.missing.slot, previousCenter);
+}
+
+function isPlausibleCenterError(item: TriangleItem, candidate: number): boolean {
+  if (item.missing.slot !== TriangleSlot.CENTER) {
+    return true;
+  }
+  const anchors = item.triangles
+    .filter((_, index) => index !== item.missing.triangleIndex)
+    .map((triangle) => triangle.center)
+    .concat(item.answer);
+  return anchors.some((anchor) => Math.abs(candidate - anchor) <= 15);
+}
+
+export function triangleTypicalErrors(item: TriangleItem): number[] {
+  const completeCount = item.triangles.length - 1;
+  const errors: number[] = [];
+  for (const pattern of TRIANGLE_PATTERNS) {
+    if (pattern.id === item.patternId) {
+      continue;
+    }
+    if (patternConsistentWithCompletes(pattern, item.triangles, completeCount)) {
+      continue;
+    }
+    errors.push(
+      ...patternPredictions(item, pattern).filter((candidate) =>
+        isPlausibleCenterError(item, candidate),
+      ),
+    );
+  }
+  return errors;
+}
+
+export function triangleDefensibleValues(item: TriangleItem): number[] {
+  const completeCount = item.triangles.length - 1;
+  const values: number[] = [];
+  for (const pattern of TRIANGLE_PATTERNS) {
+    if (pattern.id === item.patternId) {
+      continue;
+    }
+    if (!patternConsistentWithCompletes(pattern, item.triangles, completeCount)) {
+      continue;
+    }
+    values.push(...patternPredictions(item, pattern));
+  }
+  return values;
+}
+
 function isDegenerate(triangles: readonly TriangleValues[]): boolean {
   for (const triangle of triangles) {
     if (triangle.top === triangle.left && triangle.left === triangle.right) {

@@ -1,0 +1,652 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateLogicSession — propositions des triangles > fige le contenu exact de la session golden-pin, garde anti-dérive du rng 1`] = `
+[
+  {
+    "answerIndex": 2,
+    "choices": [
+      "4",
+      "7",
+      "6",
+      "5",
+    ],
+    "family": "NUMERIC",
+    "sequence": [
+      "46",
+      "38",
+      "30",
+      "22",
+      "14",
+    ],
+    "structure": "SEQUENCE",
+  },
+  {
+    "answer": 15,
+    "answerIndex": 0,
+    "choices": [
+      "15",
+      "4",
+      "7",
+      "20",
+    ],
+    "family": "NUMERIC",
+    "structure": "TRIANGLE",
+    "triangles": [
+      {
+        "center": 19,
+        "left": 7,
+        "right": 6,
+        "top": 6,
+      },
+      {
+        "center": 12,
+        "left": 9,
+        "right": 2,
+        "top": 1,
+      },
+      {
+        "center": 15,
+        "left": 4,
+        "right": 8,
+        "top": 3,
+      },
+    ],
+  },
+  {
+    "answerIndex": 3,
+    "choices": [
+      "2050",
+      "2458",
+      "1638",
+      "2048",
+    ],
+    "family": "NUMERIC",
+    "sequence": [
+      "2",
+      "8",
+      "32",
+      "128",
+      "512",
+    ],
+    "structure": "SEQUENCE",
+  },
+  {
+    "answer": 8,
+    "answerIndex": 3,
+    "choices": [
+      "12",
+      "16",
+      "23",
+      "8",
+    ],
+    "family": "NUMERIC",
+    "structure": "TRIANGLE",
+    "triangles": [
+      {
+        "center": 5,
+        "left": 6,
+        "right": 1,
+        "top": 2,
+      },
+      {
+        "center": 4,
+        "left": 3,
+        "right": 5,
+        "top": 4,
+      },
+      {
+        "center": 8,
+        "left": 9,
+        "right": 3,
+        "top": 4,
+      },
+    ],
+  },
+  {
+    "answerIndex": 1,
+    "choices": [
+      "42",
+      "117",
+      "120",
+      "116",
+    ],
+    "family": "NUMERIC",
+    "sequence": [
+      "3",
+      "9",
+      "12",
+      "36",
+      "39",
+    ],
+    "structure": "SEQUENCE",
+  },
+  {
+    "answer": 1,
+    "answerIndex": 0,
+    "choices": [
+      "1",
+      "2",
+      "71",
+      "62",
+    ],
+    "family": "NUMERIC",
+    "structure": "TRIANGLE",
+    "triangles": [
+      {
+        "center": 27,
+        "left": 6,
+        "right": 3,
+        "top": 5,
+      },
+      {
+        "center": 69,
+        "left": 9,
+        "right": 3,
+        "top": 8,
+      },
+      {
+        "center": 1,
+        "left": 9,
+        "right": 8,
+        "top": 1,
+      },
+    ],
+  },
+  {
+    "answerIndex": 2,
+    "choices": [
+      "24",
+      "23",
+      "25",
+      "32",
+    ],
+    "family": "NUMERIC",
+    "sequence": [
+      "5",
+      "2",
+      "7",
+      "9",
+      "16",
+    ],
+    "structure": "SEQUENCE",
+  },
+  {
+    "answer": 2,
+    "answerIndex": 0,
+    "choices": [
+      "2",
+      "17",
+      "15",
+      "3",
+    ],
+    "family": "NUMERIC",
+    "structure": "TRIANGLE",
+    "triangles": [
+      {
+        "center": 34,
+        "left": 5,
+        "right": 6,
+        "top": 8,
+      },
+      {
+        "center": 15,
+        "left": 9,
+        "right": 3,
+        "top": 2,
+      },
+      {
+        "center": 2,
+        "left": 1,
+        "right": 7,
+        "top": 9,
+      },
+    ],
+  },
+  {
+    "answerIndex": 1,
+    "choices": [
+      "76",
+      "77",
+      "78",
+      "81",
+    ],
+    "family": "NUMERIC",
+    "sequence": [
+      "28",
+      "38",
+      "49",
+      "62",
+      "70",
+    ],
+    "structure": "SEQUENCE",
+  },
+  {
+    "answer": 8,
+    "answerIndex": 0,
+    "choices": [
+      "8",
+      "10",
+      "7",
+      "16",
+    ],
+    "family": "NUMERIC",
+    "structure": "TRIANGLE",
+    "triangles": [
+      {
+        "center": 2,
+        "left": 4,
+        "right": 1,
+        "top": 5,
+      },
+      {
+        "center": 6,
+        "left": 2,
+        "right": 1,
+        "top": 5,
+      },
+      {
+        "center": 8,
+        "left": 4,
+        "right": 8,
+        "top": 2,
+      },
+      {
+        "center": 8,
+        "left": 8,
+        "right": 3,
+        "top": 5,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 6,
+        "top": 2,
+      },
+      {
+        "bottom": 6,
+        "top": 3,
+      },
+      {
+        "bottom": 6,
+        "top": 4,
+      },
+      {
+        "bottom": 6,
+        "top": 5,
+      },
+      {
+        "bottom": 6,
+        "top": 6,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 6,
+        "top": 1,
+      },
+      {
+        "bottom": 4,
+        "top": 1,
+      },
+      {
+        "bottom": 2,
+        "top": 1,
+      },
+      {
+        "bottom": 0,
+        "top": 1,
+      },
+      {
+        "bottom": 5,
+        "top": 1,
+      },
+      {
+        "bottom": 3,
+        "top": 1,
+      },
+      {
+        "bottom": 1,
+        "top": 1,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 3,
+        "top": 0,
+      },
+      {
+        "bottom": 5,
+        "top": 5,
+      },
+      {
+        "bottom": 0,
+        "top": 3,
+      },
+      {
+        "bottom": 2,
+        "top": 1,
+      },
+      {
+        "bottom": 4,
+        "top": 6,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 0,
+        "top": 1,
+      },
+      {
+        "bottom": 6,
+        "top": 0,
+      },
+      {
+        "bottom": 5,
+        "top": 6,
+      },
+      {
+        "bottom": 4,
+        "top": 5,
+      },
+      {
+        "bottom": 3,
+        "top": 4,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 1,
+        "top": 2,
+      },
+      {
+        "bottom": 3,
+        "top": 2,
+      },
+      {
+        "bottom": 3,
+        "top": 4,
+      },
+      {
+        "bottom": 5,
+        "top": 4,
+      },
+      {
+        "bottom": 5,
+        "top": 6,
+      },
+      {
+        "bottom": 0,
+        "top": 6,
+      },
+      {
+        "bottom": 0,
+        "top": 1,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 2,
+        "top": 6,
+      },
+      {
+        "bottom": 0,
+        "top": 3,
+      },
+      {
+        "bottom": 4,
+        "top": 1,
+      },
+      {
+        "bottom": 2,
+        "top": 5,
+      },
+      {
+        "bottom": 6,
+        "top": 3,
+      },
+      {
+        "bottom": 4,
+        "top": 0,
+      },
+      {
+        "bottom": 1,
+        "top": 5,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 6,
+        "top": 1,
+      },
+      {
+        "bottom": 0,
+        "top": 0,
+      },
+      {
+        "bottom": 1,
+        "top": 6,
+      },
+      {
+        "bottom": 5,
+        "top": 2,
+      },
+      {
+        "bottom": 3,
+        "top": 4,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 0,
+        "top": 1,
+      },
+      {
+        "bottom": 0,
+        "top": 1,
+      },
+      {
+        "bottom": 2,
+        "top": 6,
+      },
+      {
+        "bottom": 5,
+        "top": 3,
+      },
+      {
+        "bottom": 4,
+        "top": 4,
+      },
+      {
+        "bottom": 3,
+        "top": 5,
+      },
+      {
+        "bottom": 6,
+        "top": 2,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 2,
+        "top": 4,
+      },
+      {
+        "bottom": 3,
+        "top": 3,
+      },
+      {
+        "bottom": 4,
+        "top": 2,
+      },
+      {
+        "bottom": 1,
+        "top": 5,
+      },
+      {
+        "bottom": 6,
+        "top": 0,
+      },
+    ],
+  },
+  {
+    "family": "DOMINO",
+    "tiles": [
+      {
+        "bottom": 6,
+        "top": 2,
+      },
+      {
+        "bottom": 1,
+        "top": 0,
+      },
+      {
+        "bottom": 1,
+        "top": 0,
+      },
+      {
+        "bottom": 6,
+        "top": 2,
+      },
+      {
+        "bottom": 3,
+        "top": 5,
+      },
+      {
+        "bottom": 4,
+        "top": 4,
+      },
+      {
+        "bottom": 5,
+        "top": 3,
+      },
+    ],
+  },
+  {
+    "answerIndex": 0,
+    "family": "MATRIX_I",
+    "ruleId": "composition-addition",
+  },
+  {
+    "answerIndex": 1,
+    "family": "MATRIX_I",
+    "ruleId": "composition-addition",
+  },
+  {
+    "answerIndex": 0,
+    "family": "MATRIX_I",
+    "ruleId": "composition-addition",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_I",
+    "ruleId": "composition-addition",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-stroke-a-count-x-stroke-b-count",
+  },
+  {
+    "answerIndex": 1,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-stroke-b-count-x-stroke-a-count",
+  },
+  {
+    "answerIndex": 0,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-symbol-x-decor",
+  },
+  {
+    "answerIndex": 2,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-decor-x-symbol",
+  },
+  {
+    "answerIndex": 0,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-stroke-a-count-x-stroke-a-type",
+  },
+  {
+    "answerIndex": 1,
+    "family": "MATRIX_I",
+    "ruleId": "crossed-stroke-a-type-x-stroke-a-count",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 2,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 1,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 0,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_II",
+    "ruleId": "composition-soustraction",
+  },
+  {
+    "answerIndex": 1,
+    "family": "MATRIX_II",
+    "ruleId": "distribution-symbol-container-fill",
+  },
+  {
+    "answerIndex": 2,
+    "family": "MATRIX_II",
+    "ruleId": "distribution-symbol-container-fill",
+  },
+  {
+    "answerIndex": 2,
+    "family": "MATRIX_II",
+    "ruleId": "distribution-symbol-container-fill",
+  },
+  {
+    "answerIndex": 3,
+    "family": "MATRIX_II",
+    "ruleId": "distribution-symbol-container-fill",
+  },
+]
+`;

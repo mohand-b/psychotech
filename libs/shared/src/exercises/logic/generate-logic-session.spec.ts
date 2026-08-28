@@ -21,7 +21,12 @@ import {
   LOGIC_CONTENT_VERSION_V4,
   LOGIC_CONTENT_VERSION_V5,
 } from './logic-family';
-import { TriangleSlot } from '../triangle';
+import {
+  TRIANGLE_PATTERNS,
+  TrianglePattern,
+  TriangleSlot,
+  TriangleValues,
+} from '../triangle';
 import {
   computeLogicFamilyBreakdown,
   scoreLogicSession,
@@ -285,6 +290,208 @@ describe('generateLogicTutorial — composition mixte', () => {
     expect(generateLogicTutorial('tutoriel')).toEqual(
       generateLogicTutorial('tutoriel'),
     );
+  });
+});
+
+function triangleItemsOf(items: LogicItem[]): TriangleLogicItem[] {
+  return items.filter(
+    (item): item is TriangleLogicItem =>
+      item.family === LogicFamily.NUMERIC &&
+      item.structure === LogicNumericStructure.TRIANGLE,
+  );
+}
+
+function withTriangleSlot(
+  values: TriangleValues,
+  slot: TriangleSlot,
+  value: number,
+): TriangleValues {
+  return {
+    top: slot === TriangleSlot.TOP ? value : values.top,
+    left: slot === TriangleSlot.LEFT ? value : values.left,
+    right: slot === TriangleSlot.RIGHT ? value : values.right,
+    center: slot === TriangleSlot.CENTER ? value : values.center,
+  };
+}
+
+function patternFitsCompletes(
+  pattern: TrianglePattern,
+  triangles: readonly TriangleValues[],
+): boolean {
+  const completeCount = triangles.length - 1;
+  if (pattern.usesPreviousCenter && completeCount < 2) {
+    return false;
+  }
+  for (let index = 0; index < completeCount; index += 1) {
+    if (pattern.usesPreviousCenter && index === 0) {
+      continue;
+    }
+    const previousCenter = index > 0 ? triangles[index - 1].center : null;
+    if (
+      pattern.compute(triangles[index], previousCenter) !==
+      triangles[index].center
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function patternPredictionsFor(
+  pattern: TrianglePattern,
+  item: TriangleLogicItem,
+): number[] {
+  const triangle = item.triangle;
+  const last = triangle.triangles[triangle.missing.triangleIndex];
+  const previousCenter =
+    triangle.missing.triangleIndex > 0
+      ? triangle.triangles[triangle.missing.triangleIndex - 1].center
+      : null;
+  if (triangle.missing.slot === TriangleSlot.CENTER) {
+    const predicted = pattern.compute(last, previousCenter);
+    return predicted === null ? [] : [predicted];
+  }
+  const solutions: number[] = [];
+  for (let candidate = 1; candidate <= 9; candidate += 1) {
+    const values = withTriangleSlot(last, triangle.missing.slot, candidate);
+    if (pattern.compute(values, previousCenter) === values.center) {
+      solutions.push(candidate);
+    }
+  }
+  return solutions;
+}
+
+describe('generateLogicSession — propositions des triangles', () => {
+  it('donne à chaque item triangle 4 propositions uniques contenant la réponse, dans les bornes des centres', () => {
+    for (const seed of ['choix-a', 'choix-b', 'choix-c']) {
+      const items = [
+        ...generateLogicSession(seed),
+        ...generateLogicSession(seed, LogicFamilyFilter.NUMERIC),
+        ...generateLogicTutorial(seed),
+      ];
+      const triangles = items.filter(
+        (item) =>
+          item.family === LogicFamily.NUMERIC &&
+          item.structure === LogicNumericStructure.TRIANGLE,
+      );
+      expect(triangles.length).toBeGreaterThan(0);
+      for (const item of triangles) {
+        if (
+          item.family !== LogicFamily.NUMERIC ||
+          item.structure !== LogicNumericStructure.TRIANGLE
+        ) {
+          continue;
+        }
+        expect(item.choices).toHaveLength(4);
+        expect(new Set(item.choices).size).toBe(4);
+        expect(item.choices[item.answerIndex]).toBe(String(item.answer));
+        for (const choice of item.choices) {
+          const value = Number(choice);
+          expect(Number.isInteger(value)).toBe(true);
+          expect(value).toBeGreaterThanOrEqual(1);
+          expect(value).toBeLessThanOrEqual(90);
+        }
+      }
+    }
+  });
+
+  it('reste déterministe à seed égale sans changer le contenu des triangles', () => {
+    const first = generateLogicSession('choix-stable');
+    const second = generateLogicSession('choix-stable');
+    expect(first).toEqual(second);
+  });
+
+  it("n'offre jamais un choix défendable par un autre patron cohérent avec les triangles complets", () => {
+    for (const seed of ['audit-0', 'audit-2', 'audit-12', 'choix-a', 'choix-b']) {
+      const items = [
+        ...generateLogicSession(seed),
+        ...generateLogicSession(seed, LogicFamilyFilter.NUMERIC),
+        ...generateLogicSession(seed, null, LOGIC_CONTENT_VERSION_V3),
+      ];
+      for (const item of triangleItemsOf(items)) {
+        for (const pattern of TRIANGLE_PATTERNS) {
+          if (pattern.id === item.triangle.patternId) {
+            continue;
+          }
+          if (!patternFitsCompletes(pattern, item.triangle.triangles)) {
+            continue;
+          }
+          for (const prediction of patternPredictionsFor(pattern, item)) {
+            if (prediction === item.answer) {
+              continue;
+            }
+            expect(item.choices).not.toContain(String(prediction));
+          }
+        }
+      }
+    }
+  });
+
+  it('borne les propositions des sommets manquants du catalogue complet V3 entre 1 et 9', () => {
+    const items = generateLogicSession('choix-v3', null, LOGIC_CONTENT_VERSION_V3);
+    const vertexItems = triangleItemsOf(items).filter(
+      (item) => item.triangle.missing.slot !== TriangleSlot.CENTER,
+    );
+    expect(vertexItems.length).toBeGreaterThan(0);
+    for (const item of vertexItems) {
+      expect(item.choices).toHaveLength(4);
+      expect(item.choices[item.answerIndex]).toBe(String(item.answer));
+      for (const choice of item.choices) {
+        const value = Number(choice);
+        expect(value).toBeGreaterThanOrEqual(1);
+        expect(value).toBeLessThanOrEqual(9);
+      }
+    }
+  });
+
+  it('répartit la bonne réponse sur les quatre positions', () => {
+    const counts = [0, 0, 0, 0];
+    for (const seed of ['choix-a', 'choix-b', 'choix-c', 'choix-d', 'choix-e']) {
+      for (const item of triangleItemsOf(
+        generateLogicSession(seed, LogicFamilyFilter.NUMERIC),
+      )) {
+        counts[item.answerIndex] += 1;
+      }
+    }
+    for (const count of counts) {
+      expect(count).toBeGreaterThanOrEqual(10);
+    }
+  });
+
+  it('fige le contenu exact de la session golden-pin, garde anti-dérive du rng', () => {
+    const digest = generateLogicSession('golden-pin').map((item) => {
+      if (item.family === LogicFamily.DOMINO) {
+        return { family: item.family, tiles: item.domino.tiles };
+      }
+      if (
+        item.family === LogicFamily.MATRIX_I ||
+        item.family === LogicFamily.MATRIX_II
+      ) {
+        return {
+          family: item.family,
+          ruleId: item.rule.id,
+          answerIndex: item.answerIndex,
+        };
+      }
+      if (item.structure === LogicNumericStructure.TRIANGLE) {
+        return {
+          family: item.family,
+          structure: item.structure,
+          triangles: item.triangle.triangles,
+          answer: item.answer,
+          choices: item.choices,
+          answerIndex: item.answerIndex,
+        };
+      }
+      return {
+        family: item.family,
+        structure: item.structure,
+        sequence: item.sequence,
+        choices: item.choices,
+        answerIndex: item.answerIndex,
+      };
+    });
+    expect(digest).toMatchSnapshot();
   });
 });
 

@@ -6,7 +6,15 @@ import { generateDominoItem } from '../domino';
 import { DominoLevel } from '../domino/domino-item';
 import { LogicFamily, LogicFamilyFilter } from '../../enums';
 import { createSeededRng, SeededRng } from '../rng';
-import { generateTriangleItem } from '../triangle';
+import {
+  TRIANGLE_CENTER_MAX,
+  TRIANGLE_VERTEX_MAX,
+  TRIANGLE_VERTEX_MIN,
+  TriangleSlot,
+  generateTriangleItem,
+  triangleDefensibleValues,
+  triangleTypicalErrors,
+} from '../triangle';
 import { buildLogicChoices } from './logic-choices';
 import {
   LOGIC_CONTENT_VERSION_V3,
@@ -113,6 +121,20 @@ function buildTriangleLogicItem(
     seed: itemSeed,
     catalog: triangleCatalogFor(contentVersion),
   });
+  const choicesRng = createSeededRng(`${itemSeed}::triangle-choices`);
+  const bounds =
+    triangle.missing.slot === TriangleSlot.CENTER
+      ? { min: 1, max: TRIANGLE_CENTER_MAX }
+      : { min: TRIANGLE_VERTEX_MIN, max: TRIANGLE_VERTEX_MAX };
+  const { choices, answerIndex } = buildLogicChoices(
+    choicesRng,
+    {
+      answer: String(triangle.answer),
+      typicalErrors: triangleTypicalErrors(triangle).map(String),
+      excluded: triangleDefensibleValues(triangle).map(String),
+    },
+    bounds,
+  );
   return {
     index,
     family: LogicFamily.NUMERIC,
@@ -121,6 +143,8 @@ function buildTriangleLogicItem(
     points: level,
     triangle,
     answer: triangle.answer,
+    choices,
+    answerIndex,
     rule: { ...triangle.rule },
   };
 }
