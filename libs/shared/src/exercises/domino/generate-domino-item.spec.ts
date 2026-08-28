@@ -136,11 +136,20 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
         case 4: {
           expect(item.ruleSpec.pattern).toBe(DominoPattern.HALVES);
           if (item.ruleSpec.pattern === DominoPattern.HALVES) {
+            const halves = [item.ruleSpec.top, item.ruleSpec.bottom];
+            for (const half of halves) {
+              expect(['ALTERNATING_VALUES', 'ALTERNATING_STEPS']).toContain(
+                half.kind,
+              );
+            }
             expect(
-              [item.ruleSpec.top.kind, item.ruleSpec.bottom.kind].includes(
-                'GROWING_STEP',
-              ),
+              halves.some((half) => half.kind === 'ALTERNATING_STEPS'),
             ).toBe(true);
+            for (const half of halves) {
+              if (half.kind === 'ALTERNATING_STEPS') {
+                expect(half.steps[0] + half.steps[1]).not.toBe(0);
+              }
+            }
           }
           break;
         }
@@ -304,16 +313,17 @@ describe('generateDominoItem — frontières modulo 7 sur 3000 tirages', () => {
     expect(coverage.alternatingWrap).toBeGreaterThan(0);
   });
 
-  it('ne demande jamais un bouclage en réponse sans en avoir montré un sur la même face', () => {
+  it('ne demande jamais un bouclage en réponse sans en avoir montré un sur la même face et dans le même sens', () => {
     forEachBoundaryItem((item) => {
       const answerTransition = item.tiles.length - 2;
       for (const { rule, values } of halvesOf(item)) {
-        if (wrapDirectionAt(rule, values, answerTransition) === null) {
+        const answerDirection = wrapDirectionAt(rule, values, answerTransition);
+        if (answerDirection === null) {
           continue;
         }
         let shown = false;
         for (let index = 0; index < answerTransition; index += 1) {
-          if (wrapDirectionAt(rule, values, index) !== null) {
+          if (wrapDirectionAt(rule, values, index) === answerDirection) {
             shown = true;
             break;
           }

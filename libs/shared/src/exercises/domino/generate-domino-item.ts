@@ -45,6 +45,14 @@ function distinctSteps(rng: SeededRng): [number, number] {
   return [first, second];
 }
 
+function driftingSteps(rng: SeededRng): [number, number] {
+  const first = rng.pick(ALL_STEPS);
+  const second = rng.pick(
+    ALL_STEPS.filter((step) => step !== first && step !== -first),
+  );
+  return [first, second];
+}
+
 function secondaryHalf(rng: SeededRng): DominoHalfRule {
   return rng.next() < 0.5
     ? { kind: 'CONSTANT', value: randomFace(rng) }
@@ -112,11 +120,15 @@ function buildSpec(
       };
     }
     case 4: {
-      const halves = orientedHalves(
-        { kind: 'GROWING_STEP', direction: rng.next() < 0.5 ? 1 : -1 },
-        secondaryHalf(rng),
-        rng,
-      );
+      const drifting: DominoHalfRule = {
+        kind: 'ALTERNATING_STEPS',
+        steps: driftingSteps(rng),
+      };
+      const other: DominoHalfRule =
+        rng.next() < 0.5
+          ? { kind: 'ALTERNATING_VALUES', values: distinctFaces(rng) }
+          : { kind: 'ALTERNATING_STEPS', steps: driftingSteps(rng) };
+      const halves = orientedHalves(drifting, other, rng);
       return {
         spec: { pattern: DominoPattern.HALVES, ...halves },
         length: rng.nextInt(6, 7),
@@ -283,13 +295,13 @@ export function generateDominoItem(
     }
     if (
       answerWrap.top !== null &&
-      !visibleWraps.some((wrap) => wrap.top !== null)
+      !visibleWraps.some((wrap) => wrap.top === answerWrap.top)
     ) {
       continue;
     }
     if (
       answerWrap.bottom !== null &&
-      !visibleWraps.some((wrap) => wrap.bottom !== null)
+      !visibleWraps.some((wrap) => wrap.bottom === answerWrap.bottom)
     ) {
       continue;
     }
