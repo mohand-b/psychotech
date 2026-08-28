@@ -8,6 +8,7 @@ import {
   DominoFace,
   DominoItem,
   DominoLevel,
+  DominoPattern,
   DominoTile,
   generateDominoItem,
   mod7,
@@ -34,7 +35,7 @@ function signedDelta(from: DominoFace, to: DominoFace): string {
   return signed > 0 ? `+${signed}` : `${signed}`;
 }
 
-export function dominoGapAnnotations(
+function dominoGapAnnotations(
   tiles: readonly DominoTile[],
 ): DominoGapAnnotation[] {
   const annotations: DominoGapAnnotation[] = [];
@@ -45,6 +46,16 @@ export function dominoGapAnnotations(
     });
   }
   return annotations;
+}
+
+export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
+  if (item.ruleSpec.pattern !== DominoPattern.DIAGONAL) {
+    return dominoGapAnnotations(item.tiles);
+  }
+  return item.tiles.slice(0, -1).map((tile, index) => ({
+    top: `↗${signedDelta(tile.bottom, item.tiles[index + 1].top)}`,
+    bottom: `↘${signedDelta(tile.top, item.tiles[index + 1].bottom)}`,
+  }));
 }
 
 @Component({
@@ -209,7 +220,7 @@ export class DominoLab {
 
   protected readonly annotations = computed<DominoGapAnnotation[]>(() => {
     const current = this.item();
-    return current ? dominoGapAnnotations(current.tiles) : [];
+    return current ? dominoItemAnnotations(current) : [];
   });
 
   protected readonly verdict = computed<'good' | 'bad' | null>(() => {

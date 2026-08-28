@@ -9,7 +9,7 @@ import {
   DominoLevel,
   generateDominoItem,
 } from '@psychotech/shared';
-import { dominoGapAnnotations } from './domino-lab';
+import { dominoItemAnnotations } from './domino-lab';
 import { DominoSequence } from './domino-sequence';
 
 interface GalleryRow {
@@ -89,6 +89,6 @@ export class DominoGallery {
   );
 
   protected annotationsFor(item: DominoItem) {
-    return dominoGapAnnotations(item.tiles);
+    return dominoItemAnnotations(item);
   }
 }
