@@ -25,6 +25,8 @@ function buildUser(emailVerifiedAt: string | null): UserProfileDto {
     passwordChangedAt: null,
     lastLoginAt: null,
     emailVerifiedAt,
+    examGuideReadAt: null,
+    logicGuideReadAt: null,
     createdAt: '2026-06-01T00:00:00.000Z',
   };
 }

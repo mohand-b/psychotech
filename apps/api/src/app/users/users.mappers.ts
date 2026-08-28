@@ -13,6 +13,8 @@ export function toUserProfileDto(user: User): UserProfileDto {
     currentSector: mapEnumValue(Sector, user.currentSector),
     showInFeed: user.showInFeed,
     emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
+    examGuideReadAt: user.examGuideReadAt?.toISOString() ?? null,
+    logicGuideReadAt: user.logicGuideReadAt?.toISOString() ?? null,
     pendingEmail: user.pendingEmail,
     passwordChangedAt: user.passwordChangedAt?.toISOString() ?? null,
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,

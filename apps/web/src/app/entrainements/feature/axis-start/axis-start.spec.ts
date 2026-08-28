@@ -88,6 +88,8 @@ interface SetupOptions {
   energyState?: EnergyStateDto | null;
   startResult?: () => Observable<SessionDto>;
   emailVerifiedAt?: string | null;
+  examGuideReadAt?: string | null;
+  logicGuideReadAt?: string | null;
 }
 
 async function setup(
@@ -123,6 +125,8 @@ async function setup(
               options.emailVerifiedAt === undefined
                 ? '2026-07-01T00:00:00.000Z'
                 : options.emailVerifiedAt,
+            examGuideReadAt: options.examGuideReadAt ?? null,
+            logicGuideReadAt: options.logicGuideReadAt ?? null,
           }),
         },
       },
@@ -336,5 +340,44 @@ describe('AxisStart - compte non vérifié', () => {
     expect(result.element.textContent).not.toContain(
       'Vérifiez votre adresse e-mail',
     );
+  });
+});
+
+describe('AxisStart - note guides', () => {
+  it('links both guides from the logic briefing while none is read', async () => {
+    const result = await setup('logique');
+
+    const note = result.element.querySelector('.axis-start__guide-note');
+    expect(note?.textContent).toContain('Consultez le guide des épreuves');
+    expect(note?.textContent).toContain('Toutes les règles de la Logique');
+    expect(note?.querySelector('.axis-start__guide-sep')).not.toBeNull();
+  });
+
+  it('drops only the exam guide link once that guide is read', async () => {
+    const result = await setup('logique', false, {
+      examGuideReadAt: '2026-08-28T00:00:00.000Z',
+    });
+
+    const note = result.element.querySelector('.axis-start__guide-note');
+    expect(note?.textContent).not.toContain('Consultez le guide des épreuves');
+    expect(note?.textContent).toContain('Toutes les règles de la Logique');
+    expect(note?.querySelector('.axis-start__guide-sep')).toBeNull();
+  });
+
+  it('removes the note once both guides are read', async () => {
+    const result = await setup('logique', false, {
+      examGuideReadAt: '2026-08-28T00:00:00.000Z',
+      logicGuideReadAt: '2026-08-28T00:00:00.000Z',
+    });
+
+    expect(result.element.querySelector('.axis-start__guide-note')).toBeNull();
+  });
+
+  it('removes the note on another axis once the exam guide is read', async () => {
+    const result = await setup('memoire', false, {
+      examGuideReadAt: '2026-08-28T00:00:00.000Z',
+    });
+
+    expect(result.element.querySelector('.axis-start__guide-note')).toBeNull();
   });
 });

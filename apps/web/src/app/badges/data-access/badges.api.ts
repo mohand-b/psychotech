@@ -4,6 +4,7 @@ import {
   BadgeId,
   BadgeStatusDto,
   EarnedBadgeDto,
+  GuideId,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -33,6 +34,13 @@ export class BadgesApi {
   tutorialDiscovered(): Observable<void> {
     return this.http.post<void>(
       `${this.baseUrl}/me/badges/tutorial-discovered`,
+      null,
+    );
+  }
+
+  markGuideRead(guide: GuideId): Observable<void> {
+    return this.http.post<void>(
+      `${this.baseUrl}/me/badges/guides/${guide}/read`,
       null,
     );
   }

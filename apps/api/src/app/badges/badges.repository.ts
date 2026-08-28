@@ -8,7 +8,7 @@ import {
   Sector as DbSector,
   UserBadge,
 } from '@prisma/client';
-import { AxisType, BadgeFacts, Sector } from '@psychotech/shared';
+import { AxisType, BadgeFacts, GuideId, Sector } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -168,6 +168,27 @@ export class BadgesRepository {
     });
   }
 
+  async markGuideRead<T>(
+    userId: string,
+    guide: GuideId,
+    evaluate: (client: PrismaClientLike) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.$transaction(async (tx) => {
+      if (guide === GuideId.EXAM_GUIDE) {
+        await tx.user.updateMany({
+          where: { id: userId, examGuideReadAt: null },
+          data: { examGuideReadAt: new Date() },
+        });
+      } else {
+        await tx.user.updateMany({
+          where: { id: userId, logicGuideReadAt: null },
+          data: { logicGuideReadAt: new Date() },
+        });
+      }
+      return evaluate(tx);
+    });
+  }
+
   findRarities(): Promise<BadgeRarity[]> {
     return this.prisma.badgeRarity.findMany();
   }
@@ -243,6 +264,8 @@ export class BadgesRepository {
         currentSector: true,
         emailVerifiedAt: true,
         tutorialDiscoveredAt: true,
+        examGuideReadAt: true,
+        logicGuideReadAt: true,
       },
     });
     if (!user) {
@@ -262,6 +285,8 @@ export class BadgesRepository {
       user: {
         accountVerified: user.emailVerifiedAt !== null,
         tutorialDiscovered: user.tutorialDiscoveredAt !== null,
+        examGuideRead: user.examGuideReadAt !== null,
+        logicGuideRead: user.logicGuideReadAt !== null,
       },
     };
   }

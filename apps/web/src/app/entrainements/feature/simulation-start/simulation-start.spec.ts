@@ -32,6 +32,7 @@ async function setup(
     energyState?: EnergyStateDto | null;
     startFull?: () => Observable<{ id: string }>;
     emailVerifiedAt?: string | null;
+    examGuideReadAt?: string | null;
   } = {},
 ) {
   const energyLoad = vi.fn(() => of(null));
@@ -49,6 +50,7 @@ async function setup(
               options.emailVerifiedAt === undefined
                 ? '2026-07-01T00:00:00.000Z'
                 : options.emailVerifiedAt,
+            examGuideReadAt: options.examGuideReadAt ?? null,
           }),
         },
       },
@@ -74,6 +76,19 @@ function text(fixture: { nativeElement: HTMLElement }): string {
 }
 
 describe('SimulationStart', () => {
+  it('links the exam guide while it is not read, then drops the note', async () => {
+    const unread = await setup();
+    expect(
+      unread.fixture.nativeElement.querySelector('.simb__guide-note'),
+    ).not.toBeNull();
+
+    TestBed.resetTestingModule();
+    const read = await setup({ examGuideReadAt: '2026-08-28T00:00:00.000Z' });
+    expect(
+      read.fixture.nativeElement.querySelector('.simb__guide-note'),
+    ).toBeNull();
+  });
+
   it('briefs the full session with its cost and starts it', async () => {
     const { fixture, startFull, navigate } = await setup();
     expect(text(fixture)).toContain('Examen blanc');

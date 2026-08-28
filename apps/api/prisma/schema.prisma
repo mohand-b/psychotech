@@ -86,6 +86,7 @@ enum BadgeId {
   EXAM_FAVORABLE
   EXAM_SOLID
   FIRST_STEPS
+  WELL_INFORMED
   SECTOR_MASTERY
 }
 
@@ -114,6 +115,8 @@ model User {
   termsAcceptedAt      DateTime?
   emailVerifiedAt      DateTime?
   tutorialDiscoveredAt DateTime?
+  examGuideReadAt      DateTime?
+  logicGuideReadAt     DateTime?
   showInFeed           Boolean   @default(true)
   pendingEmail         String?
   passwordChangedAt    DateTime?

@@ -10,6 +10,8 @@ export interface UserProfileDto {
   currentSector: Sector;
   showInFeed: boolean;
   emailVerifiedAt: string | null;
+  examGuideReadAt: string | null;
+  logicGuideReadAt: string | null;
   pendingEmail: string | null;
   passwordChangedAt: string | null;
   lastLoginAt: string | null;

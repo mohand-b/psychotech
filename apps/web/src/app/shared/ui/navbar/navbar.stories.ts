@@ -17,6 +17,8 @@ const mockUser: UserProfileDto = {
   passwordChangedAt: null,
   lastLoginAt: null,
   emailVerifiedAt: '2026-06-27T08:00:00.000Z',
+  examGuideReadAt: null,
+  logicGuideReadAt: null,
   createdAt: '2026-06-27T08:00:00.000Z',
 };
 

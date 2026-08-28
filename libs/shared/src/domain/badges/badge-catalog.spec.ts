@@ -42,6 +42,8 @@ function facts(overrides: Partial<BadgeFacts> = {}): BadgeFacts {
     user: {
       accountVerified: false,
       tutorialDiscovered: false,
+      examGuideRead: false,
+      logicGuideRead: false,
     },
     session: null,
     ...overrides,
@@ -80,9 +82,9 @@ function targetedSession(
 }
 
 describe('badge catalog shape', () => {
-  it('contains exactly the twenty acted badges, each with a unique id', () => {
-    expect(BADGE_CATALOG).toHaveLength(20);
-    expect(new Set(BADGE_CATALOG.map(({ id }) => id)).size).toBe(20);
+  it('contains exactly the twenty-one acted badges, each with a unique id', () => {
+    expect(BADGE_CATALOG).toHaveLength(21);
+    expect(new Set(BADGE_CATALOG.map(({ id }) => id)).size).toBe(21);
   });
 
   it('carries the acted display names from the Notion catalog', () => {
@@ -106,6 +108,7 @@ describe('badge catalog shape', () => {
       [BadgeId.EXAM_FAVORABLE, 'Certifié'],
       [BadgeId.EXAM_SOLID, 'Premier de la classe'],
       [BadgeId.FIRST_STEPS, 'Premiers pas'],
+      [BadgeId.WELL_INFORMED, 'Averti'],
       [BadgeId.SECTOR_MASTERY, 'Sur les rails'],
     ]);
     for (const [id, name] of names) {
@@ -139,15 +142,15 @@ describe('badge catalog shape', () => {
       }
     }
     expect(badge(BadgeId.FIRST_STEPS).energyReward).toBe(2);
+    expect(badge(BadgeId.WELL_INFORMED).energyReward).toBe(1);
     expect(badge(BadgeId.EXAM_FAVORABLE).energyReward).toBe(2);
     expect(badge(BadgeId.EXAM_FIRST).energyReward).toBe(0);
     expect(badge(BadgeId.EXAM_SOLID).energyReward).toBe(3);
-    expect(badge(BadgeId.SECTOR_MASTERY).energyReward).toBe(3);
     const total = BADGE_CATALOG.reduce(
       (sum, { energyReward }) => sum + energyReward,
       0,
     );
-    expect(total).toBe(25);
+    expect(total).toBe(26);
     expect(BADGE_TOTAL_REWARD).toBe(total);
   });
 
@@ -374,6 +377,6 @@ describe('event subscriptions', () => {
       BADGE_CATALOG.filter((definition) => definition.family === family).length;
     expect(byFamily(BadgeFamily.AXIS)).toBe(15);
     expect(byFamily(BadgeFamily.EXAM)).toBe(3);
-    expect(byFamily(BadgeFamily.TRANSVERSE)).toBe(2);
+    expect(byFamily(BadgeFamily.TRANSVERSE)).toBe(3);
   });
 });

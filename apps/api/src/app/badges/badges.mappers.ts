@@ -9,6 +9,7 @@ import {
   BadgeId,
   BadgeStatusDto,
   EarnedBadgeDto,
+  GuideId,
   Sector,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
@@ -45,12 +46,29 @@ function rarityPercent(rarity: BadgeRarity | null): number | null {
   return Math.round((rarity.earnedCount / rarity.eligibleCount) * 100);
 }
 
-function factsBeforeEvent(facts: BadgeFacts, event: BadgeEvent): BadgeFacts {
+function factsBeforeEvent(
+  facts: BadgeFacts,
+  event: BadgeEvent,
+  readGuide: GuideId | null,
+): BadgeFacts {
   switch (event) {
     case BadgeEvent.ACCOUNT_VERIFIED:
       return { ...facts, user: { ...facts.user, accountVerified: false } };
     case BadgeEvent.TUTORIAL_OPENED:
       return { ...facts, user: { ...facts.user, tutorialDiscovered: false } };
+    case BadgeEvent.GUIDE_MARKED_READ:
+      return {
+        ...facts,
+        user: {
+          ...facts.user,
+          examGuideRead:
+            readGuide === GuideId.EXAM_GUIDE ? false : facts.user.examGuideRead,
+          logicGuideRead:
+            readGuide === GuideId.LOGIC_GUIDE
+              ? false
+              : facts.user.logicGuideRead,
+        },
+      };
     case BadgeEvent.SESSION_COMPLETED:
       return { ...facts, session: null };
   }
@@ -61,8 +79,9 @@ export function toEarnedBadgeDto(
   earnedAt: Date,
   facts: BadgeFacts,
   event: BadgeEvent,
+  readGuide: GuideId | null = null,
 ): EarnedBadgeDto {
-  const before = factsBeforeEvent(facts, event);
+  const before = factsBeforeEvent(facts, event, readGuide);
   const single = definition.conditions.length === 1;
   return {
     badgeId: definition.id,

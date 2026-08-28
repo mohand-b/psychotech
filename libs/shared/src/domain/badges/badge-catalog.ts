@@ -19,6 +19,7 @@ export const EXAM_EXCELLENCE_THRESHOLD = 85;
 export const EXAM_PERFECTION_THRESHOLD = 95;
 
 export const FIRST_STEPS_REWARD = 2;
+export const WELL_INFORMED_REWARD = 1;
 export const EXAM_FAVORABLE_REWARD = 2;
 export const EXAM_GOLD_REWARD = 3;
 export const SECTOR_MASTERY_REWARD = 3;
@@ -264,6 +265,28 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
         id: 'tutorial',
         label: 'Un tutoriel terminé',
         met: (facts) => facts.user.tutorialDiscovered,
+      },
+    ],
+  },
+  {
+    id: BadgeId.WELL_INFORMED,
+    family: BadgeFamily.TRANSVERSE,
+    displayName: 'Averti',
+    axis: null,
+    tier: null,
+    energyReward: WELL_INFORMED_REWARD,
+    events: [BadgeEvent.GUIDE_MARKED_READ],
+    rarityDenominator: BadgeRarityDenominator.VERIFIED_ACCOUNTS,
+    conditions: [
+      {
+        id: 'exam-guide',
+        label: 'Guide des épreuves lu',
+        met: (facts) => facts.user.examGuideRead,
+      },
+      {
+        id: 'logic-guide',
+        label: 'Guide Logique lu',
+        met: (facts) => facts.user.logicGuideRead,
       },
     ],
   },

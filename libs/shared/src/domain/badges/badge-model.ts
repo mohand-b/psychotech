@@ -20,7 +20,13 @@ export enum BadgeId {
   EXAM_FAVORABLE = 'EXAM_FAVORABLE',
   EXAM_SOLID = 'EXAM_SOLID',
   FIRST_STEPS = 'FIRST_STEPS',
+  WELL_INFORMED = 'WELL_INFORMED',
   SECTOR_MASTERY = 'SECTOR_MASTERY',
+}
+
+export enum GuideId {
+  EXAM_GUIDE = 'EXAM_GUIDE',
+  LOGIC_GUIDE = 'LOGIC_GUIDE',
 }
 
 export enum BadgeFamily {
@@ -39,6 +45,7 @@ export enum BadgeEvent {
   SESSION_COMPLETED = 'SESSION_COMPLETED',
   ACCOUNT_VERIFIED = 'ACCOUNT_VERIFIED',
   TUTORIAL_OPENED = 'TUTORIAL_OPENED',
+  GUIDE_MARKED_READ = 'GUIDE_MARKED_READ',
 }
 
 export enum BadgeRarityDenominator {
@@ -51,6 +58,8 @@ export enum BadgeRarityDenominator {
 export interface BadgeUserFacts {
   accountVerified: boolean;
   tutorialDiscovered: boolean;
+  examGuideRead: boolean;
+  logicGuideRead: boolean;
 }
 
 

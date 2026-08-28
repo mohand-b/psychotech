@@ -26,6 +26,9 @@ export function badgeAssetPath(
   if (definition.id === BadgeId.FIRST_STEPS) {
     return 'badges/badge-premiers-pas.svg';
   }
+  if (definition.id === BadgeId.WELL_INFORMED) {
+    return 'badges/badge-averti.svg';
+  }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
     const slug = BADGE_SECTOR_SLUGS[sector] ?? 'ferroviaire';
     return `badges/badge-secteur-${slug}.svg`;

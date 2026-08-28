@@ -10,6 +10,7 @@ import {
   BadgeSessionFacts,
   BadgeStatusDto,
   EarnedBadgeDto,
+  GuideId,
   badgeEarned,
   badgesListeningTo,
 } from '@psychotech/shared';
@@ -40,6 +41,7 @@ export class BadgesService {
     event: BadgeEvent,
     sessionFacts: BadgeSessionFacts | null,
     sessionId: string | null = null,
+    readGuide: GuideId | null = null,
   ): Promise<void> {
     const listening = badgesListeningTo(event);
     if (listening.length === 0) {
@@ -79,7 +81,7 @@ export class BadgesService {
         );
       }
       this.collector.deposit(
-        toEarnedBadgeDto(definition, earnedAt, facts, event),
+        toEarnedBadgeDto(definition, earnedAt, facts, event, readGuide),
       );
     }
   }
@@ -87,6 +89,19 @@ export class BadgesService {
   async markTutorialDiscovered(userId: string): Promise<void> {
     await this.repository.markTutorialDiscovered(userId, (client) =>
       this.evaluateWithin(client, userId, BadgeEvent.TUTORIAL_OPENED, null),
+    );
+  }
+
+  async markGuideRead(userId: string, guide: GuideId): Promise<void> {
+    await this.repository.markGuideRead(userId, guide, (client) =>
+      this.evaluateWithin(
+        client,
+        userId,
+        BadgeEvent.GUIDE_MARKED_READ,
+        null,
+        null,
+        guide,
+      ),
     );
   }
 

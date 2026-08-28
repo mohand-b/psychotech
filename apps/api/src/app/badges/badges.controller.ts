@@ -13,6 +13,7 @@ import {
   BadgeId,
   BadgeStatusDto,
   EarnedBadgeDto,
+  GuideId,
   NewBadgesPayload,
 } from '@psychotech/shared';
 import { CurrentUser } from '../common/current-user.decorator';
@@ -56,6 +57,17 @@ export class BadgesController {
     @CurrentUser() userId: string,
   ): Promise<NewBadgesPayload> {
     await this.badgesService.markTutorialDiscovered(userId);
+    return {};
+  }
+
+  @UseInterceptors(NewBadgesInterceptor)
+  @HttpCode(HttpStatus.OK)
+  @Post('guides/:guide/read')
+  async guideRead(
+    @CurrentUser() userId: string,
+    @Param('guide', new ParseEnumPipe(GuideId)) guide: GuideId,
+  ): Promise<NewBadgesPayload> {
+    await this.badgesService.markGuideRead(userId, guide);
     return {};
   }
 }

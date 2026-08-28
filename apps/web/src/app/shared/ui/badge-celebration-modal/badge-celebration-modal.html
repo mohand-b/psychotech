@@ -80,10 +80,15 @@
               <ui-axis-icon axis="credit" [size]="24" />
             </span>
             <span class="cb__gain-amount t-mono"
-              >+{{ v.gain }} <span class="cb__gain-unit">crédits</span></span
+              >+{{ v.gain }}
+              <span class="cb__gain-unit">{{
+                v.gain > 1 ? 'crédits' : 'crédit'
+              }}</span></span
             >
           </span>
-          <span class="cb__gain-note">ajoutés à votre solde</span>
+          <span class="cb__gain-note">{{
+            v.gain > 1 ? 'ajoutés à votre solde' : 'ajouté à votre solde'
+          }}</span>
         </span>
       }
     </div>

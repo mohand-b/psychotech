@@ -1,11 +1,20 @@
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AxisType } from '@psychotech/shared';
+import { AxisType, GuideId } from '@psychotech/shared';
 import { ChevronLeft } from 'lucide-angular';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_SLUGS } from '../../../shared/util/axis-slug';
+import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
 import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
 import {
@@ -280,7 +289,7 @@ const DOMINO_CARDS: readonly DominoCard[] = [
 @Component({
   selector: 'app-guide-logic-rules',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, GuideScrollTop, Icon, RouterLink],
+  imports: [AxisIcon, GuideReadCheck, GuideScrollTop, Icon, RouterLink],
   hostDirectives: [SmoothAnchors],
   templateUrl: './guide-logic-rules.html',
   styleUrls: ['../guide-shared.css', './guide-logic-rules.css'],
@@ -288,6 +297,15 @@ const DOMINO_CARDS: readonly DominoCard[] = [
 export class GuideLogicRules {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
+  private readonly authFacade = inject(AuthFacade);
+  private readonly badgesFacade = inject(BadgesFacade);
+
+  private readonly locallyMarked = signal(false);
+  protected readonly guideRead = computed(
+    () =>
+      this.locallyMarked() ||
+      this.authFacade.currentUser()?.logicGuideReadAt != null,
+  );
 
   protected readonly AxisType = AxisType;
   protected readonly backIcon = ChevronLeft;
@@ -304,5 +322,10 @@ export class GuideLogicRules {
 
   protected back(): void {
     navigateBack(this.location, this.router, GUIDE_PATH);
+  }
+
+  protected markRead(): void {
+    this.locallyMarked.set(true);
+    this.badgesFacade.markGuideRead(GuideId.LOGIC_GUIDE);
   }
 }

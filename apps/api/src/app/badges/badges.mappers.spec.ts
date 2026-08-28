@@ -38,6 +38,8 @@ const facts: BadgeFacts = {
   user: {
     accountVerified: true,
     tutorialDiscovered: false,
+    examGuideRead: false,
+    logicGuideRead: false,
   },
   session: null,
 };

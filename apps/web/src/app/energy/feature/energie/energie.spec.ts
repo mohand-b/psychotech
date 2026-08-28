@@ -88,7 +88,7 @@ describe('Energie', () => {
       fixture.nativeElement.querySelector('.energie__badges-link');
     expect(link?.getAttribute('href')).toBe('/badges');
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('+25');
+    expect(text).toContain('+26');
     expect(text).toContain('Sur les rails');
     expect(text).toContain('Premier de la classe');
     expect(text).toContain('Premiers pas');

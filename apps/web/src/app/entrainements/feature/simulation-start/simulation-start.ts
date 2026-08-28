@@ -106,6 +106,9 @@ export class SimulationStart {
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.FULL];
   protected readonly guidePath = GUIDE_PATH;
+  protected readonly showGuideNote = computed(
+    () => this.authFacade.currentUser()?.examGuideReadAt == null,
+  );
   protected readonly estimatedDuration = ESTIMATED_DURATION_LABEL;
 
   protected readonly howItGoes: readonly string[] = [

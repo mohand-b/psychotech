@@ -94,7 +94,7 @@ describe('BadgesPage', () => {
     expect(text).toContain('Avis favorable');
     expect(text).toContain('Dans le même examen :');
     expect(text).toContain('0');
-    expect(text).toContain('sur 20 badges');
+    expect(text).toContain('sur 21 badges');
   });
 
   it('desaturates every asset while nothing is earned', async () => {
@@ -123,7 +123,7 @@ describe('BadgesPage', () => {
     const transGains = fixture.nativeElement.querySelectorAll(
       '.trans-row__gain ui-axis-icon',
     );
-    expect(transGains).toHaveLength(2);
+    expect(transGains).toHaveLength(3);
   });
 
   it('reveals dates and the earned-only rarity without any maximal tier note', async () => {
@@ -164,7 +164,7 @@ describe('BadgesPage', () => {
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('+4');
     expect(text).toContain('ajoutés');
-    expect(text).toContain('Encore +21 à gagner');
+    expect(text).toContain('Encore +22 à gagner');
   });
 
   it('picks the cheapest remaining actions when no score is close', async () => {

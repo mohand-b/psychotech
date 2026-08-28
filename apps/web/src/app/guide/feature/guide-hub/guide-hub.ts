@@ -2,13 +2,16 @@ import { Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
+  signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   AXIS_META,
   AxisType,
   FULL_SESSION_AXIS_ORDER,
+  GuideId,
   SECTOR_AXES,
   Sector,
 } from '@psychotech/shared';
@@ -18,12 +21,15 @@ import {
   ClipboardCheck,
   ShieldCheck,
 } from 'lucide-angular';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import {
   AXIS_PRESENTATION,
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
 import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
 import {
@@ -91,7 +97,7 @@ function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
 @Component({
   selector: 'app-guide-hub',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, GuideScrollTop, Icon, RouterLink],
+  imports: [AxisIcon, GuideReadCheck, GuideScrollTop, Icon, RouterLink],
   hostDirectives: [SmoothAnchors],
   templateUrl: './guide-hub.html',
   styleUrls: ['../guide-shared.css', './guide-hub.css'],
@@ -99,6 +105,15 @@ function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
 export class GuideHub {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
+  private readonly authFacade = inject(AuthFacade);
+  private readonly badgesFacade = inject(BadgesFacade);
+
+  private readonly locallyMarked = signal(false);
+  protected readonly guideRead = computed(
+    () =>
+      this.locallyMarked() ||
+      this.authFacade.currentUser()?.examGuideReadAt != null,
+  );
 
   protected readonly AxisType = AxisType;
   protected readonly backIcon = ChevronLeft;
@@ -139,6 +154,11 @@ export class GuideHub {
 
   protected back(): void {
     navigateBack(this.location, this.router, '/entrainements');
+  }
+
+  protected markRead(): void {
+    this.locallyMarked.set(true);
+    this.badgesFacade.markGuideRead(GuideId.EXAM_GUIDE);
   }
 
   protected readonly sectorStack: readonly GuideSectorStackEntry[] =

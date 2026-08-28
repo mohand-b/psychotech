@@ -1,0 +1,38 @@
+<section class="read-check flex justify-center">
+  <div
+    class="read-check__box flex items-center"
+    role="checkbox"
+    tabindex="0"
+    [attr.aria-checked]="marked()"
+    [class.read-check__box--marked]="marked()"
+    (click)="activate()"
+    (keydown.enter)="activate()"
+    (keydown.space)="activate($event)"
+  >
+    <span class="read-check__check inline-flex items-center justify-center">
+      <span class="read-check__tick inline-flex">
+        <svg
+          class="read-check__tick-svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      </span>
+    </span>
+    <span class="read-check__text flex flex-col">
+      <span class="read-check__label">{{
+        marked() ? 'Guide lu' : "J'ai lu ce guide"
+      }}</span>
+      <span class="read-check__hint inline-flex items-center flex-wrap">
+        La lecture des deux guides débloque le badge Averti&nbsp;: +1
+        <ui-axis-icon axis="credit" [size]="13" label="crédit" />
+      </span>
+    </span>
+  </div>
+</section>

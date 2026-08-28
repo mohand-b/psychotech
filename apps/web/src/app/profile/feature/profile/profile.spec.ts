@@ -29,6 +29,8 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
     currentSector: Sector.RAILWAY,
     showInFeed: false,
     emailVerifiedAt: '2026-04-14T10:00:00.000Z',
+    examGuideReadAt: null,
+    logicGuideReadAt: null,
     pendingEmail: null,
     passwordChangedAt: '2026-04-14T10:00:00.000Z',
     lastLoginAt: '2026-08-08T09:12:00.000Z',
@@ -149,7 +151,7 @@ describe('Profile - informations', () => {
     expect(text).toContain('Membre depuis');
     expect(text).toContain('14 avril 2026');
     expect(text).toContain('23');
-    expect(text).toContain('sur 20');
+    expect(text).toContain('sur 21');
     expect(text).toContain('Dernière connexion');
   });
 

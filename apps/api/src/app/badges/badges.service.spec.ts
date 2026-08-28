@@ -4,6 +4,7 @@ import {
   BadgeEvent,
   BadgeId,
   EarnedBadgeDto,
+  GuideId,
   Sector,
   SessionMode,
 } from '@psychotech/shared';
@@ -20,6 +21,8 @@ function factsSource(
     bestScores: Partial<Record<AxisType, number>>;
     accountVerified: boolean;
     tutorialDiscovered: boolean;
+    examGuideRead: boolean;
+    logicGuideRead: boolean;
   }> = {},
 ): BadgeFactsSource {
   return {
@@ -28,6 +31,8 @@ function factsSource(
     user: {
       accountVerified: overrides.accountVerified ?? false,
       tutorialDiscovered: overrides.tutorialDiscovered ?? false,
+      examGuideRead: overrides.examGuideRead ?? false,
+      logicGuideRead: overrides.logicGuideRead ?? false,
     },
   };
 }
@@ -38,6 +43,7 @@ const repository = {
   awardWithin: vi.fn(),
   creditRewardWithin: vi.fn(),
   markTutorialDiscovered: vi.fn(),
+  markGuideRead: vi.fn(),
   findEarned: vi.fn(),
   findRarities: vi.fn(),
   buildFactsSource: vi.fn(),
@@ -303,6 +309,110 @@ describe('BadgesService.evaluateWithin — outside a collection scope', () => {
 
     expect(repository.awardWithin).toHaveBeenCalledTimes(1);
     expect(collector.collected()).toEqual([]);
+  });
+});
+
+describe('BadgesService.markGuideRead — averti', () => {
+  beforeEach(() => {
+    repository.markGuideRead.mockImplementation(
+      async (
+        _userId: string,
+        _guide: GuideId,
+        evaluate: (client: Prisma.TransactionClient) => Promise<unknown>,
+      ) => evaluate(tx),
+    );
+  });
+
+  function markCollecting(guide: GuideId): Promise<EarnedBadgeDto[]> {
+    return collector.runWithin(async () => {
+      await service.markGuideRead('user-1', guide);
+      return collector.collected();
+    });
+  }
+
+  it('withholds averti while a single guide is read', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ examGuideRead: true }),
+    );
+
+    const won = await markCollecting(GuideId.EXAM_GUIDE);
+
+    expect(won).toEqual([]);
+    expect(repository.awardWithin).not.toHaveBeenCalled();
+    expect(repository.creditRewardWithin).not.toHaveBeenCalled();
+  });
+
+  it('awards averti with one credit once both guides are read', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ examGuideRead: true, logicGuideRead: true }),
+    );
+
+    const won = await markCollecting(GuideId.LOGIC_GUIDE);
+
+    expect(won).toHaveLength(1);
+    expect(won[0].badgeId).toBe(BadgeId.WELL_INFORMED);
+    expect(won[0].gain).toBe(1);
+    expect(
+      won[0].conditions.map((condition) => [
+        condition.id,
+        condition.met,
+        condition.justValidated,
+      ]),
+    ).toEqual([
+      ['exam-guide', true, false],
+      ['logic-guide', true, true],
+    ]);
+    expect(repository.creditRewardWithin).toHaveBeenCalledTimes(1);
+    expect(repository.creditRewardWithin).toHaveBeenCalledWith(
+      tx,
+      'user-1',
+      1,
+      BadgeId.WELL_INFORMED,
+    );
+  });
+
+  it('singles out the exam guide condition when it closes the badge', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ examGuideRead: true, logicGuideRead: true }),
+    );
+
+    const won = await markCollecting(GuideId.EXAM_GUIDE);
+
+    expect(
+      won[0].conditions.map((condition) => condition.justValidated),
+    ).toEqual([true, false]);
+  });
+
+  it('never re-evaluates once averti is already earned', async () => {
+    repository.findEarnedIdsWithin.mockResolvedValue(
+      new Set([DbBadgeId.WELL_INFORMED]),
+    );
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ examGuideRead: true, logicGuideRead: true }),
+    );
+
+    const won = await markCollecting(GuideId.LOGIC_GUIDE);
+
+    expect(won).toEqual([]);
+    expect(repository.awardWithin).not.toHaveBeenCalled();
+    expect(repository.creditRewardWithin).not.toHaveBeenCalled();
+  });
+
+  it('never credits when both guides are marked concurrently', async () => {
+    repository.buildFactsSourceWithin.mockResolvedValue(
+      factsSource({ examGuideRead: true, logicGuideRead: true }),
+    );
+    repository.awardWithin
+      .mockResolvedValueOnce(EARNED_AT)
+      .mockResolvedValueOnce(null);
+
+    const [firstWon, secondWon] = await Promise.all([
+      markCollecting(GuideId.EXAM_GUIDE),
+      markCollecting(GuideId.LOGIC_GUIDE),
+    ]);
+
+    expect(firstWon.length + secondWon.length).toBe(1);
+    expect(repository.creditRewardWithin).toHaveBeenCalledTimes(1);
   });
 });
 

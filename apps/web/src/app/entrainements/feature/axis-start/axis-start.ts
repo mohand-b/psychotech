@@ -74,6 +74,20 @@ export class AxisStart {
   protected readonly logicRulesPath =
     this.axis === AxisType.LOGIC ? GUIDE_LOGIC_RULES_PATH : null;
 
+  protected readonly showExamGuideLink = computed(
+    () => this.authFacade.currentUser()?.examGuideReadAt == null,
+  );
+  protected readonly showLogicRulesLink = computed(
+    () =>
+      this.logicRulesPath !== null &&
+      this.authFacade.currentUser()?.logicGuideReadAt == null,
+  );
+  protected readonly showGuideNote = computed(
+    () =>
+      !this.tutorial &&
+      (this.showExamGuideLink() || this.showLogicRulesLink()),
+  );
+
   protected readonly sector = computed(
     () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
   );

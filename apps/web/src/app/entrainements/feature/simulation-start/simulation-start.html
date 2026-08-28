@@ -125,12 +125,14 @@
     <a class="simb__short-link" routerLink="/credits">Recharger des crédits</a>
   </span>
   }
+  @if (showGuideNote()) {
   <p class="simb__guide-note">
     Première fois&nbsp;?
     <a class="simb__guide-link" [routerLink]="guidePath"
       >Consultez le guide des épreuves</a
     >
   </p>
+  }
   <ui-action-footer>
     <ui-button
       class="simb__cta"
