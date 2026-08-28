@@ -25,6 +25,8 @@ import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
+import { DOCUMENT } from '@angular/common';
+import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { simulationCurrentAxis } from '../../ui/session-flow';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
@@ -74,6 +76,7 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
   selector: 'app-logic-play',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ActionFooter,
     AxisCountdown,
     Button,
     ExitConfirm,
@@ -94,6 +97,7 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
   },
 })
 export class LogicPlay {
+  private readonly document = inject(DOCUMENT);
   private readonly facade = inject(TrainingSessionFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
@@ -454,6 +458,7 @@ export class LogicPlay {
     this.visited.update((visited) => new Set(visited).add(index));
     this.currentIndex.set(index);
     this.activeFace.set('top');
+    this.document.defaultView?.scrollTo({ top: 0 });
   }
 
   protected markHelpUsed(): void {
