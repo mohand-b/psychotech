@@ -378,7 +378,12 @@
     </div>
   </section>
 
-  <app-guide-read-check [marked]="guideRead()" (mark)="markRead()" />
+  <app-guide-read-check
+    [marked]="guideRead()"
+    label="J'ai compris les règles"
+    markedLabel="Règles comprises"
+    (mark)="markRead()"
+  />
 
   <aside class="rules__footer flex flex-col items-center">
     <span class="rules__footer-rule flex items-center">

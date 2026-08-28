@@ -4,17 +4,17 @@ import {
   input,
   output,
 } from '@angular/core';
-import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 
 @Component({
   selector: 'app-guide-read-check',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon],
   templateUrl: './guide-read-check.html',
   styleUrl: './guide-read-check.css',
 })
 export class GuideReadCheck {
   readonly marked = input.required<boolean>();
+  readonly label = input.required<string>();
+  readonly markedLabel = input.required<string>();
   readonly mark = output<void>();
 
   protected activate(event?: Event): void {

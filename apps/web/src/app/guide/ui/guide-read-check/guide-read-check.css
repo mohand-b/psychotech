@@ -54,21 +54,10 @@
   height: 13px;
 }
 
-.read-check__text {
-  gap: 2px;
-}
-
 .read-check__label {
   font-size: 14px;
   font-weight: 600;
   color: var(--ink);
-}
-
-.read-check__hint {
-  gap: 5px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--label);
 }
 
 @media (max-width: 767px) {
@@ -89,14 +78,5 @@
 
   .read-check__label {
     font-size: 13.5px;
-  }
-
-  .read-check__hint {
-    font-size: 12px;
-  }
-
-  .read-check__hint ui-axis-icon {
-    width: 12px !important;
-    height: 12px !important;
   }
 }

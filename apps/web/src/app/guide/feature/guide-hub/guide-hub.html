@@ -665,7 +665,12 @@
     </p>
   </aside>
 
-  <app-guide-read-check [marked]="guideRead()" (mark)="markRead()" />
+  <app-guide-read-check
+    [marked]="guideRead()"
+    label="J'ai parcouru le guide"
+    markedLabel="Guide parcouru"
+    (mark)="markRead()"
+  />
 </main>
 
 <app-guide-scroll-top />

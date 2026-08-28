@@ -25,14 +25,8 @@
         </svg>
       </span>
     </span>
-    <span class="read-check__text flex flex-col">
-      <span class="read-check__label">{{
-        marked() ? 'Guide lu' : "J'ai lu ce guide"
-      }}</span>
-      <span class="read-check__hint inline-flex items-center flex-wrap">
-        La lecture des deux guides débloque le badge Averti&nbsp;: +1
-        <ui-axis-icon axis="credit" [size]="13" label="crédit" />
-      </span>
-    </span>
+    <span class="read-check__label">{{
+      marked() ? markedLabel() : label()
+    }}</span>
   </div>
 </section>
