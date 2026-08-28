@@ -51,7 +51,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       appRoutes,
       withNavigationErrorHandler(reloadOnStaleChunk),
-      withInMemoryScrolling({ anchorScrolling: 'enabled' }),
+      withInMemoryScrolling({
+        anchorScrolling: 'enabled',
+        scrollPositionRestoration: 'enabled',
+      }),
     ),
     provideHttpClient(
       withFetch(),
