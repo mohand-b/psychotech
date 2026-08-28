@@ -646,19 +646,15 @@ describe('catalogue épuré en version de contenu 4', () => {
     }
   });
 
-  it('retire le sommet manquant et le second patron N5 des triangles en v4', () => {
+  it('retire le sommet manquant, les patrons N5 et les séries de 4 triangles en v4', () => {
     for (const seed of AUDIT_SEEDS) {
       for (const item of numericItemsOf(seed, LOGIC_CONTENT_VERSION_V4)) {
         if (item.structure === LogicNumericStructure.TRIANGLE) {
           expect(item.triangle.missing.slot).toBe(TriangleSlot.CENTER);
-          expect(item.triangle.patternId).not.toBe(
-            'center-previous-plus-top-minus-right',
-          );
-          if (item.difficulty === 4) {
+          expect(item.triangle.triangles).toHaveLength(3);
+          expect(item.triangle.patternId).not.toMatch(/previous/);
+          if (item.difficulty >= 4) {
             expect(item.triangle.patternId).toMatch(/^center-.*times/);
-          }
-          if (item.difficulty === 5) {
-            expect(item.triangle.patternId).toBe('center-sum-minus-previous');
           }
         }
       }
