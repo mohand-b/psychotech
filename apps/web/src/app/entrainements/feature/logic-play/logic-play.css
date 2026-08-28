@@ -131,8 +131,8 @@
   .play__content {
     align-items: stretch;
     justify-content: flex-start;
-    gap: 14px;
-    padding: 12px 0 calc(88px + var(--safe-bottom));
+    gap: 0;
+    padding: 12px 0 0;
   }
 
   .play__card {
@@ -192,9 +192,8 @@
   }
 
   .play__actions {
-    position: fixed;
-    inset: auto 0 0 0;
-    width: auto;
+    position: sticky;
+    bottom: 0;
     display: grid;
     grid-template-columns: 48px 1fr 1fr;
     gap: 10px;
