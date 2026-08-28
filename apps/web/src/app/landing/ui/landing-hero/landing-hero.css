@@ -26,8 +26,7 @@
   );
 }
 
-.hero__badge--available,
-.hero__pill {
+.hero__badge--available {
   --hero-enter-index: 0;
 }
 
@@ -484,27 +483,6 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-.hero__pill {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--secondary) 40%, transparent);
-  border-radius: 999px;
-  padding: 6px 13px;
-  font: 500 11.5px/1.3 var(--landing-font-ui);
-  letter-spacing: 0.04em;
-  color: var(--landing-success);
-}
-
-.hero__pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--secondary);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--secondary) 80%, transparent);
 }
 
 .hero__stacked-title {
