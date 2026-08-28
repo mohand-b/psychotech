@@ -175,8 +175,8 @@
 
 .badges__family-rows--transverse {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
   padding: 4px 32px 18px;
 }
 
