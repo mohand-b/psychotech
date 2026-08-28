@@ -103,7 +103,9 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  align-self: flex-start;
+  align-self: stretch;
+  border-top: 1px solid var(--divider-soft);
+  padding-top: 14px;
   font: 600 13.5px/1.3 var(--font-ui);
   color: var(--ax-text);
   text-decoration: none;
