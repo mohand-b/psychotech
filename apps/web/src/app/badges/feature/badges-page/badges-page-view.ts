@@ -13,6 +13,7 @@ import {
   BadgeStatusDto,
   BadgeTier,
   SECTOR_AXES,
+  sectorAxisRank,
   Sector,
   badgeAssetPath,
   badgeDisplayName,
@@ -386,9 +387,12 @@ export function buildBadgeBoard(
       axisGroups.set(entry.definition.axis, group);
     }
   }
-  const axisCards = [...axisGroups.entries()].map(([axis, group]) =>
-    buildTieredCard(AXIS_META[axis].label, group),
-  );
+  const axisCards = [...axisGroups.entries()]
+    .sort(
+      ([first], [second]) =>
+        sectorAxisRank(sector, first) - sectorAxisRank(sector, second),
+    )
+    .map(([axis, group]) => buildTieredCard(AXIS_META[axis].label, group));
   const examCard = buildTieredCard(
     EXAM_CARD_LABEL,
     entries.filter((entry) => entry.definition.family === BadgeFamily.EXAM),
