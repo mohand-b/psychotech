@@ -53,7 +53,7 @@
         }
       </span>
     </ui-button>
-    @if (!tutorial && guideAnchor) {
+    @if (!tutorial) {
     <p class="axis-start__guide-note" actionFooterNote>
       Première fois sur cette épreuve&nbsp;?
       <a
@@ -62,6 +62,12 @@
         [fragment]="guideAnchor"
         >Consultez le guide des épreuves</a
       >
+      @if (logicRulesPath) {
+      <span class="axis-start__guide-sep">·</span>
+      <a class="axis-start__guide-link" [routerLink]="logicRulesPath"
+        >Toutes les règles de la Logique</a
+      >
+      }
     </p>
     }
   </ui-action-footer>

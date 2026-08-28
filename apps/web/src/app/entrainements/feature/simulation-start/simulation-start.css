@@ -297,6 +297,23 @@
   text-decoration: underline;
 }
 
+.simb__guide-note {
+  margin: 0;
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--label);
+  text-align: center;
+}
+
+.simb__guide-link {
+  font-weight: 600;
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.simb__guide-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 767px) {
   .simb {
     padding-top: 20px;

@@ -28,6 +28,7 @@ import {
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
+import { GUIDE_PATH } from '../../../guide/util/guide-anchors';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import {
@@ -104,6 +105,7 @@ export class SimulationStart {
 
   protected readonly axisCount = FULL_SESSION_AXIS_ORDER.length;
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.FULL];
+  protected readonly guidePath = GUIDE_PATH;
   protected readonly estimatedDuration = ESTIMATED_DURATION_LABEL;
 
   protected readonly howItGoes: readonly string[] = [
