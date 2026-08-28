@@ -28,6 +28,22 @@ const DOMINO_INDEX = 10;
 const items = generateLogicSession(SEED, null, LOGIC_CONTENT_VERSION_V4);
 const dominoItem = items[DOMINO_INDEX];
 
+const triangleIndex = items.findIndex(
+  (item) =>
+    item.family === LogicFamily.NUMERIC &&
+    item.structure === LogicNumericStructure.TRIANGLE,
+);
+const triangleItem = (() => {
+  const item = items[triangleIndex];
+  if (
+    item.family !== LogicFamily.NUMERIC ||
+    item.structure !== LogicNumericStructure.TRIANGLE
+  ) {
+    throw new Error('Expected a triangle item');
+  }
+  return item;
+})();
+
 function dominoOf(item: (typeof items)[number]) {
   if (item.family !== LogicFamily.DOMINO) {
     throw new Error('Expected a domino item');
@@ -178,15 +194,99 @@ describe('LogicCorrection — rendu unifié des dominos', () => {
     expect(unknown?.classList).toContain('seq__unknown--correct');
     expect(unknown?.textContent?.trim()).not.toBe('?');
 
-    const triangleIndex = items.findIndex(
-      (item) =>
-        item.family === LogicFamily.NUMERIC &&
-        item.structure === LogicNumericStructure.TRIANGLE,
-    );
     goTo(triangleIndex);
+    const chips = result.element.querySelectorAll('.corr-tri .choices__item');
+    expect(chips).toHaveLength(4);
     expect(
-      result.element.querySelector('.corr-tri .corr-tri__tile--correct'),
-    ).toBeNull();
+      chips[triangleItem.answerIndex].classList.contains(
+        'choices__item--correct',
+      ),
+    ).toBe(true);
+    expect(chips[triangleItem.answerIndex].textContent).toContain(
+      String(triangleItem.answer),
+    );
+    expect(
+      result.element.querySelector('.corr-tri__seq')?.textContent,
+    ).not.toContain('?');
     expect(result.element.textContent).not.toContain('Bonne réponse');
+  });
+});
+
+describe('LogicCorrection — revue des propositions triangles', () => {
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  async function setupTriangle(
+    numericValue: number | null,
+  ): Promise<Setup> {
+    const result = await setup([
+      {
+        index: triangleIndex,
+        answerIndex: null,
+        numericValue,
+        timeMs: 1000,
+        helpUsed: false,
+        visited: true,
+      },
+    ]);
+    result.element
+      .querySelectorAll<HTMLButtonElement>('.band__dot')
+      [triangleIndex].click();
+    result.fixture.detectChanges();
+    return result;
+  }
+
+  it('marque le mauvais choix du candidat et la bonne proposition', async () => {
+    const wrongIndex = (triangleItem.answerIndex + 1) % 4;
+    const result = await setupTriangle(
+      Number(triangleItem.choices[wrongIndex]),
+    );
+    const chips = result.element.querySelectorAll('.corr-tri .choices__item');
+    expect(
+      chips[triangleItem.answerIndex].classList.contains(
+        'choices__item--correct',
+      ),
+    ).toBe(true);
+    expect(
+      chips[wrongIndex].classList.contains('choices__item--wrong'),
+    ).toBe(true);
+    expect(chips[wrongIndex].textContent).toContain('Votre réponse');
+    expect(result.element.querySelector('.corr-tri__free')).toBeNull();
+  });
+
+  it('affiche une valeur libre héritée de la saisie directe hors propositions', async () => {
+    let free = 89;
+    while (triangleItem.choices.includes(String(free))) {
+      free -= 1;
+    }
+    const result = await setupTriangle(free);
+    const chips = result.element.querySelectorAll('.corr-tri .choices__item');
+    expect(
+      chips[triangleItem.answerIndex].classList.contains(
+        'choices__item--correct',
+      ),
+    ).toBe(true);
+    expect(
+      result.element.querySelector('.corr-tri .choices__item--wrong'),
+    ).toBeNull();
+    expect(
+      result.element.querySelector('.corr-tri__free')?.textContent,
+    ).toContain(`Votre réponse : ${free}`);
+  });
+
+  it('reste net sans réponse : bonne proposition seule, pas de valeur libre', async () => {
+    const result = await setupTriangle(null);
+    expect(
+      result.element.querySelector('.corr-tri .choices__item--correct'),
+    ).not.toBeNull();
+    expect(
+      result.element.querySelector('.corr-tri .choices__item--wrong'),
+    ).toBeNull();
+    expect(result.element.querySelector('.corr-tri__free')).toBeNull();
   });
 });

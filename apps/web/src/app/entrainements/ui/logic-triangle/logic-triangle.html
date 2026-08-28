@@ -21,16 +21,12 @@
   </div>
 
   <div class="tri__entry">
-    <ui-triangle-input
-      [value]="value()"
+    <ui-logic-choices
+      [choices]="choices()"
+      [selectedIndex]="selectedIndex()"
       [disabled]="disabled()"
-      (valueChange)="onValueChange($event)"
+      (chosen)="chosen.emit($event)"
     />
-    <span class="tri__help tri__help--desktop"
-      >Tapez ou cliquez 0 à 9, la valeur peut avoir deux chiffres</span
-    >
-    <span class="tri__help tri__help--mobile"
-      >La valeur se remplit dans le triangle, modifiable à tout moment</span
-    >
+    <span class="tri__help tri__help--desktop">A-D ou 1-4 pour répondre</span>
   </div>
 </div>

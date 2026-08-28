@@ -71,16 +71,18 @@
         #triangleBoard
         [item]="triangle.triangle"
         [value]="currentNumericValue()"
+        [choices]="triangle.choices"
+        [selectedIndex]="triangleSelectedIndex()"
         [disabled]="locked()"
         [hint]="helpEnabled() ? currentHint() : null"
         [hintUsed]="currentHelpUsed()"
-        (valueChange)="setNumericAnswer($event)"
+        (chosen)="select($event)"
         (hintOpened)="markHelpUsed()"
       >
         <ui-logic-item-head
           icon="series"
           label="Triangles chiffrés"
-          consigne="Trouvez la valeur manquante"
+          consigne="Choisissez la valeur manquante"
           [current]="currentIndex() + 1"
           [total]="items().length"
         />

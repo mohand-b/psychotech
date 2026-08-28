@@ -49,24 +49,14 @@
         [tileSize]="88"
       />
     </div>
-    @if (triangleUserView(); as user) {
-    <div class="corr-tri__user">
-      <span class="corr-tri__answer">
-        <span class="corr-tri__tile corr-tri__tile--wrong">
-          <ui-triangle-tile
-            [top]="user.top"
-            [left]="user.left"
-            [right]="user.right"
-            [center]="user.center"
-            [size]="88"
-            [accentSlot]="triangle.triangle.missing.slot"
-          />
-        </span>
-        <span class="corr-tri__caption corr-tri__caption--wrong"
-          >Votre réponse</span
-        >
-      </span>
-    </div>
+    <ui-logic-choices
+      [review]="true"
+      [choices]="triangle.choices"
+      [correctIndex]="triangle.answerIndex"
+      [userAnswerIndex]="triangleUserAnswerIndex()"
+    />
+    @if (triangleFreeAnswer() !== null) {
+    <p class="corr-tri__free">Votre réponse : {{ triangleFreeAnswer() }}</p>
     }
     <p class="corr__rule">{{ triangleRule() }}</p>
   </div>

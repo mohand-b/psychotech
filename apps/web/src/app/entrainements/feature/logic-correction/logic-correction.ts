@@ -23,12 +23,7 @@ import { ArrowRight } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { MatrixCell } from '../../../shared/ui/matrix/matrix-cell';
-import {
-  TriangleDisplayValues,
-  TriangleSeries,
-  triangleDisplayValues,
-} from '../../../shared/ui/triangle/triangle-series';
-import { TriangleTile } from '../../../shared/ui/triangle/triangle-tile';
+import { TriangleSeries } from '../../../shared/ui/triangle/triangle-series';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
@@ -96,7 +91,6 @@ interface DominoUserAnswer {
     LogicSequence,
     MatrixCell,
     TriangleSeries,
-    TriangleTile,
   ],
   templateUrl: './logic-correction.html',
   styleUrl: './logic-correction.css',
@@ -191,28 +185,24 @@ export class LogicCorrection {
       : null;
   });
 
-  protected readonly triangleUserView = computed<TriangleDisplayValues | null>(
-    () => {
-      const item = this.triangleItem();
-      const value = this.responseByIndex().get(
-        this.currentIndex(),
-      )?.numericValue;
-      if (
-        !item ||
-        value === null ||
-        value === undefined ||
-        value === item.answer
-      ) {
-        return null;
-      }
-      const missing = item.triangle.missing;
-      return triangleDisplayValues(
-        item.triangle.triangles[missing.triangleIndex],
-        missing.slot,
-        value,
-      );
-    },
-  );
+  protected readonly triangleUserAnswerIndex = computed<number | null>(() => {
+    const item = this.triangleItem();
+    const value = this.responseByIndex().get(this.currentIndex())?.numericValue;
+    if (!item || value === null || value === undefined) {
+      return null;
+    }
+    const index = item.choices.indexOf(String(value));
+    return index === -1 ? null : index;
+  });
+
+  protected readonly triangleFreeAnswer = computed<number | null>(() => {
+    const item = this.triangleItem();
+    const value = this.responseByIndex().get(this.currentIndex())?.numericValue;
+    if (!item || value === null || value === undefined) {
+      return null;
+    }
+    return item.choices.includes(String(value)) ? null : value;
+  });
 
   protected readonly dominoItem = computed(() => {
     const item = this.currentItem();

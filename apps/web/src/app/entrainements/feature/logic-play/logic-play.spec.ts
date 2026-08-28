@@ -463,8 +463,17 @@ const v3SequenceIndex = v3BlockOne.findIndex(
     item.structure === LogicNumericStructure.SEQUENCE,
 );
 
-function padChipValue(element: HTMLElement): string {
-  return element.querySelector('.pad__chip-value')?.textContent?.trim() ?? '';
+function selectedChoiceIndex(element: HTMLElement): number {
+  return Array.from(
+    element.querySelectorAll('ui-logic-triangle .choices__item'),
+  ).findIndex((chip) => chip.classList.contains('choices__item--selected'));
+}
+
+function choiceValue(element: HTMLElement, index: number): number {
+  const values = element.querySelectorAll(
+    'ui-logic-triangle .choices__value',
+  );
+  return Number(values[index]?.textContent?.trim());
 }
 
 describe('LogicPlay (triangles v3)', () => {
@@ -490,7 +499,9 @@ describe('LogicPlay (triangles v3)', () => {
 
     goToItem(result, v3Triangles[0].index);
     expect(result.element.querySelector('ui-logic-triangle')).not.toBeNull();
-    expect(result.element.textContent).toContain('Trouvez la valeur manquante');
+    expect(result.element.textContent).toContain(
+      'Choisissez la valeur manquante',
+    );
     expect(
       result.element.querySelector('.head__badge')?.textContent?.trim(),
     ).toBe('Triangles chiffrés');
@@ -522,69 +533,57 @@ describe('LogicPlay (triangles v3)', () => {
     }
   });
 
-  it('builds multi-digit answers from the keyboard and erases with backspace', async () => {
+  it('selects a proposal with digits and letters from the keyboard', async () => {
     const result = await setup(V3_OVERRIDES);
     goToItem(result, v3Triangles[0].index);
     expect(nextButton(result.element).disabled).toBe(true);
 
-    pressKey(result.fixture, '1');
-    expect(padChipValue(result.element)).toBe('1');
+    pressKey(result.fixture, '2');
+    expect(selectedChoiceIndex(result.element)).toBe(1);
     expect(nextButton(result.element).disabled).toBe(false);
 
-    pressKey(result.fixture, '2');
-    expect(padChipValue(result.element)).toBe('12');
+    pressKey(result.fixture, 'a');
+    expect(selectedChoiceIndex(result.element)).toBe(0);
+
+    pressKey(result.fixture, '9');
+    expect(selectedChoiceIndex(result.element)).toBe(0);
 
     pressKey(result.fixture, 'Backspace');
-    expect(padChipValue(result.element)).toBe('1');
-
-    pressKey(result.fixture, 'Backspace');
-    expect(padChipValue(result.element)).toBe('?');
-    expect(nextButton(result.element).disabled).toBe(true);
-  });
-
-  it('caps the answer at two digits from the keyboard', async () => {
-    const result = await setup(V3_OVERRIDES);
-    goToItem(result, v3Triangles[0].index);
-
-    pressKey(result.fixture, '1');
-    pressKey(result.fixture, '2');
-    pressKey(result.fixture, '3');
-    expect(padChipValue(result.element)).toBe('12');
-  });
-
-  it('accepts pad clicks, fills the chip and clears the value', async () => {
-    const result = await setup(V3_OVERRIDES);
-    goToItem(result, v3Triangles[0].index);
-    const keys =
-      result.element.querySelectorAll<HTMLButtonElement>('.pad__key');
-    expect(keys).toHaveLength(11);
-    expect(
-      result.element.querySelector('.pad__chip-value')?.classList,
-    ).toContain('pad__chip-value--empty');
-
-    keys[7].click();
-    result.fixture.detectChanges();
-    expect(padChipValue(result.element)).toBe('7');
-    expect(
-      result.element.querySelector('.pad__chip-value')?.classList,
-    ).not.toContain('pad__chip-value--empty');
+    expect(selectedChoiceIndex(result.element)).toBe(0);
     expect(nextButton(result.element).disabled).toBe(false);
-
-    keys[8].click();
-    result.fixture.detectChanges();
-    keys[9].click();
-    result.fixture.detectChanges();
-    expect(padChipValue(result.element)).toBe('78');
-
-    (result.element.querySelector('.pad__clear') as HTMLButtonElement).click();
-    result.fixture.detectChanges();
-    expect(padChipValue(result.element)).toBe('?');
   });
 
-  it('submits the triangle value as numericValue in the payload', async () => {
+  it('accepts clicks on the proposals and fills the missing slot with the choice', async () => {
+    const entry = v3Triangles[0];
+    const result = await setup(V3_OVERRIDES);
+    goToItem(result, entry.index);
+    const chips = result.element.querySelectorAll<HTMLButtonElement>(
+      'ui-logic-triangle .choices__item',
+    );
+    expect(chips).toHaveLength(4);
+    expect(
+      result.element.querySelectorAll('ui-logic-triangle .value--unknown'),
+    ).toHaveLength(1);
+
+    chips[entry.item.answerIndex].click();
+    result.fixture.detectChanges();
+    expect(selectedChoiceIndex(result.element)).toBe(entry.item.answerIndex);
+    expect(nextButton(result.element).disabled).toBe(false);
+    expect(
+      result.element.querySelectorAll('ui-logic-triangle .value--unknown'),
+    ).toHaveLength(0);
+
+    const other = (entry.item.answerIndex + 1) % chips.length;
+    chips[other].click();
+    result.fixture.detectChanges();
+    expect(selectedChoiceIndex(result.element)).toBe(other);
+  });
+
+  it('submits the chosen proposal value as numericValue in the payload', async () => {
     const result = await setup(V3_OVERRIDES);
     goToItem(result, v3Triangles[0].index);
-    pressKey(result.fixture, '7');
+    pressKey(result.fixture, '1');
+    const chosen = choiceValue(result.element, 0);
 
     goToItem(result, 39);
     pressKey(result.fixture, '1');
@@ -600,7 +599,7 @@ describe('LogicPlay (triangles v3)', () => {
     expect(items[v3Triangles[0].index]).toMatchObject({
       index: v3Triangles[0].index,
       answerIndex: null,
-      numericValue: 7,
+      numericValue: chosen,
     });
     expect(items[v3SequenceIndex].numericValue).toBeUndefined();
   });
@@ -690,7 +689,9 @@ describe('LogicPlay (tutoriel mixte)', () => {
 
     goToItem(result, 1);
     expect(result.element.querySelector('ui-logic-triangle')).not.toBeNull();
-    expect(result.element.textContent).toContain('Trouvez la valeur manquante');
+    expect(result.element.textContent).toContain(
+      'Choisissez la valeur manquante',
+    );
 
     goToItem(result, 2);
     expect(result.element.querySelector('ui-logic-domino')).not.toBeNull();
@@ -707,6 +708,7 @@ describe('LogicPlay (tutoriel mixte)', () => {
     pressKey(result.fixture, '1');
     pressKey(result.fixture, 'Enter');
     pressKey(result.fixture, '2');
+    const triangleValue = choiceValue(result.element, 1);
     pressKey(result.fixture, 'Enter');
     pressKey(result.fixture, '3');
     pressKey(result.fixture, '4');
@@ -723,7 +725,7 @@ describe('LogicPlay (tutoriel mixte)', () => {
       expect(run.items).toHaveLength(5);
       expect(run.items[1]).toMatchObject({
         answerIndex: null,
-        numericValue: 2,
+        numericValue: triangleValue,
       });
       expect(run.items[2]).toMatchObject({ dominoTop: 3, dominoBottom: 4 });
       expect(run.items[3]).toMatchObject({ answerIndex: 0 });

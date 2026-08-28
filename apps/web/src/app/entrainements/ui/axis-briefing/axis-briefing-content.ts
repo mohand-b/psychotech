@@ -85,11 +85,6 @@ const LOGIC_ROW_DOMINO: BriefingCommandRow = {
   parts: [{ key: '0-6' }, { text: 'pour chaque face de domino' }],
 };
 
-const LOGIC_ROW_TRIANGLE: BriefingCommandRow = {
-  icon: Keyboard,
-  parts: [{ key: '0-9' }, { text: 'pour les triangles chiffrés' }],
-};
-
 const LOGIC_ROW_ERASE_VALIDATE: BriefingCommandRow = {
   icon: Keyboard,
   parts: [
@@ -108,7 +103,7 @@ const LOGIC_ROW_VALIDATE: BriefingCommandRow = {
 export const LOGIC_STEP_INTROS: Record<LogicBriefingFilterKey, string> = {
   ALL: 'Suites numériques, dominos et matrices s’enchaînent par blocs',
   [LogicFamilyFilter.NUMERIC]:
-    'Suites numériques et triangles chiffrés : trouvez la règle, complétez la valeur manquante',
+    'Suites numériques et triangles chiffrés : trouvez la règle, choisissez la valeur manquante',
   [LogicFamilyFilter.DOMINO]:
     'Suites de dominos : trouvez la règle, complétez les deux faces manquantes',
   [LogicFamilyFilter.MATRIX]:
@@ -129,17 +124,15 @@ export const LOGIC_DESKTOP_ROWS: Record<
     },
     LOGIC_ROW_CHOICES,
     LOGIC_ROW_DOMINO,
-    LOGIC_ROW_TRIANGLE,
     LOGIC_ROW_ERASE_VALIDATE,
   ],
   [LogicFamilyFilter.NUMERIC]: [
     {
       icon: MousePointerClick,
-      parts: [{ text: 'Clic sur les propositions et les pavés de saisie' }],
+      parts: [{ text: 'Clic sur les propositions' }],
     },
     LOGIC_ROW_CHOICES,
-    LOGIC_ROW_TRIANGLE,
-    LOGIC_ROW_ERASE_VALIDATE,
+    LOGIC_ROW_VALIDATE,
   ],
   [LogicFamilyFilter.DOMINO]: [
     {
@@ -170,22 +163,13 @@ export const LOGIC_MOBILE_ROWS: Record<
     },
     {
       icon: Pointer,
-      parts: [
-        { button: '0-6' },
-        { text: 'faces de domino,' },
-        { button: '0-9' },
-        { text: 'triangles chiffrés' },
-      ],
+      parts: [{ button: '0-6' }, { text: 'pour chaque face de domino' }],
     },
   ],
   [LogicFamilyFilter.NUMERIC]: [
     {
       icon: Pointer,
-      parts: [{ text: 'Touchez une proposition ou le pavé de saisie' }],
-    },
-    {
-      icon: Pointer,
-      parts: [{ button: '0-9' }, { text: 'pour les triangles chiffrés' }],
+      parts: [{ text: 'Touchez une proposition pour répondre' }],
     },
   ],
   [LogicFamilyFilter.DOMINO]: [

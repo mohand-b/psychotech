@@ -48,10 +48,6 @@ import {
 } from '../../ui/logic-matrix/logic-matrix';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 import { LogicTriangle } from '../../ui/logic-triangle/logic-triangle';
-import {
-  appendTriangleInputDigit,
-  eraseTriangleInputDigit,
-} from '../../../shared/ui/triangle/triangle-input';
 
 interface DominoAnswer {
   top: DominoFace | null;
@@ -183,6 +179,15 @@ export class LogicPlay {
   protected readonly currentNumericValue = computed(
     () => this.numericAnswers()[this.currentIndex()] ?? null,
   );
+  protected readonly triangleSelectedIndex = computed<number | null>(() => {
+    const item = this.triangleItem();
+    const value = this.currentNumericValue();
+    if (!item || value === null) {
+      return null;
+    }
+    const index = item.choices.indexOf(String(value));
+    return index === -1 ? null : index;
+  });
   protected readonly selectedSequenceValue = computed<string | null>(() => {
     const item = this.sequenceItem();
     if (!item) {
@@ -356,25 +361,16 @@ export class LogicPlay {
       return;
     }
     const index = this.currentIndex();
-    this.answers.update((answers) => ({ ...answers, [index]: choiceIndex }));
-  }
-
-  protected setNumericAnswer(value: number | null): void {
-    if (this.locked() || !this.loaded() || !this.triangleItem()) {
+    const triangle = this.triangleItem();
+    if (triangle) {
+      const value = Number(triangle.choices[choiceIndex]);
+      if (!Number.isInteger(value)) {
+        return;
+      }
+      this.numericAnswers.update((answers) => ({ ...answers, [index]: value }));
       return;
     }
-    const index = this.currentIndex();
-    this.numericAnswers.update((answers) => ({ ...answers, [index]: value }));
-  }
-
-  private enterNumericDigit(digit: number): void {
-    this.setNumericAnswer(
-      appendTriangleInputDigit(this.currentNumericValue(), digit),
-    );
-  }
-
-  private eraseNumericDigit(): void {
-    this.setNumericAnswer(eraseTriangleInputDigit(this.currentNumericValue()));
+    this.answers.update((answers) => ({ ...answers, [index]: choiceIndex }));
   }
 
   protected selectFace(face: DominoAnswerFace): void {
@@ -564,22 +560,14 @@ export class LogicPlay {
       }
       return;
     }
-    if (this.triangleItem()) {
-      if (event.key === 'Backspace') {
-        event.preventDefault();
-        this.eraseNumericDigit();
-        return;
-      }
-      if (/^[0-9]$/.test(event.key)) {
-        event.preventDefault();
-        this.enterNumericDigit(Number(event.key));
-      }
-      return;
-    }
     const sequence = this.sequenceItem();
+    const triangle = this.triangleItem();
     const matrix = this.matrixItem();
     const choiceCount =
-      sequence?.choices.length ?? matrix?.proposals.length ?? 0;
+      sequence?.choices.length ??
+      triangle?.choices.length ??
+      matrix?.proposals.length ??
+      0;
     const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();
