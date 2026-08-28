@@ -75,13 +75,13 @@ describe('buildAxisCatalog', () => {
   it('returns the five axes in the canonical order with labels and descriptions', () => {
     const axes = buildAxisCatalog();
     expect(axes.map((axis) => axis.code)).toEqual([
+      AxisType.VISUAL_DISCRIMINATION,
       AxisType.LOGIC,
       AxisType.MEMORY,
-      AxisType.VISUAL_DISCRIMINATION,
-      AxisType.REACTIVITY,
       AxisType.MOTOR_SKILLS,
+      AxisType.REACTIVITY,
     ]);
-    expect(axes[1]).toEqual({
+    expect(axes[2]).toEqual({
       code: AxisType.MEMORY,
       label: AXIS_CATALOG[AxisType.MEMORY].label,
       description: AXIS_CATALOG[AxisType.MEMORY].description,

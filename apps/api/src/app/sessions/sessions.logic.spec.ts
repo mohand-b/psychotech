@@ -61,11 +61,11 @@ describe('resolveHistoryScope', () => {
 describe('resolveSessionAxes', () => {
   it('covers the five axes in order for a full session', () => {
     expect(resolveSessionAxes(SessionMode.FULL)).toEqual([
+      AxisType.VISUAL_DISCRIMINATION,
       AxisType.LOGIC,
       AxisType.MEMORY,
-      AxisType.VISUAL_DISCRIMINATION,
-      AxisType.REACTIVITY,
       AxisType.MOTOR_SKILLS,
+      AxisType.REACTIVITY,
     ]);
     expect(resolveSessionAxes(SessionMode.FULL)).toEqual([
       ...FULL_SESSION_AXIS_ORDER,

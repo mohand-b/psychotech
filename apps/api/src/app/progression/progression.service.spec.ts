@@ -68,8 +68,8 @@ describe('ProgressionService.getProgression', () => {
       bestGlobalScore: 78.2,
       bestGlobalScoreAt: '2026-06-02T18:00:00.000Z',
     });
-    expect(progression.radar.first[0]).toEqual({ axis: AxisType.LOGIC, score: 70 });
-    expect(progression.radar.last[0]).toEqual({ axis: AxisType.LOGIC, score: 82 });
+    expect(progression.radar.first[1]).toEqual({ axis: AxisType.LOGIC, score: 70 });
+    expect(progression.radar.last[1]).toEqual({ axis: AxisType.LOGIC, score: 82 });
     expect(progression.axes[0].lastSessionId).toBe('last');
     expect(progression.axes[0].lastSessionMode).toBe(SessionMode.FULL);
   });

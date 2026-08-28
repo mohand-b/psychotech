@@ -152,21 +152,21 @@ describe('buildRadarScores', () => {
         FULL_SESSION_AXIS_ORDER,
       ),
     ).toEqual([
+      { axis: AxisType.VISUAL_DISCRIMINATION, score: null },
       { axis: AxisType.LOGIC, score: 80 },
       { axis: AxisType.MEMORY, score: null },
-      { axis: AxisType.VISUAL_DISCRIMINATION, score: null },
-      { axis: AxisType.REACTIVITY, score: null },
       { axis: AxisType.MOTOR_SKILLS, score: null },
+      { axis: AxisType.REACTIVITY, score: null },
     ]);
   });
 
   it('returns null scores for every axis when there is no session', () => {
     expect(buildRadarScores(null, FULL_SESSION_AXIS_ORDER)).toEqual([
+      { axis: AxisType.VISUAL_DISCRIMINATION, score: null },
       { axis: AxisType.LOGIC, score: null },
       { axis: AxisType.MEMORY, score: null },
-      { axis: AxisType.VISUAL_DISCRIMINATION, score: null },
-      { axis: AxisType.REACTIVITY, score: null },
       { axis: AxisType.MOTOR_SKILLS, score: null },
+      { axis: AxisType.REACTIVITY, score: null },
     ]);
   });
 });
