@@ -180,15 +180,15 @@ describe('TrainingsService', () => {
     ).toMatchObject({ isCriticalAxis: true, needsWork: true });
   });
 
-  it('keeps the sector axis order from the configuration', async () => {
+  it('orders the sector axes alphabetically from the shared referential', async () => {
     const overview = await service.getOverview('user-1', Sector.RAILWAY);
 
     expect(overview.axes.map(({ axis }) => axis)).toEqual([
+      AxisType.VISUAL_DISCRIMINATION,
       AxisType.LOGIC,
       AxisType.MEMORY,
-      AxisType.VISUAL_DISCRIMINATION,
-      AxisType.REACTIVITY,
       AxisType.MOTOR_SKILLS,
+      AxisType.REACTIVITY,
     ]);
   });
 });

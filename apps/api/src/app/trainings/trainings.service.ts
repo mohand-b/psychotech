@@ -6,6 +6,7 @@ import {
   TrainingsAxisOverviewDto,
   TrainingsLastSimulationDto,
   TrainingsOverviewDto,
+  sectorAxisRank,
   simulationVerdictFromAdmissibility,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
@@ -33,7 +34,11 @@ export class TrainingsService {
     );
     const played = new Set(playedAxes);
     const axes: TrainingsAxisOverviewDto[] = [...config.weights]
-      .sort((a, b) => a.order - b.order)
+      .sort(
+        (a, b) =>
+          sectorAxisRank(sector, mapEnumValue(AxisType, a.axis)) -
+          sectorAxisRank(sector, mapEnumValue(AxisType, b.axis)),
+      )
       .map((weight) => {
         const bestScore = bestByAxis.get(weight.axis) ?? null;
         return {

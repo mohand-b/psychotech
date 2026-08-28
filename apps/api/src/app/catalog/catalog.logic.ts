@@ -5,6 +5,7 @@ import {
   Sector,
   SectorReferentialDto,
   SectorSummaryDto,
+  sectorAxisRank,
 } from '@psychotech/shared';
 import { AXIS_CATALOG } from './catalog.constants';
 
@@ -47,7 +48,11 @@ export function buildSectorReferential(
   sector: SectorReferentialRecord,
 ): SectorReferentialDto {
   const axes = [...sector.weights]
-    .sort((first, second) => first.order - second.order)
+    .sort(
+      (first, second) =>
+        sectorAxisRank(sector.code, first.axis) -
+        sectorAxisRank(sector.code, second.axis),
+    )
     .map((weight) => ({
       code: weight.axis,
       label: AXIS_CATALOG[weight.axis].label,
