@@ -1068,6 +1068,11 @@
 
   .tut__head {
     gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .tut__guide-link {
+    flex-basis: 100%;
   }
 
   .tut__tile {
