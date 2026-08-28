@@ -77,11 +77,11 @@ export type AxisTraining =
 export type RailwayPlayableAxis = AxisTraining['axis'];
 
 export const FULL_SESSION_AXIS_ORDER: readonly RailwayPlayableAxis[] = [
+  AxisType.VISUAL_DISCRIMINATION,
   AxisType.LOGIC,
   AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
   AxisType.MOTOR_SKILLS,
+  AxisType.REACTIVITY,
 ];
 
 export function globalTimerDurationSec(axis: AxisType): number | null {
