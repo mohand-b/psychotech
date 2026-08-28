@@ -271,16 +271,17 @@ const DOMINO_CARDS: readonly DominoCard[] = [
     loop: null,
   },
   {
-    name: 'Un pas qui grandit',
+    name: 'Une double alternance',
     tiles: [
-      dominoTile(0, 2),
       dominoTile(1, 2),
+      dominoTile(3, 5),
+      dominoTile(2, 2),
+      dominoTile(4, 5),
       dominoTile(3, 2),
-      dominoTile(6, 2),
       DOMINO_ANSWER_TILE,
     ],
     caption:
-      "Le pas d'une face grandit d'un cran à chaque domino : +1, +2, +3, puis +4 en bouclant après 6. L'autre face reste constante ou suit un petit pas. Réponse : 3 en haut, 2 en bas.",
+      'Les deux faces suivent chacune leur alternance : ici le haut enchaîne les pas +2 et −1, le bas alterne entre 2 et 5. Réponse : 5 en haut, 5 en bas.',
     faceRules: null,
     loop: null,
   },
