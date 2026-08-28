@@ -373,6 +373,7 @@
 
   .dom__help--mobile {
     display: block;
+    order: -1;
     font-size: 11.5px;
   }
 }
