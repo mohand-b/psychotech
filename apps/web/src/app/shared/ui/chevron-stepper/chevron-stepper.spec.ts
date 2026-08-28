@@ -120,17 +120,17 @@ describe('ChevronStepper', () => {
         fixture.nativeElement.querySelectorAll('ui-axis-icon'),
       ).toHaveLength(3);
       expect(stepElements(fixture)[0].getAttribute('aria-label')).toBe(
-        'Logique',
+        'Discrimination',
       );
     });
 
     it('full shows the axis names', () => {
       expect(labels(render())).toEqual([
+        'Discrimination',
         'Logique',
         'Mémoire',
-        'Discrimination',
-        'Réactivité',
         'Motricité',
+        'Réactivité',
       ]);
     });
   });

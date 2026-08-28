@@ -203,7 +203,7 @@ describe('Entrainements', () => {
     const cards = element.querySelectorAll('.tut__card');
     expect(cards).toHaveLength(5);
     expect(cards[0].getAttribute('href')).toBe(
-      '/entrainements/tutoriel/logique',
+      '/entrainements/tutoriel/discrimination-visuelle',
     );
   });
 

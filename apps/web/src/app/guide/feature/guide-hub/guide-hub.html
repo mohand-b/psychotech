@@ -58,6 +58,82 @@
     </p>
   </div>
 
+  <section [id]="anchors[AxisType.VISUAL_DISCRIMINATION]" class="guide__section guide__section--discrimination flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.VISUAL_DISCRIMINATION" [size]="68" />
+      <h2 class="guide__section-title">Discrimination visuelle</h2>
+      <p class="guide__section-tagline">Repérer la moindre différence, sans fausse alerte.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          36 paires de séquences à comparer, 120 secondes au total. Chaque essai
+          montre deux chaînes côte à côte, de 5 à 8 éléments (la longueur
+          augmente au fil des essais), mêlant caractères et formes géométriques
+          orientées.
+        </p>
+        <p class="guide__body">
+          Quand les deux chaînes diffèrent, il n'y a qu'une seule différence,
+          piégeuse par construction : un caractère remplacé par son sosie (O et
+          0, B et 8), une forme remplacée par une voisine ou simplement pivotée.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">36</span><span class="guide__stat-label">essais</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">temps global</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">5 à 8</span><span class="guide__stat-label">éléments par chaîne</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <p class="guide__body">
+          « Identiques » ou « Différentes », au clic ou aux flèches du clavier :
+          flèche gauche pour Identiques, flèche droite pour Différentes. L'essai
+          suivant s'affiche immédiatement après votre réponse.
+        </p>
+        <p class="guide__body guide__body--small">
+          Tenez le rythme : les essais non traités à la fin du chronomètre
+          comptent comme des erreurs.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Votre score équilibre précision et vitesse. La précision se calcule sur
+        l'ensemble des essais : un essai jamais atteint à la fin du chronomètre
+        compte comme une erreur, il faut donc tenir le rythme. La vitesse se
+        mesure sur vos réponses correctes, essai par essai. Et déclarer
+        « Différentes » des paires identiques trop souvent finit par pénaliser
+        le score : la prudence excessive ne paie pas.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Précision</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Vitesse moyenne sur réponses correctes</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Essais atteints sur 36</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Fausses alertes</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Cibles manquées</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        Ce sont les tests de barrage et de comparaison de chaînes : repérer les
+        paires fautives dans des listes de codes, de plaques ou de références,
+        toujours très chronométrés. La consigne réelle valorise exactement le
+        même équilibre entre précision et cadence.
+      </p>
+    </aside>
+  </section>
   <section [id]="anchors[AxisType.LOGIC]" class="guide__section guide__section--logic flex flex-col">
     <div class="guide__section-head flex flex-col items-center">
       <ui-axis-icon [axis]="AxisType.LOGIC" [size]="68" />
@@ -244,7 +320,6 @@
       </p>
     </aside>
   </section>
-
   <section [id]="anchors[AxisType.MEMORY]" class="guide__section guide__section--memory flex flex-col">
     <div class="guide__section-head flex flex-col items-center">
       <ui-axis-icon [axis]="AxisType.MEMORY" [size]="68" />
@@ -317,159 +392,6 @@
       </p>
     </aside>
   </section>
-
-  <section [id]="anchors[AxisType.VISUAL_DISCRIMINATION]" class="guide__section guide__section--discrimination flex flex-col">
-    <div class="guide__section-head flex flex-col items-center">
-      <ui-axis-icon [axis]="AxisType.VISUAL_DISCRIMINATION" [size]="68" />
-      <h2 class="guide__section-title">Discrimination visuelle</h2>
-      <p class="guide__section-tagline">Repérer la moindre différence, sans fausse alerte.</p>
-    </div>
-
-    <div class="guide__grid">
-      <article class="guide__card flex flex-col">
-        <span class="guide__card-eyebrow">Comment ça se passe</span>
-        <p class="guide__body">
-          36 paires de séquences à comparer, 120 secondes au total. Chaque essai
-          montre deux chaînes côte à côte, de 5 à 8 éléments (la longueur
-          augmente au fil des essais), mêlant caractères et formes géométriques
-          orientées.
-        </p>
-        <p class="guide__body">
-          Quand les deux chaînes diffèrent, il n'y a qu'une seule différence,
-          piégeuse par construction : un caractère remplacé par son sosie (O et
-          0, B et 8), une forme remplacée par une voisine ou simplement pivotée.
-        </p>
-        <span class="guide__stats flex flex-wrap">
-          <span class="guide__stat"><span class="guide__stat-value t-mono">36</span><span class="guide__stat-label">essais</span></span>
-          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">temps global</span></span>
-          <span class="guide__stat"><span class="guide__stat-value t-mono">5 à 8</span><span class="guide__stat-label">éléments par chaîne</span></span>
-        </span>
-      </article>
-      <article class="guide__card flex flex-col">
-        <span class="guide__card-eyebrow">Comment répondre</span>
-        <p class="guide__body">
-          « Identiques » ou « Différentes », au clic ou aux flèches du clavier :
-          flèche gauche pour Identiques, flèche droite pour Différentes. L'essai
-          suivant s'affiche immédiatement après votre réponse.
-        </p>
-        <p class="guide__body guide__body--small">
-          Tenez le rythme : les essais non traités à la fin du chronomètre
-          comptent comme des erreurs.
-        </p>
-      </article>
-    </div>
-
-    <article class="guide__card flex flex-col">
-      <span class="guide__card-eyebrow">Comment c'est évalué</span>
-      <p class="guide__body">
-        Votre score équilibre précision et vitesse. La précision se calcule sur
-        l'ensemble des essais : un essai jamais atteint à la fin du chronomètre
-        compte comme une erreur, il faut donc tenir le rythme. La vitesse se
-        mesure sur vos réponses correctes, essai par essai. Et déclarer
-        « Différentes » des paires identiques trop souvent finit par pénaliser
-        le score : la prudence excessive ne paie pas.
-      </p>
-      <span class="guide__metrics flex flex-col">
-        <span class="guide__metrics-label">Métriques suivies</span>
-        <span class="guide__metrics-list flex flex-wrap">
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Précision</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Vitesse moyenne sur réponses correctes</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Essais atteints sur 36</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Fausses alertes</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Cibles manquées</span>
-        </span>
-      </span>
-    </article>
-
-    <aside class="guide__card guide__real flex flex-col">
-      <span class="guide__real-head flex items-center justify-center">
-        <ui-icon [img]="realExamIcon" [size]="15" />
-        <span class="guide__real-label">Dans l'examen réel</span>
-      </span>
-      <p class="guide__real-body">
-        Ce sont les tests de barrage et de comparaison de chaînes : repérer les
-        paires fautives dans des listes de codes, de plaques ou de références,
-        toujours très chronométrés. La consigne réelle valorise exactement le
-        même équilibre entre précision et cadence.
-      </p>
-    </aside>
-  </section>
-
-  <section [id]="anchors[AxisType.REACTIVITY]" class="guide__section guide__section--reactivity flex flex-col">
-    <div class="guide__section-head flex flex-col items-center">
-      <ui-axis-icon [axis]="AxisType.REACTIVITY" [size]="68" />
-      <h2 class="guide__section-title">Réactivité</h2>
-      <p class="guide__section-tagline">Réagir vite, avec la bonne commande, sans faiblir.</p>
-    </div>
-
-    <div class="guide__grid">
-      <article class="guide__card flex flex-col">
-        <span class="guide__card-eyebrow">Comment ça se passe</span>
-        <p class="guide__body">
-          Une épreuve continue de 120 secondes : environ 60 stimuli
-          apparaissent à des positions et des intervalles imprévisibles, de 1,5
-          à 2,5 secondes entre deux. Trois couleurs, trois commandes. Vous avez
-          1,5 seconde pour répondre à chaque stimulus.
-        </p>
-        <p class="guide__body">
-          La difficulté monte par phases de 40 secondes : d'abord uniquement du
-          jaune, puis jaune et bleu, puis les trois couleurs.
-        </p>
-        <span class="guide__stats flex flex-wrap">
-          <span class="guide__stat"><span class="guide__stat-value t-mono">≈60</span><span class="guide__stat-label">stimuli</span></span>
-          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">en continu</span></span>
-          <span class="guide__stat"><span class="guide__stat-value t-mono">3</span><span class="guide__stat-label">phases de difficulté</span></span>
-        </span>
-      </article>
-      <article class="guide__card flex flex-col">
-        <span class="guide__card-eyebrow">Comment répondre</span>
-        <span class="guide__commands flex flex-col">
-          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--yellow"></span><span class="guide__command-text">Rond jaune : commande gauche, flèche gauche au clavier</span></span>
-          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--blue"></span><span class="guide__command-text">Rond bleu : commande droite, flèche droite au clavier</span></span>
-          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--red"></span><span class="guide__command-text">Carré rouge : commande centrale, Espace au clavier</span></span>
-        </span>
-        <p class="guide__body guide__body--small">
-          Ne répondez qu'à ce qui est affiché : tout appui sans stimulus, ou
-          déclenché avant d'avoir pu percevoir le signal, est compté comme une
-          anticipation.
-        </p>
-      </article>
-    </div>
-
-    <article class="guide__card flex flex-col">
-      <span class="guide__card-eyebrow">Comment c'est évalué</span>
-      <p class="guide__body">
-        Le score combine la vitesse (votre temps de réaction moyen), la
-        régularité (un temps stable vaut mieux qu'une alternance d'éclairs et de
-        trous) et la fiabilité : chaque erreur (mauvaise commande, stimulus
-        manqué, appui anticipé) pèse sur l'ensemble du score.
-      </p>
-      <span class="guide__metrics flex flex-col">
-        <span class="guide__metrics-label">Métriques suivies</span>
-        <span class="guide__metrics-list flex flex-wrap">
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Temps de réaction moyen</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Régularité, écart-type</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Anticipations</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Omissions</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Erreurs de commande</span>
-          <span class="guide__metric"><span class="guide__metric-dot"></span>Dérive de fatigue au fil de l'épreuve</span>
-        </span>
-      </span>
-    </article>
-
-    <aside class="guide__card guide__real flex flex-col">
-      <span class="guide__real-head flex items-center justify-center">
-        <ui-icon [img]="realExamIcon" [size]="15" />
-        <span class="guide__real-label">Dans l'examen réel</span>
-      </span>
-      <p class="guide__real-body">
-        C'est l'épreuve d'appareil à réactions composées, souvent sur boîtier à
-        boutons et pédales. Les recruteurs regardent autant la régularité et
-        l'absence de fautes que la vitesse brute, exactement comme ici.
-      </p>
-    </aside>
-  </section>
-
   <section [id]="anchors[AxisType.MOTOR_SKILLS]" class="guide__section guide__section--motor flex flex-col">
     <div class="guide__section-head flex flex-col items-center">
       <ui-axis-icon [axis]="AxisType.MOTOR_SKILLS" [size]="68" />
@@ -541,6 +463,80 @@
         joysticks pour suivre une piste. Les centres mesurent la précision du
         tracé et la capacité à dissocier les deux mains ; la vitesse y est
         secondaire.
+      </p>
+    </aside>
+  </section>
+  <section [id]="anchors[AxisType.REACTIVITY]" class="guide__section guide__section--reactivity flex flex-col">
+    <div class="guide__section-head flex flex-col items-center">
+      <ui-axis-icon [axis]="AxisType.REACTIVITY" [size]="68" />
+      <h2 class="guide__section-title">Réactivité</h2>
+      <p class="guide__section-tagline">Réagir vite, avec la bonne commande, sans faiblir.</p>
+    </div>
+
+    <div class="guide__grid">
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment ça se passe</span>
+        <p class="guide__body">
+          Une épreuve continue de 120 secondes : environ 60 stimuli
+          apparaissent à des positions et des intervalles imprévisibles, de 1,5
+          à 2,5 secondes entre deux. Trois couleurs, trois commandes. Vous avez
+          1,5 seconde pour répondre à chaque stimulus.
+        </p>
+        <p class="guide__body">
+          La difficulté monte par phases de 40 secondes : d'abord uniquement du
+          jaune, puis jaune et bleu, puis les trois couleurs.
+        </p>
+        <span class="guide__stats flex flex-wrap">
+          <span class="guide__stat"><span class="guide__stat-value t-mono">≈60</span><span class="guide__stat-label">stimuli</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">2:00</span><span class="guide__stat-label">en continu</span></span>
+          <span class="guide__stat"><span class="guide__stat-value t-mono">3</span><span class="guide__stat-label">phases de difficulté</span></span>
+        </span>
+      </article>
+      <article class="guide__card flex flex-col">
+        <span class="guide__card-eyebrow">Comment répondre</span>
+        <span class="guide__commands flex flex-col">
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--yellow"></span><span class="guide__command-text">Rond jaune : commande gauche, flèche gauche au clavier</span></span>
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--blue"></span><span class="guide__command-text">Rond bleu : commande droite, flèche droite au clavier</span></span>
+          <span class="guide__command flex items-center"><span class="guide__command-dot guide__command-dot--red"></span><span class="guide__command-text">Carré rouge : commande centrale, Espace au clavier</span></span>
+        </span>
+        <p class="guide__body guide__body--small">
+          Ne répondez qu'à ce qui est affiché : tout appui sans stimulus, ou
+          déclenché avant d'avoir pu percevoir le signal, est compté comme une
+          anticipation.
+        </p>
+      </article>
+    </div>
+
+    <article class="guide__card flex flex-col">
+      <span class="guide__card-eyebrow">Comment c'est évalué</span>
+      <p class="guide__body">
+        Le score combine la vitesse (votre temps de réaction moyen), la
+        régularité (un temps stable vaut mieux qu'une alternance d'éclairs et de
+        trous) et la fiabilité : chaque erreur (mauvaise commande, stimulus
+        manqué, appui anticipé) pèse sur l'ensemble du score.
+      </p>
+      <span class="guide__metrics flex flex-col">
+        <span class="guide__metrics-label">Métriques suivies</span>
+        <span class="guide__metrics-list flex flex-wrap">
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Temps de réaction moyen</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Régularité, écart-type</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Anticipations</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Omissions</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Erreurs de commande</span>
+          <span class="guide__metric"><span class="guide__metric-dot"></span>Dérive de fatigue au fil de l'épreuve</span>
+        </span>
+      </span>
+    </article>
+
+    <aside class="guide__card guide__real flex flex-col">
+      <span class="guide__real-head flex items-center justify-center">
+        <ui-icon [img]="realExamIcon" [size]="15" />
+        <span class="guide__real-label">Dans l'examen réel</span>
+      </span>
+      <p class="guide__real-body">
+        C'est l'épreuve d'appareil à réactions composées, souvent sur boîtier à
+        boutons et pédales. Les recruteurs regardent autant la régularité et
+        l'absence de fautes que la vitesse brute, exactement comme ici.
       </p>
     </aside>
   </section>

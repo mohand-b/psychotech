@@ -315,7 +315,7 @@ describe('Progression', () => {
     const { fixture } = await setup(populatedProgression());
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
-    const discrimination = rows[2] as HTMLElement;
+    const discrimination = rows[0] as HTMLElement;
     expect(
       discrimination.querySelector('.prog__axis-score-value')?.textContent,
     ).toContain('79');
@@ -339,7 +339,7 @@ describe('Progression', () => {
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
     expect(
-      (rows[3] as HTMLElement).querySelector('.prog__axis-score-value')
+      (rows[4] as HTMLElement).querySelector('.prog__axis-score-value')
         ?.textContent,
     ).toContain('70');
   });
@@ -381,7 +381,7 @@ describe('Progression', () => {
 
   it('announces an axis never played without a sparkline nor a trend', async () => {
     const { fixture } = await setup(populatedProgression());
-    const motor = fixture.nativeElement.querySelectorAll('.prog__axis-row')[4];
+    const motor = fixture.nativeElement.querySelectorAll('.prog__axis-row')[3];
 
     expect(motor.querySelector('.prog__axis-unplayed')?.textContent).toContain(
       'Aucune session',
@@ -394,7 +394,7 @@ describe('Progression', () => {
   it('routes an axis row to its latest result by session mode', async () => {
     const { fixture, navigate } = await setup(populatedProgression());
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
-    (rows[0] as HTMLButtonElement).click();
+    (rows[1] as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith([
       '/entrainements/cible',
       'logique',
@@ -402,7 +402,7 @@ describe('Progression', () => {
       'targeted-9',
       'resultat',
     ]);
-    (rows[1] as HTMLButtonElement).click();
+    (rows[2] as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith(['/sessions', 'sim-3', 'resultat']);
   });
 

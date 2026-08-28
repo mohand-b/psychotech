@@ -5,7 +5,13 @@ import {
   inject,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AXIS_META, AxisType, SECTOR_AXES, Sector } from '@psychotech/shared';
+import {
+  AXIS_META,
+  AxisType,
+  FULL_SESSION_AXIS_ORDER,
+  SECTOR_AXES,
+  Sector,
+} from '@psychotech/shared';
 import {
   ArrowRight,
   ChevronLeft,
@@ -71,11 +77,7 @@ const UPCOMING_AXES_ORDER: readonly AxisType[] = [
 ];
 
 const CHIP_AXES_ORDER: readonly AxisType[] = [
-  AxisType.LOGIC,
-  AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
-  AxisType.MOTOR_SKILLS,
+  ...FULL_SESSION_AXIS_ORDER,
   ...UPCOMING_AXES_ORDER,
 ];
 
