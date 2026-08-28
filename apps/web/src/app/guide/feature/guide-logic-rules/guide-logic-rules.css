@@ -8,7 +8,6 @@
 .guide__head {
   gap: 12px;
   text-align: center;
-  padding-top: 8px;
 }
 
 .guide__title--logic {
@@ -382,7 +381,6 @@
 @media (max-width: 767px) {
   .guide__head {
     gap: 11px;
-    padding-top: 4px;
   }
 
   .guide__head ui-axis-icon,
