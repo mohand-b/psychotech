@@ -1,6 +1,7 @@
 import {
   AxisFindingsEntry,
   AxisType,
+  FULL_SESSION_AXIS_ORDER,
   SECTOR_LABELS,
   Sector,
   SimulationAxisSummaryDto,
@@ -30,13 +31,7 @@ const AXIS_COEFFICIENT: Record<string, number> = {
 
 const CRITICAL_COEFFICIENT = 1.2;
 
-const EXAMPLE_AXIS_ORDER: AxisType[] = [
-  AxisType.LOGIC,
-  AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
-  AxisType.MOTOR_SKILLS,
-];
+const EXAMPLE_AXIS_ORDER: readonly AxisType[] = FULL_SESSION_AXIS_ORDER;
 
 function isCritical(axis: AxisType): boolean {
   return (AXIS_COEFFICIENT[axis] ?? 1) >= CRITICAL_COEFFICIENT;

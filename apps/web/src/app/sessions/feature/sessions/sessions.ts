@@ -6,8 +6,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  AXIS_TRAINING,
   CurrentSessionDto,
+  FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL_PLURAL,
   RailwayPlayableAxis,
   SessionMode,
@@ -103,7 +103,7 @@ export class Sessions {
       pastelBorderVar: null,
       textVar: null,
     },
-    ...(Object.keys(AXIS_TRAINING) as RailwayPlayableAxis[]).map((axis) => ({
+    ...FULL_SESSION_AXIS_ORDER.map((axis) => ({
       value: axis as SessionHistoryFilter,
       label: AXIS_PRESENTATION[axis].label,
       shortLabel: AXIS_PRESENTATION[axis].label,

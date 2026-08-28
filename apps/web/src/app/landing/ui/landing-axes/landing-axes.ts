@@ -19,6 +19,12 @@ interface LandingAxis extends LandingAxisCopy {
 
 const LANDING_AXES_COPY: LandingAxisCopy[] = [
   {
+    axis: AxisType.VISUAL_DISCRIMINATION,
+    name: 'Discrimination visuelle',
+    description:
+      'Comparer deux suites et repérer la moindre différence, sans fausse alerte.',
+  },
+  {
     axis: AxisType.LOGIC,
     name: 'Logique',
     description:
@@ -31,21 +37,15 @@ const LANDING_AXES_COPY: LandingAxisCopy[] = [
       "Retenir une séquence et la restituer dans l'ordre demandé, y compris inversé.",
   },
   {
-    axis: AxisType.VISUAL_DISCRIMINATION,
-    name: 'Discrimination visuelle',
+    axis: AxisType.MOTOR_SKILLS,
+    name: 'Motricité',
     description:
-      'Comparer deux suites et repérer la moindre différence, sans fausse alerte.',
+      'Coordonner les deux mains pour suivre une trajectoire avec précision.',
   },
   {
     axis: AxisType.REACTIVITY,
     name: 'Réactivité',
     description: 'Réagir vite, au bon moment, avec la bonne commande.',
-  },
-  {
-    axis: AxisType.MOTOR_SKILLS,
-    name: 'Motricité',
-    description:
-      'Coordonner les deux mains pour suivre une trajectoire avec précision.',
   },
 ];
 
