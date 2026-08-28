@@ -58,7 +58,7 @@ function buildSpec(
 ): { spec: DominoRuleSpec; length: number; stepStart: DominoFace | null } {
   switch (level) {
     case 1: {
-      const length = rng.nextInt(5, 7);
+      const length = rng.nextInt(5, 6);
       const step = rng.pick(SMALL_STEPS);
       const halves = orientedHalves(
         { kind: 'STEP', step },
@@ -79,7 +79,7 @@ function buildSpec(
           top: { kind: 'STEP', step: rng.pick(ALL_STEPS) },
           bottom: { kind: 'STEP', step: rng.pick(ALL_STEPS) },
         },
-        length: rng.nextInt(5, 7),
+        length: rng.nextInt(5, 6),
         stepStart: null,
       };
     case 3:
@@ -89,7 +89,7 @@ function buildSpec(
           topChainStep: 1,
           bottomChainStep: 1,
         },
-        length: rng.nextInt(5, 7),
+        length: rng.nextInt(5, 6),
         stepStart: null,
       };
     case 4: {
@@ -100,7 +100,7 @@ function buildSpec(
           topChainStep: risingTopChain ? 1 : -1,
           bottomChainStep: risingTopChain ? -1 : 1,
         },
-        length: rng.nextInt(5, 7),
+        length: rng.nextInt(5, 6),
         stepStart: null,
       };
     }

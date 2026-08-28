@@ -27,10 +27,10 @@ function forEachGeneratedItem(check: (item: DominoItem) => void): void {
 }
 
 describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 seeds)', () => {
-  it('produit une suite de 5 à 7 dominos aux faces 0-6, réponse comprise', () => {
+  it('produit une suite de 5 à 6 dominos aux faces 0-6, réponse comprise', () => {
     forEachGeneratedItem((item) => {
       expect(item.length).toBeGreaterThanOrEqual(5);
-      expect(item.length).toBeLessThanOrEqual(7);
+      expect(item.length).toBeLessThanOrEqual(6);
       expect(item.tiles).toHaveLength(item.length);
       for (const tile of item.tiles) {
         for (const face of [tile.top, tile.bottom]) {
