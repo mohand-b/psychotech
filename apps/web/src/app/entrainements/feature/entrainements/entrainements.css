@@ -1073,6 +1073,7 @@
 
   .tut__guide-link {
     flex-basis: 100%;
+    justify-content: flex-end;
   }
 
   .tut__tile {
