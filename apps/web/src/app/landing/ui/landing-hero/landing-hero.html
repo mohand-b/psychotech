@@ -25,16 +25,18 @@
           les conditions réelles de l'examen, sur les cinq aptitudes évaluées par
           les recruteurs.
         </p>
-        <a
-          [routerLink]="authenticated() ? '/dashboard' : '/register'"
-          class="hero__cta hero__animate"
-        >
-          <span>{{ ctaLabel() }}</span>
-          <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
-        </a>
-        <a routerLink="/exemple-de-bilan" class="hero__example hero__animate">
-          Voir un exemple de bilan
-        </a>
+        <div class="hero__ctas hero__animate">
+          <a
+            [routerLink]="authenticated() ? '/dashboard' : '/register'"
+            class="hero__cta"
+          >
+            <span>{{ ctaLabel() }}</span>
+            <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
+          </a>
+          <a routerLink="/exemple-de-bilan" class="hero__example">
+            Voir un exemple de bilan
+          </a>
+        </div>
         <div class="hero__axes-group hero__animate">
           <span class="hero__axes-label">Axes évalués</span>
           <ul class="hero__axes" aria-label="Aptitudes évaluées">

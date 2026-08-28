@@ -41,12 +41,8 @@
   --hero-enter-index: 2;
 }
 
-.hero__cta,
+.hero__ctas,
 .hero__stacked-ctas {
-  --hero-enter-index: 3;
-}
-
-.hero__example {
   --hero-enter-index: 3;
 }
 
@@ -243,10 +239,17 @@
   max-width: 520px;
 }
 
+.hero__ctas {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .hero__cta {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
   gap: 8px;
   padding: 12px 22px;
   border-radius: 10px;
@@ -267,15 +270,21 @@
 }
 
 .hero__example {
-  align-self: flex-start;
-  color: var(--landing-text-muted);
-  font: 500 14px/1.4 var(--landing-font-ui);
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.88);
+  font: 600 15px/1 var(--landing-font-ui);
   text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  transition: color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .hero__example:hover {
+  border-color: rgba(255, 255, 255, 0.5);
   color: var(--landing-text);
 }
 
