@@ -46,3 +46,7 @@ export const SECTOR_AXES: Record<Sector, AxisType[]> = {
     AxisType.VERBAL,
   ],
 };
+
+export function sectorAxisRank(sector: Sector, axis: AxisType): number {
+  return SECTOR_AXES[sector].indexOf(axis);
+}
