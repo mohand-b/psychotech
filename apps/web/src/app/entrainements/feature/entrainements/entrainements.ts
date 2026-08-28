@@ -22,7 +22,6 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
@@ -47,7 +46,10 @@ import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { GUIDE_PATH } from '../../../guide/util/guide-anchors';
+import {
+  GUIDE_LOGIC_RULES_PATH,
+  GUIDE_PATH,
+} from '../../../guide/util/guide-anchors';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
@@ -115,8 +117,8 @@ export class Entrainements {
   protected readonly arrowLeftIcon = ArrowLeft;
   protected readonly lockIcon = Lock;
   protected readonly graduationIcon = GraduationCap;
-  protected readonly guideIcon = BookOpen;
   protected readonly guidePath = GUIDE_PATH;
+  protected readonly logicRulesPath = GUIDE_LOGIC_RULES_PATH;
   protected readonly playIcon = Play;
   protected readonly cardIconSize = AXIS_ICON_SIZE.card;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;

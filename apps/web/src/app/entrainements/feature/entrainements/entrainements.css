@@ -986,20 +986,6 @@
   min-width: 0;
 }
 
-.tut__guide-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
-  font: 600 13.5px/1.2 var(--font-ui);
-  color: var(--brand-hover);
-  text-decoration: none;
-}
-
-.tut__guide-link:hover {
-  color: var(--brand);
-}
-
 .tut__title {
   font: 600 15px/20px var(--font-ui);
   color: var(--ink);
@@ -1068,12 +1054,6 @@
 
   .tut__head {
     gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .tut__guide-link {
-    flex-basis: 100%;
-    justify-content: flex-end;
   }
 
   .tut__tile {
@@ -1132,4 +1112,47 @@
   .tut__try {
     flex-shrink: 0;
   }
+}
+
+.docs-foot {
+  gap: 10px;
+  padding: 4px 12px;
+}
+
+.docs-foot__rule {
+  gap: 14px;
+  width: 100%;
+}
+
+.docs-foot__line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.docs-foot__label {
+  font: 700 10.5px/1.3 var(--font-ui);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.docs-foot__links {
+  gap: 10px;
+  white-space: nowrap;
+  font-size: 13.5px;
+}
+
+.docs-foot__link {
+  font-weight: 600;
+  color: var(--brand-hover);
+  text-decoration: none;
+}
+
+.docs-foot__link:hover {
+  text-decoration: underline;
+}
+
+.docs-foot__dot {
+  color: var(--border-hover);
 }
