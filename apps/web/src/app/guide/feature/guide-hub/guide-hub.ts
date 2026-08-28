@@ -25,6 +25,7 @@ import {
 } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
+import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_PATH,
@@ -91,6 +92,7 @@ function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
   selector: 'app-guide-hub',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AxisIcon, GuideScrollTop, Icon, RouterLink],
+  hostDirectives: [SmoothAnchors],
   templateUrl: './guide-hub.html',
   styleUrls: ['../guide-shared.css', './guide-hub.css'],
 })

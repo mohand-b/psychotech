@@ -7,6 +7,7 @@ import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_SLUGS } from '../../../shared/util/axis-slug';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
+import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_ANCHORS,
@@ -280,6 +281,7 @@ const DOMINO_CARDS: readonly DominoCard[] = [
   selector: 'app-guide-logic-rules',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AxisIcon, GuideScrollTop, Icon, RouterLink],
+  hostDirectives: [SmoothAnchors],
   templateUrl: './guide-logic-rules.html',
   styleUrls: ['../guide-shared.css', './guide-logic-rules.css'],
 })

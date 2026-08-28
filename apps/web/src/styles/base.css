@@ -23,6 +23,16 @@ html:has(body.landing-active) {
   scrollbar-color: var(--scrollbar-thumb-inverse) transparent;
 }
 
+html.smooth-anchor-scroll {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.smooth-anchor-scroll {
+    scroll-behavior: auto;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
