@@ -59,6 +59,16 @@
   color: var(--text-secondary);
 }
 
+.play__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.play__panel {
+  display: contents;
+}
+
 .play__answer {
   display: flex;
   flex-direction: column;
@@ -136,6 +146,32 @@
     border-radius: 0;
     box-shadow: none;
     padding: 0;
+  }
+
+  .play__stack {
+    flex: 1;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .play__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 18px 16px;
+  }
+
+  .play__answer {
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 10px;
   }
 
   .play__card-hint {

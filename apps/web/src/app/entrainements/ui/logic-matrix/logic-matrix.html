@@ -1,5 +1,7 @@
 <div class="mx">
-  <div class="mx__hero">
+  <div class="mx__panel">
+    <ng-content />
+    <div class="mx__hero">
     <span class="mx__anchor">
       <div class="mx__grid">
         @for (cell of visibleCells(); track $index) {
@@ -30,6 +32,7 @@
         />
       }
     </span>
+    </div>
   </div>
 
   <div class="mx__choices">

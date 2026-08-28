@@ -10,6 +10,13 @@
   gap: 26px;
 }
 
+.mx__panel {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 26px;
+}
+
 .mx__hero {
   display: flex;
   justify-content: center;
@@ -145,8 +152,26 @@
 }
 
 @media (max-width: 767px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
   .mx {
-    gap: 16px;
+    flex: 1;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .mx__panel {
+    gap: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 18px 16px;
   }
 
   .mx__grid {
@@ -178,6 +203,12 @@
 
   .mx__choices {
     width: 100%;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 10px;
   }
 
   .mx__props {

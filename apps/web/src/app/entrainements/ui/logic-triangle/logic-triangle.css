@@ -47,7 +47,15 @@
 }
 
 @media (max-width: 767px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
   .tri {
+    flex: 1;
+    justify-content: space-between;
     gap: 14px;
   }
 
@@ -78,6 +86,11 @@
 
   .tri__entry {
     gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 10px;
   }
 
   .tri__help--desktop {

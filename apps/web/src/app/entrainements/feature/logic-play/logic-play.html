@@ -34,12 +34,7 @@
     [style.--axis-pastel-bd]="presentation.pastelBorderVar"
     [style.--axis-text]="presentation.textVar"
   >
-    <article
-      class="play__card"
-      [class.play__card--split]="
-        dominoItem() !== null || triangleItem() !== null
-      "
-    >
+    <article class="play__card play__card--split">
       @switch (item.family) { @case (families.DOMINO) { @if (dominoItem(); as
       domino) {
       <ui-logic-domino
@@ -88,41 +83,37 @@
         />
       </ui-logic-triangle>
       } } @default { @if (sequenceItem(); as numeric) {
-      <ui-logic-item-head
-        icon="series"
-        label="Suites numériques"
-        consigne="Complétez la suite"
-        [current]="currentIndex() + 1"
-        [total]="items().length"
-      />
+      <div class="play__stack">
+        <div class="play__panel">
+          <ui-logic-item-head
+            icon="series"
+            label="Suites numériques"
+            consigne="Complétez la suite"
+            [current]="currentIndex() + 1"
+            [total]="items().length"
+          />
 
-      <ui-logic-sequence
-        #sequence
-        [terms]="numeric.sequence"
-        [filledValue]="selectedSequenceValue()"
-        [hint]="helpEnabled() ? currentHint() : null"
-        [hintUsed]="currentHelpUsed()"
-        (hintOpened)="markHelpUsed()"
-      />
+          <ui-logic-sequence
+            #sequence
+            [terms]="numeric.sequence"
+            [filledValue]="selectedSequenceValue()"
+            [hint]="helpEnabled() ? currentHint() : null"
+            [hintUsed]="currentHelpUsed()"
+            (hintOpened)="markHelpUsed()"
+          />
+        </div>
 
-      <div class="play__answer">
-        <ui-logic-choices
-          [choices]="numeric.choices"
-          [selectedIndex]="answers()[currentIndex()]"
-          [disabled]="locked()"
-          (chosen)="select($event)"
-        />
-        <span class="play__card-hint">A-D ou 1-4 pour répondre</span>
+        <div class="play__answer">
+          <ui-logic-choices
+            [choices]="numeric.choices"
+            [selectedIndex]="answers()[currentIndex()]"
+            [disabled]="locked()"
+            (chosen)="select($event)"
+          />
+          <span class="play__card-hint">A-D ou 1-4 pour répondre</span>
+        </div>
       </div>
       } } } } @default { @if (matrixItem(); as matrix) {
-      <ui-logic-item-head
-        icon="matrix"
-        label="Matrices"
-        consigne="Choisissez la figure qui complète la grille"
-        [current]="currentIndex() + 1"
-        [total]="items().length"
-      />
-
       <ui-logic-matrix
         #matrixBoard
         [item]="matrix"
@@ -132,7 +123,15 @@
         [hintUsed]="currentHelpUsed()"
         (chosen)="select($event)"
         (hintOpened)="markHelpUsed()"
-      />
+      >
+        <ui-logic-item-head
+          icon="matrix"
+          label="Matrices"
+          consigne="Choisissez la figure qui complète la grille"
+          [current]="currentIndex() + 1"
+          [total]="items().length"
+        />
+      </ui-logic-matrix>
       } } } @if (tutorialMode) {
       <p class="play__rule">
         <span class="t-label">Règle</span>
