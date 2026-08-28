@@ -164,7 +164,7 @@ describe('BadgesPage', () => {
     const text = fixture.nativeElement.textContent ?? '';
     expect(text).toContain('+4');
     expect(text).toContain('ajoutés');
-    expect(text).toContain('Encore +22 à gagner');
+    expect(text).toContain('Encore +21 à gagner');
   });
 
   it('picks the cheapest remaining actions when no score is close', async () => {

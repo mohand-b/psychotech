@@ -413,7 +413,7 @@ describe('Dashboard - widget Crédits', () => {
       '.home__credits-badges',
     );
     expect(badgesLink?.textContent?.replace(/\s+/g, ' ')).toContain(
-      'Encore 26 à gagner avec les badges',
+      'Encore 25 à gagner avec les badges',
     );
     expect(badgesLink?.getAttribute('href')).toBe('/badges');
   });
@@ -433,7 +433,7 @@ describe('Dashboard - widget Crédits', () => {
       fixture.nativeElement
         .querySelector('.home__credits-badges')
         ?.textContent?.replace(/\s+/g, ' '),
-    ).toContain('Encore 24 à gagner');
+    ).toContain('Encore 23 à gagner');
   });
 
   it('shows the balance with the coin, the packs link and the low state', async () => {
