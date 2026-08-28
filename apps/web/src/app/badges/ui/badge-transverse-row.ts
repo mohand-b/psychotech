@@ -60,7 +60,7 @@ import { TransverseBadgeView } from './badge-views';
       gap: 16px;
     }
     .trans-row__art {
-      --badge-art-size: 76px;
+      --badge-art-size: 88px;
     }
     .trans-row__text {
       display: flex;
