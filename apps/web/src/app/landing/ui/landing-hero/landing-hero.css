@@ -337,6 +337,30 @@
   box-shadow: 0 5px 16px -6px color-mix(in srgb, var(--axis-color) 60%, transparent);
 }
 
+.hero__axis-name {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  white-space: nowrap;
+  font: 600 11px/1 var(--landing-font-ui);
+  letter-spacing: 0.02em;
+  color: var(--axis-color);
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.35),
+    0 1px 2px rgba(12, 10, 22, 0.9);
+  opacity: 0;
+  transform: translate(-50%, 3px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  pointer-events: none;
+}
+
+.hero__axis:hover .hero__axis-name {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .hero__band-rest {
   position: absolute;
   inset: 0;
@@ -570,9 +594,12 @@
 }
 
 .hero__stacked-axis-name {
-  font: 500 9.5px/1.3 var(--landing-font-ui);
-  color: rgba(255, 255, 255, 0.5);
+  font: 600 9.5px/1.3 var(--landing-font-ui);
+  color: var(--axis-color);
   text-align: center;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.3),
+    0 1px 2px rgba(12, 10, 22, 0.9);
 }
 
 .hero__stacked-coming {
