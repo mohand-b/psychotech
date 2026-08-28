@@ -65,6 +65,10 @@
   gap: 28px;
 }
 
+.play__stage {
+  display: contents;
+}
+
 .play__panel {
   display: contents;
 }
@@ -128,7 +132,7 @@
     align-items: stretch;
     justify-content: flex-start;
     gap: 14px;
-    padding: 12px 16px calc(88px + var(--safe-bottom));
+    padding: 12px 0 calc(88px + var(--safe-bottom));
   }
 
   .play__card {
@@ -150,8 +154,15 @@
 
   .play__stack {
     flex: 1;
-    justify-content: space-between;
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .play__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
   }
 
   .play__panel {
@@ -168,10 +179,12 @@
   .play__answer {
     gap: 10px;
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    padding: 10px;
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
+  }
+
+  .play__rule {
+    padding: 14px 16px 0;
   }
 
   .play__card-hint {

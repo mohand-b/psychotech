@@ -1,5 +1,6 @@
 <div class="dom">
-  <div class="dom__panel">
+  <div class="dom__stage">
+    <div class="dom__panel">
     <ng-content />
     <div class="dom__seq">
       @for (tile of tiles(); track $index) {
@@ -63,6 +64,7 @@
           />
         }
       </span>
+    </div>
     </div>
   </div>
 

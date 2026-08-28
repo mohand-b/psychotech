@@ -1,5 +1,6 @@
 <div class="tri" [class.tri--four]="item().triangles.length === 4">
-  <div class="tri__panel">
+  <div class="tri__stage">
+    <div class="tri__panel">
     <ng-content />
     <div class="tri__board">
       <ui-triangle-series
@@ -17,6 +18,7 @@
           (opened)="hintOpened.emit()"
         />
       }
+    </div>
     </div>
   </div>
 

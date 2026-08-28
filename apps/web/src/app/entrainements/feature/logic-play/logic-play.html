@@ -84,7 +84,8 @@
       </ui-logic-triangle>
       } } @default { @if (sequenceItem(); as numeric) {
       <div class="play__stack">
-        <div class="play__panel">
+        <div class="play__stage">
+          <div class="play__panel">
           <ui-logic-item-head
             icon="series"
             label="Suites numériques"
@@ -101,6 +102,7 @@
             [hintUsed]="currentHelpUsed()"
             (hintOpened)="markHelpUsed()"
           />
+          </div>
         </div>
 
         <div class="play__answer">

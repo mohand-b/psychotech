@@ -9,6 +9,10 @@
   gap: 28px;
 }
 
+.tri__stage {
+  display: contents;
+}
+
 .tri__panel {
   display: contents;
 }
@@ -55,8 +59,15 @@
 
   .tri {
     flex: 1;
-    justify-content: space-between;
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .tri__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
   }
 
   .tri__panel {
@@ -87,10 +98,8 @@
   .tri__entry {
     gap: 10px;
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    padding: 10px;
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
   }
 
   .tri__help--desktop {

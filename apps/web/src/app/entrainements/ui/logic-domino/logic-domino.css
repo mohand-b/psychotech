@@ -9,6 +9,10 @@
   gap: 28px;
 }
 
+.dom__stage {
+  display: contents;
+}
+
 .dom__panel {
   display: flex;
   flex-direction: column;
@@ -252,8 +256,15 @@
 
   .dom {
     flex: 1;
-    justify-content: space-between;
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .dom__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 16px;
   }
 
   .dom__panel {
@@ -306,10 +317,8 @@
   .dom__entry {
     gap: 10px;
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    padding: 10px;
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
   }
 
   .dom__entry-row {
