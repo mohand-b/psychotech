@@ -11,7 +11,7 @@
 </header>
 
 <main class="guide flex flex-col">
-  <div class="guide__head flex flex-col">
+  <div class="guide__head flex flex-col items-center">
     <button type="button" class="guide__back hidden md:inline-flex" (click)="back()">
       <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="2" />
       Retour
@@ -25,7 +25,7 @@
       explique : le déroulé, la façon de répondre, ce qui est réellement mesuré,
       et l'équivalent dans un examen réel.
     </p>
-    <nav class="guide__anchors flex flex-wrap" aria-label="Les axes">
+    <nav class="guide__anchors justify-center flex flex-wrap" aria-label="Les axes">
       @for (chip of axisChips; track chip.axis) {
         <a
           class="guide__anchor"
@@ -669,3 +669,5 @@
     </p>
   </aside>
 </main>
+
+<app-guide-scroll-top />

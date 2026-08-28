@@ -18,6 +18,7 @@ import {
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_PATH,
@@ -87,7 +88,7 @@ function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
 @Component({
   selector: 'app-guide-hub',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, Icon, RouterLink],
+  imports: [AxisIcon, GuideScrollTop, Icon, RouterLink],
   templateUrl: './guide-hub.html',
   styleUrls: ['../guide-shared.css', './guide-hub.css'],
 })

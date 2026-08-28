@@ -1,5 +1,6 @@
 .guide__head {
   gap: 14px;
+  text-align: center;
 }
 
 .guide__anchor--neutral {
@@ -12,6 +13,7 @@
   margin: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
   font: 400 12.5px/1.5 var(--font-ui);
