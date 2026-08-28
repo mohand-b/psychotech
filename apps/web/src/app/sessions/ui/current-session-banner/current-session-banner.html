@@ -34,11 +34,11 @@
       <ui-button
         class="banner__action"
         color="brand"
-        [icon]="ctaIcon()"
-        [attr.aria-label]="ctaLabel()"
+        [icon]="ctaIcon"
+        [attr.aria-label]="ctaLabel"
         (click)="resumeRequested.emit()"
       >
-        <span class="banner__action-label">{{ ctaLabel() }}</span>
+        <span class="banner__action-label">{{ ctaLabel }}</span>
       </ui-button>
     </div>
   </div>

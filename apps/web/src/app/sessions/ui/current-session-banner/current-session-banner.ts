@@ -11,7 +11,7 @@ import {
   SESSION_MODE_LABELS,
   SessionMode,
 } from '@psychotech/shared';
-import { Play, RotateCcw } from 'lucide-angular';
+import { Play } from 'lucide-angular';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
 import {
@@ -49,14 +49,8 @@ export class CurrentSessionBanner {
     () => this.session().axes[0]?.axis ?? null,
   );
 
-  protected readonly ctaLabel = computed(() =>
-    this.isFull() ? 'Reprendre' : 'Recommencer',
-  );
-
-  protected readonly ctaIcon = computed(() =>
-    this.isFull() ? Play : RotateCcw,
-  );
-
+  protected readonly ctaLabel = 'Reprendre';
+  protected readonly ctaIcon = Play;
 
   protected readonly steps = computed<ChevronStep[]>(() =>
     this.session().axes.map(({ axis, status }) => ({
