@@ -19,8 +19,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
   border-radius: var(--radius-button);
   color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.guide__back {
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  font: 600 13.5px/1.2 var(--font-ui);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.guide__back:hover {
+  color: var(--ink);
 }
 
 .guide__bar-title {

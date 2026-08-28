@@ -1,8 +1,10 @@
+import { Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AXIS_META, AxisType, SECTOR_AXES, Sector } from '@psychotech/shared';
 import {
   ArrowRight,
@@ -21,6 +23,7 @@ import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_SCORE_ANCHOR,
 } from '../../util/guide-anchors';
+import { navigateBack } from '../../util/guide-back';
 
 interface GuideAnchorChip {
   axis: AxisType;
@@ -89,6 +92,9 @@ function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
   styleUrls: ['../guide-shared.css', './guide-hub.css'],
 })
 export class GuideHub {
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
   protected readonly AxisType = AxisType;
   protected readonly backIcon = ChevronLeft;
   protected readonly arrowIcon = ArrowRight;
@@ -125,6 +131,10 @@ export class GuideHub {
       ),
     }))
     .sort((a, b) => byFrenchLabel(a.presentation, b.presentation));
+
+  protected back(): void {
+    navigateBack(this.location, this.router, '/entrainements');
+  }
 
   protected readonly sectorStack: readonly GuideSectorStackEntry[] =
     GUIDE_SECTOR_COLUMNS.map((column) => ({

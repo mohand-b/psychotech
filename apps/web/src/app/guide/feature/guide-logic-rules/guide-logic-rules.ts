@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { AxisType } from '@psychotech/shared';
 import { ChevronLeft } from 'lucide-angular';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
@@ -10,6 +11,7 @@ import {
   GUIDE_LOGIC_RULES_ANCHORS,
   GUIDE_PATH,
 } from '../../util/guide-anchors';
+import { navigateBack } from '../../util/guide-back';
 
 interface SequenceCell {
   kind: 'tile' | 'op' | 'answer';
@@ -281,6 +283,9 @@ const DOMINO_CARDS: readonly DominoCard[] = [
   styleUrls: ['../guide-shared.css', './guide-logic-rules.css'],
 })
 export class GuideLogicRules {
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
   protected readonly AxisType = AxisType;
   protected readonly backIcon = ChevronLeft;
   protected readonly anchors = GUIDE_LOGIC_RULES_ANCHORS;
@@ -293,4 +298,8 @@ export class GuideLogicRules {
   ];
   protected readonly sequenceGroups = SEQUENCE_GROUPS;
   protected readonly dominoCards = DOMINO_CARDS;
+
+  protected back(): void {
+    navigateBack(this.location, this.router, GUIDE_PATH);
+  }
 }

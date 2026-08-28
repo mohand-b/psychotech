@@ -1,12 +1,21 @@
 <header class="guide__bar safe-top md:hidden flex items-center">
-  <a class="guide__bar-back" [routerLink]="hubPath" aria-label="Revenir au guide des épreuves">
+  <button
+    type="button"
+    class="guide__bar-back"
+    (click)="back()"
+    aria-label="Revenir en arrière"
+  >
     <ui-icon [img]="backIcon" [size]="20" [strokeWidth]="2.2" />
-  </a>
+  </button>
   <span class="guide__bar-title">Logique : les règles</span>
 </header>
 
 <main class="guide flex flex-col">
   <div class="guide__head flex flex-col items-center">
+    <button type="button" class="guide__back hidden md:inline-flex" (click)="back()">
+      <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="2" />
+      Retour
+    </button>
     <ui-axis-icon [axis]="AxisType.LOGIC" [size]="68" />
     <h1 class="guide__title guide__title--logic">Logique : toutes les règles</h1>
     <p class="guide__lead">

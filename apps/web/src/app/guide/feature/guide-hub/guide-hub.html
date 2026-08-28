@@ -1,12 +1,21 @@
 <header class="guide__bar safe-top md:hidden flex items-center">
-  <a class="guide__bar-back" routerLink="/dashboard" aria-label="Retour à l'accueil">
+  <button
+    type="button"
+    class="guide__bar-back"
+    (click)="back()"
+    aria-label="Revenir en arrière"
+  >
     <ui-icon [img]="backIcon" [size]="20" [strokeWidth]="2.2" />
-  </a>
+  </button>
   <span class="guide__bar-title">Guide des épreuves</span>
 </header>
 
 <main class="guide flex flex-col">
   <div class="guide__head flex flex-col">
+    <button type="button" class="guide__back hidden md:inline-flex" (click)="back()">
+      <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="2" />
+      Retour
+    </button>
     <span class="guide__eyebrow">Se préparer</span>
     <h1 class="guide__title">Le guide des épreuves</h1>
     <p class="guide__lead">
