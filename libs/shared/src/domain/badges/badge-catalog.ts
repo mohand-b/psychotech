@@ -22,7 +22,7 @@ export const FIRST_STEPS_REWARD = 2;
 export const WELL_INFORMED_REWARD = 1;
 export const EXAM_FAVORABLE_REWARD = 2;
 export const EXAM_GOLD_REWARD = 3;
-export const SECTOR_MASTERY_REWARD = 3;
+export const SECTOR_MASTERY_REWARD = 2;
 export const AXIS_SILVER_REWARD = 1;
 export const AXIS_GOLD_REWARD = 2;
 

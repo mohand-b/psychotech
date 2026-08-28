@@ -146,11 +146,12 @@ describe('badge catalog shape', () => {
     expect(badge(BadgeId.EXAM_FAVORABLE).energyReward).toBe(2);
     expect(badge(BadgeId.EXAM_FIRST).energyReward).toBe(0);
     expect(badge(BadgeId.EXAM_SOLID).energyReward).toBe(3);
+    expect(badge(BadgeId.SECTOR_MASTERY).energyReward).toBe(2);
     const total = BADGE_CATALOG.reduce(
       (sum, { energyReward }) => sum + energyReward,
       0,
     );
-    expect(total).toBe(26);
+    expect(total).toBe(25);
     expect(BADGE_TOTAL_REWARD).toBe(total);
   });
 
