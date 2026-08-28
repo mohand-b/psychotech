@@ -37,7 +37,22 @@ export const LOGIC_SESSION_SIZE = 40;
 export const LOGIC_SESSION_MAX_POINTS = 120;
 export const LOGIC_MATRIX_CHOICE_COUNT = 4;
 
-const DOMINO_MAX_LEVEL: DominoLevel = 4;
+function dominoLevelFor(
+  level: LogicDifficulty,
+  position: number,
+  perLevel: number,
+): DominoLevel {
+  if (level <= 1) {
+    return 1;
+  }
+  if (level <= 3) {
+    return 2;
+  }
+  if (level === 4) {
+    return position < Math.ceil(perLevel / 2) ? 2 : 3;
+  }
+  return 4;
+}
 
 const MATRIX_I_CATALOG_BY_LEVEL: Record<LogicDifficulty, string> = {
   1: 'addition-traits',
@@ -314,7 +329,7 @@ export function generateLogicSession(
         }
         if (family === LogicFamily.DOMINO) {
           const domino = generateDominoItem({
-            level: Math.min(level, DOMINO_MAX_LEVEL) as DominoLevel,
+            level: dominoLevelFor(level, position, perLevel),
             seed: itemSeed,
             rejectPeriodicSequences:
               contentVersion >= LOGIC_CONTENT_VERSION_V5,

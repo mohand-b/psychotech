@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LogicFamily, LogicFamilyFilter } from '../../enums';
+import { DominoPattern } from '../domino';
 import { MatrixProposalKind, MatrixRegister } from '../matrix';
 import { LogicItemAnswerDto } from '../../dtos/session';
 import {
@@ -360,6 +361,48 @@ function patternPredictionsFor(
   }
   return solutions;
 }
+
+describe('generateLogicSession — répartition des dominos', () => {
+  function dominoesOf(seed: string, filter: LogicFamilyFilter | null) {
+    return generateLogicSession(seed, filter).flatMap((item) =>
+      item.family === LogicFamily.DOMINO ? [item] : [],
+    );
+  }
+
+  it('sert exactement 3 dominos diagonaux sur les 10 de la session standard', () => {
+    for (const seed of ['mix-a', 'mix-b', 'mix-c']) {
+      const dominoes = dominoesOf(seed, null);
+      expect(dominoes).toHaveLength(10);
+      const diagonals = dominoes.filter(
+        (item) => item.domino.pattern === DominoPattern.DIAGONAL,
+      );
+      expect(diagonals).toHaveLength(3);
+    }
+  });
+
+  it('réserve les diagonales à la fin de la montée en difficulté', () => {
+    const dominoes = dominoesOf('mix-a', null);
+    for (const item of dominoes) {
+      const diagonal = item.domino.pattern === DominoPattern.DIAGONAL;
+      if (item.difficulty <= 3) {
+        expect(diagonal).toBe(false);
+      }
+      if (item.difficulty === 5) {
+        expect(diagonal).toBe(true);
+        expect(item.domino.level).toBe(4);
+      }
+    }
+  });
+
+  it('garde la même proportion sur la session filtrée dominos : 12 diagonales sur 40', () => {
+    const dominoes = dominoesOf('mix-a', LogicFamilyFilter.DOMINO);
+    expect(dominoes).toHaveLength(40);
+    const diagonals = dominoes.filter(
+      (item) => item.domino.pattern === DominoPattern.DIAGONAL,
+    );
+    expect(diagonals).toHaveLength(12);
+  });
+});
 
 describe('generateLogicSession — propositions des triangles', () => {
   it('donne à chaque item triangle 4 propositions uniques contenant la réponse, dans les bornes des centres', () => {
