@@ -34,6 +34,23 @@
     >
   </p>
   }
+  @if (!tutorial) {
+  <p class="axis-start__guide-note">
+    Première fois sur cette épreuve&nbsp;?
+    <a
+      class="axis-start__guide-link"
+      [routerLink]="guidePath"
+      [fragment]="guideAnchor"
+      >Consultez le guide des épreuves</a
+    >
+    @if (logicRulesPath) {
+    <span class="axis-start__guide-sep">&nbsp;·&nbsp;</span>
+    <a class="axis-start__guide-link" [routerLink]="logicRulesPath"
+      >Toutes les règles de la Logique</a
+    >
+    }
+  </p>
+  }
   <ui-action-footer>
     <ui-button
       class="axis-start__cta"
@@ -53,22 +70,5 @@
         }
       </span>
     </ui-button>
-    @if (!tutorial) {
-    <p class="axis-start__guide-note" actionFooterNote>
-      Première fois sur cette épreuve&nbsp;?
-      <a
-        class="axis-start__guide-link"
-        [routerLink]="guidePath"
-        [fragment]="guideAnchor"
-        >Consultez le guide des épreuves</a
-      >
-      @if (logicRulesPath) {
-      <span class="axis-start__guide-sep">&nbsp;·&nbsp;</span>
-      <a class="axis-start__guide-link" [routerLink]="logicRulesPath"
-        >Toutes les règles de la Logique</a
-      >
-      }
-    </p>
-    }
   </ui-action-footer>
 </section>

@@ -125,6 +125,12 @@
     <a class="simb__short-link" routerLink="/credits">Recharger des crédits</a>
   </span>
   }
+  <p class="simb__guide-note">
+    Première fois&nbsp;?
+    <a class="simb__guide-link" [routerLink]="guidePath"
+      >Consultez le guide des épreuves</a
+    >
+  </p>
   <ui-action-footer>
     <ui-button
       class="simb__cta"
@@ -144,11 +150,5 @@
         </span>
       </span>
     </ui-button>
-    <p class="simb__guide-note" actionFooterNote>
-      Première fois&nbsp;?
-      <a class="simb__guide-link" [routerLink]="guidePath"
-        >Consultez le guide des épreuves</a
-      >
-    </p>
   </ui-action-footer>
 </section>
