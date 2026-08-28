@@ -13,6 +13,22 @@ export function mod7(value: number): DominoFace {
 
 type DominoWrapDirection = 'up' | 'down';
 
+interface DominoDiagonalSpec {
+  topChainStep: number;
+  bottomChainStep: number;
+}
+
+function diagonalArrivalSteps(
+  spec: DominoDiagonalSpec,
+  transitionIndex: number,
+): { top: number; bottom: number } {
+  const evenTransition = transitionIndex % 2 === 0;
+  return {
+    top: evenTransition ? spec.bottomChainStep : spec.topChainStep,
+    bottom: evenTransition ? spec.topChainStep : spec.bottomChainStep,
+  };
+}
+
 function wrapDirection(
   previous: DominoFace,
   step: number,
@@ -118,6 +134,23 @@ export function buildDominoSequence(
       hasWrap,
     };
   }
+  if (spec.pattern === DominoPattern.DIAGONAL) {
+    const tiles: DominoTile[] = [{ top: starts.top, bottom: starts.bottom }];
+    let hasWrap = false;
+    for (let index = 1; index < length; index += 1) {
+      const previous = tiles[index - 1];
+      const steps = diagonalArrivalSteps(spec, index - 1);
+      hasWrap =
+        hasWrap ||
+        wraps(previous.bottom, steps.top) ||
+        wraps(previous.top, steps.bottom);
+      tiles.push({
+        top: mod7(previous.bottom + steps.top),
+        bottom: mod7(previous.top + steps.bottom),
+      });
+    }
+    return { tiles, hasWrap };
+  }
   const tiles: DominoTile[] = [];
   let hasWrap = false;
   for (let index = 0; index < length; index += 1) {
@@ -180,6 +213,14 @@ export function solveDominoAnswer(
     return {
       top: mod7(bottoms[bottoms.length - 1] + spec.offset),
       bottom: solveHalf(bottoms, spec.bottom, answerIndex),
+    };
+  }
+  if (spec.pattern === DominoPattern.DIAGONAL) {
+    const last = visibleTiles[visibleTiles.length - 1];
+    const steps = diagonalArrivalSteps(spec, visibleTiles.length - 1);
+    return {
+      top: mod7(last.bottom + steps.top),
+      bottom: mod7(last.top + steps.bottom),
     };
   }
   const source = visibleTiles[answerIndex - 2];
@@ -245,6 +286,8 @@ function dominoTransitionSteps(
         top: spec.offset,
         bottom: halfStepAtTransition(spec.bottom, index),
       });
+    } else if (spec.pattern === DominoPattern.DIAGONAL) {
+      transitions.push(diagonalArrivalSteps(spec, index));
     } else {
       const steps = (index + 1) % 2 === 0 ? spec.even : spec.odd;
       transitions.push(
@@ -272,14 +315,20 @@ export function dominoTransitionWraps(
     if (!sourceTile) {
       return { top: null, bottom: null };
     }
-    const topSource =
-      spec.pattern === DominoPattern.CROSS ? tiles[index].bottom : sourceTile.top;
+    const crossFaces =
+      spec.pattern === DominoPattern.CROSS ||
+      spec.pattern === DominoPattern.DIAGONAL;
+    const topSource = crossFaces ? tiles[index].bottom : sourceTile.top;
+    const bottomSource =
+      spec.pattern === DominoPattern.DIAGONAL
+        ? tiles[index].top
+        : sourceTile.bottom;
     return {
       top: steps.top === null ? null : wrapDirection(topSource, steps.top),
       bottom:
         steps.bottom === null
           ? null
-          : wrapDirection(sourceTile.bottom, steps.bottom),
+          : wrapDirection(bottomSource, steps.bottom),
     };
   });
 }
@@ -297,6 +346,18 @@ export function dominoWrapIndices(
 
 function formatStep(step: number): string {
   return step > 0 ? `+${step}` : `${step}`;
+}
+
+function offsetClause(offset: number): string {
+  return offset === 0
+    ? ''
+    : offset > 0
+      ? ` en ajoutant ${offset}`
+      : ` en retirant ${-offset}`;
+}
+
+function chainClause(step: number): string {
+  return step > 0 ? `avance de ${step}` : `recule de ${-step}`;
 }
 
 function halfClause(rule: DominoHalfRule): string {
@@ -372,15 +433,20 @@ export function buildDominoRule(
     userText = `La face du haut ${halfClause(spec.top)}, celle du bas ${halfClause(spec.bottom)}.`;
     hintText = `La face du haut ${halfHintClause(spec.top)}, celle du bas ${halfHintClause(spec.bottom)}.`;
   } else if (spec.pattern === DominoPattern.CROSS) {
-    const offsetClause =
-      spec.offset === 0
-        ? ''
-        : spec.offset > 0
-          ? ` en ajoutant ${spec.offset}`
-          : ` en retirant ${-spec.offset}`;
     id = `cross${formatStep(spec.offset)}-${halfId(spec.bottom)}`;
-    userText = `Le haut de chaque domino reprend le bas du domino précédent${offsetClause}, et la face du bas ${halfClause(spec.bottom)}.`;
+    userText = `Le haut de chaque domino reprend le bas du domino précédent${offsetClause(spec.offset)}, et la face du bas ${halfClause(spec.bottom)}.`;
     hintText = `Le haut de chaque domino se déduit du bas du domino précédent, et la face du bas ${halfHintClause(spec.bottom)}.`;
+  } else if (spec.pattern === DominoPattern.DIAGONAL) {
+    id = `diagonal${formatStep(spec.topChainStep)}${formatStep(spec.bottomChainStep)}`;
+    if (spec.topChainStep === spec.bottomChainStep) {
+      userText = `Chaque face reprend en diagonale la face opposée du domino précédent${offsetClause(spec.topChainStep)}.`;
+      hintText =
+        'Chaque face se déduit en diagonale de la face opposée du domino précédent.';
+    } else {
+      userText = `Deux diagonales traversent la suite en zigzag : celle qui part du haut du premier domino ${chainClause(spec.topChainStep)}, celle qui part du bas ${chainClause(spec.bottomChainStep)}.`;
+      hintText =
+        'Deux diagonales traversent la suite en zigzag, chacune suit sa propre progression.';
+    }
   } else {
     id = `interleaved-${formatStep(spec.even.topStep)}${formatStep(spec.even.bottomStep)}-${formatStep(spec.odd.topStep)}${formatStep(spec.odd.bottomStep)}`;
     userText = `Deux suites s'entrelacent : les dominos de rang impair avancent de ${formatStep(spec.even.topStep)} en haut et ${formatStep(spec.even.bottomStep)} en bas, ceux de rang pair de ${formatStep(spec.odd.topStep)} en haut et ${formatStep(spec.odd.bottomStep)} en bas.`;

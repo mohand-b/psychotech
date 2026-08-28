@@ -11,6 +11,7 @@ export enum DominoPattern {
   HALVES = 'HALVES',
   CROSS = 'CROSS',
   INTERLEAVED = 'INTERLEAVED',
+  DIAGONAL = 'DIAGONAL',
 }
 
 export type DominoHalfRule =
@@ -32,6 +33,11 @@ export type DominoRuleSpec =
       pattern: DominoPattern.INTERLEAVED;
       even: DominoInterleavedSteps;
       odd: DominoInterleavedSteps;
+    }
+  | {
+      pattern: DominoPattern.DIAGONAL;
+      topChainStep: number;
+      bottomChainStep: number;
     };
 
 export interface DominoRule {

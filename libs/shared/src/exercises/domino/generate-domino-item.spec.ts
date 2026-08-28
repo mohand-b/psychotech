@@ -58,6 +58,10 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
         expect(visible.length).toBeGreaterThanOrEqual(6);
         return;
       }
+      if (item.ruleSpec.pattern === DominoPattern.DIAGONAL) {
+        expect(visible.length).toBeGreaterThanOrEqual(3);
+        return;
+      }
       const halves =
         item.ruleSpec.pattern === DominoPattern.HALVES
           ? [
@@ -103,11 +107,19 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
         case 1: {
           expect(item.ruleSpec.pattern).toBe(DominoPattern.HALVES);
           if (item.ruleSpec.pattern === DominoPattern.HALVES) {
-            const kinds = [item.ruleSpec.top.kind, item.ruleSpec.bottom.kind];
+            const halves = [item.ruleSpec.top, item.ruleSpec.bottom];
+            const kinds = halves.map((half) => half.kind);
             expect(kinds).toContain('CONSTANT');
             expect(kinds).toContain('STEP');
+            for (const half of halves) {
+              if (half.kind === 'STEP') {
+                expect([1, 2]).toContain(Math.abs(half.step));
+                if (Math.abs(half.step) === 1) {
+                  expect(item.hasWrap).toBe(false);
+                }
+              }
+            }
           }
-          expect(item.hasWrap).toBe(false);
           break;
         }
         case 2: {
@@ -123,33 +135,20 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
           break;
         }
         case 3: {
-          expect(item.ruleSpec.pattern).toBe(DominoPattern.HALVES);
-          if (item.ruleSpec.pattern === DominoPattern.HALVES) {
-            const kinds = [item.ruleSpec.top.kind, item.ruleSpec.bottom.kind];
-            expect(
-              kinds.includes('ALTERNATING_VALUES') ||
-                kinds.includes('ALTERNATING_STEPS'),
-            ).toBe(true);
+          expect(item.ruleSpec.pattern).toBe(DominoPattern.DIAGONAL);
+          if (item.ruleSpec.pattern === DominoPattern.DIAGONAL) {
+            expect(item.ruleSpec.topChainStep).toBe(1);
+            expect(item.ruleSpec.bottomChainStep).toBe(1);
           }
+          expect(item.tiles[0].top).not.toBe(item.tiles[0].bottom);
           break;
         }
         case 4: {
-          expect(item.ruleSpec.pattern).toBe(DominoPattern.HALVES);
-          if (item.ruleSpec.pattern === DominoPattern.HALVES) {
-            const halves = [item.ruleSpec.top, item.ruleSpec.bottom];
-            for (const half of halves) {
-              expect(['ALTERNATING_VALUES', 'ALTERNATING_STEPS']).toContain(
-                half.kind,
-              );
-            }
+          expect(item.ruleSpec.pattern).toBe(DominoPattern.DIAGONAL);
+          if (item.ruleSpec.pattern === DominoPattern.DIAGONAL) {
             expect(
-              halves.some((half) => half.kind === 'ALTERNATING_STEPS'),
-            ).toBe(true);
-            for (const half of halves) {
-              if (half.kind === 'ALTERNATING_STEPS') {
-                expect(half.steps[0] + half.steps[1]).not.toBe(0);
-              }
-            }
+              [item.ruleSpec.topChainStep, item.ruleSpec.bottomChainStep].sort(),
+            ).toEqual([-1, 1]);
           }
           break;
         }
@@ -176,11 +175,8 @@ describe('generateDominoItem — propriétés sur 500 tirages (4 niveaux × 125 
     }
   });
 
-  it('rejette les suites visibles dégénérées aux niveaux 1-3', () => {
+  it('rejette les suites visibles dégénérées à tous les niveaux', () => {
     forEachGeneratedItem((item) => {
-      if (item.level > 3) {
-        return;
-      }
       const visible = item.tiles.slice(0, -1);
       const first = visible[0];
       expect(
@@ -280,7 +276,6 @@ describe('generateDominoItem — frontières modulo 7 sur 3000 tirages', () => {
       answerWrapUp: 0,
       answerOnZeroAfterDescent: 0,
       answerOnSixAfterAscent: 0,
-      alternatingWrap: 0,
     };
     forEachBoundaryItem((item) => {
       const answerIndex = item.tiles.length - 1;
@@ -301,16 +296,12 @@ describe('generateDominoItem — frontières modulo 7 sur 3000 tirages', () => {
         if (step !== null && step > 0 && values[answerIndex] === 6) {
           coverage.answerOnSixAfterAscent += 1;
         }
-        if (rule.kind === 'ALTERNATING_STEPS' && direction !== null) {
-          coverage.alternatingWrap += 1;
-        }
       }
     });
     expect(coverage.answerWrapDown).toBeGreaterThan(0);
     expect(coverage.answerWrapUp).toBeGreaterThan(0);
     expect(coverage.answerOnZeroAfterDescent).toBeGreaterThan(0);
     expect(coverage.answerOnSixAfterAscent).toBeGreaterThan(0);
-    expect(coverage.alternatingWrap).toBeGreaterThan(0);
   });
 
   it('ne demande jamais un bouclage en réponse sans en avoir montré un sur la même face et dans le même sens', () => {
@@ -342,6 +333,20 @@ describe('generateDominoItem — frontières modulo 7 sur 3000 tirages', () => {
           const direction = wrapDirectionAt(rule, values, index);
           up = up || direction === 'up';
           down = down || direction === 'down';
+        }
+      }
+      if (item.ruleSpec.pattern === DominoPattern.DIAGONAL) {
+        const { topChainStep, bottomChainStep } = item.ruleSpec;
+        for (let index = 0; index < item.tiles.length - 1; index += 1) {
+          const source = item.tiles[index];
+          const evenTransition = index % 2 === 0;
+          for (const raw of [
+            source.bottom + (evenTransition ? bottomChainStep : topChainStep),
+            source.top + (evenTransition ? topChainStep : bottomChainStep),
+          ]) {
+            up = up || raw > 6;
+            down = down || raw < 0;
+          }
         }
       }
       expect(item.rule.userText.includes('Après le 6, on revient à 0.')).toBe(
@@ -409,6 +414,44 @@ describe('buildDominoRule — formulations utilisateur', () => {
     );
   });
 
+  it('formule les diagonales égales et leur aide sans valeurs', () => {
+    const rule = buildDominoRule(
+      {
+        pattern: DominoPattern.DIAGONAL,
+        topChainStep: 1,
+        bottomChainStep: 1,
+      },
+      { up: false, down: false },
+    );
+    expect(rule.id).toBe('diagonal+1+1');
+    expect(rule.userText).toBe(
+      'Chaque face reprend en diagonale la face opposée du domino précédent en ajoutant 1.',
+    );
+    expect(rule.hintText).toBe(
+      'Chaque face se déduit en diagonale de la face opposée du domino précédent.',
+    );
+    expect(rule.hintText).not.toMatch(/\d/);
+  });
+
+  it('formule les diagonales opposées en zigzag', () => {
+    const rule = buildDominoRule(
+      {
+        pattern: DominoPattern.DIAGONAL,
+        topChainStep: 1,
+        bottomChainStep: -1,
+      },
+      { up: false, down: false },
+    );
+    expect(rule.id).toBe('diagonal+1-1');
+    expect(rule.userText).toBe(
+      'Deux diagonales traversent la suite en zigzag : celle qui part du haut du premier domino avance de 1, celle qui part du bas recule de 1.',
+    );
+    expect(rule.hintText).toBe(
+      'Deux diagonales traversent la suite en zigzag, chacune suit sa propre progression.',
+    );
+    expect(rule.hintText).not.toMatch(/\d/);
+  });
+
   it('formule les suites entrelacées', () => {
     const rule = buildDominoRule(
       {
@@ -467,6 +510,123 @@ describe('rejectPeriodicSequences', () => {
             );
           expect(periodic).toBe(false);
         }
+      }
+    }
+  });
+
+});
+
+const DIAGONAL_DRAWS_PER_LEVEL = 400;
+
+function diagonalChains(item: DominoItem): [DominoFace[], DominoFace[]] {
+  const fromTop: DominoFace[] = [];
+  const fromBottom: DominoFace[] = [];
+  item.tiles.forEach((tile, index) => {
+    if (index % 2 === 0) {
+      fromTop.push(tile.top);
+      fromBottom.push(tile.bottom);
+    } else {
+      fromTop.push(tile.bottom);
+      fromBottom.push(tile.top);
+    }
+  });
+  return [fromTop, fromBottom];
+}
+
+describe('generateDominoItem — patrons diagonaux N3/N4', () => {
+  it('fait progresser chaque diagonale de proche en proche à pas constant, réponse comprise', () => {
+    for (const level of [3, 4] as const) {
+      for (let draw = 0; draw < DIAGONAL_DRAWS_PER_LEVEL; draw += 1) {
+        const item = generateDominoItem({ level, seed: `diag-${draw}` });
+        expect(item.ruleSpec.pattern).toBe(DominoPattern.DIAGONAL);
+        if (item.ruleSpec.pattern !== DominoPattern.DIAGONAL) {
+          continue;
+        }
+        const { topChainStep, bottomChainStep } = item.ruleSpec;
+        const [fromTop, fromBottom] = diagonalChains(item);
+        for (let index = 1; index < fromTop.length; index += 1) {
+          expect(fromTop[index]).toBe(
+            independentModulo(fromTop[index - 1] + topChainStep),
+          );
+          expect(fromBottom[index]).toBe(
+            independentModulo(fromBottom[index - 1] + bottomChainStep),
+          );
+        }
+      }
+    }
+  });
+
+  it("n'exige jamais un bouclage en réponse sans l'avoir montré même face même sens", () => {
+    for (const level of [3, 4] as const) {
+      for (let draw = 0; draw < DIAGONAL_DRAWS_PER_LEVEL; draw += 1) {
+        const item = generateDominoItem({ level, seed: `diag-${draw}` });
+        if (item.ruleSpec.pattern !== DominoPattern.DIAGONAL) {
+          continue;
+        }
+        const { topChainStep, bottomChainStep } = item.ruleSpec;
+        const directionAt = (
+          index: number,
+        ): { top: WrapDirection; bottom: WrapDirection } => {
+          const source = item.tiles[index];
+          const evenTransition = index % 2 === 0;
+          const rawTop =
+            source.bottom + (evenTransition ? bottomChainStep : topChainStep);
+          const rawBottom =
+            source.top + (evenTransition ? topChainStep : bottomChainStep);
+          return {
+            top: rawTop > 6 ? 'up' : rawTop < 0 ? 'down' : null,
+            bottom: rawBottom > 6 ? 'up' : rawBottom < 0 ? 'down' : null,
+          };
+        };
+        const answerTransition = item.tiles.length - 2;
+        const answer = directionAt(answerTransition);
+        for (const face of ['top', 'bottom'] as const) {
+          if (answer[face] === null) {
+            continue;
+          }
+          let shown = false;
+          for (let index = 0; index < answerTransition; index += 1) {
+            if (directionAt(index)[face] === answer[face]) {
+              shown = true;
+              break;
+            }
+          }
+          expect(shown).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('démarre le niveau 3 sur deux faces différentes', () => {
+    for (let draw = 0; draw < DIAGONAL_DRAWS_PER_LEVEL; draw += 1) {
+      const levelThree = generateDominoItem({ level: 3, seed: `diag-${draw}` });
+      expect(levelThree.tiles[0].top).not.toBe(levelThree.tiles[0].bottom);
+    }
+  });
+
+  it('ne répond jamais par la copie du dernier domino visible', () => {
+    for (const level of LEVELS) {
+      for (let draw = 0; draw < DIAGONAL_DRAWS_PER_LEVEL; draw += 1) {
+        const item = generateDominoItem({ level, seed: `diag-${draw}` });
+        const lastVisible = item.visibleTiles[item.visibleTiles.length - 1];
+        expect(item.answer).not.toEqual(lastVisible);
+      }
+    }
+  });
+
+  it('ne montre jamais un visible en palindrome ni un doublon final', () => {
+    for (const level of LEVELS) {
+      for (let draw = 0; draw < DIAGONAL_DRAWS_PER_LEVEL; draw += 1) {
+        const item = generateDominoItem({ level, seed: `diag-${draw}` });
+        const visible = item.visibleTiles;
+        const palindrome = visible.every((tile, index) => {
+          const mirror = visible[visible.length - 1 - index];
+          return tile.top === mirror.top && tile.bottom === mirror.bottom;
+        });
+        expect(palindrome).toBe(false);
+        expect(visible[visible.length - 1]).not.toEqual(
+          visible[visible.length - 2],
+        );
       }
     }
   });

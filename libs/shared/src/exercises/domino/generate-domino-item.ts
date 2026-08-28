@@ -33,32 +33,6 @@ function randomFace(rng: SeededRng): DominoFace {
   return rng.nextInt(0, 6) as DominoFace;
 }
 
-function distinctFaces(rng: SeededRng): [DominoFace, DominoFace] {
-  const first = randomFace(rng);
-  const offset = rng.nextInt(1, 6);
-  return [first, mod7(first + offset)];
-}
-
-function distinctSteps(rng: SeededRng): [number, number] {
-  const first = rng.pick(ALL_STEPS);
-  const second = rng.pick(ALL_STEPS.filter((step) => step !== first));
-  return [first, second];
-}
-
-function driftingSteps(rng: SeededRng): [number, number] {
-  const first = rng.pick(ALL_STEPS);
-  const second = rng.pick(
-    ALL_STEPS.filter((step) => step !== first && step !== -first),
-  );
-  return [first, second];
-}
-
-function secondaryHalf(rng: SeededRng): DominoHalfRule {
-  return rng.next() < 0.5
-    ? { kind: 'CONSTANT', value: randomFace(rng) }
-    : { kind: 'STEP', step: rng.pick(SMALL_STEPS) };
-}
-
 function orientedHalves(
   main: DominoHalfRule,
   other: DominoHalfRule,
@@ -85,7 +59,7 @@ function buildSpec(
   switch (level) {
     case 1: {
       const length = rng.nextInt(5, 7);
-      const step = rng.pick([1, -1] as const);
+      const step = rng.pick(SMALL_STEPS);
       const halves = orientedHalves(
         { kind: 'STEP', step },
         { kind: 'CONSTANT', value: randomFace(rng) },
@@ -94,7 +68,8 @@ function buildSpec(
       return {
         spec: { pattern: DominoPattern.HALVES, ...halves },
         length,
-        stepStart: wrapFreeStart(step, length, rng),
+        stepStart:
+          step === 1 || step === -1 ? wrapFreeStart(step, length, rng) : null,
       };
     }
     case 2:
@@ -107,31 +82,25 @@ function buildSpec(
         length: rng.nextInt(5, 7),
         stepStart: null,
       };
-    case 3: {
-      const alternating: DominoHalfRule =
-        rng.next() < 0.5
-          ? { kind: 'ALTERNATING_VALUES', values: distinctFaces(rng) }
-          : { kind: 'ALTERNATING_STEPS', steps: distinctSteps(rng) };
-      const halves = orientedHalves(alternating, secondaryHalf(rng), rng);
+    case 3:
       return {
-        spec: { pattern: DominoPattern.HALVES, ...halves },
-        length: rng.nextInt(6, 7),
+        spec: {
+          pattern: DominoPattern.DIAGONAL,
+          topChainStep: 1,
+          bottomChainStep: 1,
+        },
+        length: rng.nextInt(5, 7),
         stepStart: null,
       };
-    }
     case 4: {
-      const drifting: DominoHalfRule = {
-        kind: 'ALTERNATING_STEPS',
-        steps: driftingSteps(rng),
-      };
-      const other: DominoHalfRule =
-        rng.next() < 0.5
-          ? { kind: 'ALTERNATING_VALUES', values: distinctFaces(rng) }
-          : { kind: 'ALTERNATING_STEPS', steps: driftingSteps(rng) };
-      const halves = orientedHalves(drifting, other, rng);
+      const risingTopChain = rng.next() < 0.5;
       return {
-        spec: { pattern: DominoPattern.HALVES, ...halves },
-        length: rng.nextInt(6, 7),
+        spec: {
+          pattern: DominoPattern.DIAGONAL,
+          topChainStep: risingTopChain ? 1 : -1,
+          bottomChainStep: risingTopChain ? -1 : 1,
+        },
+        length: rng.nextInt(5, 7),
         stepStart: null,
       };
     }
@@ -171,6 +140,9 @@ function isInferable(
   }
   if (spec.pattern === DominoPattern.CROSS) {
     return visibleTiles.length >= 3 && halfInferable(spec.bottom, bottoms);
+  }
+  if (spec.pattern === DominoPattern.DIAGONAL) {
+    return visibleTiles.length >= 3;
   }
   return visibleTiles.length >= 6;
 }
@@ -232,6 +204,23 @@ function isDegenerate(visibleTiles: readonly DominoTile[]): boolean {
   );
 }
 
+function sameTile(left: DominoTile, right: DominoTile): boolean {
+  return left.top === right.top && left.bottom === right.bottom;
+}
+
+function isVisiblePalindrome(visibleTiles: readonly DominoTile[]): boolean {
+  return visibleTiles.every((tile, index) =>
+    sameTile(tile, visibleTiles[visibleTiles.length - 1 - index]),
+  );
+}
+
+function endsWithRepeatedTile(visibleTiles: readonly DominoTile[]): boolean {
+  return sameTile(
+    visibleTiles[visibleTiles.length - 1],
+    visibleTiles[visibleTiles.length - 2],
+  );
+}
+
 export function generateDominoItem(
   options: GenerateDominoItemOptions,
 ): DominoItem {
@@ -252,6 +241,13 @@ export function generateDominoItem(
         starts.bottom = stepStart;
       }
     }
+    if (
+      spec.pattern === DominoPattern.DIAGONAL &&
+      spec.topChainStep === spec.bottomChainStep &&
+      starts.top === starts.bottom
+    ) {
+      continue;
+    }
     const { tiles } = buildDominoSequence(spec, starts, length);
     const visibleTiles = tiles.slice(0, -1);
     const answer = tiles[tiles.length - 1];
@@ -266,7 +262,16 @@ export function generateDominoItem(
     if (!isInferable(spec, visibleTiles)) {
       continue;
     }
-    if (level <= 3 && isDegenerate(visibleTiles)) {
+    if (isDegenerate(visibleTiles)) {
+      continue;
+    }
+    if (sameTile(answer, visibleTiles[visibleTiles.length - 1])) {
+      continue;
+    }
+    if (isVisiblePalindrome(visibleTiles)) {
+      continue;
+    }
+    if (endsWithRepeatedTile(visibleTiles)) {
       continue;
     }
     if (
@@ -287,9 +292,6 @@ export function generateDominoItem(
     const visibleWrap = visibleWraps.some(
       (wrap) => wrap.top !== null || wrap.bottom !== null,
     );
-    if (level === 1 && anyWrap) {
-      continue;
-    }
     if (level === 2 && !visibleWrap) {
       continue;
     }
