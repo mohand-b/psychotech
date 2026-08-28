@@ -182,6 +182,7 @@
   fill: var(--surface-hover);
   stroke: var(--border-hover);
   stroke-width: 1.5;
+  stroke-linejoin: round;
 }
 
 .sv-vertex {
