@@ -11,125 +11,24 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "T",
+      },
+      {
+        "kind": "CHAR",
+        "value": "J",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "0",
       },
     ],
     "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "0",
-      },
-    ],
-    "identical": true,
-    "index": 0,
-    "offsetA": {
-      "fx": 0.069,
-      "fy": 0.406,
-    },
-    "offsetB": {
-      "fx": 0.518,
-      "fy": -0.588,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "K",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "D",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "K",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "D",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-    ],
-    "identical": false,
-    "index": 1,
-    "offsetA": {
-      "fx": -0.224,
-      "fy": -0.84,
-    },
-    "offsetB": {
-      "fx": -0.069,
-      "fy": 0.214,
-    },
-  },
-  {
-    "a": [
       {
         "kind": "SHAPE",
         "rotation": 0,
@@ -141,19 +40,53 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_RIGHT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
+        "kind": "CHAR",
+        "value": "T",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
+        "kind": "CHAR",
+        "value": "J",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "CIRCLE",
+      },
+    ],
+    "identical": true,
+    "index": 0,
+    "offsetA": {
+      "fx": -0.164,
+      "fy": -0.974,
+    },
+    "offsetB": {
+      "fx": 0.069,
+      "fy": 0.406,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
       },
     ],
     "b": [
@@ -163,35 +96,94 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "SQUARE",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "V",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+    ],
+    "identical": false,
+    "index": 1,
+    "offsetA": {
+      "fx": -0.406,
+      "fy": 0.742,
+    },
+    "offsetB": {
+      "fx": 0.943,
+      "fy": -0.224,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
         "shape": "TRAPEZOID",
       },
       {
         "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "E",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
     ],
     "identical": false,
     "index": 2,
     "offsetA": {
-      "fx": -0.612,
-      "fy": 0.807,
+      "fx": 0.91,
+      "fy": -0.826,
     },
     "offsetB": {
-      "fx": -0.237,
-      "fy": 0.835,
+      "fx": -0.713,
+      "fy": -0.395,
     },
   },
   {
@@ -199,185 +191,197 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
-        "value": "V",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
-        "value": "V",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
       },
     ],
     "identical": true,
     "index": 3,
     "offsetA": {
-      "fx": -0.193,
-      "fy": 0.128,
+      "fx": 0.76,
+      "fy": 0.422,
     },
     "offsetB": {
-      "fx": -0.79,
-      "fy": -0.422,
+      "fx": -0.044,
+      "fy": 0.712,
     },
   },
   {
     "a": [
       {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
         "kind": "CHAR",
         "value": "R",
       },
       {
         "kind": "CHAR",
         "value": "V",
-      },
-      {
-        "kind": "CHAR",
-        "value": "M",
-      },
-      {
-        "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
       },
     ],
     "b": [
       {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
         "kind": "CHAR",
         "value": "R",
       },
       {
         "kind": "CHAR",
         "value": "V",
-      },
-      {
-        "kind": "CHAR",
-        "value": "M",
-      },
-      {
-        "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
       },
     ],
     "identical": true,
     "index": 4,
     "offsetA": {
-      "fx": -0.067,
-      "fy": -0.144,
+      "fx": 0.058,
+      "fy": 0.255,
     },
     "offsetB": {
-      "fx": 0.57,
-      "fy": -0.202,
+      "fx": -0.326,
+      "fy": 0.223,
     },
   },
   {
     "a": [
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "F",
-      },
-      {
-        "kind": "CHAR",
-        "value": "W",
-      },
-      {
-        "kind": "CHAR",
-        "value": "G",
+        "value": "E",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
       },
       {
         "kind": "CHAR",
         "value": "F",
       },
+    ],
+    "identical": false,
+    "index": 5,
+    "offsetA": {
+      "fx": 0.099,
+      "fy": -0.012,
+    },
+    "offsetB": {
+      "fx": 0.273,
+      "fy": -0.222,
+    },
+  },
+  {
+    "a": [
       {
         "kind": "CHAR",
-        "value": "M",
-      },
-      {
-        "kind": "CHAR",
-        "value": "G",
+        "value": "E",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
       },
-    ],
-    "identical": false,
-    "index": 5,
-    "offsetA": {
-      "fx": -0.345,
-      "fy": -0.695,
-    },
-    "offsetB": {
-      "fx": 0.557,
-      "fy": -0.965,
-    },
-  },
-  {
-    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
       {
         "kind": "CHAR",
         "value": "J",
@@ -390,39 +394,29 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "kind": "CHAR",
         "value": "2",
       },
-      {
-        "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "CHAR",
-        "value": "H",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
     ],
     "b": [
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
       {
         "kind": "CHAR",
         "value": "J",
       },
       {
         "kind": "CHAR",
-        "value": "K",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "CHAR",
-        "value": "H",
+        "value": "X",
       },
       {
         "kind": "CHAR",
@@ -432,371 +426,24 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 6,
     "offsetA": {
-      "fx": 0.513,
-      "fy": -0.038,
+      "fx": -0.605,
+      "fy": 0.033,
     },
     "offsetB": {
-      "fx": 0.079,
-      "fy": -0.244,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-    ],
-    "identical": true,
-    "index": 7,
-    "offsetA": {
-      "fx": -0.477,
-      "fy": 0.866,
-    },
-    "offsetB": {
-      "fx": -0.319,
-      "fy": -0.65,
+      "fx": -0.705,
+      "fy": -0.875,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "1",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "1",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-    ],
-    "identical": true,
-    "index": 8,
-    "offsetA": {
-      "fx": -0.251,
-      "fy": -0.167,
-    },
-    "offsetB": {
-      "fx": 0.899,
-      "fy": 0.472,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
+        "value": "5",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-    ],
-    "identical": false,
-    "index": 9,
-    "offsetA": {
-      "fx": 0.656,
-      "fy": 0.28,
-    },
-    "offsetB": {
-      "fx": -0.017,
-      "fy": 0.474,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "E",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "E",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-    ],
-    "identical": true,
-    "index": 10,
-    "offsetA": {
-      "fx": -0.206,
-      "fy": -0.026,
-    },
-    "offsetB": {
-      "fx": 0.051,
-      "fy": -0.726,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "Z",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "D",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "D",
-      },
-    ],
-    "identical": false,
-    "index": 11,
-    "offsetA": {
-      "fx": 0.355,
-      "fy": -0.304,
-    },
-    "offsetB": {
-      "fx": 0.946,
-      "fy": 0.063,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "6",
       },
       {
         "kind": "CHAR",
@@ -804,12 +451,59 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
-        "value": "K",
+        "value": "H",
       },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+    ],
+    "b": [
       {
         "kind": "CHAR",
         "value": "5",
       },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "H",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+    ],
+    "identical": true,
+    "index": 7,
+    "offsetA": {
+      "fx": 0.179,
+      "fy": -0.446,
+    },
+    "offsetB": {
+      "fx": 0.618,
+      "fy": 0.502,
+    },
+  },
+  {
+    "a": [
       {
         "kind": "SHAPE",
         "rotation": 0,
@@ -819,28 +513,324 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "kind": "CHAR",
         "value": "8",
       },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
     ],
     "b": [
       {
-        "kind": "CHAR",
-        "value": "6",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "R",
+        "value": "8",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "K",
+        "value": "1",
       },
       {
         "kind": "CHAR",
-        "value": "S",
+        "value": "A",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+    ],
+    "identical": true,
+    "index": 8,
+    "offsetA": {
+      "fx": 0.845,
+      "fy": 0.262,
+    },
+    "offsetB": {
+      "fx": 0.974,
+      "fy": -0.228,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "W",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "W",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+    ],
+    "identical": false,
+    "index": 9,
+    "offsetA": {
+      "fx": -0.89,
+      "fy": 0.71,
+    },
+    "offsetB": {
+      "fx": -0.033,
+      "fy": -0.067,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "TRAPEZOID_LEFT",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+    ],
+    "identical": true,
+    "index": 10,
+    "offsetA": {
+      "fx": -0.445,
+      "fy": -0.168,
+    },
+    "offsetB": {
+      "fx": -0.476,
+      "fy": 0.83,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+    ],
+    "identical": false,
+    "index": 11,
+    "offsetA": {
+      "fx": -0.008,
+      "fy": 0.957,
+    },
+    "offsetB": {
+      "fx": -0.931,
+      "fy": 0.22,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "0",
       },
       {
         "kind": "CHAR",
@@ -850,12 +840,12 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
     "identical": false,
     "index": 12,
     "offsetA": {
-      "fx": 0.65,
-      "fy": -0.759,
+      "fx": 0.134,
+      "fy": -0.462,
     },
     "offsetB": {
-      "fx": 0.378,
-      "fy": -0.307,
+      "fx": -0.675,
+      "fy": 0.878,
     },
   },
   {
@@ -863,97 +853,96 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Z",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "TRAPEZOID_RIGHT",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
       },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Z",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "identical": true,
-    "index": 13,
-    "offsetA": {
-      "fx": -0.934,
-      "fy": -0.72,
-    },
-    "offsetB": {
-      "fx": -0.098,
-      "fy": -0.327,
-    },
-  },
-  {
-    "a": [
       {
         "kind": "CHAR",
         "value": "V",
       },
       {
+        "kind": "CHAR",
+        "value": "R",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "SQUARE",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "kind": "CHAR",
+        "value": "V",
       },
       {
         "kind": "CHAR",
-        "value": "F",
+        "value": "R",
       },
+    ],
+    "identical": true,
+    "index": 13,
+    "offsetA": {
+      "fx": -0.12,
+      "fy": -0.411,
+    },
+    "offsetB": {
+      "fx": -0.557,
+      "fy": -0.825,
+    },
+  },
+  {
+    "a": [
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "U",
       },
       {
         "kind": "CHAR",
-        "value": "1",
+        "value": "Z",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
       },
     ],
     "b": [
@@ -962,213 +951,495 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "value": "U",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "kind": "CHAR",
+        "value": "Z",
       },
       {
         "kind": "CHAR",
-        "value": "F",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "value": "R",
       },
       {
         "kind": "CHAR",
-        "value": "1",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
     ],
     "identical": false,
     "index": 14,
     "offsetA": {
-      "fx": -0.66,
-      "fy": 0.347,
+      "fx": 0.203,
+      "fy": 0.336,
     },
     "offsetB": {
-      "fx": -0.766,
-      "fy": 0.927,
+      "fx": 0.826,
+      "fy": -0.049,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "CHAR",
-        "value": "E",
+        "value": "F",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
       },
       {
         "kind": "CHAR",
         "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "5",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
       },
     ],
     "b": [
       {
         "kind": "CHAR",
-        "value": "L",
-      },
-      {
-        "kind": "CHAR",
         "value": "E",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
       },
       {
         "kind": "CHAR",
         "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
       },
     ],
     "identical": false,
     "index": 15,
     "offsetA": {
-      "fx": -0.056,
-      "fy": 0.333,
+      "fx": -0.964,
+      "fy": -0.131,
     },
     "offsetB": {
-      "fx": -0.591,
-      "fy": -0.412,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "3",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "G",
-      },
-      {
-        "kind": "CHAR",
-        "value": "7",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "3",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "G",
-      },
-      {
-        "kind": "CHAR",
-        "value": "7",
-      },
-    ],
-    "identical": true,
-    "index": 16,
-    "offsetA": {
-      "fx": -0.149,
-      "fy": -0.309,
-    },
-    "offsetB": {
-      "fx": -0.612,
-      "fy": 0.757,
+      "fx": 0.583,
+      "fy": -0.181,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "9",
       },
       {
-        "kind": "CHAR",
-        "value": "2",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
-        "kind": "CHAR",
-        "value": "1",
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
-      {
-        "kind": "CHAR",
-        "value": "6",
-      },
-      {
-        "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "b": [
       {
         "kind": "CHAR",
         "value": "K",
       },
       {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "CHAR",
+        "value": "K",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+    ],
+    "identical": true,
+    "index": 16,
+    "offsetA": {
+      "fx": 0.68,
+      "fy": -0.773,
+    },
+    "offsetB": {
+      "fx": -0.142,
+      "fy": 0.657,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "C",
+      },
+    ],
+    "identical": false,
+    "index": 17,
+    "offsetA": {
+      "fx": -0.085,
+      "fy": 0.847,
+    },
+    "offsetB": {
+      "fx": -0.01,
+      "fy": -0.876,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "T",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "1",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "T",
+      },
+      {
+        "kind": "CHAR",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": true,
+    "index": 18,
+    "offsetA": {
+      "fx": 0.908,
+      "fy": 0.724,
+    },
+    "offsetB": {
+      "fx": 0.316,
+      "fy": 0.393,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
         "kind": "CHAR",
         "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": true,
+    "index": 19,
+    "offsetA": {
+      "fx": -0.134,
+      "fy": -0.849,
+    },
+    "offsetB": {
+      "fx": 0.248,
+      "fy": 0.33,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "X",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+    ],
+    "identical": false,
+    "index": 20,
+    "offsetA": {
+      "fx": -0.613,
+      "fy": 0.414,
+    },
+    "offsetB": {
+      "fx": -0.796,
+      "fy": -0.45,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
       },
       {
         "kind": "CHAR",
@@ -1176,201 +1447,10 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
-        "value": "6",
-      },
-      {
-        "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "identical": false,
-    "index": 17,
-    "offsetA": {
-      "fx": -0.347,
-      "fy": -0.546,
-    },
-    "offsetB": {
-      "fx": 0.836,
-      "fy": 0.016,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
+        "value": "T",
       },
     ],
     "b": [
-      {
-        "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-    ],
-    "identical": true,
-    "index": 18,
-    "offsetA": {
-      "fx": 0.014,
-      "fy": -0.844,
-    },
-    "offsetB": {
-      "fx": 0.416,
-      "fy": 0.103,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Z",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Z",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "X",
-      },
-    ],
-    "identical": true,
-    "index": 19,
-    "offsetA": {
-      "fx": 0.198,
-      "fy": 0.199,
-    },
-    "offsetB": {
-      "fx": 0.516,
-      "fy": 0.982,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Q",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
       {
         "kind": "CHAR",
         "value": "R",
@@ -1386,125 +1466,99 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "Q",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
         "value": "R",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
+        "kind": "CHAR",
+        "value": "B",
       },
       {
         "kind": "CHAR",
-        "value": "U",
+        "value": "1",
       },
       {
         "kind": "CHAR",
-        "value": "S",
-      },
-    ],
-    "identical": false,
-    "index": 20,
-    "offsetA": {
-      "fx": -0.164,
-      "fy": -0.926,
-    },
-    "offsetB": {
-      "fx": -0.94,
-      "fy": 0.621,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "F",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "5",
-      },
-    ],
-    "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "F",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "5",
+        "value": "T",
       },
     ],
     "identical": false,
     "index": 21,
+    "offsetA": {
+      "fx": -0.91,
+      "fy": -0.174,
+    },
+    "offsetB": {
+      "fx": -0.066,
+      "fy": 0.42,
+    },
+  },
+  {
+    "a": [
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+    ],
+    "b": [
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
+        "value": "G",
+      },
+      {
+        "kind": "CHAR",
+        "value": "5",
+      },
+      {
+        "kind": "CHAR",
+        "value": "P",
+      },
+    ],
+    "identical": true,
+    "index": 22,
     "offsetA": {
       "fx": 0.12,
       "fy": 0.445,
@@ -1524,12 +1578,11 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "CIRCLE",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "kind": "CHAR",
+        "value": "T",
       },
       {
         "kind": "SHAPE",
@@ -1538,142 +1591,63 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
+        "rotation": 270,
         "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
     ],
     "b": [
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-    ],
-    "identical": true,
-    "index": 22,
-    "offsetA": {
-      "fx": 0.55,
-      "fy": -0.023,
-    },
-    "offsetB": {
-      "fx": -0.857,
-      "fy": 0.125,
-    },
-  },
-  {
-    "a": [
-      {
-        "kind": "CHAR",
-        "value": "Q",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "RECTANGLE",
       },
       {
-        "kind": "CHAR",
-        "value": "G",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "Q",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "4",
-      },
-      {
-        "kind": "CHAR",
-        "value": "2",
+        "value": "T",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "SQUARE",
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 270,
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "L",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "G",
       },
     ],
     "identical": false,
     "index": 23,
     "offsetA": {
-      "fx": -0.837,
-      "fy": 0.136,
+      "fx": -0.921,
+      "fy": -0.682,
     },
     "offsetB": {
-      "fx": -0.809,
-      "fy": 0.276,
+      "fx": 0.55,
+      "fy": -0.023,
     },
   },
   {
@@ -1684,11 +1658,19 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
         "value": "4",
       },
       {
         "kind": "CHAR",
-        "value": "7",
+        "value": "2",
       },
       {
         "kind": "SHAPE",
@@ -1700,15 +1682,6 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "rotation": 0,
         "shape": "TRAPEZOID_RIGHT",
       },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "3",
-      },
     ],
     "b": [
       {
@@ -1717,11 +1690,19 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
+        "value": "Q",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
+      },
+      {
+        "kind": "CHAR",
         "value": "4",
       },
       {
         "kind": "CHAR",
-        "value": "7",
+        "value": "Z",
       },
       {
         "kind": "SHAPE",
@@ -1731,160 +1712,106 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "3",
+        "shape": "TRAPEZOID_RIGHT",
       },
     ],
     "identical": false,
     "index": 24,
     "offsetA": {
-      "fx": 0.008,
-      "fy": 0.058,
+      "fx": 0.576,
+      "fy": 0.767,
     },
     "offsetB": {
-      "fx": 0.734,
-      "fy": 0.369,
+      "fx": -0.837,
+      "fy": 0.136,
     },
   },
   {
     "a": [
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "M",
       },
       {
         "kind": "CHAR",
-        "value": "7",
+        "value": "J",
       },
       {
         "kind": "CHAR",
-        "value": "1",
+        "value": "4",
       },
       {
         "kind": "CHAR",
-        "value": "E",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "R",
+        "value": "8",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "W",
       },
     ],
     "b": [
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "M",
       },
       {
         "kind": "CHAR",
-        "value": "7",
+        "value": "J",
       },
       {
         "kind": "CHAR",
-        "value": "1",
+        "value": "4",
       },
       {
         "kind": "CHAR",
-        "value": "E",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "R",
+        "value": "8",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "W",
       },
     ],
     "identical": true,
     "index": 25,
     "offsetA": {
-      "fx": -0.452,
-      "fy": 0.695,
+      "fx": 0.107,
+      "fy": -0.061,
     },
     "offsetB": {
-      "fx": 0.865,
-      "fy": 0.011,
+      "fx": -0.089,
+      "fy": -0.771,
     },
   },
   {
     "a": [
       {
-        "kind": "CHAR",
-        "value": "B",
-      },
-      {
-        "kind": "CHAR",
-        "value": "R",
-      },
-      {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
-        "value": "K",
-      },
-    ],
-    "b": [
-      {
-        "kind": "CHAR",
-        "value": "B",
-      },
-      {
-        "kind": "CHAR",
-        "value": "R",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 90,
-        "shape": "TRIANGLE",
+        "value": "V",
       },
       {
         "kind": "SHAPE",
@@ -1892,31 +1819,70 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_RIGHT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "kind": "CHAR",
+        "value": "4",
       },
       {
         "kind": "CHAR",
-        "value": "K",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "3",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+    ],
+    "b": [
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_RIGHT",
+      },
+      {
+        "kind": "CHAR",
+        "value": "4",
+      },
+      {
+        "kind": "CHAR",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "8",
+      },
+      {
+        "kind": "CHAR",
+        "value": "V",
       },
     ],
     "identical": false,
     "index": 26,
     "offsetA": {
-      "fx": -0.445,
-      "fy": -0.542,
+      "fx": -0.578,
+      "fy": 0.49,
     },
     "offsetB": {
-      "fx": -0.235,
-      "fy": -0.412,
+      "fx": 0.369,
+      "fy": -0.142,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "D",
+        "value": "9",
       },
       {
         "kind": "SHAPE",
@@ -1924,33 +1890,32 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_LEFT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
+        "kind": "CHAR",
+        "value": "B",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
+        "kind": "CHAR",
+        "value": "R",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
+        "value": "T",
       },
     ],
     "b": [
       {
         "kind": "CHAR",
-        "value": "D",
+        "value": "9",
       },
       {
         "kind": "SHAPE",
@@ -1958,220 +1923,203 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_LEFT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
+        "kind": "CHAR",
+        "value": "B",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
+        "kind": "CHAR",
+        "value": "R",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
+        "value": "T",
       },
     ],
     "identical": true,
     "index": 27,
     "offsetA": {
-      "fx": 0.523,
-      "fy": -0.446,
+      "fx": 0.156,
+      "fy": -0.393,
     },
     "offsetB": {
-      "fx": 0.37,
-      "fy": 0.666,
+      "fx": 0.355,
+      "fy": 0.079,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "B",
       },
       {
         "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
+        "value": "Q",
       },
       {
         "kind": "CHAR",
-        "value": "R",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "SQUARE",
       },
     ],
     "b": [
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "B",
       },
       {
         "kind": "CHAR",
-        "value": "C",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 180,
-        "shape": "TRAPEZOID",
+        "value": "Q",
       },
       {
         "kind": "CHAR",
-        "value": "R",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "CIRCLE",
       },
     ],
     "identical": false,
     "index": 28,
     "offsetA": {
-      "fx": -0.503,
-      "fy": 0.316,
+      "fx": 0.937,
+      "fy": 0.343,
     },
     "offsetB": {
-      "fx": 0.932,
-      "fy": 0.869,
+      "fx": 0.126,
+      "fy": 0.599,
     },
   },
   {
     "a": [
       {
         "kind": "SHAPE",
-        "rotation": 270,
+        "rotation": 90,
         "shape": "TRIANGLE",
       },
       {
-        "kind": "CHAR",
-        "value": "9",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "A",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
         "value": "C",
       },
       {
-        "kind": "CHAR",
-        "value": "F",
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
-        "value": "A",
+        "rotation": 270,
+        "shape": "TRIANGLE",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "R",
+      },
+      {
+        "kind": "CHAR",
+        "value": "N",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
         "value": "C",
       },
       {
-        "kind": "CHAR",
-        "value": "F",
+        "kind": "SHAPE",
+        "rotation": 180,
+        "shape": "TRAPEZOID",
       },
     ],
     "identical": false,
     "index": 29,
     "offsetA": {
-      "fx": -0.682,
-      "fy": -0.648,
+      "fx": 0.882,
+      "fy": 0.992,
     },
     "offsetB": {
-      "fx": -0.905,
-      "fy": 0.308,
+      "fx": -0.468,
+      "fy": 0.814,
     },
   },
   {
     "a": [
       {
-        "kind": "CHAR",
-        "value": "L",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
         "value": "6",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "A",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
@@ -2179,35 +2127,36 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_LEFT",
       },
       {
-        "kind": "CHAR",
-        "value": "8",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
       },
     ],
     "b": [
       {
-        "kind": "CHAR",
-        "value": "L",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "SQUARE",
       },
       {
         "kind": "CHAR",
         "value": "6",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "A",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
       },
       {
         "kind": "SHAPE",
@@ -2215,23 +2164,36 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_LEFT",
       },
       {
-        "kind": "CHAR",
-        "value": "8",
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
+        "value": "N",
+      },
+      {
+        "kind": "CHAR",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "9",
+      },
+      {
+        "kind": "CHAR",
+        "value": "B",
       },
     ],
     "identical": true,
     "index": 30,
     "offsetA": {
-      "fx": -0.052,
-      "fy": -0.341,
+      "fx": 0.373,
+      "fy": -0.117,
     },
     "offsetB": {
-      "fx": -0.524,
-      "fy": -0.542,
+      "fx": 0.552,
+      "fy": 0.745,
     },
   },
   {
@@ -2239,110 +2201,99 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "L",
+        "value": "1",
       },
       {
         "kind": "CHAR",
-        "value": "C",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
       },
       {
         "kind": "SHAPE",
         "rotation": 180,
-        "shape": "TRAPEZOID",
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
     ],
     "b": [
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "RECTANGLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "L",
+        "value": "1",
       },
       {
         "kind": "CHAR",
-        "value": "C",
+        "value": "2",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "1",
       },
       {
         "kind": "SHAPE",
         "rotation": 180,
-        "shape": "TRAPEZOID",
+        "shape": "TRIANGLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "6",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
     ],
     "identical": true,
     "index": 31,
     "offsetA": {
-      "fx": 0.346,
-      "fy": 0.082,
+      "fx": 0.06,
+      "fy": -0.358,
     },
     "offsetB": {
-      "fx": 0.205,
-      "fy": 0.506,
+      "fx": 0.525,
+      "fy": -0.453,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "Y",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
-        "value": "1",
+        "value": "F",
       },
       {
         "kind": "SHAPE",
@@ -2351,33 +2302,36 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
-        "value": "F",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "A",
+        "value": "Q",
       },
     ],
     "b": [
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "Y",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "2",
-      },
-      {
-        "kind": "CHAR",
-        "value": "9",
-      },
-      {
-        "kind": "CHAR",
-        "value": "1",
+        "value": "F",
       },
       {
         "kind": "SHAPE",
@@ -2386,50 +2340,53 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
       },
       {
         "kind": "CHAR",
-        "value": "F",
+        "value": "7",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRAPEZOID",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "CIRCLE",
       },
       {
         "kind": "CHAR",
-        "value": "Y",
-      },
-      {
-        "kind": "CHAR",
-        "value": "A",
+        "value": "Q",
       },
     ],
     "identical": true,
     "index": 32,
     "offsetA": {
-      "fx": 0.751,
-      "fy": -0.698,
+      "fx": -0.422,
+      "fy": -0.615,
     },
     "offsetB": {
-      "fx": -0.598,
-      "fy": 0.289,
+      "fx": 0.487,
+      "fy": -0.703,
     },
   },
   {
     "a": [
       {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 90,
+        "shape": "TRIANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "S",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "5",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
+        "value": "Y",
       },
       {
         "kind": "SHAPE",
@@ -2437,37 +2394,37 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_RIGHT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
+        "kind": "CHAR",
+        "value": "L",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
       },
     ],
     "b": [
       {
+        "kind": "CHAR",
+        "value": "Z",
+      },
+      {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "TRAPEZOID_LEFT",
+        "shape": "RECTANGLE",
+      },
+      {
+        "kind": "SHAPE",
+        "rotation": 0,
+        "shape": "TRIANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "5",
-      },
-      {
-        "kind": "CHAR",
-        "value": "U",
-      },
-      {
-        "kind": "CHAR",
-        "value": "5",
-      },
-      {
-        "kind": "CHAR",
-        "value": "S",
+        "value": "Y",
       },
       {
         "kind": "SHAPE",
@@ -2475,32 +2432,39 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "TRAPEZOID_RIGHT",
       },
       {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "SQUARE",
+        "kind": "CHAR",
+        "value": "L",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "RECTANGLE",
+        "shape": "CIRCLE",
+      },
+      {
+        "kind": "CHAR",
+        "value": "2",
       },
     ],
     "identical": false,
     "index": 33,
     "offsetA": {
-      "fx": 0.153,
-      "fy": 0.219,
+      "fx": -0.007,
+      "fy": -0.888,
     },
     "offsetB": {
-      "fx": -0.051,
-      "fy": 0.131,
+      "fx": 0.458,
+      "fy": 0.044,
     },
   },
   {
     "a": [
       {
         "kind": "CHAR",
-        "value": "D",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
       },
       {
         "kind": "SHAPE",
@@ -2508,37 +2472,36 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "CIRCLE",
       },
       {
-        "kind": "CHAR",
-        "value": "Q",
-      },
-      {
         "kind": "SHAPE",
-        "rotation": 180,
+        "rotation": 0,
         "shape": "TRIANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "4",
+        "value": "M",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "K",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
     ],
     "b": [
       {
         "kind": "CHAR",
-        "value": "D",
+        "value": "H",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
       },
       {
         "kind": "SHAPE",
@@ -2546,130 +2509,121 @@ exports[`generateDiscriminationSession > matches the reference snapshot for a fi
         "shape": "CIRCLE",
       },
       {
-        "kind": "CHAR",
-        "value": "Q",
-      },
-      {
         "kind": "SHAPE",
-        "rotation": 180,
+        "rotation": 0,
         "shape": "TRIANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "4",
+        "value": "W",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
-        "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID",
+        "shape": "TRAPEZOID_LEFT",
       },
       {
         "kind": "CHAR",
-        "value": "X",
+        "value": "S",
+      },
+      {
+        "kind": "CHAR",
+        "value": "U",
       },
     ],
     "identical": false,
     "index": 34,
     "offsetA": {
-      "fx": 0.323,
-      "fy": -0.865,
+      "fx": 0.159,
+      "fy": 0.552,
     },
     "offsetB": {
-      "fx": -0.219,
-      "fy": 0.444,
+      "fx": 0.299,
+      "fy": 0.627,
     },
   },
   {
     "a": [
       {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "8",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "J",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 270,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "T",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "B",
       },
     ],
     "b": [
       {
+        "kind": "CHAR",
+        "value": "Y",
+      },
+      {
+        "kind": "CHAR",
+        "value": "F",
+      },
+      {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "RECTANGLE",
       },
       {
         "kind": "CHAR",
-        "value": "8",
+        "value": "E",
+      },
+      {
+        "kind": "CHAR",
+        "value": "M",
+      },
+      {
+        "kind": "CHAR",
+        "value": "J",
+      },
+      {
+        "kind": "CHAR",
+        "value": "D",
       },
       {
         "kind": "SHAPE",
         "rotation": 0,
         "shape": "CIRCLE",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 270,
-        "shape": "TRIANGLE",
-      },
-      {
-        "kind": "CHAR",
-        "value": "P",
-      },
-      {
-        "kind": "CHAR",
-        "value": "T",
-      },
-      {
-        "kind": "SHAPE",
-        "rotation": 0,
-        "shape": "TRAPEZOID_RIGHT",
-      },
-      {
-        "kind": "CHAR",
-        "value": "B",
       },
     ],
     "identical": true,
     "index": 35,
     "offsetA": {
-      "fx": -0.756,
-      "fy": -0.871,
+      "fx": -0.027,
+      "fy": 0.47,
     },
     "offsetB": {
-      "fx": -0.015,
-      "fy": 0.216,
+      "fx": 0.396,
+      "fy": -0.762,
     },
   },
 ]

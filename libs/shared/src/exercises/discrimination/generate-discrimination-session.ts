@@ -17,15 +17,63 @@ import {
 
 export const DISCRIMINATION_IDENTICAL_MIN = 16;
 export const DISCRIMINATION_IDENTICAL_MAX = 20;
+export const DISCRIMINATION_MAX_SHAPE_RUN = 2;
+export const DISCRIMINATION_MAX_SHAPE_OCCURRENCES = 2;
 
 const CHAR_PROBABILITY = 0.6;
 const SHAPE_IDS = Object.values(ShapeId);
 
-function drawElement(rng: SeededRng): DiscriminationElement {
-  if (rng.next() < CHAR_PROBABILITY) {
-    return { kind: 'CHAR', value: rng.pick(DISCRIMINATION_CHAR_POOL) };
+function trailingShapeRun(sequence: DiscriminationElement[]): number {
+  let run = 0;
+  for (
+    let position = sequence.length - 1;
+    position >= 0 && sequence[position].kind === 'SHAPE';
+    position -= 1
+  ) {
+    run += 1;
   }
-  const shape = rng.pick(SHAPE_IDS);
+  return run;
+}
+
+function allowedShapesFor(sequence: DiscriminationElement[]): ShapeId[] {
+  if (trailingShapeRun(sequence) >= DISCRIMINATION_MAX_SHAPE_RUN) {
+    return [];
+  }
+  const previous = sequence[sequence.length - 1];
+  const excluded = new Set<ShapeId>();
+  if (previous?.kind === 'SHAPE') {
+    excluded.add(previous.shape);
+    for (const partner of shapePartnersFor(previous.shape)) {
+      excluded.add(partner);
+    }
+  }
+  const occurrences = new Map<ShapeId, number>();
+  for (const element of sequence) {
+    if (element.kind === 'SHAPE') {
+      occurrences.set(element.shape, (occurrences.get(element.shape) ?? 0) + 1);
+    }
+  }
+  return SHAPE_IDS.filter(
+    (shape) =>
+      !excluded.has(shape) &&
+      (occurrences.get(shape) ?? 0) < DISCRIMINATION_MAX_SHAPE_OCCURRENCES,
+  );
+}
+
+function drawElement(
+  rng: SeededRng,
+  sequence: DiscriminationElement[],
+): DiscriminationElement {
+  const allowedShapes = allowedShapesFor(sequence);
+  if (allowedShapes.length === 0 || rng.next() < CHAR_PROBABILITY) {
+    const previous = sequence[sequence.length - 1];
+    const pool =
+      previous?.kind === 'CHAR'
+        ? DISCRIMINATION_CHAR_POOL.filter((value) => value !== previous.value)
+        : DISCRIMINATION_CHAR_POOL;
+    return { kind: 'CHAR', value: rng.pick(pool) };
+  }
+  const shape = rng.pick(allowedShapes);
   return {
     kind: 'SHAPE',
     shape,
@@ -112,7 +160,10 @@ export function generateDiscriminationSession(
     const length =
       training.minSequenceLength +
       Math.round((lengthSpan * index) / (trialCount - 1));
-    const a = Array.from({ length }, () => drawElement(rng));
+    const a: DiscriminationElement[] = [];
+    while (a.length < length) {
+      a.push(drawElement(rng, a));
+    }
     const b = a.map((element) => ({ ...element }));
     const identical = identicalIndexes.has(index);
     if (!identical) {

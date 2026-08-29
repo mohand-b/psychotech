@@ -5,21 +5,31 @@ import {
   DISCRIMINATION_CHAR_POOL,
   DISTINCT_ROTATIONS,
   sameElement,
+  shapePartnersFor,
 } from './discrimination-confusables';
 import {
   DISCRIMINATION_IDENTICAL_MAX,
   DISCRIMINATION_IDENTICAL_MIN,
+  DISCRIMINATION_MAX_SHAPE_OCCURRENCES,
+  DISCRIMINATION_MAX_SHAPE_RUN,
   generateDiscriminationSession,
 } from './generate-discrimination-session';
 import { DiscriminationTrial } from './discrimination-trial';
 
 const TRAINING = AXIS_TRAINING[AxisType.VISUAL_DISCRIMINATION];
-const SAMPLE_SEEDS = ['discri-1', 'discri-2', 'discri-3', 'discri-4', 'discri-5'];
+const SAMPLE_SEEDS = [
+  'discri-1',
+  'discri-2',
+  'discri-3',
+  'discri-4',
+  'discri-5',
+];
 
 function differenceCount(trial: DiscriminationTrial): number {
   expect(trial.b).toHaveLength(trial.a.length);
-  return trial.a.filter((element, position) => !sameElement(element, trial.b[position]))
-    .length;
+  return trial.a.filter(
+    (element, position) => !sameElement(element, trial.b[position]),
+  ).length;
 }
 
 describe('generateDiscriminationSession', () => {
@@ -47,7 +57,9 @@ describe('generateDiscriminationSession', () => {
         trials.map((_, position) => position),
       );
       expect(trials[0].a).toHaveLength(TRAINING.minSequenceLength);
-      expect(trials[trials.length - 1].a).toHaveLength(TRAINING.maxSequenceLength);
+      expect(trials[trials.length - 1].a).toHaveLength(
+        TRAINING.maxSequenceLength,
+      );
       for (const [position, trial] of trials.entries()) {
         if (position > 0) {
           expect(trial.a.length).toBeGreaterThanOrEqual(
@@ -63,7 +75,9 @@ describe('generateDiscriminationSession', () => {
       const identicalCount = generateDiscriminationSession(seed).filter(
         ({ identical }) => identical,
       ).length;
-      expect(identicalCount).toBeGreaterThanOrEqual(DISCRIMINATION_IDENTICAL_MIN);
+      expect(identicalCount).toBeGreaterThanOrEqual(
+        DISCRIMINATION_IDENTICAL_MIN,
+      );
       expect(identicalCount).toBeLessThanOrEqual(DISCRIMINATION_IDENTICAL_MAX);
     }
   });
@@ -100,8 +114,66 @@ describe('generateDiscriminationSession', () => {
             expect(DISCRIMINATION_CHAR_POOL).toContain(element.value);
             expect(['O', 'I']).not.toContain(element.value);
           } else {
-            expect(DISTINCT_ROTATIONS[element.shape]).toContain(element.rotation);
+            expect(DISTINCT_ROTATIONS[element.shape]).toContain(
+              element.rotation,
+            );
           }
+        }
+      }
+    }
+  });
+
+  it('never repeats an element on two adjacent positions', () => {
+    for (const seed of SAMPLE_SEEDS) {
+      for (const trial of generateDiscriminationSession(seed)) {
+        for (let position = 1; position < trial.a.length; position += 1) {
+          expect(sameElement(trial.a[position - 1], trial.a[position])).toBe(
+            false,
+          );
+        }
+      }
+    }
+  });
+
+  it('never chains two lookalike shapes and caps shape runs', () => {
+    for (const seed of SAMPLE_SEEDS) {
+      for (const trial of generateDiscriminationSession(seed)) {
+        let run = 0;
+        for (const [position, element] of trial.a.entries()) {
+          if (element.kind !== 'SHAPE') {
+            run = 0;
+            continue;
+          }
+          run += 1;
+          expect(run).toBeLessThanOrEqual(DISCRIMINATION_MAX_SHAPE_RUN);
+          const previous = trial.a[position - 1];
+          if (previous?.kind === 'SHAPE') {
+            expect(previous.shape).not.toBe(element.shape);
+            expect(shapePartnersFor(element.shape)).not.toContain(
+              previous.shape,
+            );
+          }
+        }
+      }
+    }
+  });
+
+  it('caps how often a shape appears inside one sequence', () => {
+    for (const seed of SAMPLE_SEEDS) {
+      for (const trial of generateDiscriminationSession(seed)) {
+        const occurrences = new Map<ShapeId, number>();
+        for (const element of trial.a) {
+          if (element.kind === 'SHAPE') {
+            occurrences.set(
+              element.shape,
+              (occurrences.get(element.shape) ?? 0) + 1,
+            );
+          }
+        }
+        for (const count of occurrences.values()) {
+          expect(count).toBeLessThanOrEqual(
+            DISCRIMINATION_MAX_SHAPE_OCCURRENCES,
+          );
         }
       }
     }
