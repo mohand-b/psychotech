@@ -26,74 +26,14 @@ import {
   scoreMotricityRecap,
   scoreMotricitySession,
 } from './motricity-scoring';
+import {
+  FRAME_MS,
+  centerlinePositionAtPct,
+  outsidePointNear,
+  walkCenterline,
+} from './motricity-trajectory-fixtures';
 
 const SAMPLE_SEEDS = ['alpha', 'bravo', 'charlie', 'delta', 'echo'];
-const FRAME_MS = 1000 / 60;
-
-function centerlinePositionAtPct(
-  course: MotricityCourse,
-  pct: number,
-): MotricityPoint {
-  let remaining = (pct / 100) * course.totalLength;
-  let position = course.centerline[0];
-  for (const segment of course.segments) {
-    if (remaining <= segment.length) {
-      const ratio = remaining / segment.length;
-      return {
-        x: segment.start.x + (segment.end.x - segment.start.x) * ratio,
-        y: segment.start.y + (segment.end.y - segment.start.y) * ratio,
-      };
-    }
-    remaining -= segment.length;
-    position = segment.end;
-  }
-  return position;
-}
-
-function walkCenterline(
-  course: MotricityCourse,
-  durationMs: number,
-  untilPct = 100,
-): MotricitySampleDto[] {
-  const sampleCount = Math.round(durationMs / FRAME_MS);
-  const samples: MotricitySampleDto[] = [];
-  for (let index = 0; index <= sampleCount; index += 1) {
-    const position = centerlinePositionAtPct(
-      course,
-      (index / sampleCount) * untilPct,
-    );
-    samples.push({
-      t: Math.round(index * FRAME_MS),
-      x: position.x,
-      y: position.y,
-    });
-  }
-  return samples;
-}
-
-function outsidePointNear(
-  course: MotricityCourse,
-  target: MotricityPoint,
-): MotricityPoint {
-  const directions = [
-    { x: 0, y: 1 },
-    { x: 0, y: -1 },
-    { x: 1, y: 0 },
-    { x: -1, y: 0 },
-  ];
-  for (let radius = 40; radius <= 400; radius += 20) {
-    for (const direction of directions) {
-      const candidate = {
-        x: target.x + direction.x * radius,
-        y: target.y + direction.y * radius,
-      };
-      if (motricityCursorZone(course, candidate) === 'OUTSIDE') {
-        return candidate;
-      }
-    }
-  }
-  throw new Error('No outside point found near target');
-}
 
 function cheatingTrajectory(course: MotricityCourse): MotricitySampleDto[] {
   const samples: MotricitySampleDto[] = [];
@@ -216,13 +156,11 @@ describe('generateMotricityCourses', () => {
   it('builds a closed garage slightly wider than the corridor with the start inside', () => {
     for (const seed of SAMPLE_SEEDS) {
       for (const course of generateMotricityCourses(seed)) {
-        expect(course.garage.height).toBeGreaterThan(
-          course.segments[0].width,
-        );
+        expect(course.garage.height).toBeGreaterThan(course.segments[0].width);
         expect(course.garageWalls).toHaveLength(5);
-        expect(
-          motricityCursorZone(course, course.startPosition),
-        ).toBe('GARAGE');
+        expect(motricityCursorZone(course, course.startPosition)).toBe(
+          'GARAGE',
+        );
       }
     }
   });
@@ -350,10 +288,7 @@ describe('scoreMotricityCourse', () => {
       );
       previousT = sample.t;
     }
-    const liveProgression = Math.min(
-      100,
-      (liveArc / course.totalLength) * 100,
-    );
+    const liveProgression = Math.min(100, (liveArc / course.totalLength) * 100);
     expect(scored.progressionPct).toBe(Math.round(liveProgression));
   });
 });
@@ -411,9 +346,9 @@ describe('motricityCourseFinished', () => {
   const course = generateMotricityCourses('finish')[0];
 
   it('accepts a fully crossed course and a course played to the timer', () => {
-    expect(motricityCourseFinished(course, walkCenterline(course, 45_000))).toBe(
-      true,
-    );
+    expect(
+      motricityCourseFinished(course, walkCenterline(course, 45_000)),
+    ).toBe(true);
     const timedOut = walkCenterline(course, 90_000, 60);
     expect(motricityCourseFinished(course, timedOut)).toBe(true);
   });
@@ -468,7 +403,12 @@ describe('motricityAnchoredArc', () => {
     let arc = 0;
     let previousT = 0;
     for (const sample of cheatingTrajectory(course)) {
-      const next = motricityAnchoredArc(course, sample, arc, sample.t - previousT);
+      const next = motricityAnchoredArc(
+        course,
+        sample,
+        arc,
+        sample.t - previousT,
+      );
       expect(next).toBeGreaterThanOrEqual(arc);
       arc = next;
       previousT = sample.t;
