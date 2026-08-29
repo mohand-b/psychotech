@@ -241,7 +241,7 @@ describe('scoreReactivitySession', () => {
     expect(nothing.score).toBe(0);
   });
 
-  it('collapses the score of fast responses when most stimuli go unhandled', () => {
+  it('weighs the error rate as a percentage inside the additive twenty-point component', () => {
     const generated = generateReactivitySession('mostly-missed-seed');
     const answered = generated.slice(0, Math.floor(generated.length / 5));
     const scored = scoreReactivitySession(
@@ -253,7 +253,13 @@ describe('scoreReactivitySession', () => {
     );
     const errorRate = (scored.omissionCount / generated.length) * 100;
     expect(errorRate).toBeGreaterThan(75);
-    expect(scored.score).toBeLessThanOrEqual(Math.round(100 - errorRate));
+    expect(scored.score).toBe(
+      Math.round(
+        REACTIVITY_SPEED_WEIGHT * 100 +
+          REACTIVITY_STABILITY_WEIGHT * 100 +
+          REACTIVITY_ACCURACY_WEIGHT * (100 - errorRate),
+      ),
+    );
   });
 
   it('smooths the trend with a centered window of five valid points', () => {
@@ -277,6 +283,57 @@ describe('scoreReactivitySession', () => {
     expect(scored.trend.map(({ appearAtMs }) => appearAtMs)).toEqual(
       bigSequence.map(({ appearAtMs }) => appearAtMs),
     );
+  });
+
+  it('deducts exactly four points for nine faults over forty-five stimuli, killing any fraction scale', () => {
+    const seq = Array.from({ length: 45 }, (_, index) =>
+      stimulus(index, 'YELLOW', index * 2000),
+    );
+    const cleanAnswers = seq.map(({ index }) => answer(index, 'LEFT', 500));
+    const faultyAnswers = seq.map(({ index }) =>
+      index >= 36 ? answer(index, 'RIGHT', 500) : answer(index, 'LEFT', 500),
+    );
+    const clean = scoreReactivitySession(seq, cleanAnswers, []);
+    const faulty = scoreReactivitySession(seq, faultyAnswers, []);
+    expect(faulty.wrongCommandCount).toBe(9);
+    expect(clean.score - faulty.score).toBe(4);
+  });
+
+  it('scores the fresh day session at the fiche value: 377 ms, 56 ms, six wrong commands', () => {
+    const seq = Array.from({ length: 60 }, (_, index) =>
+      stimulus(index, 'YELLOW', index * 2000),
+    );
+    const answers = seq.map(({ index }) =>
+      index >= 54
+        ? answer(index, 'RIGHT', 600)
+        : answer(index, 'LEFT', index % 2 === 0 ? 321 : 433),
+    );
+    const scored = scoreReactivitySession(seq, answers, []);
+    expect(scored.trMoyMs).toBe(377);
+    expect(scored.sdMs).toBe(56);
+    expect(scored.wrongCommandCount).toBe(6);
+    expect(scored.anticipationCount).toBe(0);
+    expect(scored.omissionCount).toBe(0);
+    expect(scored.score).toBe(87);
+  });
+
+  it('keeps the historic landmark session at eighty-four: 399 ms, 67 ms, three faults', () => {
+    const seq = Array.from({ length: 60 }, (_, index) =>
+      stimulus(index, 'YELLOW', index * 2000),
+    );
+    const answers = seq.map(({ index }) => {
+      if (index === 57 || index === 58) {
+        return answer(index, 'RIGHT', 600);
+      }
+      if (index === 59) {
+        return answer(index, 'LEFT', 100);
+      }
+      return answer(index, 'LEFT', index % 2 === 0 ? 332 : 466);
+    });
+    const scored = scoreReactivitySession(seq, answers, []);
+    expect(scored.wrongCommandCount).toBe(2);
+    expect(scored.anticipationCount).toBe(1);
+    expect(scored.score).toBe(84);
   });
 
   it('scales the error rate to the dynamically generated stimulus count', () => {

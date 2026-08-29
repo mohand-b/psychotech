@@ -107,7 +107,7 @@ describe('golden determinism: same seed, same items, same scores', () => {
     expect(reacSig).toBe(
       'YYYYYYYYYYYYYYYYYYYBYYBBYYBBBYYBBBYYBBYBRYBRBRBYBBYBBBRRYY',
     );
-    expect(reacScore).toBe(75);
+    expect(reacScore).toBe(71);
   });
 
   it('freezes the motricity chain', () => {

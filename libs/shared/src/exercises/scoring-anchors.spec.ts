@@ -79,10 +79,10 @@ interface ReactivityProfile {
 }
 
 const REACTIVITY_PROFILES: ReactivityProfile[] = [
-  { band: 'excellent', trMs: 420, sdMs: 55, wrongRate: 0.02, omitRate: 0 },
-  { band: 'bon', trMs: 520, sdMs: 90, wrongRate: 0.04, omitRate: 0.02 },
-  { band: 'moyen', trMs: 640, sdMs: 130, wrongRate: 0.08, omitRate: 0.06 },
-  { band: 'faible', trMs: 800, sdMs: 185, wrongRate: 0.14, omitRate: 0.14 },
+  { band: 'excellent', trMs: 340, sdMs: 40, wrongRate: 0.02, omitRate: 0 },
+  { band: 'bon', trMs: 420, sdMs: 60, wrongRate: 0.04, omitRate: 0.02 },
+  { band: 'moyen', trMs: 520, sdMs: 90, wrongRate: 0.08, omitRate: 0.06 },
+  { band: 'faible', trMs: 650, sdMs: 130, wrongRate: 0.14, omitRate: 0.14 },
 ];
 
 function standardNormal(rng: SeededRng): number {

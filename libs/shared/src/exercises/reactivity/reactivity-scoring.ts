@@ -14,10 +14,10 @@ export const REACTIVITY_ANTICIPATION_TR_MS = 150;
 export const REACTIVITY_SPEED_WEIGHT = 0.5;
 export const REACTIVITY_STABILITY_WEIGHT = 0.3;
 export const REACTIVITY_ACCURACY_WEIGHT = 0.2;
-export const REACTIVITY_SPEED_BEST_MS = 380;
-export const REACTIVITY_SPEED_WORST_MS = 1150;
-export const REACTIVITY_STABILITY_BEST_MS = 45;
-export const REACTIVITY_STABILITY_WORST_MS = 300;
+export const REACTIVITY_SPEED_BEST_MS = 300;
+export const REACTIVITY_SPEED_WORST_MS = 900;
+export const REACTIVITY_STABILITY_BEST_MS = 30;
+export const REACTIVITY_STABILITY_WORST_MS = 190;
 export const REACTIVITY_TREND_WINDOW = 5;
 export const REACTIVITY_PHASE_SD_MIN_VALID = 2;
 
@@ -153,12 +153,16 @@ export function scoreReactivitySession(
       : ((anticipationCount + omissionCount + wrongCommandCount) /
           sequence.length) *
         100;
-  const responseQuality =
-    REACTIVITY_SPEED_WEIGHT * speed +
-    REACTIVITY_STABILITY_WEIGHT * stability +
-    REACTIVITY_ACCURACY_WEIGHT * 100;
   const score = Math.round(
-    Math.min(100, Math.max(0, (responseQuality * (100 - errorRate)) / 100)),
+    Math.min(
+      100,
+      Math.max(
+        0,
+        REACTIVITY_SPEED_WEIGHT * speed +
+          REACTIVITY_STABILITY_WEIGHT * stability +
+          REACTIVITY_ACCURACY_WEIGHT * (100 - errorRate),
+      ),
+    ),
   );
 
   const validPoints = points.filter(
