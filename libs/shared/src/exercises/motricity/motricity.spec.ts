@@ -242,31 +242,34 @@ describe('scoreMotricityCourse', () => {
     expect(scored.progressionPct).toBe(0);
   });
 
-  it('scores a perfect completed run at one hundred, whatever the pace', () => {
+  it('weighs a perfect run at seventy percent progression plus thirty percent speed', () => {
     const samples = walkCenterline(course, 50_000);
     const scored = scoreMotricityCourse(course, samples);
     expect(scored.progressionPct).toBe(100);
     expect(scored.minorErrors).toBe(0);
     expect(scored.majorErrors).toBe(0);
-    expect(scored.score).toBe(100);
+    const speed =
+      100 * Math.min(1, Math.max(0, (90_000 - scored.tReelMs) / 70_000));
+    expect(scored.score).toBeCloseTo(0.7 * 100 + 0.3 * speed, 5);
   });
 
-  it('gives identical scores to two runs that only differ by their time', () => {
+  it('lets the speed separate two clean runs, the slow one landing near seventy-two', () => {
     const fast = scoreMotricityCourse(course, walkCenterline(course, 30_000));
     const slow = scoreMotricityCourse(course, walkCenterline(course, 85_000));
     expect(fast.progressionPct).toBe(100);
     expect(slow.progressionPct).toBe(100);
     expect(fast.tReelMs).toBeLessThan(slow.tReelMs);
-    expect(fast.score).toBe(slow.score);
-    expect(fast.score).toBe(100);
+    expect(fast.score).toBeGreaterThan(slow.score);
+    expect(Math.round(slow.score)).toBeGreaterThanOrEqual(71);
+    expect(Math.round(slow.score)).toBeLessThanOrEqual(73);
   });
 
-  it('keeps punishing an unfinished course through its progression', () => {
+  it('keeps punishing an unfinished course: seventy percent of its progression, no speed', () => {
     const samples = walkCenterline(course, 60_000, 70);
     const scored = scoreMotricityCourse(course, samples);
     expect(scored.progressionPct).toBeGreaterThanOrEqual(69);
     expect(scored.progressionPct).toBeLessThanOrEqual(71);
-    expect(scored.score).toBeCloseTo(scored.progressionPct, 0);
+    expect(scored.score).toBeCloseTo(0.7 * scored.progressionPct, 0);
   });
 
   it('completes a cheating run, counts its major errors, and matches the live arc tracking', () => {
@@ -306,39 +309,58 @@ describe('scoreMotricityRecap calibration', () => {
     };
   }
 
-  it('scores a clean completed course at one hundred whatever the time within the limit', () => {
+  it('anchors the fiche profiles: full speed 100, clean and fast near 90, clean but slow near 72', () => {
     expect(scoreMotricityRecap(recap({ tReelMs: 20_000 }))).toBe(100);
-    expect(scoreMotricityRecap(recap({ tReelMs: 43_500 }))).toBe(100);
-    expect(scoreMotricityRecap(recap({ tReelMs: 85_000 }))).toBe(100);
+    expect(Math.round(scoreMotricityRecap(recap({ tReelMs: 43_500 })))).toBe(
+      90,
+    );
+    expect(Math.round(scoreMotricityRecap(recap({ tReelMs: 85_000 })))).toBe(
+      72,
+    );
   });
 
-  it('never lets the time change a score between two otherwise identical runs', () => {
+  it('lets the time separate two otherwise identical completed runs', () => {
     const base = { minorErrors: 2, majorErrors: 1, progressionPct: 100 };
-    expect(scoreMotricityRecap({ ...base, tReelMs: 25_000 })).toBe(
+    expect(scoreMotricityRecap({ ...base, tReelMs: 25_000 })).toBeGreaterThan(
       scoreMotricityRecap({ ...base, tReelMs: 88_000 }),
     );
   });
 
-  it('deducts twelve points per major error and four per minor error', () => {
-    expect(scoreMotricityRecap(recap({ majorErrors: 1 }))).toBe(88);
-    expect(scoreMotricityRecap(recap({ minorErrors: 1 }))).toBe(96);
+  it('gives no speed component to an unfinished course', () => {
+    expect(
+      scoreMotricityRecap(recap({ progressionPct: 80, tReelMs: 25_000 })),
+    ).toBeCloseTo(0.7 * 80, 5);
   });
 
-  it('floors a course with twenty-two major errors at zero', () => {
+  it('deducts twelve points per major error and three per minor error, unbounded', () => {
+    expect(scoreMotricityRecap(recap({ majorErrors: 1 }))).toBe(88);
+    expect(scoreMotricityRecap(recap({ minorErrors: 1 }))).toBe(97);
+    expect(scoreMotricityRecap(recap({ minorErrors: 21 }))).toBe(37);
+    expect(scoreMotricityRecap(recap({ minorErrors: 30 }))).toBe(10);
+  });
+
+  it('floors a heavily faulted course at the real zero only', () => {
     expect(scoreMotricityRecap(recap({ majorErrors: 22 }))).toBe(0);
+    expect(scoreMotricityRecap(recap({ minorErrors: 34 }))).toBe(0);
     expect(
       scoreMotricityRecap(recap({ minorErrors: 30, majorErrors: 30 })),
     ).toBe(0);
   });
 
-  it('scores the witness session case at one hundred', () => {
-    const finishedCourse = {
-      minorErrors: 0,
-      majorErrors: 0,
-      progressionPct: 100,
-      tReelMs: 45_000,
-    };
-    expect(scoreMotricityRecap(finishedCourse)).toBe(100);
+  it('scores the witness session near seventy-three: 3/3, twelve contacts, 2:30 total', () => {
+    const witnessCourses = [
+      { minorErrors: 0, majorErrors: 0, progressionPct: 100, tReelMs: 45_000 },
+      { minorErrors: 0, majorErrors: 0, progressionPct: 100, tReelMs: 50_000 },
+      { minorErrors: 12, majorErrors: 0, progressionPct: 100, tReelMs: 55_000 },
+    ];
+    const [s1, s2, s3] = witnessCourses.map(scoreMotricityRecap);
+    const aggregate = Math.round(
+      (s1 + s2 + MOTRICITY_FINAL_COURSE_WEIGHT * s3) /
+        (2 + MOTRICITY_FINAL_COURSE_WEIGHT),
+    );
+    expect(aggregate).toBeGreaterThanOrEqual(70);
+    expect(aggregate).toBeLessThanOrEqual(75);
+    expect(aggregate).toBe(71);
   });
 });
 

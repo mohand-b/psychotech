@@ -112,6 +112,6 @@ describe('golden determinism: same seed, same items, same scores', () => {
 
   it('freezes the motricity chain', () => {
     expect(motoSig).toBe('0:1048|1:1265|2:1599');
-    expect(motoScored.score).toBe(100);
+    expect(motoScored.score).toBe(89);
   });
 });

@@ -290,7 +290,7 @@ describe('motricityPerfectionAchieved', () => {
       centerlineTrajectories(2, 2),
       SEED,
     );
-    expect(scored.score).toBe(100);
+    expect(scored.score).toBe(89);
     expect(motricityPerfectionAchieved(scored.courses)).toBe(true);
     expect(motricityExitFreeAchieved(scored.courses)).toBe(true);
   });

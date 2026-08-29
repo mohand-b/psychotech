@@ -206,8 +206,8 @@ function motricityTimeline(shapes: CourseShape[]): MotricityCourseTimeline[] {
 }
 
 const MOTRICITY_COURSE_SHAPES: CourseShape[] = [
-  { index: 0, durationMs: 61_000, drift: 3, events: [] },
-  { index: 1, durationMs: 74_000, drift: 6, events: [41_200] },
+  { index: 0, durationMs: 46_000, drift: 3, events: [] },
+  { index: 1, durationMs: 52_000, drift: 6, events: [41_200] },
   { index: 2, durationMs: 79_000, drift: 11, events: [33_800, 58_400] },
 ];
 
@@ -215,7 +215,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
   axis: AxisType.MOTOR_SKILLS,
   minorErrors: 8,
   majorErrors: 2,
-  totalTimeMs: 214_000,
+  totalTimeMs: 177_000,
   coursesCompleted: 2,
   controlModality: ControlModality.KEYBOARD,
   handIndependence: 0.24,
@@ -225,7 +225,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
       minorErrors: 3,
       majorErrors: 0,
       progressionPct: 100,
-      tReelMs: 61_000,
+      tReelMs: 46_000,
       avgLatencyMs: null,
       jitterMs: null,
     },
@@ -234,7 +234,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
       minorErrors: 3,
       majorErrors: 1,
       progressionPct: 100,
-      tReelMs: 74_000,
+      tReelMs: 52_000,
       avgLatencyMs: null,
       jitterMs: null,
     },
@@ -242,7 +242,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
       index: 2,
       minorErrors: 2,
       majorErrors: 1,
-      progressionPct: 58,
+      progressionPct: 90,
       tReelMs: 79_000,
       avgLatencyMs: null,
       jitterMs: null,

@@ -15,8 +15,12 @@ import {
 
 const MOTRICITY_SECONDS_PER_COURSE = 90;
 const MOTRICITY_MAJOR_GRACE_MS = 1000;
-const MOTRICITY_MINOR_DEDUCTION = 4;
+const MOTRICITY_MINOR_DEDUCTION = 3;
 const MOTRICITY_MAJOR_DEDUCTION = 12;
+const MOTRICITY_PROGRESSION_WEIGHT = 0.7;
+const MOTRICITY_SPEED_WEIGHT = 0.3;
+const MOTRICITY_SPEED_BEST_MS = 20_000;
+const MOTRICITY_SPEED_WORST_MS = 90_000;
 export const MOTRICITY_FINAL_COURSE_WEIGHT = 1.5;
 const MOTRICITY_ARC_COMPLETION_TOLERANCE = 0.5;
 
@@ -52,12 +56,27 @@ export interface MotricityCourseRecapInput {
   tReelMs: number;
 }
 
+export function motricitySpeedScore(
+  progressionPct: number,
+  tReelMs: number,
+): number {
+  if (progressionPct < 100) {
+    return 0;
+  }
+  const normalized =
+    (MOTRICITY_SPEED_WORST_MS - tReelMs) /
+    (MOTRICITY_SPEED_WORST_MS - MOTRICITY_SPEED_BEST_MS);
+  return 100 * Math.min(1, Math.max(0, normalized));
+}
+
 export function scoreMotricityRecap(recap: MotricityCourseRecapInput): number {
   return Math.min(
     100,
     Math.max(
       0,
-      recap.progressionPct -
+      MOTRICITY_PROGRESSION_WEIGHT * recap.progressionPct +
+        MOTRICITY_SPEED_WEIGHT *
+          motricitySpeedScore(recap.progressionPct, recap.tReelMs) -
         MOTRICITY_MINOR_DEDUCTION * recap.minorErrors -
         MOTRICITY_MAJOR_DEDUCTION * recap.majorErrors,
     ),
