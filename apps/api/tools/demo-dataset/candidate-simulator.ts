@@ -206,7 +206,46 @@ function perturbMemoryInput(
   return input;
 }
 
+// Sous ce seuil d'habileté, une passe Mémoire intégralement parfaite est un
+// accident de tirage, pas une performance voulue : on injecte alors une erreur
+// minimale pour qu'aucun profil ne paraisse parfait par hasard.
+const MEMORY_PERFECTION_ABILITY_THRESHOLD = 0.98;
+
 export function simulateMemoryAnswers(
+  sequences: readonly MemorySequence[],
+  ability: number,
+  rng: SeededRng,
+): MemorySequenceAnswerDto[] {
+  const answers = simulateRawMemoryAnswers(sequences, ability, rng);
+  if (ability >= MEMORY_PERFECTION_ABILITY_THRESHOLD) {
+    return answers;
+  }
+  const allPerfect = answers.every((answer, position) => {
+    const expected = expectedMemoryAnswer(sequences[position]);
+    return (
+      !answer.timedOut &&
+      answer.input.length === expected.length &&
+      answer.input.every((value, digit) => value === expected[digit])
+    );
+  });
+  if (!allPerfect) {
+    return answers;
+  }
+  const last = answers[answers.length - 1];
+  return [
+    ...answers.slice(0, -1),
+    {
+      ...last,
+      input: perturbMemoryInput(
+        expectedMemoryAnswer(sequences[sequences.length - 1]),
+        0.85,
+        rng,
+      ),
+    },
+  ];
+}
+
+function simulateRawMemoryAnswers(
   sequences: readonly MemorySequence[],
   ability: number,
   rng: SeededRng,
@@ -326,10 +365,10 @@ export function simulateReactivityAnswers(
 // REACTIVITY_ANTICIPATION_TR_MS (150 ms), sous lequel le scoreur requalifie
 // un appui en anticipation — c'est ce qui empêchait la perfection quand on se
 // contentait de pousser l'habileté à 1.
-const REACTIVITY_FLAWLESS_MEDIAN_MS = 265;
-const REACTIVITY_FLAWLESS_SIGMA = 0.12;
+const REACTIVITY_FLAWLESS_MEDIAN_MS = 258;
+const REACTIVITY_FLAWLESS_SIGMA = 0.09;
 const REACTIVITY_FLAWLESS_MIN_MS = 200;
-const REACTIVITY_FLAWLESS_MAX_MS = 700;
+const REACTIVITY_FLAWLESS_MAX_MS = 400;
 
 export function simulateFlawlessReactivityAnswers(
   stimuli: readonly ReactivityStimulus[],

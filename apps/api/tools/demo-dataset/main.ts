@@ -27,7 +27,14 @@ import {
   simulateMotricityTrajectories,
   simulateReactivityAnswers,
 } from './candidate-simulator';
-import {
+import { PlannedSession } from './demo-profile';
+import * as johnProfile from './demo-profile';
+import * as vendorProfile from './vendor-profile';
+
+const profile = process.argv.includes('--profile=vendor')
+  ? vendorProfile
+  : johnProfile;
+const {
   DEMO_CREDITS,
   DEMO_EMAIL,
   DEMO_FILTERED_PLAN,
@@ -37,9 +44,8 @@ import {
   DEMO_PLAN,
   DEMO_SEED,
   DEMO_WORKING_CREDITS,
-  PlannedSession,
   abilityForAxis,
-} from './demo-profile';
+} = profile;
 
 const LOCAL_DATABASE_HOSTS = ['localhost', '127.0.0.1', '::1'];
 const AXIS_SESSION_MINUTES = 7;
