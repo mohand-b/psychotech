@@ -3,10 +3,10 @@ import { PlannedSession } from './demo-profile';
 
 export const DEMO_SEED = 'psychotech-vendor-2026-rev3';
 
-export const DEMO_EMAIL = 'camille.perrin@example.com';
+export const DEMO_EMAIL = 'john.doe@example.com';
 export const DEMO_PASSWORD = 'Ferroviaire2026!';
-export const DEMO_FIRST_NAME = 'Camille';
-export const DEMO_LAST_NAME = 'Perrin';
+export const DEMO_FIRST_NAME = 'John';
+export const DEMO_LAST_NAME = 'Doe';
 
 export const DEMO_CREDITS = 30;
 export const DEMO_WORKING_CREDITS = 500;
