@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AxisType } from '@psychotech/shared';
+import { AxisType, FULL_SESSION_AXIS_ORDER } from '@psychotech/shared';
+import { AXIS_PRESENTATION } from '../axis-presentation';
 import { AxisRadar, AxisRadarEntry } from './axis-radar';
 
 const AXES = [
@@ -117,6 +118,30 @@ describe('AxisRadar', () => {
     fixture.detectChanges();
 
     expect(areaPoints(fixture)).toBe('85,64 85,64 85,64 85,64 85,64');
+  });
+
+  it('anchors every score to its axis vertex whatever the entry order', async () => {
+    reducedMotion = true;
+    const fixture = await setup();
+    const displayOrderPolygon = areaPoints(fixture);
+
+    const playOrder = FULL_SESSION_AXIS_ORDER.map((axis) => ({
+      axis,
+      score: LAST_SESSION.find((entry) => entry.axis === axis)?.score ?? 0,
+    }));
+    fixture.componentInstance.entries.set(playOrder);
+    fixture.detectChanges();
+
+    expect(areaPoints(fixture)).toBe(displayOrderPolygon);
+
+    const dots: NodeListOf<Element> =
+      fixture.nativeElement.querySelectorAll('.radar__dot');
+    expect(dots[3]?.getAttribute('fill')).toBe(
+      AXIS_PRESENTATION[AxisType.REACTIVITY].plainVar,
+    );
+    expect(dots[4]?.getAttribute('fill')).toBe(
+      AXIS_PRESENTATION[AxisType.MOTOR_SKILLS].plainVar,
+    );
   });
 });
 

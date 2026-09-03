@@ -39,13 +39,33 @@ const BUILD_STAGGER_STEP = 0.06;
 const MORPH_DURATION_SEC = 0.45;
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
-const RADAR_LABELS = [
-  { text: 'Logique', x: 85, y: 9, anchor: 'middle' },
-  { text: 'Mémoire', x: 135, y: 46, anchor: 'start' },
-  { text: 'Discri.', x: 116, y: 113, anchor: 'start' },
-  { text: 'Réacti.', x: 54, y: 113, anchor: 'end' },
-  { text: 'Motricité', x: 35, y: 46, anchor: 'end' },
+const RADAR_VERTICES = [
+  { axis: AxisType.LOGIC, text: 'Logique', x: 85, y: 9, anchor: 'middle' },
+  { axis: AxisType.MEMORY, text: 'Mémoire', x: 135, y: 46, anchor: 'start' },
+  {
+    axis: AxisType.VISUAL_DISCRIMINATION,
+    text: 'Discri.',
+    x: 116,
+    y: 113,
+    anchor: 'start',
+  },
+  { axis: AxisType.REACTIVITY, text: 'Réacti.', x: 54, y: 113, anchor: 'end' },
+  { axis: AxisType.MOTOR_SKILLS, text: 'Motricité', x: 35, y: 46, anchor: 'end' },
 ] as const;
+
+// Chaque sommet est indissociable de son axe : les entrées sont réordonnées
+// sur cette base, l'ordre fourni par l'appelant n'a aucune importance.
+function orderForDisplay(
+  entries: readonly AxisRadarEntry[],
+): readonly AxisRadarEntry[] {
+  if (entries.length === 0) {
+    return [];
+  }
+  return RADAR_VERTICES.map(({ axis }) => ({
+    axis,
+    score: entries.find((entry) => entry.axis === axis)?.score ?? 0,
+  }));
+}
 
 @Component({
   selector: 'ui-axis-radar',
@@ -157,6 +177,13 @@ export class AxisRadar {
   readonly progress = input(1);
   readonly outlined = input(false);
 
+  private readonly orderedEntries = computed(() =>
+    orderForDisplay(this.entries()),
+  );
+  private readonly orderedBaseline = computed(() =>
+    orderForDisplay(this.baseline()),
+  );
+
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -169,7 +196,7 @@ export class AxisRadar {
 
   constructor() {
     effect(() => {
-      const target = this.entries().map((entry) => entry.score);
+      const target = this.orderedEntries().map((entry) => entry.score);
       const drawn = untracked(this.drawnScores);
       if (drawn.length !== target.length || !this.canMorph()) {
         this.settleOn(target);
@@ -243,7 +270,7 @@ export class AxisRadar {
   protected readonly viewHeight = VIEW_HEIGHT;
   protected readonly centerX = CENTER_X;
   protected readonly centerY = CENTER_Y;
-  protected readonly labels = RADAR_LABELS;
+  protected readonly labels = RADAR_VERTICES;
 
   protected readonly meshPolygons = MESH_LEVELS.map((level) =>
     polygonPoints((index) => pointAt(index, level)),
@@ -260,15 +287,15 @@ export class AxisRadar {
   );
 
   protected readonly baselinePoints = computed(() =>
-    this.baseline().length === 0
+    this.orderedBaseline().length === 0
       ? null
       : polygonPoints((index) =>
-          pointAt(index, (this.baseline()[index]?.score ?? 0) / 100),
+          pointAt(index, (this.orderedBaseline()[index]?.score ?? 0) / 100),
         ),
   );
 
   protected readonly vertices = computed<RadarVertex[]>(() =>
-    this.entries().map((entry, index) => ({
+    this.orderedEntries().map((entry, index) => ({
       ...pointAt(
         index,
         this.builtFraction(this.drawnScores()[index] ?? entry.score, index),
@@ -283,7 +310,7 @@ export class AxisRadar {
     if (raw >= 1) {
       return target;
     }
-    const count = this.entries().length;
+    const count = this.orderedEntries().length;
     const spread = 1 + (count - 1) * BUILD_STAGGER_STEP;
     const staggered = Math.min(
       1,
