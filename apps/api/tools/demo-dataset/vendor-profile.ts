@@ -8,7 +8,7 @@ export const DEMO_PASSWORD = 'Ferroviaire2026!';
 export const DEMO_FIRST_NAME = 'John';
 export const DEMO_LAST_NAME = 'Doe';
 
-export const DEMO_CREDITS = 30;
+export const DEMO_CREDITS = 6;
 export const DEMO_WORKING_CREDITS = 500;
 
 function clamp(value: number, min: number, max: number): number {
@@ -75,7 +75,7 @@ export const DEMO_PLAN: readonly PlannedSession[] = [
 
   { dayOffset: -33, mode: SessionMode.TARGETED, axis: AxisType.VISUAL_DISCRIMINATION, ability: 0.64 },
   { dayOffset: -32, mode: SessionMode.TARGETED, axis: AxisType.MOTOR_SKILLS, ability: 0.63 },
-  { dayOffset: -31, mode: SessionMode.FULL, ability: 0.65, abandonAfterAxes: 3 },
+  { dayOffset: -31, mode: SessionMode.FULL, ability: 0.65 },
   { dayOffset: -29, mode: SessionMode.TARGETED, axis: AxisType.REACTIVITY, ability: 0.68 },
 
   // Semaine creuse : une seule session, la reprise est moyenne.
@@ -97,7 +97,7 @@ export const DEMO_PLAN: readonly PlannedSession[] = [
   { dayOffset: -4, mode: SessionMode.TARGETED, axis: AxisType.MEMORY, ability: 0.88 },
   { dayOffset: -3, mode: SessionMode.TARGETED, axis: AxisType.REACTIVITY, ability: 0.95, flawless: true },
   { dayOffset: -2, mode: SessionMode.TARGETED, axis: AxisType.VISUAL_DISCRIMINATION, ability: 0.88 },
-  { dayOffset: -1, mode: SessionMode.FULL, ability: 0.95 },
+  { dayOffset: -1, mode: SessionMode.FULL, ability: 0.845 },
 ];
 
 export const DEMO_FILTERED_PLAN: readonly PlannedSession[] = [
