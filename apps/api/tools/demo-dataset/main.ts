@@ -16,6 +16,7 @@ import {
 import { AppModule } from '../../src/app/app.module';
 import { AuthService } from '../../src/app/auth/auth.service';
 import { BadgesService } from '../../src/app/badges/badges.service';
+import { withDatabaseRetry } from '../../src/app/prisma/database-retry';
 import { PrismaService } from '../../src/app/prisma/prisma.service';
 import { CompleteTargetedSessionRequest } from '../../src/app/sessions/dto/complete-targeted-session.request';
 import { SessionsService } from '../../src/app/sessions/sessions.service';
@@ -134,11 +135,13 @@ async function setCredits(
   userId: string,
   balance: number,
 ): Promise<void> {
-  await prisma.energyWallet.upsert({
-    where: { userId },
-    create: { userId, balance },
-    update: { balance },
-  });
+  await withDatabaseRetry(() =>
+    prisma.energyWallet.upsert({
+      where: { userId },
+      create: { userId, balance },
+      update: { balance },
+    }),
+  );
 }
 
 function buildAxisRequest(
