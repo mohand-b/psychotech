@@ -20,12 +20,10 @@ import {
   TrainingOptionId,
 } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
+import { withDatabaseRetry } from '../prisma/database-retry';
 import { PrismaService } from '../prisma/prisma.service';
 import { finishedAxisCount } from './sessions.logic';
-import {
-  SESSION_INCLUDE,
-  SessionWithRelations,
-} from './sessions.mappers';
+import { SESSION_INCLUDE, SessionWithRelations } from './sessions.mappers';
 
 interface CompleteSessionResult {
   session: SessionWithRelations;
@@ -110,7 +108,11 @@ type TargetedAxisRow = Prisma.SessionAxisGetPayload<{
 
 interface StreakContext {
   timezone: string;
-  streak: { current: number; longest: number; lastActivityDate: Date | null } | null;
+  streak: {
+    current: number;
+    longest: number;
+    lastActivityDate: Date | null;
+  } | null;
 }
 
 interface ListHistoryFilter {
@@ -174,10 +176,12 @@ export class SessionsRepository {
     sessionId: string,
     userId: string,
   ): Promise<SessionWithRelations | null> {
-    return this.prisma.session.findFirst({
-      where: { id: sessionId, userId },
-      include: SESSION_INCLUDE,
-    });
+    return withDatabaseRetry(() =>
+      this.prisma.session.findFirst({
+        where: { id: sessionId, userId },
+        include: SESSION_INCLUDE,
+      }),
+    );
   }
 
   async findSectorConfig(sector: Sector): Promise<SectorConfigData | null> {
@@ -221,92 +225,104 @@ export class SessionsRepository {
   async completeFullSessionAxis(
     params: CompleteFullSessionAxisParams,
   ): Promise<void> {
-    await this.prisma.$transaction([
-      this.prisma.sessionAxis.update({
-        where: {
-          sessionId_axis: {
-            sessionId: params.sessionId,
-            axis: mapEnumValue(DbAxisType, params.axis),
+    await withDatabaseRetry(() =>
+      this.prisma.$transaction([
+        this.prisma.sessionAxis.update({
+          where: {
+            sessionId_axis: {
+              sessionId: params.sessionId,
+              axis: mapEnumValue(DbAxisType, params.axis),
+            },
           },
-        },
-        data: {
-          metrics: params.rawResult as unknown as Prisma.InputJsonValue,
-          skipped: false,
-          normalizedScore: params.score.normalizedScore,
-          band: mapEnumValue(DbScoreBand, params.score.band),
-          startedAt: params.startedAt,
-          completedAt: params.completedAt,
-        },
-      }),
-      this.prisma.session.update({
-        where: { id: params.sessionId },
-        data: {
-          currentAxisIndex: params.nextAxisIndex,
-          ...(params.controlModality
-            ? {
-                controlModality: mapEnumValue(
-                  DbControlModality,
-                  params.controlModality,
-                ),
-              }
-            : {}),
-        },
-      }),
-    ]);
+          data: {
+            metrics: params.rawResult as unknown as Prisma.InputJsonValue,
+            skipped: false,
+            normalizedScore: params.score.normalizedScore,
+            band: mapEnumValue(DbScoreBand, params.score.band),
+            startedAt: params.startedAt,
+            completedAt: params.completedAt,
+          },
+        }),
+        this.prisma.session.update({
+          where: { id: params.sessionId },
+          data: {
+            currentAxisIndex: params.nextAxisIndex,
+            ...(params.controlModality
+              ? {
+                  controlModality: mapEnumValue(
+                    DbControlModality,
+                    params.controlModality,
+                  ),
+                }
+              : {}),
+          },
+        }),
+      ]),
+    );
   }
 
   async completeSession(
     params: CompleteSessionParams,
     evaluateBadges: (client: Prisma.TransactionClient) => Promise<void>,
   ): Promise<CompleteSessionResult> {
-    return this.prisma.$transaction(async (tx) => {
-      await tx.session.update({
-        where: { id: params.sessionId },
-        data: {
-          status: DbSessionStatus.COMPLETED,
-          globalScore: params.globalScore,
-          globalBand: mapEnumValue(DbScoreBand, params.globalBand),
-          isAdmissible: params.isAdmissible,
-          isEliminated: params.isEliminated,
-          completedAt: params.completedAt,
-          currentAxisIndex: params.axisCount,
-        },
-      });
-      if (params.recommendations.length > 0) {
-        await tx.recommendation.createMany({
-          data: params.recommendations.map((recommendation) => ({
-            sessionId: params.sessionId,
-            axis: mapEnumValue(DbAxisType, recommendation.axis),
-            priority: mapEnumValue(DbRecommendationPriority, recommendation.priority),
-            code: recommendation.code,
-            label: recommendation.label,
-          })),
+    return withDatabaseRetry(() =>
+      this.prisma.$transaction(async (tx) => {
+        await tx.session.update({
+          where: { id: params.sessionId },
+          data: {
+            status: DbSessionStatus.COMPLETED,
+            globalScore: params.globalScore,
+            globalBand: mapEnumValue(DbScoreBand, params.globalBand),
+            isAdmissible: params.isAdmissible,
+            isEliminated: params.isEliminated,
+            completedAt: params.completedAt,
+            currentAxisIndex: params.axisCount,
+          },
         });
-      }
-      for (const best of params.axisBests) {
-        await this.upsertAxisBest(tx, params.userId, params.completedAt, best);
-      }
-      await tx.streak.upsert({
-        where: { userId: params.userId },
-        update: {
-          current: params.streak.current,
-          longest: params.streak.longest,
-          lastActivityDate: params.streak.lastActivityDate,
-        },
-        create: {
-          userId: params.userId,
-          current: params.streak.current,
-          longest: params.streak.longest,
-          lastActivityDate: params.streak.lastActivityDate,
-        },
-      });
-      await evaluateBadges(tx);
-      const session = await tx.session.findUniqueOrThrow({
-        where: { id: params.sessionId },
-        include: SESSION_INCLUDE,
-      });
-      return { session };
-    });
+        if (params.recommendations.length > 0) {
+          await tx.recommendation.createMany({
+            data: params.recommendations.map((recommendation) => ({
+              sessionId: params.sessionId,
+              axis: mapEnumValue(DbAxisType, recommendation.axis),
+              priority: mapEnumValue(
+                DbRecommendationPriority,
+                recommendation.priority,
+              ),
+              code: recommendation.code,
+              label: recommendation.label,
+            })),
+          });
+        }
+        for (const best of params.axisBests) {
+          await this.upsertAxisBest(
+            tx,
+            params.userId,
+            params.completedAt,
+            best,
+          );
+        }
+        await tx.streak.upsert({
+          where: { userId: params.userId },
+          update: {
+            current: params.streak.current,
+            longest: params.streak.longest,
+            lastActivityDate: params.streak.lastActivityDate,
+          },
+          create: {
+            userId: params.userId,
+            current: params.streak.current,
+            longest: params.streak.longest,
+            lastActivityDate: params.streak.lastActivityDate,
+          },
+        });
+        await evaluateBadges(tx);
+        const session = await tx.session.findUniqueOrThrow({
+          where: { id: params.sessionId },
+          include: SESSION_INCLUDE,
+        });
+        return { session };
+      }),
+    );
   }
 
   async completeTargetedSession(
@@ -316,68 +332,72 @@ export class SessionsRepository {
       session: SessionWithRelations,
     ) => Promise<void>,
   ): Promise<CompleteSessionResult> {
-    return this.prisma.$transaction(async (tx) => {
-      await tx.sessionAxis.update({
-        where: {
-          sessionId_axis: {
-            sessionId: params.sessionId,
-            axis: mapEnumValue(DbAxisType, params.axis),
+    return withDatabaseRetry(() =>
+      this.prisma.$transaction(async (tx) => {
+        await tx.sessionAxis.update({
+          where: {
+            sessionId_axis: {
+              sessionId: params.sessionId,
+              axis: mapEnumValue(DbAxisType, params.axis),
+            },
           },
-        },
-        data: {
-          metrics: params.rawResult as unknown as Prisma.InputJsonValue,
-          skipped: false,
-          normalizedScore: params.score?.normalizedScore ?? null,
-          band: params.score ? mapEnumValue(DbScoreBand, params.score.band) : null,
-          startedAt: params.startedAt,
-          completedAt: params.completedAt,
-        },
-      });
-      await tx.session.update({
-        where: { id: params.sessionId },
-        data: {
-          status: DbSessionStatus.COMPLETED,
-          completedAt: params.completedAt,
-          currentAxisIndex: 1,
-          controlModality: params.controlModality
-            ? mapEnumValue(DbControlModality, params.controlModality)
-            : null,
-        },
-      });
-      const session = await tx.session.findUniqueOrThrow({
-        where: { id: params.sessionId },
-        include: SESSION_INCLUDE,
-      });
-      if (params.score && !params.excludeFromBest) {
-        const axisRow = session.axisResults.find(
-          (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
-        );
-        if (axisRow) {
-          await this.upsertAxisBest(tx, params.userId, params.completedAt, {
-            axis: params.axis,
-            score: params.score.normalizedScore,
-            band: params.score.band,
-            sessionAxisId: axisRow.id,
-          });
+          data: {
+            metrics: params.rawResult as unknown as Prisma.InputJsonValue,
+            skipped: false,
+            normalizedScore: params.score?.normalizedScore ?? null,
+            band: params.score
+              ? mapEnumValue(DbScoreBand, params.score.band)
+              : null,
+            startedAt: params.startedAt,
+            completedAt: params.completedAt,
+          },
+        });
+        await tx.session.update({
+          where: { id: params.sessionId },
+          data: {
+            status: DbSessionStatus.COMPLETED,
+            completedAt: params.completedAt,
+            currentAxisIndex: 1,
+            controlModality: params.controlModality
+              ? mapEnumValue(DbControlModality, params.controlModality)
+              : null,
+          },
+        });
+        const session = await tx.session.findUniqueOrThrow({
+          where: { id: params.sessionId },
+          include: SESSION_INCLUDE,
+        });
+        if (params.score && !params.excludeFromBest) {
+          const axisRow = session.axisResults.find(
+            (result) => result.axis === mapEnumValue(DbAxisType, params.axis),
+          );
+          if (axisRow) {
+            await this.upsertAxisBest(tx, params.userId, params.completedAt, {
+              axis: params.axis,
+              score: params.score.normalizedScore,
+              band: params.score.band,
+              sessionAxisId: axisRow.id,
+            });
+          }
         }
-      }
-      await tx.streak.upsert({
-        where: { userId: params.userId },
-        update: {
-          current: params.streak.current,
-          longest: params.streak.longest,
-          lastActivityDate: params.streak.lastActivityDate,
-        },
-        create: {
-          userId: params.userId,
-          current: params.streak.current,
-          longest: params.streak.longest,
-          lastActivityDate: params.streak.lastActivityDate,
-        },
-      });
-      await evaluateBadges(tx, session);
-      return { session };
-    });
+        await tx.streak.upsert({
+          where: { userId: params.userId },
+          update: {
+            current: params.streak.current,
+            longest: params.streak.longest,
+            lastActivityDate: params.streak.lastActivityDate,
+          },
+          create: {
+            userId: params.userId,
+            current: params.streak.current,
+            longest: params.streak.longest,
+            lastActivityDate: params.streak.lastActivityDate,
+          },
+        });
+        await evaluateBadges(tx, session);
+        return { session };
+      }),
+    );
   }
 
   findTargetedAxisHistory(
