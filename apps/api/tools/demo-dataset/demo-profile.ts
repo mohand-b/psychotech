@@ -78,6 +78,10 @@ export interface PlannedSession {
   // c'est ce qui rend une contre-performance réellement visible sur la courbe,
   // que le plancher habituel écraserait.
   criticalFloor?: number;
+  // Force l'habileté d'axes précis, en court-circuitant abilityForAxis et ses
+  // plafonds/planchers : sert à sculpter un cas particulier (un examen blanc
+  // globalement admissible mais recalé par un axe critique effondré).
+  axisAbilities?: Partial<Record<AxisType, number>>;
 }
 
 // Six semaines, rythme irrégulier : des semaines chargées, une semaine creuse

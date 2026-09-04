@@ -98,6 +98,18 @@ export const DEMO_PLAN: readonly PlannedSession[] = [
   { dayOffset: -3, mode: SessionMode.TARGETED, axis: AxisType.REACTIVITY, ability: 0.95, flawless: true },
   { dayOffset: -2, mode: SessionMode.TARGETED, axis: AxisType.VISUAL_DISCRIMINATION, ability: 0.88 },
   { dayOffset: -1, mode: SessionMode.FULL, ability: 0.845 },
+
+  // Examen blanc démonstratif, placé en fin de tableau pour NE PAS décaler les
+  // seeds de la progression (le seedSuffix est l'index dans le plan) mais daté
+  // à J-7 : score global au-dessus du seuil d'admissibilité, et pourtant AVIS
+  // DÉFAVORABLE car la Discrimination — axe critique — s'effondre sous le seuil
+  // éliminatoire de 55.
+  {
+    dayOffset: -7,
+    mode: SessionMode.FULL,
+    ability: 0.85,
+    axisAbilities: { [AxisType.VISUAL_DISCRIMINATION]: 0.2 },
+  },
 ];
 
 export const DEMO_FILTERED_PLAN: readonly PlannedSession[] = [

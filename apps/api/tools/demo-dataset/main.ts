@@ -322,12 +322,15 @@ async function playSession(
   for (const axisResult of axesToPlay) {
     const axis = axisResult.axis as AxisType;
     const flawless = planned.flawless === true && axis === planned.axis;
+    const ability =
+      planned.axisAbilities?.[axis] ??
+      abilityForAxis(axis, planned.ability, planned.criticalFloor);
     const request = buildAxisRequest(
       axis,
       stored.seed,
       stored.contentVersion,
       (stored.logicFamily as LogicFamilyFilter | null) ?? null,
-      abilityForAxis(axis, planned.ability, planned.criticalFloor),
+      ability,
       seedSuffix,
       flawless,
     );
