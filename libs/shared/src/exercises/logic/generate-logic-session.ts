@@ -169,11 +169,13 @@ function buildMatrixLogicItem(
   level: LogicDifficulty,
   index: number,
   itemSeed: string,
+  catalogOverride?: string,
 ): MatrixLogicItem {
   const catalogId =
-    family === LogicFamily.MATRIX_I
+    catalogOverride ??
+    (family === LogicFamily.MATRIX_I
       ? MATRIX_I_CATALOG_BY_LEVEL[level]
-      : MATRIX_II_CATALOG_BY_LEVEL[level];
+      : MATRIX_II_CATALOG_BY_LEVEL[level]);
   const matrix = generateMatrixItemFromCatalog(catalogId, itemSeed);
   const choicesRng = createSeededRng(`${itemSeed}::choices`);
   const correct = matrix.proposals.filter(
@@ -205,6 +207,7 @@ interface LogicTutorialSlot {
   family: LogicFamily;
   structure?: LogicNumericStructure;
   level: LogicDifficulty;
+  matrixCatalogId?: string;
 }
 
 const LOGIC_TUTORIAL_SLOTS: readonly LogicTutorialSlot[] = [
@@ -220,7 +223,11 @@ const LOGIC_TUTORIAL_SLOTS: readonly LogicTutorialSlot[] = [
   },
   { family: LogicFamily.DOMINO, level: 1 },
   { family: LogicFamily.MATRIX_I, level: 1 },
-  { family: LogicFamily.MATRIX_II, level: 1 },
+  {
+    family: LogicFamily.MATRIX_II,
+    level: 1,
+    matrixCatalogId: 'distribution-figures-triple',
+  },
 ];
 
 export function generateLogicTutorial(seed: string): LogicItem[] {
@@ -272,7 +279,13 @@ export function generateLogicTutorial(seed: string): LogicItem[] {
         rule: { ...domino.rule },
       };
     }
-    return buildMatrixLogicItem(slot.family, slot.level, index, itemSeed);
+    return buildMatrixLogicItem(
+      slot.family,
+      slot.level,
+      index,
+      itemSeed,
+      slot.matrixCatalogId,
+    );
   });
 }
 

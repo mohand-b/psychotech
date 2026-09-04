@@ -281,6 +281,13 @@ describe('generateLogicTutorial — composition mixte', () => {
     expect(items.map((item) => item.index)).toEqual([0, 1, 2, 3, 4]);
   });
 
+  it('termine sur une matrice de type Distribution', () => {
+    const items = generateLogicTutorial('tutoriel');
+    const last = items[items.length - 1];
+    expect(last.family).toBe(LogicFamily.MATRIX_II);
+    expect(last.rule.id.startsWith('distribution-')).toBe(true);
+  });
+
   it('réduit les matrices du tutoriel à 4 propositions dont une seule CORRECT', () => {
     expect(
       expectFourProposalsWithSingleCorrect(generateLogicTutorial('tutoriel')),
