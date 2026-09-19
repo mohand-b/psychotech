@@ -32,3 +32,12 @@ export function afterAxisSubmitRoute(
   }
   return ['/entrainements/examen-blanc/session', session.id];
 }
+
+export function inactiveSessionRoute(
+  session: SessionDto,
+  axis: AxisType,
+): string[] {
+  return session.status === SessionStatus.COMPLETED
+    ? afterAxisSubmitRoute(session, axis)
+    : ['/entrainements'];
+}

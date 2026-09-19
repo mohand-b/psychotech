@@ -1,3 +1,4 @@
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -6,13 +7,18 @@ import {
   provideRouter,
 } from '@angular/router';
 import {
+  AXIS_TRAINING,
   AxisType,
   CompleteTargetedSessionDto,
+  FULL_SESSION_AXIS_ORDER,
   LOGIC_CONTENT_VERSION_V2,
   LOGIC_CONTENT_VERSION_V3,
   LogicFamily,
+  LogicItemAnswerDto,
   LogicNumericStructure,
+  SESSION_ENERGY_COST,
   Sector,
+  SessionAxisResultDto,
   SessionDto,
   SessionMode,
   SessionStatus,
@@ -21,11 +27,12 @@ import {
   TriangleSlot,
   generateLogicSession,
 } from '@psychotech/shared';
-import { of } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
 import { TrainingSessionStore } from '../../../sessions/data-access/training-session.store';
+import { RESULT_WAIT_DIRECT_REVEAL_MS } from '../../data-access/result-wait.orchestrator';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import {
   TUTORIAL_SESSION_ID,
@@ -34,6 +41,24 @@ import {
 import { LogicPlay } from './logic-play';
 
 const SESSION_ID = 'session-logic-v2';
+const SESSION_STARTED_AT = '2026-07-16T10:00:00.000Z';
+
+function buildAxisResult(
+  axis: AxisType,
+  order: number,
+  completedAt: string | null = null,
+): SessionAxisResultDto {
+  return {
+    axis,
+    order,
+    normalizedScore: null,
+    band: null,
+    skipped: false,
+    metrics: null,
+    startedAt: SESSION_STARTED_AT,
+    completedAt,
+  };
+}
 
 function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
   return {
@@ -52,22 +77,11 @@ function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
     isAdmissible: null,
     isEliminated: null,
     sectorThreshold: 70,
-    startedAt: '2026-07-16T10:00:00.000Z',
+    startedAt: SESSION_STARTED_AT,
     completedAt: null,
     abandonedAt: null,
     controlModality: null,
-    axisResults: [
-      {
-        axis: AxisType.LOGIC,
-        order: 0,
-        normalizedScore: null,
-        band: null,
-        skipped: false,
-        metrics: null,
-        startedAt: '2026-07-16T10:00:00.000Z',
-        completedAt: null,
-      },
-    ],
+    axisResults: [buildAxisResult(AxisType.LOGIC, 0)],
     recommendations: [],
     ...overrides,
   };
@@ -80,10 +94,12 @@ interface Setup {
   navigate: ReturnType<typeof vi.spyOn>;
 }
 
-async function setup(overrides: Partial<SessionDto> = {}): Promise<Setup> {
-  const completeTargeted = vi.fn(() =>
+async function setup(
+  overrides: Partial<SessionDto> = {},
+  completeTargeted: Setup['completeTargeted'] = vi.fn(() =>
     of(buildSession({ ...overrides, status: SessionStatus.COMPLETED })),
-  );
+  ),
+): Promise<Setup> {
   const targetedResult = vi.fn(() =>
     of({
       sessionId: SESSION_ID,
@@ -142,6 +158,8 @@ function goToItem(setupResult: Setup, index: number): void {
 function nextButton(element: HTMLElement): HTMLButtonElement {
   return element.querySelector('.play__next button') as HTMLButtonElement;
 }
+
+const DOUBLE_TAP_GUARD_ELAPSED_MS = 1000;
 
 describe('LogicPlay (contenu v2)', () => {
   beforeAll(() => {
@@ -368,6 +386,23 @@ describe('LogicPlay (contenu v2)', () => {
     expect(items[5].dominoTop).toBeUndefined();
     expect(result.navigate).not.toHaveBeenCalled();
     expect(result.element.querySelector('ui-result-wait')).not.toBeNull();
+  });
+
+  it('ignores a double tap on Suivant that would land on Terminer, then finishes on a deliberate tap', async () => {
+    const result = await setup();
+    goToItem(result, 38);
+    pressKey(result.fixture, '1');
+
+    pressKey(result.fixture, 'Enter');
+    pressKey(result.fixture, 'Enter');
+    expect(result.completeTargeted).not.toHaveBeenCalled();
+
+    const clock = vi
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.now() + DOUBLE_TAP_GUARD_ELAPSED_MS);
+    pressKey(result.fixture, 'Enter');
+    clock.mockRestore();
+    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
   });
 
   it('lets the candidate finish from an unanswered last item', async () => {
@@ -716,7 +751,11 @@ describe('LogicPlay (tutoriel mixte)', () => {
     pressKey(result.fixture, 'a');
     pressKey(result.fixture, 'Enter');
     pressKey(result.fixture, 'b');
+    const clock = vi
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.now() + DOUBLE_TAP_GUARD_ELAPSED_MS);
     pressKey(result.fixture, 'Enter');
+    clock.mockRestore();
 
     expect(result.completeTargeted).not.toHaveBeenCalled();
     const run = TestBed.inject(TutorialRunFacade).result();
@@ -730,10 +769,288 @@ describe('LogicPlay (tutoriel mixte)', () => {
       expect(run.items[2]).toMatchObject({ dominoTop: 3, dominoBottom: 4 });
       expect(run.items[3]).toMatchObject({ answerIndex: 0 });
     }
-    expect(result.navigate).toHaveBeenCalledWith([
-      '/entrainements/tutoriel',
-      'logique',
-      'fin',
-    ]);
+    expect(result.navigate).toHaveBeenCalledWith(
+      ['/entrainements/tutoriel', 'logique', 'fin'],
+      { replaceUrl: true },
+    );
+  });
+});
+
+const MS_PER_SECOND = 1000;
+const LOGIC_DURATION_MS =
+  AXIS_TRAINING[AxisType.LOGIC].timer.durationSec * MS_PER_SECOND;
+const LOGIC_AXIS_INDEX = FULL_SESSION_AXIS_ORDER.indexOf(AxisType.LOGIC);
+const DOMINO_ITEM_INDEX = 10;
+const LAST_ITEM_INDEX = AXIS_TRAINING[AxisType.LOGIC].exerciseCount - 1;
+const EXAM_HUB_ROUTE = ['/entrainements/examen-blanc/session', SESSION_ID];
+const NETWORK_DOWN_STATUS = 0;
+const FIRST_ITEM_TIME_MS = 4000;
+const SECOND_ITEM_TIME_MS = 2500;
+const LAST_ITEM_TIME_MS = 3000;
+const RETRY_DELAY_MS = 20000;
+const CLOCK_JUMP_BACK_MS = 90000;
+
+function buildExamSession(currentAxisIndex: number): SessionDto {
+  return buildSession({
+    mode: SessionMode.FULL,
+    energyCost: SESSION_ENERGY_COST[SessionMode.FULL],
+    currentAxisIndex,
+    axisResults: FULL_SESSION_AXIS_ORDER.map((axis, order) =>
+      buildAxisResult(
+        axis,
+        order,
+        order < currentAxisIndex ? SESSION_STARTED_AT : null,
+      ),
+    ),
+  });
+}
+
+function setupExam(
+  completeTargeted: Setup['completeTargeted'],
+): Promise<Setup> {
+  return setup(buildExamSession(LOGIC_AXIS_INDEX), completeTargeted);
+}
+
+function failWith(status: number): Observable<never> {
+  return throwError(() => new HttpErrorResponse({ status }));
+}
+
+function advance(setupResult: Setup, ms: number): void {
+  vi.advanceTimersByTime(ms);
+  setupResult.fixture.detectChanges();
+}
+
+function sentItems(
+  setupResult: Setup,
+  callIndex: number,
+): LogicItemAnswerDto[] {
+  const [, , body] = setupResult.completeTargeted.mock.calls[callIndex] as [
+    string,
+    AxisType,
+    CompleteTargetedSessionDto,
+  ];
+  return body.items ?? [];
+}
+
+function waitOverlay(element: HTMLElement): HTMLElement | null {
+  return element.querySelector('ui-result-wait');
+}
+
+function overlayButton(
+  element: HTMLElement,
+  selector: string,
+): HTMLButtonElement | null {
+  return element.querySelector(`ui-result-wait ${selector}`);
+}
+
+function clickOverlayButton(setupResult: Setup, selector: string): void {
+  overlayButton(setupResult.element, selector)?.click();
+  setupResult.fixture.detectChanges();
+}
+
+function finishFromLastItem(setupResult: Setup): void {
+  goToItem(setupResult, LAST_ITEM_INDEX);
+  nextButton(setupResult.element).click();
+  setupResult.fixture.detectChanges();
+}
+
+function insistOnFinishing(setupResult: Setup): void {
+  nextButton(setupResult.element).click();
+  (
+    setupResult.element.querySelector('ui-button.play__next') as HTMLElement
+  ).click();
+  pressKey(setupResult.fixture, 'Enter');
+}
+
+describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    TestBed.inject(TrainingSessionStore).setSession(null);
+    TestBed.resetTestingModule();
+    vi.useRealTimers();
+  });
+
+  it('shows the retry overlay when the auto-submit fails at timer expiry, then resends the same payload and returns to the exam hub', async () => {
+    const completeTargeted = vi
+      .fn(() => of(buildExamSession(LOGIC_AXIS_INDEX + 1)))
+      .mockImplementationOnce(() => failWith(HttpStatusCode.Forbidden));
+    const result = await setupExam(completeTargeted);
+
+    advance(result, FIRST_ITEM_TIME_MS);
+    pressKey(result.fixture, '2');
+    pressKey(result.fixture, 'Enter');
+    advance(result, SECOND_ITEM_TIME_MS);
+    goToItem(result, DOMINO_ITEM_INDEX);
+    pressKey(result.fixture, '4');
+    pressKey(result.fixture, '2');
+
+    advance(
+      result,
+      LOGIC_DURATION_MS -
+        FIRST_ITEM_TIME_MS -
+        SECOND_ITEM_TIME_MS -
+        MS_PER_SECOND,
+    );
+    expect(completeTargeted).not.toHaveBeenCalled();
+    expect(waitOverlay(result.element)).toBeNull();
+
+    advance(result, MS_PER_SECOND);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    const overlay = waitOverlay(result.element);
+    expect(overlay).not.toBeNull();
+    expect(overlay?.querySelector('.wait--failed')).not.toBeNull();
+    expect(
+      overlayButton(result.element, '.wait__retry')?.textContent,
+    ).toContain('Réessayer');
+    expect(overlay?.textContent).toContain(
+      "L'envoi de vos réponses n'a pas abouti.",
+    );
+    expect(result.navigate).not.toHaveBeenCalled();
+
+    const frozenItems = sentItems(result, 0).map((item) => ({ ...item }));
+    expect(frozenItems).toHaveLength(LAST_ITEM_INDEX + 1);
+    expect(frozenItems[0]).toMatchObject({
+      answerIndex: 1,
+      timeMs: FIRST_ITEM_TIME_MS,
+    });
+    expect(frozenItems[1]).toMatchObject({
+      answerIndex: null,
+      timeMs: SECOND_ITEM_TIME_MS,
+      visited: true,
+    });
+    expect(frozenItems[DOMINO_ITEM_INDEX]).toMatchObject({
+      dominoTop: 4,
+      dominoBottom: 2,
+      timeMs: LOGIC_DURATION_MS - FIRST_ITEM_TIME_MS - SECOND_ITEM_TIME_MS,
+    });
+
+    advance(result, RETRY_DELAY_MS);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+
+    clickOverlayButton(result, '.wait__retry');
+    expect(completeTargeted).toHaveBeenCalledTimes(2);
+    expect(sentItems(result, 1)).toEqual(frozenItems);
+    expect(result.navigate).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
+      replaceUrl: true,
+    });
+  });
+
+  it('sends a single request when Terminer and Enter are repeated while the completion is pending', async () => {
+    const completion = new Subject<SessionDto>();
+    const completeTargeted = vi.fn(() => completion.asObservable());
+    const result = await setupExam(completeTargeted);
+
+    finishFromLastItem(result);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(waitOverlay(result.element)).toBeNull();
+
+    insistOnFinishing(result);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+
+    advance(result, RESULT_WAIT_DIRECT_REVEAL_MS);
+    expect(waitOverlay(result.element)).not.toBeNull();
+    expect(overlayButton(result.element, '.wait__retry')).toBeNull();
+
+    insistOnFinishing(result);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.navigate).not.toHaveBeenCalled();
+
+    completion.next(buildExamSession(LOGIC_AXIS_INDEX + 1));
+    completion.complete();
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
+      replaceUrl: true,
+    });
+  });
+
+  it('keeps Terminer and Enter inert after a failed completion so that only Réessayer resends the frozen payload', async () => {
+    const completeTargeted = vi
+      .fn(() => of(buildExamSession(LOGIC_AXIS_INDEX + 1)))
+      .mockImplementationOnce(() => failWith(NETWORK_DOWN_STATUS))
+      .mockImplementationOnce(() => failWith(NETWORK_DOWN_STATUS));
+    const result = await setupExam(completeTargeted);
+
+    advance(result, FIRST_ITEM_TIME_MS);
+    goToItem(result, LAST_ITEM_INDEX);
+    advance(result, LAST_ITEM_TIME_MS);
+    pressKey(result.fixture, '1');
+    pressKey(result.fixture, 'Enter');
+
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(overlayButton(result.element, '.wait__retry')).not.toBeNull();
+    const frozenItems = sentItems(result, 0).map((item) => ({ ...item }));
+    expect(frozenItems[0].timeMs).toBe(FIRST_ITEM_TIME_MS);
+    expect(frozenItems[LAST_ITEM_INDEX]).toMatchObject({
+      answerIndex: 0,
+      timeMs: LAST_ITEM_TIME_MS,
+    });
+
+    advance(result, RETRY_DELAY_MS);
+    pressKey(result.fixture, '3');
+    insistOnFinishing(result);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+
+    advance(result, LOGIC_DURATION_MS);
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+
+    clickOverlayButton(result, '.wait__retry');
+    expect(completeTargeted).toHaveBeenCalledTimes(2);
+    expect(overlayButton(result.element, '.wait__retry')).not.toBeNull();
+    expect(result.navigate).not.toHaveBeenCalled();
+
+    clickOverlayButton(result, '.wait__retry');
+    expect(completeTargeted).toHaveBeenCalledTimes(3);
+    expect(sentItems(result, 1)).toEqual(frozenItems);
+    expect(sentItems(result, 2)).toEqual(frozenItems);
+    expect(result.navigate).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
+      replaceUrl: true,
+    });
+  });
+
+  it('lets the candidate leave from the failed overlay without resending anything', async () => {
+    const completeTargeted = vi.fn(() => failWith(NETWORK_DOWN_STATUS));
+    const result = await setupExam(completeTargeted);
+
+    finishFromLastItem(result);
+    expect(
+      overlayButton(result.element, '.wait__quit')?.textContent?.trim(),
+    ).toBe('Quitter sans envoyer');
+
+    clickOverlayButton(result, '.wait__quit');
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledTimes(1);
+    expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('clamps a negative accumulated time to zero when the device clock jumps backwards', async () => {
+    const completeTargeted = vi.fn(() =>
+      of(buildExamSession(LOGIC_AXIS_INDEX + 1)),
+    );
+    const result = await setupExam(completeTargeted);
+
+    vi.setSystemTime(Date.now() - CLOCK_JUMP_BACK_MS);
+    goToItem(result, LAST_ITEM_INDEX);
+    advance(result, LAST_ITEM_TIME_MS);
+    nextButton(result.element).click();
+    result.fixture.detectChanges();
+
+    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    const items = sentItems(result, 0);
+    expect(items[0].timeMs).toBe(0);
+    expect(items[LAST_ITEM_INDEX].timeMs).toBe(LAST_ITEM_TIME_MS);
+    expect(items.every((item) => item.timeMs >= 0)).toBe(true);
+    expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
+      replaceUrl: true,
+    });
   });
 });

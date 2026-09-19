@@ -22,8 +22,10 @@ import {
   provideRouter,
   withInMemoryScrolling,
   withNavigationErrorHandler,
+  withRouterConfig,
 } from '@angular/router';
 import { ViewportScroller } from '@angular/common';
+import { XSRF_COOKIE_NAME, XSRF_HEADER_NAME } from '@psychotech/shared';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
@@ -51,6 +53,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       appRoutes,
       withNavigationErrorHandler(reloadOnStaleChunk),
+      withRouterConfig({ canceledNavigationResolution: 'computed' }),
       withInMemoryScrolling({
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
@@ -64,8 +67,8 @@ export const appConfig: ApplicationConfig = {
         newBadgesInterceptor,
       ]),
       withXsrfConfiguration({
-        cookieName: 'XSRF-TOKEN',
-        headerName: 'X-XSRF-TOKEN',
+        cookieName: XSRF_COOKIE_NAME,
+        headerName: XSRF_HEADER_NAME,
       }),
     ),
     provideAppInitializer(() => {

@@ -114,15 +114,17 @@ export class SimulationBriefing {
 
   private handleLoaded(session: SessionDto): void {
     if (session.mode !== SessionMode.FULL) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(['/entrainements'], { replaceUrl: true });
       return;
     }
     if (session.status === SessionStatus.COMPLETED) {
-      this.router.navigate(['/sessions', session.id, 'resultat']);
+      this.router.navigate(['/sessions', session.id, 'resultat'], {
+        replaceUrl: true,
+      });
       return;
     }
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(['/entrainements'], { replaceUrl: true });
       return;
     }
     this.loaded.set(true);

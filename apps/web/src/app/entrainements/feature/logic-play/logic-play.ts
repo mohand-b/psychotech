@@ -28,7 +28,11 @@ import { Button } from '../../../shared/ui/button/button';
 import { DOCUMENT } from '@angular/common';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
-import { simulationCurrentAxis } from '../../ui/session-flow';
+import {
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
+import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ResultWait } from '../../ui/result-wait/result-wait';
@@ -57,6 +61,7 @@ interface DominoAnswer {
 }
 
 const EMPTY_DOMINO_ANSWER: DominoAnswer = { top: null, bottom: null };
+const LAST_ITEM_FINISH_GUARD_MS = 600;
 
 function isTriangleItem(item: LogicItem | null): boolean {
   return (
@@ -94,9 +99,10 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
   styleUrl: './logic-play.css',
   host: {
     '(document:keydown)': 'onKeydown($event)',
+    '(window:beforeunload)': 'onBeforeUnload($event)',
   },
 })
-export class LogicPlay {
+export class LogicPlay implements LeavablePlay {
   private readonly document = inject(DOCUMENT);
   private readonly facade = inject(TrainingSessionFacade);
   private readonly destroyRef = inject(DestroyRef);
@@ -142,7 +148,16 @@ export class LogicPlay {
 
   private readonly timeSpentMs = new Map<number, number>();
   private enteredAtMs = Date.now();
+  private lastItemReachedByNextAtMs: number | null = null;
   private hasSubmitted = false;
+  private readonly leave = new PlayLeaveControl(
+    () => ({
+      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
+      submitted: this.hasSubmitted,
+      unsent: this.resultWait.unsent(),
+    }),
+    () => this.confirmingExit.set(true),
+  );
   private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentItem = computed(
@@ -313,7 +328,16 @@ export class LogicPlay {
     this.submit();
   }
 
+  confirmLeave(): boolean {
+    return this.leave.confirmLeave();
+  }
+
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.leave.blockUnload(event);
+  }
+
   protected quit(): void {
+    this.leave.accept();
     this.router.navigate(['/dashboard']);
   }
 
@@ -328,7 +352,7 @@ export class LogicPlay {
     const payload: LogicItemAnswerDto[] = this.items().map((item, index) => {
       const base = {
         index,
-        timeMs: Math.round(this.timeSpentMs.get(index) ?? 0),
+        timeMs: Math.max(0, Math.round(this.timeSpentMs.get(index) ?? 0)),
         helpUsed: this.helpUsed().has(index),
         visited: this.visited().has(index) || this.answeredAt(index),
       };
@@ -353,10 +377,6 @@ export class LogicPlay {
     this.resultWait.submit({
       axis: this.axis,
       complete: () => this.facade.completeTargeted(payload),
-      onSilentFailure: () => {
-        this.hasSubmitted = false;
-        this.submitting.set(false);
-      },
     });
   }
 
@@ -482,10 +502,20 @@ export class LogicPlay {
       return;
     }
     if (this.isLastItem()) {
-      this.finish();
+      if (!this.lastItemJustReachedByNext()) {
+        this.finish();
+      }
       return;
     }
     this.goTo(this.currentIndex() + 1);
+    this.lastItemReachedByNextAtMs = this.isLastItem() ? Date.now() : null;
+  }
+
+  private lastItemJustReachedByNext(): boolean {
+    return (
+      this.lastItemReachedByNextAtMs !== null &&
+      Date.now() - this.lastItemReachedByNextAtMs < LAST_ITEM_FINISH_GUARD_MS
+    );
   }
 
   private hintOpenNow(): boolean {
@@ -513,7 +543,12 @@ export class LogicPlay {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting() || this.countingDown()) {
+    if (
+      event.repeat ||
+      !this.loaded() ||
+      this.submitting() ||
+      this.countingDown()
+    ) {
       return;
     }
     if (event.key === 'Escape') {
@@ -590,14 +625,19 @@ export class LogicPlay {
 
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(inactiveSessionRoute(session, this.axis), {
+        replaceUrl: true,
+      });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(
+        ['/entrainements/examen-blanc/session', session.id],
+        { replaceUrl: true },
+      );
       return;
     }
     this.enteredAtMs = Date.now();

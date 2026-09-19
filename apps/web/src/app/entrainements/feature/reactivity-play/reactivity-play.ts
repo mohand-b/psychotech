@@ -31,7 +31,11 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ResultWait } from '../../ui/result-wait/result-wait';
-import { simulationCurrentAxis } from '../../ui/session-flow';
+import {
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
+import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
 
@@ -85,9 +89,12 @@ const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
   providers: [ResultWaitOrchestrator],
   templateUrl: './reactivity-play.html',
   styleUrl: './reactivity-play.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: {
+    '(document:keydown)': 'onKeydown($event)',
+    '(window:beforeunload)': 'onBeforeUnload($event)',
+  },
 })
-export class ReactivityPlay {
+export class ReactivityPlay implements LeavablePlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -139,6 +146,14 @@ export class ReactivityPlay {
   private tickerId: number | null = null;
   private feedbackTimerId: number | null = null;
   private hasSubmitted = false;
+  private readonly leave = new PlayLeaveControl(
+    () => ({
+      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
+      submitted: this.hasSubmitted,
+      unsent: this.resultWait.unsent(),
+    }),
+    () => this.confirmingExit.set(true),
+  );
 
   private readonly answers: ReactivityStimulusAnswerDto[] = [];
   private readonly waitPresses: ReactivityWaitPressDto[] = [];
@@ -209,17 +224,26 @@ export class ReactivityPlay {
     });
   }
 
+  confirmLeave(): boolean {
+    return this.leave.confirmLeave();
+  }
+
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.leave.blockUnload(event);
+  }
+
   protected confirmExit(): void {
     if (this.leaving()) {
       return;
     }
     this.leaving.set(true);
+    this.leave.accept();
     this.stopTicker();
     this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.repeat) {
+    if (event.repeat || this.hasSubmitted) {
       return;
     }
     if (event.key === 'Escape') {
@@ -243,14 +267,19 @@ export class ReactivityPlay {
 
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(inactiveSessionRoute(session, this.axis), {
+        replaceUrl: true,
+      });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(
+        ['/entrainements/examen-blanc/session', session.id],
+        { replaceUrl: true },
+      );
       return;
     }
     this.stimuli = this.facade.reactivityStimuli();
@@ -446,15 +475,14 @@ export class ReactivityPlay {
     for (const stimulus of this.stimuli.slice(this.nextStimulusIndex)) {
       this.recordAnswer(stimulus.index, null, null);
     }
+    const stimuli = [...this.answers];
+    const waitPresses = [...this.waitPresses];
     this.resultWait.submit({
       axis: this.axis,
       complete: () =>
         this.facade
-          .completeTargetedReactivity(this.answers, this.waitPresses, playedMs)
+          .completeTargetedReactivity(stimuli, waitPresses, playedMs)
           .pipe(tap(() => this.facade.setEffectiveCountdown(null))),
-      onSilentFailure: () => {
-        this.hasSubmitted = false;
-      },
     });
   }
 }

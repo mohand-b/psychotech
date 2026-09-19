@@ -1,9 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  afterRenderEffect,
   computed,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import {
   AxisType,
@@ -24,6 +27,38 @@ const RESULT_WAIT_TRACK_COLORS: Record<RailwayPlayableAxis, string> = {
 
 const SIMULATION_TRACK_COLOR = 'var(--brand-track)';
 
+export type ResultWaitFailure = 'completion' | 'prefetch' | 'session-closed';
+
+interface ResultWaitFailureCopy {
+  title: string;
+  legend: string;
+  quitLabel: string;
+  retryable: boolean;
+}
+
+const FAILURE_COPY: Record<ResultWaitFailure, ResultWaitFailureCopy> = {
+  completion: {
+    title: "L'envoi de vos réponses n'a pas abouti.",
+    legend:
+      'Vos réponses sont conservées sur cette page. Gardez-la ouverte, vérifiez votre connexion, puis réessayez.',
+    quitLabel: 'Quitter sans envoyer',
+    retryable: true,
+  },
+  prefetch: {
+    title: "Le calcul n'a pas abouti.",
+    legend: "Vos réponses sont bien enregistrées, rien n'est perdu.",
+    quitLabel: 'Quitter',
+    retryable: true,
+  },
+  'session-closed': {
+    title: "Cette session n'est plus active.",
+    legend:
+      "Elle a été interrompue depuis un autre appareil ou un autre onglet. Vos réponses n'ont pas pu être envoyées.",
+    quitLabel: 'Quitter',
+    retryable: false,
+  },
+};
+
 interface ResultWaitTheme {
   pastel: string;
   accent: string;
@@ -39,10 +74,12 @@ interface ResultWaitTheme {
   imports: [Icon],
   template: `
     <div
+      #overlay
       class="wait overlay-screen"
+      tabindex="-1"
       [class.wait--failed]="failed()"
-      role="status"
-      aria-live="polite"
+      [attr.role]="failed() ? 'alert' : 'status'"
+      [attr.aria-live]="failed() ? 'assertive' : 'polite'"
       [style.--wait-pastel]="theme().pastel"
       [style.--wait-accent]="theme().accent"
       [style.--wait-deep]="theme().deep"
@@ -105,11 +142,22 @@ interface ResultWaitTheme {
         }
       </div>
 
-      @if (failed()) {
-        <button type="button" class="wait__retry" (click)="retry.emit()">
-          <ui-icon [img]="retryIcon" [size]="15" />
-          <span>Réessayer</span>
-        </button>
+      @if (failureCopy(); as copy) {
+        <div class="wait__actions">
+          @if (copy.retryable) {
+            <button type="button" class="wait__retry" (click)="retry.emit()">
+              <ui-icon [img]="retryIcon" [size]="15" />
+              <span>Réessayer</span>
+            </button>
+            <button type="button" class="wait__quit" (click)="quit.emit()">
+              {{ copy.quitLabel }}
+            </button>
+          } @else {
+            <button type="button" class="wait__retry" (click)="quit.emit()">
+              {{ copy.quitLabel }}
+            </button>
+          }
+        </div>
       }
     </div>
   `,
@@ -118,11 +166,27 @@ interface ResultWaitTheme {
 export class ResultWait {
   readonly axis = input.required<AxisType>();
   readonly simulation = input(false);
-  readonly failed = input(false);
+  readonly failure = input<ResultWaitFailure | null>(null);
   readonly slow = input(false);
   readonly retry = output<void>();
+  readonly quit = output<void>();
 
   protected readonly retryIcon = RotateCw;
+  protected readonly failureCopy = computed(() => {
+    const failure = this.failure();
+    return failure ? FAILURE_COPY[failure] : null;
+  });
+  protected readonly failed = computed(() => this.failureCopy() !== null);
+
+  private readonly overlay = viewChild<ElementRef<HTMLElement>>('overlay');
+
+  constructor() {
+    afterRenderEffect(() => {
+      if (this.failed()) {
+        this.overlay()?.nativeElement.focus({ preventScroll: true });
+      }
+    });
+  }
 
   protected readonly theme = computed<ResultWaitTheme>(() => {
     if (this.simulation()) {
@@ -151,8 +215,9 @@ export class ResultWait {
   );
 
   protected readonly title = computed(() => {
-    if (this.failed()) {
-      return "Le calcul n'a pas abouti.";
+    const copy = this.failureCopy();
+    if (copy) {
+      return copy.title;
     }
     return this.simulation()
       ? 'Préparation de votre bilan'
@@ -160,8 +225,9 @@ export class ResultWait {
   });
 
   protected readonly legend = computed(() => {
-    if (this.failed()) {
-      return "Vos réponses sont bien enregistrées, rien n'est perdu.";
+    const copy = this.failureCopy();
+    if (copy) {
+      return copy.legend;
     }
     return this.simulation()
       ? 'Les 5 axes sont en cours de consolidation.'

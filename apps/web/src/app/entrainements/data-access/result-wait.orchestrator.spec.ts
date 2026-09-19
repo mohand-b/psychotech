@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
   AxisType,
+  FULL_SESSION_AXIS_ORDER,
   LOGIC_CONTENT_VERSION_V2,
   Sector,
   SessionDto,
@@ -12,8 +13,13 @@ import {
 } from '@psychotech/shared';
 import { Subject, of, throwError } from 'rxjs';
 import { SimulationSummaryFacade } from '../../sessions/data-access/simulation-summary.facade';
-import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import {
+  SessionNoLongerActiveError,
+  TrainingSessionFacade,
+} from '../../sessions/data-access/training-session.facade';
+import {
+  RESULT_WAIT_COMPLETION_TIMEOUT_MS,
+  RESULT_WAIT_DIRECT_REVEAL_MS,
   RESULT_WAIT_MIN_DISPLAY_MS,
   RESULT_WAIT_SLOW_HINT_MS,
   ResultWaitOrchestrator,
@@ -62,20 +68,14 @@ function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
   };
 }
 
-const FULL_AXES = [
-  AxisType.LOGIC,
-  AxisType.MEMORY,
-  AxisType.VISUAL_DISCRIMINATION,
-  AxisType.REACTIVITY,
-  AxisType.MOTOR_SKILLS,
-];
-
 function buildFullSession(currentAxisIndex: number): SessionDto {
   return buildSession({
     mode: SessionMode.FULL,
     energyCost: 5,
     currentAxisIndex,
-    axisResults: FULL_AXES.map((axis, order) => axisResult(axis, order)),
+    axisResults: FULL_SESSION_AXIS_ORDER.map((axis, order) =>
+      axisResult(axis, order),
+    ),
   });
 }
 
@@ -91,18 +91,20 @@ interface Setup {
   navigate: ReturnType<typeof vi.spyOn>;
   loadTargetedResult: ReturnType<typeof vi.fn>;
   loadSummary: ReturnType<typeof vi.fn>;
+  clear: ReturnType<typeof vi.fn>;
 }
 
-function setup(active: SessionDto): Setup {
+function setup(active: SessionDto | null): Setup {
   const loadTargetedResult = vi.fn(() => of(TARGETED_RESULT));
   const loadSummary = vi.fn(() => of(SUMMARY));
+  const clear = vi.fn();
   TestBed.configureTestingModule({
     providers: [
       ResultWaitOrchestrator,
       provideRouter([]),
       {
         provide: TrainingSessionFacade,
-        useValue: { session: () => active, loadTargetedResult },
+        useValue: { session: () => active, loadTargetedResult, clear },
       },
       { provide: SimulationSummaryFacade, useValue: { loadSummary } },
     ],
@@ -115,6 +117,7 @@ function setup(active: SessionDto): Setup {
     navigate,
     loadTargetedResult,
     loadSummary,
+    clear,
   };
 }
 
@@ -134,7 +137,6 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete: () => of(completed),
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.active()).toBe(true);
@@ -142,13 +144,16 @@ describe('ResultWaitOrchestrator', () => {
     expect(navigate).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1);
-    expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/cible',
-      'logique',
-      'session',
-      SESSION_ID,
-      'resultat',
-    ]);
+    expect(navigate).toHaveBeenCalledWith(
+      [
+        '/entrainements/cible',
+        'logique',
+        'session',
+        SESSION_ID,
+        'resultat',
+      ],
+      { replaceUrl: true },
+    );
   });
 
   it('navigates as soon as the data arrives once the minimum duration has elapsed', () => {
@@ -159,7 +164,6 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete: () => of(buildSession({ status: SessionStatus.COMPLETED })),
-      onSilentFailure: vi.fn(),
     });
 
     vi.advanceTimersByTime(RESULT_WAIT_MIN_DISPLAY_MS + 500);
@@ -178,7 +182,6 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete: () => of(buildSession({ status: SessionStatus.COMPLETED })),
-      onSilentFailure: vi.fn(),
     });
 
     vi.advanceTimersByTime(RESULT_WAIT_SLOW_HINT_MS - 1);
@@ -197,7 +200,6 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete,
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.failed()).toBe(true);
@@ -224,7 +226,6 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete,
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.phase()).toBe('failed-prefetch');
@@ -248,33 +249,37 @@ describe('ResultWaitOrchestrator', () => {
     orchestrator.submit({
       axis: AxisType.LOGIC,
       complete: () => of(completed),
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.active()).toBe(false);
     expect(loadTargetedResult).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/tutoriel',
-      'logique',
-      'fin',
-    ]);
+    expect(navigate).toHaveBeenCalledWith(
+      [
+        '/entrainements/tutoriel',
+        'logique',
+        'fin',
+      ],
+      { replaceUrl: true },
+    );
   });
 
   it('keeps the direct transition for intermediate simulation axes', () => {
     const { orchestrator, navigate, loadSummary } = setup(buildFullSession(0));
     const afterAxis = buildFullSession(1);
     orchestrator.submit({
-      axis: AxisType.LOGIC,
+      axis: AxisType.VISUAL_DISCRIMINATION,
       complete: () => of(afterAxis),
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.active()).toBe(false);
     expect(loadSummary).not.toHaveBeenCalled();
-    expect(navigate).toHaveBeenCalledWith([
-      '/entrainements/examen-blanc/session',
-      SESSION_ID,
-    ]);
+    expect(navigate).toHaveBeenCalledWith(
+      [
+        '/entrainements/examen-blanc/session',
+        SESSION_ID,
+      ],
+      { replaceUrl: true },
+    );
   });
 
   it('waits on the fifth simulation axis and prefetches the summary', () => {
@@ -286,9 +291,8 @@ describe('ResultWaitOrchestrator', () => {
       status: SessionStatus.COMPLETED,
     };
     orchestrator.submit({
-      axis: AxisType.MOTOR_SKILLS,
+      axis: AxisType.REACTIVITY,
       complete: () => of(completed),
-      onSilentFailure: vi.fn(),
     });
 
     expect(orchestrator.active()).toBe(true);
@@ -297,24 +301,221 @@ describe('ResultWaitOrchestrator', () => {
     expect(loadTargetedResult).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(RESULT_WAIT_MIN_DISPLAY_MS);
-    expect(navigate).toHaveBeenCalledWith([
-      '/sessions',
-      SESSION_ID,
-      'resultat',
-    ]);
+    expect(navigate).toHaveBeenCalledWith(
+      [
+        '/sessions',
+        SESSION_ID,
+        'resultat',
+      ],
+      { replaceUrl: true },
+    );
   });
 
-  it('reports the silent failure when a bypassed completion fails', () => {
+  it('tells a failed completion from a failed prefetch', () => {
+    const { orchestrator, loadTargetedResult } = setup(buildSession());
+    const complete = vi
+      .fn(() => of(buildSession({ status: SessionStatus.COMPLETED })))
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    loadTargetedResult.mockImplementationOnce(() =>
+      throwError(() => new Error('down')),
+    );
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+
+    expect(orchestrator.phase()).toBe('failed-complete');
+    expect(orchestrator.failure()).toBe('completion');
+
+    orchestrator.retry();
+    expect(orchestrator.phase()).toBe('failed-prefetch');
+    expect(orchestrator.failure()).toBe('prefetch');
+  });
+
+  it('shows the retry screen when an intermediate simulation axis fails and replays the same request', () => {
+    const { orchestrator, navigate, loadSummary } = setup(buildFullSession(3));
+    const complete = vi
+      .fn(() => of(buildFullSession(4)))
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    orchestrator.submit({ axis: AxisType.MOTOR_SKILLS, complete });
+
+    expect(orchestrator.active()).toBe(true);
+    expect(orchestrator.failed()).toBe(true);
+    expect(orchestrator.failure()).toBe('completion');
+    expect(orchestrator.simulation()).toBe(false);
+    expect(navigate).not.toHaveBeenCalled();
+
+    orchestrator.retry();
+    expect(complete).toHaveBeenCalledTimes(2);
+    expect(loadSummary).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(
+      [
+        '/entrainements/examen-blanc/session',
+        SESSION_ID,
+      ],
+      { replaceUrl: true },
+    );
+  });
+
+  it('keeps failing visibly on every intermediate retry until the completion goes through', () => {
     const { orchestrator, navigate } = setup(buildFullSession(1));
-    const onSilentFailure = vi.fn();
+    const complete = vi
+      .fn(() => of(buildFullSession(2)))
+      .mockImplementationOnce(() => throwError(() => new Error('down')))
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+
+    orchestrator.retry();
+    expect(orchestrator.failed()).toBe(true);
+    expect(navigate).not.toHaveBeenCalled();
+
+    orchestrator.retry();
+    expect(complete).toHaveBeenCalledTimes(3);
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('reveals the wait screen when an intermediate completion is slow, then navigates without prefetch', () => {
+    const { orchestrator, navigate, loadSummary } = setup(buildFullSession(3));
+    const completion = new Subject<SessionDto>();
     orchestrator.submit({
-      axis: AxisType.MEMORY,
-      complete: () => throwError(() => new Error('down')),
-      onSilentFailure,
+      axis: AxisType.MOTOR_SKILLS,
+      complete: () => completion.asObservable(),
     });
 
+    vi.advanceTimersByTime(RESULT_WAIT_DIRECT_REVEAL_MS - 1);
     expect(orchestrator.active()).toBe(false);
-    expect(onSilentFailure).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(1);
+    expect(orchestrator.active()).toBe(true);
+    expect(orchestrator.failed()).toBe(false);
+
+    completion.next(buildFullSession(4));
+    completion.complete();
+    expect(loadSummary).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a second submission while the first one is in flight', () => {
+    const { orchestrator } = setup(buildFullSession(2));
+    const complete = vi.fn(() => new Subject<SessionDto>().asObservable());
+    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+
+    expect(complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a second submission after a failure so only the retry can resend', () => {
+    const { orchestrator } = setup(buildFullSession(2));
+    const complete = vi.fn(() => throwError(() => new Error('down')));
+    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+
+    expect(complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('never navigates once the screen has been left', () => {
+    const { orchestrator, navigate } = setup(buildFullSession(0));
+    const completion = new Subject<SessionDto>();
+    orchestrator.submit({
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      complete: () => completion.asObservable(),
+    });
+
+    TestBed.resetTestingModule();
+    completion.next(buildFullSession(1));
+
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('reports a session closed elsewhere as a failure that cannot be retried', () => {
+    const { orchestrator } = setup(buildSession());
+    const complete = vi.fn(() =>
+      throwError(() => new SessionNoLongerActiveError()),
+    );
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+
+    expect(orchestrator.failure()).toBe('session-closed');
+    expect(orchestrator.unsent()).toBe(false);
+
+    orchestrator.retry();
+    expect(complete).toHaveBeenCalledTimes(1);
+  });
+
+  it('turns a stalled completion into a retryable failure', () => {
+    const { orchestrator } = setup(buildFullSession(3));
+    orchestrator.submit({
+      axis: AxisType.MOTOR_SKILLS,
+      complete: () => new Subject<SessionDto>().asObservable(),
+    });
+
+    vi.advanceTimersByTime(RESULT_WAIT_COMPLETION_TIMEOUT_MS - 1);
+    expect(orchestrator.failed()).toBe(false);
+
+    vi.advanceTimersByTime(1);
+    expect(orchestrator.failure()).toBe('completion');
+  });
+
+  it('holds the answers as unsent until the completion goes through', () => {
+    const { orchestrator } = setup(buildFullSession(1));
+    const complete = vi
+      .fn(() => of(buildFullSession(2)))
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    expect(orchestrator.unsent()).toBe(false);
+
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    expect(orchestrator.unsent()).toBe(true);
+
+    orchestrator.retry();
+    expect(orchestrator.unsent()).toBe(false);
+  });
+
+  it('ignores a second retry while the first one is in flight', () => {
+    const { orchestrator } = setup(buildFullSession(1));
+    const complete = vi
+      .fn(() => new Subject<SessionDto>().asObservable())
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+
+    orchestrator.retry();
+    orchestrator.retry();
+
+    expect(complete).toHaveBeenCalledTimes(2);
+  });
+
+  it('restarts the reassurance delay on every retry', () => {
+    const { orchestrator } = setup(buildFullSession(1));
+    const complete = vi
+      .fn(() => new Subject<SessionDto>().asObservable())
+      .mockImplementationOnce(() => throwError(() => new Error('down')));
+    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    vi.advanceTimersByTime(RESULT_WAIT_SLOW_HINT_MS);
+
+    orchestrator.retry();
+    expect(orchestrator.slow()).toBe(false);
+
+    vi.advanceTimersByTime(RESULT_WAIT_SLOW_HINT_MS);
+    expect(orchestrator.slow()).toBe(true);
+  });
+
+  it('drops the stale session and leaves to the dashboard on quit, releasing the leave guard', () => {
+    const { orchestrator, navigate, clear } = setup(buildFullSession(1));
+    orchestrator.submit({
+      axis: AxisType.LOGIC,
+      complete: () => throwError(() => new Error('down')),
+    });
+
+    orchestrator.quit();
+
+    expect(clear).toHaveBeenCalledTimes(1);
+    expect(orchestrator.unsent()).toBe(false);
+    expect(navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('falls back to the direct path and still fails visibly without an active session', () => {
+    const { orchestrator } = setup(null);
+    orchestrator.submit({
+      axis: AxisType.LOGIC,
+      complete: () => throwError(() => new Error('down')),
+    });
+
+    expect(orchestrator.active()).toBe(true);
+    expect(orchestrator.failure()).toBe('completion');
   });
 });

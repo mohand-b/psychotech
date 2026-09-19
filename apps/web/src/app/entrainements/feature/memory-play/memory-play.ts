@@ -28,7 +28,11 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ResultWait } from '../../ui/result-wait/result-wait';
-import { simulationCurrentAxis } from '../../ui/session-flow';
+import {
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
+import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
 
 type MemoryStage =
   | 'PHASE_TRANSITION'
@@ -51,9 +55,12 @@ const RESTITUTION_TICK_MS = 200;
   providers: [ResultWaitOrchestrator],
   templateUrl: './memory-play.html',
   styleUrl: './memory-play.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: {
+    '(document:keydown)': 'onKeydown($event)',
+    '(window:beforeunload)': 'onBeforeUnload($event)',
+  },
 })
-export class MemoryPlay {
+export class MemoryPlay implements LeavablePlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -92,6 +99,14 @@ export class MemoryPlay {
   private restitutionIntervalId: number | null = null;
   private restitutionStartedAtMs = 0;
   private hasSubmitted = false;
+  private readonly leave = new PlayLeaveControl(
+    () => ({
+      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
+      submitted: this.hasSubmitted,
+      unsent: this.resultWait.unsent(),
+    }),
+    () => this.confirmingExit.set(true),
+  );
   private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentSequence = computed<MemorySequence | null>(
@@ -142,6 +157,7 @@ export class MemoryPlay {
   protected press(digit: number): void {
     const sequence = this.currentSequence();
     if (
+      this.hasSubmitted ||
       this.stage() !== 'RESTITUTION' ||
       !sequence ||
       this.input().length >= sequence.length
@@ -154,6 +170,7 @@ export class MemoryPlay {
   protected skipPosition(): void {
     const sequence = this.currentSequence();
     if (
+      this.hasSubmitted ||
       this.stage() !== 'RESTITUTION' ||
       !sequence ||
       this.input().length >= sequence.length
@@ -164,7 +181,7 @@ export class MemoryPlay {
   }
 
   protected erase(): void {
-    if (this.stage() !== 'RESTITUTION') {
+    if (this.hasSubmitted || this.stage() !== 'RESTITUTION') {
       return;
     }
     this.input.update((input) => input.slice(0, -1));
@@ -182,12 +199,26 @@ export class MemoryPlay {
     this.finishSequence(false);
   }
 
+  confirmLeave(): boolean {
+    return this.leave.confirmLeave();
+  }
+
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.leave.blockUnload(event);
+  }
+
   protected quit(): void {
+    this.leave.accept();
     this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting() || this.countingDown()) {
+    if (
+      event.repeat ||
+      !this.loaded() ||
+      this.submitting() ||
+      this.countingDown()
+    ) {
       return;
     }
     if (event.key === 'Escape') {
@@ -224,14 +255,19 @@ export class MemoryPlay {
 
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(inactiveSessionRoute(session, this.axis), {
+        replaceUrl: true,
+      });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(
+        ['/entrainements/examen-blanc/session', session.id],
+        { replaceUrl: true },
+      );
       return;
     }
     this.loaded.set(true);
@@ -308,7 +344,7 @@ export class MemoryPlay {
   }
 
   private finishSequence(timedOut: boolean): void {
-    if (this.stage() !== 'RESTITUTION') {
+    if (this.stage() !== 'RESTITUTION' || this.hasSubmitted) {
       return;
     }
     this.clearTimers();
@@ -318,7 +354,7 @@ export class MemoryPlay {
     const answer: MemorySequenceAnswerDto = {
       index: this.currentIndex(),
       input: this.input(),
-      timeMs: Math.min(elapsedMs, this.restitutionSec * 1000),
+      timeMs: Math.max(0, Math.min(elapsedMs, this.restitutionSec * 1000)),
       timedOut,
     };
     this.results.update((results) => [...results, answer]);
@@ -337,13 +373,10 @@ export class MemoryPlay {
     this.hasSubmitted = true;
     this.submitting.set(true);
     this.confirmingExit.set(false);
+    const sequences = this.results();
     this.resultWait.submit({
       axis: this.axis,
-      complete: () => this.facade.completeTargetedMemory(this.results()),
-      onSilentFailure: () => {
-        this.hasSubmitted = false;
-        this.submitting.set(false);
-      },
+      complete: () => this.facade.completeTargetedMemory(sequences),
     });
   }
 

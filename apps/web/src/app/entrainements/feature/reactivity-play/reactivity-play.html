@@ -150,9 +150,10 @@
   <ui-result-wait
     [axis]="axis"
     [simulation]="resultWait.simulation()"
-    [failed]="resultWait.failed()"
+    [failure]="resultWait.failure()"
     [slow]="resultWait.slow()"
     (retry)="resultWait.retry()"
+    (quit)="resultWait.quit()"
   />
   }
 </section>

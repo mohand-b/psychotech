@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import {
   AXIS_TRAINING,
@@ -71,6 +71,14 @@ const GLOBAL_TIMER_THRESHOLDS: Partial<
   [AxisType.VISUAL_DISCRIMINATION]: { warningSec: 60, dangerSec: 30 },
   [AxisType.REACTIVITY]: { warningSec: 60, dangerSec: 30 },
 };
+
+export class SessionNoLongerActiveError extends Error {}
+
+function axisAlreadyRecorded(session: SessionDto, axis: AxisType): boolean {
+  return session.axisResults.some(
+    (result) => result.axis === axis && result.completedAt !== null,
+  );
+}
 
 @Injectable({ providedIn: 'root' })
 export class TrainingSessionFacade {
@@ -207,6 +215,9 @@ export class TrainingSessionFacade {
 
   rebaseClock(): void {
     this.store.rebaseAnchor();
+    if (this.store.session()?.status === SessionStatus.IN_PROGRESS) {
+      this.startTicker();
+    }
   }
 
   elapsedPlayMs(): number {
@@ -396,22 +407,45 @@ export class TrainingSessionFacade {
       return throwError(() => new Error('No active training session'));
     }
     return this.api.completeTargeted(session.id, axis, { axis, items }).pipe(
-      this.recoverAlreadySubmitted(session.id),
+      this.recoverAlreadySubmitted(session.id, axis),
       tap((completed) => this.install(completed)),
     );
   }
 
   private recoverAlreadySubmitted(
     sessionId: string,
+    axis: AxisType,
   ): (source: Observable<SessionDto>) => Observable<SessionDto> {
     return (source) =>
       source.pipe(
         catchError((error: unknown) =>
-          error instanceof HttpErrorResponse && error.status === 409
-            ? this.api.get(sessionId)
+          error instanceof HttpErrorResponse &&
+          error.status === HttpStatusCode.Conflict
+            ? this.api
+                .get(sessionId)
+                .pipe(
+                  switchMap((session) =>
+                    this.settleConflict(session, axis, error),
+                  ),
+                )
             : throwError(() => error),
         ),
       );
+  }
+
+  private settleConflict(
+    session: SessionDto,
+    axis: AxisType,
+    conflict: HttpErrorResponse,
+  ): Observable<SessionDto> {
+    if (axisAlreadyRecorded(session, axis)) {
+      return of(session);
+    }
+    if (session.status === SessionStatus.IN_PROGRESS) {
+      return throwError(() => conflict);
+    }
+    this.install(session);
+    return throwError(() => new SessionNoLongerActiveError());
   }
 
   completeTargetedMemory(
@@ -425,7 +459,7 @@ export class TrainingSessionFacade {
     return this.api
       .completeTargeted(session.id, axis, { axis, sequences })
       .pipe(
-        this.recoverAlreadySubmitted(session.id),
+        this.recoverAlreadySubmitted(session.id, axis),
         tap((completed) => this.install(completed)),
       );
   }
@@ -442,7 +476,7 @@ export class TrainingSessionFacade {
     return this.api
       .completeTargeted(session.id, axis, { axis, trials, playedMs })
       .pipe(
-        this.recoverAlreadySubmitted(session.id),
+        this.recoverAlreadySubmitted(session.id, axis),
         tap((completed) => this.install(completed)),
       );
   }
@@ -459,7 +493,7 @@ export class TrainingSessionFacade {
     return this.api
       .completeTargeted(session.id, axis, { axis, courses, controlModality })
       .pipe(
-        this.recoverAlreadySubmitted(session.id),
+        this.recoverAlreadySubmitted(session.id, axis),
         tap((completed) => this.install(completed)),
       );
   }
@@ -482,7 +516,7 @@ export class TrainingSessionFacade {
         playedMs,
       })
       .pipe(
-        this.recoverAlreadySubmitted(session.id),
+        this.recoverAlreadySubmitted(session.id, axis),
         tap((completed) => this.install(completed)),
       );
   }

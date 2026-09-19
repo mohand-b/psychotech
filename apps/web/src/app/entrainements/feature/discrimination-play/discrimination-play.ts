@@ -33,7 +33,11 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ResultWait } from '../../ui/result-wait/result-wait';
-import { simulationCurrentAxis } from '../../ui/session-flow';
+import {
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
+import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
 import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
@@ -45,9 +49,12 @@ const SEQUENCE_SIZE = 28;
   providers: [ResultWaitOrchestrator],
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: {
+    '(document:keydown)': 'onKeydown($event)',
+    '(window:beforeunload)': 'onBeforeUnload($event)',
+  },
 })
-export class DiscriminationPlay {
+export class DiscriminationPlay implements LeavablePlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
@@ -79,6 +86,14 @@ export class DiscriminationPlay {
 
   private trialStartedAtMs = Date.now();
   private hasSubmitted = false;
+  private readonly leave = new PlayLeaveControl(
+    () => ({
+      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
+      submitted: this.hasSubmitted,
+      unsent: this.resultWait.unsent(),
+    }),
+    () => this.confirmingExit.set(true),
+  );
   private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentTrial = computed<DiscriminationTrial | null>(
@@ -160,7 +175,7 @@ export class DiscriminationPlay {
     const entry: DiscriminationTrialAnswerDto = {
       index: this.currentIndex(),
       answer: value,
-      timeMs: Date.now() - this.trialStartedAtMs,
+      timeMs: Math.max(0, Date.now() - this.trialStartedAtMs),
     };
     this.results.update((results) => [...results, entry]);
     const nextIndex = this.currentIndex() + 1;
@@ -172,12 +187,26 @@ export class DiscriminationPlay {
     }
   }
 
+  confirmLeave(): boolean {
+    return this.leave.confirmLeave();
+  }
+
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.leave.blockUnload(event);
+  }
+
   protected quit(): void {
+    this.leave.accept();
     this.router.navigate(['/dashboard']);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (!this.loaded() || this.submitting() || this.countingDown()) {
+    if (
+      event.repeat ||
+      !this.loaded() ||
+      this.submitting() ||
+      this.countingDown()
+    ) {
       return;
     }
     if (event.key === 'Escape') {
@@ -200,14 +229,19 @@ export class DiscriminationPlay {
 
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(inactiveSessionRoute(session, this.axis), {
+        replaceUrl: true,
+      });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(
+        ['/entrainements/examen-blanc/session', session.id],
+        { replaceUrl: true },
+      );
       return;
     }
     this.loaded.set(true);
@@ -276,10 +310,6 @@ export class DiscriminationPlay {
       axis: this.axis,
       complete: () =>
         this.facade.completeTargetedDiscrimination(answers, playedMs),
-      onSilentFailure: () => {
-        this.hasSubmitted = false;
-        this.submitting.set(false);
-      },
     });
   }
 }

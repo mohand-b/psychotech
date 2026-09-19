@@ -5,6 +5,7 @@ import {
   tutorialPlayResetGuard,
   tutorialSessionProviders,
 } from '../data-access/tutorial-session.facade';
+import { confirmPlayLeaveGuard } from './play-leave.guard';
 
 function axisSessionMatcher(axis: AxisType): CanMatchFn {
   return (_route: Route, segments: UrlSegment[]) =>
@@ -208,6 +209,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.LOGIC)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./logic-play/logic-play').then((m) => m.LogicPlay),
@@ -215,6 +217,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.MEMORY)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./memory-play/memory-play').then((m) => m.MemoryPlay),
@@ -222,6 +225,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./discrimination-play/discrimination-play').then(
@@ -231,6 +235,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.REACTIVITY)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./reactivity-play/reactivity-play').then((m) => m.ReactivityPlay),
@@ -238,6 +243,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/examen-blanc/session/:sessionId/axe/:axis',
     canMatch: [simulationAxisMatcher(AxisType.MOTOR_SKILLS)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: { focusedHeader: simulationPlayHeader },
     loadComponent: () =>
       import('./motricity-play/motricity-play').then((m) => m.MotricityPlay),
@@ -278,6 +284,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.LOGIC)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',
@@ -364,6 +371,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MEMORY)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',
@@ -381,6 +389,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.REACTIVITY)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',
@@ -398,6 +407,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.MOTOR_SKILLS)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',
@@ -415,6 +425,7 @@ export const entrainementsRoutes: Route[] = [
   {
     path: 'entrainements/cible/:axis/session/:sessionId',
     canMatch: [axisSessionMatcher(AxisType.VISUAL_DISCRIMINATION)],
+    canDeactivate: [confirmPlayLeaveGuard],
     data: {
       focusedHeader: {
         title: 'Entraînement ciblé',

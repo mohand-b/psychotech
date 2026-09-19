@@ -1,5 +1,6 @@
 .wait {
   gap: 40px;
+  outline: none;
   background: var(--wait-pastel);
 }
 
@@ -96,6 +97,7 @@
 
 .wait__legend {
   margin: 0;
+  max-width: 420px;
   font: 400 14px/20px var(--font-ui);
   color: var(--text-secondary);
 }
@@ -111,6 +113,14 @@
 
 .wait__patience--visible {
   opacity: 1;
+}
+
+.wait__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
 .wait__retry {
@@ -131,9 +141,25 @@
   background: var(--brand-hover);
 }
 
-.wait__retry:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
+.wait__retry:focus-visible,
+.wait__quit:focus-visible {
+  outline: 2px solid var(--wait-deep);
+  outline-offset: 2px;
+}
+
+.wait__quit {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-button);
+  background: none;
+  color: var(--text-secondary);
+  font: 500 14px/20px var(--font-ui);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.wait__quit:hover {
+  color: var(--ink);
 }
 
 @media (max-width: 767px) {
@@ -188,5 +214,9 @@
     max-width: 300px;
     min-height: 50px;
     border-radius: 12px;
+  }
+
+  .wait__quit {
+    min-height: 44px;
   }
 }

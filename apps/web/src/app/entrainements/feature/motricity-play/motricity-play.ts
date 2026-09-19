@@ -49,7 +49,11 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ResultWait } from '../../ui/result-wait/result-wait';
-import { simulationCurrentAxis } from '../../ui/session-flow';
+import {
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from '../../ui/session-flow';
+import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
 import {
   MotricityLiveState,
   advanceMotricityLive,
@@ -79,9 +83,10 @@ const ARC_COMPLETION_TOLERANCE = 0.5;
   styleUrl: './motricity-play.css',
   host: {
     '(document:keydown)': 'onKeydown($event)',
+    '(window:beforeunload)': 'onBeforeUnload($event)',
   },
 })
-export class MotricityPlay {
+export class MotricityPlay implements LeavablePlay {
   private readonly facade = inject(TrainingSessionFacade);
   private readonly gamepad = inject(GamepadFacade);
   private readonly route = inject(ActivatedRoute);
@@ -184,6 +189,14 @@ export class MotricityPlay {
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
   private hasSubmitted = false;
+  private readonly leave = new PlayLeaveControl(
+    () => ({
+      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
+      submitted: this.hasSubmitted,
+      unsent: this.resultWait.unsent(),
+    }),
+    () => this.confirmingExit.set(true),
+  );
   private crankGain = CRANK_SPEED_GAIN_MIN;
   private crankPendingXRad = 0;
   private crankPendingYRad = 0;
@@ -221,7 +234,16 @@ export class MotricityPlay {
     }
   }
 
+  confirmLeave(): boolean {
+    return this.leave.confirmLeave();
+  }
+
+  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+    this.leave.blockUnload(event);
+  }
+
   protected quit(): void {
+    this.leave.accept();
     this.router.navigate(['/dashboard']);
   }
 
@@ -257,14 +279,19 @@ export class MotricityPlay {
 
   private handleLoaded(session: SessionDto): void {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(['/entrainements']);
+      this.router.navigate(inactiveSessionRoute(session, this.axis), {
+        replaceUrl: true,
+      });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
       simulationCurrentAxis(session) !== this.axis
     ) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(
+        ['/entrainements/examen-blanc/session', session.id],
+        { replaceUrl: true },
+      );
       return;
     }
     this.loaded.set(true);
@@ -309,8 +336,8 @@ export class MotricityPlay {
 
   private startLoop(): void {
     const tick = (timestamp: number) => {
-      this.step(timestamp);
       this.rafId = requestAnimationFrame(tick);
+      this.step(timestamp);
     };
     this.rafId = requestAnimationFrame(tick);
   }
@@ -526,15 +553,17 @@ export class MotricityPlay {
   }
 
   private finishCourse(finalT: number): void {
-    this.samples.push({
-      t: finalT,
-      x: this.position.x,
-      y: this.position.y,
-    });
+    const index = this.courseIndex();
+    if (this.trajectories.some((trajectory) => trajectory.index === index)) {
+      return;
+    }
     const latency = this.gamepad.courseLatency();
     this.trajectories.push({
-      index: this.courseIndex(),
-      samples: this.samples,
+      index,
+      samples: [
+        ...this.samples,
+        { t: finalT, x: this.position.x, y: this.position.y },
+      ],
       ...(latency
         ? {
             avgLatencyMs: Math.round(latency.avgMs),
@@ -542,7 +571,7 @@ export class MotricityPlay {
           }
         : {}),
     });
-    if (this.courseIndex() < this.courseCount - 1) {
+    if (index < this.courseCount - 1) {
       this.phase.set('TRANSITION');
       this.transitionCountdown.set(this.training.pauseBetweenCoursesSec);
       this.transitionTimerId = window.setInterval(() => {
@@ -550,7 +579,7 @@ export class MotricityPlay {
         this.transitionCountdown.set(next);
         if (next <= 0) {
           this.clearTransitionTimer();
-          this.beginCourse(this.courseIndex() + 1);
+          this.beginCourse(index + 1);
         }
       }, 1000);
       return;
@@ -578,16 +607,11 @@ export class MotricityPlay {
         ? ControlModality.TOUCH_JOYSTICKS
         : ControlModality.KEYBOARD;
     this.gamepad.sendPhase('FINISHED');
+    const courses = [...this.trajectories];
     this.resultWait.submit({
       axis: this.axis,
       complete: () =>
-        this.facade.completeTargetedMotricity(
-          this.trajectories,
-          controlModality,
-        ),
-      onSilentFailure: () => {
-        this.hasSubmitted = false;
-      },
+        this.facade.completeTargetedMotricity(courses, controlModality),
     });
   }
 }

@@ -6,7 +6,12 @@ import {
   SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
-import { afterAxisSubmitRoute, simulationCurrentAxis } from './session-flow';
+import { TUTORIAL_SESSION_ID } from '../data-access/tutorial-session.facade';
+import {
+  afterAxisSubmitRoute,
+  inactiveSessionRoute,
+  simulationCurrentAxis,
+} from './session-flow';
 
 const FULL_ORDER = [
   AxisType.LOGIC,
@@ -15,6 +20,8 @@ const FULL_ORDER = [
   AxisType.REACTIVITY,
   AxisType.MOTOR_SKILLS,
 ];
+
+const TRAINING_HUB_ROUTE = ['/entrainements'];
 
 function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
   return {
@@ -101,5 +108,99 @@ describe('afterAxisSubmitRoute', () => {
         AxisType.MOTOR_SKILLS,
       ),
     ).toEqual(['/sessions', 'session-1', 'resultat']);
+  });
+});
+
+describe('inactiveSessionRoute', () => {
+  it('routes a completed targeted session to its axis result page', () => {
+    expect(
+      inactiveSessionRoute(
+        buildSession({
+          mode: SessionMode.TARGETED,
+          status: SessionStatus.COMPLETED,
+          completedAt: '2026-07-11T10:05:00.000Z',
+        }),
+        AxisType.MEMORY,
+      ),
+    ).toEqual([
+      '/entrainements/cible',
+      'memoire',
+      'session',
+      'session-1',
+      'resultat',
+    ]);
+  });
+
+  it('routes a completed full session to the exam results whatever axis page was reloaded', () => {
+    const completed = buildSession({
+      status: SessionStatus.COMPLETED,
+      currentAxisIndex: 5,
+      completedAt: '2026-07-11T10:45:00.000Z',
+    });
+    for (const axis of FULL_ORDER) {
+      expect(inactiveSessionRoute(completed, axis)).toEqual([
+        '/sessions',
+        'session-1',
+        'resultat',
+      ]);
+    }
+  });
+
+  it('routes a completed tutorial session to the tutorial end page', () => {
+    expect(
+      inactiveSessionRoute(
+        buildSession({
+          id: TUTORIAL_SESSION_ID,
+          mode: SessionMode.TARGETED,
+          status: SessionStatus.COMPLETED,
+          energyCost: 0,
+          completedAt: '2026-07-11T10:03:00.000Z',
+        }),
+        AxisType.REACTIVITY,
+      ),
+    ).toEqual(['/entrainements/tutoriel', 'reactivite', 'fin']);
+  });
+
+  it.each([
+    { status: SessionStatus.ABANDONED, mode: SessionMode.FULL },
+    { status: SessionStatus.ABANDONED, mode: SessionMode.TARGETED },
+    { status: SessionStatus.SUSPENDED, mode: SessionMode.FULL },
+    { status: SessionStatus.SUSPENDED, mode: SessionMode.TARGETED },
+  ])(
+    'routes a $status $mode session back to the training hub',
+    ({ status, mode }) => {
+      expect(
+        inactiveSessionRoute(
+          buildSession({ status, mode, currentAxisIndex: 2 }),
+          AxisType.VISUAL_DISCRIMINATION,
+        ),
+      ).toEqual(TRAINING_HUB_ROUTE);
+    },
+  );
+
+  it('routes an abandoned full session with every axis played back to the training hub', () => {
+    expect(
+      inactiveSessionRoute(
+        buildSession({
+          status: SessionStatus.ABANDONED,
+          currentAxisIndex: 5,
+          abandonedAt: '2026-07-11T10:30:00.000Z',
+        }),
+        AxisType.MOTOR_SKILLS,
+      ),
+    ).toEqual(TRAINING_HUB_ROUTE);
+  });
+
+  it('routes an abandoned tutorial session back to the training hub', () => {
+    expect(
+      inactiveSessionRoute(
+        buildSession({
+          id: TUTORIAL_SESSION_ID,
+          mode: SessionMode.TARGETED,
+          status: SessionStatus.ABANDONED,
+        }),
+        AxisType.LOGIC,
+      ),
+    ).toEqual(TRAINING_HUB_ROUTE);
   });
 });

@@ -29,6 +29,7 @@ import {
   shareReplay,
   tap,
   throwError,
+  timeout,
 } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
 import { AuthApi } from './auth.api';
@@ -39,6 +40,8 @@ export interface GoogleStartParams {
   returnUrl?: string;
   sector?: Sector;
 }
+
+const AUTH_REFRESH_TIMEOUT_MS = 20_000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
@@ -151,6 +154,7 @@ export class AuthFacade {
 
   refreshSession(): Observable<void> {
     this.refresh$ ??= this.api.refresh().pipe(
+      timeout(AUTH_REFRESH_TIMEOUT_MS),
       tap((user) => this.store.setCurrentUser(user)),
       map(() => undefined),
       finalize(() => {
