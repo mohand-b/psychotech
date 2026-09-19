@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { EmailVerificationService } from './email-verification.service';
 import { GoogleOAuthError } from './google/google-oauth.error';
 import { PasswordHasher } from './password.service';
+import { RefreshSessionService } from './refresh-session.service';
 import { TokenService } from './token.service';
 
 function buildUser(overrides: Partial<User> = {}): User {
@@ -54,6 +55,12 @@ const tokenService = {
   signRefreshToken: vi.fn(),
   verifyRefreshToken: vi.fn(),
 };
+const refreshSessions = {
+  open: vi.fn(),
+  renew: vi.fn(),
+  close: vi.fn(),
+  closeAll: vi.fn(),
+};
 const usersRepository = { isSectorActive: vi.fn() };
 
 const emailVerification = { sendInitialVerification: vi.fn() };
@@ -73,6 +80,7 @@ const service = new AuthService(
   repository as unknown as AuthRepository,
   passwordHasher as unknown as PasswordHasher,
   tokenService as unknown as TokenService,
+  refreshSessions as unknown as RefreshSessionService,
   usersRepository as unknown as UsersRepository,
   emailVerification as unknown as EmailVerificationService,
   badgesService as unknown as BadgesService,
@@ -83,7 +91,7 @@ const service = new AuthService(
 beforeEach(() => {
   vi.clearAllMocks();
   tokenService.signAccessToken.mockResolvedValue('access-token');
-  tokenService.signRefreshToken.mockResolvedValue('refresh-token');
+  refreshSessions.open.mockResolvedValue('refresh-token');
   repository.updateRefreshTokenHash.mockResolvedValue(buildUser());
   usersRepository.isSectorActive.mockResolvedValue(true);
 });
@@ -91,9 +99,7 @@ beforeEach(() => {
 describe('AuthService.register', () => {
   it('creates the account with a hashed password and stores the hashed refresh token', async () => {
     repository.findByEmailInsensitive.mockResolvedValue(null);
-    passwordHasher.hash
-      .mockResolvedValueOnce('hashed-password')
-      .mockResolvedValueOnce('hashed-refresh-token');
+    passwordHasher.hash.mockResolvedValueOnce('hashed-password');
     repository.createAccount.mockResolvedValue(buildUser());
 
     const result = await service.register({
@@ -116,10 +122,10 @@ describe('AuthService.register', () => {
       termsVersion: LEGAL_TERMS_VERSION,
       termsAcceptedAt: expect.any(Date),
     });
-    expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
-      'user-1',
-      'hashed-refresh-token',
-    );
+    expect(refreshSessions.open).toHaveBeenCalledWith({
+      sub: 'user-1',
+      email: 'alice@example.com',
+    });
     expect(emailVerification.sendInitialVerification).toHaveBeenCalledTimes(1);
     expect(result.tokens).toEqual({
       accessToken: 'access-token',
@@ -146,9 +152,7 @@ describe('AuthService.register', () => {
 
   it('normalizes the email before the uniqueness check and the account creation', async () => {
     repository.findByEmailInsensitive.mockResolvedValue(null);
-    passwordHasher.hash
-      .mockResolvedValueOnce('hashed-password')
-      .mockResolvedValueOnce('hashed-refresh-token');
+    passwordHasher.hash.mockResolvedValueOnce('hashed-password');
     repository.createAccount.mockResolvedValue(buildUser());
 
     await service.register({
@@ -198,7 +202,6 @@ describe('AuthService.login', () => {
   it('issues a session for valid credentials', async () => {
     repository.findByEmailInsensitive.mockResolvedValue(buildUser());
     passwordHasher.verify.mockResolvedValue(true);
-    passwordHasher.hash.mockResolvedValue('hashed-refresh-token');
 
     const result = await service.login({
       email: 'alice@example.com',
@@ -206,10 +209,10 @@ describe('AuthService.login', () => {
     });
 
     expect(result.tokens.accessToken).toBe('access-token');
-    expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
-      'user-1',
-      'hashed-refresh-token',
-    );
+    expect(refreshSessions.open).toHaveBeenCalledWith({
+      sub: 'user-1',
+      email: 'alice@example.com',
+    });
   });
 });
 
@@ -225,17 +228,15 @@ describe('AuthService.changePassword', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.updatePasswordHash).not.toHaveBeenCalled();
-    expect(repository.updateRefreshTokenHash).not.toHaveBeenCalled();
+    expect(refreshSessions.closeAll).not.toHaveBeenCalled();
   });
 
-  it('hashes the new password and revokes the other refresh tokens by rotation', async () => {
+  it('hashes the new password, signs every device out and opens a fresh session for this one', async () => {
     repository.findById.mockResolvedValue(
       buildUser({ refreshTokenHash: 'other-device-refresh-hash' }),
     );
     passwordHasher.verify.mockResolvedValue(true);
-    passwordHasher.hash
-      .mockResolvedValueOnce('new-password-hash')
-      .mockResolvedValueOnce('rotated-refresh-hash');
+    passwordHasher.hash.mockResolvedValueOnce('new-password-hash');
 
     const result = await service.changePassword('user-1', {
       currentPassword: 'super-secret',
@@ -250,10 +251,15 @@ describe('AuthService.changePassword', () => {
       'user-1',
       'new-password-hash',
     );
+    expect(refreshSessions.closeAll).toHaveBeenCalledWith('user-1');
     expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
       'user-1',
-      'rotated-refresh-hash',
+      null,
     );
+    expect(refreshSessions.open).toHaveBeenCalledWith({
+      sub: 'user-1',
+      email: 'alice@example.com',
+    });
     expect(result.tokens).toEqual({
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
@@ -262,51 +268,154 @@ describe('AuthService.changePassword', () => {
 });
 
 describe('AuthService.refresh', () => {
-  it('rotates the tokens and overwrites the stored refresh hash', async () => {
-    tokenService.verifyRefreshToken.mockResolvedValue({
-      sub: 'user-1',
-      email: 'alice@example.com',
-    });
-    repository.findById.mockResolvedValue(
-      buildUser({ refreshTokenHash: 'previous-refresh-hash' }),
-    );
-    passwordHasher.verify.mockResolvedValue(true);
-    tokenService.signRefreshToken.mockResolvedValue('rotated-refresh-token');
-    passwordHasher.hash.mockResolvedValue('rotated-refresh-hash');
+  const DEVICE_PAYLOAD = {
+    sub: 'user-1',
+    email: 'alice@example.com',
+    sid: 'device-session-1',
+    iat: 1_789_000_000,
+  };
+
+  it('renews the device session and returns the refresh token it designates', async () => {
+    tokenService.verifyRefreshToken.mockResolvedValue(DEVICE_PAYLOAD);
+    repository.findById.mockResolvedValue(buildUser());
+    refreshSessions.renew.mockResolvedValue('renewed-refresh-token');
 
     const result = await service.refresh('presented-refresh-token');
 
-    expect(passwordHasher.verify).toHaveBeenCalledWith(
-      'previous-refresh-hash',
+    expect(refreshSessions.renew).toHaveBeenCalledWith(
+      DEVICE_PAYLOAD,
       'presented-refresh-token',
     );
-    expect(repository.updateRefreshTokenHash).toHaveBeenCalledWith(
-      'user-1',
-      'rotated-refresh-hash',
-    );
-    expect(result.tokens.refreshToken).toBe('rotated-refresh-token');
+    expect(result.tokens).toEqual({
+      accessToken: 'access-token',
+      refreshToken: 'renewed-refresh-token',
+    });
   });
 
-  it('rejects a refresh token that no longer matches the stored hash', async () => {
-    tokenService.verifyRefreshToken.mockResolvedValue({
-      sub: 'user-1',
-      email: 'alice@example.com',
-    });
-    repository.findById.mockResolvedValue(
-      buildUser({ refreshTokenHash: 'rotated-refresh-hash' }),
-    );
-    passwordHasher.verify.mockResolvedValue(false);
+  it('rejects a token its device session no longer accepts', async () => {
+    tokenService.verifyRefreshToken.mockResolvedValue(DEVICE_PAYLOAD);
+    repository.findById.mockResolvedValue(buildUser());
+    refreshSessions.renew.mockResolvedValue(null);
 
-    await expect(service.refresh('old-refresh-token')).rejects.toBeInstanceOf(
+    await expect(service.refresh('dead-refresh-token')).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
-    expect(repository.updateRefreshTokenHash).not.toHaveBeenCalled();
+  });
+
+  describe('tokens issued before device sessions existed', () => {
+    const LEGACY_PAYLOAD = { sub: 'user-1', email: 'alice@example.com' };
+
+    it('adopts a token matching the stored hash into a device session without killing it', async () => {
+      tokenService.verifyRefreshToken.mockResolvedValue(LEGACY_PAYLOAD);
+      repository.findById.mockResolvedValue(
+        buildUser({ refreshTokenHash: 'legacy-refresh-hash' }),
+      );
+      passwordHasher.verify.mockResolvedValue(true);
+
+      const result = await service.refresh('legacy-refresh-token');
+
+      expect(passwordHasher.verify).toHaveBeenCalledWith(
+        'legacy-refresh-hash',
+        'legacy-refresh-token',
+      );
+      expect(refreshSessions.open).toHaveBeenCalledWith(LEGACY_PAYLOAD);
+      expect(repository.updateRefreshTokenHash).not.toHaveBeenCalled();
+      expect(result.tokens.refreshToken).toBe('refresh-token');
+    });
+
+    it('rejects a token that does not match the stored hash', async () => {
+      tokenService.verifyRefreshToken.mockResolvedValue(LEGACY_PAYLOAD);
+      repository.findById.mockResolvedValue(
+        buildUser({ refreshTokenHash: 'legacy-refresh-hash' }),
+      );
+      passwordHasher.verify.mockResolvedValue(false);
+
+      await expect(
+        service.refresh('old-refresh-token'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+      expect(refreshSessions.open).not.toHaveBeenCalled();
+    });
+
+    it('rejects any token once the stored hash has been revoked', async () => {
+      tokenService.verifyRefreshToken.mockResolvedValue(LEGACY_PAYLOAD);
+      repository.findById.mockResolvedValue(buildUser());
+
+      await expect(
+        service.refresh('legacy-refresh-token'),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
+    });
+  });
+
+  describe('csrf token continuity', () => {
+    const CURRENT_CSRF_TOKEN = 'ab'.repeat(32);
+
+    beforeEach(() => {
+      tokenService.verifyRefreshToken.mockResolvedValue(DEVICE_PAYLOAD);
+      repository.findById.mockResolvedValue(buildUser());
+      refreshSessions.renew.mockResolvedValue('renewed-refresh-token');
+    });
+
+    it('keeps the csrf token the client already holds so an in-flight request replays with a valid header', async () => {
+      const result = await service.refresh(
+        'presented-refresh-token',
+        CURRENT_CSRF_TOKEN,
+      );
+
+      expect(result.csrfToken).toBe(CURRENT_CSRF_TOKEN);
+    });
+
+    it('issues a fresh csrf token when none is presented', async () => {
+      const result = await service.refresh('presented-refresh-token');
+
+      expect(result.csrfToken).toMatch(/^[0-9a-f]{64}$/);
+    });
+
+    it.each([
+      '<script>alert(1)</script>',
+      'AB'.repeat(32),
+      'ab'.repeat(32).slice(1),
+      'ab'.repeat(32) + 'a',
+      'ab'.repeat(32) + '\n',
+    ])('never echoes the malformed csrf token %j', async (malformed) => {
+      const result = await service.refresh('presented-refresh-token', malformed);
+
+      expect(result.csrfToken).not.toBe(malformed);
+      expect(result.csrfToken).toMatch(/^[0-9a-f]{64}$/);
+    });
   });
 
   it('rejects a missing refresh token', async () => {
     await expect(service.refresh(undefined)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
+  });
+});
+
+describe('AuthService.logout', () => {
+  it('closes only the device session of the presented token', async () => {
+    tokenService.verifyRefreshToken.mockResolvedValue({
+      sub: 'user-1',
+      email: 'alice@example.com',
+      sid: 'device-session-1',
+    });
+
+    await service.logout('presented-refresh-token');
+
+    expect(refreshSessions.close).toHaveBeenCalledWith(
+      'device-session-1',
+      'user-1',
+    );
+    expect(refreshSessions.closeAll).not.toHaveBeenCalled();
+  });
+
+  it('does nothing without a verifiable token', async () => {
+    tokenService.verifyRefreshToken.mockRejectedValue(new Error('invalid'));
+
+    await service.logout('garbage');
+    await service.logout(undefined);
+
+    expect(refreshSessions.close).not.toHaveBeenCalled();
+    expect(repository.updateRefreshTokenHash).not.toHaveBeenCalled();
   });
 });
 
@@ -330,10 +439,6 @@ function buildGoogleClaims(
 }
 
 describe('AuthService.googleSignIn', () => {
-  beforeEach(() => {
-    passwordHasher.hash.mockResolvedValue('hashed-refresh-token');
-  });
-
   it('creates a verified account with the normalized email and skips the verification email', async () => {
     const outcome: GoogleSignInOutcome = {
       kind: 'CREATED',

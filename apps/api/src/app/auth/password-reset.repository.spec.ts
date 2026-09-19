@@ -6,6 +6,7 @@ function buildTx() {
   return {
     passwordReset: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     user: { update: vi.fn().mockResolvedValue({}) },
+    refreshSession: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
   };
 }
 
@@ -19,7 +20,7 @@ function repositoryWith(tx: ReturnType<typeof buildTx>) {
 }
 
 describe('PasswordResetRepository.consumeAndSetPassword', () => {
-  it('consumes the token and drops the stored refresh token so every device is signed out', async () => {
+  it('consumes the token and closes every refresh session so every device is signed out', async () => {
     const tx = buildTx();
     const now = new Date('2026-08-22T03:00:00Z');
 
@@ -43,6 +44,9 @@ describe('PasswordResetRepository.consumeAndSetPassword', () => {
         refreshTokenHash: null,
       },
     });
+    expect(tx.refreshSession.deleteMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+    });
   });
 
   it('leaves the password untouched when the token was consumed in the meantime', async () => {
@@ -58,5 +62,6 @@ describe('PasswordResetRepository.consumeAndSetPassword', () => {
 
     expect(outcome).toBe('ALREADY_USED');
     expect(tx.user.update).not.toHaveBeenCalled();
+    expect(tx.refreshSession.deleteMany).not.toHaveBeenCalled();
   });
 });

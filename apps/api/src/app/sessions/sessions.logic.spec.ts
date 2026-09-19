@@ -4,7 +4,9 @@ import {
   AxisType,
   DiscriminationTrialAnswerDto,
   FULL_SESSION_AXIS_ORDER,
+  Sector,
   SessionMode,
+  SessionStatus,
   TrainingOptionId,
 } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +14,9 @@ import {
   activePlayDurationSec,
   axisContentFullyPlayed,
   computeStreakUpdate,
+  START_REPLAY_WINDOW_MS,
   globalTimerExhausted,
+  repeatsRecentStart,
   resolveHistoryScope,
   resolveSessionAxes,
 } from './sessions.logic';
@@ -298,5 +302,70 @@ describe('axisContentFullyPlayed on an expired timer', () => {
 
   it('still refuses the very same run while the timer had time left', () => {
     expect(axisContentFullyPlayed(partialRun, undefined, false)).toBe(false);
+  });
+});
+
+describe('repeatsRecentStart', () => {
+  const now = new Date('2026-09-19T12:00:00.000Z');
+  const justStarted = new Date(now.getTime() - 5_000);
+  const request = {
+    mode: SessionMode.TARGETED,
+    sector: Sector.RAILWAY,
+    axes: [AxisType.LOGIC],
+    logicFamily: null,
+    enabledOptions: [TrainingOptionId.LOGIC_HELP],
+  };
+  const session = {
+    mode: SessionMode.TARGETED,
+    sector: Sector.RAILWAY,
+    status: SessionStatus.IN_PROGRESS,
+    logicFamily: null,
+    trainingOptions: [TrainingOptionId.LOGIC_HELP],
+    startedAt: justStarted,
+    axisResults: [{ axis: AxisType.LOGIC, completedAt: null }],
+  };
+
+  it('recognises the same start tapped again after a lost response', () => {
+    expect(repeatsRecentStart(session, request, now)).toBe(true);
+  });
+
+  it('recognises a repeated exam start whatever the order of its axes', () => {
+    const exam = {
+      ...session,
+      mode: SessionMode.FULL,
+      trainingOptions: [],
+      axisResults: [...FULL_SESSION_AXIS_ORDER]
+        .reverse()
+        .map((axis) => ({ axis, completedAt: null })),
+    };
+    const examRequest = {
+      ...request,
+      mode: SessionMode.FULL,
+      axes: [...FULL_SESSION_AXIS_ORDER],
+      enabledOptions: [],
+    };
+
+    expect(repeatsRecentStart(exam, examRequest, now)).toBe(true);
+  });
+
+  it.each([
+    [
+      'an older session',
+      { startedAt: new Date(now.getTime() - START_REPLAY_WINDOW_MS) },
+    ],
+    ['a session that is no longer in progress', { status: SessionStatus.ABANDONED }],
+    ['another mode', { mode: SessionMode.FULL }],
+    ['another sector', { sector: Sector.AVIATION }],
+    ['another axis', { axisResults: [{ axis: AxisType.MEMORY, completedAt: null }] }],
+    ['another family filter', { logicFamily: 'MATRIX' }],
+    ['other training options', { trainingOptions: [] }],
+    [
+      'a session that already holds a played axis',
+      { axisResults: [{ axis: AxisType.LOGIC, completedAt: justStarted }] },
+    ],
+  ])('never reuses %s', (_label, difference) => {
+    expect(repeatsRecentStart({ ...session, ...difference }, request, now)).toBe(
+      false,
+    );
   });
 });

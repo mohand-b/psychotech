@@ -101,16 +101,16 @@ enum AuthProvider {
 }
 
 model User {
-  id               String   @id @default(uuid())
-  email            String   @unique
-  firstName        String
-  lastName         String
-  passwordHash     String?
-  refreshTokenHash String?
-  locale           String   @default("fr")
-  timezone         String   @default("Europe/Paris")
-  currentSector    Sector   @default(RAILWAY)
-  stripeCustomerId String?   @unique
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  firstName            String
+  lastName             String
+  passwordHash         String?
+  refreshTokenHash     String?
+  locale               String    @default("fr")
+  timezone             String    @default("Europe/Paris")
+  currentSector        Sector    @default(RAILWAY)
+  stripeCustomerId     String?   @unique
   termsVersion         String?
   termsAcceptedAt      DateTime?
   emailVerifiedAt      DateTime?
@@ -125,6 +125,7 @@ model User {
   updatedAt            DateTime  @updatedAt
 
   energyWallet      EnergyWallet?
+  refreshSessions   RefreshSession[]
   emailVerification EmailVerification?
   emailChange       EmailChange?
   passwordReset     PasswordReset?
@@ -136,6 +137,19 @@ model User {
   energyLedger      EnergyLedger[]
   giftRedemptions   GiftRedemption[]
   identities        UserIdentity[]
+}
+
+model RefreshSession {
+  id                String   @id @default(uuid())
+  userId            String
+  tokenHash         String
+  previousTokenHash String?
+  createdAt         DateTime @default(now())
+  rotatedAt         DateTime @default(now())
+  expiresAt         DateTime
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model UserIdentity {
@@ -254,28 +268,28 @@ model EnergyLedger {
 }
 
 model Session {
-  id               String          @id @default(uuid())
+  id               String           @id @default(uuid())
   userId           String
   mode             SessionMode
   sector           Sector
-  status           SessionStatus   @default(IN_PROGRESS)
+  status           SessionStatus    @default(IN_PROGRESS)
   seed             String
-  contentVersion   Int             @default(1)
+  contentVersion   Int              @default(1)
   logicFamily      String?
-  helpEnabled      Boolean         @default(false)
-  trainingOptions  String[]        @default([])
+  helpEnabled      Boolean          @default(false)
+  trainingOptions  String[]         @default([])
   energyCost       Int
-  currentAxisIndex Int             @default(0)
+  currentAxisIndex Int              @default(0)
   globalScore      Float?
   globalBand       ScoreBand?
   isAdmissible     Boolean?
   isEliminated     Boolean?
   sectorThreshold  Int
-  startedAt        DateTime        @default(now())
+  startedAt        DateTime         @default(now())
   completedAt      DateTime?
   abandonedAt      DateTime?
   controlModality  ControlModality?
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   axisResults      SessionAxis[]
   recommendations  Recommendation[]
 

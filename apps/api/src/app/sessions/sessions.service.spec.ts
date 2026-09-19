@@ -154,6 +154,40 @@ beforeEach(() => {
 
 
 describe('SessionsService.start', () => {
+  it('hands back the session just created instead of charging again when the same start is repeated', async () => {
+    repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
+    const justCreated = buildSession({
+      mode: 'TARGETED',
+      energyCost: 1,
+      startedAt: new Date(),
+      axisResults: [
+        {
+          id: 'axis-logic',
+          sessionId: '11111111-1111-1111-1111-111111111111',
+          axis: 'LOGIC',
+          order: 0,
+          normalizedScore: null,
+          band: null,
+          skipped: false,
+          startedAt: null,
+          completedAt: null,
+          metrics: null,
+        },
+      ],
+    });
+    repository.findCurrentSession.mockResolvedValueOnce(justCreated);
+
+    const replayed = await service.start('user-1', {
+      mode: SessionMode.TARGETED,
+      sector: Sector.RAILWAY,
+      axis: AxisType.LOGIC,
+    });
+
+    expect(replayed.id).toBe(justCreated.id);
+    expect(repository.createSession).not.toHaveBeenCalled();
+    expect(energyService.spendWithin).not.toHaveBeenCalled();
+  });
+
   it('debits one energy inside the creation transaction of a targeted session', async () => {
     repository.findSectorConfig.mockResolvedValue(SECTOR_CONFIG);
     repository.createSession.mockImplementation(async (_params, spend) => {

@@ -8,6 +8,11 @@ export interface AccessTokenPayload {
   email: string;
 }
 
+export interface RefreshTokenPayload extends AccessTokenPayload {
+  sid?: string;
+  iat?: number;
+}
+
 @Injectable()
 export class TokenService {
   constructor(
@@ -23,7 +28,9 @@ export class TokenService {
     });
   }
 
-  signRefreshToken(payload: AccessTokenPayload): Promise<string> {
+  signRefreshToken(
+    payload: AccessTokenPayload & { sid: string },
+  ): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.config.refreshSecret,
       expiresIn: this.config.refreshTtlSeconds,
@@ -36,8 +43,8 @@ export class TokenService {
     });
   }
 
-  verifyRefreshToken(token: string): Promise<AccessTokenPayload> {
-    return this.jwtService.verifyAsync<AccessTokenPayload>(token, {
+  verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
+    return this.jwtService.verifyAsync<RefreshTokenPayload>(token, {
       secret: this.config.refreshSecret,
     });
   }

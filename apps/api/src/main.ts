@@ -55,6 +55,7 @@ async function bootstrap() {
       credentials: true,
     });
   }
+  app.enableShutdownHooks();
   const port = Number(process.env.PORT) || DEFAULT_PORT;
   await app.listen(port, '0.0.0.0');
   Logger.log(

@@ -33,10 +33,16 @@ import { normalizeEmail } from './email-normalization';
 import { GoogleOAuthError } from './google/google-oauth.error';
 import { GoogleIdentityClaims } from './google/google-oauth.service';
 import { PasswordHasher } from './password.service';
-import { AccessTokenPayload, TokenService } from './token.service';
+import { RefreshSessionService } from './refresh-session.service';
+import {
+  AccessTokenPayload,
+  RefreshTokenPayload,
+  TokenService,
+} from './token.service';
 
 const DEFAULT_TIMEZONE = 'Europe/Paris';
 const CSRF_TOKEN_BYTES = 32;
+const CSRF_TOKEN_PATTERN = new RegExp(`^[0-9a-f]{${CSRF_TOKEN_BYTES * 2}}$`);
 
 export interface AuthResult {
   user: UserProfileDto;
@@ -57,6 +63,7 @@ export class AuthService {
     private readonly repository: AuthRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
+    private readonly refreshSessions: RefreshSessionService,
     private readonly usersRepository: UsersRepository,
     private readonly emailVerification: EmailVerificationService,
     private readonly badgesService: BadgesService,
@@ -150,7 +157,10 @@ export class AuthService {
     return this.issueSession(outcome.user);
   }
 
-  async refresh(refreshToken: string | undefined): Promise<AuthResult> {
+  async refresh(
+    refreshToken: string | undefined,
+    currentCsrfToken?: string,
+  ): Promise<AuthResult> {
     if (!refreshToken) {
       throw new UnauthorizedException('Missing refresh token');
     }
@@ -159,17 +169,30 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
     const user = await this.repository.findById(payload.sub);
-    if (!user || !user.refreshTokenHash) {
+    if (!user) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    const matches = await this.passwordHasher.verify(
-      user.refreshTokenHash,
-      refreshToken,
-    );
-    if (!matches) {
+    const { sid } = payload;
+    const renewedRefreshToken = sid
+      ? await this.refreshSessions.renew({ ...payload, sid }, refreshToken)
+      : await this.adoptLegacyRefreshToken(user, refreshToken);
+    if (!renewedRefreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    return this.issueSession(user);
+    return this.buildAuthResult(user, renewedRefreshToken, currentCsrfToken);
+  }
+
+  private async adoptLegacyRefreshToken(
+    user: User,
+    refreshToken: string,
+  ): Promise<string | null> {
+    if (
+      !user.refreshTokenHash ||
+      !(await this.passwordHasher.verify(user.refreshTokenHash, refreshToken))
+    ) {
+      return null;
+    }
+    return this.refreshSessions.open({ sub: user.id, email: user.email });
   }
 
   async changePassword(
@@ -189,6 +212,7 @@ export class AuthService {
     }
     const passwordHash = await this.passwordHasher.hash(input.newPassword);
     await this.repository.updatePasswordHash(user.id, passwordHash);
+    await this.revokeEveryDevice(user.id);
     this.logger.log(`Password changed for user ${user.id}`);
     await this.sendPasswordChangedNotice(user);
     return this.issueSession(user);
@@ -234,24 +258,50 @@ export class AuthService {
       return;
     }
     const payload = await this.safeVerifyRefresh(refreshToken);
-    if (payload) {
-      await this.repository.updateRefreshTokenHash(payload.sub, null);
+    if (!payload) {
+      return;
     }
+    if (payload.sid) {
+      await this.refreshSessions.close(payload.sid, payload.sub);
+    }
+    await this.repository.updateRefreshTokenHash(payload.sub, null);
   }
 
-  private async issueSession(user: User): Promise<AuthResult> {
+  private async revokeEveryDevice(userId: string): Promise<void> {
+    await this.refreshSessions.closeAll(userId);
+    await this.repository.updateRefreshTokenHash(userId, null);
+  }
+
+  private async issueSession(
+    user: User,
+    currentCsrfToken?: string,
+  ): Promise<AuthResult> {
+    const refreshToken = await this.refreshSessions.open({
+      sub: user.id,
+      email: user.email,
+    });
+    return this.buildAuthResult(user, refreshToken, currentCsrfToken);
+  }
+
+  private async buildAuthResult(
+    user: User,
+    refreshToken: string,
+    currentCsrfToken?: string,
+  ): Promise<AuthResult> {
     const payload: AccessTokenPayload = { sub: user.id, email: user.email };
-    const [accessToken, refreshToken] = await Promise.all([
-      this.tokenService.signAccessToken(payload),
-      this.tokenService.signRefreshToken(payload),
-    ]);
-    const refreshTokenHash = await this.passwordHasher.hash(refreshToken);
-    await this.repository.updateRefreshTokenHash(user.id, refreshTokenHash);
+    const accessToken = await this.tokenService.signAccessToken(payload);
     return {
       user: toUserProfileDto(user),
       tokens: { accessToken, refreshToken },
-      csrfToken: randomBytes(CSRF_TOKEN_BYTES).toString('hex'),
+      csrfToken: this.keepOrIssueCsrfToken(currentCsrfToken),
     };
+  }
+
+  private keepOrIssueCsrfToken(currentCsrfToken?: string): string {
+    return currentCsrfToken !== undefined &&
+      CSRF_TOKEN_PATTERN.test(currentCsrfToken)
+      ? currentCsrfToken
+      : randomBytes(CSRF_TOKEN_BYTES).toString('hex');
   }
 
   private emailLocalPart(email: string): string {
@@ -261,7 +311,7 @@ export class AuthService {
 
   private async safeVerifyRefresh(
     token: string,
-  ): Promise<AccessTokenPayload | null> {
+  ): Promise<RefreshTokenPayload | null> {
     try {
       return await this.tokenService.verifyRefreshToken(token);
     } catch (error) {

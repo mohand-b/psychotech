@@ -1,12 +1,15 @@
-﻿import { SessionStatus as DbSessionStatus } from '@prisma/client';
+﻿import { Prisma, SessionStatus as DbSessionStatus } from '@prisma/client';
 import {
   AxisType,
+  RecommendationPriority,
+  ScoreBand,
   Sector,
   SessionMode,
   TrainingOptionId,
 } from '@psychotech/shared';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
+import { SESSION_INCLUDE } from './sessions.mappers';
 import { SessionsRepository } from './sessions.repository';
 
 function buildPrismaMock(unfinishedSessions: unknown[]) {
@@ -211,5 +214,268 @@ describe('SessionsRepository.listHistory', () => {
         skip: 1,
       }),
     );
+  });
+});
+
+function buildClosurePrismaMock(closedCount: number) {
+  const storedSession = {
+    id: 'full-session',
+    status: DbSessionStatus.COMPLETED,
+  };
+  const tx = {
+    session: {
+      update: vi.fn().mockResolvedValue({}),
+      updateMany: vi.fn().mockResolvedValue({ count: closedCount }),
+      findUniqueOrThrow: vi.fn().mockResolvedValue(storedSession),
+    },
+    recommendation: { createMany: vi.fn().mockResolvedValue({}) },
+    axisBest: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    streak: { upsert: vi.fn().mockResolvedValue({}) },
+  };
+  const prisma = {
+    $transaction: vi.fn((callback: (client: typeof tx) => unknown) =>
+      callback(tx),
+    ),
+  };
+  return { prisma, tx, storedSession };
+}
+
+const closureCompletedAt = new Date('2026-06-13T10:30:00Z');
+
+const closureParams = {
+  sessionId: 'full-session',
+  userId: 'user-1',
+  globalScore: 72,
+  globalBand: ScoreBand.ACCEPTABLE,
+  isAdmissible: true,
+  isEliminated: false,
+  completedAt: closureCompletedAt,
+  axisCount: 5,
+  recommendations: [
+    {
+      axis: AxisType.MEMORY,
+      priority: RecommendationPriority.HIGH,
+      code: 'MEMORY_FRAGILE',
+      label: 'Memory needs work',
+    },
+  ],
+  axisBests: [
+    {
+      axis: AxisType.LOGIC,
+      score: 81,
+      band: ScoreBand.EXCELLENT,
+      sessionAxisId: 'axis-1',
+    },
+    {
+      axis: AxisType.MEMORY,
+      score: 64,
+      band: ScoreBand.FRAGILE,
+      sessionAxisId: 'axis-2',
+    },
+  ],
+  streak: { current: 3, longest: 7, lastActivityDate: closureCompletedAt },
+};
+
+describe('SessionsRepository.completeSession', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('closes the session through a compare-and-set restricted to the in-progress status', async () => {
+    const { prisma, tx } = buildClosurePrismaMock(1);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    await repository.completeSession(closureParams, vi.fn());
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(tx.session.updateMany).toHaveBeenCalledTimes(1);
+    expect(tx.session.updateMany).toHaveBeenCalledWith({
+      where: { id: 'full-session', status: DbSessionStatus.IN_PROGRESS },
+      data: {
+        status: DbSessionStatus.COMPLETED,
+        globalScore: 72,
+        globalBand: 'ACCEPTABLE',
+        isAdmissible: true,
+        isEliminated: false,
+        completedAt: closureCompletedAt,
+        currentAxisIndex: 5,
+      },
+    });
+    expect(tx.session.update).not.toHaveBeenCalled();
+  });
+
+  it('writes the recommendations, the axis bests and the streak then evaluates the badges once when the closure wins', async () => {
+    const { prisma, tx, storedSession } = buildClosurePrismaMock(1);
+    tx.axisBest.findUnique.mockResolvedValueOnce({ bestScore: 75 });
+    const evaluateBadges = vi.fn().mockResolvedValue(undefined);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    const result = await repository.completeSession(
+      closureParams,
+      evaluateBadges,
+    );
+
+    expect(tx.recommendation.createMany).toHaveBeenCalledTimes(1);
+    expect(tx.recommendation.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          sessionId: 'full-session',
+          axis: 'MEMORY',
+          priority: 'HIGH',
+          code: 'MEMORY_FRAGILE',
+          label: 'Memory needs work',
+        },
+      ],
+    });
+    expect(tx.axisBest.update).toHaveBeenCalledTimes(1);
+    expect(tx.axisBest.update).toHaveBeenCalledWith({
+      where: { userId_axis: { userId: 'user-1', axis: 'LOGIC' } },
+      data: {
+        bestScore: 81,
+        band: 'EXCELLENT',
+        achievedAt: closureCompletedAt,
+        sessionAxisId: 'axis-1',
+      },
+    });
+    expect(tx.axisBest.create).toHaveBeenCalledTimes(1);
+    expect(tx.axisBest.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-1',
+        axis: 'MEMORY',
+        bestScore: 64,
+        band: 'FRAGILE',
+        achievedAt: closureCompletedAt,
+        sessionAxisId: 'axis-2',
+      },
+    });
+    expect(tx.streak.upsert).toHaveBeenCalledTimes(1);
+    expect(tx.streak.upsert).toHaveBeenCalledWith({
+      where: { userId: 'user-1' },
+      update: {
+        current: 3,
+        longest: 7,
+        lastActivityDate: closureCompletedAt,
+      },
+      create: {
+        userId: 'user-1',
+        current: 3,
+        longest: 7,
+        lastActivityDate: closureCompletedAt,
+      },
+    });
+    expect(evaluateBadges).toHaveBeenCalledTimes(1);
+    expect(evaluateBadges).toHaveBeenCalledWith(tx);
+    const [closedOrder] = tx.session.updateMany.mock.invocationCallOrder;
+    const [streakOrder] = tx.streak.upsert.mock.invocationCallOrder;
+    const [badgesOrder] = evaluateBadges.mock.invocationCallOrder;
+    const [readOrder] = tx.session.findUniqueOrThrow.mock.invocationCallOrder;
+    expect(closedOrder).toBeLessThan(streakOrder);
+    expect(streakOrder).toBeLessThan(badgesOrder);
+    expect(badgesOrder).toBeLessThan(readOrder);
+    expect(result).toEqual({ session: storedSession });
+  });
+
+  it('skips the recommendation write when the evaluation produced none and still closes the rest', async () => {
+    const { prisma, tx } = buildClosurePrismaMock(1);
+    const evaluateBadges = vi.fn().mockResolvedValue(undefined);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    await repository.completeSession(
+      { ...closureParams, recommendations: [] },
+      evaluateBadges,
+    );
+
+    expect(tx.recommendation.createMany).not.toHaveBeenCalled();
+    expect(tx.axisBest.create).toHaveBeenCalledTimes(2);
+    expect(tx.streak.upsert).toHaveBeenCalledTimes(1);
+    expect(evaluateBadges).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes no outcome and evaluates no badge when the session was already closed, yet returns the stored session', async () => {
+    const { prisma, tx, storedSession } = buildClosurePrismaMock(0);
+    const evaluateBadges = vi.fn().mockResolvedValue(undefined);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    const result = await repository.completeSession(
+      closureParams,
+      evaluateBadges,
+    );
+
+    expect(tx.session.updateMany).toHaveBeenCalledTimes(1);
+    expect(tx.recommendation.createMany).not.toHaveBeenCalled();
+    expect(tx.axisBest.findUnique).not.toHaveBeenCalled();
+    expect(tx.axisBest.create).not.toHaveBeenCalled();
+    expect(tx.axisBest.update).not.toHaveBeenCalled();
+    expect(tx.streak.upsert).not.toHaveBeenCalled();
+    expect(evaluateBadges).not.toHaveBeenCalled();
+    expect(tx.session.findUniqueOrThrow).toHaveBeenCalledWith({
+      where: { id: 'full-session' },
+      include: SESSION_INCLUDE,
+    });
+    expect(result).toEqual({ session: storedSession });
+  });
+
+  it('lets a single closure write the outcome when two completions race on the same session', async () => {
+    const { prisma, tx, storedSession } = buildClosurePrismaMock(0);
+    tx.session.updateMany.mockResolvedValueOnce({ count: 1 });
+    const evaluateBadges = vi.fn().mockResolvedValue(undefined);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    const results = await Promise.all([
+      repository.completeSession(closureParams, evaluateBadges),
+      repository.completeSession(closureParams, evaluateBadges),
+    ]);
+
+    expect(tx.session.updateMany).toHaveBeenCalledTimes(2);
+    expect(tx.recommendation.createMany).toHaveBeenCalledTimes(1);
+    expect(tx.axisBest.create).toHaveBeenCalledTimes(2);
+    expect(tx.streak.upsert).toHaveBeenCalledTimes(1);
+    expect(evaluateBadges).toHaveBeenCalledTimes(1);
+    expect(results).toEqual([
+      { session: storedSession },
+      { session: storedSession },
+    ]);
+  });
+
+  it('writes the outcome once when the transaction is retried after a closure that did commit', async () => {
+    vi.useFakeTimers();
+    const { prisma, tx, storedSession } = buildClosurePrismaMock(0);
+    tx.session.updateMany.mockResolvedValueOnce({ count: 1 });
+    prisma.$transaction.mockImplementationOnce(async (callback) => {
+      await callback(tx);
+      throw new Prisma.PrismaClientKnownRequestError(
+        'Server has closed the connection',
+        { code: 'P1017', clientVersion: 'test' },
+      );
+    });
+    const evaluateBadges = vi.fn().mockResolvedValue(undefined);
+    const repository = new SessionsRepository(
+      prisma as unknown as PrismaService,
+    );
+
+    const pending = repository.completeSession(closureParams, evaluateBadges);
+    await vi.runAllTimersAsync();
+    const result = await pending;
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(2);
+    expect(tx.session.updateMany).toHaveBeenCalledTimes(2);
+    expect(tx.recommendation.createMany).toHaveBeenCalledTimes(1);
+    expect(tx.streak.upsert).toHaveBeenCalledTimes(1);
+    expect(evaluateBadges).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ session: storedSession });
   });
 });

@@ -20,6 +20,8 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { IpRateLimitService } from './ip-rate-limit.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PasswordHasher } from './password.service';
+import { RefreshSessionRepository } from './refresh-session.repository';
+import { RefreshSessionService } from './refresh-session.service';
 import { TokenService } from './token.service';
 
 @Module({
@@ -38,6 +40,8 @@ import { TokenService } from './token.service';
     IpRateLimitService,
     PasswordHasher,
     TokenService,
+    RefreshSessionRepository,
+    RefreshSessionService,
     AuthCookieService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: CsrfGuard },

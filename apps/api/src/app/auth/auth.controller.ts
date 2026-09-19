@@ -22,7 +22,7 @@ import {
 import { Request, Response } from 'express';
 import { NewBadgesInterceptor } from '../badges/new-badges.interceptor';
 import { CurrentUser } from '../common/current-user.decorator';
-import { REFRESH_TOKEN_COOKIE } from './auth.constants';
+import { CSRF_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from './auth.constants';
 import { AuthCookieService } from './auth.cookie.service';
 import { AuthResult, AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -158,7 +158,10 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<UserProfileDto> {
     return this.completeSession(
-      await this.authService.refresh(request.cookies[REFRESH_TOKEN_COOKIE]),
+      await this.authService.refresh(
+        request.cookies[REFRESH_TOKEN_COOKIE],
+        request.cookies[CSRF_TOKEN_COOKIE],
+      ),
       response,
     );
   }

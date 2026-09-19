@@ -185,10 +185,12 @@ export class SessionsRepository {
   }
 
   async findSectorConfig(sector: Sector): Promise<SectorConfigData | null> {
-    const config = await this.prisma.sectorConfig.findUnique({
-      where: { sector: mapEnumValue(DbSector, sector) },
-      include: { axisWeights: true },
-    });
+    const config = await withDatabaseRetry(() =>
+      this.prisma.sectorConfig.findUnique({
+        where: { sector: mapEnumValue(DbSector, sector) },
+        include: { axisWeights: true },
+      }),
+    );
     if (!config) {
       return null;
     }
@@ -206,10 +208,12 @@ export class SessionsRepository {
   }
 
   async findStreakContext(userId: string): Promise<StreakContext> {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      include: { streak: true },
-    });
+    const user = await withDatabaseRetry(() =>
+      this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        include: { streak: true },
+      }),
+    );
     return {
       timezone: user.timezone,
       streak: user.streak
@@ -267,8 +271,11 @@ export class SessionsRepository {
   ): Promise<CompleteSessionResult> {
     return withDatabaseRetry(() =>
       this.prisma.$transaction(async (tx) => {
-        await tx.session.update({
-          where: { id: params.sessionId },
+        const closed = await tx.session.updateMany({
+          where: {
+            id: params.sessionId,
+            status: DbSessionStatus.IN_PROGRESS,
+          },
           data: {
             status: DbSessionStatus.COMPLETED,
             globalScore: params.globalScore,
@@ -279,43 +286,10 @@ export class SessionsRepository {
             currentAxisIndex: params.axisCount,
           },
         });
-        if (params.recommendations.length > 0) {
-          await tx.recommendation.createMany({
-            data: params.recommendations.map((recommendation) => ({
-              sessionId: params.sessionId,
-              axis: mapEnumValue(DbAxisType, recommendation.axis),
-              priority: mapEnumValue(
-                DbRecommendationPriority,
-                recommendation.priority,
-              ),
-              code: recommendation.code,
-              label: recommendation.label,
-            })),
-          });
+        if (closed.count > 0) {
+          await this.writeClosureOutcome(tx, params);
+          await evaluateBadges(tx);
         }
-        for (const best of params.axisBests) {
-          await this.upsertAxisBest(
-            tx,
-            params.userId,
-            params.completedAt,
-            best,
-          );
-        }
-        await tx.streak.upsert({
-          where: { userId: params.userId },
-          update: {
-            current: params.streak.current,
-            longest: params.streak.longest,
-            lastActivityDate: params.streak.lastActivityDate,
-          },
-          create: {
-            userId: params.userId,
-            current: params.streak.current,
-            longest: params.streak.longest,
-            lastActivityDate: params.streak.lastActivityDate,
-          },
-        });
-        await evaluateBadges(tx);
         const session = await tx.session.findUniqueOrThrow({
           where: { id: params.sessionId },
           include: SESSION_INCLUDE,
@@ -323,6 +297,43 @@ export class SessionsRepository {
         return { session };
       }),
     );
+  }
+
+  private async writeClosureOutcome(
+    tx: Prisma.TransactionClient,
+    params: CompleteSessionParams,
+  ): Promise<void> {
+    if (params.recommendations.length > 0) {
+      await tx.recommendation.createMany({
+        data: params.recommendations.map((recommendation) => ({
+          sessionId: params.sessionId,
+          axis: mapEnumValue(DbAxisType, recommendation.axis),
+          priority: mapEnumValue(
+            DbRecommendationPriority,
+            recommendation.priority,
+          ),
+          code: recommendation.code,
+          label: recommendation.label,
+        })),
+      });
+    }
+    for (const best of params.axisBests) {
+      await this.upsertAxisBest(tx, params.userId, params.completedAt, best);
+    }
+    await tx.streak.upsert({
+      where: { userId: params.userId },
+      update: {
+        current: params.streak.current,
+        longest: params.streak.longest,
+        lastActivityDate: params.streak.lastActivityDate,
+      },
+      create: {
+        userId: params.userId,
+        current: params.streak.current,
+        longest: params.streak.longest,
+        lastActivityDate: params.streak.lastActivityDate,
+      },
+    });
   }
 
   async completeTargetedSession(

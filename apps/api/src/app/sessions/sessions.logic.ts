@@ -5,6 +5,7 @@ import {
   AxisType,
   FULL_SESSION_AXIS_ORDER,
   SessionMode,
+  SessionStatus,
   TrainingOptionId,
   globalTimerDurationSec,
 } from '@psychotech/shared';
@@ -149,6 +150,54 @@ function axisPlayTimeMs(metrics: unknown): number {
     return raw.courses.reduce((sum, course) => sum + course.tReelMs, 0);
   }
   return 0;
+}
+
+export const START_REPLAY_WINDOW_MS = 60_000;
+
+interface StartedSessionSnapshot {
+  mode: string;
+  sector: string;
+  status: string;
+  logicFamily: string | null;
+  trainingOptions: string[];
+  startedAt: Date;
+  axisResults: { axis: string; completedAt: Date | null }[];
+}
+
+interface StartRequestSnapshot {
+  mode: SessionMode;
+  sector: string;
+  axes: AxisType[];
+  logicFamily: string | null;
+  enabledOptions: string[];
+}
+
+function sameValues(left: string[], right: string[]): boolean {
+  const sortedRight = [...right].sort();
+  return (
+    left.length === right.length &&
+    [...left].sort().every((value, index) => value === sortedRight[index])
+  );
+}
+
+export function repeatsRecentStart(
+  session: StartedSessionSnapshot,
+  request: StartRequestSnapshot,
+  now: Date,
+): boolean {
+  return (
+    session.status === SessionStatus.IN_PROGRESS &&
+    now.getTime() - session.startedAt.getTime() < START_REPLAY_WINDOW_MS &&
+    session.mode === request.mode &&
+    session.sector === request.sector &&
+    session.logicFamily === request.logicFamily &&
+    sameValues(session.trainingOptions, request.enabledOptions) &&
+    sameValues(
+      session.axisResults.map((result) => result.axis),
+      request.axes,
+    ) &&
+    session.axisResults.every((result) => result.completedAt === null)
+  );
 }
 
 export function resolveSessionAxes(mode: SessionMode, axis?: AxisType): AxisType[] {

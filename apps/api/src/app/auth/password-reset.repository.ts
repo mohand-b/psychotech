@@ -61,6 +61,7 @@ export class PasswordResetRepository {
           refreshTokenHash: null,
         },
       });
+      await tx.refreshSession.deleteMany({ where: { userId } });
       return 'RESET';
     });
   }

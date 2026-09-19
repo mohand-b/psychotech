@@ -92,6 +92,7 @@ import {
   computeStreakUpdate,
   globalTimerExhausted,
   resolveHistoryScope,
+  repeatsRecentStart,
   resolveSessionAxes,
   sessionUntimed,
 } from './sessions.logic';
@@ -159,6 +160,23 @@ export class SessionsService {
     const config = await this.repository.findSectorConfig(request.sector);
     if (!config || !config.isActive) {
       throw new BadRequestException('The requested sector is not available');
+    }
+    const current = await this.repository.findCurrentSession(userId);
+    if (
+      current &&
+      repeatsRecentStart(
+        current,
+        {
+          mode: request.mode,
+          sector: request.sector,
+          axes,
+          logicFamily,
+          enabledOptions,
+        },
+        new Date(),
+      )
+    ) {
+      return toSessionDto(current);
     }
     const session = await this.repository.createSession(
       {
@@ -293,6 +311,9 @@ export class SessionsService {
     const orderedAxes = [...session.axisResults].sort(
       (a, b) => a.order - b.order,
     );
+    if (this.awaitsClosure(session)) {
+      return this.closeFullSession(userId, session.id);
+    }
     const currentAxis = orderedAxes[session.currentAxisIndex];
     if (!currentAxis || mapEnumValue(AxisType, currentAxis.axis) !== axis) {
       throw new ConflictException(
@@ -325,11 +346,26 @@ export class SessionsService {
       nextAxisIndex: session.currentAxisIndex + 1,
     });
     const updated = await this.loadOwnedSession(session.id, userId);
-    if (updated.axisResults.every((result) => result.completedAt !== null)) {
-      await this.complete(userId, session.id);
-      return toSessionDto(await this.loadOwnedSession(session.id, userId));
-    }
-    return toSessionDto(updated);
+    return this.awaitsClosure(updated)
+      ? this.closeFullSession(userId, session.id)
+      : toSessionDto(updated);
+  }
+
+  private awaitsClosure(session: SessionWithRelations): boolean {
+    return (
+      mapEnumValue(SessionMode, session.mode) === SessionMode.FULL &&
+      mapEnumValue(SessionStatus, session.status) ===
+        SessionStatus.IN_PROGRESS &&
+      session.axisResults.every((result) => result.completedAt !== null)
+    );
+  }
+
+  private async closeFullSession(
+    userId: string,
+    sessionId: string,
+  ): Promise<SessionDto> {
+    await this.complete(userId, sessionId);
+    return toSessionDto(await this.loadOwnedSession(sessionId, userId));
   }
 
   private logicContentContext(session: {
@@ -781,6 +817,12 @@ export class SessionsService {
           sessionId,
         ),
     );
+    if (
+      mapEnumValue(SessionStatus, completed.session.status) !==
+      SessionStatus.COMPLETED
+    ) {
+      throw new ConflictException('Session is not in progress');
+    }
     return toSessionResultDto(completed.session);
   }
 
@@ -815,7 +857,10 @@ export class SessionsService {
   }
 
   async get(userId: string, sessionId: string): Promise<SessionDto> {
-    return toSessionDto(await this.loadOwnedSession(sessionId, userId));
+    const session = await this.loadOwnedSession(sessionId, userId);
+    return this.awaitsClosure(session)
+      ? this.closeFullSession(userId, sessionId)
+      : toSessionDto(session);
   }
 
   async simulationSummary(
