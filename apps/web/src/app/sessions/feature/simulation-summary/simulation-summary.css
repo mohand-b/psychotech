@@ -731,3 +731,32 @@
     font-size: 11px;
   }
 }
+
+.summary__report {
+  font: 400 12.5px/1.5 var(--font-ui);
+  color: var(--label);
+  text-decoration: none;
+}
+
+.summary__report:hover {
+  color: var(--brand-hover);
+}
+
+.summary__report--mobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .summary__report--mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+  }
+}
+
+.summary__report-action {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

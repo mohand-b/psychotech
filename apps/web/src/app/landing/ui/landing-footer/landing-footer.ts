@@ -6,6 +6,10 @@ import {
   SITE_TAGLINE,
 } from '../../../core/seo/route-seo';
 import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
+import {
+  CONTACT_ROUTE,
+  contactQueryParams,
+} from '../../../shared/util/contact-link';
 
 @Component({
   selector: 'app-landing-footer',
@@ -37,6 +41,22 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
             }}</a>
           }
         </div>
+        <div class="footer__col">
+          <span class="footer__col-title">Aide</span>
+          <a class="footer__link" [routerLink]="contactRoute">Contact</a>
+          <a
+            class="footer__link footer__link--desktop"
+            [routerLink]="contactRoute"
+            [queryParams]="suggestionParams"
+            >Suggérer une amélioration</a
+          >
+          <a
+            class="footer__link"
+            [routerLink]="contactRoute"
+            [queryParams]="problemParams"
+            >Signaler un problème</a
+          >
+        </div>
       </div>
       <div class="footer__bottom">
         <div class="footer__bottom-inner">
@@ -62,7 +82,7 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
       margin: 0 auto;
       padding: 40px 32px 28px;
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
       gap: 32px;
     }
     .footer__brand {
@@ -148,6 +168,9 @@ import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
         font-size: 13.5px;
         padding: 3px 0;
       }
+      .footer__link--desktop {
+        display: none;
+      }
       .footer__bottom-inner {
         padding: 18px 20px calc(28px + env(safe-area-inset-bottom));
         flex-direction: column;
@@ -165,4 +188,9 @@ export class LandingFooter {
   protected readonly siteName = SITE_NAME;
   protected readonly tagline = SITE_TAGLINE;
   protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
+  protected readonly contactRoute = CONTACT_ROUTE;
+  protected readonly suggestionParams = contactQueryParams({
+    motif: 'suggestion',
+  });
+  protected readonly problemParams = contactQueryParams({ motif: 'probleme' });
 }

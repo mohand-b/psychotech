@@ -121,6 +121,59 @@
   color: var(--ink);
 }
 
+.profil__contact {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-button);
+  color: var(--text-secondary);
+  font: 600 13.5px/1.3 var(--font-ui);
+  text-decoration: none;
+}
+
+.profil__contact:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.profil__contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.profil__contact-row:active {
+  background: var(--surface-hover);
+}
+
+.profil__contact-row-label {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font: 600 14px/1.3 var(--font-ui);
+}
+
+.profil__contact-row-icon {
+  display: inline-flex;
+  color: var(--brand-hover);
+}
+
+.profil__contact-row-chevron {
+  display: inline-flex;
+  color: var(--text-disabled);
+}
+
 .profil__panel {
   gap: 16px;
   min-width: 0;

@@ -25,11 +25,13 @@ import {
 import {
   ArrowLeft,
   Check,
+  ChevronRight,
   CircleAlert,
   Eye,
   Lock,
   LogOut,
   LucideIconData,
+  MessageCircleQuestionMark,
   Radar,
   ReceiptText,
   User as UserIcon,
@@ -120,6 +122,8 @@ export class Profile {
   protected readonly checkIcon = Check;
   protected readonly alertIcon = CircleAlert;
   protected readonly logoutIcon = LogOut;
+  protected readonly contactIcon = MessageCircleQuestionMark;
+  protected readonly chevronIcon = ChevronRight;
   protected readonly deleteConfirmation = DELETE_ACCOUNT_CONFIRMATION;
   protected readonly readValue = inputValue;
   protected readonly upcomingSectors = UPCOMING_SECTORS;

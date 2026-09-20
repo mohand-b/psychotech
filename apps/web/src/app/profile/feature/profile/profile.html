@@ -51,6 +51,10 @@
         </button>
       }
       <span class="profil__rail-divider"></span>
+      <a class="profil__contact" routerLink="/contact">
+        <ui-icon [img]="contactIcon" [size]="16" [strokeWidth]="1.8" />
+        Aide et contact
+      </a>
       <button type="button" class="profil__logout" (click)="logout()">
         <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="1.8" />
         Déconnexion
@@ -338,6 +342,22 @@
               Supprimer
             </ui-button>
           </section>
+
+          <a class="profil__contact-row md:hidden" routerLink="/contact">
+            <span class="profil__contact-row-label">
+              <ui-icon
+                class="profil__contact-row-icon"
+                [img]="contactIcon"
+                [size]="17"
+              />
+              Aide et contact
+            </span>
+            <ui-icon
+              class="profil__contact-row-chevron"
+              [img]="chevronIcon"
+              [size]="16"
+            />
+          </a>
 
           <ui-button
             class="md:hidden"

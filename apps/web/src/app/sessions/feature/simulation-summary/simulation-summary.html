@@ -382,6 +382,13 @@
         >
           Nouvel entraînement
         </ui-button>
+        <a
+          class="summary__report summary__report--mobile"
+          [routerLink]="contactRoute"
+          [queryParams]="reportParams"
+          >Un résultat vous semble incohérent ?
+          <span class="summary__report-action">Signaler</span></a
+        >
         <ui-button
           color="neutral"
           appearance="outlined"
@@ -391,6 +398,15 @@
           Retour aux entraînements
         </ui-button>
       </ui-action-footer>
+      <div class="hidden justify-center md:flex">
+        <a
+          class="summary__report"
+          [routerLink]="contactRoute"
+          [queryParams]="reportParams"
+          >Un résultat vous semble incohérent ?
+          <span class="summary__report-action">Signaler un problème</span></a
+        >
+      </div>
     }
   }
 </section>

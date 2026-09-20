@@ -1,0 +1,225 @@
+<section class="form">
+  <div class="form__head">
+    <h2 class="form__title">{{ presentation().title }}</h2>
+    <p class="form__subtitle">
+      {{ mobile() ? presentation().subtitle.mobile :
+      presentation().subtitle.desktop }}
+    </p>
+  </div>
+
+  <div class="form__row">
+    <label class="field form__email">
+      <span class="field__label">
+        <span class="form__desktop-only">Adresse email</span>
+        <span class="form__mobile-only">Votre adresse email</span>
+      </span>
+      <input
+        class="field__control"
+        [class.field__control--readonly]="authenticated()"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        placeholder="prenom.nom@exemple.fr"
+        [formField]="contactForm.email"
+      />
+    </label>
+
+    @switch (motif()) { @case ('question') {
+    <label class="field form__secondary">
+      <span class="field__label">Sujet</span>
+      <input
+        class="field__control"
+        type="text"
+        placeholder="En quelques mots"
+        [formField]="contactForm.subject"
+      />
+    </label>
+    } @case ('suggestion') {
+    <label class="field form__secondary form__desktop-only">
+      <span class="field__label">Partie concernée</span>
+      <select class="field__control" [formField]="contactForm.area">
+        <option value="">Choisir</option>
+        @for (option of areaOptions; track option.value) {
+        <option [value]="option.value">{{ option.label.desktop }}</option>
+        }
+      </select>
+    </label>
+    <div
+      class="field form__secondary form__mobile-only"
+      role="group"
+      aria-labelledby="contact-area-label"
+    >
+      <span class="field__label" id="contact-area-label"
+        >Quelle partie de l'application ?</span
+      >
+      <div class="chips">
+        @for (option of areaOptions; track option.value) {
+        <button
+          type="button"
+          class="chip"
+          [class.chip--on]="contactForm.area().value() === option.value"
+          [attr.aria-pressed]="
+                  contactForm.area().value() === option.value
+                "
+          (click)="selectArea(option.value)"
+        >
+          {{ option.label.mobile }}
+        </button>
+        }
+      </div>
+    </div>
+    } @case ('probleme') {
+    <label class="field form__secondary">
+      <span class="field__label">
+        <span class="form__desktop-only">Où ?</span>
+        <span class="form__mobile-only">Où s'est produit le problème ?</span>
+      </span>
+      <select class="field__control" [formField]="contactForm.location">
+        <option value="">
+          {{ mobile() ? locationPlaceholder.mobile : locationPlaceholder.desktop
+          }}
+        </option>
+        @for (option of locationOptions; track option.value) {
+        <option [value]="option.value">
+          {{ mobile() ? option.label.mobile : option.label.desktop }}
+        </option>
+        }
+      </select>
+    </label>
+    } }
+  </div>
+
+  <label class="field form__message">
+    <span class="field__label field__label--split">
+      {{ presentation().messageLabel }}
+      <span
+        class="field__counter"
+        [class.field__counter--warning]="counterWarning()"
+        >{{ counter() }}</span
+      >
+    </span>
+    <textarea
+      class="field__control field__control--area"
+      rows="7"
+      [placeholder]="
+        mobile()
+          ? presentation().messagePlaceholder.mobile
+          : presentation().messagePlaceholder.desktop
+      "
+      [formField]="contactForm.message"
+    ></textarea>
+  </label>
+
+  <label class="form__trap" aria-hidden="true">
+    Site web
+    <input
+      type="text"
+      tabindex="-1"
+      autocomplete="off"
+      [formField]="contactForm.website"
+    />
+  </label>
+
+  @if (motif() === 'probleme') {
+  <div class="form__attachments">
+    @if (attachableSession(); as session) {
+    <label class="attach form__session">
+      <input
+        class="attach__check"
+        type="checkbox"
+        [formField]="contactForm.attachSession"
+      />
+      <span class="attach__texts">
+        <span class="attach__title">Joindre ma dernière session</span>
+        <span class="attach__detail"
+          >{{ session.label }}<span class="form__mobile-only">
+            · <span class="t-mono">{{ session.reference }}</span></span
+          ></span
+        >
+      </span>
+      <span class="attach__reference t-mono form__desktop-only"
+        >{{ session.reference }}</span
+      >
+    </label>
+    }
+    <label class="attach form__context">
+      <input
+        class="attach__check"
+        type="checkbox"
+        [formField]="contactForm.attachContext"
+      />
+      <span class="attach__texts">
+        <span class="attach__title">Joindre les informations techniques</span>
+        <span class="attach__detail"
+          >Page d'origine, navigateur et taille d'écran. Rien d'autre.</span
+        >
+      </span>
+    </label>
+    @if (screenshot(); as attached) {
+    <button
+      type="button"
+      class="capture capture--on form__capture"
+      (click)="removeScreenshot()"
+    >
+      <ui-icon [img]="imageIcon" [size]="16" />
+      <span class="capture__label">{{ attached.fileName }}</span>
+      <span class="capture__hint">Retirer</span>
+    </button>
+    } @else {
+    <label class="capture form__capture">
+      <ui-icon [img]="imageIcon" [size]="16" />
+      <span class="capture__label">
+        <span class="form__desktop-only">Joindre une capture d'écran</span>
+        <span class="form__mobile-only"
+          >Joindre une capture d'écran (facultatif)</span
+        >
+      </span>
+      <span class="capture__hint form__desktop-only">Facultatif</span>
+      <input
+        class="capture__input"
+        type="file"
+        [accept]="screenshotAccept"
+        (change)="onScreenshotPicked($event)"
+      />
+    </label>
+    } @if (screenshotRejected()) {
+    <p class="form__notice form__notice--error" role="alert">
+      Cette image n'a pas pu être jointe. Essayez avec une capture au format PNG
+      ou JPEG.
+    </p>
+    }
+  </div>
+  } @if (sendFailure(); as failure) {
+  <p
+    #sendNotice
+    class="form__notice"
+    [class.form__notice--error]="failure.blocking"
+    role="alert"
+  >
+    {{ failure.text }}
+  </p>
+  }
+
+  <div class="form__send">
+    <ui-button
+      color="brand"
+      [disabled]="blocked()"
+      [loading]="sending()"
+      (click)="send()"
+    >
+      Envoyer
+    </ui-button>
+  </div>
+</section>
+
+<ui-action-footer class="form__mobile-send">
+  <ui-button
+    color="brand"
+    block="mobile"
+    [disabled]="blocked()"
+    [loading]="sending()"
+    (click)="send()"
+  >
+    Envoyer
+  </ui-button>
+</ui-action-footer>

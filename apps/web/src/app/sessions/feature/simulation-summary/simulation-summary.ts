@@ -45,6 +45,10 @@ import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { axisSlug } from '../../../shared/util/axis-slug';
 import {
+  CONTACT_ROUTE,
+  contactQueryParams,
+} from '../../../shared/util/contact-link';
+import {
   AxisRadar,
   AxisRadarEntry,
 } from '../../../shared/ui/axis-radar/axis-radar';
@@ -99,6 +103,12 @@ export class SimulationSummary {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
 
   protected readonly isExample = this.route.snapshot.data['demo'] === true;
+  protected readonly contactRoute = CONTACT_ROUTE;
+  protected readonly reportParams = contactQueryParams({
+    motif: 'probleme',
+    sessionId: this.sessionId,
+    origin: this.router.url,
+  });
 
   protected readonly celebration: ResultCelebration = this.isExample
     ? INERT_CELEBRATION
