@@ -1,0 +1,23 @@
+export enum ContactReason {
+  QUESTION = 'QUESTION',
+  SUGGESTION = 'SUGGESTION',
+  BUG_REPORT = 'BUG_REPORT',
+  PAYMENT_ISSUE = 'PAYMENT_ISSUE',
+}
+
+export enum ContactSuggestionArea {
+  EXERCISE = 'EXERCISE',
+  RESULTS = 'RESULTS',
+  BADGES = 'BADGES',
+  CREDITS = 'CREDITS',
+  OTHER = 'OTHER',
+}
+
+export enum ContactProblemLocation {
+  EXAM = 'EXAM',
+  TARGETED_SESSION = 'TARGETED_SESSION',
+  RESULTS = 'RESULTS',
+  CREDITS_OR_PAYMENT = 'CREDITS_OR_PAYMENT',
+  ACCOUNT = 'ACCOUNT',
+  ELSEWHERE = 'ELSEWHERE',
+}

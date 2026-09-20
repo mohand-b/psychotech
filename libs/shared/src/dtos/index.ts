@@ -9,3 +9,4 @@ export * from './progression';
 export * from './badge';
 export * from './catalog';
 export * from './gamepad';
+export * from './support';

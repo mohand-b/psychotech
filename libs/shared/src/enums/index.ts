@@ -13,3 +13,4 @@ export * from './axis-timer-model';
 export * from './shape-id';
 export * from './control-modality';
 export * from './logic-family';
+export * from './contact-reason';

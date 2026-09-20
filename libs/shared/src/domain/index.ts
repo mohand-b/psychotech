@@ -18,3 +18,4 @@ export * from './verdict-band';
 export * from './verdict-stamp';
 export * from './session-content-version';
 export * from './badges';
+export * from './contact-rules';
