@@ -279,9 +279,11 @@ export class SupportService {
         value: `${SESSION_MODE_LABELS[mapEnumValue(SessionMode, resolved.session.mode)]} du ${SESSION_DATE_FORMAT.format(resolved.session.startedAt)} · ${resolved.session.id}`,
       });
     }
+    if (request.technicalContext?.pageUrl) {
+      facts.push({ label: 'Page', value: request.technicalContext.pageUrl });
+    }
     if (request.technicalContext) {
       facts.push(
-        { label: 'Page', value: request.technicalContext.pageUrl },
         { label: 'Navigateur', value: request.technicalContext.userAgent },
         { label: 'Écran', value: request.technicalContext.viewport },
       );

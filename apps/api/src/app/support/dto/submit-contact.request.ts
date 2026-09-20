@@ -46,10 +46,11 @@ const trimmedLowercase = ({ value }: { value: unknown }): unknown =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
 
 class ContactTechnicalContextRequest implements ContactTechnicalContextDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(CONTACT_PAGE_URL_MAX_LENGTH)
-  pageUrl!: string;
+  pageUrl?: string;
 
   @IsString()
   @IsNotEmpty()

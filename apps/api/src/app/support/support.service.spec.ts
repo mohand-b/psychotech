@@ -262,7 +262,7 @@ describe('SupportService.submit', () => {
 
   it('relays the technical context only as the visitor provided it', async () => {
     const technicalContext = {
-      pageUrl: 'https://psychotechtraining.com/contact',
+      pageUrl: 'https://psychotechtraining.com/sessions/abc/resultat',
       userAgent: 'Mozilla/5.0 (Linux; Android 10)',
       viewport: '390x844',
     };
@@ -279,6 +279,24 @@ describe('SupportService.submit', () => {
       expect.objectContaining({ context: technicalContext }),
     );
     expect(sentTo(SUPPORT_EMAIL)?.text).toContain('390x844');
+  });
+
+  it('leaves the page out of the relay when the visitor came with no origin page', async () => {
+    await buildService().submit(
+      buildRequest({
+        reason: ContactReason.BUG_REPORT,
+        location: ContactProblemLocation.ACCOUNT,
+        technicalContext: {
+          userAgent: 'Mozilla/5.0 (Linux; Android 10)',
+          viewport: '390x844',
+        },
+      }),
+      { ip: IP, userId: null },
+    );
+
+    const relayed = sentTo(SUPPORT_EMAIL);
+    expect(relayed?.text).toContain('390x844');
+    expect(relayed?.text).not.toContain('Page :');
   });
 
   it('files a problem located in credits or payment as a payment issue', async () => {

@@ -62,6 +62,15 @@ describe('SubmitContactRequest', () => {
     );
   });
 
+  it('accepts a technical context that carries no origin page', async () => {
+    const fields = await failingFields({
+      ...VALID,
+      technicalContext: { userAgent: 'Mozilla/5.0', viewport: '390x844' },
+    });
+
+    expect(fields).toEqual([]);
+  });
+
   it('rejects a technical context with a fanciful viewport or an endless page url', async () => {
     const fields = await failingFields({
       ...VALID,
