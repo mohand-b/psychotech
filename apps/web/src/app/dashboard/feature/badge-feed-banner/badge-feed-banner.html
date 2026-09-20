@@ -7,8 +7,11 @@
       </span>
       <div class="feed__viewport">
         <div class="feed__track flex items-center">
-          @for (entry of entries(); track $index) {
-            <span class="feed__entry flex items-center">
+          @for (entry of entries(); track $index; let first = $first) {
+            <span
+              class="feed__entry flex items-center"
+              [class.feed__entry--lead]="first"
+            >
               <img class="feed__art" [src]="entry.assetPath" alt="" />
               <span class="feed__text"
                 ><span class="feed__strong">{{ entry.label }}</span> a décroché
@@ -17,8 +20,12 @@
               <span class="feed__time">{{ entry.timeLabel }}</span>
             </span>
           }
-          @for (entry of entries(); track $index) {
-            <span class="feed__entry feed__entry--echo flex items-center" aria-hidden="true">
+          @for (entry of entries(); track $index; let first = $first) {
+            <span
+              class="feed__entry feed__entry--echo flex items-center"
+              [class.feed__entry--lead]="first"
+              aria-hidden="true"
+            >
               <img class="feed__art" [src]="entry.assetPath" alt="" />
               <span class="feed__text"
                 ><span class="feed__strong">{{ entry.label }}</span> a décroché

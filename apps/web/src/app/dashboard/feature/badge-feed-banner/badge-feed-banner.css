@@ -4,6 +4,12 @@
   }
 }
 
+@keyframes feed-appear {
+  from {
+    opacity: 0;
+  }
+}
+
 :host {
   display: block;
 }
@@ -43,12 +49,15 @@
   min-width: 0;
   height: 100%;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .feed__track {
   display: inline-flex;
   height: 100%;
-  animation: feed-scroll 150s linear infinite;
+  animation:
+    feed-scroll 150s linear infinite,
+    feed-appear 0.8s ease-out;
   will-change: transform;
 }
 
@@ -60,6 +69,10 @@
   gap: 8px;
   padding-right: 36px;
   flex-shrink: 0;
+}
+
+.feed__entry--lead {
+  padding-left: 35cqw;
 }
 
 .feed__art {
@@ -116,6 +129,10 @@
   .feed__fade {
     display: none;
   }
+
+  .feed__track .feed__entry--lead {
+    padding-left: 0;
+  }
 }
 
 @media (max-width: 767px) {
@@ -132,6 +149,10 @@
   .feed__entry {
     gap: 7px;
     padding-right: 28px;
+  }
+
+  .feed__entry--lead {
+    padding-left: 55cqw;
   }
 
   .feed__text {
