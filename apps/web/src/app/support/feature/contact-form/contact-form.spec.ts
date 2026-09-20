@@ -192,6 +192,33 @@ describe('ContactForm', () => {
     expect(submittedDraft().technicalContext).toMatchObject({
       viewport: expect.stringMatching(/^\d+x\d+$/),
     });
+    expect(submittedDraft().technicalContext).not.toHaveProperty('pageUrl');
+    expect(host.querySelector('.attach__detail')?.textContent?.trim()).toBe(
+      "Navigateur et taille d'écran. Rien d'autre.",
+    );
+  });
+
+  it('joint la page d’origine seulement quand le visiteur arrive d’une page précise', async () => {
+    const host = await setup({
+      authenticated: false,
+      queryParams: { from: '/sessions/abc/resultat' },
+    });
+    fixture.componentRef.setInput('motif', 'probleme');
+    fixture.detectChanges();
+    type(
+      host.querySelector('input[type=email]') as HTMLInputElement,
+      'visiteur@exemple.fr',
+    );
+    choose(host, 'Bilan ou résultat');
+    type(host.querySelector('textarea') as HTMLTextAreaElement, VALID_MESSAGE);
+    sendButton(host).click();
+
+    expect(submittedDraft().technicalContext?.pageUrl).toContain(
+      '/sessions/abc/resultat',
+    );
+    expect(host.querySelector('.attach__detail')?.textContent?.trim()).toBe(
+      "Page d'origine, navigateur et taille d'écran. Rien d'autre.",
+    );
   });
 
   it('ne collecte aucun contexte technique quand la case est décochée', async () => {

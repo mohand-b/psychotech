@@ -187,6 +187,9 @@ export class ContactForm {
       label: this.mobile() ? label.mobile : label.desktop,
     })),
   );
+  protected readonly contextDetail = this.originPath()
+    ? "Page d'origine, navigateur et taille d'écran. Rien d'autre."
+    : "Navigateur et taille d'écran. Rien d'autre.";
   protected readonly presentation = computed(
     () =>
       CONTACT_MOTIFS.find((motif) => motif.id === this.motif()) ??
@@ -323,20 +326,29 @@ export class ContactForm {
     if (!view) {
       return null;
     }
-    const origin = this.route.snapshot.queryParamMap.get(
-      CONTACT_ORIGIN_QUERY_PARAM,
-    );
+    const origin = this.originPath();
     return {
-      pageUrl: (origin && isSafeReturnUrl(origin)
-        ? `${view.location.origin}${origin}`
-        : view.location.href
-      ).slice(0, CONTACT_PAGE_URL_MAX_LENGTH),
+      ...(origin
+        ? {
+            pageUrl: `${view.location.origin}${origin}`.slice(
+              0,
+              CONTACT_PAGE_URL_MAX_LENGTH,
+            ),
+          }
+        : {}),
       userAgent: view.navigator.userAgent.slice(
         0,
         CONTACT_USER_AGENT_MAX_LENGTH,
       ),
       viewport: `${view.innerWidth}x${view.innerHeight}`,
     };
+  }
+
+  private originPath(): string | null {
+    const origin = this.route.snapshot.queryParamMap.get(
+      CONTACT_ORIGIN_QUERY_PARAM,
+    );
+    return origin && isSafeReturnUrl(origin) ? origin : null;
   }
 
   private sessionReference(sessionId: string): string {
