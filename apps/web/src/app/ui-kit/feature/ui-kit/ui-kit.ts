@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { AXIS_META, AxisType } from '@psychotech/shared';
 import { Check, Lock, Mail, Play, Zap } from 'lucide-angular';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
@@ -6,6 +6,7 @@ import { Badge } from '../../../shared/ui/badge/badge';
 import { Button } from '../../../shared/ui/button/button';
 import { Card } from '../../../shared/ui/card/card';
 import { FormField } from '../../../shared/ui/form-field/form-field';
+import { Select, SelectOption } from '../../../shared/ui/select/select';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { ScorePill } from '../../../shared/ui/score-pill/score-pill';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
@@ -43,7 +44,7 @@ interface TypeSample {
 @Component({
   selector: 'app-ui-kit',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisLabel, Badge, Button, Card, FormField, Icon, ScorePill],
+  imports: [AxisLabel, Badge, Button, Card, FormField, Icon, ScorePill, Select],
   templateUrl: './ui-kit.html',
   styleUrl: './ui-kit.css',
 })
@@ -76,6 +77,12 @@ export class UiKit {
   protected readonly playIcon = Play;
   protected readonly checkIcon = Check;
   protected readonly mailIcon = Mail;
+  protected readonly selectOptions: SelectOption[] = [
+    { value: 'exercise', label: 'Une épreuve' },
+    { value: 'results', label: 'Bilans et résultats' },
+    { value: 'badges', label: 'Badges' },
+  ];
+  protected readonly selectValue = signal('');
   protected readonly lockIcon = Lock;
   protected readonly zapIcon = Zap;
 

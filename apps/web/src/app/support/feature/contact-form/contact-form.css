@@ -320,26 +320,9 @@
     resize: none;
   }
 
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .chip {
-    min-height: 40px;
-    padding: 0 13px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-button);
-    background: var(--card);
-    font: 600 13px/1 var(--font-ui);
-    color: var(--text-secondary);
-  }
-
-  .chip--on {
-    border-color: var(--brand);
-    background: var(--brand-pastel);
-    color: var(--brand-hover);
+  .field__select {
+    --select-height: 46px;
+    --select-font-size: 16px;
   }
 
   .attach {

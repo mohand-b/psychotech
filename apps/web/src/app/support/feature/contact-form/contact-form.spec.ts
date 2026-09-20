@@ -112,10 +112,13 @@ describe('ContactForm', () => {
     fixture.detectChanges();
   }
 
-  function choose(element: HTMLSelectElement, value: string) {
-    element.value = value;
-    element.dispatchEvent(new Event('input', { bubbles: true }));
-    element.dispatchEvent(new Event('change', { bubbles: true }));
+  function choose(host: HTMLElement, label: string) {
+    (host.querySelector('ui-select [role=combobox]') as HTMLElement).click();
+    fixture.detectChanges();
+    const option = Array.from(
+      host.querySelectorAll<HTMLElement>('ui-select [role=option]'),
+    ).find((candidate) => candidate.textContent?.trim() === label);
+    option?.click();
     fixture.detectChanges();
   }
 
@@ -181,10 +184,7 @@ describe('ContactForm', () => {
     type(host.querySelector('textarea') as HTMLTextAreaElement, VALID_MESSAGE);
     expect(sendButton(host).disabled).toBe(true);
 
-    choose(
-      host.querySelector('select') as HTMLSelectElement,
-      ContactProblemLocation.CREDITS_OR_PAYMENT,
-    );
+    choose(host, 'Crédits ou paiement');
     expect(sendButton(host).disabled).toBe(false);
 
     sendButton(host).click();
@@ -202,10 +202,7 @@ describe('ContactForm', () => {
       host.querySelector('input[type=email]') as HTMLInputElement,
       'visiteur@exemple.fr',
     );
-    choose(
-      host.querySelector('select') as HTMLSelectElement,
-      ContactProblemLocation.EXAM,
-    );
+    choose(host, 'Examen blanc');
     type(host.querySelector('textarea') as HTMLTextAreaElement, VALID_MESSAGE);
     toggle(host.querySelector('.form__context input') as HTMLInputElement);
     sendButton(host).click();

@@ -35,57 +35,27 @@
       />
     </label>
     } @case ('suggestion') {
-    <label class="field form__secondary form__desktop-only">
-      <span class="field__label">Partie concernée</span>
-      <select class="field__control" [formField]="contactForm.area">
-        <option value="">Choisir</option>
-        @for (option of areaOptions; track option.value) {
-        <option [value]="option.value">{{ option.label.desktop }}</option>
-        }
-      </select>
-    </label>
-    <div
-      class="field form__secondary form__mobile-only"
-      role="group"
-      aria-labelledby="contact-area-label"
-    >
-      <span class="field__label" id="contact-area-label"
-        >Quelle partie de l'application ?</span
-      >
-      <div class="chips">
-        @for (option of areaOptions; track option.value) {
-        <button
-          type="button"
-          class="chip"
-          [class.chip--on]="contactForm.area().value() === option.value"
-          [attr.aria-pressed]="
-                  contactForm.area().value() === option.value
-                "
-          (click)="selectArea(option.value)"
-        >
-          {{ option.label.mobile }}
-        </button>
-        }
-      </div>
+    <div class="field form__secondary">
+      <span class="field__label" id="contact-area-label">Partie concernée</span>
+      <ui-select
+        class="field__select"
+        labelledBy="contact-area-label"
+        [options]="areaOptions"
+        [placeholder]="areaPlaceholder"
+        [formField]="contactForm.area"
+      />
     </div>
     } @case ('probleme') {
-    <label class="field form__secondary">
-      <span class="field__label">
-        <span class="form__desktop-only">Où ?</span>
-        <span class="form__mobile-only">Où s'est produit le problème ?</span>
-      </span>
-      <select class="field__control" [formField]="contactForm.location">
-        <option value="">
-          {{ mobile() ? locationPlaceholder.mobile : locationPlaceholder.desktop
-          }}
-        </option>
-        @for (option of locationOptions; track option.value) {
-        <option [value]="option.value">
-          {{ mobile() ? option.label.mobile : option.label.desktop }}
-        </option>
-        }
-      </select>
-    </label>
+    <div class="field form__secondary">
+      <span class="field__label" id="contact-location-label">Où ?</span>
+      <ui-select
+        class="field__select"
+        labelledBy="contact-location-label"
+        [options]="locationOptions()"
+        [placeholder]="locationPlaceholder"
+        [formField]="contactForm.location"
+      />
+    </div>
     } }
   </div>
 

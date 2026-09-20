@@ -8,23 +8,23 @@
     <h2 class="t-label">Palette</h2>
     <div class="flex flex-col gap-6">
       @for (group of palette; track group.title) {
-        <div class="flex flex-col gap-3">
-          <h3 class="t-card-title">{{ group.title }}</h3>
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
-            @for (swatch of group.swatches; track swatch.token) {
-              <div class="flex flex-col gap-2">
-                <div
-                  class="ui-kit-swatch"
-                  [style.background]="'var(' + swatch.token + ')'"
-                ></div>
-                <div class="flex flex-col">
-                  <span class="t-body">{{ swatch.label }}</span>
-                  <span class="t-support t-mono">{{ swatch.token }}</span>
-                </div>
-              </div>
-            }
+      <div class="flex flex-col gap-3">
+        <h3 class="t-card-title">{{ group.title }}</h3>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+          @for (swatch of group.swatches; track swatch.token) {
+          <div class="flex flex-col gap-2">
+            <div
+              class="ui-kit-swatch"
+              [style.background]="'var(' + swatch.token + ')'"
+            ></div>
+            <div class="flex flex-col">
+              <span class="t-body">{{ swatch.label }}</span>
+              <span class="t-support t-mono">{{ swatch.token }}</span>
+            </div>
           </div>
+          }
         </div>
+      </div>
       }
     </div>
   </section>
@@ -33,17 +33,17 @@
     <h2 class="t-label">Axes - 4 nuances</h2>
     <div class="flex flex-col gap-3">
       @for (axis of axisShades; track axis.label) {
-        <div class="flex flex-col gap-2">
-          <h3 class="t-card-title">{{ axis.label }}</h3>
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            @for (shade of axis.shades; track shade.label) {
-              <div class="flex flex-col gap-2">
-                <div class="ui-kit-swatch" [style.background]="shade.value"></div>
-                <span class="t-support">{{ shade.label }}</span>
-              </div>
-            }
+      <div class="flex flex-col gap-2">
+        <h3 class="t-card-title">{{ axis.label }}</h3>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          @for (shade of axis.shades; track shade.label) {
+          <div class="flex flex-col gap-2">
+            <div class="ui-kit-swatch" [style.background]="shade.value"></div>
+            <span class="t-support">{{ shade.label }}</span>
           </div>
+          }
         </div>
+      </div>
       }
     </div>
   </section>
@@ -52,14 +52,13 @@
     <h2 class="t-label">Typographie</h2>
     <ui-card>
       @for (sample of typography; track sample.className; let last = $last) {
-        <div class="flex flex-col gap-1">
-          <span class="t-support t-mono">.{{ sample.className }}</span>
-          <span [class]="sample.className">{{ sample.label }}</span>
-        </div>
-        @if (!last) {
-          <div class="hairline"></div>
-        }
-      }
+      <div class="flex flex-col gap-1">
+        <span class="t-support t-mono">.{{ sample.className }}</span>
+        <span [class]="sample.className">{{ sample.label }}</span>
+      </div>
+      @if (!last) {
+      <div class="hairline"></div>
+      } }
       <div class="hairline"></div>
       <div class="flex flex-col gap-1">
         <span class="t-support t-mono">.t-mono</span>
@@ -78,7 +77,9 @@
       <div class="flex flex-wrap items-center gap-4">
         <ui-button color="brand" [icon]="playIcon">Reprendre</ui-button>
         <ui-button color="green">Lancer l'examen blanc</ui-button>
-        <ui-button color="neutral" appearance="outlined">Voir le détail</ui-button>
+        <ui-button color="neutral" appearance="outlined"
+          >Voir le détail</ui-button
+        >
         <ui-button color="brand" [disabled]="true">Commencer</ui-button>
       </div>
       <div class="flex flex-wrap items-center gap-4">
@@ -136,6 +137,25 @@
         />
       </div>
     </ui-card>
+    <ui-card>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <ui-select
+          [options]="selectOptions"
+          placeholder="Choisir"
+          [(value)]="selectValue"
+        />
+        <ui-select
+          [options]="selectOptions"
+          placeholder="Choisir"
+          value="results"
+        />
+        <ui-select
+          [options]="selectOptions"
+          placeholder="Indisponible"
+          [disabled]="true"
+        />
+      </div>
+    </ui-card>
   </section>
 
   <section class="flex flex-col gap-4">
@@ -145,7 +165,7 @@
         <ui-badge tone="brand">Recommandé</ui-badge>
         <ui-badge tone="neutral">À venir</ui-badge>
         @for (entry of axisEntries; track entry.axis) {
-          <ui-badge [axis]="entry.axis">{{ entry.label }}</ui-badge>
+        <ui-badge [axis]="entry.axis">{{ entry.label }}</ui-badge>
         }
       </div>
     </ui-card>
@@ -156,7 +176,7 @@
     <ui-card>
       <div class="flex flex-wrap items-center gap-3">
         @for (axis of axes; track axis) {
-          <ui-axis-label [axis]="axis" />
+        <ui-axis-label [axis]="axis" />
         }
       </div>
     </ui-card>
@@ -167,7 +187,7 @@
     <ui-card>
       <div class="flex flex-wrap items-center gap-4">
         @for (score of scores; track score) {
-          <ui-score-pill [score]="score" />
+        <ui-score-pill [score]="score" />
         }
       </div>
     </ui-card>

@@ -8,6 +8,7 @@ import {
   MessageCircleQuestionMark,
   TriangleAlert,
 } from 'lucide-angular';
+import { SelectOption } from '../../shared/ui/select/select';
 import { ContactMotif } from '../../shared/util/contact-link';
 
 export const DEFAULT_CONTACT_MOTIF: ContactMotif = 'question';
@@ -91,48 +92,31 @@ export interface ContactOption<Value extends string> {
   label: ResponsiveText;
 }
 
-export const CONTACT_AREA_OPTIONS: ContactOption<ContactSuggestionArea>[] = [
-  {
-    value: ContactSuggestionArea.EXERCISE,
-    label: { desktop: 'Une épreuve', mobile: 'Une épreuve' },
-  },
-  {
-    value: ContactSuggestionArea.RESULTS,
-    label: { desktop: 'Bilans et résultats', mobile: 'Bilans' },
-  },
-  {
-    value: ContactSuggestionArea.BADGES,
-    label: { desktop: 'Badges', mobile: 'Badges' },
-  },
-  {
-    value: ContactSuggestionArea.CREDITS,
-    label: { desktop: 'Crédits', mobile: 'Crédits' },
-  },
-  {
-    value: ContactSuggestionArea.OTHER,
-    label: { desktop: 'Autre', mobile: 'Autre' },
-  },
+export const CONTACT_AREA_PLACEHOLDER = 'Choisir';
+
+export const CONTACT_AREA_OPTIONS: SelectOption<ContactSuggestionArea>[] = [
+  { value: ContactSuggestionArea.EXERCISE, label: 'Une épreuve' },
+  { value: ContactSuggestionArea.RESULTS, label: 'Bilans et résultats' },
+  { value: ContactSuggestionArea.BADGES, label: 'Badges' },
+  { value: ContactSuggestionArea.CREDITS, label: 'Crédits' },
+  { value: ContactSuggestionArea.OTHER, label: 'Autre' },
 ];
+
+export const CONTACT_LOCATION_PLACEHOLDER = 'Page ou épreuve';
 
 export const CONTACT_LOCATION_OPTIONS: ContactOption<ContactProblemLocation>[] =
   [
     {
       value: ContactProblemLocation.EXAM,
-      label: { desktop: 'Examen blanc', mobile: 'Pendant un examen blanc' },
+      label: { desktop: 'Examen blanc', mobile: 'Examen blanc' },
     },
     {
       value: ContactProblemLocation.TARGETED_SESSION,
-      label: {
-        desktop: 'Session ciblée',
-        mobile: 'Pendant une session ciblée',
-      },
+      label: { desktop: 'Session ciblée', mobile: 'Session ciblée' },
     },
     {
       value: ContactProblemLocation.RESULTS,
-      label: {
-        desktop: 'Bilan ou résultat',
-        mobile: 'Sur un bilan ou un résultat',
-      },
+      label: { desktop: 'Bilan ou résultat', mobile: 'Bilan ou résultat' },
     },
     {
       value: ContactProblemLocation.CREDITS_OR_PAYMENT,
@@ -150,8 +134,3 @@ export const CONTACT_LOCATION_OPTIONS: ContactOption<ContactProblemLocation>[] =
       label: { desktop: 'Ailleurs', mobile: 'Ailleurs' },
     },
   ];
-
-export const CONTACT_LOCATION_PLACEHOLDER: ResponsiveText = {
-  desktop: 'Page ou épreuve',
-  mobile: 'Choisir',
-};

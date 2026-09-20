@@ -46,6 +46,7 @@ import { SessionHistoryFacade } from '../../../sessions/data-access/session-hist
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { Select, SelectOption } from '../../../shared/ui/select/select';
 import {
   CONTACT_ORIGIN_QUERY_PARAM,
   CONTACT_SESSION_QUERY_PARAM,
@@ -58,6 +59,7 @@ import {
 } from '../../data-access/contact.facade';
 import {
   CONTACT_AREA_OPTIONS,
+  CONTACT_AREA_PLACEHOLDER,
   CONTACT_LOCATION_OPTIONS,
   CONTACT_LOCATION_PLACEHOLDER,
   CONTACT_MOTIFS,
@@ -115,7 +117,7 @@ const SESSION_DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', {
 @Component({
   selector: 'app-contact-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ActionFooter, Button, FormField, Icon],
+  imports: [ActionFooter, Button, FormField, Icon, Select],
   templateUrl: './contact-form.html',
   styleUrl: './contact-form.css',
 })
@@ -131,7 +133,7 @@ export class ContactForm {
 
   protected readonly imageIcon = Image;
   protected readonly areaOptions = CONTACT_AREA_OPTIONS;
-  protected readonly locationOptions = CONTACT_LOCATION_OPTIONS;
+  protected readonly areaPlaceholder = CONTACT_AREA_PLACEHOLDER;
   protected readonly locationPlaceholder = CONTACT_LOCATION_PLACEHOLDER;
   protected readonly screenshotAccept = CONTACT_SCREENSHOT_MIME_TYPES.join(',');
 
@@ -177,6 +179,14 @@ export class ContactForm {
     );
   });
 
+  protected readonly locationOptions = computed<
+    SelectOption<ContactProblemLocation>[]
+  >(() =>
+    CONTACT_LOCATION_OPTIONS.map(({ value, label }) => ({
+      value,
+      label: this.mobile() ? label.mobile : label.desktop,
+    })),
+  );
   protected readonly presentation = computed(
     () =>
       CONTACT_MOTIFS.find((motif) => motif.id === this.motif()) ??
@@ -240,10 +250,6 @@ export class ContactForm {
         this.historyFacade.load('ALL');
       }
     });
-  }
-
-  protected selectArea(area: ContactSuggestionArea): void {
-    this.draft.update((model) => ({ ...model, area }));
   }
 
   protected async onScreenshotPicked(event: Event): Promise<void> {
