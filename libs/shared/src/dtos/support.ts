@@ -10,7 +10,7 @@ export type ContactScreenshotMimeType =
   | 'image/webp';
 
 export interface ContactTechnicalContextDto {
-  pageUrl: string;
+  pageUrl?: string;
   userAgent: string;
   viewport: string;
 }
