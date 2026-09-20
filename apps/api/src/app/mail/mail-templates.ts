@@ -231,3 +231,91 @@ export function buildNoticeEmail(input: NoticeEmailInput): {
     text: renderText(content, first ?? ''),
   };
 }
+
+export interface ContactFact {
+  label: string;
+  value: string;
+}
+
+export interface ContactSupportEmailInput {
+  reference: string;
+  reasonLabel: string;
+  facts: ContactFact[];
+  message: string;
+  baseUrl: string;
+}
+
+export interface ContactAcknowledgementEmailInput {
+  firstName: string | null;
+  reference: string;
+  reasonLabel: string;
+  message: string;
+  baseUrl: string;
+}
+
+function renderFacts(facts: ContactFact[]): string {
+  const rows = facts
+    .map(
+      (fact) =>
+        `<tr><td style="font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.6; color: ${MUTED}; padding: 4px 16px 4px 0; vertical-align: top; white-space: nowrap;">${escapeHtml(fact.label)}</td><td style="font-family: Arial, Helvetica, sans-serif; font-size: 13.5px; line-height: 1.6; color: ${INK}; padding: 4px 0; word-break: break-word;">${escapeHtml(fact.value)}</td></tr>`,
+    )
+    .join('');
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0">${rows}</table>`;
+}
+
+function renderQuotedMessage(message: string): string {
+  const lines = escapeHtml(message).replace(/\r?\n/g, '<br>');
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-left: 3px solid ${DIVIDER}; padding: 2px 0 2px 14px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.65; color: ${INK};">${lines}</td></tr></table>`;
+}
+
+function plainFacts(facts: ContactFact[]): string {
+  return facts.map((fact) => `${fact.label} : ${fact.value}`).join('\n');
+}
+
+export function buildContactSupportEmail(input: ContactSupportEmailInput): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const content: EmailContent = {
+    title: `${input.reasonLabel} · ${input.reference}`,
+    intro: 'Un message vient d’être envoyé depuis le formulaire de contact.',
+    body: `${renderFacts(input.facts)}<div style="height: 16px; line-height: 16px; font-size: 0;">&nbsp;</div>${renderQuotedMessage(input.message)}`,
+    cta: null,
+    afterCta: null,
+    fallbackLink: null,
+    outro:
+      'Répondez directement à cet email : la réponse part vers l’adresse de l’expéditeur.',
+    baseUrl: input.baseUrl,
+  };
+  return {
+    subject: `[Contact] ${input.reasonLabel} · ${input.reference}`,
+    html: renderHtml(content),
+    text: renderText(content, `${plainFacts(input.facts)}\n\n${input.message}`),
+  };
+}
+
+export function buildContactAcknowledgementEmail(
+  input: ContactAcknowledgementEmailInput,
+): { subject: string; html: string; text: string } {
+  const lead = `Votre message a bien été transmis à notre équipe sous la référence ${input.reference}. Nous vous répondons par email, à cette adresse.`;
+  const content: EmailContent = {
+    title: 'Nous avons bien reçu votre message',
+    intro: input.firstName ? `Bonjour ${input.firstName},` : 'Bonjour,',
+    body: `${escapeHtml(lead)}<div style="height: 16px; line-height: 16px; font-size: 0;">&nbsp;</div>${renderFacts([{ label: 'Motif', value: input.reasonLabel }])}<div style="height: 12px; line-height: 12px; font-size: 0;">&nbsp;</div>${renderQuotedMessage(input.message)}`,
+    cta: null,
+    afterCta: null,
+    fallbackLink: null,
+    outro:
+      "Si vous n'êtes pas à l'origine de ce message, ignorez cet email : aucune action ne sera effectuée.",
+    baseUrl: input.baseUrl,
+  };
+  return {
+    subject: `Nous avons bien reçu votre message (${input.reference})`,
+    html: renderHtml(content),
+    text: renderText(
+      content,
+      `${lead}\n\nMotif : ${input.reasonLabel}\n\n${input.message}`,
+    ),
+  };
+}

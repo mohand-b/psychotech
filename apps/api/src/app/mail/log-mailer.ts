@@ -28,6 +28,15 @@ export class LogMailer implements MailerPort {
         `${slugify(message.to)}-${slugify(message.subject)}.html`,
       );
       await writeFile(path, message.html, 'utf8');
+      for (const attachment of message.attachments ?? []) {
+        await writeFile(
+          join(
+            PREVIEW_DIR,
+            `${slugify(message.subject)}-${attachment.filename}`,
+          ),
+          attachment.content,
+        );
+      }
       this.logger.log(`Rendu HTML déposé dans ${path}`);
     } catch {
       this.logger.warn('Could not write the mail preview file');

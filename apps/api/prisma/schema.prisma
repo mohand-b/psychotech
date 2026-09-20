@@ -96,6 +96,19 @@ enum ControlModality {
   TOUCH_JOYSTICKS
 }
 
+enum ContactReason {
+  QUESTION
+  SUGGESTION
+  BUG_REPORT
+  PAYMENT_ISSUE
+}
+
+enum ContactDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 enum AuthProvider {
   GOOGLE
 }
@@ -124,19 +137,42 @@ model User {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  energyWallet      EnergyWallet?
-  refreshSessions   RefreshSession[]
-  emailVerification EmailVerification?
-  emailChange       EmailChange?
-  passwordReset     PasswordReset?
-  packPurchases     PackPurchase[]
-  streak            Streak?
-  sessions          Session[]
-  axisBests         AxisBest[]
-  badges            UserBadge[]
-  energyLedger      EnergyLedger[]
-  giftRedemptions   GiftRedemption[]
-  identities        UserIdentity[]
+  energyWallet       EnergyWallet?
+  refreshSessions    RefreshSession[]
+  contactSubmissions ContactSubmission[]
+  emailVerification  EmailVerification?
+  emailChange        EmailChange?
+  passwordReset      PasswordReset?
+  packPurchases      PackPurchase[]
+  streak             Streak?
+  sessions           Session[]
+  axisBests          AxisBest[]
+  badges             UserBadge[]
+  energyLedger       EnergyLedger[]
+  giftRedemptions    GiftRedemption[]
+  identities         UserIdentity[]
+}
+
+model ContactSubmission {
+  id                    String                @id @default(uuid())
+  number                Int                   @unique @default(autoincrement())
+  reason                ContactReason
+  email                 String
+  userId                String?
+  subject               String?
+  area                  String?
+  location              String?
+  message               String
+  context               Json?
+  sessionId             String?
+  hasScreenshot         Boolean               @default(false)
+  supportStatus         ContactDeliveryStatus @default(PENDING)
+  acknowledgementStatus ContactDeliveryStatus @default(PENDING)
+  createdAt             DateTime              @default(now())
+  user                  User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([email])
 }
 
 model RefreshSession {

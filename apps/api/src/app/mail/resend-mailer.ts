@@ -22,6 +22,15 @@ export class ResendMailer implements MailerPort {
         subject: message.subject,
         text: message.text,
         html: message.html,
+        ...(message.replyTo ? { reply_to: message.replyTo } : {}),
+        ...(message.attachments?.length
+          ? {
+              attachments: message.attachments.map((attachment) => ({
+                filename: attachment.filename,
+                content: attachment.content.toString('base64'),
+              })),
+            }
+          : {}),
       }),
     });
     if (!response.ok) {

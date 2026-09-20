@@ -13,12 +13,14 @@ import { GamepadModule } from './gamepad/gamepad.module';
 import { ProgressionModule } from './progression/progression.module';
 import { ScoringModule } from './scoring/scoring.module';
 import { SessionsModule } from './sessions/sessions.module';
+import { SupportModule } from './support/support.module';
 import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
 import { googleConfig } from './config/google.config';
 import { mailConfig } from './config/mail.config';
 import { billingConfig } from './config/billing.config';
+import { supportConfig } from './config/support.config';
 import { validateEnvironment } from './config/environment.validation';
 
 @Module({
@@ -26,7 +28,13 @@ import { validateEnvironment } from './config/environment.validation';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: 'apps/api/.env',
-      load: [authConfig, billingConfig, googleConfig, mailConfig],
+      load: [
+        authConfig,
+        billingConfig,
+        googleConfig,
+        mailConfig,
+        supportConfig,
+      ],
       validate: validateEnvironment,
     }),
     ScheduleModule.forRoot(),
@@ -43,6 +51,7 @@ import { validateEnvironment } from './config/environment.validation';
     TrainingsModule,
     ProgressionModule,
     BadgesModule,
+    SupportModule,
   ],
   controllers: [AppController],
 })
