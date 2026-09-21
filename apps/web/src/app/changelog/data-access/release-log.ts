@@ -46,6 +46,10 @@ export const RELEASE_LOG: readonly Release[] = [
         'Pour un utilisateur connecté : adresse email préremplie et session concernée joignable à un signalement.',
         'Accusé de réception envoyé par email ; informations techniques jointes uniquement avec l’accord de l’expéditeur.',
       ],
+      [ReleaseCategory.FIX]: [
+        'Fin d’épreuve : correction d’un blocage qui pouvait obliger à reprendre le module depuis le début.',
+        'Bandeau « En ce moment » de l’accueil : le premier prénom reste lisible au démarrage du défilement.',
+      ],
     },
   },
   {
@@ -55,19 +59,16 @@ export const RELEASE_LOG: readonly Release[] = [
     entries: {
       [ReleaseCategory.NEW]: [
         'Cinq épreuves du secteur ferroviaire : Logique, Mémoire, Discrimination visuelle, Réactivité et Motricité, cette dernière jouable avec un téléphone en guise de manette.',
-        'Logique : choix des familles d’exercices à travailler et entraînement possible sans chronomètre.',
-        'Entraînements ciblés par épreuve et examens blancs complets, avec des exercices renouvelés à chaque session et la possibilité de mettre en pause puis de reprendre.',
+        'Entraînements ciblés par épreuve et examens blancs complets, avec des exercices renouvelés à chaque session.',
         'Bilan détaillé après chaque session : score, avis favorable ou défavorable, radar des épreuves, synthèse et recommandations personnalisées.',
         'Correction consultable après chaque épreuve, et page Progression avec le meilleur score et les courbes d’évolution.',
-        'Des crédits plutôt qu’un abonnement : trois packs (Découverte à 2,90 €, Avant l’examen à 7,90 €, Préparation complète à 14,90 €), des crédits offerts à l’inscription, sans expiration, et une facture PDF à chaque achat.',
         '21 badges à décrocher : trois paliers par épreuve, des badges d’examen blanc et des badges de parcours, avec leur rareté et une célébration à l’obtention.',
         'Fil des obtentions sur l’accueil : le prénom n’y apparaît qu’après activation depuis le profil.',
-        'Compte : vérification de l’adresse email, connexion avec Google, mot de passe oublié et profil complet.',
-        'Page « Exemple de bilan » consultable sans compte, et site utilisable depuis les navigateurs intégrés de Snapchat et d’Instagram.',
-        'Animations soignées sur le bilan, jamais pendant une épreuve chronométrée.',
+        'Compte : vérification de l’adresse email, connexion avec Google et mot de passe oublié.',
       ],
       [ReleaseCategory.CONTENT]: [
         'Guide des épreuves et guide de Logique : chaque exercice expliqué avant de se lancer.',
+        'Page « Exemple de bilan » consultable sans compte.',
       ],
     },
   },
