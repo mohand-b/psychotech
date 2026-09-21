@@ -10,6 +10,7 @@ import {
   CONTACT_ROUTE,
   contactQueryParams,
 } from '../../../shared/util/contact-link';
+import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 
 @Component({
   selector: 'app-landing-footer',
@@ -43,6 +44,7 @@ import {
         </div>
         <div class="footer__col">
           <span class="footer__col-title">Aide</span>
+          <a class="footer__link" [routerLink]="nouveautesRoute">Nouveautés</a>
           <a class="footer__link" [routerLink]="contactRoute">Contact</a>
           <a
             class="footer__link footer__link--desktop"
@@ -189,6 +191,7 @@ export class LandingFooter {
   protected readonly tagline = SITE_TAGLINE;
   protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
   protected readonly contactRoute = CONTACT_ROUTE;
+  protected readonly nouveautesRoute = NOUVEAUTES_ROUTE;
   protected readonly suggestionParams = contactQueryParams({
     motif: 'suggestion',
   });

@@ -80,6 +80,8 @@
   --success: #10b981;
   --success-pastel: #e9f7ee;
   --success-text: #0e9669;
+  --info-pastel: #ebf2fe;
+  --info-text: #2d6fd9;
   --warning: #eab308;
   --warning-pastel: #fef5e7;
   --warning-text: #c97e0a;
@@ -130,6 +132,11 @@
   --shadow-card: 0 1px 2px rgba(20, 24, 40, 0.04);
   --shadow-raised: 0 8px 28px rgba(124, 92, 252, 0.13);
   --shadow-focus: 0 0 0 3px rgba(124, 92, 252, 0.12);
+
+  --motion-enter: 300ms;
+  --motion-stagger-step: 55ms;
+  --motion-stagger-cap: 330ms;
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html,

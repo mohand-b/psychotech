@@ -11,65 +11,6 @@
   color: var(--ink);
 }
 
-.public-header {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-}
-
-.public-header__inner {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  max-width: 1152px;
-  height: 64px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.public-header__logo {
-  font: 700 22px/1 var(--font-display);
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.public-header__logo-accent {
-  color: var(--brand);
-}
-
-.public-header__spacer {
-  flex: 1;
-}
-
-.public-header__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font: 500 13.5px/1.4 var(--font-ui);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.public-header__back:hover {
-  color: var(--ink);
-}
-
-.public-header__login {
-  padding: 9px 16px;
-  border-radius: var(--radius-button);
-  background: var(--brand);
-  font: 600 14px/1.4 var(--font-ui);
-  color: var(--card);
-  text-decoration: none;
-}
-
-.public-header__login:hover {
-  background: var(--brand-hover);
-}
-
-.mobile-header {
-  display: none;
-}
-
 .contact__main {
   display: flex;
   flex-direction: column;
@@ -328,50 +269,10 @@
 }
 
 @media (max-width: 767px) {
-  .public-header,
-  .contact__navbar,
   .links,
   .segmented,
   .sent__home {
     display: none;
-  }
-
-  .mobile-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: block;
-    padding-top: var(--safe-top);
-    border-bottom: 1px solid var(--border);
-    background: var(--card);
-  }
-
-  .mobile-header__bar {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    height: 56px;
-    padding: 0 8px 0 4px;
-  }
-
-  .mobile-header__back {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-button);
-    color: var(--text-secondary);
-    text-decoration: none;
-  }
-
-  .mobile-header__back:active {
-    background: var(--bg);
-  }
-
-  .mobile-header__title {
-    font: 600 15px/1.3 var(--font-ui);
   }
 
   .mobile-header__tabs {

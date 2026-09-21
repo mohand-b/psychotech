@@ -55,6 +55,13 @@
         <ui-icon [img]="contactIcon" [size]="16" [strokeWidth]="1.8" />
         Aide et contact
       </a>
+      <a class="profil__contact" [routerLink]="nouveautesRoute">
+        <ui-icon [img]="newsIcon" [size]="16" [strokeWidth]="1.8" />
+        <span class="profil__contact-label">Nouveautés</span>
+        @if (latestVersion(); as version) {
+        <span class="profil__version t-mono">{{ version }}</span>
+        }
+      </a>
       <button type="button" class="profil__logout" (click)="logout()">
         <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="1.8" />
         Déconnexion
@@ -351,6 +358,25 @@
                 [size]="17"
               />
               Aide et contact
+            </span>
+            <ui-icon
+              class="profil__contact-row-chevron"
+              [img]="chevronIcon"
+              [size]="16"
+            />
+          </a>
+
+          <a class="profil__contact-row md:hidden" [routerLink]="nouveautesRoute">
+            <span class="profil__contact-row-label">
+              <ui-icon
+                class="profil__contact-row-icon"
+                [img]="newsIcon"
+                [size]="17"
+              />
+              Nouveautés
+              @if (latestVersion(); as version) {
+              <span class="profil__version t-mono">{{ version }}</span>
+              }
             </span>
             <ui-icon
               class="profil__contact-row-chevron"

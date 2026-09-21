@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = [
   '/cgu',
   '/exemple-de-bilan',
   '/contact',
+  '/nouveautes',
   '/login',
   '/register',
 ];

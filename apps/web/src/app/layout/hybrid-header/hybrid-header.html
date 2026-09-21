@@ -1,0 +1,41 @@
+@if (authenticated()) {
+<ui-navbar
+  class="hybrid-header__navbar"
+  [hideMobile]="true"
+  [hideMobileTabs]="true"
+  [user]="user()"
+  [energy]="energy()"
+  (logoutRequested)="logout()"
+/>
+} @else {
+<header class="public-header">
+  <div class="public-header__inner">
+    <a
+      class="public-header__logo"
+      [routerLink]="homeLink"
+      aria-label="PsychoTech"
+      >Psycho<span class="public-header__logo-accent">Tech</span></a
+    >
+    <span class="public-header__spacer"></span>
+    <a class="public-header__back" [routerLink]="homeLink">
+      <ui-icon [img]="backIcon" [size]="15" />
+      Retour au site
+    </a>
+    <a class="public-header__login" routerLink="/login">Se connecter</a>
+  </div>
+</header>
+}
+
+<header class="mobile-header">
+  <div class="mobile-header__bar">
+    <a
+      class="mobile-header__back"
+      [routerLink]="mobileBackLink()"
+      aria-label="Retour"
+    >
+      <ui-icon [img]="backIcon" [size]="18" />
+    </a>
+    <span class="mobile-header__title">{{ mobileTitle() }}</span>
+  </div>
+  <ng-content />
+</header>

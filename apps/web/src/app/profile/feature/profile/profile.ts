@@ -32,6 +32,7 @@ import {
   LogOut,
   LucideIconData,
   MessageCircleQuestionMark,
+  Sparkles,
   Radar,
   ReceiptText,
   User as UserIcon,
@@ -47,6 +48,8 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { PasswordStrengthMeter } from '../../../shared/ui/password-strength-meter/password-strength-meter';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { Toggle } from '../../../shared/ui/toggle/toggle';
+import { ReleaseLogFacade } from '../../../changelog/data-access/release-log.facade';
+import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { inputValue } from '../../../shared/util/input-value';
@@ -114,6 +117,7 @@ export class Profile {
   private readonly authFacade = inject(AuthFacade);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly progressionFacade = inject(ProgressionFacade);
+  private readonly releaseLog = inject(ReleaseLogFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly baseUrl = inject(API_BASE_URL);
@@ -123,6 +127,9 @@ export class Profile {
   protected readonly alertIcon = CircleAlert;
   protected readonly logoutIcon = LogOut;
   protected readonly contactIcon = MessageCircleQuestionMark;
+  protected readonly newsIcon = Sparkles;
+  protected readonly nouveautesRoute = NOUVEAUTES_ROUTE;
+  protected readonly latestVersion = this.releaseLog.latestVersionLabel;
   protected readonly chevronIcon = ChevronRight;
   protected readonly deleteConfirmation = DELETE_ACCOUNT_CONFIRMATION;
   protected readonly readValue = inputValue;

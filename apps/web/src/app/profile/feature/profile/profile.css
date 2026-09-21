@@ -138,6 +138,19 @@
   color: var(--ink);
 }
 
+.profil__contact-label {
+  flex: 1;
+}
+
+.profil__version {
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--brand-pastel);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brand-hover);
+}
+
 .profil__contact-row {
   display: flex;
   align-items: center;
