@@ -48,7 +48,6 @@ export const RELEASE_LOG: readonly Release[] = [
       ],
       [ReleaseCategory.FIX]: [
         'Fin d’épreuve : correction d’un blocage qui pouvait obliger à reprendre le module depuis le début.',
-        'Bandeau « En ce moment » de l’accueil : le premier prénom reste lisible au démarrage du défilement.',
       ],
     },
   },
