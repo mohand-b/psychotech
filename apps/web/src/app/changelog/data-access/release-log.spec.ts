@@ -12,7 +12,8 @@ const SEMVER = /^\d+\.\d+\.\d+$/;
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 const INTERNAL_VOCABULARY =
   /prerender|seed|migration|webhook|notion|railway|stripe|endpoint|rate limit|captcha|tutoriel|énergie|barème|coefficient/i;
-const INFORMAL_ADDRESS = /(?<!\p{L})(tu|ton|ta|tes|toi)(?!\p{L})/iu;
+const READER_ADDRESS =
+  /(?<!\p{L})(tu|ton|ta|tes|toi|vous|votre|vos|nous|notre|nos)(?!\p{L})/iu;
 const DATE_OR_COMMITMENT = /\b20\d{2}\b|bientôt|prochainement|d’ici/i;
 
 function everyText(): string[] {
@@ -57,10 +58,14 @@ describe('release log', () => {
     }
   });
 
-  it('parle à l’utilisateur : vouvoiement, aucun terme technique interne', () => {
-    for (const text of everyText()) {
+  it('reste impersonnel : aucune adresse au lecteur, aucun terme technique interne', () => {
+    const upcomingTexts = UPCOMING_ITEMS.flatMap(({ text, detail }) => [
+      text,
+      detail,
+    ]);
+    for (const text of [...everyText(), ...upcomingTexts]) {
       expect(text).not.toMatch(INTERNAL_VOCABULARY);
-      expect(text).not.toMatch(INFORMAL_ADDRESS);
+      expect(text).not.toMatch(READER_ADDRESS);
     }
   });
 
