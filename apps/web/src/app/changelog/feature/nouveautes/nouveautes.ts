@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { HybridHeader } from '../../../layout/hybrid-header/hybrid-header';
 import {
   CONTACT_ROUTE,
@@ -62,6 +63,9 @@ interface FilterView {
 })
 export class Nouveautes {
   private readonly releaseLog = inject(ReleaseLogFacade);
+  private readonly authFacade = inject(AuthFacade);
+
+  protected readonly authenticated = this.authFacade.isAuthenticated;
 
   protected readonly upcomingAnchor = UPCOMING_ANCHOR;
   protected readonly contactRoute = CONTACT_ROUTE;

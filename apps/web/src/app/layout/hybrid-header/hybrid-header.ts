@@ -13,6 +13,8 @@ import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { Icon } from '../../shared/ui/icon/icon';
 import { Navbar } from '../../shared/ui/navbar/navbar';
 
+export type HybridHeaderMobileLayout = 'back' | 'app';
+
 const CONNECTED_MOBILE_BACK_LINK = '/profil';
 const PUBLIC_HOME_LINK = '/';
 
@@ -28,13 +30,15 @@ export class HybridHeader {
   private readonly energyFacade = inject(EnergyFacade);
   private readonly router = inject(Router);
 
-  readonly mobileTitle = input.required<string>();
+  readonly mobileTitle = input('');
+  readonly mobileLayout = input<HybridHeaderMobileLayout>('back');
 
   protected readonly backIcon = ArrowLeft;
   protected readonly homeLink = PUBLIC_HOME_LINK;
   protected readonly authenticated = this.authFacade.isAuthenticated;
   protected readonly user = this.authFacade.currentUser;
   protected readonly energy = this.energyFacade.state;
+  protected readonly appLayout = computed(() => this.mobileLayout() === 'app');
   protected readonly mobileBackLink = computed(() =>
     this.authenticated() ? CONNECTED_MOBILE_BACK_LINK : PUBLIC_HOME_LINK,
   );

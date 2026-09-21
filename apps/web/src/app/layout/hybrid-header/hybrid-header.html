@@ -1,14 +1,15 @@
 @if (authenticated()) {
 <ui-navbar
   class="hybrid-header__navbar"
-  [hideMobile]="true"
-  [hideMobileTabs]="true"
+  [class.hybrid-header__navbar--desktop-only]="!appLayout()"
+  [hideMobile]="!appLayout()"
+  [hideMobileTabs]="!appLayout()"
   [user]="user()"
   [energy]="energy()"
   (logoutRequested)="logout()"
 />
 } @else {
-<header class="public-header">
+<header class="public-header" [class.public-header--mobile]="appLayout()">
   <div class="public-header__inner">
     <a
       class="public-header__logo"
@@ -24,8 +25,7 @@
     <a class="public-header__login" routerLink="/login">Se connecter</a>
   </div>
 </header>
-}
-
+} @if (!appLayout()) {
 <header class="mobile-header">
   <div class="mobile-header__bar">
     <a
@@ -39,3 +39,4 @@
   </div>
   <ng-content />
 </header>
+}

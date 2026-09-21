@@ -1,6 +1,7 @@
 import { Component, input, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { HybridHeader } from '../../../layout/hybrid-header/hybrid-header';
 import {
   Release,
@@ -13,7 +14,7 @@ import { Nouveautes } from './nouveautes';
 
 @Component({ selector: 'app-hybrid-header', template: '' })
 class HybridHeaderStub {
-  readonly mobileTitle = input.required<string>();
+  readonly mobileLayout = input('back');
 }
 
 const RELEASES: Release[] = [
@@ -51,6 +52,7 @@ describe('Nouveautes', () => {
       imports: [Nouveautes],
       providers: [
         provideRouter([]),
+        { provide: AuthFacade, useValue: { isAuthenticated: signal(false) } },
         {
           provide: ReleaseLogFacade,
           useValue: {
@@ -149,6 +151,17 @@ describe('Nouveautes', () => {
       'septembre 2026',
       'septembre 2026',
     ]);
+  });
+
+  it('porte le titre de page standard et le gabarit commun', async () => {
+    await setup();
+
+    const title = host.querySelector('h1') as HTMLElement;
+    expect(title.textContent?.trim()).toBe('Nouveautés');
+    expect(title.classList.contains('t-page-title')).toBe(true);
+    expect(host.querySelector('main')?.classList.contains('page-shell')).toBe(
+      true,
+    );
   });
 
   it('renvoie vers le formulaire de suggestion', async () => {

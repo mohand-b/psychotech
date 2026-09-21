@@ -1,126 +1,132 @@
-<div class="page">
-  <app-hybrid-header mobileTitle="Nouveautés" />
+<div class="page" [class.page--nav-clearance]="authenticated()">
+  <app-hybrid-header mobileLayout="app" />
 
-  <main class="page__main">
-    <div class="page__column">
-      <div class="intro">
-        <h1 class="intro__title">Nouveautés</h1>
-        <p class="intro__lead">
-          Ce qui change dans PsychoTech, version après version.
-        </p>
-      </div>
+  <main class="page-shell">
+    <div class="intro">
+      <h1 class="t-page-title">Nouveautés</h1>
+      <p class="intro__lead">
+        Ce qui change dans PsychoTech, version après version.
+      </p>
+    </div>
 
-      @if (filters().length > 0) {
-      <div class="filters" role="group" aria-label="Filtrer les entrées">
-        @for (entry of filters(); track entry.id) {
-        <button
-          type="button"
-          class="filter"
-          [class.filter--on]="filter() === entry.id"
-          [attr.aria-pressed]="filter() === entry.id"
-          (click)="filter.set(entry.id)"
-        >
-          {{ entry.label }}
-        </button>
-        }
-      </div>
-      } @if (upcoming().length > 0) {
-      <section class="step step--upcoming" [id]="upcomingAnchor">
-        <span class="step__rail">
-          <span class="step__dot step__dot--upcoming"></span>
-          <span class="step__line step__line--dashed"></span>
-        </span>
-        <article class="step__body">
-          <div class="step__meta">
-            <span class="step__soon">À venir</span>
-            <span class="step__date"
-              >Ordre indicatif, sans date d'engagement</span
-            >
-          </div>
-          <h2 class="step__title">En préparation</h2>
-          <ul class="items">
-            @for (item of upcoming(); track item.text) {
-            <li class="item">
-              <span class="tag" [class]="'tag--' + item.status"
-                >{{ item.tag }}</span
-              >
-              <span class="item__texts">
-                <span class="item__text">{{ item.text }}</span>
-                <span class="item__detail">{{ item.detail }}</span>
-              </span>
-            </li>
-            }
-          </ul>
-        </article>
-      </section>
-      }
-
-      <ol class="timeline">
-        @for (release of visibleReleases(); track release.anchor; let index =
-        $index) {
-        <li class="step" [id]="release.anchor" [style.--step-index]="index + 1">
+    <div class="page__grid">
+      <div class="page__column">
+        @if (filters().length > 0) {
+        <div class="filters" role="group" aria-label="Filtrer les entrées">
+          @for (entry of filters(); track entry.id) {
+          <button
+            type="button"
+            class="filter"
+            [class.filter--on]="filter() === entry.id"
+            [attr.aria-pressed]="filter() === entry.id"
+            (click)="filter.set(entry.id)"
+          >
+            {{ entry.label }}
+          </button>
+          }
+        </div>
+        } @if (upcoming().length > 0) {
+        <section class="step step--upcoming" [id]="upcomingAnchor">
           <span class="step__rail">
-            <span
-              class="step__dot"
-              [class.step__dot--latest]="release.latest"
-            ></span>
-            <span class="step__line"></span>
+            <span class="step__dot step__dot--upcoming"></span>
+            <span class="step__line step__line--dashed"></span>
           </span>
           <article class="step__body">
             <div class="step__meta">
-              <span class="step__version t-mono"
-                >{{ release.versionLabel }}</span
+              <span class="step__soon">À venir</span>
+              <span class="step__date"
+                >Ordre indicatif, sans date d'engagement</span
               >
-              <time class="step__date">{{ release.dateLabel }}</time>
-              @if (release.latest) {
-              <span class="step__latest">Dernière version</span>
-              }
             </div>
-            <h2 class="step__title">{{ release.title }}</h2>
+            <h2 class="step__title">En préparation</h2>
             <ul class="items">
-              @for (item of release.items; track item.text) {
+              @for (item of upcoming(); track item.text) {
               <li class="item">
-                <span class="tag" [class]="'tag--' + item.category"
+                <span class="tag" [class]="'tag--' + item.status"
                   >{{ item.tag }}</span
                 >
-                <span class="item__text">{{ item.text }}</span>
+                <span class="item__texts">
+                  <span class="item__text">{{ item.text }}</span>
+                  <span class="item__detail">{{ item.detail }}</span>
+                </span>
               </li>
               }
             </ul>
           </article>
-        </li>
+        </section>
         }
-      </ol>
-    </div>
 
-    <aside class="aside">
-      <div class="panel panel--versions">
-        <span class="panel__label">Versions</span>
-        <nav class="toc" aria-label="Versions">
-          <a class="toc__link" [routerLink]="[]" [fragment]="upcomingAnchor">
-            <span class="toc__name">À venir</span>
-            <span class="toc__date">prévisionnel</span>
-          </a>
-          @for (release of tableOfContents(); track release.anchor) {
-          <a class="toc__link" [routerLink]="[]" [fragment]="release.anchor">
-            <span class="toc__name t-mono">{{ release.versionLabel }}</span>
-            <span class="toc__date">{{ release.monthLabel }}</span>
-          </a>
+        <ol class="timeline">
+          @for (release of visibleReleases(); track release.anchor; let index =
+          $index) {
+          <li
+            class="step"
+            [id]="release.anchor"
+            [style.--step-index]="index + 1"
+          >
+            <span class="step__rail">
+              <span
+                class="step__dot"
+                [class.step__dot--latest]="release.latest"
+              ></span>
+              <span class="step__line"></span>
+            </span>
+            <article class="step__body">
+              <div class="step__meta">
+                <span class="step__version t-mono"
+                  >{{ release.versionLabel }}</span
+                >
+                <time class="step__date">{{ release.dateLabel }}</time>
+                @if (release.latest) {
+                <span class="step__latest">Dernière version</span>
+                }
+              </div>
+              <h2 class="step__title">{{ release.title }}</h2>
+              <ul class="items">
+                @for (item of release.items; track item.text) {
+                <li class="item">
+                  <span class="tag" [class]="'tag--' + item.category"
+                    >{{ item.tag }}</span
+                  >
+                  <span class="item__text">{{ item.text }}</span>
+                </li>
+                }
+              </ul>
+            </article>
+          </li>
           }
-        </nav>
+        </ol>
       </div>
-      <div class="panel">
-        <span class="panel__title">Une idée pour la suite ?</span>
-        <span class="panel__text"
-          >Les suggestions des candidats orientent la feuille de route.</span
-        >
-        <a
-          class="panel__action"
-          [routerLink]="contactRoute"
-          [queryParams]="suggestionParams"
-          >Suggérer une amélioration</a
-        >
-      </div>
-    </aside>
+
+      <aside class="aside">
+        <div class="panel panel--versions">
+          <span class="panel__label">Versions</span>
+          <nav class="toc" aria-label="Versions">
+            <a class="toc__link" [routerLink]="[]" [fragment]="upcomingAnchor">
+              <span class="toc__name">À venir</span>
+              <span class="toc__date">prévisionnel</span>
+            </a>
+            @for (release of tableOfContents(); track release.anchor) {
+            <a class="toc__link" [routerLink]="[]" [fragment]="release.anchor">
+              <span class="toc__name t-mono">{{ release.versionLabel }}</span>
+              <span class="toc__date">{{ release.monthLabel }}</span>
+            </a>
+            }
+          </nav>
+        </div>
+        <div class="panel">
+          <span class="panel__title">Une idée pour la suite ?</span>
+          <span class="panel__text"
+            >Les suggestions des candidats orientent la feuille de route.</span
+          >
+          <a
+            class="panel__action"
+            [routerLink]="contactRoute"
+            [queryParams]="suggestionParams"
+            >Suggérer une amélioration</a
+          >
+        </div>
+      </aside>
+    </div>
   </main>
 </div>

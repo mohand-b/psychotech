@@ -5,7 +5,7 @@ import { EnergyStateDto, UserProfileDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
-import { HybridHeader } from './hybrid-header';
+import { HybridHeader, HybridHeaderMobileLayout } from './hybrid-header';
 
 @Component({
   imports: [HybridHeader],
@@ -21,7 +21,15 @@ describe('HybridHeader', () => {
   let fixture: ComponentFixture<Host>;
   let loadEnergy: ReturnType<typeof vi.fn>;
 
-  async function setup(authenticated: boolean): Promise<HTMLElement> {
+  async function setup(
+    authenticated: boolean,
+    layout: HybridHeaderMobileLayout = 'back',
+  ): Promise<HTMLElement> {
+    TestBed.overrideComponent(Host, {
+      set: {
+        template: `<app-hybrid-header mobileTitle="Nouveautés" mobileLayout="${layout}"><span class="projected">Onglets</span></app-hybrid-header>`,
+      },
+    });
     loadEnergy = vi.fn(() => of(null));
     await TestBed.configureTestingModule({
       imports: [Host],
@@ -83,6 +91,29 @@ describe('HybridHeader', () => {
       host.querySelector('.mobile-header__back')?.getAttribute('href'),
     ).toBe('/profil');
     expect(loadEnergy).toHaveBeenCalledTimes(1);
+  });
+
+  it('en gabarit d’application, garde la barre de l’app sur mobile et retire la barre de retour', async () => {
+    await setup(true, 'app');
+    const host = fixture.nativeElement as HTMLElement;
+
+    expect(host.querySelector('.mobile-header__back')).toBeNull();
+    expect(
+      host
+        .querySelector('ui-navbar')
+        ?.classList.contains('hybrid-header__navbar--desktop-only'),
+    ).toBe(false);
+  });
+
+  it('en gabarit d’application, montre l’en-tête public sur mobile à un visiteur', async () => {
+    const host = await setup(false, 'app');
+
+    expect(
+      host
+        .querySelector('.public-header')
+        ?.classList.contains('public-header--mobile'),
+    ).toBe(true);
+    expect(host.querySelector('.mobile-header__back')).toBeNull();
   });
 
   it('affiche le titre mobile et projette le contenu sous la barre', async () => {

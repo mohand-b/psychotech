@@ -62,8 +62,18 @@
 }
 
 @media (max-width: 767px) {
-  .public-header,
-  .hybrid-header__navbar {
+  .public-header:not(.public-header--mobile),
+  .hybrid-header__navbar--desktop-only {
+    display: none;
+  }
+
+  .public-header--mobile .public-header__inner {
+    gap: 12px;
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .public-header--mobile .public-header__back {
     display: none;
   }
 
