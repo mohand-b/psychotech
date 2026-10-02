@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   effect,
   input,
   viewChild,
@@ -53,11 +54,13 @@ export class GamepadPairing {
     });
   }
 
-  protected formattedCode(code: string): string {
+  protected readonly formattedCode = computed(() => {
+    const code = this.pairing()?.code ?? '';
     return `${code.slice(0, 3)} ${code.slice(3)}`;
-  }
+  });
 
-  protected latencyLabel(latency: GamepadLatencyStats): string {
-    return `${Math.round(latency.avgMs)} ms`;
-  }
+  protected readonly latencyLabel = computed(() => {
+    const latency = this.latency();
+    return latency ? `${Math.round(latency.avgMs)} ms` : '';
+  });
 }

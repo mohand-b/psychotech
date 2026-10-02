@@ -17,11 +17,9 @@
       </p>
     </div>
     <div class="pairing__aside">
-      @if (!connected() && pairing(); as pairingValue) {
+      @if (!connected() && pairing()) {
         <span class="pairing__aside-label">Code manuel</span>
-        <span class="pairing__code t-mono">{{
-          formattedCode(pairingValue.code)
-        }}</span>
+        <span class="pairing__code t-mono">{{ formattedCode() }}</span>
         <span class="pairing__status">
           <span class="pairing__dot pairing__dot--waiting"></span>
           <span class="pairing__status-label">En attente de connexion</span>
@@ -31,13 +29,13 @@
           <span class="pairing__dot pairing__dot--connected"></span>
           <span class="pairing__status-label">Manette connectée</span>
         </span>
-        @if (latency(); as stats) {
+        @if (latency()) {
           <span class="pairing__aside-latency">
             Latence
             <strong
               class="t-mono"
               [class.pairing__latency--warn]="!latencyGood()"
-              >{{ latencyLabel(stats) }}</strong
+              >{{ latencyLabel() }}</strong
             >
           </span>
         }
@@ -50,12 +48,12 @@
       <div class="pairing__status">
         <span class="pairing__dot pairing__dot--connected"></span>
         <span class="pairing__status-label">Manette connectée</span>
-        @if (latency(); as stats) {
+        @if (latency()) {
           <span
             class="pairing__latency t-mono"
             [class.pairing__latency--good]="latencyGood()"
             [class.pairing__latency--warn]="!latencyGood()"
-            >{{ latencyLabel(stats) }}</span
+            >{{ latencyLabel() }}</span
           >
         }
       </div>
@@ -68,11 +66,11 @@
     } @else {
       <div class="pairing__title">Manette téléphone</div>
       <canvas #qrCanvas class="pairing__qr"></canvas>
-      @if (pairing(); as pairingValue) {
+      @if (pairing()) {
         <p class="pairing__hint">
           Scannez le code avec votre téléphone : il devient vos deux manivelles.
           Code manuel
-          <strong class="t-mono">{{ formattedCode(pairingValue.code) }}</strong>
+          <strong class="t-mono">{{ formattedCode() }}</strong>
           sur la page /manette.
         </p>
         <p class="pairing__note">

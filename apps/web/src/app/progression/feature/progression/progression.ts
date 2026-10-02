@@ -115,7 +115,6 @@ export class Progression {
   protected readonly fullSessionLabelLower = FULL_SESSION_LABEL_LOWER;
   protected readonly fullSessionLabelPluralLower =
     FULL_SESSION_LABEL_PLURAL_LOWER;
-  protected readonly fullSessionCountLabel = fullSessionCountLabel;
 
   protected readonly threshold = computed(
     () => this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? 70,
@@ -176,6 +175,7 @@ export class Progression {
       ? {
           total: stats.completedSessions,
           full: stats.fullSessionsCount,
+          fullLabel: fullSessionCountLabel(stats.fullSessionsCount),
           targeted: stats.targetedSessionsCount,
         }
       : null;

@@ -20,15 +20,15 @@ export interface TimeChartEntry {
   template: `
     <div class="chart">
       <div class="chart__bars" uiChartTouchTips>
-        @for (entry of entries(); track $index) {
+        @for (bar of bars(); track $index) {
           <div class="chart__slot" data-tip-slot>
             <span
               class="chart__bar"
-              [class.chart__bar--unreached]="entry.timeMs === null"
-              [style.height.%]="barHeight(entry)"
-              [style.background]="entry.colorVar"
+              [class.chart__bar--unreached]="bar.unreached"
+              [style.height.%]="bar.heightPercent"
+              [style.background]="bar.colorVar"
             ></span>
-            <span class="chart__tip">{{ tooltip(entry, $index) }}</span>
+            <span class="chart__tip">{{ bar.tooltip }}</span>
           </div>
           @if (boundarySet().has($index)) {
             <span class="chart__boundary" title="Changement de famille"></span>
@@ -135,17 +135,18 @@ export class TimeChart {
     ),
   );
 
-  protected barHeight(entry: TimeChartEntry): number {
-    if (entry.timeMs === null) {
-      return 0;
-    }
-    return Math.max(6, (entry.timeMs / this.maxTimeMs()) * 100);
-  }
-
-  protected tooltip(entry: TimeChartEntry, index: number): string {
-    const base = `${this.itemLabel()} ${index + 1} · ${entry.label}`;
-    return entry.timeMs === null
-      ? base
-      : `${base} · ${formatSecondsTenths(entry.timeMs)}`;
-  }
+  protected readonly bars = computed(() =>
+    this.entries().map((entry, index) => {
+      const base = `${this.itemLabel()} ${index + 1} · ${entry.label}`;
+      const timeMs = entry.timeMs;
+      return {
+        colorVar: entry.colorVar,
+        unreached: timeMs === null,
+        heightPercent:
+          timeMs === null ? 0 : Math.max(6, (timeMs / this.maxTimeMs()) * 100),
+        tooltip:
+          timeMs === null ? base : `${base} · ${formatSecondsTenths(timeMs)}`,
+      };
+    }),
+  );
 }
