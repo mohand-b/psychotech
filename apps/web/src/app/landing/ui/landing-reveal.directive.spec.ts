@@ -4,9 +4,11 @@ import { LandingReveal } from './landing-reveal.directive';
 
 @Component({
   imports: [LandingReveal],
-  template: `<div class="target" appLandingReveal="0.12s">Bloc</div>`,
+  template: `<div class="target" [appLandingReveal]="cascade">Bloc</div>`,
 })
-class RevealHost {}
+class RevealHost {
+  cascade = 2;
+}
 
 interface ObservedEntry {
   callback: IntersectionObserverCallback;
@@ -70,11 +72,12 @@ describe('LandingReveal', () => {
     Element.prototype.getBoundingClientRect = originalRect;
   });
 
-  async function setup() {
+  async function setup(cascade = 2) {
     await TestBed.configureTestingModule({
       imports: [RevealHost],
     }).compileComponents();
     const fixture = TestBed.createComponent(RevealHost);
+    fixture.componentInstance.cascade = cascade;
     fixture.detectChanges();
     await fixture.whenStable();
     return fixture.nativeElement.querySelector('.target') as HTMLElement;
@@ -85,7 +88,7 @@ describe('LandingReveal', () => {
     expect(target.classList.contains('landing-reveal')).toBe(true);
     expect(target.classList.contains('landing-reveal--armed')).toBe(true);
     expect(target.classList.contains('landing-reveal--in')).toBe(false);
-    expect(target.style.transitionDelay).toBe('0.12s');
+    expect(target.style.transitionDelay).toBe('160ms');
     const io = observed[0];
     expect(io.element).toBe(target);
     expect(io.options).toEqual({
@@ -100,6 +103,11 @@ describe('LandingReveal', () => {
 
     expect(target.classList.contains('landing-reveal--in')).toBe(true);
     expect(io.disconnected).toBe(true);
+  });
+
+  it('caps the cascade delay at the fourth step', async () => {
+    const target = await setup(9);
+    expect(target.style.transitionDelay).toBe('320ms');
   });
 
   it('never hides a block that is already inside the viewport', async () => {

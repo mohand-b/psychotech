@@ -1,0 +1,57 @@
+<section class="axes" [id]="sectionId">
+  <div class="axes__inner">
+    <div class="axes__head" appLandingReveal>
+      <div class="axes__intro">
+        <span class="axes__eyebrow">Les axes</span>
+        <h2 class="axes__title">Chaque aptitude s'entraîne séparément</h2>
+        <p class="axes__lead">
+          Votre secteur active les axes de son épreuve. Pour le ferroviaire,
+          cinq.<span class="axes__lead-extra">
+            Sélectionnez-en un pour voir l'exercice.</span
+          >
+        </p>
+      </div>
+      <a class="axes__guide" [routerLink]="guideRoute">
+        Guide des épreuves
+        <ui-icon [img]="arrowIcon" [size]="arrowSize" />
+      </a>
+    </div>
+
+    <app-landing-axis-tabs
+      appLandingReveal
+      label="Axes de l'épreuve ferroviaire"
+      [axes]="axes"
+      [(selected)]="selected"
+    />
+
+    <div
+      class="axes__panel"
+      role="tabpanel"
+      tabindex="0"
+      [id]="panelId"
+      [attr.aria-labelledby]="activeTabId()"
+    >
+      <div class="axes__copy">
+        <span class="axes__rank">{{ activeRank() }} / {{ axisCount }}</span>
+        <h3 class="axes__name">{{ active().label }}</h3>
+        <p class="axes__description">{{ active().description }}</p>
+        <dl class="axes__facts">
+          <div class="axes__fact">
+            <dt class="axes__fact-label">Ce que mesure l'épreuve</dt>
+            <dd class="axes__fact-text">{{ active().measure }}</dd>
+          </div>
+          <div class="axes__fact">
+            <dt class="axes__fact-label">Ce que vous entraînez</dt>
+            <dd class="axes__fact-text">{{ active().training }}</dd>
+          </div>
+        </dl>
+      </div>
+      <app-landing-screen-stack
+        class="axes__frame"
+        variant="panel-light"
+        [screens]="axisScreens"
+        [activeIndex]="selected()"
+      />
+    </div>
+  </div>
+</section>

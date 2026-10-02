@@ -1,22 +1,30 @@
 <header class="header" [class.header--glass]="scrolled()">
   <div class="header__inner">
-    <a [href]="anchor('hero')" class="header__logo" [attr.aria-label]="siteName">
-      Psycho<span class="header__logo-accent">Tech</span>
-    </a>
+    <a
+      class="header__logo"
+      [href]="anchor(section.hero)"
+      [attr.aria-label]="siteName"
+      >Psycho<span class="header__logo-accent">Tech</span></a
+    >
     <nav class="header__nav" aria-label="Sections">
-      <a [href]="anchor('axes')" class="header__link">Les axes</a>
-      <a [href]="anchor('fonctionnement')" class="header__link"
-        >Fonctionnement</a
+      <a class="header__link" [href]="anchor(section.story)">Fonctionnement</a>
+      <a class="header__link" [href]="anchor(section.axes)">Les axes</a>
+      <a class="header__link" [routerLink]="route.pricing">Tarifs</a>
+      <a class="header__link" [href]="anchor(section.enterprise)"
+        >Entreprises</a
       >
-      <a [href]="anchor('faq')" class="header__link">FAQ</a>
-      <a routerLink="/tarifs" class="header__link">Tarifs</a>
+      <a class="header__link" [href]="anchor(section.faq)">FAQ</a>
     </nav>
     <div class="header__actions">
       @if (authenticated()) {
-        <a routerLink="/dashboard" class="header__cta">Mon espace</a>
+      <app-landing-button size="nav" [link]="dashboardLink"
+        >Mon espace</app-landing-button
+      >
       } @else {
-        <a routerLink="/login" class="header__signin">Connexion</a>
-        <a routerLink="/register" class="header__cta">Créer un compte</a>
+      <a class="header__signin" [routerLink]="route.login">Connexion</a>
+      <app-landing-button size="nav" [link]="signupLink"
+        >Créer un compte</app-landing-button
+      >
       }
     </div>
   </div>

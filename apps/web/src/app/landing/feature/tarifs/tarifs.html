@@ -1,4 +1,3 @@
-<span #sentinel class="tarifs__sentinel" aria-hidden="true"></span>
 <app-landing-header
   [scrolled]="scrolled()"
   [authenticated]="authenticated()"
@@ -54,10 +53,10 @@
     <p class="tarifs__footnote" appLandingReveal>
       Paiement unique et sécurisé via Stripe. Aucun abonnement, aucune
       reconduction : vous achetez des crédits quand vous en avez besoin. Le
-      mode découverte de chaque épreuve reste gratuit, sans carte bancaire.
+      mode découverte de chaque épreuve reste gratuit.
     </p>
   </div>
 </main>
 
 <app-landing-cta [authenticated]="authenticated()" />
-<app-landing-footer />
+<app-landing-footer [onLanding]="false" />

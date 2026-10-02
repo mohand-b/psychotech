@@ -29,6 +29,10 @@ import {
   AxisPresentation,
 } from '../../../shared/ui/axis-presentation';
 import { Icon } from '../../../shared/ui/icon/icon';
+import {
+  SECTOR_LINEUP,
+  SectorLineupEntry,
+} from '../../../shared/ui/sector-presentation';
 import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
 import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
@@ -50,11 +54,6 @@ interface GuideUpcomingAxis {
   presentation: AxisPresentation;
 }
 
-interface GuideSectorColumn {
-  sector: Sector;
-  label: string;
-}
-
 interface GuideSectorTableRow {
   axis: AxisType;
   presentation: AxisPresentation;
@@ -63,18 +62,10 @@ interface GuideSectorTableRow {
 }
 
 interface GuideSectorStackEntry {
-  column: GuideSectorColumn;
+  column: SectorLineupEntry;
   current: boolean;
   axes: GuideUpcomingAxis[];
 }
-
-const GUIDE_SECTOR_COLUMNS: readonly GuideSectorColumn[] = [
-  { sector: Sector.RAILWAY, label: 'Ferroviaire' },
-  { sector: Sector.AVIATION, label: 'Aviation' },
-  { sector: Sector.SECURITY, label: 'Sécurité' },
-  { sector: Sector.DRIVING, label: 'Conduite' },
-  { sector: Sector.HEALTHCARE, label: 'Santé' },
-];
 
 const UPCOMING_AXES_ORDER: readonly AxisType[] = [
   AxisType.ATTENTION,
@@ -137,7 +128,7 @@ export class GuideHub {
       presentation: AXIS_PRESENTATION[axis],
     }));
 
-  protected readonly sectorColumns = GUIDE_SECTOR_COLUMNS;
+  protected readonly sectorColumns = SECTOR_LINEUP;
 
   protected readonly sectorTableRows: readonly GuideSectorTableRow[] = (
     Object.values(AxisType) as AxisType[]
@@ -146,7 +137,7 @@ export class GuideHub {
       axis,
       presentation: AXIS_PRESENTATION[axis],
       upcoming: !AXIS_META[axis].playable,
-      memberships: GUIDE_SECTOR_COLUMNS.map(({ sector }) =>
+      memberships: SECTOR_LINEUP.map(({ sector }) =>
         SECTOR_AXES[sector].includes(axis),
       ),
     }))
@@ -162,7 +153,7 @@ export class GuideHub {
   }
 
   protected readonly sectorStack: readonly GuideSectorStackEntry[] =
-    GUIDE_SECTOR_COLUMNS.map((column) => ({
+    SECTOR_LINEUP.map((column) => ({
       column,
       current: column.sector === Sector.RAILWAY,
       axes: SECTOR_AXES[column.sector]

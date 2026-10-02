@@ -5,20 +5,27 @@ import {
   afterNextRender,
   inject,
   input,
+  numberAttribute,
 } from '@angular/core';
 
 const ARMED_CLASS = 'landing-reveal--armed';
 const REVEALED_CLASS = 'landing-reveal--in';
 const OBSERVER_HANDSHAKE_MS = 1000;
+const CASCADE_STEP_MS = 80;
+const CASCADE_MAX_INDEX = 4;
 
 type BrowserWindow = Window & typeof globalThis;
+
+function cascadeIndex(value: unknown): number {
+  return numberAttribute(value, 0);
+}
 
 @Directive({
   selector: '[appLandingReveal]',
   host: { class: 'landing-reveal' },
 })
 export class LandingReveal {
-  readonly appLandingReveal = input('');
+  readonly appLandingReveal = input(0, { transform: cascadeIndex });
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
@@ -30,9 +37,9 @@ export class LandingReveal {
       if (!view || !this.canAnimate(element, view)) {
         return;
       }
-      const delay = this.appLandingReveal();
-      if (delay) {
-        element.style.transitionDelay = delay;
+      const index = Math.min(this.appLandingReveal(), CASCADE_MAX_INDEX);
+      if (index > 0) {
+        element.style.transitionDelay = `${index * CASCADE_STEP_MS}ms`;
       }
       element.classList.add(ARMED_CLASS);
       this.revealOnIntersection(element, view);

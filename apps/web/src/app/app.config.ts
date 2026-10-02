@@ -31,6 +31,7 @@ import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
 import { newBadgesInterceptor } from './core/http/new-badges.interceptor';
+import { appAnchorOffset } from './core/scroll/anchor-offset';
 import { StaleChunkErrorHandler } from './core/stale-chunk-error.handler';
 import { isStaleChunkError, reloadOnceForStaleChunk } from './core/stale-chunk';
 import { appRoutes } from './app.routes';
@@ -40,10 +41,6 @@ function reloadOnStaleChunk(event: NavigationError): void {
     reloadOnceForStaleChunk(event.url);
   }
 }
-
-const MOBILE_HEADER_ANCHOR_OFFSET = 76;
-const DESKTOP_NAVBAR_ANCHOR_OFFSET = 88;
-const MOBILE_MEDIA_QUERY = '(max-width: 767px)';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -75,14 +72,7 @@ export const appConfig: ApplicationConfig = {
       if (isPlatformServer(inject(PLATFORM_ID))) {
         return;
       }
-      const scroller = inject(ViewportScroller);
-      const mobileQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
-      scroller.setOffset(() => [
-        0,
-        mobileQuery.matches
-          ? MOBILE_HEADER_ANCHOR_OFFSET
-          : DESKTOP_NAVBAR_ANCHOR_OFFSET,
-      ]);
+      inject(ViewportScroller).setOffset(appAnchorOffset(window));
     }),
     provideAppInitializer(() => {
       if (isPlatformServer(inject(PLATFORM_ID))) {

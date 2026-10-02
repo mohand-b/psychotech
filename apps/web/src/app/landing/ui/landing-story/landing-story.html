@@ -1,0 +1,64 @@
+<section class="story" [id]="sectionId">
+  <div class="story__grid">
+    <div #stage class="story__stage">
+      <div class="story__heading">
+        <span class="story__eyebrow">Fonctionnement</span>
+        <h2 class="story__title">
+          Votre préparation, étape&nbsp;par&nbsp;étape
+        </h2>
+      </div>
+      <div class="story__showcase">
+        <app-landing-screen-stack
+          class="story__frame"
+          variant="panel"
+          [screens]="stepScreens"
+          [activeIndex]="activeIndex()"
+        />
+        <div class="story__legend">
+          <span class="story__caption" aria-live="polite"
+            >{{ activeCaption() }}</span
+          >
+          <span class="story__dots" aria-hidden="true">
+            @for (step of steps; track step.rank; let index = $index) {
+            <span
+              class="story__dot"
+              [class.story__dot--active]="index === activeIndex()"
+            ></span>
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <ol class="story__steps">
+      @for (step of steps; track step.rank; let index = $index) {
+      <li #step class="story__step">
+        <div
+          class="story__step-body"
+          [class.story__step-body--active]="index === activeIndex()"
+        >
+          <span class="story__rank">{{ step.rank }}</span>
+          <h3 class="story__step-title">{{ step.title }}</h3>
+          <div class="story__step-copy">
+            <p class="story__step-text">{{ step.body }}</p>
+            @if (step.link; as link) {
+            <a class="story__link" [routerLink]="link.route"
+              >{{ link.label }}
+              <ui-icon [img]="arrowIcon" [size]="linkArrowSize"
+            /></a>
+            } @if ($last) {
+            <app-landing-button
+              class="story__cta"
+              size="step"
+              [link]="primaryAction().link"
+              [arrow]="true"
+              >{{ primaryAction().label }}</app-landing-button
+            >
+            }
+          </div>
+        </div>
+      </li>
+      }
+    </ol>
+  </div>
+</section>

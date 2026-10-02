@@ -1,25 +1,16 @@
-import {
-  afterNextRender,
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { injectLandingChrome } from '../../util/landing-chrome';
 import { LandingAxes } from '../../ui/landing-axes/landing-axes';
 import { LandingCta } from '../../ui/landing-cta/landing-cta';
-import { LandingDifferentiator } from '../../ui/landing-differentiator/landing-differentiator';
 import { LandingEnjeu } from '../../ui/landing-enjeu/landing-enjeu';
+import { LandingEnterprise } from '../../ui/landing-enterprise/landing-enterprise';
 import { LandingFaq } from '../../ui/landing-faq/landing-faq';
 import { LandingFooter } from '../../ui/landing-footer/landing-footer';
 import { LandingHeader } from '../../ui/landing-header/landing-header';
 import { LandingHero } from '../../ui/landing-hero/landing-hero';
-import { LandingHow } from '../../ui/landing-how/landing-how';
-import { LandingPlatform } from '../../ui/landing-platform/landing-platform';
-import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
+import { LandingSectors } from '../../ui/landing-sectors/landing-sectors';
+import { LandingStory } from '../../ui/landing-story/landing-story';
 
 @Component({
   selector: 'app-landing',
@@ -27,40 +18,19 @@ import { LandingScoring } from '../../ui/landing-scoring/landing-scoring';
   imports: [
     LandingAxes,
     LandingCta,
-    LandingDifferentiator,
     LandingEnjeu,
+    LandingEnterprise,
     LandingFaq,
     LandingFooter,
     LandingHeader,
     LandingHero,
-    LandingHow,
-    LandingPlatform,
-    LandingScoring,
+    LandingSectors,
+    LandingStory,
   ],
   templateUrl: './landing.html',
   styleUrls: ['./landing.css', '../../landing-theme.css'],
 })
 export class Landing {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly authFacade = inject(AuthFacade);
-  private readonly sentinel =
-    viewChild.required<ElementRef<HTMLElement>>('sentinel');
-
-  protected readonly scrolled = signal(false);
-  protected readonly authenticated = this.authFacade.isAuthenticated;
-
-  constructor() {
-    afterNextRender(() => {
-      document.body.classList.add('landing-active');
-      const observer = new IntersectionObserver(
-        ([entry]) => this.scrolled.set(!entry.isIntersecting),
-        { threshold: 0 },
-      );
-      observer.observe(this.sentinel().nativeElement);
-      this.destroyRef.onDestroy(() => {
-        observer.disconnect();
-        document.body.classList.remove('landing-active');
-      });
-    });
-  }
+  protected readonly scrolled = injectLandingChrome();
+  protected readonly authenticated = inject(AuthFacade).isAuthenticated;
 }

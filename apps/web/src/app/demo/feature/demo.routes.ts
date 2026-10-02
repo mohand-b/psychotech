@@ -5,9 +5,8 @@ import {
   SITE_NAME,
 } from '../../core/seo/route-seo';
 import { SimulationSummaryFacade } from '../../sessions/data-access/simulation-summary.facade';
+import { EXAMPLE_BILAN_PATH } from '../../shared/util/example-bilan-link';
 import { ExampleBilanFacade } from '../data-access/example-bilan.facade';
-
-export const EXAMPLE_BILAN_PATH = 'exemple-de-bilan';
 
 export const EXAMPLE_BILAN_SEO: RouteSeo = {
   title: `Exemple de bilan d'examen blanc | ${SITE_NAME}`,

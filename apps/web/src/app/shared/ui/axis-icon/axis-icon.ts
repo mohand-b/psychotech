@@ -9,7 +9,9 @@ import { AxisType } from '@psychotech/shared';
 export type AxisIconId = AxisType | 'examen' | 'credit';
 
 export const AXIS_ICON_SIZE = {
+  mini: 13,
   chip: 16,
+  tab: 18,
   card: 22,
   hero: 44,
 } as const;
@@ -53,6 +55,8 @@ const AXIS_ICON_PATHS: Record<AxisIconId, string> = {
     }
     img {
       display: block;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
     }
   `,

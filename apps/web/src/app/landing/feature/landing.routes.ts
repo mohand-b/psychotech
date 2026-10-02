@@ -8,6 +8,8 @@ import {
 } from '../../core/seo/route-seo';
 import { LANDING_FAQ_ENTRIES } from '../data/landing-faq-entries';
 
+const LANDING_PRELOADED_FONTS = [LANDING_DISPLAY_FONT_PATH];
+
 const LANDING_STRUCTURED_DATA: object[] = [
   {
     '@context': 'https://schema.org',
@@ -40,14 +42,14 @@ export const LANDING_SEO: RouteSeo = {
   description:
     "Entraînez-vous aux 5 familles d'épreuves psychotechniques des sélections ferroviaires : logique, mémoire, discrimination visuelle, réactivité et motricité.",
   structuredData: LANDING_STRUCTURED_DATA,
-  preloadFonts: [LANDING_DISPLAY_FONT_PATH],
+  preloadFonts: LANDING_PRELOADED_FONTS,
 };
 
 const TARIFS_SEO: RouteSeo = {
   title: 'Tarifs : packs de crédits sans abonnement | PsychoTech Training',
   description:
     'Des packs de crédits sans abonnement pour préparer les épreuves psychotechniques ferroviaires : 15, 50 ou 120 crédits, paiement unique, sans expiration.',
-  preloadFonts: [LANDING_DISPLAY_FONT_PATH],
+  preloadFonts: LANDING_PRELOADED_FONTS,
 };
 
 export const landingRoutes: Route[] = [

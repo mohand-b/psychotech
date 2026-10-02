@@ -1,15 +1,13 @@
 :host {
   display: block;
-  position: relative;
   background: var(--landing-bg);
   color: var(--landing-text);
   font-family: var(--landing-font-ui);
+  -webkit-font-smoothing: antialiased;
 }
 
-.landing__sentinel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
+@media (max-width: 1023px) {
+  main {
+    padding-top: calc(var(--landing-header-height) + var(--safe-top));
+  }
 }

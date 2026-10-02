@@ -14,7 +14,7 @@ import { LandingReveal } from '../landing-reveal.directive';
             Les tests psychotechniques sont la première étape éliminatoire.
           </h2>
         </div>
-        <div class="enjeu__copy" appLandingReveal="0.12s">
+        <div class="enjeu__copy" appLandingReveal="1">
           <p class="enjeu__text">
             Dans une sélection professionnelle, l'épreuve psychotechnique
             élimine souvent avant même l'entretien. Un score sous le seuil, un
@@ -32,13 +32,13 @@ import { LandingReveal } from '../landing-reveal.directive';
   `,
   styles: `
     .enjeu {
-      background: var(--landing-bg);
-      border-top: 1px solid var(--landing-border-soft);
+      background: var(--card);
+      color: var(--ink);
     }
     .enjeu__grid {
-      max-width: 1100px;
+      max-width: var(--landing-container-width);
       margin: 0 auto;
-      padding: 72px 32px;
+      padding: var(--landing-section-space) var(--landing-gutter);
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       gap: 72px;
@@ -52,47 +52,41 @@ import { LandingReveal } from '../landing-reveal.directive';
       font: 600 11px/14px var(--landing-font-ui);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--landing-accent-soft);
+      color: var(--landing-accent);
     }
     .enjeu__title {
       font: 600 40px/1.1 var(--landing-font-display);
-      letter-spacing: -0.025em;
-      margin: 0;
-      color: var(--landing-text);
+      letter-spacing: -0.02em;
     }
     .enjeu__copy {
       display: flex;
       flex-direction: column;
-      gap: 18px;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      padding-left: 44px;
       justify-content: center;
+      gap: 18px;
+      padding-left: 44px;
+      border-left: 1px solid var(--border);
     }
     .enjeu__text {
       font: 400 16px/1.7 var(--landing-font-ui);
-      color: rgba(255, 255, 255, 0.6);
-      margin: 0;
+      color: var(--text-secondary);
     }
     .enjeu__punch {
       font: 600 20px/1.4 var(--landing-font-display);
       letter-spacing: -0.01em;
-      color: var(--landing-text);
-      margin: 0;
+      color: var(--ink);
     }
-    @media (max-width: 767px) {
+    @media (max-width: 1023px) {
       .enjeu__grid {
-        padding: 64px 20px;
         display: flex;
         flex-direction: column;
         gap: 22px;
       }
       .enjeu__head {
-        gap: 14px;
+        gap: 12px;
       }
       .enjeu__title {
-        font-size: 27px;
-        line-height: 1.15;
-        letter-spacing: -0.02em;
+        font-size: 28px;
+        line-height: 1.12;
       }
       .enjeu__copy {
         gap: 14px;
@@ -103,7 +97,8 @@ import { LandingReveal } from '../landing-reveal.directive';
         line-height: 1.65;
       }
       .enjeu__punch {
-        font: 600 17px/1.4 var(--landing-font-display);
+        font-size: 18px;
+        line-height: 1.35;
       }
     }
   `,

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LANDING_FAQ_ENTRIES } from '../../data/landing-faq-entries';
+import { LANDING_SECTION } from '../../util/landing-sections';
 import { LandingReveal } from '../landing-reveal.directive';
 
 @Component({
@@ -7,7 +8,7 @@ import { LandingReveal } from '../landing-reveal.directive';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [LandingReveal],
   template: `
-    <section class="faq" id="faq">
+    <section class="faq" [id]="sectionId">
       <div class="faq__inner">
         <div class="faq__head" appLandingReveal>
           <span class="faq__eyebrow">Questions fréquentes</span>
@@ -16,12 +17,13 @@ import { LandingReveal } from '../landing-reveal.directive';
           </h2>
         </div>
         <div class="faq__list">
-          @for (entry of faq; track entry.question) {
-            <div class="faq__row" appLandingReveal>
-              <span class="faq__question">{{ entry.question }}</span>
-              <span class="faq__answer">{{ entry.answer }}</span>
+          @for (entry of faq; track entry.question; let index = $index) {
+            <div class="faq__item" [appLandingReveal]="index">
+              <h3 class="faq__question">{{ entry.question }}</h3>
+              <p class="faq__answer">{{ entry.answer }}</p>
             </div>
           }
+          <span class="faq__rule" aria-hidden="true"></span>
         </div>
       </div>
     </section>
@@ -29,72 +31,76 @@ import { LandingReveal } from '../landing-reveal.directive';
   styles: `
     .faq {
       background: var(--card);
-      scroll-margin-top: calc(64px + env(safe-area-inset-top));
+      color: var(--ink);
+      scroll-margin-top: var(--landing-header-height);
     }
     .faq__inner {
       max-width: 820px;
       margin: 0 auto;
-      padding: 72px 32px;
+      padding: var(--landing-section-space) 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
     }
     .faq__head {
       display: flex;
       flex-direction: column;
       gap: 14px;
-      margin-bottom: 32px;
     }
     .faq__eyebrow {
-      font: 600 11px/14px var(--landing-font-ui);
+      font: 600 11px / normal var(--landing-font-ui);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--label);
+      color: var(--landing-accent);
     }
     .faq__title {
-      font: 600 34px/1.12 var(--landing-font-display);
+      font: 600 40px/1.1 var(--landing-font-display);
       letter-spacing: -0.02em;
-      margin: 0;
-      color: var(--ink);
     }
     .faq__list {
       display: flex;
       flex-direction: column;
     }
-    .faq__row {
+    .faq__item {
       display: flex;
       flex-direction: column;
       gap: 10px;
       padding: 28px 0;
       border-top: 1px solid var(--border);
     }
-    .faq__row:last-child {
-      border-bottom: 1px solid var(--border);
-    }
     .faq__question {
       font: 600 16.5px/24px var(--landing-font-ui);
-      color: var(--ink);
     }
     .faq__answer {
       font: 400 14.5px/1.65 var(--landing-font-ui);
       color: var(--text-secondary);
     }
-    @media (max-width: 767px) {
+    .faq__rule {
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 1023px) {
       .faq__inner {
-        padding: 56px 20px;
+        max-width: var(--landing-container-width);
+        padding: var(--landing-section-space) var(--landing-gutter);
+        gap: 20px;
       }
       .faq__head {
-        gap: 12px;
-        margin-bottom: 24px;
+        gap: 10px;
       }
       .faq__title {
-        font-size: 25px;
-        line-height: 1.15;
+        font-size: 28px;
+        line-height: 1.12;
       }
-      .faq__row {
-        gap: 8px;
-        padding: 20px 0;
+      .faq__list {
+        gap: 10px;
+      }
+      .faq__item {
+        gap: 6px;
+        padding: 18px 0;
       }
       .faq__question {
         font-size: 15px;
-        line-height: 22px;
+        line-height: 1.35;
       }
       .faq__answer {
         font-size: 13.5px;
@@ -104,5 +110,6 @@ import { LandingReveal } from '../landing-reveal.directive';
   `,
 })
 export class LandingFaq {
+  protected readonly sectionId = LANDING_SECTION.faq;
   protected readonly faq = LANDING_FAQ_ENTRIES;
 }

@@ -115,6 +115,7 @@
   --guide-sector-highlight: #f8f6fe;
   --guide-band-acceptable: #2f8f4e;
   --scrollbar-thumb-inverse: rgba(255, 255, 255, 0.24);
+  --landing-surface: #14111f;
 
   --font-display: 'Baloo 2', sans-serif;
   --font-ui: 'Inter', sans-serif;
@@ -152,7 +153,7 @@ body {
 
 body.landing-active,
 html:has(body.landing-active) {
-  background: #0c0a16;
+  background: var(--landing-surface);
 }
 
 html:has(body.landing-active) {
@@ -235,8 +236,8 @@ html:has(body.landing-active) {
 
 .landing-reveal {
   transition:
-    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.8s var(--ease-glide),
+    transform 0.8s var(--ease-glide);
 }
 
 .landing-reveal--armed {
@@ -247,6 +248,16 @@ html:has(body.landing-active) {
 .landing-reveal--armed.landing-reveal--in {
   opacity: 1;
   transform: none;
+}
+
+@media (max-width: 1023px) {
+  .landing-reveal {
+    transition-duration: 0.7s;
+  }
+
+  .landing-reveal--armed {
+    transform: translateY(22px);
+  }
 }
 
 @keyframes auth-in {

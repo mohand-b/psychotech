@@ -3,16 +3,9 @@
   background: var(--landing-bg);
 }
 
-.tarifs__sentinel {
-  position: absolute;
-  top: 0;
-  height: 1px;
-  width: 1px;
-}
-
 .tarifs {
   background: var(--landing-bg);
-  padding-top: calc(64px + env(safe-area-inset-top));
+  padding-top: calc(var(--landing-header-height) + var(--safe-top));
 }
 
 .tarifs__inner {

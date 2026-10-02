@@ -1,18 +1,103 @@
 :host {
-  --landing-bg: #0c0a16;
-  --landing-glow: rgba(124, 92, 252, 0.3);
-  --landing-accent: #7c5cfc;
-  --landing-accent-hover: #6a4bea;
+  --landing-bg: var(--landing-surface);
+  --landing-bg-deep: #0f0d18;
+  --landing-glass: rgba(20, 17, 31, 0.78);
+  --landing-bezel: #2a2738;
+  --landing-accent: var(--brand);
+  --landing-accent-hover: var(--brand-hover);
+  --landing-accent-soft: #9b82ff;
   --landing-text: #ffffff;
+  --landing-text-strong: rgba(255, 255, 255, 0.9);
+  --landing-text-soft: rgba(255, 255, 255, 0.82);
+  --landing-link: rgba(255, 255, 255, 0.65);
   --landing-text-body: rgba(255, 255, 255, 0.62);
   --landing-text-muted: rgba(255, 255, 255, 0.45);
+  --landing-text-dim: rgba(255, 255, 255, 0.38);
+  --landing-text-faint: rgba(255, 255, 255, 0.35);
+  --landing-dot: rgba(255, 255, 255, 0.22);
+  --landing-surface-raised: rgba(255, 255, 255, 0.06);
+  --landing-surface-pressed: rgba(255, 255, 255, 0.04);
   --landing-border-soft: rgba(255, 255, 255, 0.06);
+  --landing-rule: rgba(255, 255, 255, 0.08);
+  --landing-rule-strong: rgba(255, 255, 255, 0.1);
   --landing-border: rgba(255, 255, 255, 0.12);
   --landing-border-strong: rgba(255, 255, 255, 0.18);
-  --landing-glass: rgba(12, 10, 22, 0.72);
-  --landing-accent-soft: #9b82ff;
-  --landing-success: #8fe08a;
-  --landing-warm: #fbc979;
+  --landing-border-hover: rgba(255, 255, 255, 0.45);
+  --landing-veil-core: rgba(20, 17, 31, 0.92);
+  --landing-veil-mid: rgba(20, 17, 31, 0.6);
+  --landing-veil-edge: rgba(20, 17, 31, 0);
+  --landing-glow: rgba(124, 92, 252, 0.2);
+  --landing-glow-edge: rgba(124, 92, 252, 0);
+  --landing-grid-off: rgba(255, 255, 255, 0.045);
+  --landing-grid-lit: rgba(124, 92, 252, 0.55);
+  --landing-grid-vivid: var(--landing-accent-soft);
+  --landing-grid-glow: 0 0 14px rgba(155, 130, 255, 0.55);
+  --landing-shadow-hero:
+    0 -10px 60px rgba(124, 92, 252, 0.14), 0 30px 80px rgba(0, 0, 0, 0.45);
+  --landing-shadow-panel:
+    0 -10px 60px rgba(124, 92, 252, 0.12), 0 30px 80px rgba(0, 0, 0, 0.5);
+  --landing-shadow-panel-light: 0 24px 60px rgba(20, 24, 40, 0.16);
+  --landing-shadow-phone: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.55));
+  --landing-shadow-phone-light: drop-shadow(0 18px 28px rgba(20, 24, 40, 0.24));
+  --landing-phone-ring: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --landing-grid-mask: radial-gradient(
+    ellipse at center,
+    #000 20%,
+    rgba(0, 0, 0, 0.5) 48%,
+    transparent 72%
+  );
+  --landing-radius-button: var(--radius-button);
+  --landing-radius-button-hero: 11px;
+  --landing-radius-cta: 12px;
+  --landing-radius-panel: 12px;
+  --landing-radius-showcase: var(--landing-radius-panel);
+  --landing-radius-desktop: 16px;
+  --landing-radius-phone: 34px;
+  --landing-radius-landscape-phone: 22px;
+  --landing-radius-cell: 2px;
+  --landing-radius-dot: 3px;
+  --landing-radius-round: 999px;
+  --landing-container-width: 1152px;
+  --landing-panel-width: 600px;
+  --landing-panel-height: 379px;
+  --landing-showcase-width: var(--landing-panel-width);
+  --landing-showcase-height: var(--landing-panel-height);
+  --landing-landscape-phone-width: 240px;
+  --landing-landscape-phone-height: 117px;
+  --landing-gutter: 24px;
+  --landing-section-space: 88px;
+  --landing-header-height: 64px;
+  --landing-ease-enter: cubic-bezier(0.16, 0.84, 0.44, 1);
   --landing-font-display: 'Space Grotesk', sans-serif;
   --landing-font-ui: 'Inter', sans-serif;
+}
+
+@media (max-width: 1023px) {
+  :host {
+    --landing-glass: rgba(20, 17, 31, 0.82);
+    --landing-shadow-hero:
+      0 -8px 40px rgba(124, 92, 252, 0.16), 0 24px 60px rgba(0, 0, 0, 0.5);
+    --landing-shadow-panel: 0 18px 50px rgba(0, 0, 0, 0.5);
+    --landing-shadow-panel-light: 0 20px 50px rgba(20, 24, 40, 0.16);
+    --landing-shadow-phone: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.55));
+    --landing-radius-panel: 22px;
+    --landing-radius-showcase: 32px;
+    --landing-radius-desktop: 10px;
+    --landing-radius-phone: 20px;
+    --landing-panel-width: auto;
+    --landing-panel-height: 356px;
+    --landing-panel-aspect: 168 / 356;
+    --landing-showcase-width: 280px;
+    --landing-showcase-height: 380px;
+    --landing-container-width: 560px;
+    --landing-gutter: 20px;
+    --landing-section-space: 56px;
+    --landing-header-height: 56px;
+    --landing-grid-mask: radial-gradient(
+      ellipse at center,
+      #000 20%,
+      rgba(0, 0, 0, 0.5) 50%,
+      transparent 76%
+    );
+  }
 }
