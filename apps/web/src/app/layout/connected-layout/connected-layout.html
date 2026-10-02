@@ -1,16 +1,16 @@
 <div class="shell flex flex-col">
   @if (focusedHeader(); as header) {
-  <ui-focused-header
-    [energy]="energy()"
-    [title]="header.title"
-    [discoveryTag]="header.discoveryTag"
-    [backLabel]="header.backLabel"
-    [backLink]="header.backLink"
-    [backQueryParams]="header.backQueryParams"
-    [axisChip]="header.axisChip"
-    [mobileTitle]="header.mobileTitle"
-    [steps]="header.stepper ? sessionSteps() : []"
-    [duration]="
+    <ui-focused-header
+      [energy]="energy()"
+      [title]="header.title"
+      [discoveryTag]="header.discoveryTag"
+      [backLabel]="header.backLabel"
+      [backLink]="header.backLink"
+      [backQueryParams]="header.backQueryParams"
+      [axisChip]="header.axisChip"
+      [mobileTitle]="header.mobileTitle"
+      [steps]="header.stepper ? sessionSteps() : []"
+      [duration]="
         !header.showTimer
           ? null
           : header.live
@@ -21,37 +21,38 @@
               ? stepperDuration()
               : header.duration
       "
-    [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
-    [showEnergy]="header.showEnergy"
-    [energyCost]="header.energyCost"
-    [securityBadge]="header.securityBadge"
-    [closeLink]="header.closeLink"
-    (closeRequested)="onCloseRequested(header)"
-  />
+      [timerSeverity]="header.live ? liveCountdownSeverity() : 'normal'"
+      [showEnergy]="header.showEnergy"
+      [energyCost]="header.energyCost"
+      [securityBadge]="header.securityBadge"
+      [closeLink]="header.closeLink"
+      (closeRequested)="onCloseRequested(header)"
+    />
   } @else {
-  <ui-navbar
-    [hideMobile]="mobileFlow() !== null || hideMobileHeader()"
-    [hideMobileTabs]="hideMobileNav()"
-    [user]="user()"
-    [energy]="energy()"
-    (logoutRequested)="logout()"
-  />
-  @if (mobileFlow(); as flow) {
-  <header
-    class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
-  >
-    <a
-      class="logo logo--compact"
-      routerLink="/"
-      aria-label="Accueil PsychoTech"
-      >Psycho<span class="logo__accent">Tech</span></a
-    >
-    <span class="flow-header__chip">
-      <ui-axis-label [axis]="flow.axis" />
-      <span class="flow-header__suffix">· {{ flow.suffix }}</span>
-    </span>
-  </header>
-  } }
+    <ui-navbar
+      [hideMobile]="mobileFlow() !== null || hideMobileHeader()"
+      [hideMobileTabs]="hideMobileNav()"
+      [user]="user()"
+      [energy]="energy()"
+      (logoutRequested)="logout()"
+    />
+    @if (mobileFlow(); as flow) {
+      <header
+        class="flow-header navbar-surface safe-top flex min-h-14 items-center justify-between px-4 md:hidden"
+      >
+        <a
+          class="logo logo--compact"
+          routerLink="/"
+          aria-label="Accueil PsychoTech"
+          >Psycho<span class="logo__accent">Tech</span></a
+        >
+        <span class="flow-header__chip">
+          <ui-axis-label [axis]="flow.axis" />
+          <span class="flow-header__suffix">· {{ flow.suffix }}</span>
+        </span>
+      </header>
+    }
+  }
   <main
     class="content flex-1 md:pb-0"
     [class.content--nav-clearance]="

@@ -98,7 +98,9 @@
     <section class="energie__confirmation flex flex-col items-center">
       @switch (confirmation()) {
         @case ('pending') {
-          <span class="energie__confirmation-title">Paiement en cours de confirmation…</span>
+          <span class="energie__confirmation-title"
+            >Paiement en cours de confirmation…</span
+          >
           <span class="energie__confirmation-text"
             >Vos crédits seront ajoutés dans quelques secondes.</span
           >
@@ -122,7 +124,9 @@
           </ui-button>
         }
         @case ('error') {
-          <span class="energie__confirmation-title">Confirmation en attente</span>
+          <span class="energie__confirmation-title"
+            >Confirmation en attente</span
+          >
           <span class="energie__confirmation-text"
             >Le crédit peut prendre quelques instants. Votre solde se mettra à
             jour automatiquement.</span
@@ -139,7 +143,11 @@
     class="energie__checkout flex flex-col"
     [class.energie__checkout--open]="view() === 'checkout'"
   >
-    <button type="button" class="energie__back flex items-center" (click)="backToPacks()">
+    <button
+      type="button"
+      class="energie__back flex items-center"
+      (click)="backToPacks()"
+    >
       <ui-icon [img]="arrowLeftIcon" [size]="15" />
       Revenir aux packs
     </button>

@@ -70,7 +70,11 @@ describe('AxisIcon', () => {
     expect(decorative?.getAttribute('aria-hidden')).toBe('true');
     expect(decorative?.getAttribute('alt')).toBe('');
 
-    const labelled = await setup(AxisType.LOGIC, AXIS_ICON_SIZE.chip, 'Logique');
+    const labelled = await setup(
+      AxisType.LOGIC,
+      AXIS_ICON_SIZE.chip,
+      'Logique',
+    );
     expect(labelled?.getAttribute('aria-hidden')).toBeNull();
     expect(labelled?.getAttribute('alt')).toBe('Logique');
   });

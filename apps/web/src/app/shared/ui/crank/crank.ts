@@ -8,10 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import {
-  crankAngleDelta,
-  crankPointerAngle,
-} from '../../util/gamepad-logic';
+import { crankAngleDelta, crankPointerAngle } from '../../util/gamepad-logic';
 
 const VIEWBOX_SIZE = 160;
 const CENTER = VIEWBOX_SIZE / 2;

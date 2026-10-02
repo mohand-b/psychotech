@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { AxisIcon } from '../../shared/ui/axis-icon/axis-icon';
 import { BadgeArt } from './badge-art';
 import { BadgeConditions } from './badge-conditions';

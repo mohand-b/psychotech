@@ -13,9 +13,9 @@ describe('isQuietForCelebration', () => {
         '/entrainements/examen-blanc/session/abc/axe/MEMORY',
       ),
     ).toBe(false);
-    expect(isQuietForCelebration('/entrainements/examen-blanc/session/abc')).toBe(
-      false,
-    );
+    expect(
+      isQuietForCelebration('/entrainements/examen-blanc/session/abc'),
+    ).toBe(false);
     expect(isQuietForCelebration('/manette/abc')).toBe(false);
   });
 
@@ -25,9 +25,7 @@ describe('isQuietForCelebration', () => {
         '/entrainements/cible/logique/session/abc/resultat',
       ),
     ).toBe(true);
-    expect(
-      isQuietForCelebration('/sessions/abc/bilan'),
-    ).toBe(true);
+    expect(isQuietForCelebration('/sessions/abc/bilan')).toBe(true);
     expect(isQuietForCelebration('/dashboard')).toBe(true);
     expect(isQuietForCelebration('/credits')).toBe(true);
     expect(isQuietForCelebration('/badges')).toBe(true);

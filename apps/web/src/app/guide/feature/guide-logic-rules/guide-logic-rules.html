@@ -12,31 +12,60 @@
 
 <main class="guide flex flex-col">
   <div class="guide__head flex flex-col items-center">
-    <button type="button" class="guide__back hidden md:inline-flex" (click)="back()">
+    <button
+      type="button"
+      class="guide__back hidden md:inline-flex"
+      (click)="back()"
+    >
       <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="2" />
       Retour
     </button>
     <ui-axis-icon [axis]="AxisType.LOGIC" [size]="68" />
-    <h1 class="guide__title guide__title--logic">Logique : toutes les règles</h1>
+    <h1 class="guide__title guide__title--logic">
+      Logique : toutes les règles
+    </h1>
     <p class="guide__lead">
       Le répertoire complet dans lequel chaque session puise. Les valeurs
       changent à chaque tirage, jamais les mécanismes : les reconnaître d'un
       coup d'œil est exactement ce que l'épreuve entraîne. La session : 40
-      questions en quatre blocs de 10, numérique (suites et triangles
-      mélangés), dominos, matrices I, matrices II, chaque bloc allant du plus
-      accessible au plus exigeant.
+      questions en quatre blocs de 10, numérique (suites et triangles mélangés),
+      dominos, matrices I, matrices II, chaque bloc allant du plus accessible au
+      plus exigeant.
     </p>
-    <nav class="guide__anchors justify-center flex flex-wrap" aria-label="Les quatre familles">
-      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.sequences">
-        Suites numériques<span class="guide__anchor-count t-mono">8 règles</span>
+    <nav
+      class="guide__anchors justify-center flex flex-wrap"
+      aria-label="Les quatre familles"
+    >
+      <a
+        class="guide__anchor guide__anchor--family"
+        [routerLink]="[]"
+        [fragment]="anchors.sequences"
+      >
+        Suites numériques<span class="guide__anchor-count t-mono"
+          >8 règles</span
+        >
       </a>
-      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.triangles">
-        Triangles chiffrés<span class="guide__anchor-count t-mono">8 formules</span>
+      <a
+        class="guide__anchor guide__anchor--family"
+        [routerLink]="[]"
+        [fragment]="anchors.triangles"
+      >
+        Triangles chiffrés<span class="guide__anchor-count t-mono"
+          >8 formules</span
+        >
       </a>
-      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.dominos">
+      <a
+        class="guide__anchor guide__anchor--family"
+        [routerLink]="[]"
+        [fragment]="anchors.dominos"
+      >
         Dominos<span class="guide__anchor-count t-mono">4 recettes</span>
       </a>
-      <a class="guide__anchor guide__anchor--family" [routerLink]="[]" [fragment]="anchors.matrices">
+      <a
+        class="guide__anchor guide__anchor--family"
+        [routerLink]="[]"
+        [fragment]="anchors.matrices"
+      >
         Matrices<span class="guide__anchor-count t-mono">4 principes</span>
       </a>
     </nav>
@@ -70,7 +99,9 @@
                       <span class="rules__cell-op t-mono">{{ cell.text }}</span>
                     }
                     @case ('answer') {
-                      <span class="rules__cell rules__cell--answer t-mono">{{ cell.text }}</span>
+                      <span class="rules__cell rules__cell--answer t-mono">{{
+                        cell.text
+                      }}</span>
                     }
                     @default {
                       <span class="rules__cell t-mono">{{ cell.text }}</span>
@@ -106,24 +137,87 @@
     <div class="rules__grid">
       <article class="guide__card guide__card--rule flex flex-col">
         <span class="rules__rule-name">La somme des sommets</span>
-        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : somme">
-          <path class="sv-shape" d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"></path>
-          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">4</text>
-          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">3</text>
-          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">2</text>
-          <text class="sv-center sv-center--lg" x="58" y="54" text-anchor="middle">9</text>
+        <svg
+          class="rules__triangle"
+          viewBox="0 0 116 82"
+          aria-label="Triangle : somme"
+        >
+          <path
+            class="sv-shape"
+            d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"
+          ></path>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="58"
+            y="11"
+            text-anchor="middle"
+          >
+            4
+          </text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">
+            3
+          </text>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="100"
+            y="73"
+            text-anchor="start"
+          >
+            2
+          </text>
+          <text
+            class="sv-center sv-center--lg"
+            x="58"
+            y="54"
+            text-anchor="middle"
+          >
+            9
+          </text>
         </svg>
         <span class="rules__reading t-mono">4 + 3 + 2 = 9</span>
-        <p class="rules__lecture">Le centre = la somme des trois sommets. La formule d'entrée en matière.</p>
+        <p class="rules__lecture">
+          Le centre = la somme des trois sommets. La formule d'entrée en
+          matière.
+        </p>
       </article>
       <article class="guide__card guide__card--rule flex flex-col">
         <span class="rules__rule-name">Les sommes positionnelles</span>
-        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : somme positionnelle">
-          <path class="sv-shape" d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"></path>
-          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">5</text>
-          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">4</text>
-          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">3</text>
-          <text class="sv-center sv-center--lg" x="58" y="54" text-anchor="middle">6</text>
+        <svg
+          class="rules__triangle"
+          viewBox="0 0 116 82"
+          aria-label="Triangle : somme positionnelle"
+        >
+          <path
+            class="sv-shape"
+            d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"
+          ></path>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="58"
+            y="11"
+            text-anchor="middle"
+          >
+            5
+          </text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">
+            4
+          </text>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="100"
+            y="73"
+            text-anchor="start"
+          >
+            3
+          </text>
+          <text
+            class="sv-center sv-center--lg"
+            x="58"
+            y="54"
+            text-anchor="middle"
+          >
+            6
+          </text>
         </svg>
         <span class="rules__reading t-mono">5 + 4 − 3 = 6</span>
         <p class="rules__lecture">
@@ -134,12 +228,42 @@
       </article>
       <article class="guide__card guide__card--rule flex flex-col">
         <span class="rules__rule-name">Les produits</span>
-        <svg class="rules__triangle" viewBox="0 0 116 82" aria-label="Triangle : produit">
-          <path class="sv-shape" d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"></path>
-          <text class="sv-vertex sv-vertex--lg" x="58" y="11" text-anchor="middle">3</text>
-          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">4</text>
-          <text class="sv-vertex sv-vertex--lg" x="100" y="73" text-anchor="start">2</text>
-          <text class="sv-center sv-center--lg" x="58" y="54" text-anchor="middle">10</text>
+        <svg
+          class="rules__triangle"
+          viewBox="0 0 116 82"
+          aria-label="Triangle : produit"
+        >
+          <path
+            class="sv-shape"
+            d="M54.6 21 L27.4 61 Q24 66 30 66 L86 66 Q92 66 88.6 61 L61.4 21 Q58 16 54.6 21 Z"
+          ></path>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="58"
+            y="11"
+            text-anchor="middle"
+          >
+            3
+          </text>
+          <text class="sv-vertex sv-vertex--lg" x="16" y="73" text-anchor="end">
+            4
+          </text>
+          <text
+            class="sv-vertex sv-vertex--lg"
+            x="100"
+            y="73"
+            text-anchor="start"
+          >
+            2
+          </text>
+          <text
+            class="sv-center sv-center--lg"
+            x="58"
+            y="54"
+            text-anchor="middle"
+          >
+            10
+          </text>
         </svg>
         <span class="rules__reading t-mono">3 × 4 − 2 = 10</span>
         <p class="rules__lecture">
@@ -169,13 +293,20 @@
           <span class="rules__rule-name">{{ card.name }}</span>
           <span class="rules__dominoes flex flex-wrap items-center">
             @for (tile of card.tiles; track $index) {
-              <span class="rules__domino flex flex-col" [class.rules__domino--answer]="tile.answer">
+              <span
+                class="rules__domino flex flex-col"
+                [class.rules__domino--answer]="tile.answer"
+              >
                 <span class="rules__domino-half">
                   @if (tile.answer) {
                     <span class="rules__domino-q t-mono">?</span>
                   }
                   @for (pip of tile.topPips; track $index) {
-                    <span class="rules__pip" [style.left]="pip.left" [style.top]="pip.top"></span>
+                    <span
+                      class="rules__pip"
+                      [style.left]="pip.left"
+                      [style.top]="pip.top"
+                    ></span>
                   }
                 </span>
                 <span class="rules__domino-mid"></span>
@@ -184,7 +315,11 @@
                     <span class="rules__domino-q t-mono">?</span>
                   }
                   @for (pip of tile.bottomPips; track $index) {
-                    <span class="rules__pip" [style.left]="pip.left" [style.top]="pip.top"></span>
+                    <span
+                      class="rules__pip"
+                      [style.left]="pip.left"
+                      [style.top]="pip.top"
+                    ></span>
                   }
                 </span>
               </span>
@@ -196,7 +331,9 @@
               @for (face of card.faceRules; track face.label) {
                 <span class="rules__face flex flex-wrap items-baseline">
                   <span class="rules__face-label">{{ face.label }}</span>
-                  <span class="rules__face-example t-mono">{{ face.example }}</span>
+                  <span class="rules__face-example t-mono">{{
+                    face.example
+                  }}</span>
                 </span>
               }
             </span>
@@ -204,7 +341,11 @@
           @if (card.loop) {
             <span class="rules__loop flex flex-wrap items-center">
               @for (chip of card.loop; track $index) {
-                <span class="rules__loop-chip t-mono" [class.rules__loop-chip--on]="chip.highlighted">{{ chip.text }}</span>
+                <span
+                  class="rules__loop-chip t-mono"
+                  [class.rules__loop-chip--on]="chip.highlighted"
+                  >{{ chip.text }}</span
+                >
               }
             </span>
           }
@@ -229,21 +370,104 @@
     </div>
     <div class="rules__grid">
       <article class="guide__card guide__card--matrix flex items-center">
-        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : addition">
-          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+        <svg
+          class="rules__matrix"
+          viewBox="0 0 136 136"
+          aria-label="Matrice : addition"
+        >
+          <rect
+            class="sv-tile"
+            x="2"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile sv-tile--answer"
+            x="94"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+            stroke-dasharray="4 3"
+          ></rect>
           <g class="sv-stroke">
             <path d="M13 31 31 13"></path>
             <path d="M59 13l18 18"></path>
-            <path d="M105 31l18-18"></path><path d="M105 13l18 18"></path>
+            <path d="M105 31l18-18"></path>
+            <path d="M105 13l18 18"></path>
             <path d="M12 68h20"></path>
             <path d="M68 58v20"></path>
-            <path d="M104 68h20"></path><path d="M114 58v20"></path>
+            <path d="M104 68h20"></path>
+            <path d="M114 58v20"></path>
             <path d="M13 123l18-18"></path>
             <path d="M68 104v20"></path>
           </g>
-          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+          <text
+            class="sv-center sv-center--answer sv-center--lg"
+            x="114"
+            y="119"
+            text-anchor="middle"
+          >
+            ?
+          </text>
         </svg>
         <span class="rules__matrix-copy flex flex-col">
           <span class="rules__rule-name">Addition</span>
@@ -256,21 +480,105 @@
       </article>
 
       <article class="guide__card guide__card--matrix flex items-center">
-        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : soustraction">
-          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+        <svg
+          class="rules__matrix"
+          viewBox="0 0 136 136"
+          aria-label="Matrice : soustraction"
+        >
+          <rect
+            class="sv-tile"
+            x="2"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile sv-tile--answer"
+            x="94"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+            stroke-dasharray="4 3"
+          ></rect>
           <g class="sv-stroke">
-            <path d="M13 31 31 13"></path><path d="M12 22h20"></path>
+            <path d="M13 31 31 13"></path>
+            <path d="M12 22h20"></path>
             <path d="M58 22h20"></path>
             <path d="M105 31l18-18"></path>
-            <path d="M22 58v20"></path><path d="M13 59l18 18"></path>
+            <path d="M22 58v20"></path>
+            <path d="M13 59l18 18"></path>
             <path d="M59 59l18 18"></path>
             <path d="M114 58v20"></path>
-            <path d="M13 123l18-18"></path><path d="M13 105l18 18"></path>
+            <path d="M13 123l18-18"></path>
+            <path d="M13 105l18 18"></path>
             <path d="M59 123l18-18"></path>
           </g>
-          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+          <text
+            class="sv-center sv-center--answer sv-center--lg"
+            x="114"
+            y="119"
+            text-anchor="middle"
+          >
+            ?
+          </text>
         </svg>
         <span class="rules__matrix-copy flex flex-col">
           <span class="rules__rule-name">Soustraction</span>
@@ -284,21 +592,120 @@
       </article>
 
       <article class="guide__card guide__card--matrix flex items-center">
-        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : croisées">
-          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+        <svg
+          class="rules__matrix"
+          viewBox="0 0 136 136"
+          aria-label="Matrice : croisées"
+        >
+          <rect
+            class="sv-tile"
+            x="2"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile sv-tile--answer"
+            x="94"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+            stroke-dasharray="4 3"
+          ></rect>
           <g class="sv-cross">
             <circle class="sv-fill-none" cx="22" cy="22" r="11"></circle>
             <circle class="sv-fill-mid" cx="68" cy="22" r="11"></circle>
             <circle class="sv-fill-full" cx="114" cy="22" r="11"></circle>
-            <rect class="sv-fill-none" x="12" y="58" width="20" height="20"></rect>
-            <rect class="sv-fill-mid" x="58" y="58" width="20" height="20"></rect>
-            <rect class="sv-fill-full" x="104" y="58" width="20" height="20"></rect>
+            <rect
+              class="sv-fill-none"
+              x="12"
+              y="58"
+              width="20"
+              height="20"
+            ></rect>
+            <rect
+              class="sv-fill-mid"
+              x="58"
+              y="58"
+              width="20"
+              height="20"
+            ></rect>
+            <rect
+              class="sv-fill-full"
+              x="104"
+              y="58"
+              width="20"
+              height="20"
+            ></rect>
             <path class="sv-fill-none" d="M22 103l10.5 18h-21z"></path>
             <path class="sv-fill-mid" d="M68 103l10.5 18h-21z"></path>
           </g>
-          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+          <text
+            class="sv-center sv-center--answer sv-center--lg"
+            x="114"
+            y="119"
+            text-anchor="middle"
+          >
+            ?
+          </text>
         </svg>
         <span class="rules__matrix-copy flex flex-col">
           <span class="rules__rule-name">Croisées</span>
@@ -314,10 +721,84 @@
       </article>
 
       <article class="guide__card guide__card--matrix flex items-center">
-        <svg class="rules__matrix" viewBox="0 0 136 136" aria-label="Matrice : distribution">
-          <rect class="sv-tile" x="2" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="2" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="2" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="48" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="94" y="48" width="40" height="40" rx="7"></rect>
-          <rect class="sv-tile" x="2" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile" x="48" y="94" width="40" height="40" rx="7"></rect><rect class="sv-tile sv-tile--answer" x="94" y="94" width="40" height="40" rx="7" stroke-dasharray="4 3"></rect>
+        <svg
+          class="rules__matrix"
+          viewBox="0 0 136 136"
+          aria-label="Matrice : distribution"
+        >
+          <rect
+            class="sv-tile"
+            x="2"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="2"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="94"
+            y="48"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="2"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile"
+            x="48"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+          ></rect>
+          <rect
+            class="sv-tile sv-tile--answer"
+            x="94"
+            y="94"
+            width="40"
+            height="40"
+            rx="7"
+            stroke-dasharray="4 3"
+          ></rect>
           <g class="sv-outline">
             <circle cx="22" cy="22" r="11"></circle>
             <rect x="58" y="12" width="20" height="20"></rect>
@@ -328,7 +809,14 @@
             <path d="M22 103l10.5 18h-21z"></path>
             <circle cx="68" cy="114" r="11"></circle>
           </g>
-          <text class="sv-center sv-center--answer sv-center--lg" x="114" y="119" text-anchor="middle">?</text>
+          <text
+            class="sv-center sv-center--answer sv-center--lg"
+            x="114"
+            y="119"
+            text-anchor="middle"
+          >
+            ?
+          </text>
         </svg>
         <span class="rules__matrix-copy flex flex-col">
           <span class="rules__rule-name">Distribution</span>
@@ -344,7 +832,9 @@
         </span>
       </article>
 
-      <article class="guide__card guide__card--trap flex flex-col justify-center">
+      <article
+        class="guide__card guide__card--trap flex flex-col justify-center"
+      >
         <span class="rules__rule-name">Le piège des propositions</span>
         <p class="rules__lecture">
           Les mauvaises réponses sont conçues pour ressembler à la bonne à un
@@ -372,9 +862,16 @@
       Le mode découverte de la Logique est gratuit et illustre chaque famille.
     </p>
     <span class="rules__footer-links flex items-center justify-center">
-      <a class="rules__footer-link" [routerLink]="discoveryLink">Essayer le mode découverte</a>
+      <a class="rules__footer-link" [routerLink]="discoveryLink"
+        >Essayer le mode découverte</a
+      >
       <span class="rules__footer-dot">·</span>
-      <a class="rules__footer-link" [routerLink]="hubPath" [fragment]="hubLogicAnchor">Revenir au guide des épreuves</a>
+      <a
+        class="rules__footer-link"
+        [routerLink]="hubPath"
+        [fragment]="hubLogicAnchor"
+        >Revenir au guide des épreuves</a
+      >
     </span>
   </aside>
 </main>

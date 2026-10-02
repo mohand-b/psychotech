@@ -1,39 +1,39 @@
 <div class="mx">
   <div class="mx__stage">
     <div class="mx__panel">
-    <ng-content />
-    <div class="mx__hero">
-    <span class="mx__anchor">
-      <div class="mx__grid">
-        @for (cell of visibleCells(); track $index) {
-          <span class="mx__cell">
-            <ui-matrix-cell class="mx__figure" [cell]="cell" [size]="72" />
-            <ui-matrix-cell
-              class="mx__figure--compact"
-              [cell]="cell"
-              [size]="62"
+      <ng-content />
+      <div class="mx__hero">
+        <span class="mx__anchor">
+          <div class="mx__grid">
+            @for (cell of visibleCells(); track $index) {
+              <span class="mx__cell">
+                <ui-matrix-cell class="mx__figure" [cell]="cell" [size]="72" />
+                <ui-matrix-cell
+                  class="mx__figure--compact"
+                  [cell]="cell"
+                  [size]="62"
+                />
+              </span>
+            }
+            <span class="mx__cell mx__cell--missing">
+              <span class="mx__slot">
+                <span class="mx__question t-mono" aria-label="Case à trouver"
+                  >?</span
+                >
+              </span>
+            </span>
+          </div>
+          @if (hint(); as hintText) {
+            <ui-rule-hint
+              class="mx__hint"
+              #ruleHint
+              [hint]="hintText"
+              [used]="hintUsed()"
+              (opened)="hintOpened.emit()"
             />
-          </span>
-        }
-        <span class="mx__cell mx__cell--missing">
-          <span class="mx__slot">
-            <span class="mx__question t-mono" aria-label="Case à trouver"
-              >?</span
-            >
-          </span>
+          }
         </span>
       </div>
-      @if (hint(); as hintText) {
-        <ui-rule-hint
-          class="mx__hint"
-          #ruleHint
-          [hint]="hintText"
-          [used]="hintUsed()"
-          (opened)="hintOpened.emit()"
-        />
-      }
-    </span>
-    </div>
     </div>
   </div>
 

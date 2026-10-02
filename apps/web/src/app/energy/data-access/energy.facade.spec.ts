@@ -20,9 +20,7 @@ describe('EnergyFacade — synchronisation avec la session utilisateur', () => {
 
   function setup(initialUserId: string | null): EnergyFacade {
     currentUser = signal<UserProfileDto | null>(
-      initialUserId === null
-        ? null
-        : ({ id: initialUserId } as UserProfileDto),
+      initialUserId === null ? null : ({ id: initialUserId } as UserProfileDto),
     );
     stateApi = vi.fn(() => of(energyState(5)));
     TestBed.configureTestingModule({

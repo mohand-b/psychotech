@@ -13,8 +13,7 @@
         Scannez le code avec votre téléphone : il devient vos deux manivelles.
       </p>
       <p class="pairing__note">
-        L'épreuve se joue uniquement aux manivelles, comme la sélection
-        réelle.
+        L'épreuve se joue uniquement aux manivelles, comme la sélection réelle.
       </p>
     </div>
     <div class="pairing__aside">
@@ -46,45 +45,45 @@
     </div>
   </div>
 } @else {
-<div class="pairing">
-  @if (connected()) {
-    <div class="pairing__status">
-      <span class="pairing__dot pairing__dot--connected"></span>
-      <span class="pairing__status-label">Manette connectée</span>
-      @if (latency(); as stats) {
-        <span
-          class="pairing__latency t-mono"
-          [class.pairing__latency--good]="latencyGood()"
-          [class.pairing__latency--warn]="!latencyGood()"
-          >{{ latencyLabel(stats) }}</span
-        >
-      }
-    </div>
-    @if (latency() && !latencyGood()) {
-      <p class="pairing__warning">
-        Connexion instable - connectez le téléphone au même Wi-Fi que
-        l'ordinateur.
-      </p>
-    }
-  } @else {
-    <div class="pairing__title">Manette téléphone</div>
-    <canvas #qrCanvas class="pairing__qr"></canvas>
-    @if (pairing(); as pairingValue) {
-      <p class="pairing__hint">
-        Scannez le code avec votre téléphone : il devient vos deux manivelles.
-        Code manuel
-        <strong class="t-mono">{{ formattedCode(pairingValue.code) }}</strong>
-        sur la page /manette.
-      </p>
-      <p class="pairing__note">
-        L'épreuve se joue uniquement aux manivelles, comme la sélection
-        réelle.
-      </p>
+  <div class="pairing">
+    @if (connected()) {
       <div class="pairing__status">
-        <span class="pairing__dot pairing__dot--waiting"></span>
-        <span class="pairing__status-label">En attente de connexion</span>
+        <span class="pairing__dot pairing__dot--connected"></span>
+        <span class="pairing__status-label">Manette connectée</span>
+        @if (latency(); as stats) {
+          <span
+            class="pairing__latency t-mono"
+            [class.pairing__latency--good]="latencyGood()"
+            [class.pairing__latency--warn]="!latencyGood()"
+            >{{ latencyLabel(stats) }}</span
+          >
+        }
       </div>
+      @if (latency() && !latencyGood()) {
+        <p class="pairing__warning">
+          Connexion instable - connectez le téléphone au même Wi-Fi que
+          l'ordinateur.
+        </p>
+      }
+    } @else {
+      <div class="pairing__title">Manette téléphone</div>
+      <canvas #qrCanvas class="pairing__qr"></canvas>
+      @if (pairing(); as pairingValue) {
+        <p class="pairing__hint">
+          Scannez le code avec votre téléphone : il devient vos deux manivelles.
+          Code manuel
+          <strong class="t-mono">{{ formattedCode(pairingValue.code) }}</strong>
+          sur la page /manette.
+        </p>
+        <p class="pairing__note">
+          L'épreuve se joue uniquement aux manivelles, comme la sélection
+          réelle.
+        </p>
+        <div class="pairing__status">
+          <span class="pairing__dot pairing__dot--waiting"></span>
+          <span class="pairing__status-label">En attente de connexion</span>
+        </div>
+      }
     }
-  }
-</div>
+  </div>
 }

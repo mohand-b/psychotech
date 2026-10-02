@@ -310,8 +310,18 @@ describe('LogicResult (contenu v2)', () => {
 
 describe('LogicResult - badges débloqués', () => {
   const newBadges = [
-    { badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] },
-    { badgeId: BadgeId.FIRST_STEPS, earnedAt: '2026-08-07T10:00:00.000Z', gain: 5, conditions: [] },
+    {
+      badgeId: BadgeId.LOGIC_PROGRESSION,
+      earnedAt: '2026-08-07T10:00:00.000Z',
+      gain: null,
+      conditions: [],
+    },
+    {
+      badgeId: BadgeId.FIRST_STEPS,
+      earnedAt: '2026-08-07T10:00:00.000Z',
+      gain: 5,
+      conditions: [],
+    },
   ];
 
   it('announces the earned badges with the coin and the total gain', async () => {
@@ -331,7 +341,14 @@ describe('LogicResult - badges débloqués', () => {
   it('announces a single gainless badge with its family and tier', async () => {
     const { fixture } = await setupWithBadges(
       buildResult({
-        earnedBadges: [{ badgeId: BadgeId.LOGIC_PROGRESSION, earnedAt: '2026-08-07T10:00:00.000Z', gain: null, conditions: [] }],
+        earnedBadges: [
+          {
+            badgeId: BadgeId.LOGIC_PROGRESSION,
+            earnedAt: '2026-08-07T10:00:00.000Z',
+            gain: null,
+            conditions: [],
+          },
+        ],
       }),
     );
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
@@ -345,5 +362,4 @@ describe('LogicResult - badges débloqués', () => {
     });
     expect(fixture.nativeElement.querySelector('ui-badge-announce')).toBeNull();
   });
-
 });

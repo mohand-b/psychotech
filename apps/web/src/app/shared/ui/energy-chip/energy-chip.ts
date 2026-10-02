@@ -72,8 +72,6 @@ export class EnergyChip {
   protected readonly depleted = computed(() => this.balance() === 0);
   protected readonly short = computed(() => {
     const cost = this.requiredCost();
-    return (
-      cost !== null && this.state() !== null && this.balance() < cost
-    );
+    return cost !== null && this.state() !== null && this.balance() < cost;
   });
 }

@@ -193,8 +193,7 @@
     display: none;
   }
 
-  .focused-header__inner:has(.focused-header__steps)
-    .focused-header__timer {
+  .focused-header__inner:has(.focused-header__steps) .focused-header__timer {
     display: none;
   }
 

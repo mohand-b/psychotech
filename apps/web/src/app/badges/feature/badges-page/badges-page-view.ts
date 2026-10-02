@@ -152,9 +152,7 @@ function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
         ? null
         : (entry.conditions[0]?.label ?? null),
     conditions: multipleConditions ? entry.conditions : null,
-    conditionsIntro: multipleConditions
-      ? conditionsIntroFor(entry)
-      : null,
+    conditionsIntro: multipleConditions ? conditionsIntroFor(entry) : null,
   };
 }
 
@@ -199,9 +197,7 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
         ? (entry.conditions[0]?.label ?? null)
         : null,
     conditions: multipleConditions ? entry.conditions : null,
-    conditionsIntro: multipleConditions
-      ? conditionsIntroFor(entry)
-      : null,
+    conditionsIntro: multipleConditions ? conditionsIntroFor(entry) : null,
     rarityLabel: entry.rarityLabel,
   };
 }
@@ -375,7 +371,9 @@ export function buildBadgeBoard(
   sector: Sector,
   outlook: BadgeOutlook = EMPTY_BADGE_OUTLOOK,
 ): BadgeBoardView {
-  const statusById = new Map(statuses.map((status) => [status.badgeId, status]));
+  const statusById = new Map(
+    statuses.map((status) => [status.badgeId, status]),
+  );
   const entries = BADGE_CATALOG.map((definition) =>
     buildEntry(definition, statusById.get(definition.id) ?? null, sector),
   );

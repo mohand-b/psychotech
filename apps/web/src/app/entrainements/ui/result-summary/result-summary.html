@@ -20,14 +20,18 @@
   <div class="summary__score">
     <span class="summary__score-value t-mono">{{ displayedScore() }}</span>
     <span class="summary__score-max t-mono">/100</span>
-    @if (recordVisible()) { @if (delta(); as d) { @if (d !== 0) {
-    <span
-      class="summary__delta t-mono"
-      [class.summary__delta--up]="d > 0"
-      [class.summary__delta--down]="d < 0"
-      >{{ d > 0 ? '+' + d : d }}</span
-    >
-    } } }
+    @if (recordVisible()) {
+      @if (delta(); as d) {
+        @if (d !== 0) {
+          <span
+            class="summary__delta t-mono"
+            [class.summary__delta--up]="d > 0"
+            [class.summary__delta--down]="d < 0"
+            >{{ d > 0 ? '+' + d : d }}</span
+          >
+        }
+      }
+    }
   </div>
   <ui-stamp-badge
     class="summary__stamp"
@@ -36,42 +40,43 @@
     [axisStamp]="stamp()"
   />
   @if (recordVisible()) {
-  <p class="summary__best">
-    Meilleur score sur cet axe :
-    <strong class="t-mono">{{ bestScore() }}</strong>{{ bestSuffix() }}
-  </p>
+    <p class="summary__best">
+      Meilleur score sur cet axe :
+      <strong class="t-mono">{{ bestScore() }}</strong
+      >{{ bestSuffix() }}
+    </p>
   }
   @if (threshold(); as t) {
-  <div class="summary__bar-block">
-    <ui-threshold-bar
-      [settled]="settlePulse()"
-      [value]="revealedScore()"
-      [threshold]="t.value"
-      [style.--threshold-bar-fill-from]="fillFrom()"
-      [style.--threshold-bar-fill-to]="fillTo()"
-    />
-    <div class="summary__bar-captions">
-      <span class="summary__bar-threshold">
-        <span class="summary__bar-threshold-label--desktop"
-          >{{ t.desktopLabel }}&nbsp;:&nbsp;</span
-        >
-        <span class="summary__bar-threshold-label--mobile"
-          >{{ t.mobileLabel }}&nbsp;:&nbsp;</span
-        >
-        <span class="summary__bar-threshold-value t-mono">{{ t.value }}</span>
-      </span>
-      @if (gap(); as g) {
-      <span
-        class="summary__gap t-mono"
-        [class.summary__gap--above]="g.above"
-        [class.summary__gap--below]="!g.above"
-        >{{ g.label }}</span
-      >
+    <div class="summary__bar-block">
+      <ui-threshold-bar
+        [settled]="settlePulse()"
+        [value]="revealedScore()"
+        [threshold]="t.value"
+        [style.--threshold-bar-fill-from]="fillFrom()"
+        [style.--threshold-bar-fill-to]="fillTo()"
+      />
+      <div class="summary__bar-captions">
+        <span class="summary__bar-threshold">
+          <span class="summary__bar-threshold-label--desktop"
+            >{{ t.desktopLabel }}&nbsp;:&nbsp;</span
+          >
+          <span class="summary__bar-threshold-label--mobile"
+            >{{ t.mobileLabel }}&nbsp;:&nbsp;</span
+          >
+          <span class="summary__bar-threshold-value t-mono">{{ t.value }}</span>
+        </span>
+        @if (gap(); as g) {
+          <span
+            class="summary__gap t-mono"
+            [class.summary__gap--above]="g.above"
+            [class.summary__gap--below]="!g.above"
+            >{{ g.label }}</span
+          >
+        }
+      </div>
+      @if (isUnderEliminatory()) {
+        <p class="summary__eliminatory-note">{{ eliminatoryNote }}</p>
       }
     </div>
-    @if (isUnderEliminatory()) {
-    <p class="summary__eliminatory-note">{{ eliminatoryNote }}</p>
-    }
-  </div>
   }
 </article>

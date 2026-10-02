@@ -2,8 +2,11 @@
   <div class="form__head">
     <h2 class="form__title">{{ presentation().title }}</h2>
     <p class="form__subtitle">
-      {{ mobile() ? presentation().subtitle.mobile :
-      presentation().subtitle.desktop }}
+      {{
+        mobile()
+          ? presentation().subtitle.mobile
+          : presentation().subtitle.desktop
+      }}
     </p>
   </div>
 
@@ -24,39 +27,45 @@
       />
     </label>
 
-    @switch (motif()) { @case ('question') {
-    <label class="field form__secondary">
-      <span class="field__label">Sujet</span>
-      <input
-        class="field__control"
-        type="text"
-        placeholder="En quelques mots"
-        [formField]="contactForm.subject"
-      />
-    </label>
-    } @case ('suggestion') {
-    <div class="field form__secondary">
-      <span class="field__label" id="contact-area-label">Partie concernée</span>
-      <ui-select
-        class="field__select"
-        labelledBy="contact-area-label"
-        [options]="areaOptions"
-        [placeholder]="areaPlaceholder"
-        [formField]="contactForm.area"
-      />
-    </div>
-    } @case ('probleme') {
-    <div class="field form__secondary">
-      <span class="field__label" id="contact-location-label">Où ?</span>
-      <ui-select
-        class="field__select"
-        labelledBy="contact-location-label"
-        [options]="locationOptions()"
-        [placeholder]="locationPlaceholder"
-        [formField]="contactForm.location"
-      />
-    </div>
-    } }
+    @switch (motif()) {
+      @case ('question') {
+        <label class="field form__secondary">
+          <span class="field__label">Sujet</span>
+          <input
+            class="field__control"
+            type="text"
+            placeholder="En quelques mots"
+            [formField]="contactForm.subject"
+          />
+        </label>
+      }
+      @case ('suggestion') {
+        <div class="field form__secondary">
+          <span class="field__label" id="contact-area-label"
+            >Partie concernée</span
+          >
+          <ui-select
+            class="field__select"
+            labelledBy="contact-area-label"
+            [options]="areaOptions"
+            [placeholder]="areaPlaceholder"
+            [formField]="contactForm.area"
+          />
+        </div>
+      }
+      @case ('probleme') {
+        <div class="field form__secondary">
+          <span class="field__label" id="contact-location-label">Où ?</span>
+          <ui-select
+            class="field__select"
+            labelledBy="contact-location-label"
+            [options]="locationOptions()"
+            [placeholder]="locationPlaceholder"
+            [formField]="contactForm.location"
+          />
+        </div>
+      }
+    }
   </div>
 
   <label class="field form__message">
@@ -91,81 +100,84 @@
   </label>
 
   @if (motif() === 'probleme') {
-  <div class="form__attachments">
-    @if (attachableSession(); as session) {
-    <label class="attach form__session">
-      <input
-        class="attach__check"
-        type="checkbox"
-        [formField]="contactForm.attachSession"
-      />
-      <span class="attach__texts">
-        <span class="attach__title">Joindre ma dernière session</span>
-        <span class="attach__detail"
-          >{{ session.label }}<span class="form__mobile-only">
-            · <span class="t-mono">{{ session.reference }}</span></span
-          ></span
+    <div class="form__attachments">
+      @if (attachableSession(); as session) {
+        <label class="attach form__session">
+          <input
+            class="attach__check"
+            type="checkbox"
+            [formField]="contactForm.attachSession"
+          />
+          <span class="attach__texts">
+            <span class="attach__title">Joindre ma dernière session</span>
+            <span class="attach__detail"
+              >{{ session.label
+              }}<span class="form__mobile-only">
+                · <span class="t-mono">{{ session.reference }}</span></span
+              ></span
+            >
+          </span>
+          <span class="attach__reference t-mono form__desktop-only">{{
+            session.reference
+          }}</span>
+        </label>
+      }
+      <label class="attach form__context">
+        <input
+          class="attach__check"
+          type="checkbox"
+          [formField]="contactForm.attachContext"
+        />
+        <span class="attach__texts">
+          <span class="attach__title">Joindre les informations techniques</span>
+          <span class="attach__detail">{{ contextDetail }}</span>
+        </span>
+      </label>
+      @if (screenshot(); as attached) {
+        <button
+          type="button"
+          class="capture capture--on form__capture"
+          (click)="removeScreenshot()"
         >
-      </span>
-      <span class="attach__reference t-mono form__desktop-only"
-        >{{ session.reference }}</span
-      >
-    </label>
-    }
-    <label class="attach form__context">
-      <input
-        class="attach__check"
-        type="checkbox"
-        [formField]="contactForm.attachContext"
-      />
-      <span class="attach__texts">
-        <span class="attach__title">Joindre les informations techniques</span>
-        <span class="attach__detail">{{ contextDetail }}</span>
-      </span>
-    </label>
-    @if (screenshot(); as attached) {
-    <button
-      type="button"
-      class="capture capture--on form__capture"
-      (click)="removeScreenshot()"
+          <ui-icon [img]="imageIcon" [size]="16" />
+          <span class="capture__label">{{ attached.fileName }}</span>
+          <span class="capture__hint">Retirer</span>
+        </button>
+      } @else {
+        <label class="capture form__capture">
+          <ui-icon [img]="imageIcon" [size]="16" />
+          <span class="capture__label">
+            <span class="form__desktop-only">Joindre une capture d'écran</span>
+            <span class="form__mobile-only"
+              >Joindre une capture d'écran (facultatif)</span
+            >
+          </span>
+          <span class="capture__hint form__desktop-only">Facultatif</span>
+          <input
+            class="capture__input"
+            type="file"
+            [accept]="screenshotAccept"
+            (change)="onScreenshotPicked($event)"
+          />
+        </label>
+      }
+      @if (screenshotRejected()) {
+        <p class="form__notice form__notice--error" role="alert">
+          Cette image n'a pas pu être jointe. Essayez avec une capture au format
+          PNG ou JPEG.
+        </p>
+      }
+    </div>
+  }
+  @if (sendFailure(); as failure) {
+    <p
+      #sendNotice
+      class="form__notice"
+      [class.form__notice--error]="failure.blocking"
+      role="alert"
     >
-      <ui-icon [img]="imageIcon" [size]="16" />
-      <span class="capture__label">{{ attached.fileName }}</span>
-      <span class="capture__hint">Retirer</span>
-    </button>
-    } @else {
-    <label class="capture form__capture">
-      <ui-icon [img]="imageIcon" [size]="16" />
-      <span class="capture__label">
-        <span class="form__desktop-only">Joindre une capture d'écran</span>
-        <span class="form__mobile-only"
-          >Joindre une capture d'écran (facultatif)</span
-        >
-      </span>
-      <span class="capture__hint form__desktop-only">Facultatif</span>
-      <input
-        class="capture__input"
-        type="file"
-        [accept]="screenshotAccept"
-        (change)="onScreenshotPicked($event)"
-      />
-    </label>
-    } @if (screenshotRejected()) {
-    <p class="form__notice form__notice--error" role="alert">
-      Cette image n'a pas pu être jointe. Essayez avec une capture au format PNG
-      ou JPEG.
+      {{ failure.text }}
     </p>
-    }
-  </div>
-  } @if (sendFailure(); as failure) {
-  <p
-    #sendNotice
-    class="form__notice"
-    [class.form__notice--error]="failure.blocking"
-    role="alert"
-  >
-    {{ failure.text }}
-  </p>
   }
 
   <div class="form__send">

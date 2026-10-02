@@ -69,7 +69,11 @@ function base(score: number, band: ScoreBand, context: DetailContext) {
 }
 
 function logicAnswers(): LogicItemAnswerDto[] {
-  const items = generateLogicSession(EXAMPLE_SEED, null, SESSION_CONTENT_VERSION);
+  const items = generateLogicSession(
+    EXAMPLE_SEED,
+    null,
+    SESSION_CONTENT_VERSION,
+  );
   const rng = createSeededRng(`${EXAMPLE_SEED}:logic`);
   return items.map((item, index) => {
     const unreached = index >= items.length - 4;
@@ -94,7 +98,9 @@ function logicAnswers(): LogicItemAnswerDto[] {
       return {
         ...shared,
         answerIndex: null,
-        dominoTop: correct ? answer.top : (((answer.top + 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6),
+        dominoTop: correct
+          ? answer.top
+          : (((answer.top + 1) % 7) as 0 | 1 | 2 | 3 | 4 | 5 | 6),
         dominoBottom: answer.bottom,
       };
     }
@@ -186,7 +192,11 @@ function motricityTimeline(shapes: CourseShape[]): MotricityCourseTimeline[] {
   return shapes.map((shape) => {
     const rng = createSeededRng(`${EXAMPLE_SEED}:motricity:${shape.index}`);
     const points: MotricityTimelinePoint[] = [];
-    for (let tMs = 0; tMs <= shape.durationMs; tMs += MOTRICITY_SAMPLE_STEP_MS) {
+    for (
+      let tMs = 0;
+      tMs <= shape.durationMs;
+      tMs += MOTRICITY_SAMPLE_STEP_MS
+    ) {
       const progress = tMs / shape.durationMs;
       const spike = shape.events.reduce((peak, at) => {
         const distance = Math.abs(tMs - at);
@@ -250,9 +260,21 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
   ],
   timeline: motricityTimeline(MOTRICITY_COURSE_SHAPES),
   events: [
-    { courseIndex: 1, tMs: 41_200, type: 'EXIT', segment: 'DIAG', durationMs: 620 },
+    {
+      courseIndex: 1,
+      tMs: 41_200,
+      type: 'EXIT',
+      segment: 'DIAG',
+      durationMs: 620,
+    },
     { courseIndex: 2, tMs: 33_800, type: 'CONTACT', segment: 'DIAG' },
-    { courseIndex: 2, tMs: 58_400, type: 'EXIT', segment: 'DIAG', durationMs: 540 },
+    {
+      courseIndex: 2,
+      tMs: 58_400,
+      type: 'EXIT',
+      segment: 'DIAG',
+      durationMs: 540,
+    },
   ],
 };
 
@@ -262,7 +284,8 @@ function motricityScore(): number {
   );
   const weightedSum = scores.reduce(
     (sum, score, index) =>
-      sum + score * (index === scores.length - 1 ? MOTRICITY_FINAL_COURSE_WEIGHT : 1),
+      sum +
+      score * (index === scores.length - 1 ? MOTRICITY_FINAL_COURSE_WEIGHT : 1),
     0,
   );
   const totalWeight = scores.length - 1 + MOTRICITY_FINAL_COURSE_WEIGHT;

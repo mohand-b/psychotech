@@ -186,7 +186,9 @@ describe('BadgesPage', () => {
     expect(closest.textContent).toContain('Premiers pas');
     expect(closest.textContent).toContain('Un tutoriel terminé');
     expect(closest.textContent).toContain('+2');
-    expect(closest.querySelector('.badges__closest-gain ui-axis-icon')).not.toBeNull();
+    expect(
+      closest.querySelector('.badges__closest-gain ui-axis-icon'),
+    ).not.toBeNull();
   });
 
   it('picks the smallest real score gap from the trainings overview', async () => {

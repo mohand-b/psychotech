@@ -144,20 +144,30 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Pas constant',
-        cells: sequenceRow([3, 7, 11, 15, 19, 23], ['+4', '+4', '+4', '+4', '+4']),
+        cells: sequenceRow(
+          [3, 7, 11, 15, 19, 23],
+          ['+4', '+4', '+4', '+4', '+4'],
+        ),
         lecture: 'La suite avance ou recule toujours du même pas, de 2 à 9.',
         note: null,
       },
       {
         name: 'Doublement ou triplement',
-        cells: sequenceRow([2, 6, 18, 54, 162, 486], ['×3', '×3', '×3', '×3', '×3']),
+        cells: sequenceRow(
+          [2, 6, 18, 54, 162, 486],
+          ['×3', '×3', '×3', '×3', '×3'],
+        ),
         lecture: 'Chaque terme est multiplié par 2 ou par 3.',
         note: null,
       },
       {
         name: 'Multiplication rapide ou moitiés',
-        cells: sequenceRow([96, 48, 24, 12, 6, 3], ['÷2', '÷2', '÷2', '÷2', '÷2']),
-        lecture: 'La suite est multipliée par 4 ou 5, ou divisée par 2 comme ici.',
+        cells: sequenceRow(
+          [96, 48, 24, 12, 6, 3],
+          ['÷2', '÷2', '÷2', '÷2', '÷2'],
+        ),
+        lecture:
+          'La suite est multipliée par 4 ou 5, ou divisée par 2 comme ici.',
         note: null,
       },
     ],
@@ -167,13 +177,19 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Deux pas en alternance',
-        cells: sequenceRow([4, 7, 13, 16, 22, 25], ['+3', '+6', '+3', '+6', '+3']),
+        cells: sequenceRow(
+          [4, 7, 13, 16, 22, 25],
+          ['+3', '+6', '+3', '+6', '+3'],
+        ),
         lecture: 'Deux pas différents se relaient un terme sur deux.',
         note: null,
       },
       {
         name: 'Addition puis soustraction',
-        cells: sequenceRow([12, 19, 16, 23, 20, 27], ['+7', '−3', '+7', '−3', '+7']),
+        cells: sequenceRow(
+          [12, 19, 16, 23, 20, 27],
+          ['+7', '−3', '+7', '−3', '+7'],
+        ),
         lecture: 'Un pas en avant, un pas en arrière, en alternance.',
         note: null,
       },
@@ -184,7 +200,10 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Pas croissant',
-        cells: sequenceRow([5, 7, 10, 14, 19, 25], ['+2', '+3', '+4', '+5', '+6']),
+        cells: sequenceRow(
+          [5, 7, 10, 14, 19, 25],
+          ['+2', '+3', '+4', '+5', '+6'],
+        ),
         lecture: 'Le pas grandit de 1 à chaque nouveau terme.',
         note: null,
       },
@@ -201,7 +220,10 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
       },
       {
         name: 'Ajout de la somme des chiffres',
-        cells: sequenceRow([23, 28, 38, 49, 62, 70], ['+5', '+10', '+11', '+13', '+8']),
+        cells: sequenceRow(
+          [23, 28, 38, 49, 62, 70],
+          ['+5', '+10', '+11', '+13', '+8'],
+        ),
         lecture: "Chaque terme s'augmente de la somme de ses propres chiffres.",
         note: '23+(2+3)=28 · 28+(2+8)=38 · 38+(3+8)=49…',
       },

@@ -145,7 +145,6 @@
   color: var(--success-text);
 }
 
-
 @media (max-width: 767px) {
   :host {
     display: flex;
@@ -201,26 +200,26 @@
   }
 
   .tier-row__step-tierline {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
 
-.tier-row__step-gain {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-disabled);
-}
+  .tier-row__step-gain {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-disabled);
+  }
 
-.tier-row__step-gain--earned {
-  color: var(--brand);
-}
+  .tier-row__step-gain--earned {
+    color: var(--brand);
+  }
 
-.tier-row__step-tier {
+  .tier-row__step-tier {
     font-size: 9.5px;
   }
 

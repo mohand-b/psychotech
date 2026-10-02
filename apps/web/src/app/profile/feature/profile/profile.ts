@@ -155,10 +155,9 @@ export class Profile {
     { id: 'credits', label: 'Crédits et reçus', icon: ReceiptText },
   ];
 
-  private readonly badgeStatusesResource = httpResource<BadgeStatusDto[] | null>(
-    () => `${this.baseUrl}/me/badges`,
-    { defaultValue: null },
-  );
+  private readonly badgeStatusesResource = httpResource<
+    BadgeStatusDto[] | null
+  >(() => `${this.baseUrl}/me/badges`, { defaultValue: null });
 
   private readonly purchasesResource = httpResource<PackPurchaseDto[] | null>(
     () => `${this.baseUrl}/billing/purchases`,
@@ -424,9 +423,7 @@ export class Profile {
   );
 
   protected readonly mobileSaveDisabled = computed(() =>
-    this.section() === 'security'
-      ? !this.canUpdatePassword()
-      : !this.canSave(),
+    this.section() === 'security' ? !this.canUpdatePassword() : !this.canSave(),
   );
 
   protected readonly mobileCancelDisabled = computed(() =>

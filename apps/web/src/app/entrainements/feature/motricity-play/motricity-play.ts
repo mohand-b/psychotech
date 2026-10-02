@@ -489,10 +489,7 @@ export class MotricityPlay implements LeavablePlay {
       inputY = this.crankSpeedY();
       const cranked = Math.hypot(inputX, inputY);
       this.crankGain = smoothCrankSpeedGain(this.crankGain, cranked);
-      speedFactor = Math.min(
-        GAMEPAD_MAX_OVERDRIVE,
-        cranked * this.crankGain,
-      );
+      speedFactor = Math.min(GAMEPAD_MAX_OVERDRIVE, cranked * this.crankGain);
     } else {
       return;
     }

@@ -54,7 +54,10 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
   const resendVerification = vi.fn(
     options.resendResult ??
       (() =>
-        of<ResendVerificationResponseDto>({ sent: true, retryAfterSeconds: null })),
+        of<ResendVerificationResponseDto>({
+          sent: true,
+          retryAfterSeconds: null,
+        })),
   );
   const energyLoad = vi.fn(() => of(null));
   await TestBed.configureTestingModule({
@@ -122,7 +125,9 @@ describe('VerificationPending', () => {
   it('announces the sent link with the account email and resends it', async () => {
     const result = await setup();
 
-    expect(result.element.textContent).toContain('Vérifiez votre adresse email');
+    expect(result.element.textContent).toContain(
+      'Vérifiez votre adresse email',
+    );
     expect(result.element.textContent).toContain('mohand@example.com');
     expect(result.element.textContent).not.toContain('crédit');
 
@@ -144,7 +149,10 @@ describe('VerificationPending', () => {
   it('shows a decreasing cooldown inside the disabled resend button', async () => {
     const result = await setup({
       resendResult: () =>
-        of<ResendVerificationResponseDto>({ sent: false, retryAfterSeconds: 42 }),
+        of<ResendVerificationResponseDto>({
+          sent: false,
+          retryAfterSeconds: 42,
+        }),
     });
 
     resendButton(result.element).click();

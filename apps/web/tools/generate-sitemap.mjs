@@ -19,7 +19,8 @@ const PUBLIC_ROUTES = [
 
 const lastmod = new Date().toISOString().split('T')[0];
 const urls = PUBLIC_ROUTES.map((route) => {
-  const loc = route === '/' ? `${CANONICAL_ORIGIN}/` : `${CANONICAL_ORIGIN}${route}`;
+  const loc =
+    route === '/' ? `${CANONICAL_ORIGIN}/` : `${CANONICAL_ORIGIN}${route}`;
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
 }).join('\n');
 

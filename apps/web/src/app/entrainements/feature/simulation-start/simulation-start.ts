@@ -18,13 +18,7 @@ import {
   SESSION_ENERGY_COST,
   SessionMode,
 } from '@psychotech/shared';
-import {
-  BellOff,
-  Clock,
-  LucideIconData,
-  Timer,
-  VolumeX,
-} from 'lucide-angular';
+import { BellOff, Clock, LucideIconData, Timer, VolumeX } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';

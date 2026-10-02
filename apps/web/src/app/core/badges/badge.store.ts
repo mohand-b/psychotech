@@ -54,9 +54,7 @@ export const BadgeStore = signalStore(
     ),
     position: computed(() => store.currentIndex() + 1),
     total: computed(() => store.queue().length),
-    isLast: computed(
-      () => store.currentIndex() === store.queue().length - 1,
-    ),
+    isLast: computed(() => store.currentIndex() === store.queue().length - 1),
   })),
   withMethods((store) => ({
     enqueue(badges: EarnedBadgeDto[]): void {

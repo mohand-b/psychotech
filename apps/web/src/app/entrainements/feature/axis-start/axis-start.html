@@ -10,48 +10,51 @@
     [(logicFamily)]="logicFamily"
   >
     @if (showPairing) {
-    <div briefingPairing class="axis-start__pairing">
-      <ui-gamepad-pairing
-        variant="briefing"
-        [pairing]="gamepadPairing()"
-        [connected]="gamepadConnected()"
-        [latency]="gamepadLatency()"
-        [latencyGood]="gamepadLatencyGood()"
-      />
-    </div>
+      <div briefingPairing class="axis-start__pairing">
+        <ui-gamepad-pairing
+          variant="briefing"
+          [pairing]="gamepadPairing()"
+          [connected]="gamepadConnected()"
+          [latency]="gamepadLatency()"
+          [latencyGood]="gamepadLatencyGood()"
+        />
+      </div>
     }
   </ui-axis-briefing>
 
   @if (tutorial) {
-  <p class="axis-start__note">
-    La découverte est toujours identique et ne consomme aucun crédit.
-  </p>
-  } @if (energyLocked()) {
-  <p class="axis-start__note axis-start__note--short">
-    Vous n'avez plus assez de crédits.
-    <a class="axis-start__recharge-link" routerLink="/credits"
-      >Recharger des crédits</a
-    >
-  </p>
+    <p class="axis-start__note">
+      La découverte est toujours identique et ne consomme aucun crédit.
+    </p>
+  }
+  @if (energyLocked()) {
+    <p class="axis-start__note axis-start__note--short">
+      Vous n'avez plus assez de crédits.
+      <a class="axis-start__recharge-link" routerLink="/credits"
+        >Recharger des crédits</a
+      >
+    </p>
   }
   @if (showGuideNote()) {
-  <p class="axis-start__guide-note">
-    Première fois sur cette épreuve&nbsp;?
-    @if (showExamGuideLink()) {
-    <a
-      class="axis-start__guide-link"
-      [routerLink]="guidePath"
-      [fragment]="guideAnchor"
-      >Consultez le guide des épreuves</a
-    >
-    } @if (showExamGuideLink() && showLogicRulesLink()) {
-    <span class="axis-start__guide-sep">&nbsp;·&nbsp;</span>
-    } @if (showLogicRulesLink()) {
-    <a class="axis-start__guide-link" [routerLink]="logicRulesPath"
-      >Toutes les règles de la Logique</a
-    >
-    }
-  </p>
+    <p class="axis-start__guide-note">
+      Première fois sur cette épreuve&nbsp;?
+      @if (showExamGuideLink()) {
+        <a
+          class="axis-start__guide-link"
+          [routerLink]="guidePath"
+          [fragment]="guideAnchor"
+          >Consultez le guide des épreuves</a
+        >
+      }
+      @if (showExamGuideLink() && showLogicRulesLink()) {
+        <span class="axis-start__guide-sep">&nbsp;·&nbsp;</span>
+      }
+      @if (showLogicRulesLink()) {
+        <a class="axis-start__guide-link" [routerLink]="logicRulesPath"
+          >Toutes les règles de la Logique</a
+        >
+      }
+    </p>
   }
   <ui-action-footer>
     <ui-button
@@ -64,11 +67,13 @@
       (click)="start()"
     >
       <span class="axis-start__cta-content">
-        @if (tutorial) { Commencer la découverte } @else { Commencer
-        l'entraînement
-        <span class="axis-start__cta-sep"></span>
-        <ui-axis-icon axis="credit" [size]="14" />
-        <span class="t-mono">{{ energyCost }}</span>
+        @if (tutorial) {
+          Commencer la découverte
+        } @else {
+          Commencer l'entraînement
+          <span class="axis-start__cta-sep"></span>
+          <ui-axis-icon axis="credit" [size]="14" />
+          <span class="t-mono">{{ energyCost }}</span>
         }
       </span>
     </ui-button>

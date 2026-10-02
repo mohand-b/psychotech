@@ -320,10 +320,7 @@
    sur deux lignes. */
 .cb__condition-text {
   --cb-strike-height: 1.5px;
-  background-image: linear-gradient(
-    var(--success-text),
-    var(--success-text)
-  );
+  background-image: linear-gradient(var(--success-text), var(--success-text));
   background-repeat: no-repeat;
   background-position: 0 58%;
   background-size: 100% var(--cb-strike-height);
@@ -410,7 +407,8 @@
   }
 }
 
-.cb__card--settled :is(
+.cb__card--settled
+  :is(
     .cb__micro,
     .cb__badge,
     .cb__halo,
@@ -434,7 +432,8 @@
 @media (prefers-reduced-motion: reduce) {
   .cb__overlay,
   .cb__card,
-  .cb__card :is(
+  .cb__card
+    :is(
       .cb__micro,
       .cb__badge,
       .cb__halo,

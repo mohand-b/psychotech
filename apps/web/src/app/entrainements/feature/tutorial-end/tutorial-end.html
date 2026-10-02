@@ -16,8 +16,8 @@
         }
       </div>
       <span class="te__hero-note"
-        >Vous connaissez maintenant le principe de l'épreuve. Le mode découverte sert à
-        essayer : rien n'est enregistré dans votre progression.</span
+        >Vous connaissez maintenant le principe de l'épreuve. Le mode découverte
+        sert à essayer : rien n'est enregistré dans votre progression.</span
       >
     </section>
 
@@ -25,14 +25,13 @@
       <section class="te__col te__col--metrics">
         <span class="te__label te__col-label">Métriques</span>
         @for (row of metricRows(); track row.label) {
-        <div class="te__row">
-          <span class="te__row-label">{{ row.label }}</span>
-          <span class="te__row-value t-mono"
-            >{{ row.main }}<span class="te__row-unit"
-              >{{ row.unit }}</span
-            ></span
-          >
-        </div>
+          <div class="te__row">
+            <span class="te__row-label">{{ row.label }}</span>
+            <span class="te__row-value t-mono"
+              >{{ row.main
+              }}<span class="te__row-unit">{{ row.unit }}</span></span
+            >
+          </div>
         }
         <span class="te__col-note"
           >Aperçu réduit, sans notation ni analyse.</span
@@ -42,19 +41,19 @@
       <section class="te__col te__col--eval">
         <span class="te__label te__col-label">Avec une vraie évaluation</span>
         @for (point of evaluationPoints; track point; let last = $last) {
-        <div class="te__row te__row--check" [class.te__row--last]="last">
-          <ui-icon
-            class="te__check"
-            [img]="checkIcon"
-            [size]="14"
-            [strokeWidth]="2.5"
-          />
-          <span class="te__check-text">{{ point }}</span>
-        </div>
+          <div class="te__row te__row--check" [class.te__row--last]="last">
+            <ui-icon
+              class="te__check"
+              [img]="checkIcon"
+              [size]="14"
+              [strokeWidth]="2.5"
+            />
+            <span class="te__check-text">{{ point }}</span>
+          </div>
         }
         <span class="te__col-note te__col-note--eval"
-          >En entraînement ciblé sur cet axe, ou en examen blanc sur les
-          axes de votre secteur.</span
+          >En entraînement ciblé sur cet axe, ou en examen blanc sur les axes de
+          votre secteur.</span
         >
       </section>
     </div>
@@ -98,5 +97,4 @@
       Découvrir un autre axe
     </ui-button>
   </div>
-
 </section>

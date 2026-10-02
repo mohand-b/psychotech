@@ -11,10 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { LEGAL_LAST_UPDATED } from '@psychotech/shared';
-import {
-  LegalDocumentId,
-  legalDocumentById,
-} from '../../data/legal-documents';
+import { LegalDocumentId, legalDocumentById } from '../../data/legal-documents';
 import { Button } from '../../../shared/ui/button/button';
 import { LegalDocumentView } from '../legal-document/legal-document';
 

@@ -1,5 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+} from '@angular/router';
 import { EnergyStateDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { BillingFacade } from '../../data-access/billing.facade';
@@ -52,8 +56,9 @@ async function setup(sessionId: string | null = null) {
 describe('Energie', () => {
   it('shows the current balance without any cap', async () => {
     const fixture = await setup();
-    const value: HTMLElement =
-      fixture.nativeElement.querySelector('.energie__solde-value');
+    const value: HTMLElement = fixture.nativeElement.querySelector(
+      '.energie__solde-value',
+    );
     expect(value.textContent?.trim()).toBe('12');
     expect(fixture.nativeElement.textContent).toContain(
       "Sans date d'expiration",
@@ -84,8 +89,9 @@ describe('Energie', () => {
 
   it('links the badges band to the badges page with the real catalog rewards', async () => {
     const fixture = await setup();
-    const link: HTMLAnchorElement | null =
-      fixture.nativeElement.querySelector('.energie__badges-link');
+    const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector(
+      '.energie__badges-link',
+    );
     expect(link?.getAttribute('href')).toBe('/badges');
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('+25');
@@ -94,7 +100,9 @@ describe('Energie', () => {
     expect(text).toContain('Premiers pas');
     expect(text).toContain('+3');
     expect(text).toContain('+2');
-    const tiles = fixture.nativeElement.querySelectorAll('.energie__badge-tile');
+    const tiles = fixture.nativeElement.querySelectorAll(
+      '.energie__badge-tile',
+    );
     expect(tiles).toHaveLength(3);
   });
 

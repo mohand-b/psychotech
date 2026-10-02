@@ -149,13 +149,14 @@ export class Energie implements OnDestroy {
   protected readonly checkoutError = signal(false);
   protected readonly confirmation = signal<ConfirmationState>('pending');
 
-  protected readonly packs: readonly PackCardView[] = ENERGY_PACKS.map(
-    (pack) => this.toPackCard(pack),
+  protected readonly packs: readonly PackCardView[] = ENERGY_PACKS.map((pack) =>
+    this.toPackCard(pack),
   );
 
   protected readonly totalReward = BADGE_TOTAL_REWARD;
 
-  protected readonly rewardBadges: readonly RewardBadgeView[] = topRewardBadges();
+  protected readonly rewardBadges: readonly RewardBadgeView[] =
+    topRewardBadges();
 
   constructor() {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');

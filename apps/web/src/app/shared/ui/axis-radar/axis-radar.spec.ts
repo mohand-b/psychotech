@@ -42,7 +42,9 @@ describe('AxisRadar', () => {
       matches: reducedMotion,
       media: query,
     })) as typeof window.matchMedia;
-    await TestBed.configureTestingModule({ imports: [RadarHost] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [RadarHost],
+    }).compileComponents();
   });
 
   afterEach(() => {

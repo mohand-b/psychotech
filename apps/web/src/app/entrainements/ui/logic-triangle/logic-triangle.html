@@ -1,24 +1,24 @@
 <div class="tri" [class.tri--four]="item().triangles.length === 4">
   <div class="tri__stage">
     <div class="tri__panel">
-    <ng-content />
-    <div class="tri__board">
-      <ui-triangle-series
-        [triangles]="item().triangles"
-        [missing]="item().missing"
-        [answerValue]="value()"
-        [withArrows]="true"
-      />
-      @if (hint(); as hintText) {
-        <ui-rule-hint
-          #ruleHint
-          [hint]="hintText"
-          [used]="hintUsed()"
-          [popWidth]="296"
-          (opened)="hintOpened.emit()"
+      <ng-content />
+      <div class="tri__board">
+        <ui-triangle-series
+          [triangles]="item().triangles"
+          [missing]="item().missing"
+          [answerValue]="value()"
+          [withArrows]="true"
         />
-      }
-    </div>
+        @if (hint(); as hintText) {
+          <ui-rule-hint
+            #ruleHint
+            [hint]="hintText"
+            [used]="hintUsed()"
+            [popWidth]="296"
+            (opened)="hintOpened.emit()"
+          />
+        }
+      </div>
     </div>
   </div>
 

@@ -505,9 +505,7 @@ function selectedChoiceIndex(element: HTMLElement): number {
 }
 
 function choiceValue(element: HTMLElement, index: number): number {
-  const values = element.querySelectorAll(
-    'ui-logic-triangle .choices__value',
-  );
+  const values = element.querySelectorAll('ui-logic-triangle .choices__value');
   return Number(values[index]?.textContent?.trim());
 }
 

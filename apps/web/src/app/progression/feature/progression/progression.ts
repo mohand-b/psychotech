@@ -191,7 +191,9 @@ export class Progression {
         axis,
       ]),
     );
-    return axes.map((axis) => this.buildRow(axis, overviewByAxis.get(axis.axis)));
+    return axes.map((axis) =>
+      this.buildRow(axis, overviewByAxis.get(axis.axis)),
+    );
   });
 
   private buildRow(

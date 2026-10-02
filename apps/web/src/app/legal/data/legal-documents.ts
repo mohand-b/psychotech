@@ -455,7 +455,9 @@ const CGV: LegalDocument = {
         {
           kind: 'text',
           runs: [
-            { text: 'Les présentes conditions régissent la souscription et l’utilisation des offres payantes de ' },
+            {
+              text: 'Les présentes conditions régissent la souscription et l’utilisation des offres payantes de ',
+            },
             SITE_HOME_LINK,
             {
               text: ' par tout consommateur majeur. La création d’un compte vaut acceptation sans réserve.',
@@ -657,7 +659,9 @@ const CGU: LegalDocument = {
               text: ', indépendamment de tout paiement : les ',
             },
             { text: 'conditions générales de vente', href: '/cgv' },
-            { text: ' s’y ajoutent dès que vous souscrivez une formule payante.' },
+            {
+              text: ' s’y ajoutent dès que vous souscrivez une formule payante.',
+            },
           ],
         },
         {

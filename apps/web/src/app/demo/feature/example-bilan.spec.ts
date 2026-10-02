@@ -108,9 +108,7 @@ describe('Public example bilan', () => {
     expect(detail).not.toBeNull();
     expect(detail.textContent).not.toContain('Détail indisponible');
     expect(detail.textContent).not.toContain('Chargement du détail');
-    expect(
-      detail.querySelector('ui-simulation-axis-detail'),
-    ).not.toBeNull();
+    expect(detail.querySelector('ui-simulation-axis-detail')).not.toBeNull();
   });
 
   it('never offers to review answers that no visitor has given', async () => {

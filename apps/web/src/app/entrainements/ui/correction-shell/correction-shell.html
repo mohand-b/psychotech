@@ -61,7 +61,11 @@
       <ui-icon [img]="backIcon" [size]="18" />
     </button>
     <div class="shell__mobile-primary">
-      <ui-button [color]="buttonColor()" [block]="true" (click)="backToResult.emit()">
+      <ui-button
+        [color]="buttonColor()"
+        [block]="true"
+        (click)="backToResult.emit()"
+      >
         Retour au résultat
       </ui-button>
     </div>

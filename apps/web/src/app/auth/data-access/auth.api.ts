@@ -64,7 +64,9 @@ export class AuthApi {
     );
   }
 
-  verifyEmail(payload: VerifyEmailRequestDto): Observable<VerifyEmailResponseDto> {
+  verifyEmail(
+    payload: VerifyEmailRequestDto,
+  ): Observable<VerifyEmailResponseDto> {
     return this.http.post<VerifyEmailResponseDto>(
       `${this.baseUrl}/auth/email/verify`,
       payload,
@@ -120,9 +122,6 @@ export class AuthApi {
   }
 
   deleteAccount(payload: DeleteAccountDto): Observable<void> {
-    return this.http.post<void>(
-      `${this.baseUrl}/auth/account/delete`,
-      payload,
-    );
+    return this.http.post<void>(`${this.baseUrl}/auth/account/delete`, payload);
   }
 }

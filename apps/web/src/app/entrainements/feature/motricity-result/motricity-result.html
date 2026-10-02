@@ -1,49 +1,50 @@
 <ui-result-page>
   @if (result(); as r) {
-  <ui-result-summary
-    [axis]="r.axis"
-    [score]="r.score"
-    [previousBestScore]="r.previousBestScore"
-    [bestScore]="r.bestScore"
-    [isNewBest]="r.isNewBest"
-    [isEqualBest]="r.isEqualBest"
-    [sector]="r.sector"
-    [completedAt]="r.completedAt"
-    [referential]="referential()"
-    [recordVisible]="!r.untimed"
-    (revealDone)="celebration.sceneReady()"
-  />
+    <ui-result-summary
+      [axis]="r.axis"
+      [score]="r.score"
+      [previousBestScore]="r.previousBestScore"
+      [bestScore]="r.bestScore"
+      [isNewBest]="r.isNewBest"
+      [isEqualBest]="r.isEqualBest"
+      [sector]="r.sector"
+      [completedAt]="r.completedAt"
+      [referential]="referential()"
+      [recordVisible]="!r.untimed"
+      (revealDone)="celebration.sceneReady()"
+    />
 
-  @if (metrics(); as m) {
-  <ui-result-panel>
-    <ui-result-metrics panelStart [rows]="metricRows()" />
-    <ui-result-timing
-      panelEnd
-      heading="Maîtrise de trajectoire"
-      note="Votre distance aux bords au fil de l'épreuve - 0 % au centre, 100 % au contact du bord. Les portions rouges sont les périodes hors couloir."
-      [showReview]="false"
-    >
-      @if (hasTimeline()) {
-      <ui-motricity-trajectory-chart [metrics]="m" />
-      } @else {
-      <div class="result__chart-empty">
-        Données de trajectoire indisponibles pour cette session
-      </div>
-      }
-    </ui-result-timing>
-  </ui-result-panel>
-  } @if (recommendations().length > 0) {
-  <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
-  }
+    @if (metrics(); as m) {
+      <ui-result-panel>
+        <ui-result-metrics panelStart [rows]="metricRows()" />
+        <ui-result-timing
+          panelEnd
+          heading="Maîtrise de trajectoire"
+          note="Votre distance aux bords au fil de l'épreuve - 0 % au centre, 100 % au contact du bord. Les portions rouges sont les périodes hors couloir."
+          [showReview]="false"
+        >
+          @if (hasTimeline()) {
+            <ui-motricity-trajectory-chart [metrics]="m" />
+          } @else {
+            <div class="result__chart-empty">
+              Données de trajectoire indisponibles pour cette session
+            </div>
+          }
+        </ui-result-timing>
+      </ui-result-panel>
+    }
+    @if (recommendations().length > 0) {
+      <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
+    }
 
-  @if (celebration.announceView(); as announce) {
-  <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
-  }
+    @if (celebration.announceView(); as announce) {
+      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
+    }
 
-  <ui-result-actions
-    (newTraining)="newTraining()"
-    [backLabel]="backLabel"
-    (back)="back()"
-  />
+    <ui-result-actions
+      (newTraining)="newTraining()"
+      [backLabel]="backLabel"
+      (back)="back()"
+    />
   }
 </ui-result-page>

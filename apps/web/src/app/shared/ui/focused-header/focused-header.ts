@@ -85,10 +85,7 @@ export type TimerSeverity = 'normal' | 'warning' | 'danger' | 'inactive';
             </span>
           }
           @if (showEnergy()) {
-            <ui-energy-chip
-              [state]="energy()"
-              [requiredCost]="energyCost()"
-            />
+            <ui-energy-chip [state]="energy()" [requiredCost]="energyCost()" />
             @if (duration() || closeLink()) {
               <span class="focused-header__separator"></span>
             }

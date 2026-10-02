@@ -22,9 +22,8 @@
 
   @if (state() === 'VERIFIED' && email(); as address) {
     <span class="authcard__text authcard__rise-2"
-      >Votre adresse
-      <span class="authcard__strong">{{ address }}</span> est vérifiée. Votre
-      compte est actif, bonne préparation.</span
+      >Votre adresse <span class="authcard__strong">{{ address }}</span> est
+      vérifiée. Votre compte est actif, bonne préparation.</span
     >
   } @else {
     <span class="authcard__text authcard__rise-2">{{ subtitle() }}</span>
@@ -33,7 +32,12 @@
   @if (state() === 'VERIFIED' || state() === 'ALREADY_VERIFIED') {
     <div class="authcard__actions authcard__rise-3">
       @if (isAuthenticated()) {
-        <ui-button color="brand" size="lg" [block]="true" (click)="goToDashboard()">
+        <ui-button
+          color="brand"
+          size="lg"
+          [block]="true"
+          (click)="goToDashboard()"
+        >
           Accéder à mon espace
         </ui-button>
       } @else {

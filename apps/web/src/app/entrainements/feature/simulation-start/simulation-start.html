@@ -14,10 +14,10 @@
     <div class="simb__section flex flex-col">
       <span class="t-label">Comment ça se passe</span>
       @for (step of howItGoes; track step; let index = $index) {
-      <div class="simb__step flex">
-        <span class="simb__step-number t-mono">{{ index + 1 }}</span>
-        <span class="simb__step-text">{{ step }}</span>
-      </div>
+        <div class="simb__step flex">
+          <span class="simb__step-number t-mono">{{ index + 1 }}</span>
+          <span class="simb__step-text">{{ step }}</span>
+        </div>
       }
     </div>
 
@@ -39,28 +39,31 @@
         />
         <div class="simb__panel-viewport">
           @for (axis of courseAxes; track axis) {
-          <div class="simb__axis-panel simb__axis-panel--sizer flex items-center" aria-hidden="true">
-            <ng-container
-              [ngTemplateOutlet]="axisPanelContent"
-              [ngTemplateOutletContext]="{ $implicit: axis }"
-            />
-          </div>
+            <div
+              class="simb__axis-panel simb__axis-panel--sizer flex items-center"
+              aria-hidden="true"
+            >
+              <ng-container
+                [ngTemplateOutlet]="axisPanelContent"
+                [ngTemplateOutletContext]="{ $implicit: axis }"
+              />
+            </div>
           }
           @for (axis of exploredKeys(); track axis) {
-          <div
-            class="simb__axis-panel simb__axis-panel--live flex items-center"
-            [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
-            [class.simb__axis-panel--backward]="
+            <div
+              class="simb__axis-panel simb__axis-panel--live flex items-center"
+              [class.simb__axis-panel--forward]="panelDirection() === 'forward'"
+              [class.simb__axis-panel--backward]="
                 panelDirection() === 'backward'
               "
-            [animate.leave]="panelLeaveClass()"
-            [style.background]="presentations[axis].pastelVar"
-          >
-            <ng-container
-              [ngTemplateOutlet]="axisPanelContent"
-              [ngTemplateOutletContext]="{ $implicit: axis }"
-            />
-          </div>
+              [animate.leave]="panelLeaveClass()"
+              [style.background]="presentations[axis].pastelVar"
+            >
+              <ng-container
+                [ngTemplateOutlet]="axisPanelContent"
+                [ngTemplateOutletContext]="{ $implicit: axis }"
+              />
+            </div>
           }
         </div>
         <ng-template #axisPanelContent let-axis>
@@ -83,9 +86,9 @@
                 <span class="t-mono">{{ course[panelAxis].duration }}</span>
               </span>
             </div>
-            <span class="simb__axis-instruction"
-              >{{ course[panelAxis].instruction }}</span
-            >
+            <span class="simb__axis-instruction">{{
+              course[panelAxis].instruction
+            }}</span>
           </div>
         </ng-template>
       </div>
@@ -94,12 +97,12 @@
     <div class="simb__section simb__section--divided flex flex-col">
       <span class="t-label">Avant de commencer</span>
       @for (item of adviceItems; track item.text) {
-      <div class="simb__advice flex items-center">
-        <span class="simb__advice-icon">
-          <ui-icon [img]="item.icon" [size]="14" [strokeWidth]="1.8" />
-        </span>
-        <span class="simb__advice-text">{{ item.text }}</span>
-      </div>
+        <div class="simb__advice flex items-center">
+          <span class="simb__advice-icon">
+            <ui-icon [img]="item.icon" [size]="14" [strokeWidth]="1.8" />
+          </span>
+          <span class="simb__advice-text">{{ item.text }}</span>
+        </div>
       }
     </div>
 
@@ -120,18 +123,20 @@
   </div>
 
   @if (energyShort()) {
-  <span class="simb__short flex items-center">
-    Il vous faut {{ energyCost }} crédits, vous en avez {{ balance() }}.
-    <a class="simb__short-link" routerLink="/credits">Recharger des crédits</a>
-  </span>
+    <span class="simb__short flex items-center">
+      Il vous faut {{ energyCost }} crédits, vous en avez {{ balance() }}.
+      <a class="simb__short-link" routerLink="/credits"
+        >Recharger des crédits</a
+      >
+    </span>
   }
   @if (showGuideNote()) {
-  <p class="simb__guide-note">
-    Première fois&nbsp;?
-    <a class="simb__guide-link" [routerLink]="guidePath"
-      >Consultez le guide des épreuves</a
-    >
-  </p>
+    <p class="simb__guide-note">
+      Première fois&nbsp;?
+      <a class="simb__guide-link" [routerLink]="guidePath"
+        >Consultez le guide des épreuves</a
+      >
+    </p>
   }
   <ui-action-footer>
     <ui-button

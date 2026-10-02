@@ -27,7 +27,11 @@ describe('playLeaveDecision', () => {
 });
 
 describe('PlayLeaveControl', () => {
-  function build(state: { live: boolean; submitted: boolean; unsent: boolean }) {
+  function build(state: {
+    live: boolean;
+    submitted: boolean;
+    unsent: boolean;
+  }) {
     const askConfirmation = vi.fn();
     return {
       askConfirmation,

@@ -56,7 +56,10 @@ describe('BadgeCelebrationFacade', () => {
 
   it('refreshes the credit balance only when the badge grants credits', () => {
     const { facade, store, energyLoad } = setup();
-    store.enqueue([badge(BadgeId.EXAM_FIRST), badge(BadgeId.EXAM_FAVORABLE, 2)]);
+    store.enqueue([
+      badge(BadgeId.EXAM_FIRST),
+      badge(BadgeId.EXAM_FAVORABLE, 2),
+    ]);
     facade.completeCurrent();
     expect(energyLoad).not.toHaveBeenCalled();
     facade.completeCurrent();
@@ -65,7 +68,10 @@ describe('BadgeCelebrationFacade', () => {
 
   it('acknowledges every remaining badge when the run is dismissed', () => {
     const { facade, store, acknowledge } = setup();
-    store.enqueue([badge(BadgeId.EXAM_FIRST), badge(BadgeId.EXAM_FAVORABLE, 2)]);
+    store.enqueue([
+      badge(BadgeId.EXAM_FIRST),
+      badge(BadgeId.EXAM_FAVORABLE, 2),
+    ]);
     facade.dismissAll();
 
     expect(acknowledge).toHaveBeenCalledTimes(2);

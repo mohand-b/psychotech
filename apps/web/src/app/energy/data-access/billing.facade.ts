@@ -1,9 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Stripe,
-  StripeEmbeddedCheckout,
-  loadStripe,
-} from '@stripe/stripe-js';
+import { Stripe, StripeEmbeddedCheckout, loadStripe } from '@stripe/stripe-js';
 import { EnergyPackId, PackCheckoutStatusDto } from '@psychotech/shared';
 import { Observable, firstValueFrom } from 'rxjs';
 import { BillingApi } from './billing.api';

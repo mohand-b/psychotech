@@ -70,6 +70,10 @@ export class BadgesPage {
   });
 
   protected readonly board = computed<BadgeBoardView>(() =>
-    buildBadgeBoard(this.statusesResource.value(), this.sector(), this.outlook()),
+    buildBadgeBoard(
+      this.statusesResource.value(),
+      this.sector(),
+      this.outlook(),
+    ),
   );
 }

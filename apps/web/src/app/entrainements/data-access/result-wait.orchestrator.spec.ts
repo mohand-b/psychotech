@@ -145,13 +145,7 @@ describe('ResultWaitOrchestrator', () => {
 
     vi.advanceTimersByTime(1);
     expect(navigate).toHaveBeenCalledWith(
-      [
-        '/entrainements/cible',
-        'logique',
-        'session',
-        SESSION_ID,
-        'resultat',
-      ],
+      ['/entrainements/cible', 'logique', 'session', SESSION_ID, 'resultat'],
       { replaceUrl: true },
     );
   });
@@ -254,11 +248,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.active()).toBe(false);
     expect(loadTargetedResult).not.toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(
-      [
-        '/entrainements/tutoriel',
-        'logique',
-        'fin',
-      ],
+      ['/entrainements/tutoriel', 'logique', 'fin'],
       { replaceUrl: true },
     );
   });
@@ -274,10 +264,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.active()).toBe(false);
     expect(loadSummary).not.toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(
-      [
-        '/entrainements/examen-blanc/session',
-        SESSION_ID,
-      ],
+      ['/entrainements/examen-blanc/session', SESSION_ID],
       { replaceUrl: true },
     );
   });
@@ -302,11 +289,7 @@ describe('ResultWaitOrchestrator', () => {
 
     vi.advanceTimersByTime(RESULT_WAIT_MIN_DISPLAY_MS);
     expect(navigate).toHaveBeenCalledWith(
-      [
-        '/sessions',
-        SESSION_ID,
-        'resultat',
-      ],
+      ['/sessions', SESSION_ID, 'resultat'],
       { replaceUrl: true },
     );
   });
@@ -346,10 +329,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(complete).toHaveBeenCalledTimes(2);
     expect(loadSummary).not.toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(
-      [
-        '/entrainements/examen-blanc/session',
-        SESSION_ID,
-      ],
+      ['/entrainements/examen-blanc/session', SESSION_ID],
       { replaceUrl: true },
     );
   });

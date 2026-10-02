@@ -2,18 +2,18 @@
   <app-hybrid-header mobileTitle="Contact">
     <div class="mobile-header__tabs" role="radiogroup" aria-label="Motif">
       @for (entry of motifs; track entry.id) {
-      <button
-        type="button"
-        role="radio"
-        class="mobile-tab"
-        [class.mobile-tab--on]="motif() === entry.id"
-        [attr.aria-checked]="motif() === entry.id"
-        [style.--motif-ink]="entry.inkVar"
-        (click)="motif.set(entry.id)"
-      >
-        <ui-icon class="mobile-tab__icon" [img]="entry.icon" [size]="15" />
-        {{ entry.label }}
-      </button>
+        <button
+          type="button"
+          role="radio"
+          class="mobile-tab"
+          [class.mobile-tab--on]="motif() === entry.id"
+          [attr.aria-checked]="motif() === entry.id"
+          [style.--motif-ink]="entry.inkVar"
+          (click)="motif.set(entry.id)"
+        >
+          <ui-icon class="mobile-tab__icon" [img]="entry.icon" [size]="15" />
+          {{ entry.label }}
+        </button>
       }
     </div>
   </app-hybrid-header>
@@ -29,49 +29,54 @@
     <div class="contact__grid">
       <div class="contact__column">
         @if (!sent()) {
-        <div class="segmented" role="radiogroup" aria-label="Motif">
-          @for (entry of motifs; track entry.id) {
-          <button
-            type="button"
-            role="radio"
-            class="segmented__option"
-            [class.segmented__option--on]="motif() === entry.id"
-            [attr.aria-checked]="motif() === entry.id"
-            [style.--motif-ink]="entry.inkVar"
-            (click)="motif.set(entry.id)"
-          >
-            <ui-icon class="segmented__icon" [img]="entry.icon" [size]="15" />
-            <span>{{ entry.label }}</span>
-          </button>
-          }
-        </div>
+          <div class="segmented" role="radiogroup" aria-label="Motif">
+            @for (entry of motifs; track entry.id) {
+              <button
+                type="button"
+                role="radio"
+                class="segmented__option"
+                [class.segmented__option--on]="motif() === entry.id"
+                [attr.aria-checked]="motif() === entry.id"
+                [style.--motif-ink]="entry.inkVar"
+                (click)="motif.set(entry.id)"
+              >
+                <ui-icon
+                  class="segmented__icon"
+                  [img]="entry.icon"
+                  [size]="15"
+                />
+                <span>{{ entry.label }}</span>
+              </button>
+            }
+          </div>
         }
 
         <app-contact-form [(motif)]="motif" [hidden]="sent()" />
 
         @if (sent() && receipt(); as sentReceipt) {
-        <section class="sent" role="status">
-          <span class="sent__badge">
-            <ui-icon [img]="checkIcon" [size]="24" [strokeWidth]="2.4" />
-          </span>
-          <h2 class="sent__title">Message envoyé</h2>
-          <p class="sent__text">
-            Nous vous répondons à
-            <strong class="sent__strong">{{ sentReceipt.email }}</strong>.
-            Référence
-            <span class="sent__reference t-mono"
-              >{{ sentReceipt.reference }}</span
-            >.
-          </p>
-          <div class="sent__actions">
-            <button type="button" class="sent__again" (click)="sendAnother()">
-              Envoyer un autre message
-            </button>
-            <a class="sent__home" [routerLink]="homeLink()"
-              >{{ homeLabel() }}</a
-            >
-          </div>
-        </section>
+          <section class="sent" role="status">
+            <span class="sent__badge">
+              <ui-icon [img]="checkIcon" [size]="24" [strokeWidth]="2.4" />
+            </span>
+            <h2 class="sent__title">Message envoyé</h2>
+            <p class="sent__text">
+              Nous vous répondons à
+              <strong class="sent__strong">{{ sentReceipt.email }}</strong
+              >. Référence
+              <span class="sent__reference t-mono">{{
+                sentReceipt.reference
+              }}</span
+              >.
+            </p>
+            <div class="sent__actions">
+              <button type="button" class="sent__again" (click)="sendAnother()">
+                Envoyer un autre message
+              </button>
+              <a class="sent__home" [routerLink]="homeLink()">{{
+                homeLabel()
+              }}</a>
+            </div>
+          </section>
         }
       </div>
 
@@ -81,22 +86,22 @@
         </div>
         <nav class="links__list">
           @if (authenticated()) {
-          <a class="links__item" routerLink="/guide">
-            <ui-icon
-              class="links__icon links__icon--guide"
-              [img]="guideIcon"
-              [size]="16"
-            />
-            Guide des épreuves
-          </a>
-          <a class="links__item" routerLink="/guide/logique">
-            <ui-icon
-              class="links__icon links__icon--logic"
-              [img]="logicIcon"
-              [size]="16"
-            />
-            Règles de Logique
-          </a>
+            <a class="links__item" routerLink="/guide">
+              <ui-icon
+                class="links__icon links__icon--guide"
+                [img]="guideIcon"
+                [size]="16"
+              />
+              Guide des épreuves
+            </a>
+            <a class="links__item" routerLink="/guide/logique">
+              <ui-icon
+                class="links__icon links__icon--logic"
+                [img]="logicIcon"
+                [size]="16"
+              />
+              Règles de Logique
+            </a>
           }
           <a class="links__item" routerLink="/" fragment="faq">
             <ui-icon
@@ -107,27 +112,27 @@
             Questions fréquentes
           </a>
           @if (authenticated()) {
-          <a class="links__item" routerLink="/credits">
-            <img
-              class="links__coin"
-              src="icons/icone-piece.svg"
-              alt=""
-              width="16"
-              height="16"
-            />
-            Crédits et codes cadeaux
-          </a>
+            <a class="links__item" routerLink="/credits">
+              <img
+                class="links__coin"
+                src="icons/icone-piece.svg"
+                alt=""
+                width="16"
+                height="16"
+              />
+              Crédits et codes cadeaux
+            </a>
           } @else {
-          <a class="links__item" routerLink="/tarifs">
-            <img
-              class="links__coin"
-              src="icons/icone-piece.svg"
-              alt=""
-              width="16"
-              height="16"
-            />
-            Tarifs et crédits
-          </a>
+            <a class="links__item" routerLink="/tarifs">
+              <img
+                class="links__coin"
+                src="icons/icone-piece.svg"
+                alt=""
+                width="16"
+                height="16"
+              />
+              Tarifs et crédits
+            </a>
           }
           <a class="links__item" routerLink="/confidentialite">
             <ui-icon

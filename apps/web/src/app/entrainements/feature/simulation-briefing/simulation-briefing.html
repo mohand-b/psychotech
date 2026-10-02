@@ -1,35 +1,35 @@
 <section class="page-shell sim-brief">
   @if (loaded() && axis(); as currentAxis) {
-  <ui-axis-briefing
-    [axis]="currentAxis"
-    [sector]="sector()"
-    [criticalAxis]="criticalAxis()"
-    [showOptions]="false"
-    [showPairing]="motricityAxis()"
-  >
-    @if (motricityAxis()) {
-    <div briefingPairing class="sim-brief__pairing">
-      <ui-gamepad-pairing
-        variant="briefing"
-        [pairing]="gamepadPairing()"
-        [connected]="gamepadConnected()"
-        [latency]="gamepadLatency()"
-        [latencyGood]="gamepadLatencyGood()"
-      />
-    </div>
-    }
-  </ui-axis-briefing>
-
-  <ui-action-footer>
-    <ui-button
-      [color]="buttonColor()"
-      size="lg"
-      block="mobile"
-      [showArrow]="true"
-      (click)="start()"
+    <ui-axis-briefing
+      [axis]="currentAxis"
+      [sector]="sector()"
+      [criticalAxis]="criticalAxis()"
+      [showOptions]="false"
+      [showPairing]="motricityAxis()"
     >
-      Commencer l'axe
-    </ui-button>
-  </ui-action-footer>
+      @if (motricityAxis()) {
+        <div briefingPairing class="sim-brief__pairing">
+          <ui-gamepad-pairing
+            variant="briefing"
+            [pairing]="gamepadPairing()"
+            [connected]="gamepadConnected()"
+            [latency]="gamepadLatency()"
+            [latencyGood]="gamepadLatencyGood()"
+          />
+        </div>
+      }
+    </ui-axis-briefing>
+
+    <ui-action-footer>
+      <ui-button
+        [color]="buttonColor()"
+        size="lg"
+        block="mobile"
+        [showArrow]="true"
+        (click)="start()"
+      >
+        Commencer l'axe
+      </ui-button>
+    </ui-action-footer>
   }
 </section>

@@ -114,7 +114,9 @@ function keepMostPrestigious(
       bestByLadder.set(key, entry);
     }
   }
-  return definitions.filter((entry) => bestByLadder.get(ladderKeyFor(entry.definition)) === entry);
+  return definitions.filter(
+    (entry) => bestByLadder.get(ladderKeyFor(entry.definition)) === entry,
+  );
 }
 
 export function badgeAnnounceViewFor(

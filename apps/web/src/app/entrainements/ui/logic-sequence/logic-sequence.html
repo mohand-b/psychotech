@@ -24,9 +24,9 @@
       filledValue() !== null && filledTone() === 'correct'
     "
   >
-    <span class="seq__unknown-value t-mono" aria-label="Terme à trouver"
-      >{{ filledValue() ?? '?' }}</span
-    >
+    <span class="seq__unknown-value t-mono" aria-label="Terme à trouver">{{
+      filledValue() ?? '?'
+    }}</span>
   </span>
   @if (hint(); as hintText) {
     <ui-rule-hint

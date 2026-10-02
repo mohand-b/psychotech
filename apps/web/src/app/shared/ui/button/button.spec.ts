@@ -65,9 +65,7 @@ describe('Button', () => {
   });
 
   it('never draws a relief border on a ghost button', async () => {
-    const element = inner(
-      await render({ appearance: 'ghost', relief: true }),
-    );
+    const element = inner(await render({ appearance: 'ghost', relief: true }));
 
     expect(element.className).toContain('ui-button--ghost');
     expect(getComputedStyle(element).borderBottomWidth).not.toBe('3px');

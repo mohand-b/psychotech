@@ -1,8 +1,8 @@
 <div class="badges__head">
   <h1 class="t-page-title">Badges</h1>
   <p class="badges__subtitle">
-    Votre collection avance avec vos résultats. Certains badges ajoutent des crédits à
-    votre solde.
+    Votre collection avance avec vos résultats. Certains badges ajoutent des
+    crédits à votre solde.
   </p>
 </div>
 
@@ -63,7 +63,9 @@
               }
             </span>
             @if (closest.progress) {
-              <span class="badges__closest-progress">{{ closest.progress }}</span>
+              <span class="badges__closest-progress">{{
+                closest.progress
+              }}</span>
             }
           </span>
         </span>
@@ -101,7 +103,9 @@
     <div class="badges__family">
       <div class="badges__family-head">
         <h2 class="badges__family-title">Transverses</h2>
-        <span class="badges__family-sub">Un seul état, tous axes confondus</span>
+        <span class="badges__family-sub"
+          >Un seul état, tous axes confondus</span
+        >
       </div>
       <div class="badges__family-rows badges__family-rows--transverse">
         @for (badge of view.transverse; track badge.badgeId) {

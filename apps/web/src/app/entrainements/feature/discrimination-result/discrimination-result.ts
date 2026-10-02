@@ -38,7 +38,10 @@ import { ResultRecommendation } from '../../ui/result-recommendation/result-reco
 import { ResultSummary } from '../../ui/result-summary/result-summary';
 import { sectorReferentialFor } from '../sector-referential';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
-import { TimeChart, TimeChartEntry } from '../../../shared/ui/time-chart/time-chart';
+import {
+  TimeChart,
+  TimeChartEntry,
+} from '../../../shared/ui/time-chart/time-chart';
 
 @Component({
   selector: 'app-discrimination-result',

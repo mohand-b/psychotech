@@ -1,6 +1,9 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Router, UrlTree } from '@angular/router';
-import { SSO_RETURN_URL_QUERY_PARAM, isSafeReturnUrl } from '@psychotech/shared';
+import {
+  SSO_RETURN_URL_QUERY_PARAM,
+  isSafeReturnUrl,
+} from '@psychotech/shared';
 import { AuthFacade } from './auth.facade';
 
 export const authGuard: CanMatchFn = (): boolean | UrlTree => {

@@ -5,8 +5,8 @@
         Prêt à vous entraîner{{ firstName ? ', ' + firstName : '' }}&nbsp;?
       </h1>
       <span class="trainings__subtitle trainings__subtitle--desktop"
-        >Deux façons de vous préparer aux sélections du secteur {{ sectorLabel
-        }} - à vous de choisir le rythme du jour.</span
+        >Deux façons de vous préparer aux sélections du secteur
+        {{ sectorLabel }} - à vous de choisir le rythme du jour.</span
       >
       <span class="trainings__subtitle trainings__subtitle--mobile"
         >Deux façons de vous préparer au secteur {{ sectorLabel }} - à vous de
@@ -48,10 +48,10 @@
       </div>
       <div class="duo__checks duo__checks--sim">
         @for (item of fullSessionFeatures; track item) {
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          {{ item }}
-        </span>
+          <span class="duo__check">
+            <ui-icon [img]="checkIcon" [size]="15" />
+            {{ item }}
+          </span>
         }
       </div>
       <div class="duo__chips">
@@ -76,75 +76,77 @@
       <div class="duo__panel-inner duo__panel-inner--sim">
         <span class="duo__label">Votre dernier bilan</span>
         @if (lastSimulation(); as bilan) {
-        <div class="duo__bilan-score-row">
-          <span class="duo__bilan-score">
-            <span class="duo__bilan-value t-mono">{{ bilan.scoreLabel }}</span>
-            <span class="duo__bilan-max t-mono">/100</span>
-          </span>
-          <ui-stamp-badge
-            class="duo__bilan-stamp"
-            [simulationStamp]="bilan.stamp"
-          />
-        </div>
-        <div class="duo__bilan-bar-block">
-          <ui-threshold-bar
-            class="duo__bilan-bar"
-            [value]="bilan.barWidth"
-            [threshold]="bilan.markerLeft"
-          />
-          <span class="duo__bilan-caption"
-            >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
-            <span class="duo__bilan-threshold t-mono"
-              >{{ bilan.threshold }}</span
+          <div class="duo__bilan-score-row">
+            <span class="duo__bilan-score">
+              <span class="duo__bilan-value t-mono">{{
+                bilan.scoreLabel
+              }}</span>
+              <span class="duo__bilan-max t-mono">/100</span>
+            </span>
+            <ui-stamp-badge
+              class="duo__bilan-stamp"
+              [simulationStamp]="bilan.stamp"
+            />
+          </div>
+          <div class="duo__bilan-bar-block">
+            <ui-threshold-bar
+              class="duo__bilan-bar"
+              [value]="bilan.barWidth"
+              [threshold]="bilan.markerLeft"
+            />
+            <span class="duo__bilan-caption"
+              >Seuil d'admissibilité {{ sectorLabel }}&nbsp;:
+              <span class="duo__bilan-threshold t-mono">{{
+                bilan.threshold
+              }}</span>
+              ·
+              <span
+                class="duo__bilan-gap t-mono"
+                [class.duo__bilan-gap--above]="bilan.gap.above"
+                [class.duo__bilan-gap--below]="!bilan.gap.above"
+                >{{ bilan.gap.label }}</span
+              ></span
             >
-            ·
+          </div>
+          <span class="duo__bilan-note">
+            <span class="t-mono">{{ bilan.dateLabel }}</span>
             <span
-              class="duo__bilan-gap t-mono"
-              [class.duo__bilan-gap--above]="bilan.gap.above"
-              [class.duo__bilan-gap--below]="!bilan.gap.above"
-              >{{ bilan.gap.label }}</span
-            ></span
-          >
-        </div>
-        <span class="duo__bilan-note">
-          <span class="t-mono">{{ bilan.dateLabel }}</span>
-          <span
-            >Lors d'une session, vous pouvez vous arrêter entre deux axes pour
-            souffler et reprendre la session quand vous le souhaitez.</span
-          >
-        </span>
+              >Lors d'une session, vous pouvez vous arrêter entre deux axes pour
+              souffler et reprendre la session quand vous le souhaitez.</span
+            >
+          </span>
         } @else if (overviewError()) {
-        <span class="duo__empty-title">Bilan indisponible</span>
-        <span class="duo__empty-hint"
-          >Impossible de charger votre dernier bilan.
-          <button
-            type="button"
-            class="t-inline-action duo__retry"
-            (click)="retryOverview()"
+          <span class="duo__empty-title">Bilan indisponible</span>
+          <span class="duo__empty-hint"
+            >Impossible de charger votre dernier bilan.
+            <button
+              type="button"
+              class="t-inline-action duo__retry"
+              (click)="retryOverview()"
+            >
+              Réessayer
+            </button></span
           >
-            Réessayer
-          </button></span
-        >
         } @else if (overviewLoaded()) {
-        <span class="duo__empty-title">Pas encore de bilan</span>
-        <span class="duo__empty-hint"
-          >Votre bilan s'affichera ici après votre premier examen blanc, avec
-          votre score, l'avis d'admissibilité et votre position vs le seuil
-          d'admissibilité de votre secteur.</span
-        >
+          <span class="duo__empty-title">Pas encore de bilan</span>
+          <span class="duo__empty-hint"
+            >Votre bilan s'affichera ici après votre premier examen blanc, avec
+            votre score, l'avis d'admissibilité et votre position vs le seuil
+            d'admissibilité de votre secteur.</span
+          >
         } @else {
-        <div class="duo__bilan-score-row">
-          <ui-skeleton class="duo__skeleton-score" />
-          <ui-skeleton class="duo__skeleton-badge" />
-        </div>
-        <div class="duo__bilan-bar-block">
-          <ui-skeleton class="duo__skeleton-bar" />
-          <ui-skeleton class="duo__skeleton-caption" />
-        </div>
-        <div class="duo__bilan-note">
-          <ui-skeleton class="duo__skeleton-line" />
-          <ui-skeleton class="duo__skeleton-line duo__skeleton-line--short" />
-        </div>
+          <div class="duo__bilan-score-row">
+            <ui-skeleton class="duo__skeleton-score" />
+            <ui-skeleton class="duo__skeleton-badge" />
+          </div>
+          <div class="duo__bilan-bar-block">
+            <ui-skeleton class="duo__skeleton-bar" />
+            <ui-skeleton class="duo__skeleton-caption" />
+          </div>
+          <div class="duo__bilan-note">
+            <ui-skeleton class="duo__skeleton-line" />
+            <ui-skeleton class="duo__skeleton-line duo__skeleton-line--short" />
+          </div>
         }
       </div>
     </div>
@@ -158,67 +160,71 @@
           <span class="duo__label">Meilleur score</span>
         </div>
         <span class="duo__axes-sep"></span>
-        @if (overviewPending()) { @for (row of skeletonAxisRows; track row; let
-        last = $last) {
-        <div class="duo__axis duo__axis--skeleton">
-          <ui-skeleton class="duo__skeleton-tile" />
-          <span class="duo__axis-copy">
-            <ui-skeleton class="duo__skeleton-axis-name" />
-            <ui-skeleton class="duo__skeleton-axis-desc" />
-          </span>
-          <ui-skeleton class="duo__skeleton-axis-score" />
-        </div>
-        @if (!last) {
-        <span class="duo__axes-sep"></span>
-        } } } @else if (overviewError()) {
-        <span class="duo__empty-hint"
-          >Impossible de charger vos axes.
-          <button
-            type="button"
-            class="t-inline-action duo__retry"
-            (click)="retryOverview()"
-          >
-            Réessayer
-          </button></span
-        >
-        } @for (row of axisRows(); track row.axis; let last = $last) {
-        <a class="duo__axis" [routerLink]="row.link">
-          <span
-            class="duo__axis-tile"
-            [style.background]="row.presentation.pastelVar"
-            [style.border-color]="row.presentation.pastelBorderVar"
-          >
-            <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
-          </span>
-          <span class="duo__axis-copy">
-            <span class="duo__axis-name">{{ row.presentation.label }}</span>
-            <span class="duo__axis-desc">{{ row.description }}</span>
-          </span>
-          <span class="duo__axis-score">
-            <span class="duo__axis-bar">
-              <span
-                class="duo__axis-fill"
-                [style.background]="row.presentation.plainVar"
-                [style.width.%]="row.barWidth"
-              ></span>
-            </span>
-            @if (row.neverPlayed) {
-            <span class="duo__axis-value"
-              ><span class="duo__axis-dash"></span
-            ></span>
-            } @else {
-            <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+        @if (overviewPending()) {
+          @for (row of skeletonAxisRows; track row; let last = $last) {
+            <div class="duo__axis duo__axis--skeleton">
+              <ui-skeleton class="duo__skeleton-tile" />
+              <span class="duo__axis-copy">
+                <ui-skeleton class="duo__skeleton-axis-name" />
+                <ui-skeleton class="duo__skeleton-axis-desc" />
+              </span>
+              <ui-skeleton class="duo__skeleton-axis-score" />
+            </div>
+            @if (!last) {
+              <span class="duo__axes-sep"></span>
             }
-          </span>
-          <ui-icon
-            class="duo__axis-chevron"
-            [img]="chevronRightIcon"
-            [size]="15"
-          />
-        </a>
-        @if (!last) {
-        <span class="duo__axes-sep"></span>
-        } }
+          }
+        } @else if (overviewError()) {
+          <span class="duo__empty-hint"
+            >Impossible de charger vos axes.
+            <button
+              type="button"
+              class="t-inline-action duo__retry"
+              (click)="retryOverview()"
+            >
+              Réessayer
+            </button></span
+          >
+        }
+        @for (row of axisRows(); track row.axis; let last = $last) {
+          <a class="duo__axis" [routerLink]="row.link">
+            <span
+              class="duo__axis-tile"
+              [style.background]="row.presentation.pastelVar"
+              [style.border-color]="row.presentation.pastelBorderVar"
+            >
+              <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
+            </span>
+            <span class="duo__axis-copy">
+              <span class="duo__axis-name">{{ row.presentation.label }}</span>
+              <span class="duo__axis-desc">{{ row.description }}</span>
+            </span>
+            <span class="duo__axis-score">
+              <span class="duo__axis-bar">
+                <span
+                  class="duo__axis-fill"
+                  [style.background]="row.presentation.plainVar"
+                  [style.width.%]="row.barWidth"
+                ></span>
+              </span>
+              @if (row.neverPlayed) {
+                <span class="duo__axis-value"
+                  ><span class="duo__axis-dash"></span
+                ></span>
+              } @else {
+                <span class="duo__axis-value t-mono">{{ row.scoreLabel }}</span>
+              }
+            </span>
+            <ui-icon
+              class="duo__axis-chevron"
+              [img]="chevronRightIcon"
+              [size]="15"
+            />
+          </a>
+          @if (!last) {
+            <span class="duo__axes-sep"></span>
+          }
+        }
       </div>
     </div>
 
@@ -258,10 +264,10 @@
       </div>
       <div class="duo__checks duo__checks--cible">
         @for (item of targetedFeatures; track item) {
-        <span class="duo__check">
-          <ui-icon [img]="checkIcon" [size]="15" />
-          {{ item }}
-        </span>
+          <span class="duo__check">
+            <ui-icon [img]="checkIcon" [size]="15" />
+            {{ item }}
+          </span>
         }
       </div>
       <div class="duo__chips">
@@ -273,8 +279,12 @@
       <div class="duo__cta">
         <button type="button" class="duo__foot-link">
           <ui-icon [img]="arrowLeftIcon" [size]="14" />
-          {{ panel() === 'cible' ? 'Choisissez votre axe ci-contre' : 'Voir les
-          axes' }}
+          {{
+            panel() === 'cible'
+              ? 'Choisissez votre axe ci-contre'
+              : 'Voir les
+          axes'
+          }}
         </button>
       </div>
     </div>
@@ -292,10 +302,10 @@
       </div>
       <div class="trainm__checks">
         @for (item of fullSessionFeatures; track item) {
-        <span class="trainm__check trainm__check--sim">
-          <ui-icon [img]="checkIcon" [size]="14" />
-          {{ item }}
-        </span>
+          <span class="trainm__check trainm__check--sim">
+            <ui-icon [img]="checkIcon" [size]="14" />
+            {{ item }}
+          </span>
         }
       </div>
       <div class="trainm__chips">
@@ -334,10 +344,10 @@
         </div>
         <div class="trainm__checks">
           @for (item of targetedFeatures; track item) {
-          <span class="trainm__check trainm__check--cible">
-            <ui-icon [img]="checkIcon" [size]="14" />
-            {{ item }}
-          </span>
+            <span class="trainm__check trainm__check--cible">
+              <ui-icon [img]="checkIcon" [size]="14" />
+              {{ item }}
+            </span>
           }
         </div>
         <div class="trainm__chips">
@@ -350,58 +360,62 @@
 
       <div class="trainm__axes">
         @for (row of axisRows(); track row.axis) {
-        <a class="trainm__axis" [routerLink]="row.link">
-          <span class="trainm__axis-top">
-            <span
-              class="trainm__axis-tile"
-              [style.background]="row.presentation.pastelVar"
-              [style.border-color]="row.presentation.pastelBorderVar"
-            >
-              <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
-            </span>
-            <span class="trainm__axis-copy">
-              <span class="trainm__axis-name"
-                >{{ row.presentation.label }}</span
-              >
-              <span class="trainm__axis-desc">{{ row.mobileDescription }}</span>
-            </span>
-            <ui-icon
-              class="duo__axis-chevron"
-              [img]="chevronRightIcon"
-              [size]="16"
-            />
-          </span>
-          <span class="trainm__axis-foot">
-            <span class="trainm__axis-foot-label">Meilleur score</span>
-            <span class="trainm__axis-bar">
+          <a class="trainm__axis" [routerLink]="row.link">
+            <span class="trainm__axis-top">
               <span
-                class="trainm__axis-fill"
-                [style.background]="row.presentation.plainVar"
-                [style.width.%]="row.barWidth"
-              ></span>
+                class="trainm__axis-tile"
+                [style.background]="row.presentation.pastelVar"
+                [style.border-color]="row.presentation.pastelBorderVar"
+              >
+                <ui-axis-icon [axis]="row.axis" [size]="cardIconSize" />
+              </span>
+              <span class="trainm__axis-copy">
+                <span class="trainm__axis-name">{{
+                  row.presentation.label
+                }}</span>
+                <span class="trainm__axis-desc">{{
+                  row.mobileDescription
+                }}</span>
+              </span>
+              <ui-icon
+                class="duo__axis-chevron"
+                [img]="chevronRightIcon"
+                [size]="16"
+              />
             </span>
-            @if (row.neverPlayed) {
-            <span class="trainm__axis-value"
-              ><span class="duo__axis-dash"></span
-            ></span>
-            } @else {
-            <span class="trainm__axis-value t-mono">{{ row.scoreLabel }}</span>
-            }
-          </span>
-        </a>
+            <span class="trainm__axis-foot">
+              <span class="trainm__axis-foot-label">Meilleur score</span>
+              <span class="trainm__axis-bar">
+                <span
+                  class="trainm__axis-fill"
+                  [style.background]="row.presentation.plainVar"
+                  [style.width.%]="row.barWidth"
+                ></span>
+              </span>
+              @if (row.neverPlayed) {
+                <span class="trainm__axis-value"
+                  ><span class="duo__axis-dash"></span
+                ></span>
+              } @else {
+                <span class="trainm__axis-value t-mono">{{
+                  row.scoreLabel
+                }}</span>
+              }
+            </span>
+          </a>
         }
       </div>
 
       <span class="trainm__note"
-        >Chaque entraînement génère de nouveaux exercices. Les crédits sont débités
-        au lancement.</span
+        >Chaque entraînement génère de nouveaux exercices. Les crédits sont
+        débités au lancement.</span
       >
     </section>
   </div>
 
   <span class="trainings__footnote"
-    >Chaque entraînement génère de nouveaux exercices. Les crédits sont débités au
-    lancement.</span
+    >Chaque entraînement génère de nouveaux exercices. Les crédits sont débités
+    au lancement.</span
   >
 
   <section class="tut">
@@ -425,19 +439,19 @@
     </div>
     <div class="tut__grid">
       @for (tutorial of tutorialAxes; track tutorial.axis) {
-      <a class="tut__card" [routerLink]="tutorial.link">
-        <span
-          class="tut__card-tile"
-          [style.background]="tutorial.presentation.pastelVar"
-        >
-          <ui-axis-icon [axis]="tutorial.axis" [size]="cardIconSize" />
-        </span>
-        <span class="tut__card-name">{{ tutorial.presentation.label }}</span>
-        <span class="tut__try" [style.color]="tutorial.presentation.textVar">
-          <ui-icon [img]="playIcon" [size]="11" />
-          Essayer
-        </span>
-      </a>
+        <a class="tut__card" [routerLink]="tutorial.link">
+          <span
+            class="tut__card-tile"
+            [style.background]="tutorial.presentation.pastelVar"
+          >
+            <ui-axis-icon [axis]="tutorial.axis" [size]="cardIconSize" />
+          </span>
+          <span class="tut__card-name">{{ tutorial.presentation.label }}</span>
+          <span class="tut__try" [style.color]="tutorial.presentation.textVar">
+            <ui-icon [img]="playIcon" [size]="11" />
+            Essayer
+          </span>
+        </a>
       }
     </div>
   </section>

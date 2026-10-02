@@ -51,7 +51,9 @@ export const authRoutes: Route[] = [
       {
         path: 'nouveau-mot-de-passe',
         loadComponent: () =>
-          import('./reset-password/reset-password').then((m) => m.ResetPassword),
+          import('./reset-password/reset-password').then(
+            (m) => m.ResetPassword,
+          ),
       },
       {
         path: 'verification',

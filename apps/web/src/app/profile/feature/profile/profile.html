@@ -59,7 +59,7 @@
         <ui-icon [img]="newsIcon" [size]="16" [strokeWidth]="1.8" />
         <span class="profil__contact-label">Nouveautés</span>
         @if (latestVersion(); as version) {
-        <span class="profil__version t-mono">{{ version }}</span>
+          <span class="profil__version t-mono">{{ version }}</span>
         }
       </a>
       <button type="button" class="profil__logout" (click)="logout()">
@@ -366,7 +366,10 @@
             />
           </a>
 
-          <a class="profil__contact-row md:hidden" [routerLink]="nouveautesRoute">
+          <a
+            class="profil__contact-row md:hidden"
+            [routerLink]="nouveautesRoute"
+          >
             <span class="profil__contact-row-label">
               <ui-icon
                 class="profil__contact-row-icon"
@@ -375,7 +378,7 @@
               />
               Nouveautés
               @if (latestVersion(); as version) {
-              <span class="profil__version t-mono">{{ version }}</span>
+                <span class="profil__version t-mono">{{ version }}</span>
               }
             </span>
             <ui-icon
@@ -423,7 +426,9 @@
                   type="password"
                   placeholder="8 caractères minimum"
                   [value]="newPassword()"
-                  (input)="newPassword.set(readValue($event)); pwDone.set(false)"
+                  (input)="
+                    newPassword.set(readValue($event)); pwDone.set(false)
+                  "
                 />
               </label>
               <label class="profil__sec-field">
@@ -492,15 +497,20 @@
               >
               <span class="profil__card-note">Défini à l'inscription</span>
             </div>
-            <div class="profil__sector profil__sector--active flex items-center">
-              <span class="profil__sector-name flex-1">{{ sectorLabel() }}</span>
+            <div
+              class="profil__sector profil__sector--active flex items-center"
+            >
+              <span class="profil__sector-name flex-1">{{
+                sectorLabel()
+              }}</span>
               <span class="profil__sector-chip">Actif</span>
             </div>
             @for (name of upcomingSectors; track name) {
               <div class="profil__sector flex items-center">
-                <span class="profil__sector-name profil__sector-name--muted flex-1">{{
-                  name
-                }}</span>
+                <span
+                  class="profil__sector-name profil__sector-name--muted flex-1"
+                  >{{ name }}</span
+                >
                 <span class="profil__sector-soon">Prochainement</span>
               </div>
             }
@@ -552,7 +562,9 @@
                   alt=""
                 />
                 <span class="profil__preview-text"
-                  ><span class="profil__preview-strong">{{ previewWho() }}</span>
+                  ><span class="profil__preview-strong">{{
+                    previewWho()
+                  }}</span>
                   a décroché
                   <span class="profil__preview-strong">{{
                     previewBadgeName

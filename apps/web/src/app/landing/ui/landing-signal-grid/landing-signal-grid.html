@@ -1,41 +1,43 @@
 @for (field of fields; track field.key) {
-<div
-  class="grid__field"
-  [class.grid__field--compact]="field.key === 'compact'"
-  [style.width.px]="field.width"
-  [style.height.px]="field.height"
-  [style.--signal-cell-size.px]="field.cellSize"
->
-  <svg
-    class="grid__off-cells"
-    [attr.width]="field.width"
-    [attr.height]="field.height"
+  <div
+    class="grid__field"
+    [class.grid__field--compact]="field.key === 'compact'"
+    [style.width.px]="field.width"
+    [style.height.px]="field.height"
+    [style.--signal-cell-size.px]="field.cellSize"
   >
-    <defs>
-      <pattern
-        [attr.id]="field.offCellsPatternId"
-        [attr.width]="field.cellPitch"
-        [attr.height]="field.cellPitch"
-        patternUnits="userSpaceOnUse"
-      >
-        <rect
-          class="grid__off-cell"
-          [attr.width]="field.cellSize"
-          [attr.height]="field.cellSize"
-          [attr.rx]="cellRadius"
-        />
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" [attr.fill]="field.offCellsFill" />
-  </svg>
-  @if (field === activeField()) { @for (cell of cells(); track cell.index) {
-  <span
-    class="grid__cell"
-    [class.grid__cell--lit]="cell.state === 'lit'"
-    [class.grid__cell--vivid]="cell.state === 'vivid'"
-    [style.left.px]="cell.left"
-    [style.top.px]="cell.top"
-  ></span>
-  } }
-</div>
+    <svg
+      class="grid__off-cells"
+      [attr.width]="field.width"
+      [attr.height]="field.height"
+    >
+      <defs>
+        <pattern
+          [attr.id]="field.offCellsPatternId"
+          [attr.width]="field.cellPitch"
+          [attr.height]="field.cellPitch"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect
+            class="grid__off-cell"
+            [attr.width]="field.cellSize"
+            [attr.height]="field.cellSize"
+            [attr.rx]="cellRadius"
+          />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" [attr.fill]="field.offCellsFill" />
+    </svg>
+    @if (field === activeField()) {
+      @for (cell of cells(); track cell.index) {
+        <span
+          class="grid__cell"
+          [class.grid__cell--lit]="cell.state === 'lit'"
+          [class.grid__cell--vivid]="cell.state === 'vivid'"
+          [style.left.px]="cell.left"
+          [style.top.px]="cell.top"
+        ></span>
+      }
+    }
+  </div>
 }

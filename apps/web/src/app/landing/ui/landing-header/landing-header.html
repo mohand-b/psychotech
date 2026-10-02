@@ -17,14 +17,14 @@
     </nav>
     <div class="header__actions">
       @if (authenticated()) {
-      <app-landing-button size="nav" [link]="dashboardLink"
-        >Mon espace</app-landing-button
-      >
+        <app-landing-button size="nav" [link]="dashboardLink"
+          >Mon espace</app-landing-button
+        >
       } @else {
-      <a class="header__signin" [routerLink]="route.login">Connexion</a>
-      <app-landing-button size="nav" [link]="signupLink"
-        >Créer un compte</app-landing-button
-      >
+        <a class="header__signin" [routerLink]="route.login">Connexion</a>
+        <app-landing-button size="nav" [link]="signupLink"
+          >Créer un compte</app-landing-button
+        >
       }
     </div>
   </div>

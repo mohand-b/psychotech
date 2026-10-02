@@ -19,9 +19,7 @@ export class BillingApi {
     return this.http.get<BillingConfigDto>(`${this.baseUrl}/billing/config`);
   }
 
-  createPackCheckout(
-    packId: EnergyPackId,
-  ): Observable<PackCheckoutSessionDto> {
+  createPackCheckout(packId: EnergyPackId): Observable<PackCheckoutSessionDto> {
     const body: PackCheckoutRequestDto = { packId };
     return this.http.post<PackCheckoutSessionDto>(
       `${this.baseUrl}/billing/pack-checkout`,

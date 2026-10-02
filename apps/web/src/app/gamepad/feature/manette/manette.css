@@ -207,8 +207,9 @@
 @media (orientation: landscape) {
   .manette {
     display: grid;
-    grid-template-columns:
-      calc(20px + var(--safe-left)) auto 1fr auto calc(20px + var(--safe-right));
+    grid-template-columns: calc(20px + var(--safe-left)) auto 1fr auto calc(
+        20px + var(--safe-right)
+      );
     grid-template-rows: auto 1fr auto;
     grid-template-areas:
       'header header header header header'

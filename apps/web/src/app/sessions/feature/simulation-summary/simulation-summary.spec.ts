@@ -234,7 +234,11 @@ async function setup(
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
       {
         provide: BadgeCelebrationFacade,
-        useValue: { holdScene: vi.fn(), releaseScene: vi.fn(), replay: vi.fn() },
+        useValue: {
+          holdScene: vi.fn(),
+          releaseScene: vi.fn(),
+          replay: vi.fn(),
+        },
       },
       {
         provide: ActivatedRoute,
@@ -522,7 +526,14 @@ describe('SimulationSummary', () => {
   });
 
   it('announces the badges earned by the completed examen blanc', async () => {
-    const earnedBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
+    const earnedBadges = [
+      {
+        badgeId: BadgeId.EXAM_FAVORABLE,
+        earnedAt: '2026-08-07T10:00:00.000Z',
+        gain: 2,
+        conditions: [],
+      },
+    ];
     const { fixture } = await setup(buildSummary({ earnedBadges }));
     const card = fixture.nativeElement.querySelector('ui-badge-announce');
     expect(card).not.toBeNull();
@@ -537,7 +548,14 @@ describe('SimulationSummary', () => {
   });
 
   it('closes the report with the badges, after the axis detail', async () => {
-    const earnedBadges = [{ badgeId: BadgeId.EXAM_FAVORABLE, earnedAt: '2026-08-07T10:00:00.000Z', gain: 2, conditions: [] }];
+    const earnedBadges = [
+      {
+        badgeId: BadgeId.EXAM_FAVORABLE,
+        earnedAt: '2026-08-07T10:00:00.000Z',
+        gain: 2,
+        conditions: [],
+      },
+    ];
     const { fixture } = await setup(buildSummary({ earnedBadges }));
     const element: HTMLElement = fixture.nativeElement;
 

@@ -50,7 +50,13 @@ const RADAR_VERTICES = [
     anchor: 'start',
   },
   { axis: AxisType.REACTIVITY, text: 'Réacti.', x: 54, y: 113, anchor: 'end' },
-  { axis: AxisType.MOTOR_SKILLS, text: 'Motricité', x: 35, y: 46, anchor: 'end' },
+  {
+    axis: AxisType.MOTOR_SKILLS,
+    text: 'Motricité',
+    x: 35,
+    y: 46,
+    anchor: 'end',
+  },
 ] as const;
 
 // Chaque sommet est indissociable de son axe : les entrées sont réordonnées

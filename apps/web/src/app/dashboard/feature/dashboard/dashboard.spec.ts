@@ -288,9 +288,8 @@ describe('Dashboard', () => {
     const depleted = await setup({ balance: 0 });
     expect(textOf(depleted.fixture)).toContain('Crédits épuisés');
     expect(textOf(depleted.fixture)).toContain("Vous n'avez plus de crédits.");
-    const link = depleted.fixture.nativeElement.querySelector(
-      '.home__day-sub a',
-    );
+    const link =
+      depleted.fixture.nativeElement.querySelector('.home__day-sub a');
     expect(link?.textContent).toContain('Recharger des crédits');
     expect(link?.getAttribute('href')).toBe('/credits');
   });
@@ -372,7 +371,9 @@ describe('Dashboard', () => {
 
   it('rules the exam date itself while the axis scores are not available', async () => {
     const { fixture } = await setup({ progression: null });
-    expect(fixture.nativeElement.querySelector('.home__result-axes')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.home__result-axes'),
+    ).toBeNull();
     expect(
       fixture.nativeElement.querySelector('.home__result-date--ruled'),
     ).not.toBeNull();
@@ -474,9 +475,9 @@ describe('Dashboard - widget Crédits', () => {
     expect(card?.textContent).not.toContain('Rechargez');
     expect(card?.textContent).toContain("Sans date d'expiration");
     expect(card?.querySelector('ui-axis-icon')).not.toBeNull();
-    expect(
-      card?.querySelector('a[href="/credits"]')?.textContent,
-    ).toContain('Voir les packs');
+    expect(card?.querySelector('a[href="/credits"]')?.textContent).toContain(
+      'Voir les packs',
+    );
 
     const ok = await setup({ balance: 5 });
     const okCard = ok.fixture.nativeElement.querySelector('.home__credits');

@@ -221,9 +221,7 @@ describe('LogicCorrection — revue des propositions triangles', () => {
     TestBed.resetTestingModule();
   });
 
-  async function setupTriangle(
-    numericValue: number | null,
-  ): Promise<Setup> {
+  async function setupTriangle(numericValue: number | null): Promise<Setup> {
     const result = await setup([
       {
         index: triangleIndex,
@@ -252,9 +250,9 @@ describe('LogicCorrection — revue des propositions triangles', () => {
         'choices__item--correct',
       ),
     ).toBe(true);
-    expect(
-      chips[wrongIndex].classList.contains('choices__item--wrong'),
-    ).toBe(true);
+    expect(chips[wrongIndex].classList.contains('choices__item--wrong')).toBe(
+      true,
+    );
     expect(chips[wrongIndex].textContent).toContain('Votre réponse');
     expect(result.element.querySelector('.corr-tri__free')).toBeNull();
   });

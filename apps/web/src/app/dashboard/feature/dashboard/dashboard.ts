@@ -121,10 +121,9 @@ export class Dashboard {
   private readonly clock = inject(Clock);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  private readonly badgeStatusesResource = httpResource<BadgeStatusDto[] | null>(
-    () => `${this.baseUrl}/me/badges`,
-    { defaultValue: null },
-  );
+  private readonly badgeStatusesResource = httpResource<
+    BadgeStatusDto[] | null
+  >(() => `${this.baseUrl}/me/badges`, { defaultValue: null });
   private readonly now = new Date();
 
   protected readonly playIcon = Play;
@@ -429,7 +428,6 @@ export class Dashboard {
   protected openProgression(): void {
     this.router.navigate(['/progression']);
   }
-
 
   protected workWeakAxis(): void {
     const slug = this.weakAxis()?.slug;

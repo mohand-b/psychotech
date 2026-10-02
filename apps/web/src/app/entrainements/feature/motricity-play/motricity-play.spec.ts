@@ -168,7 +168,10 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
             stick: () => ({ x: 0, y: 0 }),
           },
         },
-        { provide: SimulationSummaryFacade, useValue: { loadSummary: vi.fn() } },
+        {
+          provide: SimulationSummaryFacade,
+          useValue: { loadSummary: vi.fn() },
+        },
       ],
     });
     TestBed.overrideComponent(MotricityPlay, {
@@ -180,7 +183,8 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
     const fixture: ComponentFixture<MotricityPlay> =
       TestBed.createComponent(MotricityPlay);
     fixture.detectChanges();
-    const harness = fixture.componentInstance as unknown as MotricityPlayHarness;
+    const harness =
+      fixture.componentInstance as unknown as MotricityPlayHarness;
     return { fixture, harness, completeTargetedMotricity, navigate };
   }
 
@@ -201,13 +205,18 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
     completeTargetedMotricity: ReturnType<typeof vi.fn>,
     attempt: number,
   ): MotricityCourseTrajectoryDto[] {
-    return completeTargetedMotricity.mock
-      .calls[attempt][0] as MotricityCourseTrajectoryDto[];
+    return completeTargetedMotricity.mock.calls[
+      attempt
+    ][0] as MotricityCourseTrajectoryDto[];
   }
 
   it('plays three courses, sends one trajectory per course and really stops the animation loop', () => {
-    const { fixture, harness, completeTargetedMotricity, navigate } = setup(() =>
-      of({ ...examSessionOnMotricity(), currentAxisIndex: MOTRICITY_INDEX + 1 }),
+    const { fixture, harness, completeTargetedMotricity, navigate } = setup(
+      () =>
+        of({
+          ...examSessionOnMotricity(),
+          currentAxisIndex: MOTRICITY_INDEX + 1,
+        }),
     );
 
     playEveryCourseUntilTimeout(harness, fixture);

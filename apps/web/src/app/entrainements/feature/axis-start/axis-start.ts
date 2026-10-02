@@ -84,8 +84,7 @@ export class AxisStart {
   );
   protected readonly showGuideNote = computed(
     () =>
-      !this.tutorial &&
-      (this.showExamGuideLink() || this.showLogicRulesLink()),
+      !this.tutorial && (this.showExamGuideLink() || this.showLogicRulesLink()),
   );
 
   protected readonly sector = computed(
@@ -99,8 +98,7 @@ export class AxisStart {
   );
 
   protected readonly energyLocked = computed(
-    () =>
-      !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
+    () => !this.tutorial && this.energyFacade.state()?.canStartAxis === false,
   );
 
   protected readonly gamepadPairing = this.gamepad.pairing;

@@ -101,9 +101,7 @@ export function revealPathFor(target: number): RevealPath {
     (SCORE_REVEAL_SWING_PEAK_FACTOR * widestSwing) /
       SCORE_REVEAL_POINTS_PER_SEC,
   );
-  const legsSec = legs.map((leg, index) =>
-    index === 0 ? climbSec : swingSec,
-  );
+  const legsSec = legs.map((leg, index) => (index === 0 ? climbSec : swingSec));
   const totalSec = legsSec.reduce((sum, leg) => sum + leg, 0);
 
   const times = [0];

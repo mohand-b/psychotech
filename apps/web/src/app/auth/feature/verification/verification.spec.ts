@@ -41,7 +41,10 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
   const resendVerification = vi.fn(
     options.resendResult ??
       (() =>
-        of<ResendVerificationResponseDto>({ sent: true, retryAfterSeconds: null })),
+        of<ResendVerificationResponseDto>({
+          sent: true,
+          retryAfterSeconds: null,
+        })),
   );
   const loadCurrentUser = vi.fn(() => of(null));
   await TestBed.configureTestingModule({
@@ -62,7 +65,9 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
         useValue: {
           snapshot: {
             queryParamMap: convertToParamMap(
-              options.token === null ? {} : { token: options.token ?? 'a'.repeat(64) },
+              options.token === null
+                ? {}
+                : { token: options.token ?? 'a'.repeat(64) },
             ),
           },
         },
@@ -134,7 +139,10 @@ describe('Verification', () => {
     const result = await setup({
       authenticated: true,
       verifyResult: () =>
-        of<VerifyEmailResponseDto>({ outcome: 'ALREADY_VERIFIED', email: null }),
+        of<VerifyEmailResponseDto>({
+          outcome: 'ALREADY_VERIFIED',
+          email: null,
+        }),
     });
 
     expect(result.element.textContent).toContain('Adresse déjà vérifiée');

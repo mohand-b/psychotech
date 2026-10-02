@@ -9,12 +9,11 @@
         }
       </span>
       <span class="detail__metric-value t-mono"
-        >{{ row.value
-        }}@if (row.suffix) {<span class="detail__metric-suffix">{{
-          row.suffix
-        }}</span
-        >}</span
-      >
+        >{{ row.value }}
+        @if (row.suffix) {
+          <span class="detail__metric-suffix">{{ row.suffix }}</span>
+        }
+      </span>
     </div>
   }
 </div>

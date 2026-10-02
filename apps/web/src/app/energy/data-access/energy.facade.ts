@@ -42,9 +42,9 @@ export class EnergyFacade {
   }
 
   redeemGiftCode(code: string): Observable<GiftCodeRedemptionDto> {
-    return this.api.redeemGiftCode(code).pipe(
-      tap(() => this.load().subscribe({ error: () => undefined })),
-    );
+    return this.api
+      .redeemGiftCode(code)
+      .pipe(tap(() => this.load().subscribe({ error: () => undefined })));
   }
 
   clear(): void {

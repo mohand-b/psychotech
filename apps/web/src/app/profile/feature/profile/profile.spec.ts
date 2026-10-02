@@ -6,11 +6,7 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import {
-  EnergyStateDto,
-  Sector,
-  UserProfileDto,
-} from '@psychotech/shared';
+import { EnergyStateDto, Sector, UserProfileDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -46,9 +42,11 @@ function energyState(balance: number): EnergyStateDto {
 async function setup(user: UserProfileDto = buildUser()) {
   const userSignal = signal<UserProfileDto | null>(user);
   const updateProfile = vi.fn().mockReturnValue(of(user));
-  const requestEmailChange = vi.fn().mockReturnValue(
-    of({ sent: true, retryAfterSeconds: null, pendingEmail: null }),
-  );
+  const requestEmailChange = vi
+    .fn()
+    .mockReturnValue(
+      of({ sent: true, retryAfterSeconds: null, pendingEmail: null }),
+    );
   const changePassword = vi.fn().mockReturnValue(of(user));
   const deleteAccount = vi.fn().mockReturnValue(of(undefined));
   const resendVerification = vi
@@ -131,10 +129,7 @@ function element(fixture: ComponentFixture<Profile>): HTMLElement {
   return fixture.nativeElement as HTMLElement;
 }
 
-function clickButton(
-  fixture: ComponentFixture<Profile>,
-  label: string,
-): void {
+function clickButton(fixture: ComponentFixture<Profile>, label: string): void {
   const button = Array.from(
     element(fixture).querySelectorAll<HTMLButtonElement>('button'),
   ).find((candidate) => candidate.textContent?.trim().startsWith(label));
@@ -245,15 +240,16 @@ describe('Profile - confidentialité', () => {
     const { fixture, updateProfile } = await setup();
     clickButton(fixture, 'Confidentialité');
 
-    const toggle = element(fixture).querySelector<HTMLButtonElement>(
-      '.ui-toggle',
-    );
+    const toggle =
+      element(fixture).querySelector<HTMLButtonElement>('.ui-toggle');
     toggle?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(updateProfile).toHaveBeenCalledWith({ showInFeed: true });
-    expect(element(fixture).textContent).toContain('Mohand a décroché Cartésien');
+    expect(element(fixture).textContent).toContain(
+      'Mohand a décroché Cartésien',
+    );
   });
 });
 
@@ -284,7 +280,9 @@ describe('Profile - suppression', () => {
     const modal = element(fixture).querySelector('.profil__modal');
     expect(modal).not.toBeNull();
 
-    const inputs = (modal as Element).querySelectorAll<HTMLInputElement>('input');
+    const inputs = (modal as Element).querySelectorAll<HTMLInputElement>(
+      'input',
+    );
     inputs[0].value = 'mon-mdp';
     inputs[0].dispatchEvent(new Event('input'));
     fixture.detectChanges();

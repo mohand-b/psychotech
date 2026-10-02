@@ -30,8 +30,9 @@ describe('ItemNavBand', () => {
 
   beforeEach(async () => {
     Element.prototype.scrollIntoView = () => undefined;
-    await TestBed.configureTestingModule({ imports: [BandHost] })
-      .compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [BandHost],
+    }).compileComponents();
     fixture = TestBed.createComponent(BandHost);
     fixture.detectChanges();
   });

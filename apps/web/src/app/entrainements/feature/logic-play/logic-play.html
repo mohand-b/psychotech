@@ -1,21 +1,22 @@
 <section class="play">
   @if (loaded() && countingDown()) {
-  <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
-  } @if (loaded() && durationSec(); as total) {
-  <div
-    class="play__progress"
-    role="progressbar"
-    aria-label="Temps restant"
-    aria-valuemin="0"
-    [attr.aria-valuemax]="total"
-    [attr.aria-valuenow]="remainingSec()"
-    [style.--progress-accent]="presentation.plainVar"
-  >
-    <span
-      class="play__progress-fill"
-      [style.width.%]="remainingPercent()"
-    ></span>
-  </div>
+    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+  }
+  @if (loaded() && durationSec(); as total) {
+    <div
+      class="play__progress"
+      role="progressbar"
+      aria-label="Temps restant"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="total"
+      [attr.aria-valuenow]="remainingSec()"
+      [style.--progress-accent]="presentation.plainVar"
+    >
+      <span
+        class="play__progress-fill"
+        [style.width.%]="remainingPercent()"
+      ></span>
+    </div>
   }
   <ui-item-nav-band
     [states]="itemStates()"
@@ -27,207 +28,226 @@
   />
 
   @if (loaded() && currentItem(); as item) {
-  <div
-    class="play__content"
-    [style.--axis-plain]="presentation.plainVar"
-    [style.--axis-pastel]="presentation.pastelVar"
-    [style.--axis-pastel-bd]="presentation.pastelBorderVar"
-    [style.--axis-text]="presentation.textVar"
-  >
-    <article class="play__card play__card--split">
-      @switch (item.family) { @case (families.DOMINO) { @if (dominoItem(); as
-      domino) {
-      <ui-logic-domino
-        #dominoBoard
-        [tiles]="domino.domino.visibleTiles"
-        [top]="currentDominoAnswer().top"
-        [bottom]="currentDominoAnswer().bottom"
-        [activeFace]="activeFace()"
-        [disabled]="locked()"
-        [hint]="helpEnabled() ? currentHint() : null"
-        [hintUsed]="currentHelpUsed()"
-        (faceSelected)="selectFace($event)"
-        (digitEntered)="enterDominoDigit($event)"
-        (cleared)="clearDominoAnswer()"
-        (lastFaceErased)="eraseLastDominoFace()"
-        (hintOpened)="markHelpUsed()"
-      >
-        <ui-logic-item-head
-          icon="domino"
-          label="Dominos"
-          consigne="Déduisez le dernier domino et saisissez ses deux faces"
-          [current]="currentIndex() + 1"
-          [total]="items().length"
-        />
-      </ui-logic-domino>
-      } } @case (families.NUMERIC) { @switch (numericStructure()) { @case
-      (structures.TRIANGLE) { @if (triangleItem(); as triangle) {
-      <ui-logic-triangle
-        #triangleBoard
-        [item]="triangle.triangle"
-        [value]="currentNumericValue()"
-        [choices]="triangle.choices"
-        [selectedIndex]="triangleSelectedIndex()"
-        [disabled]="locked()"
-        [hint]="helpEnabled() ? currentHint() : null"
-        [hintUsed]="currentHelpUsed()"
-        (chosen)="select($event)"
-        (hintOpened)="markHelpUsed()"
-      >
-        <ui-logic-item-head
-          icon="series"
-          label="Triangles chiffrés"
-          consigne="Choisissez la valeur manquante"
-          [current]="currentIndex() + 1"
-          [total]="items().length"
-        />
-      </ui-logic-triangle>
-      } } @default { @if (sequenceItem(); as numeric) {
-      <div class="play__stack">
-        <div class="play__stage">
-          <div class="play__panel">
-          <ui-logic-item-head
-            icon="series"
-            label="Suites numériques"
-            consigne="Complétez la suite"
-            [current]="currentIndex() + 1"
-            [total]="items().length"
-          />
+    <div
+      class="play__content"
+      [style.--axis-plain]="presentation.plainVar"
+      [style.--axis-pastel]="presentation.pastelVar"
+      [style.--axis-pastel-bd]="presentation.pastelBorderVar"
+      [style.--axis-text]="presentation.textVar"
+    >
+      <article class="play__card play__card--split">
+        @switch (item.family) {
+          @case (families.DOMINO) {
+            @if (dominoItem(); as domino) {
+              <ui-logic-domino
+                #dominoBoard
+                [tiles]="domino.domino.visibleTiles"
+                [top]="currentDominoAnswer().top"
+                [bottom]="currentDominoAnswer().bottom"
+                [activeFace]="activeFace()"
+                [disabled]="locked()"
+                [hint]="helpEnabled() ? currentHint() : null"
+                [hintUsed]="currentHelpUsed()"
+                (faceSelected)="selectFace($event)"
+                (digitEntered)="enterDominoDigit($event)"
+                (cleared)="clearDominoAnswer()"
+                (lastFaceErased)="eraseLastDominoFace()"
+                (hintOpened)="markHelpUsed()"
+              >
+                <ui-logic-item-head
+                  icon="domino"
+                  label="Dominos"
+                  consigne="Déduisez le dernier domino et saisissez ses deux faces"
+                  [current]="currentIndex() + 1"
+                  [total]="items().length"
+                />
+              </ui-logic-domino>
+            }
+          }
+          @case (families.NUMERIC) {
+            @switch (numericStructure()) {
+              @case (structures.TRIANGLE) {
+                @if (triangleItem(); as triangle) {
+                  <ui-logic-triangle
+                    #triangleBoard
+                    [item]="triangle.triangle"
+                    [value]="currentNumericValue()"
+                    [choices]="triangle.choices"
+                    [selectedIndex]="triangleSelectedIndex()"
+                    [disabled]="locked()"
+                    [hint]="helpEnabled() ? currentHint() : null"
+                    [hintUsed]="currentHelpUsed()"
+                    (chosen)="select($event)"
+                    (hintOpened)="markHelpUsed()"
+                  >
+                    <ui-logic-item-head
+                      icon="series"
+                      label="Triangles chiffrés"
+                      consigne="Choisissez la valeur manquante"
+                      [current]="currentIndex() + 1"
+                      [total]="items().length"
+                    />
+                  </ui-logic-triangle>
+                }
+              }
+              @default {
+                @if (sequenceItem(); as numeric) {
+                  <div class="play__stack">
+                    <div class="play__stage">
+                      <div class="play__panel">
+                        <ui-logic-item-head
+                          icon="series"
+                          label="Suites numériques"
+                          consigne="Complétez la suite"
+                          [current]="currentIndex() + 1"
+                          [total]="items().length"
+                        />
 
-          <ui-logic-sequence
-            #sequence
-            [terms]="numeric.sequence"
-            [filledValue]="selectedSequenceValue()"
-            [hint]="helpEnabled() ? currentHint() : null"
-            [hintUsed]="currentHelpUsed()"
-            (hintOpened)="markHelpUsed()"
+                        <ui-logic-sequence
+                          #sequence
+                          [terms]="numeric.sequence"
+                          [filledValue]="selectedSequenceValue()"
+                          [hint]="helpEnabled() ? currentHint() : null"
+                          [hintUsed]="currentHelpUsed()"
+                          (hintOpened)="markHelpUsed()"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="play__answer">
+                      <ui-logic-choices
+                        [choices]="numeric.choices"
+                        [selectedIndex]="answers()[currentIndex()]"
+                        [disabled]="locked()"
+                        (chosen)="select($event)"
+                      />
+                      <span class="play__card-hint"
+                        >A-D ou 1-4 pour répondre</span
+                      >
+                    </div>
+                  </div>
+                }
+              }
+            }
+          }
+          @default {
+            @if (matrixItem(); as matrix) {
+              <ui-logic-matrix
+                #matrixBoard
+                [item]="matrix"
+                [selectedIndex]="answers()[currentIndex()]"
+                [disabled]="locked()"
+                [hint]="helpEnabled() ? currentHint() : null"
+                [hintUsed]="currentHelpUsed()"
+                (chosen)="select($event)"
+                (hintOpened)="markHelpUsed()"
+              >
+                <ui-logic-item-head
+                  icon="matrix"
+                  label="Matrices"
+                  consigne="Choisissez la figure qui complète la grille"
+                  [current]="currentIndex() + 1"
+                  [total]="items().length"
+                />
+              </ui-logic-matrix>
+            }
+          }
+        }
+        @if (tutorialMode) {
+          <p class="play__rule">
+            <span class="t-label">Règle</span>
+            <span class="play__rule-text">{{ currentHint() }}</span>
+          </p>
+        }
+      </article>
+
+      <ui-action-footer>
+        <div class="play__actions">
+          <ui-button
+            class="play__previous"
+            color="neutral"
+            appearance="outlined"
+            [icon]="backIcon"
+            [disabled]="currentIndex() === 0 || locked()"
+            (click)="previous()"
+          >
+            Précédent
+          </ui-button>
+          <ui-button
+            class="play__previous-compact"
+            color="neutral"
+            appearance="outlined"
+            [icon]="backIcon"
+            aria-label="Précédent"
+            [disabled]="currentIndex() === 0 || locked()"
+            (click)="previous()"
           />
+          <div class="play__actions-end">
+            <ui-button
+              class="play__skip"
+              color="neutral"
+              appearance="ghost"
+              [iconEnd]="skipIcon"
+              [disabled]="locked() || nextUnansweredIndex() === -1"
+              (click)="skip()"
+            >
+              Passer
+            </ui-button>
+            <ui-button
+              class="play__skip-compact"
+              color="neutral"
+              appearance="outlined"
+              [disabled]="locked() || nextUnansweredIndex() === -1"
+              (click)="skip()"
+            >
+              Passer
+            </ui-button>
+            <ui-button
+              class="play__next"
+              [color]="buttonColor"
+              [block]="true"
+              [showArrow]="!isLastItem()"
+              [disabled]="locked() || (!currentAnswered() && !isLastItem())"
+              (click)="confirmNext()"
+            >
+              {{ isLastItem() ? 'Terminer' : 'Suivant' }}
+            </ui-button>
+            <ui-button
+              class="play__next-compact"
+              [color]="buttonColor"
+              [block]="true"
+              [showArrow]="!isLastItem()"
+              [disabled]="locked() || (!currentAnswered() && !isLastItem())"
+              (click)="confirmNext()"
+            >
+              {{ isLastItem() ? 'Terminer' : 'Suivant' }}
+            </ui-button>
           </div>
         </div>
+      </ui-action-footer>
 
-        <div class="play__answer">
-          <ui-logic-choices
-            [choices]="numeric.choices"
-            [selectedIndex]="answers()[currentIndex()]"
-            [disabled]="locked()"
-            (chosen)="select($event)"
-          />
-          <span class="play__card-hint">A-D ou 1-4 pour répondre</span>
-        </div>
-      </div>
-      } } } } @default { @if (matrixItem(); as matrix) {
-      <ui-logic-matrix
-        #matrixBoard
-        [item]="matrix"
-        [selectedIndex]="answers()[currentIndex()]"
-        [disabled]="locked()"
-        [hint]="helpEnabled() ? currentHint() : null"
-        [hintUsed]="currentHelpUsed()"
-        (chosen)="select($event)"
-        (hintOpened)="markHelpUsed()"
-      >
-        <ui-logic-item-head
-          icon="matrix"
-          label="Matrices"
-          consigne="Choisissez la figure qui complète la grille"
-          [current]="currentIndex() + 1"
-          [total]="items().length"
-        />
-      </ui-logic-matrix>
-      } } } @if (tutorialMode) {
-      <p class="play__rule">
-        <span class="t-label">Règle</span>
-        <span class="play__rule-text">{{ currentHint() }}</span>
+      <p class="play__hint">
+        Navigation libre : « Passer » laisse l'item sans réponse.
       </p>
+
+      @if (confirmingExit()) {
+        <app-exit-confirm
+          [mode]="sessionMode()"
+          [color]="buttonColor"
+          (continueRequested)="confirmingExit.set(false)"
+          (quitRequested)="quit()"
+        />
       }
-    </article>
-
-    <ui-action-footer>
-    <div class="play__actions">
-      <ui-button
-        class="play__previous"
-        color="neutral"
-        appearance="outlined"
-        [icon]="backIcon"
-        [disabled]="currentIndex() === 0 || locked()"
-        (click)="previous()"
-      >
-        Précédent
-      </ui-button>
-      <ui-button
-        class="play__previous-compact"
-        color="neutral"
-        appearance="outlined"
-        [icon]="backIcon"
-        aria-label="Précédent"
-        [disabled]="currentIndex() === 0 || locked()"
-        (click)="previous()"
-      />
-      <div class="play__actions-end">
-        <ui-button
-          class="play__skip"
-          color="neutral"
-          appearance="ghost"
-          [iconEnd]="skipIcon"
-          [disabled]="locked() || nextUnansweredIndex() === -1"
-          (click)="skip()"
-        >
-          Passer
-        </ui-button>
-        <ui-button
-          class="play__skip-compact"
-          color="neutral"
-          appearance="outlined"
-          [disabled]="locked() || nextUnansweredIndex() === -1"
-          (click)="skip()"
-        >
-          Passer
-        </ui-button>
-        <ui-button
-          class="play__next"
-          [color]="buttonColor"
-          [block]="true"
-          [showArrow]="!isLastItem()"
-          [disabled]="locked() || (!currentAnswered() && !isLastItem())"
-          (click)="confirmNext()"
-        >
-          {{ isLastItem() ? 'Terminer' : 'Suivant' }}
-        </ui-button>
-        <ui-button
-          class="play__next-compact"
-          [color]="buttonColor"
-          [block]="true"
-          [showArrow]="!isLastItem()"
-          [disabled]="locked() || (!currentAnswered() && !isLastItem())"
-          (click)="confirmNext()"
-        >
-          {{ isLastItem() ? 'Terminer' : 'Suivant' }}
-        </ui-button>
-      </div>
     </div>
-    </ui-action-footer>
-
-    <p class="play__hint">
-      Navigation libre : « Passer » laisse l'item sans réponse.
-    </p>
-
-    @if (confirmingExit()) {
-    <app-exit-confirm
-      [mode]="sessionMode()"
-      [color]="buttonColor"
-      (continueRequested)="confirmingExit.set(false)"
-      (quitRequested)="quit()"
+  }
+  @if (resultWait.active()) {
+    <ui-result-wait
+      [axis]="axis"
+      [simulation]="resultWait.simulation()"
+      [failure]="resultWait.failure()"
+      [slow]="resultWait.slow()"
+      (retry)="resultWait.retry()"
+      (quit)="resultWait.quit()"
     />
-    }
-  </div>
-  } @if (resultWait.active()) {
-  <ui-result-wait
-    [axis]="axis"
-    [simulation]="resultWait.simulation()"
-    [failure]="resultWait.failure()"
-    [slow]="resultWait.slow()"
-    (retry)="resultWait.retry()"
-    (quit)="resultWait.quit()"
-  />
   }
 </section>

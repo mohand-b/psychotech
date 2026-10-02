@@ -28,8 +28,7 @@ const TITLES: Record<ViewState, string> = {
 const SUBTITLES: Record<ViewState, string> = {
   PENDING: 'Un instant, nous confirmons votre nouvelle adresse.',
   MISSING: 'Ouvrez le lien reçu par email pour confirmer votre adresse.',
-  CHANGED:
-    'Votre nouvelle adresse est désormais votre adresse de connexion.',
+  CHANGED: 'Votre nouvelle adresse est désormais votre adresse de connexion.',
   ALREADY_USED:
     'Ce lien a déjà servi. Si votre adresse a bien été mise à jour, vous pouvez vous connecter.',
   EXPIRED:

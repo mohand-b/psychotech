@@ -3,10 +3,11 @@
     <div class="prog__head-copy">
       <h1 class="prog__title">Progression</h1>
       <span class="prog__subtitle">
-        Votre préparation {{ sectorLabel
-        }}@if (subtitleDate(); as date) {
-          depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span
-          >}.
+        Votre préparation {{ sectorLabel }}
+        @if (subtitleDate(); as date) {
+          depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span>
+        }
+        .
       </span>
     </div>
     <ui-sector-chip class="prog__sector" [sector]="sector" />
@@ -24,7 +25,9 @@
           <span class="prog__kpi-sub">{{ last.dateLabel }}</span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Aucun {{ fullSessionLabelLower }} terminé</span>
+          <span class="prog__kpi-sub"
+            >Aucun {{ fullSessionLabelLower }} terminé</span
+          >
         }
       </div>
       <div class="prog__kpi">
@@ -44,7 +47,9 @@
           </span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Après votre premier {{ fullSessionLabelLower }}</span>
+          <span class="prog__kpi-sub"
+            >Après votre premier {{ fullSessionLabelLower }}</span
+          >
         }
       </div>
       <div class="prog__kpi">
@@ -65,7 +70,9 @@
           </span>
         } @else {
           <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub">Dès votre deuxième {{ fullSessionLabelLower }}</span>
+          <span class="prog__kpi-sub"
+            >Dès votre deuxième {{ fullSessionLabelLower }}</span
+          >
         }
       </div>
       <div class="prog__kpi">
@@ -75,7 +82,8 @@
           <span class="prog__kpi-sub">
             <span class="t-mono">{{ counts.full }}</span>
             {{ fullSessionCountLabel(counts.full) }} ·
-            <span class="t-mono">{{ counts.targeted }}</span>&ngsp;
+            <span class="t-mono">{{ counts.targeted }}</span
+            >&ngsp;
             <span class="prog__kpi-sub-long"
               >entraînement{{ counts.targeted > 1 ? 's' : '' }} ciblé{{
                 counts.targeted > 1 ? 's' : ''
@@ -91,7 +99,9 @@
 
     <section class="prog__card prog__curve">
       <div class="prog__curve-head">
-        <span class="t-label">Score global, 10 derniers {{ fullSessionLabelPluralLower }}</span>
+        <span class="t-label"
+          >Score global, 10 derniers {{ fullSessionLabelPluralLower }}</span
+        >
         <span class="prog__legend">
           <span class="prog__legend-item">
             <span class="prog__legend-line"></span>
@@ -136,8 +146,8 @@
             >Aucun {{ fullSessionLabelLower }} pour l'instant</span
           >
           <span class="prog__caption"
-            >Vos {{ fullSessionLabelPluralLower }} dessineront ici votre courbe de
-            score global.</span
+            >Vos {{ fullSessionLabelPluralLower }} dessineront ici votre courbe
+            de score global.</span
           >
         </div>
       }
@@ -163,7 +173,9 @@
                 <ui-axis-icon [axis]="row.axis" />
               </span>
               <span class="prog__axis-copy">
-                <span class="prog__axis-name">{{ row.presentation.label }}</span>
+                <span class="prog__axis-name">{{
+                  row.presentation.label
+                }}</span>
               </span>
             </span>
             <svg
@@ -197,7 +209,11 @@
                 }
               }
             </span>
-            <ui-icon class="prog__axis-chevron" [img]="chevronIcon" [size]="15" />
+            <ui-icon
+              class="prog__axis-chevron"
+              [img]="chevronIcon"
+              [size]="15"
+            />
           </button>
         }
         <span class="prog__caption prog__axes-caption"
@@ -253,9 +269,8 @@
             <ui-axis-radar [entries]="[]" />
           </div>
           <span class="prog__caption"
-            >Votre profil par axe se dessinera après votre premier {{
-              fullSessionLabelLower
-            }}.</span
+            >Votre profil par axe se dessinera après votre premier
+            {{ fullSessionLabelLower }}.</span
           >
         }
       </section>

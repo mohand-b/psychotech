@@ -1,6 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import {
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterOutlet,
+} from '@angular/router';
 import { LogOut } from 'lucide-angular';
 import { filter, map } from 'rxjs';
 import { Icon } from '../../../shared/ui/icon/icon';

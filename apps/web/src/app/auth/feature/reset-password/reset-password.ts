@@ -39,8 +39,7 @@ export class ResetPassword {
 
   protected readonly backIcon = ArrowLeft;
 
-  private readonly token =
-    this.route.snapshot.queryParamMap.get('token') ?? '';
+  private readonly token = this.route.snapshot.queryParamMap.get('token') ?? '';
 
   protected readonly checking = signal(true);
   protected readonly outcome = signal<PasswordResetTokenOutcome>('INVALID');
@@ -92,7 +91,9 @@ export class ResetPassword {
   });
 
   protected readonly title = computed(() =>
-    this.definesFirstPassword() ? 'Définir un mot de passe' : 'Nouveau mot de passe',
+    this.definesFirstPassword()
+      ? 'Définir un mot de passe'
+      : 'Nouveau mot de passe',
   );
 
   constructor() {
