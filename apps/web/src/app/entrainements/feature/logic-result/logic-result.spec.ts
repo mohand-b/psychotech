@@ -22,7 +22,7 @@ import {
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
+import { BadgesApi } from '../../../badges/data-access/badges.api';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
@@ -142,14 +142,6 @@ interface Setup {
   acknowledgeAll: ReturnType<typeof vi.fn>;
 }
 
-function celebrationStub() {
-  return {
-    holdScene: vi.fn(),
-    releaseScene: vi.fn(),
-    replay: vi.fn(),
-  };
-}
-
 async function setupWithBadges(
   result: TargetedLogicResultDto,
   options: SetupOptions = {},
@@ -169,7 +161,7 @@ async function setupWithBadges(
         },
       },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
-      { provide: BadgeCelebrationFacade, useValue: celebrationStub() },
+      { provide: BadgesApi, useValue: {} },
       { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
       {
         provide: AuthFacade,

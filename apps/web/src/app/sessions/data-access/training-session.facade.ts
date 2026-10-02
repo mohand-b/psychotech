@@ -1,12 +1,5 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import {
-  ErrorHandler,
-  Injectable,
-  Signal,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import {
   AXIS_TRAINING,
   AxisTimerModel,
@@ -44,17 +37,8 @@ import {
   adaptLegacyLogicItems,
   resolveLogicRuleHint,
 } from '@psychotech/shared';
-import {
-  Observable,
-  catchError,
-  map,
-  of,
-  switchMap,
-  tap,
-  throwError,
-} from 'rxjs';
+import { Observable, catchError, of, switchMap, tap, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TimerSeverity } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { countdownFrom } from './session-countdown';
@@ -91,9 +75,7 @@ function axisAlreadyRecorded(session: SessionDto, axis: AxisType): boolean {
 export class TrainingSessionFacade {
   private readonly api = inject(SessionsApi);
   private readonly store = inject(TrainingSessionStore);
-  private readonly energyFacade = inject(EnergyFacade);
   private readonly authFacade = inject(AuthFacade);
-  private readonly errorHandler = inject(ErrorHandler);
   private tickerId: number | null = null;
 
   readonly session: Signal<SessionDto | null> = this.store.session;
@@ -371,18 +353,9 @@ export class TrainingSessionFacade {
   }
 
   private startSession(payload: StartSessionDto): Observable<SessionDto> {
-    return this.api.start(payload).pipe(
-      tap((session) => this.install(session)),
-      switchMap((session) =>
-        this.energyFacade.load().pipe(
-          map(() => session),
-          catchError((error: unknown) => {
-            this.errorHandler.handleError(error);
-            return of(session);
-          }),
-        ),
-      ),
-    );
+    return this.api
+      .start(payload)
+      .pipe(tap((session) => this.install(session)));
   }
 
   load(sessionId: string): Observable<SessionDto> {

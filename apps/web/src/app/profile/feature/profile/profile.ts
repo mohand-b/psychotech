@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,12 +13,10 @@ import {
   BADGE_BY_ID,
   BADGE_CATALOG,
   BadgeId,
-  BadgeStatusDto,
   DELETE_ACCOUNT_CONFIRMATION,
   ENERGY_PACK_BY_ID,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
   PASSWORD_MIN_LENGTH,
-  PackPurchaseDto,
   Sector,
 } from '@psychotech/shared';
 import {
@@ -38,7 +35,7 @@ import {
   User as UserIcon,
 } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { API_BASE_URL } from '../../../core/http/api-base-url.token';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
@@ -120,7 +117,8 @@ export class Profile {
   private readonly releaseLog = inject(ReleaseLogFacade);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
-  private readonly baseUrl = inject(API_BASE_URL);
+  private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
+  private readonly purchases = this.energyFacade.fetchPurchases();
 
   protected readonly backIcon = ArrowLeft;
   protected readonly checkIcon = Check;
@@ -155,15 +153,6 @@ export class Profile {
     { id: 'credits', label: 'Crédits et reçus', icon: ReceiptText },
   ];
 
-  private readonly badgeStatusesResource = httpResource<
-    BadgeStatusDto[] | null
-  >(() => `${this.baseUrl}/me/badges`, { defaultValue: null });
-
-  private readonly purchasesResource = httpResource<PackPurchaseDto[] | null>(
-    () => `${this.baseUrl}/billing/purchases`,
-    { defaultValue: null },
-  );
-
   protected readonly initial = computed(() =>
     (this.user()?.firstName ?? '').charAt(0).toUpperCase(),
   );
@@ -197,7 +186,7 @@ export class Profile {
   );
 
   protected readonly earnedBadges = computed(() => {
-    const statuses = this.badgeStatusesResource.value();
+    const statuses = this.badgeStatuses();
     return statuses
       ? statuses.filter((status) => status.earnedAt !== null).length
       : null;
@@ -518,7 +507,7 @@ export class Profile {
     BADGE_BY_ID.get(BadgeId.LOGIC_PROGRESSION)?.displayName ?? '';
 
   protected readonly receipts = computed<ReceiptView[] | null>(() => {
-    const purchases = this.purchasesResource.value();
+    const purchases = this.purchases();
     if (!purchases) {
       return null;
     }

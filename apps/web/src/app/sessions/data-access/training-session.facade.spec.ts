@@ -14,7 +14,6 @@ import {
 } from '@psychotech/shared';
 import { Observable, of, throwError } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { SessionsApi } from './sessions.api';
 import {
   SessionNoLongerActiveError,
@@ -219,10 +218,6 @@ describe('TrainingSessionFacade', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionsApi, useValue: api },
-        {
-          provide: EnergyFacade,
-          useValue: { load: () => of(null), state: () => null },
-        },
         {
           provide: AuthFacade,
           useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },

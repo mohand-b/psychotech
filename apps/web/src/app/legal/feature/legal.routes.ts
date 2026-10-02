@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 import { RouteSeo, SITE_NAME } from '../../core/seo/route-seo';
-import { LEGAL_DOCUMENTS } from '../data/legal-documents';
+import { LEGAL_DOCUMENTS } from '../../shared/data/legal-documents';
 
 export const legalRoutes: Route[] = LEGAL_DOCUMENTS.map((document) => {
   const seo: RouteSeo = {

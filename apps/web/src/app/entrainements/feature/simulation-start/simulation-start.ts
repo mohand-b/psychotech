@@ -19,11 +19,12 @@ import {
   SessionMode,
 } from '@psychotech/shared';
 import { BellOff, Clock, LucideIconData, Timer, VolumeX } from 'lucide-angular';
+import { map, switchMap } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { GUIDE_PATH } from '../../../guide/util/guide-anchors';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
+import { isEnergyInsufficientError } from '../../../shared/util/energy-error';
+import { GUIDE_PATH } from '../../../shared/util/guide-anchors';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import {
   AXIS_ICON_SIZE,
@@ -154,7 +155,12 @@ export class SimulationStart {
     this.starting.set(true);
     this.trainingSessionFacade
       .startFull()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap((session) =>
+          this.energyFacade.refresh().pipe(map(() => session)),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (session) =>
           this.router.navigate([

@@ -1,11 +1,15 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { BadgeId, EarnedBadgeDto } from '@psychotech/shared';
+import { BadgeId, EarnedBadgeDto, Sector } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { BadgeStore } from '../../core/badges/badge.store';
-import { EnergyFacade } from '../../energy/data-access/energy.facade';
-import { BadgeCelebrationFacade } from './badge-celebration.facade';
+import {
+  BadgeCelebrationFacade,
+  ResultBadgesSource,
+} from './badge-celebration.facade';
 import { BadgesApi } from './badges.api';
 
 function badge(badgeId: BadgeId, gain: number | null = null): EarnedBadgeDto {
@@ -22,7 +26,6 @@ function badge(badgeId: BadgeId, gain: number | null = null): EarnedBadgeDto {
 function setup(unacknowledged: EarnedBadgeDto[] = []) {
   const acknowledge = vi.fn().mockReturnValue(of(undefined));
   const unacknowledgedCall = vi.fn().mockReturnValue(of(unacknowledged));
-  const energyLoad = vi.fn().mockReturnValue(of(null));
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
@@ -31,7 +34,10 @@ function setup(unacknowledged: EarnedBadgeDto[] = []) {
         provide: BadgesApi,
         useValue: { acknowledge, unacknowledged: unacknowledgedCall },
       },
-      { provide: EnergyFacade, useValue: { load: energyLoad } },
+      {
+        provide: AuthFacade,
+        useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
+      },
     ],
   });
   return {
@@ -39,7 +45,6 @@ function setup(unacknowledged: EarnedBadgeDto[] = []) {
     store: TestBed.inject(BadgeStore),
     acknowledge,
     unacknowledgedCall,
-    energyLoad,
   };
 }
 
@@ -54,16 +59,14 @@ describe('BadgeCelebrationFacade', () => {
     expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
   });
 
-  it('refreshes the credit balance only when the badge grants credits', () => {
-    const { facade, store, energyLoad } = setup();
-    store.enqueue([
-      badge(BadgeId.EXAM_FIRST),
-      badge(BadgeId.EXAM_FAVORABLE, 2),
-    ]);
-    facade.completeCurrent();
-    expect(energyLoad).not.toHaveBeenCalled();
-    facade.completeCurrent();
-    expect(energyLoad).toHaveBeenCalledTimes(1);
+  it('returns only the badges it has just acknowledged', () => {
+    const { facade, store } = setup();
+    const favorable = badge(BadgeId.EXAM_FAVORABLE, 2);
+    store.enqueue([favorable]);
+
+    expect(facade.completeCurrent()).toEqual([favorable]);
+    store.replay([favorable]);
+    expect(facade.completeCurrent()).toEqual([]);
   });
 
   it('acknowledges every remaining badge when the run is dismissed', () => {
@@ -87,12 +90,17 @@ describe('BadgeCelebrationFacade', () => {
     expect(store.phase()).toBe('done');
   });
 
-  it('holds the scene through the dedicated gate', () => {
+  it('holds the celebration until the result scene is ready', () => {
     const { facade, store } = setup();
-    facade.holdScene('score-scene');
+    const celebration = TestBed.runInInjectionContext(() =>
+      facade.celebrateResult(
+        'session-1',
+        signal<ResultBadgesSource | null>(null),
+      ),
+    );
     store.enqueue([badge(BadgeId.EXAM_FIRST)]);
     expect(store.phase()).toBe('awaitingScene');
-    facade.releaseScene('score-scene');
+    celebration.sceneReady();
     expect(store.phase()).toBe('celebrating');
   });
 });

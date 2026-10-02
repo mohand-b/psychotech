@@ -23,9 +23,9 @@ import {
 } from '@psychotech/shared';
 import { ArrowLeft, Lightbulb, Play } from 'lucide-angular';
 import {
+  BadgeCelebrationFacade,
   ResultCelebration,
-  resultCelebrationFor,
-} from '../../../badges/data-access/result-celebration';
+} from '../../../badges/data-access/badge-celebration.facade';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
@@ -112,7 +112,7 @@ export class SimulationSummary {
 
   protected readonly celebration: ResultCelebration = this.isExample
     ? INERT_CELEBRATION
-    : resultCelebrationFor(
+    : inject(BadgeCelebrationFacade).celebrateResult(
         this.sessionId,
         computed(() => {
           const summary = this.facade.summary();

@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { LEGAL_LAST_UPDATED } from '@psychotech/shared';
 import { LegalDocumentId, legalDocumentById } from '../../data/legal-documents';
-import { Button } from '../../../shared/ui/button/button';
+import { Button } from '../button/button';
 import { LegalDocumentView } from '../legal-document/legal-document';
 
 const FOCUSABLE =

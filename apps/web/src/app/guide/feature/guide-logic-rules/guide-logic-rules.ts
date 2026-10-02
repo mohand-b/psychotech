@@ -9,19 +9,20 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AxisType, GuideId } from '@psychotech/shared';
 import { ChevronLeft } from 'lucide-angular';
+import { switchMap } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { AXIS_SLUGS } from '../../../shared/util/axis-slug';
 import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
-import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
+import { GuideScrollTop } from '../guide-scroll-top/guide-scroll-top';
 import { SmoothAnchors } from '../../ui/smooth-anchors';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_ANCHORS,
   GUIDE_PATH,
-} from '../../util/guide-anchors';
+} from '../../../shared/util/guide-anchors';
 import { navigateBack } from '../../util/guide-back';
 
 interface SequenceCell {
@@ -345,6 +346,9 @@ export class GuideLogicRules {
 
   protected markRead(): void {
     this.locallyMarked.set(true);
-    this.badgesFacade.markGuideRead(GuideId.LOGIC_GUIDE);
+    this.badgesFacade
+      .markGuideRead(GuideId.LOGIC_GUIDE)
+      .pipe(switchMap(() => this.authFacade.loadCurrentUser()))
+      .subscribe({ error: () => undefined });
   }
 }

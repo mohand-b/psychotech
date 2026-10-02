@@ -17,8 +17,8 @@ import {
   TargetedSessionOptionsDto,
   TrainingOptionId,
 } from '@psychotech/shared';
+import { map, of, switchMap } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { isEnergyInsufficientError } from '../../../energy/data-access/energy-error';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairing';
@@ -27,11 +27,12 @@ import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
+import { isEnergyInsufficientError } from '../../../shared/util/energy-error';
 import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_PATH,
   guideAxisAnchor,
-} from '../../../guide/util/guide-anchors';
+} from '../../../shared/util/guide-anchors';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { sectorReferentialFor } from '../sector-referential';
@@ -149,7 +150,14 @@ export class AxisStart {
     this.starting.set(true);
     this.trainingSessionFacade
       .startTargeted(this.axis, this.targetedOptions())
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap((session) =>
+          this.tutorial
+            ? of(session)
+            : this.energyFacade.refresh().pipe(map(() => session)),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (session) =>
           this.router.navigate([

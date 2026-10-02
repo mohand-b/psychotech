@@ -49,7 +49,7 @@ import { axisSlug } from '../../../shared/util/axis-slug';
 import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_PATH,
-} from '../../../guide/util/guide-anchors';
+} from '../../../shared/util/guide-anchors';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {

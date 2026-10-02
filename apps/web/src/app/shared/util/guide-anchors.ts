@@ -1,5 +1,5 @@
 import { AxisType } from '@psychotech/shared';
-import { AXIS_SLUGS } from '../../shared/util/axis-slug';
+import { AXIS_SLUGS } from './axis-slug';
 
 export const GUIDE_PATH = '/guide';
 export const GUIDE_LOGIC_RULES_PATH = '/guide/logique';

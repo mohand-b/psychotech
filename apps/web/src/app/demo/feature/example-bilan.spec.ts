@@ -14,9 +14,7 @@ import { SimulationSummary } from '../../sessions/feature/simulation-summary/sim
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ExampleBilanFacade } from '../data-access/example-bilan.facade';
 
-const holdScene = vi.fn();
-const releaseScene = vi.fn();
-const replay = vi.fn();
+const celebrateResult = vi.fn();
 const acknowledgeAll = vi.fn();
 
 async function setup() {
@@ -27,10 +25,7 @@ async function setup() {
       { provide: SimulationSummaryFacade, useClass: ExampleBilanFacade },
       { provide: TrainingSessionFacade, useValue: { session: signal(null) } },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
-      {
-        provide: BadgeCelebrationFacade,
-        useValue: { holdScene, releaseScene, replay },
-      },
+      { provide: BadgeCelebrationFacade, useValue: { celebrateResult } },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -52,9 +47,7 @@ async function setup() {
 
 describe('Public example bilan', () => {
   beforeEach(() => {
-    holdScene.mockClear();
-    releaseScene.mockClear();
-    replay.mockClear();
+    celebrateResult.mockClear();
     acknowledgeAll.mockClear();
   });
 
@@ -72,9 +65,7 @@ describe('Public example bilan', () => {
   it('never touches the badge engine nor acknowledges anything', async () => {
     await setup();
 
-    expect(holdScene).not.toHaveBeenCalled();
-    expect(releaseScene).not.toHaveBeenCalled();
-    expect(replay).not.toHaveBeenCalled();
+    expect(celebrateResult).not.toHaveBeenCalled();
     expect(acknowledgeAll).not.toHaveBeenCalled();
   });
 

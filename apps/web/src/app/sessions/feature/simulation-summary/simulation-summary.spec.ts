@@ -22,7 +22,8 @@ import {
   TargetedLogicResultDto,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
-import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
+import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesApi } from '../../../badges/data-access/badges.api';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { TrainingSessionFacade } from '../../data-access/training-session.facade';
@@ -232,14 +233,8 @@ async function setup(
         useValue: { session: signal(activeSession) },
       },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
-      {
-        provide: BadgeCelebrationFacade,
-        useValue: {
-          holdScene: vi.fn(),
-          releaseScene: vi.fn(),
-          replay: vi.fn(),
-        },
-      },
+      { provide: BadgesApi, useValue: {} },
+      { provide: AuthFacade, useValue: { currentUser: () => null } },
       {
         provide: ActivatedRoute,
         useValue: {

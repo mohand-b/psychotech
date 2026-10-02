@@ -3,10 +3,10 @@ import { provideRouter } from '@angular/router';
 import { BadgeId, EarnedBadgeDto, Sector } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
-import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { BadgeStore } from '../../../core/badges/badge.store';
-import { EnergyFacade } from '../../../energy/data-access/energy.facade';
-import { BadgesApi } from '../../data-access/badges.api';
+import { AuthFacade } from '../../auth/data-access/auth.facade';
+import { BadgesApi } from '../../badges/data-access/badges.api';
+import { BadgeStore } from '../../core/badges/badge.store';
+import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgeCelebration } from './badge-celebration';
 
 const AGUERRI: EarnedBadgeDto = {
@@ -39,6 +39,7 @@ const CERTIFIE: EarnedBadgeDto = {
 
 async function setup(unacknowledged: EarnedBadgeDto[] = []) {
   const acknowledge = vi.fn().mockReturnValue(of(undefined));
+  const energyLoad = vi.fn().mockReturnValue(of(null));
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [BadgeCelebration],
@@ -51,7 +52,7 @@ async function setup(unacknowledged: EarnedBadgeDto[] = []) {
           unacknowledged: vi.fn().mockReturnValue(of(unacknowledged)),
         },
       },
-      { provide: EnergyFacade, useValue: { load: () => of(null) } },
+      { provide: EnergyFacade, useValue: { load: energyLoad } },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -60,7 +61,12 @@ async function setup(unacknowledged: EarnedBadgeDto[] = []) {
   }).compileComponents();
   const fixture = TestBed.createComponent(BadgeCelebration);
   fixture.detectChanges();
-  return { fixture, store: TestBed.inject(BadgeStore), acknowledge };
+  return {
+    fixture,
+    store: TestBed.inject(BadgeStore),
+    acknowledge,
+    energyLoad,
+  };
 }
 
 function cardOf(fixture: { nativeElement: HTMLElement }): HTMLElement | null {
@@ -130,5 +136,23 @@ describe('BadgeCelebration', () => {
 
     expect(cardOf(fixture)).toBeNull();
     expect(acknowledge).toHaveBeenCalledTimes(2);
+  });
+
+  it('refreshes the credit balance only once a badge granting credits is acknowledged', async () => {
+    const { fixture, store, energyLoad } = await setup();
+    store.enqueue([AGUERRI, CERTIFIE]);
+    fixture.detectChanges();
+
+    let card = cardOf(fixture);
+    card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
+    fixture.detectChanges();
+    card?.dispatchEvent(new Event('animationend'));
+    fixture.detectChanges();
+    expect(energyLoad).not.toHaveBeenCalled();
+
+    card = cardOf(fixture);
+    card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
+    fixture.detectChanges();
+    expect(energyLoad).toHaveBeenCalledTimes(1);
   });
 });

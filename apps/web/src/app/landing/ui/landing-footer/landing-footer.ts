@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SITE_COPYRIGHT_YEAR, SITE_NAME } from '../../../core/seo/route-seo';
-import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
+import { LEGAL_DOCUMENTS } from '../../../shared/data/legal-documents';
 import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 import {
   CONTACT_ROUTE,

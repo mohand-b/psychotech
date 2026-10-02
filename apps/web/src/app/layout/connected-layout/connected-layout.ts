@@ -23,7 +23,7 @@ import {
 } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { BadgeCelebration } from '../../badges/feature/badge-celebration/badge-celebration';
+import { BadgeCelebration } from '../badge-celebration/badge-celebration';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';

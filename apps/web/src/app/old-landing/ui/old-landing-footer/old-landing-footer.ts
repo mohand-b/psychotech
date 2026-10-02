@@ -5,7 +5,7 @@ import {
   SITE_NAME,
   SITE_TAGLINE,
 } from '../../../core/seo/route-seo';
-import { LEGAL_DOCUMENTS } from '../../../legal/data/legal-documents';
+import { LEGAL_DOCUMENTS } from '../../../shared/data/legal-documents';
 import {
   CONTACT_ROUTE,
   contactQueryParams,

@@ -17,8 +17,8 @@ import {
   LegalDocumentId,
   legalDocumentById,
   legalDocumentHasTodo,
-} from '../../data/legal-documents';
-import { LegalDocumentView } from '../../ui/legal-document/legal-document';
+} from '../../../shared/data/legal-documents';
+import { LegalDocumentView } from '../../../shared/ui/legal-document/legal-document';
 
 @Component({
   selector: 'app-legal-page',

@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,11 +6,10 @@ import {
 } from '@angular/core';
 import {
   BADGE_BY_ID,
-  BadgeFeedDto,
   badgeAssetPath,
   badgeDisplayName,
 } from '@psychotech/shared';
-import { API_BASE_URL } from '../../../core/http/api-base-url.token';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { Clock } from '../../../shared/util/clock';
 import { formatRelativeTime } from '../../../shared/util/format-relative-time';
 
@@ -29,16 +27,11 @@ interface FeedEntryView {
   styleUrl: './badge-feed-banner.css',
 })
 export class BadgeFeedBanner {
-  private readonly baseUrl = inject(API_BASE_URL);
   private readonly clock = inject(Clock);
-
-  private readonly feedResource = httpResource<BadgeFeedDto>(
-    () => `${this.baseUrl}/me/badges/feed`,
-    { defaultValue: { visible: false, entries: [] } },
-  );
+  private readonly feed = inject(BadgesFacade).fetchFeed();
 
   protected readonly entries = computed<FeedEntryView[]>(() => {
-    const feed = this.feedResource.value();
+    const feed = this.feed();
     if (!feed.visible) {
       return [];
     }

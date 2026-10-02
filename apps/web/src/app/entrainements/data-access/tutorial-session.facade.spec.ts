@@ -15,7 +15,6 @@ import {
   TUTORIAL_SEED,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { SessionsApi } from '../../sessions/data-access/sessions.api';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { TrainingSessionStore } from '../../sessions/data-access/training-session.store';
@@ -76,10 +75,6 @@ describe('TutorialSessionFacade', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionsApi, useValue: api },
-        {
-          provide: EnergyFacade,
-          useValue: { load: vi.fn(), state: () => null },
-        },
         {
           provide: AuthFacade,
           useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },

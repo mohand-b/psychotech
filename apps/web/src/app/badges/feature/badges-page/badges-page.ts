@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,15 +6,10 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
-import {
-  AxisType,
-  BadgeStatusDto,
-  FULL_SESSION_LABEL,
-  Sector,
-} from '@psychotech/shared';
+import { AxisType, FULL_SESSION_LABEL, Sector } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
-import { API_BASE_URL } from '../../../core/http/api-base-url.token';
+import { BadgesFacade } from '../../data-access/badges.facade';
 import { BadgeArt } from '../../ui/badge-art';
 import { BadgeTierRow } from '../../ui/badge-tier-row';
 import { BadgeTransverseRow } from '../../ui/badge-transverse-row';
@@ -35,14 +29,9 @@ import {
   host: { class: 'page-shell' },
 })
 export class BadgesPage {
-  private readonly baseUrl = inject(API_BASE_URL);
   private readonly authFacade = inject(AuthFacade);
   private readonly overviewFacade = inject(TrainingsOverviewFacade);
-
-  private readonly statusesResource = httpResource<BadgeStatusDto[]>(
-    () => `${this.baseUrl}/me/badges`,
-    { defaultValue: [] },
-  );
+  private readonly statuses = inject(BadgesFacade).fetchStatuses();
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
 
@@ -70,10 +59,6 @@ export class BadgesPage {
   });
 
   protected readonly board = computed<BadgeBoardView>(() =>
-    buildBadgeBoard(
-      this.statusesResource.value(),
-      this.sector(),
-      this.outlook(),
-    ),
+    buildBadgeBoard(this.statuses() ?? [], this.sector(), this.outlook()),
   );
 }

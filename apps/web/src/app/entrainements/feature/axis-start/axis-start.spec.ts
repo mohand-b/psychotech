@@ -81,6 +81,7 @@ interface Setup {
   start: ReturnType<typeof vi.fn>;
   gamepad: ReturnType<typeof gamepadFacadeStub>;
   energyLoad: ReturnType<typeof vi.fn>;
+  energyRefresh: ReturnType<typeof vi.fn>;
   notifyTutorialDiscovered: ReturnType<typeof vi.fn>;
 }
 
@@ -101,6 +102,7 @@ async function setup(
   const start = vi.fn(options.startResult ?? (() => of(buildSession())));
   const gamepad = gamepadFacadeStub();
   const energyLoad = vi.fn(() => of(null));
+  const energyRefresh = vi.fn(() => of(undefined));
   const notifyTutorialDiscovered = vi.fn();
   await TestBed.configureTestingModule({
     imports: [AxisStart],
@@ -113,6 +115,7 @@ async function setup(
         provide: EnergyFacade,
         useValue: {
           load: energyLoad,
+          refresh: energyRefresh,
           state: signal(options.energyState ?? null),
         },
       },
@@ -152,6 +155,7 @@ async function setup(
     start,
     gamepad,
     energyLoad,
+    energyRefresh,
     notifyTutorialDiscovered,
   };
 }
@@ -326,6 +330,25 @@ describe('AxisStart - crédits', () => {
     clickStart(result);
 
     expect(result.energyLoad).toHaveBeenCalled();
+  });
+
+  it('refreshes the balance once the paid session is created', async () => {
+    const result = await setup('memoire', false, {
+      energyState: buildEnergyState(),
+    });
+
+    clickStart(result);
+
+    expect(result.start).toHaveBeenCalledTimes(1);
+    expect(result.energyRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the balance alone when a discovery run starts', async () => {
+    const result = await setup('logique', true);
+
+    clickStart(result);
+
+    expect(result.energyRefresh).not.toHaveBeenCalled();
   });
 });
 

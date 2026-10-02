@@ -36,6 +36,7 @@ async function setup(
   } = {},
 ) {
   const energyLoad = vi.fn(() => of(null));
+  const energyRefresh = vi.fn(() => of(undefined));
   const startFull = vi.fn(options.startFull ?? (() => of({ id: 'session-1' })));
   await TestBed.configureTestingModule({
     imports: [SimulationStart],
@@ -59,6 +60,7 @@ async function setup(
         useValue: {
           state: signal(options.energyState ?? buildEnergyState()),
           load: energyLoad,
+          refresh: energyRefresh,
         },
       },
       { provide: TrainingSessionFacade, useValue: { startFull } },
@@ -68,7 +70,7 @@ async function setup(
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SimulationStart);
   fixture.detectChanges();
-  return { fixture, startFull, navigate, energyLoad };
+  return { fixture, startFull, navigate, energyLoad, energyRefresh };
 }
 
 function text(fixture: { nativeElement: HTMLElement }): string {
@@ -90,7 +92,7 @@ describe('SimulationStart', () => {
   });
 
   it('briefs the full session with its cost and starts it', async () => {
-    const { fixture, startFull, navigate } = await setup();
+    const { fixture, startFull, navigate, energyRefresh } = await setup();
     expect(text(fixture)).toContain('Examen blanc');
     expect(text(fixture)).toContain('Comment ça se passe');
     expect(text(fixture)).toContain('axes en Ferroviaire');
@@ -103,6 +105,7 @@ describe('SimulationStart', () => {
 
     cta.click();
     expect(startFull).toHaveBeenCalledTimes(1);
+    expect(energyRefresh).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith([
       '/entrainements/examen-blanc/session',
       'session-1',

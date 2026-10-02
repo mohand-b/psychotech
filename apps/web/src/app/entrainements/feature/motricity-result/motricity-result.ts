@@ -16,11 +16,11 @@ import {
   analyzeMotricity,
   getAxisRecommendations,
 } from '@psychotech/shared';
-import { resultCelebrationFor } from '../../../badges/data-access/result-celebration';
+import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
 import { axisSlug } from '../../../shared/util/axis-slug';
-import { backFromTargetedResult } from '../../ui/result-navigation';
+import { backFromTargetedResult } from '../result-navigation';
 import { buildMotricityMetricRows } from '../../../shared/ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
@@ -64,7 +64,9 @@ export class MotricityResult {
   protected readonly backLabel = this.cameFromPlay
     ? 'Retour aux axes'
     : 'Retour aux sessions';
-  protected readonly celebration = resultCelebrationFor(
+  protected readonly celebration = inject(
+    BadgeCelebrationFacade,
+  ).celebrateResult(
     this.sessionId,
     computed(() => {
       const result = this.result();

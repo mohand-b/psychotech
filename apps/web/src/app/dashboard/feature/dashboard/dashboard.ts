@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,7 +10,6 @@ import {
   AxisProgressStatus,
   AxisType,
   BADGE_BY_ID,
-  BadgeStatusDto,
   FULL_SESSION_AXIS_ORDER,
   FULL_SESSION_LABEL,
   RailwayPlayableAxis,
@@ -24,7 +22,7 @@ import {
 } from '@psychotech/shared';
 import { ArrowRight, ChevronRight, Play, Target } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
-import { API_BASE_URL } from '../../../core/http/api-base-url.token';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
@@ -119,11 +117,7 @@ export class Dashboard {
   private readonly sessionHistoryFacade = inject(SessionHistoryFacade);
   private readonly router = inject(Router);
   private readonly clock = inject(Clock);
-  private readonly baseUrl = inject(API_BASE_URL);
-
-  private readonly badgeStatusesResource = httpResource<
-    BadgeStatusDto[] | null
-  >(() => `${this.baseUrl}/me/badges`, { defaultValue: null });
+  private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
   private readonly now = new Date();
 
   protected readonly playIcon = Play;
@@ -216,7 +210,7 @@ export class Dashboard {
   });
 
   private readonly earnableBadgeReward = computed<number | null>(() => {
-    const statuses = this.badgeStatusesResource.value();
+    const statuses = this.badgeStatuses();
     if (!statuses) {
       return null;
     }

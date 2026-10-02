@@ -6,7 +6,13 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { EnergyStateDto, Sector, UserProfileDto } from '@psychotech/shared';
+import {
+  EnergyPackId,
+  EnergyStateDto,
+  PackPurchaseDto,
+  Sector,
+  UserProfileDto,
+} from '@psychotech/shared';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
@@ -38,6 +44,17 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
 function energyState(balance: number): EnergyStateDto {
   return { balance, canStartFull: balance >= 5, canStartAxis: balance >= 1 };
 }
+
+const PURCHASES: PackPurchaseDto[] = [
+  {
+    id: 'purchase-1',
+    purchasedAt: '2026-07-28T10:00:00.000Z',
+    packId: EnergyPackId.PRE_EXAM,
+    energyAmount: 50,
+    amountCents: 790,
+    receiptUrl: 'https://pay.stripe.com/receipts/abc',
+  },
+];
 
 async function setup(user: UserProfileDto = buildUser()) {
   const userSignal = signal<UserProfileDto | null>(user);
@@ -76,6 +93,7 @@ async function setup(user: UserProfileDto = buildUser()) {
         useValue: {
           state: signal(energyState(12)),
           load: () => of(energyState(12)),
+          fetchPurchases: () => signal(PURCHASES).asReadonly(),
         },
       },
     ],
@@ -95,24 +113,9 @@ async function setup(user: UserProfileDto = buildUser()) {
     .compileComponents();
   const fixture = TestBed.createComponent(Profile);
   fixture.detectChanges();
-  const controller = TestBed.inject(HttpTestingController);
-  controller
+  TestBed.inject(HttpTestingController)
     .match((request) => request.url.endsWith('/me/badges'))
     .forEach((request) => request.flush([]));
-  controller
-    .match((request) => request.url.endsWith('/billing/purchases'))
-    .forEach((request) =>
-      request.flush([
-        {
-          id: 'purchase-1',
-          purchasedAt: '2026-07-28T10:00:00.000Z',
-          packId: 'PRE_EXAM',
-          energyAmount: 50,
-          amountCents: 790,
-          receiptUrl: 'https://pay.stripe.com/receipts/abc',
-        },
-      ]),
-    );
   await fixture.whenStable();
   fixture.detectChanges();
   return {

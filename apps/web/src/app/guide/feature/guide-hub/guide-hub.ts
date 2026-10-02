@@ -21,6 +21,7 @@ import {
   ClipboardCheck,
   ShieldCheck,
 } from 'lucide-angular';
+import { switchMap } from 'rxjs';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
@@ -34,13 +35,13 @@ import {
   SectorLineupEntry,
 } from '../../../shared/ui/sector-presentation';
 import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
-import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
+import { GuideScrollTop } from '../guide-scroll-top/guide-scroll-top';
 import { SmoothAnchors } from '../../ui/smooth-anchors';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_SCORE_ANCHOR,
-} from '../../util/guide-anchors';
+} from '../../../shared/util/guide-anchors';
 import { navigateBack } from '../../util/guide-back';
 
 interface GuideAnchorChip {
@@ -149,7 +150,10 @@ export class GuideHub {
 
   protected markRead(): void {
     this.locallyMarked.set(true);
-    this.badgesFacade.markGuideRead(GuideId.EXAM_GUIDE);
+    this.badgesFacade
+      .markGuideRead(GuideId.EXAM_GUIDE)
+      .pipe(switchMap(() => this.authFacade.loadCurrentUser()))
+      .subscribe({ error: () => undefined });
   }
 
   protected readonly sectorStack: readonly GuideSectorStackEntry[] =
