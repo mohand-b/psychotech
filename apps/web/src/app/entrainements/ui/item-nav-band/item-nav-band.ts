@@ -2,8 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  afterRenderEffect,
   computed,
-  effect,
   inject,
   input,
   output,
@@ -141,17 +141,15 @@ export class ItemNavBand {
   );
 
   constructor() {
-    effect(() => {
+    afterRenderEffect(() => {
       this.currentIndex();
-      setTimeout(() =>
-        this.elementRef.nativeElement
-          .querySelector('[aria-current="true"]')
-          ?.scrollIntoView({
-            block: 'nearest',
-            inline: 'center',
-            behavior: 'smooth',
-          }),
-      );
+      this.elementRef.nativeElement
+        .querySelector('[aria-current="true"]')
+        ?.scrollIntoView({
+          block: 'nearest',
+          inline: 'center',
+          behavior: 'smooth',
+        });
     });
   }
 

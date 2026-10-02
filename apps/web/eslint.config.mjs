@@ -24,8 +24,16 @@ export default [
           style: 'kebab-case',
         },
       ],
+      '@angular-eslint/prefer-signals': 'error',
+      '@angular-eslint/prefer-on-push-component-change-detection': 'error',
       'no-console': 'error',
       'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {

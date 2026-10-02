@@ -7,8 +7,8 @@ import {
   afterNextRender,
   afterRenderEffect,
   computed,
-  effect,
   inject,
+  linkedSignal,
   model,
   signal,
   viewChild,
@@ -147,17 +147,25 @@ export class ContactForm {
   protected readonly screenshot = signal<AttachedScreenshot | null>(null);
   protected readonly screenshotRejected = signal(false);
 
-  private readonly draft = signal<ContactFormModel>({
-    email: this.authFacade.currentUser()?.email ?? '',
-    subject: '',
-    area: '',
-    location: this.route.snapshot.queryParamMap.has(CONTACT_SESSION_QUERY_PARAM)
-      ? ContactProblemLocation.RESULTS
-      : '',
-    message: '',
-    attachSession: true,
-    attachContext: true,
-    website: '',
+  private readonly draft = linkedSignal<string | undefined, ContactFormModel>({
+    source: () => this.authFacade.currentUser()?.email,
+    computation: (accountEmail, previous) =>
+      previous
+        ? { ...previous.value, email: accountEmail || previous.value.email }
+        : {
+            email: accountEmail ?? '',
+            subject: '',
+            area: '',
+            location: this.route.snapshot.queryParamMap.has(
+              CONTACT_SESSION_QUERY_PARAM,
+            )
+              ? ContactProblemLocation.RESULTS
+              : '',
+            message: '',
+            attachSession: true,
+            attachContext: true,
+            website: '',
+          },
   });
 
   protected readonly contactForm = form(this.draft, (path) => {
@@ -237,12 +245,6 @@ export class ContactForm {
   );
 
   constructor() {
-    effect(() => {
-      const accountEmail = this.authFacade.currentUser()?.email;
-      if (accountEmail) {
-        this.draft.update((model) => ({ ...model, email: accountEmail }));
-      }
-    });
     afterRenderEffect(() => {
       this.sendNotice()?.nativeElement.scrollIntoView({ block: 'center' });
     });
