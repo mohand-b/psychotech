@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { LandingReveal } from '../landing-reveal.directive';
+import { LandingReveal } from '../landing-reveal';
 
 @Component({
   selector: 'app-landing-enjeu',

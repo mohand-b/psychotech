@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { LandingReveal } from './landing-reveal.directive';
+import { LandingReveal } from './landing-reveal';
 
 @Component({
   imports: [LandingReveal],

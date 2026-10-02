@@ -28,7 +28,7 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <polyline points="20 6 9 17 4 12" />
               </svg>
               Aucune session identique à la précédente
             </span>
@@ -43,7 +43,7 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <polyline points="20 6 9 17 4 12" />
               </svg>
               Un niveau calibré sur les barèmes du secteur
             </span>
@@ -58,7 +58,7 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <polyline points="20 6 9 17 4 12"></polyline>
+                <polyline points="20 6 9 17 4 12" />
               </svg>
               Un score fidèle à votre niveau réel
             </span>

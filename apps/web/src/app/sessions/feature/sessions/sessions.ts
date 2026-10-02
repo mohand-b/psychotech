@@ -104,7 +104,7 @@ export class Sessions {
       textVar: null,
     },
     ...FULL_SESSION_AXIS_ORDER.map((axis) => ({
-      value: axis as SessionHistoryFilter,
+      value: axis,
       label: AXIS_PRESENTATION[axis].label,
       shortLabel: AXIS_PRESENTATION[axis].label,
       axis,

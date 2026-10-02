@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LANDING_FAQ_ENTRIES } from '../../data/landing-faq-entries';
 import { LANDING_SECTION } from '../../util/landing-sections';
-import { LandingReveal } from '../landing-reveal.directive';
+import { LandingReveal } from '../landing-reveal';
 
 @Component({
   selector: 'app-landing-faq',

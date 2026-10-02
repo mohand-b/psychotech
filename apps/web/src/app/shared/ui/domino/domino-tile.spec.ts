@@ -14,8 +14,8 @@ describe('DominoTile', () => {
   it('rend les 7 valeurs de face avec le bon nombre de points', () => {
     for (let face = 0; face <= 6; face += 1) {
       const fixture = TestBed.createComponent(DominoTile);
-      fixture.componentRef.setInput('top', face as DominoFace);
-      fixture.componentRef.setInput('bottom', 0 as DominoFace);
+      fixture.componentRef.setInput('top', face);
+      fixture.componentRef.setInput('bottom', 0);
       fixture.detectChanges();
       const element: HTMLElement = fixture.nativeElement;
       expect(element.querySelectorAll('.pip--top')).toHaveLength(face);
@@ -26,7 +26,7 @@ describe('DominoTile', () => {
   it('affiche un point d’interrogation pour une face inconnue', () => {
     const fixture = TestBed.createComponent(DominoTile);
     fixture.componentRef.setInput('top', null);
-    fixture.componentRef.setInput('bottom', 3 as DominoFace);
+    fixture.componentRef.setInput('bottom', 3);
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
     expect(element.querySelectorAll('.unknown')).toHaveLength(1);

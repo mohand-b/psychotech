@@ -24,11 +24,39 @@ export default [
           style: 'kebab-case',
         },
       ],
+      'no-console': 'error',
+      'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
+    },
+  },
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': [
+        'error',
+        {
+          allowForKnownSafeCalls: [
+            {
+              from: 'package',
+              package: '@angular/router',
+              name: ['navigate', 'navigateByUrl'],
+            },
+          ],
+        },
+      ],
+      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+      '@angular-eslint/no-uncalled-signals': 'error',
     },
   },
   {
     files: ['**/*.html'],
-    // Override or add rules here
-    rules: {},
+    rules: {
+      '@angular-eslint/template/prefer-self-closing-tags': 'error',
+    },
   },
 ];

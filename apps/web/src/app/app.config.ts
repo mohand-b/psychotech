@@ -6,7 +6,7 @@ import {
   provideBrowserGlobalErrorListeners,
   inject,
 } from '@angular/core';
-import { isPlatformServer } from '@angular/common';
+import { ViewportScroller, isPlatformServer } from '@angular/common';
 import {
   provideClientHydration,
   withEventReplay,
@@ -24,7 +24,6 @@ import {
   withNavigationErrorHandler,
   withRouterConfig,
 } from '@angular/router';
-import { ViewportScroller } from '@angular/common';
 import { XSRF_COOKIE_NAME, XSRF_HEADER_NAME } from '@psychotech/shared';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { AuthFacade } from './auth/data-access/auth.facade';

@@ -1,5 +1,12 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import {
+  ErrorHandler,
+  Injectable,
+  Signal,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   AXIS_TRAINING,
   AxisTimerModel,
@@ -86,6 +93,7 @@ export class TrainingSessionFacade {
   private readonly store = inject(TrainingSessionStore);
   private readonly energyFacade = inject(EnergyFacade);
   private readonly authFacade = inject(AuthFacade);
+  private readonly errorHandler = inject(ErrorHandler);
   private tickerId: number | null = null;
 
   readonly session: Signal<SessionDto | null> = this.store.session;
@@ -369,7 +377,7 @@ export class TrainingSessionFacade {
         this.energyFacade.load().pipe(
           map(() => session),
           catchError((error: unknown) => {
-            console.error('Energy reload failed after session start', error);
+            this.errorHandler.handleError(error);
             return of(session);
           }),
         ),

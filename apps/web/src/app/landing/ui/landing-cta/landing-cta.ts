@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { LANDING_ROUTE, LandingAction } from '../../util/landing-link';
 import { LandingButton } from '../landing-button/landing-button';
-import { LandingReveal } from '../landing-reveal.directive';
+import { LandingReveal } from '../landing-reveal';
 
 const SIGNUP_ACTION: LandingAction = {
   label: 'Créer un compte',

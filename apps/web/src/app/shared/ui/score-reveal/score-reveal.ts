@@ -91,10 +91,7 @@ export function revealPathFor(target: number): RevealPath {
   const legs = keyframes
     .slice(1)
     .map((value, index) => Math.abs(value - keyframes[index]));
-  const climbSec = Math.max(
-    SCORE_REVEAL_MIN_DURATION_SEC,
-    legs[0] / SCORE_REVEAL_POINTS_PER_SEC,
-  );
+  const climbSec = visualDurationFor(legs[0]);
   const widestSwing = Math.max(0, ...legs.slice(1));
   const swingSec = Math.max(
     SCORE_REVEAL_MIN_SWING_SEC,

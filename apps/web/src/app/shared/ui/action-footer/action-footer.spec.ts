@@ -28,9 +28,7 @@ describe('ActionFooter', () => {
       'ui-action-footer',
     ) as HTMLElement;
     const actions = footer.querySelector('.action-footer__actions');
-    const buttons = Array.from(
-      actions?.querySelectorAll('ui-button') ?? [],
-    ) as HTMLElement[];
+    const buttons = Array.from(actions?.querySelectorAll('ui-button') ?? []);
 
     expect(buttons).toHaveLength(2);
     expect(buttons[0].textContent?.trim()).toBe('Primaire');
@@ -45,9 +43,9 @@ describe('ActionFooter', () => {
     const fixture = TestBed.createComponent(Host);
     fixture.detectChanges();
 
-    const buttons = Array.from(
+    const buttons = Array.from<HTMLElement>(
       fixture.nativeElement.querySelectorAll('ui-button'),
-    ) as HTMLElement[];
+    );
 
     for (const host of buttons) {
       expect(host.classList.contains('ui-button--block-mobile')).toBe(true);

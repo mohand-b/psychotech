@@ -65,8 +65,8 @@ export function triangleDisplayValues(
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <path d="M5 12h14"></path>
-              <path d="m12 5 7 7-7 7"></path>
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
             </svg>
           }
         </div>

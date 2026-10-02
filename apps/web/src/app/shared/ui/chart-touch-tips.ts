@@ -25,7 +25,7 @@ export class ChartTouchTips {
   }
 
   protected onDocumentClick(event: Event): void {
-    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
       this.closeAll();
     }
   }

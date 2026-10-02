@@ -13,7 +13,7 @@ import {
   ReactivityWaitPressDto,
 } from '@psychotech/shared';
 import { formatDuration } from '../format-duration';
-import { ChartTouchTips } from '../chart-touch-tips.directive';
+import { ChartTouchTips } from '../chart-touch-tips';
 
 const Y_MIN_DOMAIN_MS = 650;
 const Y_HEADROOM_MS = 60;
@@ -88,10 +88,10 @@ export class ReactivityTrChart {
           : `${time} · ${label} · ${point.trMs} ms`;
       return { classification: point.classification, xPct, bottomPct, tooltip };
     });
-    const waitPressDots = this.waitPresses().map((press) => {
+    const waitPressDots = this.waitPresses().map((press): ChartDot => {
       const time = formatDuration(Math.round(press.atMs / 1000));
       return {
-        classification: 'ANTICIPATION' as ReactivityClassification,
+        classification: 'ANTICIPATION',
         xPct: (press.atMs / this.totalMs) * 100,
         bottomPct: ANTICIPATION_FLOOR_PCT,
         tooltip: `${time} · Trop tôt, appui sans signal`,

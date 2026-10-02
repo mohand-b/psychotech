@@ -33,7 +33,7 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
             <span class="scoring__item-title">Des métriques multiples</span>
             <span class="scoring__item-text"
@@ -53,9 +53,9 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <line x1="19" y1="5" x2="5" y2="19"></line>
-              <circle cx="6.5" cy="6.5" r="2.5"></circle>
-              <circle cx="17.5" cy="17.5" r="2.5"></circle>
+              <line x1="19" y1="5" x2="5" y2="19" />
+              <circle cx="6.5" cy="6.5" r="2.5" />
+              <circle cx="17.5" cy="17.5" r="2.5" />
             </svg>
             <span class="scoring__item-title"
               >Un score lisible, sur <span class="t-mono">100</span></span
@@ -76,15 +76,15 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <line x1="21" x2="14" y1="4" y2="4"></line>
-              <line x1="10" x2="3" y1="4" y2="4"></line>
-              <line x1="21" x2="12" y1="12" y2="12"></line>
-              <line x1="8" x2="3" y1="12" y2="12"></line>
-              <line x1="21" x2="16" y1="20" y2="20"></line>
-              <line x1="12" x2="3" y1="20" y2="20"></line>
-              <line x1="14" x2="14" y1="2" y2="6"></line>
-              <line x1="8" x2="8" y1="10" y2="14"></line>
-              <line x1="16" x2="16" y1="18" y2="22"></line>
+              <line x1="21" x2="14" y1="4" y2="4" />
+              <line x1="10" x2="3" y1="4" y2="4" />
+              <line x1="21" x2="12" y1="12" y2="12" />
+              <line x1="8" x2="3" y1="12" y2="12" />
+              <line x1="21" x2="16" y1="20" y2="20" />
+              <line x1="12" x2="3" y1="20" y2="20" />
+              <line x1="14" x2="14" y1="2" y2="6" />
+              <line x1="8" x2="8" y1="10" y2="14" />
+              <line x1="16" x2="16" y1="18" y2="22" />
             </svg>
             <span class="scoring__item-title">Pondéré selon votre secteur</span>
             <span class="scoring__item-text"
@@ -105,9 +105,9 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
             >
               <path
                 d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
-              ></path>
-              <path d="M12 9v4"></path>
-              <path d="M12 17h.01"></path>
+              />
+              <path d="M12 9v4" />
+              <path d="M12 17h.01" />
             </svg>
             <span class="scoring__item-title">Axes critiques et seuils</span>
             <span class="scoring__item-text"

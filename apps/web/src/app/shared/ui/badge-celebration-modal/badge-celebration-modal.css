@@ -314,10 +314,6 @@
   animation: cbTurn 300ms ease 1150ms backwards;
 }
 
-/* La barre est peinte en fond du texte, pas posée en absolu sur le bloc : elle
-   se découpe donc avec lui et traverse chaque ligne à sa propre hauteur. Une
-   barre unique se retrouvait dans l'interligne dès que la condition passait
-   sur deux lignes. */
 .cb__condition-text {
   --cb-strike-height: 1.5px;
   background-image: linear-gradient(var(--success-text), var(--success-text));

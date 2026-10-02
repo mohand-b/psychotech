@@ -16,7 +16,7 @@ import {
   LandingAxisTabs,
   landingAxisTabId,
 } from '../landing-axis-tabs/landing-axis-tabs';
-import { LandingReveal } from '../landing-reveal.directive';
+import { LandingReveal } from '../landing-reveal';
 import { LandingScreenStack } from '../landing-screen-stack/landing-screen-stack';
 
 const GUIDE_ARROW_SIZE = 15;

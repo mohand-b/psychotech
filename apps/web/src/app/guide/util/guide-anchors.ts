@@ -18,6 +18,3 @@ export const GUIDE_LOGIC_RULES_ANCHORS = {
   dominos: 'dominos',
   matrices: 'matrices',
 } as const;
-
-export type GuideLogicRulesAnchor =
-  (typeof GUIDE_LOGIC_RULES_ANCHORS)[keyof typeof GUIDE_LOGIC_RULES_ANCHORS];

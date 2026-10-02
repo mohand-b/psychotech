@@ -59,8 +59,6 @@ const RADAR_VERTICES = [
   },
 ] as const;
 
-// Chaque sommet est indissociable de son axe : les entrées sont réordonnées
-// sur cette base, l'ordre fourni par l'appelant n'a aucune importance.
 function orderForDisplay(
   entries: readonly AxisRadarEntry[],
 ): readonly AxisRadarEntry[] {
@@ -193,9 +191,6 @@ export class AxisRadar {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Scores réellement dessinés. Ils rejoignent ceux de `entries` en glissant,
-  // pour qu'un changement de jeu de données déforme le polygone au lieu de le
-  // remplacer d'un coup.
   private readonly drawnScores = signal<number[]>([]);
   private stopMorph: (() => void) | null = null;
   private pendingScores: number[] | null = null;
@@ -213,14 +208,11 @@ export class AxisRadar {
       }
       this.morph(drawn, target);
     });
-    this.watchVisibility();
+    this.settleWhenDocumentHidden();
     this.destroyRef.onDestroy(() => this.stopMorph?.());
   }
 
-  // Une animation ne doit jamais retenir la donnée : dès que l'onglet passe en
-  // arrière-plan, les frames s'arrêtent et le polygone resterait figé sur le
-  // jeu précédent, donc sur un profil faux. On le pose alors d'un coup.
-  private watchVisibility(): void {
+  private settleWhenDocumentHidden(): void {
     if (typeof this.document.addEventListener !== 'function') {
       return;
     }

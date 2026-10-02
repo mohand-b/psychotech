@@ -1,4 +1,5 @@
 import {
+  ErrorHandler,
   Injectable,
   Signal,
   computed,
@@ -35,6 +36,7 @@ const GAMEPAD_PING_STALE_MS = 2 * GAMEPAD_PING_INTERVAL_MS;
 @Injectable({ providedIn: 'root' })
 export class GamepadFacade {
   private readonly api = inject(GamepadApi);
+  private readonly errorHandler = inject(ErrorHandler);
 
   private transport: GamepadTransport | null = null;
   private pingTimerId: number | null = null;
@@ -98,8 +100,8 @@ export class GamepadFacade {
         this.openTransport(pairing.token);
         this.armExpiryTimer(pairing);
       },
-      error: (err: unknown) => {
-        console.error('[GamepadFacade] pairing failed', err);
+      error: (error: unknown) => {
+        this.errorHandler.handleError(error);
         this.stateSignal.set(GamepadConnectionState.DISCONNECTED);
       },
     });

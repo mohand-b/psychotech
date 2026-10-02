@@ -86,18 +86,18 @@ describe('Public example bilan', () => {
     expect(text).not.toContain('Nouvel entraînement');
     expect(text).not.toContain('Retour aux entraînements');
 
-    const buttons = Array.from(
+    const buttons = Array.from<HTMLButtonElement>(
       fixture.nativeElement.querySelectorAll('ui-action-footer button'),
-    ) as HTMLButtonElement[];
+    );
     buttons[0].click();
     expect(navigate).toHaveBeenCalledWith(['/register']);
   });
 
   it('opens the axis detail from the fixture, without any network call', async () => {
     const { fixture } = await setup();
-    const rows = Array.from(
+    const rows = Array.from<HTMLButtonElement>(
       fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
-    ) as HTMLButtonElement[];
+    );
 
     rows[0].click();
     fixture.detectChanges();
@@ -113,9 +113,9 @@ describe('Public example bilan', () => {
 
   it('never offers to review answers that no visitor has given', async () => {
     const { fixture } = await setup();
-    const rows = Array.from(
+    const rows = Array.from<HTMLButtonElement>(
       fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
-    ) as HTMLButtonElement[];
+    );
 
     rows[0].click();
     fixture.detectChanges();
@@ -129,9 +129,9 @@ describe('Public example bilan', () => {
 
   it('shows the same axis score in the row and in its detail', async () => {
     const { fixture } = await setup();
-    const rows = Array.from(
+    const rows = Array.from<HTMLElement>(
       fixture.nativeElement.querySelectorAll('.bilan__axis-row'),
-    ) as HTMLElement[];
+    );
     const rowScore = rows[2]
       .querySelector('.bilan__axis-score')
       ?.textContent?.trim();

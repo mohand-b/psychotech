@@ -35,7 +35,7 @@ import {
 } from '../../../shared/ui/sector-presentation';
 import { GuideReadCheck } from '../../ui/guide-read-check/guide-read-check';
 import { GuideScrollTop } from '../../ui/guide-scroll-top/guide-scroll-top';
-import { SmoothAnchors } from '../../ui/smooth-anchors.directive';
+import { SmoothAnchors } from '../../ui/smooth-anchors';
 import {
   GUIDE_AXIS_ANCHORS,
   GUIDE_LOGIC_RULES_PATH,

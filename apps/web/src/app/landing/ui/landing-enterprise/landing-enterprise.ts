@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LANDING_SECTION } from '../../util/landing-sections';
-import { LandingReveal } from '../landing-reveal.directive';
+import { LandingReveal } from '../landing-reveal';
 
 @Component({
   selector: 'app-landing-enterprise',

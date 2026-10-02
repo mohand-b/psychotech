@@ -22,29 +22,29 @@ export type LogicHeadIcon = 'series' | 'domino' | 'matrix';
                 stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <rect x="8" y="2.5" width="8" height="19" rx="2.5"></rect>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
+                <rect x="8" y="2.5" width="8" height="19" rx="2.5" />
+                <line x1="8" y1="12" x2="16" y2="12" />
                 <circle
                   cx="12"
                   cy="7.2"
                   r="1.3"
                   fill="currentColor"
                   stroke="none"
-                ></circle>
+                />
                 <circle
                   cx="10.4"
                   cy="15.6"
                   r="1.3"
                   fill="currentColor"
                   stroke="none"
-                ></circle>
+                />
                 <circle
                   cx="13.6"
                   cy="18.3"
                   r="1.3"
                   fill="currentColor"
                   stroke="none"
-                ></circle>
+                />
               </svg>
             }
             @case ('matrix') {
@@ -59,11 +59,11 @@ export type LogicHeadIcon = 'series' | 'domino' | 'matrix';
                 stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-                <path d="M3 9h18"></path>
-                <path d="M3 15h18"></path>
-                <path d="M9 3v18"></path>
-                <path d="M15 3v18"></path>
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M3 9h18" />
+                <path d="M3 15h18" />
+                <path d="M9 3v18" />
+                <path d="M15 3v18" />
               </svg>
             }
             @default {
@@ -78,10 +78,10 @@ export type LogicHeadIcon = 'series' | 'domino' | 'matrix';
                 stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <line x1="4" x2="20" y1="9" y2="9"></line>
-                <line x1="4" x2="20" y1="15" y2="15"></line>
-                <line x1="10" x2="8" y1="3" y2="21"></line>
-                <line x1="16" x2="14" y1="3" y2="21"></line>
+                <line x1="4" x2="20" y1="9" y2="9" />
+                <line x1="4" x2="20" y1="15" y2="15" />
+                <line x1="10" x2="8" y1="3" y2="21" />
+                <line x1="16" x2="14" y1="3" y2="21" />
               </svg>
             }
           }

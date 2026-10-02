@@ -76,11 +76,11 @@ describe('PlayLeaveControl', () => {
   it('warns before a reload or tab close only when work would be lost', () => {
     const risky = new Event('beforeunload', { cancelable: true });
     build({ live: true, submitted: false, unsent: false }).control.blockUnload(
-      risky as BeforeUnloadEvent,
+      risky,
     );
     const safe = new Event('beforeunload', { cancelable: true });
     build({ live: true, submitted: true, unsent: false }).control.blockUnload(
-      safe as BeforeUnloadEvent,
+      safe,
     );
 
     expect(risky.defaultPrevented).toBe(true);

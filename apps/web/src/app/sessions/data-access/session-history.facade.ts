@@ -1,4 +1,4 @@
-import { Injectable, Signal, inject } from '@angular/core';
+import { ErrorHandler, Injectable, Signal, inject } from '@angular/core';
 import { CurrentSessionDto, SessionHistoryItemDto } from '@psychotech/shared';
 import {
   SessionHistoryFilter,
@@ -11,6 +11,7 @@ import { SessionsApi } from './sessions.api';
 export class SessionHistoryFacade {
   private readonly api = inject(SessionsApi);
   private readonly store = inject(SessionHistoryStore);
+  private readonly errorHandler = inject(ErrorHandler);
 
   readonly items: Signal<SessionHistoryItemDto[]> = this.store.items;
   readonly nextCursor: Signal<string | null> = this.store.nextCursor;
@@ -45,11 +46,8 @@ export class SessionHistoryFacade {
   refreshCurrent(): void {
     this.api.current().subscribe({
       next: (current) => this.store.setCurrent(current),
-      error: (err: unknown) => {
-        console.error(
-          '[SessionHistoryFacade] current session refresh failed',
-          err,
-        );
+      error: (error: unknown) => {
+        this.errorHandler.handleError(error);
         this.store.setCurrent(null);
       },
     });

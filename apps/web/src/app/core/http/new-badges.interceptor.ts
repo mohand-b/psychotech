@@ -24,11 +24,6 @@ function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
   return valid ? (candidate as EarnedBadgeDto[]) : null;
 }
 
-/*
- * Plomberie assumée hors façade : ce point d'entrée unique route le champ
- * additif `newBadges` des réponses des endpoints déclencheurs vers la file de
- * célébration globale, sans jamais muter ni retarder la réponse elle-même.
- */
 export const newBadgesInterceptor: HttpInterceptorFn = (request, next) => {
   const store = inject(BadgeStore);
   const energyFacade = inject(EnergyFacade);

@@ -27,8 +27,8 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
             <span class="platform__item-title"
               >Conditions réelles d'examen</span
@@ -50,8 +50,8 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
-              <path d="m19 9-5 5-4-4-3 3"></path>
+              <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+              <path d="m19 9-5 5-4-4-3 3" />
             </svg>
             <span class="platform__item-title"
               >Scoring calibré par secteur</span
@@ -73,13 +73,13 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M10 2h4"></path>
-              <path d="m4.6 11 8-8"></path>
-              <path d="M9 11h6"></path>
-              <rect width="16" height="10" x="4" y="11" rx="2"></rect>
-              <path d="M8 15h.01"></path>
-              <path d="M12 15h.01"></path>
-              <path d="M16 15h.01"></path>
+              <path d="M10 2h4" />
+              <path d="m4.6 11 8-8" />
+              <path d="M9 11h6" />
+              <rect width="16" height="10" x="4" y="11" rx="2" />
+              <path d="M8 15h.01" />
+              <path d="M12 15h.01" />
+              <path d="M16 15h.01" />
             </svg>
             <span class="platform__item-title">Résultats détaillés</span>
             <span class="platform__item-text"
@@ -99,8 +99,8 @@ import { OldLandingReveal } from '../old-landing-reveal.directive';
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-              <polyline points="16 7 22 7 22 13"></polyline>
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+              <polyline points="16 7 22 7 22 13" />
             </svg>
             <span class="platform__item-title">Suivi de progression</span>
             <span class="platform__item-text"

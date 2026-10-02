@@ -11,7 +11,7 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { LandingCta } from '../../ui/landing-cta/landing-cta';
 import { LandingFooter } from '../../ui/landing-footer/landing-footer';
 import { LandingHeader } from '../../ui/landing-header/landing-header';
-import { LandingReveal } from '../../ui/landing-reveal.directive';
+import { LandingReveal } from '../../ui/landing-reveal';
 import { injectLandingChrome } from '../../util/landing-chrome';
 
 interface PackView {

@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { formatSecondsTenths } from '../format-duration';
-import { ChartTouchTips } from '../chart-touch-tips.directive';
+import { ChartTouchTips } from '../chart-touch-tips';
 
 export interface TimeChartEntry {
   colorVar: string;
