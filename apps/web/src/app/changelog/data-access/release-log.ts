@@ -37,6 +37,19 @@ export function releaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
+    version: '1.2.0',
+    releasedOn: '2026-10-02',
+    title: 'Nouvelle page d’accueil',
+    entries: {
+      [ReleaseCategory.NEW]: [
+        'Nouvelle page d’accueil du site, sur ordinateur comme sur mobile : déroulé d’une préparation étape par étape et aperçu de l’exercice de chacune des cinq épreuves.',
+      ],
+      [ReleaseCategory.IMPROVEMENT]: [
+        'Accueil de l’espace candidat : score de chaque épreuve affiché sous le dernier résultat, sur ordinateur comme sur mobile.',
+      ],
+    },
+  },
+  {
     version: '1.1.0',
     releasedOn: '2026-09-20',
     title: 'Formulaire de contact',
