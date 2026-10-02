@@ -211,7 +211,35 @@
                 >
               </div>
             </div>
-            <span class="home__result-date"
+            @if (lastAxisScores(); as axisScores) {
+              <div class="home__result-axes">
+                @for (entry of axisScores; track entry.axis) {
+                  <span class="home__result-axis" [title]="entry.label">
+                    <span class="home__result-axis-head">
+                      <ui-axis-icon
+                        class="home__result-axis-icon"
+                        [axis]="entry.axis"
+                        [size]="scoreIconSize"
+                        [label]="entry.label"
+                      />
+                      <span class="home__result-axis-score t-mono">{{
+                        entry.score
+                      }}</span>
+                    </span>
+                    <span class="home__result-axis-track">
+                      <span
+                        class="home__result-axis-fill"
+                        [style.width.%]="entry.score"
+                        [style.background]="entry.colorVar"
+                      ></span>
+                    </span>
+                  </span>
+                }
+              </div>
+            }
+            <span
+              class="home__result-date"
+              [class.home__result-date--ruled]="!lastAxisScores()"
               >{{ fullSessionLabel }} ·
               <span class="t-mono">{{ result.dateLabel }}</span></span
             >

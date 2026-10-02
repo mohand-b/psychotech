@@ -7,6 +7,7 @@ import {
 } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
+  AXIS_META,
   AxisProgressStatus,
   BADGE_CATALOG,
   BadgeFeedDto,
@@ -345,6 +346,36 @@ describe('Dashboard', () => {
       'session-9',
       'resultat',
     ]);
+  });
+
+  it('lists the axis scores of the last exam under its threshold bar, in exam order', async () => {
+    const { fixture } = await setup();
+    const axes = [
+      ...fixture.nativeElement.querySelectorAll('.home__result-axis'),
+    ] as HTMLElement[];
+    expect(axes.map((axis) => axis.title)).toEqual(
+      FULL_SESSION_AXIS_ORDER.map((axis) => AXIS_META[axis].label),
+    );
+    expect(
+      axes.map((axis) =>
+        axis.querySelector('.home__result-axis-score')?.textContent?.trim(),
+      ),
+    ).toEqual(FULL_SESSION_AXIS_ORDER.map(() => '60'));
+    expect(
+      (axes[0].querySelector('.home__result-axis-fill') as HTMLElement).style
+        .width,
+    ).toBe('60%');
+    expect(
+      fixture.nativeElement.querySelector('.home__result-date--ruled'),
+    ).toBeNull();
+  });
+
+  it('rules the exam date itself while the axis scores are not available', async () => {
+    const { fixture } = await setup({ progression: null });
+    expect(fixture.nativeElement.querySelector('.home__result-axes')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.home__result-date--ruled'),
+    ).not.toBeNull();
   });
 
   it('picks the weakest played axis and routes to its targeted training', async () => {

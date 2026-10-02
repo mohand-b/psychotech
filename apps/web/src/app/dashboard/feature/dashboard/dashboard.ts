@@ -72,6 +72,13 @@ interface WeakAxisView {
   durationMinutes: number;
 }
 
+interface LastAxisScoreView {
+  axis: AxisType;
+  label: string;
+  score: number;
+  colorVar: string;
+}
+
 interface LastResultView {
   sessionId: string;
   scoreLabel: string;
@@ -127,6 +134,7 @@ export class Dashboard {
   protected readonly statuses = AxisProgressStatus;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly cardIconSize = AXIS_ICON_SIZE.card;
+  protected readonly scoreIconSize = AXIS_ICON_SIZE.mini;
 
   protected readonly radarMode = signal<RadarMode>('derniere');
 
@@ -306,6 +314,28 @@ export class Dashboard {
       dateLabel: formatSessionDate(simulation.completedAt, this.now),
     };
   });
+
+  protected readonly lastAxisScores = computed<LastAxisScoreView[] | null>(
+    () => {
+      const last = this.progressionFacade.progression()?.radar.last ?? [];
+      const scores = FULL_SESSION_AXIS_ORDER.flatMap((axis) => {
+        const score = last.find((candidate) => candidate.axis === axis)?.score;
+        if (score === undefined || score === null) {
+          return [];
+        }
+        const presentation = AXIS_PRESENTATION[axis];
+        return [
+          {
+            axis,
+            label: presentation.label,
+            score,
+            colorVar: presentation.plainVar,
+          },
+        ];
+      });
+      return scores.length > 0 ? scores : null;
+    },
+  );
 
   protected readonly radarEntries = computed<AxisRadarEntry[]>(() => {
     if (this.radarMode() === 'meilleur') {
