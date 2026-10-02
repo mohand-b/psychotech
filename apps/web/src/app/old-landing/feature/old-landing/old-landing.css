@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  position: relative;
+  background: var(--landing-bg);
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+}
+
+.landing__sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}

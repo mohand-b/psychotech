@@ -1,0 +1,135 @@
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: block;
+}
+
+.header {
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    backdrop-filter 0.3s ease;
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 64px;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.header--glass {
+  background: var(--landing-glass);
+  backdrop-filter: blur(16px);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.header__logo {
+  font: 700 22px/1 var(--font-display);
+  color: var(--landing-text);
+  text-decoration: none;
+}
+
+.header__logo-accent {
+  color: var(--brand);
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.header__link {
+  font: 500 14px/1 var(--landing-font-ui);
+  color: var(--landing-text-body);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.header__link:hover {
+  color: var(--landing-text);
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__signin {
+  font: 600 14px/1 var(--landing-font-ui);
+  color: var(--landing-text);
+  text-decoration: none;
+}
+
+.header__signin:hover {
+  color: var(--landing-text-body);
+}
+
+.header__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: var(--landing-accent);
+  color: var(--landing-text);
+  font: 600 14px/1 var(--landing-font-ui);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.header__cta:hover {
+  background: var(--landing-accent-hover);
+}
+
+.header__signin:focus-visible,
+.header__cta:focus-visible,
+.header__link:focus-visible,
+.header__logo:focus-visible {
+  outline: 2px solid var(--landing-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (max-width: 767px) {
+  .header {
+    padding-top: env(safe-area-inset-top);
+  }
+  .header__inner {
+    height: 56px;
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .header__logo {
+    font-size: 18px;
+  }
+  .header__nav {
+    display: none;
+  }
+  .header__actions {
+    gap: 4px;
+  }
+  .header__signin {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.82);
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+  .header__cta {
+    font-size: 13.5px;
+    padding: 10px 14px;
+  }
+}

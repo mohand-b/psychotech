@@ -1,0 +1,144 @@
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  input,
+  NgZone,
+} from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { AxisType, Sector, SECTOR_AXES } from '@psychotech/shared';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight, FileText, LucideIconData } from 'lucide-angular';
+import {
+  AXIS_ICON_SIZE,
+  AxisIcon,
+} from '../../../shared/ui/axis-icon/axis-icon';
+import { Icon } from '../../../shared/ui/icon/icon';
+import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+interface HeroAxis {
+  axis: AxisType;
+  label: string;
+  shortLabel: string;
+  colorVar: string;
+}
+
+interface SectorBand {
+  name: string;
+  icon: LucideIconData;
+  image: string;
+  alt: string;
+  description: string;
+  axes: HeroAxis[];
+}
+
+function axesFor(sector: Sector): HeroAxis[] {
+  return SECTOR_AXES[sector].map((axis: AxisType) => {
+    const presentation = AXIS_PRESENTATION[axis];
+    return {
+      axis,
+      label: presentation.label,
+      shortLabel: presentation.label.split(' ')[0],
+      colorVar: presentation.plainVar,
+    };
+  });
+}
+
+@Component({
+  selector: 'app-old-landing-hero',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AxisIcon, NgOptimizedImage, RouterLink, Icon],
+  templateUrl: './old-landing-hero.html',
+  styleUrl: './old-landing-hero.css',
+})
+export class OldLandingHero {
+  readonly authenticated = input(false);
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly zone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly arrowIcon = ArrowRight;
+  protected readonly cardIconSize = AXIS_ICON_SIZE.card;
+
+  protected readonly ctaLabel = computed(() =>
+    this.authenticated()
+      ? 'Continuer ma préparation'
+      : 'Commencer gratuitement',
+  );
+  protected readonly reportIcon = FileText;
+  protected readonly railwayAxes: readonly HeroAxis[] = axesFor(Sector.RAILWAY);
+
+  protected readonly bands: readonly SectorBand[] = [
+    {
+      name: 'Aviation',
+      icon: SECTOR_PRESENTATION[Sector.AVIATION].icon,
+      image: '/sectors/aviation.webp',
+      alt: 'Secteur aérien',
+      description:
+        'Sélections du personnel navigant et des métiers du contrôle aérien, où le palier psychotechnique est déterminant.',
+      axes: axesFor(Sector.AVIATION),
+    },
+    {
+      name: 'Sécurité',
+      icon: SECTOR_PRESENTATION[Sector.SECURITY].icon,
+      image: '/sectors/security.webp',
+      alt: 'Secteur sécurité',
+      description:
+        'Concours et tests d’aptitude des métiers de la sûreté, exigeants sur la vigilance et la prise de décision.',
+      axes: axesFor(Sector.SECURITY),
+    },
+    {
+      name: 'Conduite',
+      icon: SECTOR_PRESENTATION[Sector.DRIVING].icon,
+      image: '/sectors/driving.webp',
+      alt: 'Secteur conduite',
+      description:
+        'Sélections des métiers de la conduite et du transport, centrées sur la vigilance, la perception et la coordination.',
+      axes: axesFor(Sector.DRIVING),
+    },
+    {
+      name: 'Médical',
+      icon: SECTOR_PRESENTATION[Sector.HEALTHCARE].icon,
+      image: '/sectors/medical.webp',
+      alt: 'Secteur médical',
+      description:
+        'Épreuves d’admission des filières de soin, sous forte charge cognitive et attentionnelle.',
+      axes: axesFor(Sector.HEALTHCARE),
+    },
+  ];
+
+  constructor() {
+    afterNextRender(() => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+      this.zone.runOutsideAngular(() => {
+        const context = gsap.context(() => {
+          gsap.to('.hero__media--parallax .hero__image', {
+            yPercent: -8,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: this.host.nativeElement,
+              start: 'top top',
+              end: 'bottom top',
+              scrub: true,
+            },
+          });
+        }, this.host.nativeElement);
+        this.destroyRef.onDestroy(() => context.revert());
+      });
+    });
+  }
+}

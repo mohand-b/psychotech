@@ -1,0 +1,27 @@
+<header class="header" [class.header--glass]="scrolled()">
+  <div class="header__inner">
+    <a
+      [href]="anchor('hero')"
+      class="header__logo"
+      [attr.aria-label]="siteName"
+    >
+      Psycho<span class="header__logo-accent">Tech</span>
+    </a>
+    <nav class="header__nav" aria-label="Sections">
+      <a [href]="anchor('axes')" class="header__link">Les axes</a>
+      <a [href]="anchor('fonctionnement')" class="header__link"
+        >Fonctionnement</a
+      >
+      <a [href]="anchor('faq')" class="header__link">FAQ</a>
+      <a routerLink="/tarifs" class="header__link">Tarifs</a>
+    </nav>
+    <div class="header__actions">
+      @if (authenticated()) {
+      <a routerLink="/dashboard" class="header__cta">Mon espace</a>
+      } @else {
+      <a routerLink="/login" class="header__signin">Connexion</a>
+      <a routerLink="/register" class="header__cta">Créer un compte</a>
+      }
+    </div>
+  </div>
+</header>

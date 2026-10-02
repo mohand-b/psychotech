@@ -1,0 +1,139 @@
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { OldLandingReveal } from '../old-landing-reveal.directive';
+
+@Component({
+  selector: 'app-old-landing-cta',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [OldLandingReveal, RouterLink],
+  template: `
+    <section class="cta">
+      <div class="cta__glow" aria-hidden="true"></div>
+      <div class="cta__content" appOldLandingReveal>
+        <h2 class="cta__title">
+          Prêt à mettre toutes les chances de votre côté&nbsp;?
+        </h2>
+        @if (authenticated()) {
+          <p class="cta__text">
+            Votre compte est prêt. Chaque session génère de nouveaux exercices :
+            reprenez l'entraînement dès maintenant.
+          </p>
+        } @else {
+          <p class="cta__text">
+            Créez votre compte gratuitement et essayez chaque épreuve en mode
+            découverte. Aucune carte bancaire requise.
+          </p>
+        }
+        <a
+          class="cta__button"
+          [routerLink]="authenticated() ? '/entrainements' : '/register'"
+        >
+          {{ authenticated() ? "Reprendre l'entraînement" : 'Créer un compte' }}
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+    </section>
+  `,
+  styles: `
+    .cta {
+      position: relative;
+      background: var(--landing-bg);
+      overflow: hidden;
+    }
+    .cta__glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 700px;
+      height: 500px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(
+        circle,
+        rgba(124, 92, 252, 0.22) 0%,
+        rgba(124, 92, 252, 0) 68%
+      );
+      pointer-events: none;
+    }
+    .cta__content {
+      position: relative;
+      z-index: 1;
+      max-width: 1232px;
+      margin: 0 auto;
+      padding: 72px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      text-align: center;
+    }
+    .cta__title {
+      font: 600 44px/1.08 var(--landing-font-display);
+      letter-spacing: -0.025em;
+      margin: 0;
+      color: var(--landing-text);
+      max-width: 680px;
+    }
+    .cta__text {
+      font: 400 16px/1.55 var(--landing-font-ui);
+      color: rgba(255, 255, 255, 0.62);
+      margin: 0;
+      max-width: 480px;
+    }
+    .cta__button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--landing-accent);
+      color: var(--landing-text);
+      font: 600 16px/22px var(--landing-font-ui);
+      text-decoration: none;
+      padding: 16px 28px;
+      border-radius: 12px;
+    }
+    .cta__button:hover {
+      background: var(--landing-accent-hover);
+    }
+    @media (max-width: 767px) {
+      .cta__glow {
+        width: 520px;
+        height: 400px;
+      }
+      .cta__content {
+        padding: 64px 20px;
+        gap: 18px;
+      }
+      .cta__title {
+        font-size: 28px;
+        line-height: 1.12;
+        letter-spacing: -0.02em;
+      }
+      .cta__text {
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .cta__button {
+        justify-content: center;
+        width: 100%;
+        height: 52px;
+        padding: 0;
+        border-radius: 12px;
+        font-size: 15.5px;
+      }
+    }
+  `,
+})
+export class OldLandingCta {
+  readonly authenticated = input(false);
+}

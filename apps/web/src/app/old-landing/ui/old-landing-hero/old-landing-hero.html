@@ -1,0 +1,193 @@
+<section class="hero" aria-label="Secteurs couverts">
+  <div class="hero__row">
+    <article class="hero__panel hero__panel--dominant">
+      <span class="hero__media hero__media--parallax">
+        <img
+          class="hero__image"
+          ngSrc="/sectors/railway.webp"
+          fill
+          alt="Secteur ferroviaire"
+          priority
+        />
+      </span>
+      <span class="hero__veil hero__veil--dominant" aria-hidden="true"></span>
+      <span class="hero__glow" aria-hidden="true"></span>
+
+      <div class="hero__content">
+        <span class="hero__badge hero__badge--available hero__animate">
+          Disponible
+        </span>
+        <h1 class="hero__title hero__animate">
+          Réussissez les tests psychotechniques du ferroviaire
+        </h1>
+        <p class="hero__subtitle hero__animate">
+          L'épreuve psychotechnique est souvent éliminatoire. Entraînez-vous
+          dans les conditions réelles de l'examen, sur les cinq aptitudes
+          évaluées par les recruteurs.
+        </p>
+        <div class="hero__ctas hero__animate">
+          <a
+            [routerLink]="authenticated() ? '/dashboard' : '/register'"
+            class="hero__cta"
+          >
+            <span>{{ ctaLabel() }}</span>
+            <ui-icon [img]="arrowIcon" [size]="18" [strokeWidth]="2" />
+          </a>
+          <a routerLink="/exemple-de-bilan" class="hero__example">
+            Voir un exemple de bilan
+          </a>
+        </div>
+        <div class="hero__axes-group hero__animate">
+          <span class="hero__axes-label">Axes évalués</span>
+          <ul class="hero__axes" aria-label="Aptitudes évaluées">
+            @for (axis of railwayAxes; track axis.label) {
+            <li
+              class="hero__axis"
+              [style.--axis-color]="axis.colorVar"
+              [attr.aria-label]="axis.label"
+              [attr.title]="axis.label"
+            >
+              <span class="hero__axis-icon">
+                <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
+              </span>
+              <span class="hero__axis-name" aria-hidden="true"
+                >{{ axis.label }}</span
+              >
+            </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    @for (band of bands; track band.name) {
+    <article class="hero__panel hero__panel--band">
+      <span class="hero__media">
+        <img class="hero__image" [ngSrc]="band.image" fill [alt]="band.alt" />
+      </span>
+      <span class="hero__veil hero__veil--band" aria-hidden="true"></span>
+
+      <div class="hero__band-rest" aria-hidden="true">
+        <span class="hero__band-name">{{ band.name }}</span>
+      </div>
+
+      <div class="hero__band-expanded">
+        <span class="hero__badge hero__badge--soon">Bientôt</span>
+        <h2 class="hero__band-title">{{ band.name }}</h2>
+        <p class="hero__band-desc">{{ band.description }}</p>
+        <div class="hero__axes-group">
+          <span class="hero__axes-label">Axes pressentis</span>
+          <ul
+            class="hero__axes"
+            [attr.aria-label]="'Axes pressentis ' + band.name"
+          >
+            @for (axis of band.axes; track axis.label) {
+            <li
+              class="hero__axis"
+              [style.--axis-color]="axis.colorVar"
+              [attr.aria-label]="axis.label"
+              [attr.title]="axis.label"
+            >
+              <span class="hero__axis-icon">
+                <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
+              </span>
+              <span class="hero__axis-name" aria-hidden="true"
+                >{{ axis.label }}</span
+              >
+            </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </article>
+    }
+  </div>
+
+  <div class="hero__stacked">
+    <span class="hero__stacked-media">
+      <img
+        class="hero__stacked-image"
+        ngSrc="/sectors/railway.webp"
+        fill
+        alt="Secteur ferroviaire"
+        priority
+      />
+    </span>
+    <span class="hero__stacked-veil" aria-hidden="true"></span>
+    <span class="hero__stacked-glow" aria-hidden="true"></span>
+    <div class="hero__stacked-content">
+      <div class="hero__stacked-copy">
+        <span class="hero__badge hero__badge--available hero__animate">
+          Disponible
+        </span>
+        <div class="hero__stacked-text">
+          <h1 class="hero__stacked-title hero__animate">
+            Réussissez les tests psychotechniques du ferroviaire
+          </h1>
+          <p class="hero__stacked-subtitle hero__animate">
+            L'épreuve psychotechnique est souvent éliminatoire. Entraînez-vous
+            dans les conditions réelles de l'examen, sur les cinq aptitudes
+            évaluées par les recruteurs.
+          </p>
+        </div>
+      </div>
+      <div class="hero__stacked-ctas hero__animate">
+        <a
+          [routerLink]="authenticated() ? '/dashboard' : '/register'"
+          class="hero__stacked-cta"
+        >
+          {{ ctaLabel() }}
+          <ui-icon [img]="arrowIcon" [size]="16" [strokeWidth]="2" />
+        </a>
+        <a routerLink="/exemple-de-bilan" class="hero__stacked-secondary">
+          <ui-icon [img]="reportIcon" [size]="16" [strokeWidth]="2" />
+          Voir un exemple de bilan
+        </a>
+      </div>
+      <div class="hero__stacked-tail">
+        <ul
+          class="hero__stacked-axes hero__animate"
+          aria-label="Aptitudes évaluées"
+        >
+          @for (axis of railwayAxes; track axis.label) {
+          <li
+            class="hero__stacked-axis"
+            [style.--axis-color]="axis.colorVar"
+            [attr.aria-label]="axis.label"
+          >
+            <span class="hero__stacked-axis-icon">
+              <ui-axis-icon [axis]="axis.axis" [size]="cardIconSize" />
+            </span>
+            <span class="hero__stacked-axis-name" aria-hidden="true">
+              {{ axis.shortLabel }}
+            </span>
+          </li>
+          }
+        </ul>
+        <div class="hero__stacked-coming hero__animate">
+          <span class="hero__stacked-coming-label">Prochains secteurs</span>
+          <div class="hero__stacked-cards">
+            @for (band of bands; track band.name) {
+            <span class="hero__stacked-card">
+              <span class="hero__stacked-card-media">
+                <img
+                  class="hero__stacked-card-image"
+                  [ngSrc]="band.image"
+                  fill
+                  [alt]="band.alt"
+                />
+              </span>
+              <span class="hero__stacked-card-veil" aria-hidden="true"></span>
+              <span class="hero__stacked-card-soon">Bientôt</span>
+              <span class="hero__stacked-card-name">
+                <ui-icon [img]="band.icon" [size]="14" [strokeWidth]="1.8" />
+                {{ band.name }}
+              </span>
+            </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

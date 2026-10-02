@@ -4,6 +4,7 @@ import { demoRoutes } from './demo/feature/demo.routes';
 import { manetteRoutes } from './gamepad/feature/manette.routes';
 import { landingRoutes } from './landing/feature/landing.routes';
 import { legalRoutes } from './legal/feature/legal.routes';
+import { oldLandingRoutes } from './old-landing/feature/old-landing.routes';
 import { changelogRoutes } from './changelog/feature/changelog.routes';
 import { supportRoutes } from './support/feature/support.routes';
 import { connectedRoutes } from './layout/connected.routes';
@@ -11,6 +12,7 @@ import { uiKitRoutes } from './ui-kit/feature/ui-kit.routes';
 
 export const appRoutes: Route[] = [
   ...landingRoutes,
+  ...oldLandingRoutes,
   ...legalRoutes,
   ...supportRoutes,
   ...changelogRoutes,

@@ -1,0 +1,15 @@
+<span #sentinel class="landing__sentinel" aria-hidden="true"></span>
+<app-old-landing-header
+  [scrolled]="scrolled()"
+  [authenticated]="authenticated()"
+/>
+<app-old-landing-hero id="hero" [authenticated]="authenticated()" />
+<app-old-landing-enjeu />
+<app-old-landing-platform />
+<app-old-landing-axes />
+<app-old-landing-scoring />
+<app-old-landing-how />
+<app-old-landing-differentiator />
+<app-old-landing-faq />
+<app-old-landing-cta [authenticated]="authenticated()" />
+<app-old-landing-footer />
