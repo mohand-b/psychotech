@@ -101,6 +101,7 @@
     "jsdom": "^27.1.0",
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "23.1.0",
+    "playwright": "^1.63.0",
     "postcss": "^8.5.15",
     "prettier": "~3.6.2",
     "sharp": "^0.35.2",
