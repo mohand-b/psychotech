@@ -41,13 +41,17 @@ export class EnergyFacade {
           this.store.setEnergy(null);
           return;
         }
-        this.load().subscribe({ error: () => undefined });
+        this.reload();
       });
     });
   }
 
   load(): Observable<EnergyStateDto> {
     return this.api.state().pipe(tap((energy) => this.store.setEnergy(energy)));
+  }
+
+  reload(): void {
+    this.load().subscribe({ error: () => undefined });
   }
 
   refresh(): Observable<void> {
@@ -68,9 +72,7 @@ export class EnergyFacade {
   }
 
   redeemGiftCode(code: string): Observable<GiftCodeRedemptionDto> {
-    return this.api
-      .redeemGiftCode(code)
-      .pipe(tap(() => this.load().subscribe({ error: () => undefined })));
+    return this.api.redeemGiftCode(code).pipe(tap(() => this.reload()));
   }
 
   clear(): void {

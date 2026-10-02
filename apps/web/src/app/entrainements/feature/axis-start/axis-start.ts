@@ -36,6 +36,10 @@ import {
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { sectorReferentialFor } from '../sector-referential';
+import {
+  targetedAxisRoute,
+  tutorialAxisRoute,
+} from '../../../shared/util/session-links';
 
 @Component({
   selector: 'app-axis-start',
@@ -161,8 +165,9 @@ export class AxisStart {
       .subscribe({
         next: (session) =>
           this.router.navigate([
-            this.tutorial ? '/entrainements/tutoriel' : '/entrainements/cible',
-            axisSlug(this.axis),
+            ...(this.tutorial
+              ? tutorialAxisRoute(this.axis)
+              : targetedAxisRoute(this.axis)),
             'session',
             session.id,
           ]),

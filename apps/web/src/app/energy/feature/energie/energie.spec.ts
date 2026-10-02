@@ -25,6 +25,7 @@ async function setup(sessionId: string | null = null) {
         useValue: {
           state: () => energyState(12),
           load: () => of(energyState(12)),
+          reload: () => undefined,
         },
       },
       {

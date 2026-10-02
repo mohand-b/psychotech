@@ -3,11 +3,9 @@ import {
   Component,
   DestroyRef,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -24,9 +22,7 @@ import {
   MotricityPoint,
   MotricitySampleDto,
   GAMEPAD_MAX_OVERDRIVE,
-  SessionDto,
   SessionMode,
-  SessionStatus,
   TrainingOptionId,
   motricityAnchoredArc,
   motricityCursorZone,
@@ -49,11 +45,12 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ResultWait } from '../../ui/result-wait/result-wait';
+import { LeavablePlay } from '../play-leave.guard';
 import {
-  inactiveSessionRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
-import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
+  confirmExitOnCloseRequest,
+  loadPlayableSession,
+  playLeaveControl,
+} from '../play-session';
 import {
   MotricityLiveState,
   advanceMotricityLive,
@@ -189,12 +186,9 @@ export class MotricityPlay implements LeavablePlay {
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
   private hasSubmitted = false;
-  private readonly leave = new PlayLeaveControl(
-    () => ({
-      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
-      submitted: this.hasSubmitted,
-      unsent: this.resultWait.unsent(),
-    }),
+  private readonly leave = playLeaveControl(
+    this.loaded,
+    () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
   );
   private crankGain = CRANK_SPEED_GAIN_MIN;
@@ -202,7 +196,6 @@ export class MotricityPlay implements LeavablePlay {
   private crankPendingYRad = 0;
   private usedTouchCranks = false;
   private previousCursorState: CursorState = 'depart';
-  private handledCloseRequests = this.facade.closeRequests();
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -211,27 +204,11 @@ export class MotricityPlay implements LeavablePlay {
       this.facade.setPerExerciseCountdown(null);
       this.gamepad.disconnect();
     });
-    effect(() => {
-      const requests = this.facade.closeRequests();
-      if (requests !== this.handledCloseRequests) {
-        this.handledCloseRequests = requests;
-        if (!this.hasSubmitted && this.loaded()) {
-          this.confirmingExit.set(true);
-        }
-      }
-    });
-    const active = this.facade.session();
-    if (active?.id === this.sessionId) {
-      this.handleLoaded(active);
-    } else {
-      this.facade
-        .load(this.sessionId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (session) => this.handleLoaded(session),
-          error: () => this.router.navigate(['/entrainements']),
-        });
-    }
+    confirmExitOnCloseRequest(
+      () => !this.hasSubmitted && this.loaded(),
+      () => this.confirmingExit.set(true),
+    );
+    loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
   }
 
   confirmLeave(): boolean {
@@ -277,23 +254,7 @@ export class MotricityPlay implements LeavablePlay {
     }
   }
 
-  private handleLoaded(session: SessionDto): void {
-    if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(inactiveSessionRoute(session, this.axis), {
-        replaceUrl: true,
-      });
-      return;
-    }
-    if (
-      session.mode === SessionMode.FULL &&
-      simulationCurrentAxis(session) !== this.axis
-    ) {
-      this.router.navigate(
-        ['/entrainements/examen-blanc/session', session.id],
-        { replaceUrl: true },
-      );
-      return;
-    }
+  private openPlay(): void {
     this.loaded.set(true);
     if (!this.gamepad.connected()) {
       this.requestPairing();

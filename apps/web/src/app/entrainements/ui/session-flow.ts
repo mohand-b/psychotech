@@ -4,8 +4,13 @@ import {
   SessionMode,
   SessionStatus,
 } from '@psychotech/shared';
-import { axisSlug } from '../../shared/util/axis-slug';
 import { TUTORIAL_SESSION_ID } from '../data-access/tutorial-session.facade';
+import {
+  sessionResultRoute,
+  simulationSessionRoute,
+  targetedResultRoute,
+  tutorialAxisRoute,
+} from '../../shared/util/session-links';
 
 export function simulationCurrentAxis(session: SessionDto): AxisType | null {
   return session.axisResults[session.currentAxisIndex]?.axis ?? null;
@@ -16,21 +21,15 @@ export function afterAxisSubmitRoute(
   axis: AxisType,
 ): string[] {
   if (session.id === TUTORIAL_SESSION_ID) {
-    return ['/entrainements/tutoriel', axisSlug(axis), 'fin'];
+    return [...tutorialAxisRoute(axis), 'fin'];
   }
   if (session.mode !== SessionMode.FULL) {
-    return [
-      '/entrainements/cible',
-      axisSlug(axis),
-      'session',
-      session.id,
-      'resultat',
-    ];
+    return targetedResultRoute(axis, session.id);
   }
   if (session.status === SessionStatus.COMPLETED) {
-    return ['/sessions', session.id, 'resultat'];
+    return sessionResultRoute(session.id);
   }
-  return ['/entrainements/examen-blanc/session', session.id];
+  return simulationSessionRoute(session.id);
 }
 
 export function inactiveSessionRoute(

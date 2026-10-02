@@ -41,7 +41,7 @@ export class BadgeCelebration {
     acknowledged: readonly EarnedBadgeDto[],
   ): void {
     if (acknowledged.some((badge) => (badge.gain ?? 0) > 0)) {
-      this.energyFacade.load().subscribe({ error: () => undefined });
+      this.energyFacade.reload();
     }
   }
 }

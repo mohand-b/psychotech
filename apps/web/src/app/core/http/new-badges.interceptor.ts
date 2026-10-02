@@ -34,7 +34,7 @@ export const newBadgesInterceptor: HttpInterceptorFn = (request, next) => {
         if (badges) {
           store.enqueue(badges);
           if (badges.some((badge) => (badge.gain ?? 0) > 0)) {
-            energyFacade.load().subscribe({ error: () => undefined });
+            energyFacade.reload();
           }
         }
       }

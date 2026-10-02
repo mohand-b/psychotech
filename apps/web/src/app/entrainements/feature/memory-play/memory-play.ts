@@ -3,20 +3,16 @@ import {
   Component,
   DestroyRef,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
   MemoryPhase,
   MemorySequence,
   MemorySequenceAnswerDto,
-  SessionDto,
   SessionMode,
-  SessionStatus,
 } from '@psychotech/shared';
 import { Check, Delete, MoveRight, SkipForward, Undo2 } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -28,11 +24,12 @@ import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrat
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { ResultWait } from '../../ui/result-wait/result-wait';
+import { LeavablePlay } from '../play-leave.guard';
 import {
-  inactiveSessionRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
-import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
+  confirmExitOnCloseRequest,
+  loadPlayableSession,
+  playLeaveControl,
+} from '../play-session';
 
 type MemoryStage =
   | 'PHASE_TRANSITION'
@@ -99,15 +96,11 @@ export class MemoryPlay implements LeavablePlay {
   private restitutionIntervalId: number | null = null;
   private restitutionStartedAtMs = 0;
   private hasSubmitted = false;
-  private readonly leave = new PlayLeaveControl(
-    () => ({
-      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
-      submitted: this.hasSubmitted,
-      unsent: this.resultWait.unsent(),
-    }),
+  private readonly leave = playLeaveControl(
+    this.loaded,
+    () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
   );
-  private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentSequence = computed<MemorySequence | null>(
     () => this.sequences()[this.currentIndex()] ?? null,
@@ -131,27 +124,11 @@ export class MemoryPlay implements LeavablePlay {
       this.clearTimers();
       this.facade.setPerExerciseCountdown(null);
     });
-    effect(() => {
-      const requests = this.facade.closeRequests();
-      if (requests !== this.handledCloseRequests) {
-        this.handledCloseRequests = requests;
-        if (!this.hasSubmitted && this.loaded()) {
-          this.confirmingExit.set(true);
-        }
-      }
-    });
-    const active = this.facade.session();
-    if (active?.id === this.sessionId) {
-      this.handleLoaded(active);
-    } else {
-      this.facade
-        .load(this.sessionId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (session) => this.handleLoaded(session),
-          error: () => this.router.navigate(['/entrainements']),
-        });
-    }
+    confirmExitOnCloseRequest(
+      () => !this.hasSubmitted && this.loaded(),
+      () => this.confirmingExit.set(true),
+    );
+    loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
   }
 
   protected press(digit: number): void {
@@ -253,23 +230,7 @@ export class MemoryPlay implements LeavablePlay {
     this.press(Number(event.key));
   }
 
-  private handleLoaded(session: SessionDto): void {
-    if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(inactiveSessionRoute(session, this.axis), {
-        replaceUrl: true,
-      });
-      return;
-    }
-    if (
-      session.mode === SessionMode.FULL &&
-      simulationCurrentAxis(session) !== this.axis
-    ) {
-      this.router.navigate(
-        ['/entrainements/examen-blanc/session', session.id],
-        { replaceUrl: true },
-      );
-      return;
-    }
+  private openPlay(): void {
     this.loaded.set(true);
     this.results.set([]);
   }

@@ -57,6 +57,10 @@ import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
+import {
+  simulationSessionRoute,
+  targetedAxisRoute,
+} from '../../../shared/util/session-links';
 
 const RADAR_PROGRESS_RESTART_DROP = 0.5;
 
@@ -308,13 +312,12 @@ export class SimulationSummary {
   }
 
   protected trainAxis(axis: AxisType): void {
-    this.router.navigate(['/entrainements/cible', axisSlug(axis)]);
+    this.router.navigate(targetedAxisRoute(axis));
   }
 
   protected reviewAxis(axis: AxisType): void {
     this.router.navigate([
-      '/entrainements/examen-blanc/session',
-      this.sessionId,
+      ...simulationSessionRoute(this.sessionId),
       'correction',
       axisSlug(axis),
     ]);

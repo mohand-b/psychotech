@@ -34,7 +34,6 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatDayMonth } from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
@@ -48,6 +47,10 @@ import {
   axisScoresWithinWindow,
   sparklinePoints,
 } from './axis-row-metrics';
+import {
+  sessionResultRoute,
+  targetedResultRoute,
+} from '../../../shared/util/session-links';
 
 const EVOLUTION_DISPLAY_LIMIT = 10;
 const SPARKLINE_GEOMETRY: SparklineGeometry = {
@@ -271,7 +274,7 @@ export class Progression {
   });
 
   protected openSession(sessionId: string): void {
-    this.router.navigate(['/sessions', sessionId, 'resultat']);
+    this.router.navigate(sessionResultRoute(sessionId));
   }
 
   protected openAxis(axis: AxisType): void {
@@ -282,15 +285,9 @@ export class Progression {
       return;
     }
     if (row.lastSessionMode === SessionMode.TARGETED) {
-      this.router.navigate([
-        '/entrainements/cible',
-        axisSlug(axis),
-        'session',
-        row.lastSessionId,
-        'resultat',
-      ]);
+      this.router.navigate(targetedResultRoute(axis, row.lastSessionId));
       return;
     }
-    this.router.navigate(['/sessions', row.lastSessionId, 'resultat']);
+    this.router.navigate(sessionResultRoute(row.lastSessionId));
   }
 }

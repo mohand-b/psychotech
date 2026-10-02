@@ -297,7 +297,7 @@ export class Energie implements OnDestroy {
         takeWhile((status, index) => {
           if (status.credited) {
             this.confirmation.set('credited');
-            this.energyFacade.load().subscribe({ error: () => undefined });
+            this.energyFacade.reload();
             return false;
           }
           if (status.status !== 'complete') {

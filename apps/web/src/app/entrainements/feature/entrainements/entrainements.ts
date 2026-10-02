@@ -45,7 +45,6 @@ import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_PATH,
@@ -59,6 +58,10 @@ import {
   formatOverviewDate,
   formatSignedGap,
 } from './trainings-overview-view';
+import {
+  targetedAxisRoute,
+  tutorialAxisRoute,
+} from '../../../shared/util/session-links';
 
 interface AxisRowView {
   axis: AxisType;
@@ -171,7 +174,7 @@ export class Entrainements {
       const copy = AXIS_OVERVIEW_COPY[entry.axis];
       return {
         axis: entry.axis,
-        link: ['/entrainements/cible', axisSlug(entry.axis)],
+        link: targetedAxisRoute(entry.axis),
         presentation: AXIS_PRESENTATION[entry.axis],
         description: copy?.description ?? '',
         mobileDescription: copy?.mobileDescription ?? '',
@@ -186,7 +189,7 @@ export class Entrainements {
   protected readonly tutorialAxes: TutorialAxisView[] =
     FULL_SESSION_AXIS_ORDER.map((axis) => ({
       axis,
-      link: ['/entrainements/tutoriel', axisSlug(axis)],
+      link: tutorialAxisRoute(axis),
       presentation: AXIS_PRESENTATION[axis],
     }));
 

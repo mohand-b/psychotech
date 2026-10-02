@@ -36,6 +36,7 @@ import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepp
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
+import { simulationSessionRoute } from '../../../shared/util/session-links';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
 
@@ -163,10 +164,7 @@ export class SimulationStart {
       )
       .subscribe({
         next: (session) =>
-          this.router.navigate([
-            '/entrainements/examen-blanc/session',
-            session.id,
-          ]),
+          this.router.navigate(simulationSessionRoute(session.id)),
         error: (error: unknown) => {
           this.starting.set(false);
           if (isEnergyInsufficientError(error)) {

@@ -10,7 +10,6 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
   DAY_MS,
@@ -18,6 +17,10 @@ import {
   formatSessionDate,
   startOfWeek,
 } from '../../../shared/util/format-session-date';
+import {
+  sessionResultRoute,
+  targetedResultRoute,
+} from '../../../shared/util/session-links';
 
 export { formatSessionDate };
 
@@ -104,15 +107,9 @@ export function buildSessionRowView(
   const detailLink = abandoned
     ? null
     : isFull
-      ? ['/sessions', item.id, 'resultat']
+      ? sessionResultRoute(item.id)
       : item.axis
-        ? [
-            '/entrainements/cible',
-            axisSlug(item.axis),
-            'session',
-            item.id,
-            'resultat',
-          ]
+        ? targetedResultRoute(item.axis, item.id)
         : null;
   return {
     id: item.id,

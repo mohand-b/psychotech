@@ -53,9 +53,14 @@ import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { BadgeFeedBanner } from '../badge-feed-banner/badge-feed-banner';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
+import {
+  sessionResultRoute,
+  simulationSessionRoute,
+  targetedAxisRoute,
+  targetedSessionRoute,
+} from '../../../shared/util/session-links';
 
 type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
@@ -66,7 +71,6 @@ interface WeakAxisView {
   tag: string;
   tagColorVar: string;
   bestScore: number;
-  slug: string;
   durationMinutes: number;
 }
 
@@ -376,7 +380,7 @@ export class Dashboard {
         ? presentation.textVar
         : 'var(--label)',
       bestScore: Math.round(weakest.bestScore ?? 0),
-      slug: axisSlug(weakest.axis),
+
       durationMinutes: Math.ceil(
         axisMaxDurationSec(weakest.axis as RailwayPlayableAxis) / 60,
       ),
@@ -393,16 +397,13 @@ export class Dashboard {
       return;
     }
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(simulationSessionRoute(session.id));
       return;
     }
     if (session.axes.length > 0) {
-      this.router.navigate([
-        '/entrainements/cible',
-        axisSlug(session.axes[0].axis),
-        'session',
-        session.id,
-      ]);
+      this.router.navigate(
+        targetedSessionRoute(session.axes[0].axis, session.id),
+      );
       return;
     }
     this.router.navigate(['/entrainements']);
@@ -415,7 +416,7 @@ export class Dashboard {
   protected openLastResult(): void {
     const sessionId = this.lastResult()?.sessionId;
     if (sessionId) {
-      this.router.navigate(['/sessions', sessionId, 'resultat']);
+      this.router.navigate(sessionResultRoute(sessionId));
     }
   }
 
@@ -424,9 +425,9 @@ export class Dashboard {
   }
 
   protected workWeakAxis(): void {
-    const slug = this.weakAxis()?.slug;
-    if (slug) {
-      this.router.navigate(['/entrainements/cible', slug]);
+    const weakAxis = this.weakAxis();
+    if (weakAxis) {
+      this.router.navigate(targetedAxisRoute(weakAxis.axis));
     }
   }
 }

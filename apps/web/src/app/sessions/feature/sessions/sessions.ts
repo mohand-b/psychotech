@@ -23,7 +23,6 @@ import {
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button } from '../../../shared/ui/button/button';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { CurrentSessionBanner } from '../../ui/current-session-banner/current-session-banner';
 import { SessionHistoryRow } from '../../ui/session-history-row/session-history-row';
 import { SessionHistorySkeleton } from '../../ui/session-history-skeleton/session-history-skeleton';
@@ -32,6 +31,10 @@ import {
   buildSessionRowView,
   groupSessionsByPeriod,
 } from './session-history-view';
+import {
+  simulationSessionRoute,
+  targetedSessionRoute,
+} from '../../../shared/util/session-links';
 
 interface FilterChipView {
   value: SessionHistoryFilter;
@@ -150,16 +153,13 @@ export class Sessions {
 
   protected resume(session: CurrentSessionDto): void {
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate(['/entrainements/examen-blanc/session', session.id]);
+      this.router.navigate(simulationSessionRoute(session.id));
       return;
     }
     if (session.mode === SessionMode.TARGETED && session.axes.length > 0) {
-      this.router.navigate([
-        '/entrainements/cible',
-        axisSlug(session.axes[0].axis),
-        'session',
-        session.id,
-      ]);
+      this.router.navigate(
+        targetedSessionRoute(session.axes[0].axis, session.id),
+      );
       return;
     }
     this.router.navigate(['/entrainements']);

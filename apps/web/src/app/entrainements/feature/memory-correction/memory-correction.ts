@@ -1,12 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AXIS_TRAINING,
@@ -14,7 +12,6 @@ import {
   MemoryPhase,
   MemoryPositionState,
   MemorySequenceStatus,
-  TargetedMemoryResultDto,
   expectedMemoryAnswer,
   generateMemorySession,
   scoreMemorySession,
@@ -28,11 +25,14 @@ import {
   MoveRight,
   X,
 } from 'lucide-angular';
-import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
+import { targetedResultOf } from '../targeted-result-page';
+import {
+  sessionResultRoute,
+  targetedResultRoute,
+} from '../../../shared/util/session-links';
 
 const STATUS_COLORS: Record<MemorySequenceStatus, string> = {
   PERFECT: 'var(--axis-memory)',
@@ -81,20 +81,18 @@ interface AnswerCell {
   host: { '(document:keydown)': 'onKeydown($event)' },
 })
 export class MemoryCorrection {
-  private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly targetedResult = targetedResultOf(AxisType.MEMORY);
 
-  private readonly sessionId =
-    this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly sessionId = this.targetedResult.sessionId;
   private readonly fromSimulation =
     this.route.snapshot.data['simulation'] === true;
   protected readonly axis = AxisType.MEMORY;
   protected readonly total = AXIS_TRAINING[AxisType.MEMORY].exerciseCount;
   protected readonly inversePhase = MemoryPhase.INVERSE;
 
-  protected readonly result = signal<TargetedMemoryResultDto | null>(null);
+  protected readonly result = this.targetedResult.result;
   protected readonly currentIndex = signal(0);
 
   protected readonly normalIcon = MoveRight;
@@ -103,20 +101,6 @@ export class MemoryCorrection {
   protected readonly misplacedIcon = ArrowLeftRight;
   protected readonly crossIcon = X;
   protected readonly clockIcon = Clock;
-
-  constructor() {
-    this.facade
-      .loadTargetedResult(this.sessionId, AxisType.MEMORY)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.axis === AxisType.MEMORY) {
-            this.result.set(result);
-          }
-        },
-        error: () => this.router.navigate(['/entrainements']),
-      });
-  }
 
   protected readonly sequences = computed(() => {
     const result = this.result();
@@ -216,16 +200,10 @@ export class MemoryCorrection {
 
   protected backToResult(): void {
     if (this.fromSimulation) {
-      this.router.navigate(['/sessions', this.sessionId, 'resultat']);
+      this.router.navigate(sessionResultRoute(this.sessionId));
       return;
     }
-    this.router.navigate([
-      '/entrainements/cible',
-      axisSlug(AxisType.MEMORY),
-      'session',
-      this.sessionId,
-      'resultat',
-    ]);
+    this.router.navigate(targetedResultRoute(AxisType.MEMORY, this.sessionId));
   }
 
   protected onKeydown(event: KeyboardEvent): void {

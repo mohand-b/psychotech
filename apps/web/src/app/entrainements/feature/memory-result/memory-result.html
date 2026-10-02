@@ -1,5 +1,5 @@
 <ui-result-page>
-  @if (result(); as r) {
+  @if (page.result(); as r) {
     <ui-result-summary
       [axis]="r.axis"
       [score]="r.score"
@@ -9,9 +9,9 @@
       [isEqualBest]="r.isEqualBest"
       [sector]="r.sector"
       [completedAt]="r.completedAt"
-      [referential]="referential()"
+      [referential]="page.referential()"
       [recordVisible]="!r.untimed"
-      (revealDone)="celebration.sceneReady()"
+      (revealDone)="page.celebration.sceneReady()"
     />
 
     @if (scored(); as s) {
@@ -30,17 +30,23 @@
       </ui-result-panel>
     }
     @if (recommendations().length > 0) {
-      <ui-result-recommendation [axis]="axis" [findings]="recommendations()" />
+      <ui-result-recommendation
+        [axis]="page.axis"
+        [findings]="recommendations()"
+      />
     }
 
-    @if (celebration.announceView(); as announce) {
-      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
+    @if (page.celebration.announceView(); as announce) {
+      <ui-badge-announce
+        [view]="announce"
+        (replay)="page.celebration.replay()"
+      />
     }
 
     <ui-result-actions
-      (newTraining)="newTraining()"
-      [backLabel]="backLabel"
-      (back)="back()"
+      (newTraining)="page.newTraining()"
+      [backLabel]="page.backLabel"
+      (back)="page.back()"
     />
   }
 </ui-result-page>

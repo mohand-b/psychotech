@@ -1,28 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
   AxisFinding,
   AxisType,
   DiscriminationSessionScore,
-  TargetedDiscriminationResultDto,
   analyzeDiscrimination,
   generateDiscriminationSession,
   getAxisRecommendations,
   scoreDiscriminationSession,
 } from '@psychotech/shared';
-import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
-import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
-import { axisSlug } from '../../../shared/util/axis-slug';
-import { backFromTargetedResult } from '../result-navigation';
 import {
   buildDiscriminationChartEntries,
   buildDiscriminationMetricRows,
@@ -36,7 +22,7 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { sectorReferentialFor } from '../sector-referential';
+import { targetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import {
   TimeChart,
@@ -60,55 +46,11 @@ import {
   templateUrl: './discrimination-result.html',
 })
 export class DiscriminationResult {
-  private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-
-  private readonly sessionId =
-    this.route.snapshot.paramMap.get('sessionId') ?? '';
-  private readonly cameFromPlay = this.facade.session()?.id === this.sessionId;
-  protected readonly backLabel = this.cameFromPlay
-    ? 'Retour aux axes'
-    : 'Retour aux sessions';
-  protected readonly celebration = inject(
-    BadgeCelebrationFacade,
-  ).celebrateResult(
-    this.sessionId,
-    computed(() => {
-      const result = this.result();
-      return result
-        ? { badges: result.earnedBadges ?? [], sector: result.sector }
-        : null;
-    }),
-  );
-
-  protected readonly axis = AxisType.VISUAL_DISCRIMINATION;
-  protected readonly result = signal<TargetedDiscriminationResultDto | null>(
-    null,
-  );
-
-  protected readonly referential = sectorReferentialFor(
-    computed(() => this.result()?.sector ?? null),
-  );
-
-  constructor() {
-    this.facade
-      .loadTargetedResult(this.sessionId, AxisType.VISUAL_DISCRIMINATION)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.axis === AxisType.VISUAL_DISCRIMINATION) {
-            this.result.set(result);
-          }
-        },
-        error: () => this.router.navigate(['/entrainements']),
-      });
-  }
+  protected readonly page = targetedResultPage(AxisType.VISUAL_DISCRIMINATION);
 
   protected readonly scored = computed<DiscriminationSessionScore | null>(
     () => {
-      const result = this.result();
+      const result = this.page.result();
       return result
         ? scoreDiscriminationSession(
             generateDiscriminationSession(result.seed),
@@ -129,21 +71,10 @@ export class DiscriminationResult {
   });
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
-    const result = this.result();
+    const result = this.page.result();
     const scored = this.scored();
     return result && scored
       ? buildDiscriminationChartEntries(scored, result)
       : [];
   });
-
-  protected newTraining(): void {
-    this.router.navigate([
-      '/entrainements/cible',
-      axisSlug(AxisType.VISUAL_DISCRIMINATION),
-    ]);
-  }
-
-  protected back(): void {
-    backFromTargetedResult(this.router, this.cameFromPlay);
-  }
 }

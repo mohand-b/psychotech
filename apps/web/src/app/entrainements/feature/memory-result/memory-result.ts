@@ -1,29 +1,21 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
-  signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   AxisFinding,
   AxisType,
   MemorySequence,
   MemorySessionScore,
-  TargetedMemoryResultDto,
   analyzeMemory,
   generateMemorySession,
   getAxisRecommendations,
   scoreMemorySession,
 } from '@psychotech/shared';
-import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
-import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
-import { axisSlug } from '../../../shared/util/axis-slug';
-import { backFromTargetedResult } from '../result-navigation';
 import { buildMemoryMetricRows } from '../../../shared/ui/axis-result-content';
 import { MemoryReliabilityChart } from '../../../shared/ui/memory-reliability-chart/memory-reliability-chart';
 import { ResultActions } from '../../ui/result-actions/result-actions';
@@ -35,8 +27,9 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { sectorReferentialFor } from '../sector-referential';
+import { targetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
+import { targetedCorrectionRoute } from '../../../shared/util/session-links';
 
 @Component({
   selector: 'app-memory-result',
@@ -55,57 +48,16 @@ import { ResultTiming } from '../../ui/result-timing/result-timing';
   templateUrl: './memory-result.html',
 })
 export class MemoryResult {
-  private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
-  private readonly sessionId =
-    this.route.snapshot.paramMap.get('sessionId') ?? '';
-  private readonly cameFromPlay = this.facade.session()?.id === this.sessionId;
-  protected readonly backLabel = this.cameFromPlay
-    ? 'Retour aux axes'
-    : 'Retour aux sessions';
-  protected readonly celebration = inject(
-    BadgeCelebrationFacade,
-  ).celebrateResult(
-    this.sessionId,
-    computed(() => {
-      const result = this.result();
-      return result
-        ? { badges: result.earnedBadges ?? [], sector: result.sector }
-        : null;
-    }),
-  );
-
-  protected readonly axis = AxisType.MEMORY;
-  protected readonly result = signal<TargetedMemoryResultDto | null>(null);
-
-  protected readonly referential = sectorReferentialFor(
-    computed(() => this.result()?.sector ?? null),
-  );
-
-  constructor() {
-    this.facade
-      .loadTargetedResult(this.sessionId, AxisType.MEMORY)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.axis === AxisType.MEMORY) {
-            this.result.set(result);
-          }
-        },
-        error: () => this.router.navigate(['/entrainements']),
-      });
-  }
+  protected readonly page = targetedResultPage(AxisType.MEMORY);
 
   private readonly sequences = computed<MemorySequence[] | null>(() => {
-    const result = this.result();
+    const result = this.page.result();
     return result ? generateMemorySession(result.seed) : null;
   });
 
   protected readonly scored = computed<MemorySessionScore | null>(() => {
-    const result = this.result();
+    const result = this.page.result();
     const sequences = this.sequences();
     return result && sequences
       ? scoreMemorySession(sequences, result.sequences)
@@ -126,20 +78,8 @@ export class MemoryResult {
   });
 
   protected review(): void {
-    this.router.navigate([
-      '/entrainements/cible',
-      axisSlug(AxisType.MEMORY),
-      'session',
-      this.sessionId,
-      'correction',
-    ]);
-  }
-
-  protected newTraining(): void {
-    this.router.navigate(['/entrainements/cible', axisSlug(AxisType.MEMORY)]);
-  }
-
-  protected back(): void {
-    backFromTargetedResult(this.router, this.cameFromPlay);
+    this.router.navigate(
+      targetedCorrectionRoute(AxisType.MEMORY, this.page.sessionId),
+    );
   }
 }

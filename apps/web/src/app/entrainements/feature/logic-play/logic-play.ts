@@ -1,14 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   effect,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -17,9 +15,7 @@ import {
   LogicItemAnswerDto,
   LogicNumericStructure,
   LogicItem,
-  SessionDto,
   SessionMode,
-  SessionStatus,
 } from '@psychotech/shared';
 import { ArrowLeft, SkipForward } from 'lucide-angular';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -28,11 +24,12 @@ import { Button } from '../../../shared/ui/button/button';
 import { DOCUMENT } from '@angular/common';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { LeavablePlay } from '../play-leave.guard';
 import {
-  inactiveSessionRoute,
-  simulationCurrentAxis,
-} from '../../ui/session-flow';
-import { LeavablePlay, PlayLeaveControl } from '../play-leave.guard';
+  confirmExitOnCloseRequest,
+  loadPlayableSession,
+  playLeaveControl,
+} from '../play-session';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ResultWait } from '../../ui/result-wait/result-wait';
@@ -105,7 +102,6 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
 export class LogicPlay implements LeavablePlay {
   private readonly document = inject(DOCUMENT);
   private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly resultWait = inject(ResultWaitOrchestrator);
@@ -150,15 +146,11 @@ export class LogicPlay implements LeavablePlay {
   private enteredAtMs = Date.now();
   private lastItemReachedByNextAtMs: number | null = null;
   private hasSubmitted = false;
-  private readonly leave = new PlayLeaveControl(
-    () => ({
-      live: this.loaded() && this.route.snapshot.data['tutorial'] !== true,
-      submitted: this.hasSubmitted,
-      unsent: this.resultWait.unsent(),
-    }),
+  private readonly leave = playLeaveControl(
+    this.loaded,
+    () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
   );
-  private handledCloseRequests = this.facade.closeRequests();
 
   protected readonly currentItem = computed(
     () => this.items()[this.currentIndex()] ?? null,
@@ -276,32 +268,16 @@ export class LogicPlay implements LeavablePlay {
   protected readonly skipIcon = SkipForward;
 
   constructor() {
-    const active = this.facade.session();
-    if (active?.id === this.sessionId) {
-      this.handleLoaded(active);
-    } else {
-      this.facade
-        .load(this.sessionId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (session) => this.handleLoaded(session),
-          error: () => this.router.navigate(['/entrainements']),
-        });
-    }
+    loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
     effect(() => {
       if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {
         this.submit();
       }
     });
-    effect(() => {
-      const requests = this.facade.closeRequests();
-      if (requests !== this.handledCloseRequests) {
-        this.handledCloseRequests = requests;
-        if (!this.hasSubmitted && this.loaded()) {
-          this.confirmingExit.set(true);
-        }
-      }
-    });
+    confirmExitOnCloseRequest(
+      () => !this.hasSubmitted && this.loaded(),
+      () => this.confirmingExit.set(true),
+    );
   }
 
   private answeredAt(index: number): boolean {
@@ -623,23 +599,7 @@ export class LogicPlay implements LeavablePlay {
     }
   }
 
-  private handleLoaded(session: SessionDto): void {
-    if (session.status !== SessionStatus.IN_PROGRESS) {
-      this.router.navigate(inactiveSessionRoute(session, this.axis), {
-        replaceUrl: true,
-      });
-      return;
-    }
-    if (
-      session.mode === SessionMode.FULL &&
-      simulationCurrentAxis(session) !== this.axis
-    ) {
-      this.router.navigate(
-        ['/entrainements/examen-blanc/session', session.id],
-        { replaceUrl: true },
-      );
-      return;
-    }
+  private openPlay(): void {
     this.enteredAtMs = Date.now();
     this.loaded.set(true);
   }

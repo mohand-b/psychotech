@@ -29,12 +29,16 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
+import { axisFromSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialRunResult } from '../../data-access/tutorial-run.store';
 import { formatOverviewDate } from '../entrainements/trainings-overview-view';
+import {
+  targetedAxisRoute,
+  tutorialAxisRoute,
+} from '../../../shared/util/session-links';
 
 interface TutorialMetricRow {
   label: string;
@@ -196,7 +200,7 @@ export class TutorialEnd {
   );
 
   protected readonly targetedLink = this.axis
-    ? ['/entrainements/cible', axisSlug(this.axis)]
+    ? targetedAxisRoute(this.axis)
     : ['/entrainements'];
 
   protected readonly primaryLabel = 'Entraînement ciblé';
@@ -217,9 +221,7 @@ export class TutorialEnd {
     const result = this.runFacade.result();
     if (this.axis === null || result === null || result.axis !== this.axis) {
       this.router.navigate(
-        this.axis
-          ? ['/entrainements/tutoriel', axisSlug(this.axis)]
-          : ['/entrainements'],
+        this.axis ? tutorialAxisRoute(this.axis) : ['/entrainements'],
       );
       return;
     }

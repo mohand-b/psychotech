@@ -24,6 +24,10 @@ import { axisSlug } from '../../../shared/util/axis-slug';
 import { axisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
 import { sectorReferentialFor } from '../sector-referential';
+import {
+  sessionResultRoute,
+  simulationSessionRoute,
+} from '../../../shared/util/session-links';
 
 @Component({
   selector: 'app-simulation-briefing',
@@ -99,8 +103,7 @@ export class SimulationBriefing {
       return;
     }
     this.router.navigate([
-      '/entrainements/examen-blanc/session',
-      this.sessionId,
+      ...simulationSessionRoute(this.sessionId),
       'axe',
       axisSlug(axis),
     ]);
@@ -118,7 +121,7 @@ export class SimulationBriefing {
       return;
     }
     if (session.status === SessionStatus.COMPLETED) {
-      this.router.navigate(['/sessions', session.id, 'resultat'], {
+      this.router.navigate(sessionResultRoute(session.id), {
         replaceUrl: true,
       });
       return;

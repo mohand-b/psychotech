@@ -1,12 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AxisType,
@@ -14,23 +12,21 @@ import {
   LogicFamily,
   LogicItemStatus,
   LogicNumericStructure,
-  TargetedLogicResultDto,
   resolveLogicRuleDetail,
   resolveTriangleRuleDetail,
   scoreLogicSession,
 } from '@psychotech/shared';
 import { ArrowRight } from 'lucide-angular';
-import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { MatrixCell } from '../../../shared/ui/matrix/matrix-cell';
 import { TriangleSeries } from '../../../shared/ui/triangle/triangle-series';
-import { axisSlug } from '../../../shared/util/axis-slug';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
 import { DominoPips } from '../../ui/domino-pips/domino-pips';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 import { MATRIX_PROPOSAL_LETTERS } from '../../ui/logic-matrix/logic-matrix';
+import { targetedResultOf } from '../targeted-result-page';
 import {
   LOGIC_STATUS_COLORS,
   LOGIC_STATUS_LABELS,
@@ -39,6 +35,10 @@ import {
   logicFamilyBoundaries,
   logicItemsForResult,
 } from '../../../shared/ui/logic-result-items';
+import {
+  sessionResultRoute,
+  targetedResultRoute,
+} from '../../../shared/util/session-links';
 
 const STATUS_BADGES: Record<
   LogicItemStatus,
@@ -97,13 +97,11 @@ interface DominoUserAnswer {
   host: { '(document:keydown)': 'onKeydown($event)' },
 })
 export class LogicCorrection {
-  private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly targetedResult = targetedResultOf(AxisType.LOGIC);
 
-  private readonly sessionId =
-    this.route.snapshot.paramMap.get('sessionId') ?? '';
+  private readonly sessionId = this.targetedResult.sessionId;
   private readonly fromSimulation =
     this.route.snapshot.data['simulation'] === true;
   protected readonly axis = AxisType.LOGIC;
@@ -111,22 +109,8 @@ export class LogicCorrection {
   protected readonly letters = MATRIX_PROPOSAL_LETTERS;
   protected readonly chevronIcon = ArrowRight;
 
-  protected readonly result = signal<TargetedLogicResultDto | null>(null);
+  protected readonly result = this.targetedResult.result;
   protected readonly currentIndex = signal(0);
-
-  constructor() {
-    this.facade
-      .loadTargetedResult(this.sessionId, AxisType.LOGIC)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.axis === AxisType.LOGIC) {
-            this.result.set(result);
-          }
-        },
-        error: () => this.router.navigate(['/entrainements']),
-      });
-  }
 
   protected readonly items = computed(() => {
     const result = this.result();
@@ -315,16 +299,10 @@ export class LogicCorrection {
 
   protected backToResult(): void {
     if (this.fromSimulation) {
-      this.router.navigate(['/sessions', this.sessionId, 'resultat']);
+      this.router.navigate(sessionResultRoute(this.sessionId));
       return;
     }
-    this.router.navigate([
-      '/entrainements/cible',
-      axisSlug(AxisType.LOGIC),
-      'session',
-      this.sessionId,
-      'resultat',
-    ]);
+    this.router.navigate(targetedResultRoute(AxisType.LOGIC, this.sessionId));
   }
 
   protected onKeydown(event: KeyboardEvent): void {

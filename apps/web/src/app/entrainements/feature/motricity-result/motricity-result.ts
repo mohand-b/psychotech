@@ -1,26 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
   AxisFinding,
   AxisType,
   MotorSkillsMetrics,
-  TargetedMotricityResultDto,
   analyzeMotricity,
   getAxisRecommendations,
 } from '@psychotech/shared';
-import { BadgeCelebrationFacade } from '../../../badges/data-access/badge-celebration.facade';
-import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
-import { axisSlug } from '../../../shared/util/axis-slug';
-import { backFromTargetedResult } from '../result-navigation';
 import { buildMotricityMetricRows } from '../../../shared/ui/axis-result-content';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import {
@@ -31,7 +17,7 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { sectorReferentialFor } from '../sector-referential';
+import { targetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { MotricityTrajectoryChart } from '../../../shared/ui/motricity-trajectory-chart/motricity-trajectory-chart';
 
@@ -53,52 +39,10 @@ import { MotricityTrajectoryChart } from '../../../shared/ui/motricity-trajector
   styleUrl: './motricity-result.css',
 })
 export class MotricityResult {
-  private readonly facade = inject(TrainingSessionFacade);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-
-  private readonly sessionId =
-    this.route.snapshot.paramMap.get('sessionId') ?? '';
-  private readonly cameFromPlay = this.facade.session()?.id === this.sessionId;
-  protected readonly backLabel = this.cameFromPlay
-    ? 'Retour aux axes'
-    : 'Retour aux sessions';
-  protected readonly celebration = inject(
-    BadgeCelebrationFacade,
-  ).celebrateResult(
-    this.sessionId,
-    computed(() => {
-      const result = this.result();
-      return result
-        ? { badges: result.earnedBadges ?? [], sector: result.sector }
-        : null;
-    }),
-  );
-
-  protected readonly axis = AxisType.MOTOR_SKILLS;
-  protected readonly result = signal<TargetedMotricityResultDto | null>(null);
-
-  protected readonly referential = sectorReferentialFor(
-    computed(() => this.result()?.sector ?? null),
-  );
-
-  constructor() {
-    this.facade
-      .loadTargetedResult(this.sessionId, AxisType.MOTOR_SKILLS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.axis === AxisType.MOTOR_SKILLS) {
-            this.result.set(result);
-          }
-        },
-        error: () => this.router.navigate(['/entrainements']),
-      });
-  }
+  protected readonly page = targetedResultPage(AxisType.MOTOR_SKILLS);
 
   protected readonly metrics = computed<MotorSkillsMetrics | null>(
-    () => this.result()?.metrics ?? null,
+    () => this.page.result()?.metrics ?? null,
   );
 
   protected readonly hasTimeline = computed(() => {
@@ -118,15 +62,4 @@ export class MotricityResult {
     const metrics = this.metrics();
     return metrics ? buildMotricityMetricRows(metrics) : [];
   });
-
-  protected newTraining(): void {
-    this.router.navigate([
-      '/entrainements/cible',
-      axisSlug(AxisType.MOTOR_SKILLS),
-    ]);
-  }
-
-  protected back(): void {
-    backFromTargetedResult(this.router, this.cameFromPlay);
-  }
 }
