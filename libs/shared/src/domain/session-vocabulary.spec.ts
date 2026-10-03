@@ -9,6 +9,7 @@ import {
   SESSION_MODE_LABELS_LOWER,
   TARGETED_SESSION_LABEL,
   fullSessionCountLabel,
+  targetedSessionCountLabel,
 } from './session-vocabulary';
 
 const ALL_LABELS = [
@@ -45,6 +46,8 @@ describe('session vocabulary', () => {
     expect(fullSessionCountLabel(0)).toBe('examen blanc');
     expect(fullSessionCountLabel(1)).toBe('examen blanc');
     expect(fullSessionCountLabel(2)).toBe('examens blancs');
+    expect(targetedSessionCountLabel(1)).toBe('entraînement ciblé');
+    expect(targetedSessionCountLabel(15)).toBe('entraînements ciblés');
   });
 
   it('never says simulation anywhere in the user vocabulary', () => {

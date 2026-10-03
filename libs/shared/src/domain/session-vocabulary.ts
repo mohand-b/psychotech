@@ -16,6 +16,7 @@ const DISCOVERY_SESSION_LABEL_LOWER = 'mode découverte';
 export const TARGETED_SESSION_LABEL = 'Entraînement ciblé';
 const TARGETED_SESSION_LABEL_LOWER = 'entraînement ciblé';
 export const TARGETED_SESSION_LABEL_PLURAL = 'Entraînements ciblés';
+const TARGETED_SESSION_LABEL_PLURAL_LOWER = 'entraînements ciblés';
 
 export const SESSION_MODE_LABELS: Record<SessionMode, string> = {
   [SessionMode.FULL]: FULL_SESSION_LABEL,
@@ -31,4 +32,10 @@ export const SESSION_MODE_LABELS_LOWER: Record<SessionMode, string> = {
 
 export function fullSessionCountLabel(count: number): string {
   return count > 1 ? FULL_SESSION_LABEL_PLURAL_LOWER : FULL_SESSION_LABEL_LOWER;
+}
+
+export function targetedSessionCountLabel(count: number): string {
+  return count > 1
+    ? TARGETED_SESSION_LABEL_PLURAL_LOWER
+    : TARGETED_SESSION_LABEL_LOWER;
 }
