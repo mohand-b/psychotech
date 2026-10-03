@@ -455,7 +455,6 @@ export class SessionsService {
       const sequences = generateMemorySession(context.seed);
       return {
         perfection: memoryPerfectionAchieved(
-          sequences,
           scoreMemorySession(sequences, rawResult.sequences),
         ),
         exitFree: false,
