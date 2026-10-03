@@ -91,20 +91,20 @@ interface Setup {
   navigate: ReturnType<typeof vi.spyOn>;
   loadTargetedResult: ReturnType<typeof vi.fn>;
   loadSummary: ReturnType<typeof vi.fn>;
-  clear: ReturnType<typeof vi.fn>;
+  clearSession: ReturnType<typeof vi.fn>;
 }
 
 function setup(active: SessionDto | null): Setup {
   const loadTargetedResult = vi.fn(() => of(TARGETED_RESULT));
   const loadSummary = vi.fn(() => of(SUMMARY));
-  const clear = vi.fn();
+  const clearSession = vi.fn();
   TestBed.configureTestingModule({
     providers: [
       ResultWaitOrchestrator,
       provideRouter([]),
       {
         provide: TrainingSessionFacade,
-        useValue: { session: () => active, loadTargetedResult, clear },
+        useValue: { session: () => active, loadTargetedResult, clearSession },
       },
       { provide: SimulationSummaryFacade, useValue: { loadSummary } },
     ],
@@ -117,7 +117,7 @@ function setup(active: SessionDto | null): Setup {
     navigate,
     loadTargetedResult,
     loadSummary,
-    clear,
+    clearSession,
   };
 }
 
@@ -134,7 +134,7 @@ describe('ResultWaitOrchestrator', () => {
   it('never navigates before the minimum display duration even when the back answers instantly', () => {
     const { orchestrator, navigate } = setup(buildSession());
     const completed = buildSession({ status: SessionStatus.COMPLETED });
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => of(completed),
     });
@@ -155,7 +155,7 @@ describe('ResultWaitOrchestrator', () => {
       setup(buildSession());
     const prefetch = new Subject<TargetedAxisResultDto>();
     loadTargetedResult.mockReturnValue(prefetch.asObservable());
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => of(buildSession({ status: SessionStatus.COMPLETED })),
     });
@@ -173,7 +173,7 @@ describe('ResultWaitOrchestrator', () => {
     loadTargetedResult.mockReturnValue(
       new Subject<TargetedAxisResultDto>().asObservable(),
     );
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => of(buildSession({ status: SessionStatus.COMPLETED })),
     });
@@ -191,7 +191,7 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi
       .fn(() => of(completed))
       .mockImplementationOnce(() => throwError(() => new Error('down')));
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete,
     });
@@ -200,7 +200,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.phase()).toBe('failed-complete');
     expect(complete).toHaveBeenCalledTimes(1);
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(complete).toHaveBeenCalledTimes(2);
     expect(orchestrator.failed()).toBe(false);
 
@@ -217,7 +217,7 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi.fn(() =>
       of(buildSession({ status: SessionStatus.COMPLETED })),
     );
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete,
     });
@@ -225,7 +225,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.phase()).toBe('failed-prefetch');
     expect(complete).toHaveBeenCalledTimes(1);
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(complete).toHaveBeenCalledTimes(1);
     expect(loadTargetedResult).toHaveBeenCalledTimes(2);
 
@@ -240,7 +240,7 @@ describe('ResultWaitOrchestrator', () => {
       id: TUTORIAL_SESSION_ID,
       status: SessionStatus.COMPLETED,
     });
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => of(completed),
     });
@@ -256,7 +256,7 @@ describe('ResultWaitOrchestrator', () => {
   it('keeps the direct transition for intermediate simulation axes', () => {
     const { orchestrator, navigate, loadSummary } = setup(buildFullSession(0));
     const afterAxis = buildFullSession(1);
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.VISUAL_DISCRIMINATION,
       complete: () => of(afterAxis),
     });
@@ -277,7 +277,7 @@ describe('ResultWaitOrchestrator', () => {
       ...buildFullSession(4),
       status: SessionStatus.COMPLETED,
     };
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.REACTIVITY,
       complete: () => of(completed),
     });
@@ -302,12 +302,12 @@ describe('ResultWaitOrchestrator', () => {
     loadTargetedResult.mockImplementationOnce(() =>
       throwError(() => new Error('down')),
     );
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
 
     expect(orchestrator.phase()).toBe('failed-complete');
     expect(orchestrator.failure()).toBe('completion');
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(orchestrator.phase()).toBe('failed-prefetch');
     expect(orchestrator.failure()).toBe('prefetch');
   });
@@ -317,7 +317,10 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi
       .fn(() => of(buildFullSession(4)))
       .mockImplementationOnce(() => throwError(() => new Error('down')));
-    orchestrator.submit({ axis: AxisType.MOTOR_SKILLS, complete });
+    orchestrator.submitAxisCompletion({
+      axis: AxisType.MOTOR_SKILLS,
+      complete,
+    });
 
     expect(orchestrator.active()).toBe(true);
     expect(orchestrator.failed()).toBe(true);
@@ -325,7 +328,7 @@ describe('ResultWaitOrchestrator', () => {
     expect(orchestrator.simulation()).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(complete).toHaveBeenCalledTimes(2);
     expect(loadSummary).not.toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(
@@ -340,13 +343,13 @@ describe('ResultWaitOrchestrator', () => {
       .fn(() => of(buildFullSession(2)))
       .mockImplementationOnce(() => throwError(() => new Error('down')))
       .mockImplementationOnce(() => throwError(() => new Error('down')));
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(orchestrator.failed()).toBe(true);
     expect(navigate).not.toHaveBeenCalled();
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(complete).toHaveBeenCalledTimes(3);
     expect(navigate).toHaveBeenCalledTimes(1);
   });
@@ -354,7 +357,7 @@ describe('ResultWaitOrchestrator', () => {
   it('reveals the wait screen when an intermediate completion is slow, then navigates without prefetch', () => {
     const { orchestrator, navigate, loadSummary } = setup(buildFullSession(3));
     const completion = new Subject<SessionDto>();
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.MOTOR_SKILLS,
       complete: () => completion.asObservable(),
     });
@@ -375,8 +378,8 @@ describe('ResultWaitOrchestrator', () => {
   it('ignores a second submission while the first one is in flight', () => {
     const { orchestrator } = setup(buildFullSession(2));
     const complete = vi.fn(() => new Subject<SessionDto>().asObservable());
-    orchestrator.submit({ axis: AxisType.MEMORY, complete });
-    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.MEMORY, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.MEMORY, complete });
 
     expect(complete).toHaveBeenCalledTimes(1);
   });
@@ -384,8 +387,8 @@ describe('ResultWaitOrchestrator', () => {
   it('ignores a second submission after a failure so only the retry can resend', () => {
     const { orchestrator } = setup(buildFullSession(2));
     const complete = vi.fn(() => throwError(() => new Error('down')));
-    orchestrator.submit({ axis: AxisType.MEMORY, complete });
-    orchestrator.submit({ axis: AxisType.MEMORY, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.MEMORY, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.MEMORY, complete });
 
     expect(complete).toHaveBeenCalledTimes(1);
   });
@@ -393,7 +396,7 @@ describe('ResultWaitOrchestrator', () => {
   it('never navigates once the screen has been left', () => {
     const { orchestrator, navigate } = setup(buildFullSession(0));
     const completion = new Subject<SessionDto>();
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.VISUAL_DISCRIMINATION,
       complete: () => completion.asObservable(),
     });
@@ -409,18 +412,18 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi.fn(() =>
       throwError(() => new SessionNoLongerActiveError()),
     );
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
 
     expect(orchestrator.failure()).toBe('session-closed');
     expect(orchestrator.unsent()).toBe(false);
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(complete).toHaveBeenCalledTimes(1);
   });
 
   it('turns a stalled completion into a retryable failure', () => {
     const { orchestrator } = setup(buildFullSession(3));
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.MOTOR_SKILLS,
       complete: () => new Subject<SessionDto>().asObservable(),
     });
@@ -439,10 +442,10 @@ describe('ResultWaitOrchestrator', () => {
       .mockImplementationOnce(() => throwError(() => new Error('down')));
     expect(orchestrator.unsent()).toBe(false);
 
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
     expect(orchestrator.unsent()).toBe(true);
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(orchestrator.unsent()).toBe(false);
   });
 
@@ -451,10 +454,10 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi
       .fn(() => new Subject<SessionDto>().asObservable())
       .mockImplementationOnce(() => throwError(() => new Error('down')));
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
 
-    orchestrator.retry();
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
+    orchestrator.retryFailedStep();
 
     expect(complete).toHaveBeenCalledTimes(2);
   });
@@ -464,10 +467,10 @@ describe('ResultWaitOrchestrator', () => {
     const complete = vi
       .fn(() => new Subject<SessionDto>().asObservable())
       .mockImplementationOnce(() => throwError(() => new Error('down')));
-    orchestrator.submit({ axis: AxisType.LOGIC, complete });
+    orchestrator.submitAxisCompletion({ axis: AxisType.LOGIC, complete });
     vi.advanceTimersByTime(RESULT_WAIT_SLOW_HINT_MS);
 
-    orchestrator.retry();
+    orchestrator.retryFailedStep();
     expect(orchestrator.slow()).toBe(false);
 
     vi.advanceTimersByTime(RESULT_WAIT_SLOW_HINT_MS);
@@ -475,22 +478,22 @@ describe('ResultWaitOrchestrator', () => {
   });
 
   it('drops the stale session and leaves to the dashboard on quit, releasing the leave guard', () => {
-    const { orchestrator, navigate, clear } = setup(buildFullSession(1));
-    orchestrator.submit({
+    const { orchestrator, navigate, clearSession } = setup(buildFullSession(1));
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => throwError(() => new Error('down')),
     });
 
-    orchestrator.quit();
+    orchestrator.quitToDashboard();
 
-    expect(clear).toHaveBeenCalledTimes(1);
+    expect(clearSession).toHaveBeenCalledTimes(1);
     expect(orchestrator.unsent()).toBe(false);
     expect(navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('falls back to the direct path and still fails visibly without an active session', () => {
     const { orchestrator } = setup(null);
-    orchestrator.submit({
+    orchestrator.submitAxisCompletion({
       axis: AxisType.LOGIC,
       complete: () => throwError(() => new Error('down')),
     });

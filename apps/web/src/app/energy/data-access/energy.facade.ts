@@ -41,21 +41,23 @@ export class EnergyFacade {
           this.store.setEnergy(null);
           return;
         }
-        this.reload();
+        this.reloadEnergyBalance();
       });
     });
   }
 
-  load(): Observable<EnergyStateDto> {
-    return this.api.state().pipe(tap((energy) => this.store.setEnergy(energy)));
+  loadEnergyBalance(): Observable<EnergyStateDto> {
+    return this.api
+      .fetchEnergyBalance()
+      .pipe(tap((energy) => this.store.setEnergy(energy)));
   }
 
-  reload(): void {
-    this.load().subscribe({ error: () => undefined });
+  reloadEnergyBalance(): void {
+    this.loadEnergyBalance().subscribe({ error: () => undefined });
   }
 
-  refresh(): Observable<void> {
-    return this.load().pipe(
+  loadEnergyBalanceSafely(): Observable<void> {
+    return this.loadEnergyBalance().pipe(
       map(() => undefined),
       catchError((error: unknown) => {
         this.errorHandler.handleError(error);
@@ -72,10 +74,12 @@ export class EnergyFacade {
   }
 
   redeemGiftCode(code: string): Observable<GiftCodeRedemptionDto> {
-    return this.api.redeemGiftCode(code).pipe(tap(() => this.reload()));
+    return this.api
+      .redeemGiftCode(code)
+      .pipe(tap(() => this.reloadEnergyBalance()));
   }
 
-  clear(): void {
+  clearEnergyBalance(): void {
     this.store.setEnergy(null);
   }
 }

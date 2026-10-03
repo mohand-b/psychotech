@@ -17,12 +17,12 @@ import { ArrowRight } from 'lucide-angular';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { LANDING_STORY_STEPS } from '../../data/landing-story-steps';
 import { COMPACT_LAYOUT_MEDIA } from '../../util/compact-layout';
-import { landingPrimaryAction } from '../../util/landing-link';
+import { resolveLandingPrimaryAction } from '../../util/landing-link';
 import { LANDING_SECTION } from '../../util/landing-sections';
-import { twoDigitRank } from '../../util/two-digit-rank';
+import { formatTwoDigitRank } from '../../util/two-digit-rank';
 import {
   VerticalSpan,
-  indexNearestToMiddleOf,
+  findIndexNearestToMiddle,
 } from '../../util/viewport-focus';
 import { LandingButton } from '../landing-button/landing-button';
 import { LandingScreenStack } from '../landing-screen-stack/landing-screen-stack';
@@ -47,7 +47,7 @@ export class LandingStory {
   protected readonly sectionId = LANDING_SECTION.story;
   protected readonly steps = LANDING_STORY_STEPS.map((step, index) => ({
     ...step,
-    rank: twoDigitRank(index + 1),
+    rank: formatTwoDigitRank(index + 1),
   }));
   protected readonly arrowIcon = ArrowRight;
   protected readonly linkArrowSize = LINK_ARROW_SIZE;
@@ -59,7 +59,7 @@ export class LandingStory {
     () => this.steps[this.activeIndex()].caption,
   );
   protected readonly primaryAction = computed(() =>
-    landingPrimaryAction(this.authenticated()),
+    resolveLandingPrimaryAction(this.authenticated()),
   );
 
   constructor() {
@@ -80,7 +80,7 @@ export class LandingStory {
       });
       const sync = (): void =>
         this.activeIndex.set(
-          indexNearestToMiddleOf(
+          findIndexNearestToMiddle(
             this.stepElements().map((step) =>
               step.nativeElement.getBoundingClientRect(),
             ),

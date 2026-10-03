@@ -18,7 +18,7 @@ import {
   badgeAssetPath,
   badgeDisplayName,
 } from '@psychotech/shared';
-import { energyGain } from '../../data-access/badge-display';
+import { computeDisplayedEnergyGain } from '../../data-access/badge-display';
 import {
   BadgeConditionView,
   BadgeTierStepView,
@@ -127,14 +127,14 @@ function buildEntry(
   };
 }
 
-function conditionsIntroFor(entry: BadgeEntry): string {
+function buildConditionsIntro(entry: BadgeEntry): string {
   if (entry.definition.family === BadgeFamily.EXAM) {
     return 'Dans le même examen :';
   }
   return CONDITION_COUNT_INTROS[entry.conditions.length] ?? 'Conditions :';
 }
 
-function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
+function buildTierStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
   const tier = entry.definition.tier ?? BadgeTier.BRONZE;
   const multipleConditions = !entry.earned && entry.conditions.length > 1;
   return {
@@ -143,7 +143,7 @@ function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
     earned: entry.earned,
     next,
     tierLine: TIER_LABELS[tier],
-    gain: energyGain(entry.definition.energyReward),
+    gain: computeDisplayedEnergyGain(entry.definition.energyReward),
     tierColorVar: TIER_COLOR_VARS[tier],
     name: entry.earned ? entry.name : null,
     sub: entry.earned
@@ -152,7 +152,7 @@ function buildStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
         ? null
         : (entry.conditions[0]?.label ?? null),
     conditions: multipleConditions ? entry.conditions : null,
-    conditionsIntro: multipleConditions ? conditionsIntroFor(entry) : null,
+    conditionsIntro: multipleConditions ? buildConditionsIntro(entry) : null,
   };
 }
 
@@ -177,13 +177,13 @@ function buildTieredCard(
       rarityLabel: top ? shown.rarityLabel : null,
     },
     steps: entries.map((entry, index) =>
-      buildStep(entry, index === firstTodoIndex),
+      buildTierStep(entry, index === firstTodoIndex),
     ),
   };
 }
 
 function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
-  const gain = energyGain(entry.definition.energyReward);
+  const gain = computeDisplayedEnergyGain(entry.definition.energyReward);
   const multipleConditions = !entry.earned && entry.conditions.length > 1;
   return {
     badgeId: entry.definition.id,
@@ -197,7 +197,7 @@ function buildTransverseView(entry: BadgeEntry): TransverseBadgeView {
         ? (entry.conditions[0]?.label ?? null)
         : null,
     conditions: multipleConditions ? entry.conditions : null,
-    conditionsIntro: multipleConditions ? conditionsIntroFor(entry) : null,
+    conditionsIntro: multipleConditions ? buildConditionsIntro(entry) : null,
     rarityLabel: entry.rarityLabel,
   };
 }
@@ -206,7 +206,7 @@ const SESSION_EFFORT_POINTS = 10;
 const ACTION_EFFORT_POINTS = 4;
 const MIN_EFFORT_POINTS = 1;
 
-function axisScoreTarget(definition: BadgeDefinition): number | undefined {
+function parseAxisScoreTarget(definition: BadgeDefinition): number | undefined {
   const condition = definition.conditions.find((entry) =>
     entry.id.startsWith('best-'),
   );
@@ -219,7 +219,7 @@ const EXAM_SCORE_TARGETS: Partial<Record<BadgeId, number>> = {
   [BadgeId.EXAM_SOLID]: EXAM_PERFECTION_THRESHOLD,
 };
 
-function axisDeficits(
+function computeAxisDeficits(
   sector: Sector,
   outlook: BadgeOutlook,
 ): { axis: AxisType; deficit: number }[] {
@@ -232,18 +232,18 @@ function axisDeficits(
   }));
 }
 
-function bindingAxisDeficit(
+function findLargestAxisDeficit(
   sector: Sector,
   outlook: BadgeOutlook,
 ): { axis: AxisType; deficit: number } {
-  return axisDeficits(sector, outlook).reduce((worst, entry) =>
+  return computeAxisDeficits(sector, outlook).reduce((worst, entry) =>
     entry.deficit > worst.deficit ? entry : worst,
   );
 }
 
-function examDeficit(outlook: BadgeOutlook, target: number): number {
+function computeExamDeficit(outlook: BadgeOutlook, target: number): number {
   if (outlook.lastExamScore === null) {
-    const deficits = axisDeficits(Sector.RAILWAY, outlook);
+    const deficits = computeAxisDeficits(Sector.RAILWAY, outlook);
     const axisAverage =
       deficits.reduce((sum, entry) => sum + entry.deficit, 0) / deficits.length;
     return axisAverage + Math.max(0, target - BADGE_SECTOR_THRESHOLD);
@@ -251,14 +251,14 @@ function examDeficit(outlook: BadgeOutlook, target: number): number {
   return Math.max(0, target - outlook.lastExamScore);
 }
 
-function effortOf(
+function estimateBadgeEffort(
   entry: BadgeEntry,
   sector: Sector,
   outlook: BadgeOutlook,
 ): number {
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
-    const target = axisScoreTarget(definition);
+    const target = parseAxisScoreTarget(definition);
     if (target === undefined) {
       return (
         SESSION_EFFORT_POINTS +
@@ -276,23 +276,23 @@ function effortOf(
   }
   const examTarget = EXAM_SCORE_TARGETS[definition.id];
   if (examTarget !== undefined) {
-    return SESSION_EFFORT_POINTS + examDeficit(outlook, examTarget);
+    return SESSION_EFFORT_POINTS + computeExamDeficit(outlook, examTarget);
   }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
     return Math.max(
       MIN_EFFORT_POINTS,
-      bindingAxisDeficit(sector, outlook).deficit,
+      findLargestAxisDeficit(sector, outlook).deficit,
     );
   }
   const unmet = entry.conditions.filter((condition) => !condition.met).length;
   return Math.max(MIN_EFFORT_POINTS, unmet * ACTION_EFFORT_POINTS);
 }
 
-function pointsLabel(points: number): string {
+function formatPointsLabel(points: number): string {
   return `${points} point${points > 1 ? 's' : ''}`;
 }
 
-function closestProgress(
+function buildClosestProgressLine(
   entry: BadgeEntry,
   sector: Sector,
   outlook: BadgeOutlook,
@@ -300,23 +300,23 @@ function closestProgress(
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
     const best = outlook.bestScores[definition.axis];
-    const target = axisScoreTarget(definition);
+    const target = parseAxisScoreTarget(definition);
     if (target === undefined || best === undefined || best >= target) {
       return null;
     }
-    return `Votre meilleur score ${best} · plus que ${pointsLabel(target - best)}`;
+    return `Votre meilleur score ${best} · plus que ${formatPointsLabel(target - best)}`;
   }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
-    const binding = bindingAxisDeficit(sector, outlook);
+    const binding = findLargestAxisDeficit(sector, outlook);
     return binding.deficit > 0
-      ? `Plus que ${pointsLabel(binding.deficit)} en ${AXIS_META[binding.axis].label}`
+      ? `Plus que ${formatPointsLabel(binding.deficit)} en ${AXIS_META[binding.axis].label}`
       : null;
   }
   const examTarget = EXAM_SCORE_TARGETS[definition.id];
   if (examTarget !== undefined && outlook.lastExamScore !== null) {
-    const deficit = examDeficit(outlook, examTarget);
+    const deficit = computeExamDeficit(outlook, examTarget);
     return deficit > 0
-      ? `Dernier examen à ${outlook.lastExamScore} · plus que ${pointsLabel(deficit)}`
+      ? `Dernier examen à ${outlook.lastExamScore} · plus que ${formatPointsLabel(deficit)}`
       : null;
   }
   return null;
@@ -340,7 +340,8 @@ function buildSummary(
     locked.length === 0
       ? null
       : locked.reduce((best, entry) =>
-          effortOf(entry, sector, outlook) < effortOf(best, sector, outlook)
+          estimateBadgeEffort(entry, sector, outlook) <
+          estimateBadgeEffort(best, sector, outlook)
             ? entry
             : best,
         );
@@ -359,8 +360,10 @@ function buildSummary(
               ?.label ??
             closestEntry.conditions[0]?.label ??
             '',
-          progress: closestProgress(closestEntry, sector, outlook),
-          gain: energyGain(closestEntry.definition.energyReward),
+          progress: buildClosestProgressLine(closestEntry, sector, outlook),
+          gain: computeDisplayedEnergyGain(
+            closestEntry.definition.energyReward,
+          ),
         }
       : null,
   };

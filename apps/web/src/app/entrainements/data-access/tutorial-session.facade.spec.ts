@@ -22,7 +22,7 @@ import { TutorialRunFacade } from './tutorial-run.facade';
 import {
   TUTORIAL_SESSION_ID,
   TutorialSessionFacade,
-  tutorialSessionProviders,
+  provideTutorialSession,
 } from './tutorial-session.facade';
 
 function buildSuspendedSession(): SessionDto {
@@ -53,9 +53,9 @@ function buildSuspendedSession(): SessionDto {
 
 describe('TutorialSessionFacade', () => {
   let api: {
-    start: ReturnType<typeof vi.fn>;
-    get: ReturnType<typeof vi.fn>;
-    completeTargeted: ReturnType<typeof vi.fn>;
+    startSession: ReturnType<typeof vi.fn>;
+    fetchSession: ReturnType<typeof vi.fn>;
+    completeAxis: ReturnType<typeof vi.fn>;
   };
   let rootFacade: TrainingSessionFacade;
   let tutorialInjector: EnvironmentInjector;
@@ -71,7 +71,11 @@ describe('TutorialSessionFacade', () => {
 
   function setup(axis?: AxisType): void {
     TestBed.resetTestingModule();
-    api = { start: vi.fn(), get: vi.fn(), completeTargeted: vi.fn() };
+    api = {
+      startSession: vi.fn(),
+      fetchSession: vi.fn(),
+      completeAxis: vi.fn(),
+    };
     TestBed.configureTestingModule({
       providers: [
         { provide: SessionsApi, useValue: api },
@@ -83,8 +87,8 @@ describe('TutorialSessionFacade', () => {
     });
     rootFacade = TestBed.inject(TrainingSessionFacade);
     tutorialInjector = createEnvironmentInjector(
-      tutorialSessionProviders(
-        axis as Parameters<typeof tutorialSessionProviders>[0],
+      provideTutorialSession(
+        axis as Parameters<typeof provideTutorialSession>[0],
       ),
       TestBed.inject(EnvironmentInjector),
     );
@@ -97,8 +101,8 @@ describe('TutorialSessionFacade', () => {
 
     expect(facade).toBeInstanceOf(TutorialSessionFacade);
     runInInjectionContext(tutorialInjector, () => {
-      facade.startTargeted(AxisType.LOGIC).subscribe();
-      facade.completeTargeted([]).subscribe();
+      facade.startTargetedSession(AxisType.LOGIC).subscribe();
+      facade.completeLogicAxis([]).subscribe();
     });
 
     expect(rootFacade.session()?.id).toBe('session-suspendue');
@@ -110,12 +114,12 @@ describe('TutorialSessionFacade', () => {
   it('never calls the sessions api during a tutorial', () => {
     setup(AxisType.LOGIC);
     runInInjectionContext(tutorialInjector, () => {
-      facade.load(TUTORIAL_SESSION_ID).subscribe();
-      facade.completeTargeted([]).subscribe();
+      facade.loadSession(TUTORIAL_SESSION_ID).subscribe();
+      facade.completeLogicAxis([]).subscribe();
     });
-    expect(api.start).not.toHaveBeenCalled();
-    expect(api.get).not.toHaveBeenCalled();
-    expect(api.completeTargeted).not.toHaveBeenCalled();
+    expect(api.startSession).not.toHaveBeenCalled();
+    expect(api.fetchSession).not.toHaveBeenCalled();
+    expect(api.completeAxis).not.toHaveBeenCalled();
   });
 
   it('serves the mixed logic tutorial with its five-family composition', () => {
@@ -164,7 +168,7 @@ describe('TutorialSessionFacade', () => {
     setup(AxisType.VISUAL_DISCRIMINATION);
     const runFacade = TestBed.inject(TutorialRunFacade);
     runInInjectionContext(tutorialInjector, () => {
-      facade.completeTargetedDiscrimination([], 0).subscribe();
+      facade.completeDiscriminationAxis([], 0).subscribe();
     });
     expect(runFacade.result()?.axis).toBe(AxisType.VISUAL_DISCRIMINATION);
   });

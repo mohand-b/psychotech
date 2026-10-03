@@ -26,7 +26,7 @@ import {
   BadgeCelebrationFacade,
   ResultCelebration,
 } from '../../../badges/data-access/badge-celebration.facade';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgeAnnounce } from '../../../shared/ui/badge-announce/badge-announce';
 import { SimulationSummaryFacade } from '../../data-access/simulation-summary.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
@@ -43,10 +43,10 @@ import { ScoreReveal } from '../../../shared/ui/score-reveal/score-reveal';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
 import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
-import { axisSlug } from '../../../shared/util/axis-slug';
+import { resolveAxisSlug } from '../../../shared/util/axis-slug';
 import {
   CONTACT_ROUTE,
-  contactQueryParams,
+  buildContactQueryParams,
 } from '../../../shared/util/contact-link';
 import {
   AxisRadar,
@@ -58,16 +58,16 @@ import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
 import {
-  simulationSessionRoute,
-  targetedAxisRoute,
+  buildSimulationSessionRoute,
+  buildTargetedAxisRoute,
 } from '../../../shared/util/session-links';
 
 const RADAR_PROGRESS_RESTART_DROP = 0.5;
 
 const INERT_CELEBRATION: ResultCelebration = {
   announceView: signal(null).asReadonly(),
-  sceneReady: () => undefined,
-  replay: () => undefined,
+  releaseSceneHold: () => undefined,
+  replayCelebration: () => undefined,
 };
 
 @Component({
@@ -108,7 +108,7 @@ export class SimulationSummary {
 
   protected readonly isExample = this.route.snapshot.data['demo'] === true;
   protected readonly contactRoute = CONTACT_ROUTE;
-  protected readonly reportParams = contactQueryParams({
+  protected readonly reportParams = buildContactQueryParams({
     motif: 'probleme',
     sessionId: this.sessionId,
     origin: this.router.url,
@@ -116,7 +116,7 @@ export class SimulationSummary {
 
   protected readonly celebration: ResultCelebration = this.isExample
     ? INERT_CELEBRATION
-    : inject(BadgeCelebrationFacade).celebrateResult(
+    : inject(BadgeCelebrationFacade).prepareResultCelebration(
         this.sessionId,
         computed(() => {
           const summary = this.facade.summary();
@@ -151,12 +151,12 @@ export class SimulationSummary {
     effect(() => {
       const summary = this.summary();
       if (summary) {
-        this.reveal.start(summary.globalScore);
+        this.reveal.revealScore(summary.globalScore);
       }
     });
     effect(() => {
       if (this.reveal.completed()) {
-        this.celebration.sceneReady();
+        this.celebration.releaseSceneHold();
       }
     });
   }
@@ -249,11 +249,11 @@ export class SimulationSummary {
     },
   });
 
-  protected isUnderEliminatory(axis: AxisType): boolean {
+  protected isUnderEliminatoryThreshold(axis: AxisType): boolean {
     return this.summary()?.eliminatoryAxes.includes(axis) ?? false;
   }
 
-  protected axisDotVar(axis: SimulationAxisSummaryDto): string {
+  protected resolveAxisDotColor(axis: SimulationAxisSummaryDto): string {
     return resolveVerdictAppearance(
       axis.score,
       axis.eliminatoryThreshold === null
@@ -265,21 +265,21 @@ export class SimulationSummary {
     ).colorVar;
   }
 
-  protected weaknessMention(weakness: SimulationWeaknessDto): string {
+  protected describeWeaknessThreshold(weakness: SimulationWeaknessDto): string {
     return weakness.thresholdKind === SimulationThresholdKind.ELIMINATORY
       ? `Sous le seuil éliminatoire de l’axe : ${weakness.thresholdValue}`
       : `Sous le seuil de vigilance : ${weakness.thresholdValue}`;
   }
 
-  protected startForFree(): void {
+  protected navigateToRegistration(): void {
     this.router.navigate(['/register']);
   }
 
-  protected discover(): void {
+  protected navigateToLanding(): void {
     this.router.navigate(['/']);
   }
 
-  protected toggle(axis: AxisType): void {
+  protected toggleAxisDetail(axis: AxisType): void {
     if (this.openAxis() === axis) {
       this.openAxis.set(null);
       return;
@@ -307,27 +307,27 @@ export class SimulationSummary {
       });
   }
 
-  protected buttonColorFor(axis: AxisType): ButtonColor {
-    return axisButtonColor(axis);
+  protected resolveAxisButtonColor(axis: AxisType): ButtonColor {
+    return resolveAxisButtonColor(axis);
   }
 
-  protected trainAxis(axis: AxisType): void {
-    this.router.navigate(targetedAxisRoute(axis));
+  protected navigateToAxisStart(axis: AxisType): void {
+    this.router.navigate(buildTargetedAxisRoute(axis));
   }
 
-  protected reviewAxis(axis: AxisType): void {
+  protected navigateToAxisCorrection(axis: AxisType): void {
     this.router.navigate([
-      ...simulationSessionRoute(this.sessionId),
+      ...buildSimulationSessionRoute(this.sessionId),
       'correction',
-      axisSlug(axis),
+      resolveAxisSlug(axis),
     ]);
   }
 
-  protected newTraining(): void {
+  protected navigateToSimulationStart(): void {
     this.router.navigate(['/entrainements/examen-blanc']);
   }
 
-  protected back(): void {
+  protected navigateToTrainings(): void {
     this.router.navigate(['/entrainements']);
   }
 }

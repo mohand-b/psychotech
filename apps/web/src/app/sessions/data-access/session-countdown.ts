@@ -3,7 +3,7 @@ interface SessionCountdown {
   fraction: number;
 }
 
-export function countdownFrom(
+export function computeCountdown(
   anchorMs: number,
   nowMs: number,
   durationSec: number,

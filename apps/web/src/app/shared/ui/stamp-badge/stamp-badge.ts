@@ -12,7 +12,7 @@ import {
   SimulationVerdict,
 } from '@psychotech/shared';
 import { SIMULATION_VERDICT_PRESENTATION } from '../simulation-verdict-presentation';
-import { verdictWordInkVar } from '../verdict-appearance';
+import { resolveVerdictWordInk } from '../verdict-appearance';
 
 @Component({
   selector: 'ui-stamp-badge',
@@ -119,6 +119,6 @@ export class StampBadge {
 
   protected readonly axisInk = computed(() => {
     const stamp = this.axisStamp();
-    return stamp ? verdictWordInkVar(stamp.word) : '';
+    return stamp ? resolveVerdictWordInk(stamp.word) : '';
   });
 }

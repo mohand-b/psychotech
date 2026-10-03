@@ -62,18 +62,18 @@ export class Contact {
     this.authenticated() ? "Retour à l'accueil" : 'Retour au site',
   );
 
-  protected readonly motif = signal<ContactMotif>(this.requestedMotif());
+  protected readonly motif = signal<ContactMotif>(this.readRequestedTopic());
 
   constructor() {
-    this.contactFacade.reset();
+    this.contactFacade.resetSendStatus();
   }
 
-  protected sendAnother(): void {
-    this.form()?.reset();
-    this.contactFacade.startAnother();
+  protected startNewContactMessage(): void {
+    this.form()?.clearMessageDraft();
+    this.contactFacade.startNewContactMessage();
   }
 
-  private requestedMotif(): ContactMotif {
+  private readRequestedTopic(): ContactMotif {
     const requested = this.route.snapshot.queryParamMap.get(
       CONTACT_MOTIF_QUERY_PARAM,
     );

@@ -17,7 +17,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
   imports: [Icon],
   templateUrl: './rule-hint.html',
   styleUrl: './rule-hint.css',
-  host: { '(document:click)': 'onDocumentClick($event)' },
+  host: { '(document:click)': 'closeHintOnOutsideClick($event)' },
 })
 export class RuleHint {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -34,7 +34,7 @@ export class RuleHint {
   private readonly open = signal(false);
   readonly hintOpen = this.open.asReadonly();
 
-  toggle(): void {
+  toggleHint(): void {
     const opening = !this.open();
     this.open.set(opening);
     if (opening) {
@@ -42,7 +42,7 @@ export class RuleHint {
     }
   }
 
-  close(returnFocus = false): void {
+  closeHint(returnFocus = false): void {
     if (!this.open()) {
       return;
     }
@@ -52,12 +52,12 @@ export class RuleHint {
     }
   }
 
-  protected onDocumentClick(event: MouseEvent): void {
+  protected closeHintOnOutsideClick(event: MouseEvent): void {
     if (
       this.open() &&
       !this.elementRef.nativeElement.contains(event.target as Node)
     ) {
-      this.close();
+      this.closeHint();
     }
   }
 }

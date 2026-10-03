@@ -59,7 +59,7 @@ const RADAR_VERTICES = [
   },
 ] as const;
 
-function orderForDisplay(
+function orderEntriesByRadarAxis(
   entries: readonly AxisRadarEntry[],
 ): readonly AxisRadarEntry[] {
   if (entries.length === 0) {
@@ -182,10 +182,10 @@ export class AxisRadar {
   readonly outlined = input(false);
 
   private readonly orderedEntries = computed(() =>
-    orderForDisplay(this.entries()),
+    orderEntriesByRadarAxis(this.entries()),
   );
   private readonly orderedBaseline = computed(() =>
-    orderForDisplay(this.baseline()),
+    orderEntriesByRadarAxis(this.baseline()),
   );
 
   private readonly document = inject(DOCUMENT);
@@ -199,35 +199,41 @@ export class AxisRadar {
     effect(() => {
       const target = this.orderedEntries().map((entry) => entry.score);
       const drawn = untracked(this.drawnScores);
-      if (drawn.length !== target.length || !this.canMorph()) {
-        this.settleOn(target);
+      if (drawn.length !== target.length || !this.canMorphScores()) {
+        this.drawScoresInstantly(target);
         return;
       }
       if (target.every((score, index) => score === drawn[index])) {
         return;
       }
-      this.morph(drawn, target);
+      this.morphScores(drawn, target);
     });
-    this.settleWhenDocumentHidden();
+    this.drawScoresInstantlyWhenHidden();
     this.destroyRef.onDestroy(() => this.stopMorph?.());
   }
 
-  private settleWhenDocumentHidden(): void {
+  private drawScoresInstantlyWhenHidden(): void {
     if (typeof this.document.addEventListener !== 'function') {
       return;
     }
-    const onVisibilityChange = (): void => {
+    const drawPendingScoresIfHidden = (): void => {
       if (this.document.visibilityState === 'hidden' && this.pendingScores) {
-        this.settleOn(this.pendingScores);
+        this.drawScoresInstantly(this.pendingScores);
       }
     };
-    this.document.addEventListener('visibilitychange', onVisibilityChange);
+    this.document.addEventListener(
+      'visibilitychange',
+      drawPendingScoresIfHidden,
+    );
     this.destroyRef.onDestroy(() =>
-      this.document.removeEventListener('visibilitychange', onVisibilityChange),
+      this.document.removeEventListener(
+        'visibilitychange',
+        drawPendingScoresIfHidden,
+      ),
     );
   }
 
-  private canMorph(): boolean {
+  private canMorphScores(): boolean {
     const view = this.document.defaultView;
     if (typeof view?.matchMedia !== 'function') {
       return false;
@@ -238,14 +244,14 @@ export class AxisRadar {
     return !view.matchMedia(REDUCED_MOTION_QUERY).matches;
   }
 
-  private settleOn(scores: number[]): void {
+  private drawScoresInstantly(scores: number[]): void {
     this.stopMorph?.();
     this.stopMorph = null;
     this.pendingScores = null;
     this.drawnScores.set(scores);
   }
 
-  private morph(from: number[], to: number[]): void {
+  private morphScores(from: number[], to: number[]): void {
     this.stopMorph?.();
     this.pendingScores = to;
     try {
@@ -256,11 +262,11 @@ export class AxisRadar {
           this.drawnScores.set(
             from.map((score, index) => score + (to[index] - score) * fraction),
           ),
-        onComplete: () => this.settleOn(to),
+        onComplete: () => this.drawScoresInstantly(to),
       });
       this.stopMorph = () => controls.stop();
     } catch {
-      this.settleOn(to);
+      this.drawScoresInstantly(to);
     }
   }
 
@@ -271,38 +277,47 @@ export class AxisRadar {
   protected readonly labels = RADAR_VERTICES;
 
   protected readonly meshPolygons = MESH_LEVELS.map((level) =>
-    polygonPoints((index) => pointAt(index, level)),
+    formatRadarPolygonPoints((index) => computeRadarPoint(index, level)),
   );
 
   protected readonly rays = Array.from({ length: 5 }, (_, index) =>
-    pointAt(index, 1),
+    computeRadarPoint(index, 1),
   );
 
   protected readonly areaPoints = computed(() =>
-    polygonPoints((index) =>
-      pointAt(index, this.builtFraction(this.drawnScores()[index] ?? 0, index)),
+    formatRadarPolygonPoints((index) =>
+      computeRadarPoint(
+        index,
+        this.computeVertexRadiusFraction(this.drawnScores()[index] ?? 0, index),
+      ),
     ),
   );
 
   protected readonly baselinePoints = computed(() =>
     this.orderedBaseline().length === 0
       ? null
-      : polygonPoints((index) =>
-          pointAt(index, (this.orderedBaseline()[index]?.score ?? 0) / 100),
+      : formatRadarPolygonPoints((index) =>
+          computeRadarPoint(
+            index,
+            (this.orderedBaseline()[index]?.score ?? 0) / 100,
+          ),
         ),
   );
 
   protected readonly vertices = computed<RadarVertex[]>(() =>
     this.orderedEntries().map((entry, index) => ({
-      ...pointAt(
+      ...computeRadarPoint(
         index,
-        this.builtFraction(this.drawnScores()[index] ?? entry.score, index),
+        this.computeVertexRadiusFraction(
+          this.drawnScores()[index] ?? entry.score,
+          index,
+        ),
       ),
       colorVar: AXIS_PRESENTATION[entry.axis].plainVar,
     })),
   );
 
-  private builtFraction(score: number, index: number): number {
+  private computeVertexRadiusFraction(score: number, index: number): number {
     const target = score / 100;
     const raw = this.progress();
     if (raw >= 1) {
@@ -318,7 +333,7 @@ export class AxisRadar {
   }
 }
 
-function pointAt(index: number, fraction: number): RadarPoint {
+function computeRadarPoint(index: number, fraction: number): RadarPoint {
   const angle = (index * 2 * Math.PI) / 5;
   return {
     x: roundToTenth(CENTER_X + RADIUS * fraction * Math.sin(angle)),
@@ -326,7 +341,9 @@ function pointAt(index: number, fraction: number): RadarPoint {
   };
 }
 
-function polygonPoints(pointFor: (index: number) => RadarPoint): string {
+function formatRadarPolygonPoints(
+  pointFor: (index: number) => RadarPoint,
+): string {
   return Array.from({ length: 5 }, (_, index) => pointFor(index))
     .map(({ x, y }) => `${x},${y}`)
     .join(' ');

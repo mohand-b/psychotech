@@ -12,11 +12,11 @@ export const AXIS_SLUGS: Record<AxisType, string> = {
   [AxisType.SPATIAL]: 'spatial',
 };
 
-export function axisSlug(axis: AxisType): string {
+export function resolveAxisSlug(axis: AxisType): string {
   return AXIS_SLUGS[axis];
 }
 
-export function axisFromSlug(slug: string | null): AxisType | null {
+export function parseAxisSlug(slug: string | null): AxisType | null {
   if (!slug) {
     return null;
   }

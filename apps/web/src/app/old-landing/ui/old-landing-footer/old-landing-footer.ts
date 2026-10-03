@@ -8,7 +8,7 @@ import {
 import { LEGAL_DOCUMENTS } from '../../../shared/data/legal-documents';
 import {
   CONTACT_ROUTE,
-  contactQueryParams,
+  buildContactQueryParams,
 } from '../../../shared/util/contact-link';
 import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 
@@ -192,8 +192,10 @@ export class OldLandingFooter {
   protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
   protected readonly contactRoute = CONTACT_ROUTE;
   protected readonly nouveautesRoute = NOUVEAUTES_ROUTE;
-  protected readonly suggestionParams = contactQueryParams({
+  protected readonly suggestionParams = buildContactQueryParams({
     motif: 'suggestion',
   });
-  protected readonly problemParams = contactQueryParams({ motif: 'probleme' });
+  protected readonly problemParams = buildContactQueryParams({
+    motif: 'probleme',
+  });
 }

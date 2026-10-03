@@ -14,13 +14,13 @@ const BAR_MIN_HEIGHT_PX = 5;
           <div class="chart__slot">
             <span
               class="chart__value t-mono"
-              [class.chart__value--weak]="isWeak(reliability)"
+              [class.chart__value--weak]="isWeakReliability(reliability)"
               >{{ reliability }}%</span
             >
             <span
               class="chart__bar"
-              [class.chart__bar--weak]="isWeak(reliability)"
-              [style.height.px]="barHeight(reliability)"
+              [class.chart__bar--weak]="isWeakReliability(reliability)"
+              [style.height.px]="computeBarHeightPx(reliability)"
             ></span>
           </div>
         }
@@ -97,11 +97,11 @@ const BAR_MIN_HEIGHT_PX = 5;
 export class MemoryReliabilityChart {
   readonly reliabilities = input.required<number[]>();
 
-  protected isWeak(reliability: number): boolean {
+  protected isWeakReliability(reliability: number): boolean {
     return reliability < WEAK_POSITION_THRESHOLD;
   }
 
-  protected barHeight(reliability: number): number {
+  protected computeBarHeightPx(reliability: number): number {
     return Math.max(BAR_MIN_HEIGHT_PX, (reliability / 100) * BAR_MAX_HEIGHT_PX);
   }
 }

@@ -15,7 +15,7 @@ export class BillingApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  config(): Observable<BillingConfigDto> {
+  fetchBillingConfig(): Observable<BillingConfigDto> {
     return this.http.get<BillingConfigDto>(`${this.baseUrl}/billing/config`);
   }
 
@@ -27,7 +27,7 @@ export class BillingApi {
     );
   }
 
-  checkoutStatus(sessionId: string): Observable<PackCheckoutStatusDto> {
+  fetchCheckoutStatus(sessionId: string): Observable<PackCheckoutStatusDto> {
     return this.http.get<PackCheckoutStatusDto>(
       `${this.baseUrl}/billing/pack-checkout/${sessionId}`,
     );

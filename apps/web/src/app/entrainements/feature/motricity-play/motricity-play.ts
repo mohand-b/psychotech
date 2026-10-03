@@ -28,7 +28,7 @@ import {
   motricityCursorZone,
 } from '@psychotech/shared';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
-import { crankSmoothedSpeed } from '../../../shared/util/gamepad-logic';
+import { smoothCrankSpeed } from '../../../shared/util/gamepad-logic';
 import { Crank } from '../../../shared/ui/crank/crank';
 import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairing';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
@@ -37,10 +37,10 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import {
   MOTRICITY_BADGE_HEIGHT,
   MOTRICITY_BADGE_WIDTH,
-  motricityEndBadgePlacement,
-  motricityStartBadgePlacement,
+  placeMotricityEndBadge,
+  placeMotricityStartBadge,
 } from '../../../shared/ui/motricity/motricity-badge-placement';
-import { formatPoints } from '../../../shared/ui/motricity/svg-points';
+import { formatSvgPoints } from '../../../shared/ui/motricity/svg-points';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
@@ -49,13 +49,13 @@ import { LeavablePlay } from '../play-leave.guard';
 import {
   confirmExitOnCloseRequest,
   loadPlayableSession,
-  playLeaveControl,
+  createPlayLeaveControl,
 } from '../play-session';
 import {
   MotricityLiveState,
-  advanceMotricityLive,
+  advanceMotricityLiveState,
   createMotricityLiveState,
-  liveMajorErrors,
+  countLiveMajorErrors,
 } from './motricity-live';
 
 type MotricityPhase = 'PLAYING' | 'TRANSITION';
@@ -79,8 +79,8 @@ const ARC_COMPLETION_TOLERANCE = 0.5;
   templateUrl: './motricity-play.html',
   styleUrl: './motricity-play.css',
   host: {
-    '(document:keydown)': 'onKeydown($event)',
-    '(window:beforeunload)': 'onBeforeUnload($event)',
+    '(document:keydown)': 'closeExitConfirmationOnEscape($event)',
+    '(window:beforeunload)': 'blockUnloadDuringPlay($event)',
   },
 })
 export class MotricityPlay implements LeavablePlay {
@@ -96,7 +96,9 @@ export class MotricityPlay implements LeavablePlay {
   protected readonly axis = AxisType.MOTOR_SKILLS;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MOTOR_SKILLS];
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
-  private readonly training = this.facade.trainingConfig(AxisType.MOTOR_SKILLS);
+  private readonly training = this.facade.getTrainingConfig(
+    AxisType.MOTOR_SKILLS,
+  );
 
   protected readonly canvasWidth = MOTRICITY_CANVAS_WIDTH;
   protected readonly canvasHeight = MOTRICITY_CANVAS_HEIGHT;
@@ -153,27 +155,27 @@ export class MotricityPlay implements LeavablePlay {
   );
   protected readonly startBadge = computed(() => {
     const course = this.course();
-    return course ? motricityStartBadgePlacement(course) : { x: 0, y: 0 };
+    return course ? placeMotricityStartBadge(course) : { x: 0, y: 0 };
   });
   protected readonly endBadge = computed(() => {
     const course = this.course();
-    return course ? motricityEndBadgePlacement(course) : { x: 0, y: 0 };
+    return course ? placeMotricityEndBadge(course) : { x: 0, y: 0 };
   });
   protected readonly polygonPoints = computed(() => {
     const course = this.course();
-    return course ? formatPoints(course.polygon) : '';
+    return course ? formatSvgPoints(course.polygon) : '';
   });
   protected readonly leftSidePoints = computed(() => {
     const course = this.course();
-    return course ? formatPoints(course.leftSide) : '';
+    return course ? formatSvgPoints(course.leftSide) : '';
   });
   protected readonly rightSidePoints = computed(() => {
     const course = this.course();
-    return course ? formatPoints(course.rightSide) : '';
+    return course ? formatSvgPoints(course.rightSide) : '';
   });
   protected readonly centerlinePoints = computed(() => {
     const course = this.course();
-    return course ? formatPoints(course.centerline) : '';
+    return course ? formatSvgPoints(course.centerline) : '';
   });
 
   private live: MotricityLiveState = createMotricityLiveState();
@@ -186,7 +188,7 @@ export class MotricityPlay implements LeavablePlay {
   private lastFrameTs: number | null = null;
   private transitionTimerId: number | null = null;
   private hasSubmitted = false;
-  private readonly leave = playLeaveControl(
+  private readonly leave = createPlayLeaveControl(
     this.loaded,
     () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
@@ -199,10 +201,10 @@ export class MotricityPlay implements LeavablePlay {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.stopLoop();
+      this.stopFrameLoop();
       this.clearTransitionTimer();
       this.facade.setPerExerciseCountdown(null);
-      this.gamepad.disconnect();
+      this.gamepad.disconnectGamepad();
     });
     confirmExitOnCloseRequest(
       () => !this.hasSubmitted && this.loaded(),
@@ -215,16 +217,16 @@ export class MotricityPlay implements LeavablePlay {
     return this.leave.confirmLeave();
   }
 
-  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+  protected blockUnloadDuringPlay(event: BeforeUnloadEvent): void {
     this.leave.blockUnload(event);
   }
 
-  protected quit(): void {
-    this.leave.accept();
+  protected quitToDashboard(): void {
+    this.leave.acceptLeave();
     this.router.navigate(['/dashboard']);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected closeExitConfirmationOnEscape(event: KeyboardEvent): void {
     if (!this.loaded()) {
       return;
     }
@@ -239,13 +241,13 @@ export class MotricityPlay implements LeavablePlay {
 
   private requestPairing(): void {
     if (this.tutorial) {
-      this.gamepad.pairTutorial();
+      this.gamepad.pairTutorialGamepad();
     } else {
-      this.gamepad.pair(this.sessionId);
+      this.gamepad.pairSessionGamepad(this.sessionId);
     }
   }
 
-  protected onCrankRotate(axis: 'x' | 'y', deltaRad: number): void {
+  protected accumulateCrankRotation(axis: 'x' | 'y', deltaRad: number): void {
     this.usedTouchCranks = true;
     if (axis === 'x') {
       this.crankPendingXRad += deltaRad;
@@ -261,13 +263,13 @@ export class MotricityPlay implements LeavablePlay {
     }
   }
 
-  protected onCountdownFinished(): void {
+  protected startPlayAfterCountdown(): void {
     if (!this.countingDown()) {
       return;
     }
     this.countingDown.set(false);
     this.beginCourse(0);
-    this.startLoop();
+    this.startFrameLoop();
   }
 
   private beginCourse(index: number): void {
@@ -295,22 +297,22 @@ export class MotricityPlay implements LeavablePlay {
     this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
   }
 
-  private startLoop(): void {
-    const tick = (timestamp: number) => {
-      this.rafId = requestAnimationFrame(tick);
-      this.step(timestamp);
+  private startFrameLoop(): void {
+    const loopCourseFrame = (timestamp: number) => {
+      this.rafId = requestAnimationFrame(loopCourseFrame);
+      this.advanceCourseFrame(timestamp);
     };
-    this.rafId = requestAnimationFrame(tick);
+    this.rafId = requestAnimationFrame(loopCourseFrame);
   }
 
-  private stopLoop(): void {
+  private stopFrameLoop(): void {
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
   }
 
-  private step(timestamp: number): void {
+  private advanceCourseFrame(timestamp: number): void {
     const deltaMs =
       this.lastFrameTs === null
         ? 0
@@ -322,7 +324,7 @@ export class MotricityPlay implements LeavablePlay {
     }
     if (
       this.gamepadExclusive() &&
-      this.gamepad.gamepadInputLost(performance.now())
+      this.gamepad.isGamepadInputLost(performance.now())
     ) {
       this.suspended.set(true);
       return;
@@ -330,7 +332,7 @@ export class MotricityPlay implements LeavablePlay {
     this.suspended.set(false);
 
     this.updateCrankSpeeds(deltaMs);
-    this.move(course, deltaMs);
+    this.moveCursor(course, deltaMs);
     const zone = motricityCursorZone(course, this.position);
     const nextCursorState: CursorState =
       zone === 'GARAGE' && !this.live.started
@@ -352,7 +354,7 @@ export class MotricityPlay implements LeavablePlay {
       }
     }
     this.previousCursorState = nextCursorState;
-    this.live = advanceMotricityLive(this.live, zone, deltaMs);
+    this.live = advanceMotricityLiveState(this.live, zone, deltaMs);
     if (!this.live.started) {
       this.facade.setPerExerciseCountdown(this.training.secondsPerCourse, 1);
       return;
@@ -369,7 +371,7 @@ export class MotricityPlay implements LeavablePlay {
       this.lastSampleT = activeMs;
     }
     this.minorErrors.set(this.live.minorErrors);
-    this.majorErrors.set(liveMajorErrors(this.live));
+    this.majorErrors.set(countLiveMajorErrors(this.live));
     this.facade.setPerExerciseCountdown(
       Math.max(0, Math.ceil((limitMs - activeMs) / 1000)),
       Math.max(0, 1 - activeMs / limitMs),
@@ -383,7 +385,7 @@ export class MotricityPlay implements LeavablePlay {
     );
     if (arc > this.maxArc) {
       this.maxArc = arc;
-      this.traveledPoints.set(this.traveledPath(course, arc));
+      this.traveledPoints.set(this.buildTraveledPathPoints(course, arc));
     }
     const crossed =
       this.maxArc >= course.totalLength - ARC_COMPLETION_TOLERANCE;
@@ -392,7 +394,10 @@ export class MotricityPlay implements LeavablePlay {
     }
   }
 
-  private traveledPath(course: MotricityCourse, arc: number): string {
+  private buildTraveledPathPoints(
+    course: MotricityCourse,
+    arc: number,
+  ): string {
     if (arc <= 0) {
       return '';
     }
@@ -411,7 +416,7 @@ export class MotricityPlay implements LeavablePlay {
         break;
       }
     }
-    return formatPoints(points);
+    return formatSvgPoints(points);
   }
 
   private updateCrankSpeeds(deltaMs: number): void {
@@ -420,16 +425,16 @@ export class MotricityPlay implements LeavablePlay {
     }
     const dtSec = deltaMs / 1000;
     this.crankSpeedX.set(
-      crankSmoothedSpeed(this.crankSpeedX(), this.crankPendingXRad / dtSec),
+      smoothCrankSpeed(this.crankSpeedX(), this.crankPendingXRad / dtSec),
     );
     this.crankSpeedY.set(
-      crankSmoothedSpeed(this.crankSpeedY(), this.crankPendingYRad / dtSec),
+      smoothCrankSpeed(this.crankSpeedY(), this.crankPendingYRad / dtSec),
     );
     this.crankPendingXRad = 0;
     this.crankPendingYRad = 0;
   }
 
-  private move(course: MotricityCourse, deltaMs: number): void {
+  private moveCursor(course: MotricityCourse, deltaMs: number): void {
     if (this.confirmingExit()) {
       return;
     }
@@ -467,13 +472,13 @@ export class MotricityPlay implements LeavablePlay {
       MOTRICITY_CANVAS_HEIGHT - MOTRICITY_CURSOR_RADIUS,
       Math.max(MOTRICITY_CURSOR_RADIUS, y),
     );
-    ({ x, y } = this.resolveGarageWalls(course, x, y));
+    ({ x, y } = this.resolveGarageWallCollisions(course, x, y));
     this.position = { x, y };
     this.cursorX.set(x);
     this.cursorY.set(y);
   }
 
-  private resolveGarageWalls(
+  private resolveGarageWallCollisions(
     course: MotricityCourse,
     x: number,
     y: number,
@@ -515,7 +520,7 @@ export class MotricityPlay implements LeavablePlay {
     if (this.trajectories.some((trajectory) => trajectory.index === index)) {
       return;
     }
-    const latency = this.gamepad.courseLatency();
+    const latency = this.gamepad.computeCourseLatency();
     this.trajectories.push({
       index,
       samples: [
@@ -542,7 +547,7 @@ export class MotricityPlay implements LeavablePlay {
       }, 1000);
       return;
     }
-    this.submit();
+    this.submitAnswers();
   }
 
   private clearTransitionTimer(): void {
@@ -552,12 +557,12 @@ export class MotricityPlay implements LeavablePlay {
     }
   }
 
-  private submit(): void {
+  private submitAnswers(): void {
     if (this.hasSubmitted) {
       return;
     }
     this.hasSubmitted = true;
-    this.stopLoop();
+    this.stopFrameLoop();
     this.facade.setPerExerciseCountdown(null);
     const controlModality = this.gamepadExclusive()
       ? ControlModality.PHONE_GAMEPAD
@@ -566,10 +571,10 @@ export class MotricityPlay implements LeavablePlay {
         : ControlModality.KEYBOARD;
     this.gamepad.sendPhase('FINISHED');
     const courses = [...this.trajectories];
-    this.resultWait.submit({
+    this.resultWait.submitAxisCompletion({
       axis: this.axis,
       complete: () =>
-        this.facade.completeTargetedMotricity(courses, controlModality),
+        this.facade.completeMotricityAxis(courses, controlModality),
     });
   }
 }

@@ -1,6 +1,6 @@
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function emailErrorMessage(email: string): string | null {
+export function describeEmailError(email: string): string | null {
   if (email.trim() === '') {
     return 'Adresse email requise';
   }

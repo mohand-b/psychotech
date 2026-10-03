@@ -15,7 +15,7 @@ import {
 import {
   LEGAL_DOCUMENTS,
   LegalDocumentId,
-  legalDocumentById,
+  getLegalDocument,
   legalDocumentHasTodo,
 } from '../../../shared/data/legal-documents';
 import { LegalDocumentView } from '../../../shared/ui/legal-document/legal-document';
@@ -41,7 +41,7 @@ export class LegalPage {
   protected readonly copyrightYear = SITE_COPYRIGHT_YEAR;
 
   protected readonly document = computed(() =>
-    legalDocumentById(this.routeData()['documentId'] as LegalDocumentId),
+    getLegalDocument(this.routeData()['documentId'] as LegalDocumentId),
   );
 
   protected readonly showTodoNotice = computed(() =>

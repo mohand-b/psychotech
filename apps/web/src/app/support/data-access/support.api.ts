@@ -13,20 +13,24 @@ export class SupportApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  formToken(): Observable<ContactFormTokenDto> {
+  fetchContactFormToken(): Observable<ContactFormTokenDto> {
     return this.http.get<ContactFormTokenDto>(
       `${this.baseUrl}/support/contact/token`,
     );
   }
 
-  submitAnonymously(message: SubmitContactDto): Observable<ContactReceiptDto> {
+  submitContactAnonymously(
+    message: SubmitContactDto,
+  ): Observable<ContactReceiptDto> {
     return this.http.post<ContactReceiptDto>(
       `${this.baseUrl}/support/contact`,
       message,
     );
   }
 
-  submitFromAccount(message: SubmitContactDto): Observable<ContactReceiptDto> {
+  submitContactFromAccount(
+    message: SubmitContactDto,
+  ): Observable<ContactReceiptDto> {
     return this.http.post<ContactReceiptDto>(
       `${this.baseUrl}/support/contact/account`,
       message,

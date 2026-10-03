@@ -6,10 +6,10 @@
     [currentIndex]="currentIndex()"
     [isFirst]="isFirst()"
     [isLast]="isLast()"
-    (navigate)="goTo($event)"
-    (previous)="previous()"
-    (next)="next()"
-    (backToResult)="backToResult()"
+    (navigate)="navigateToItem($event)"
+    (previous)="navigateToPreviousItem()"
+    (next)="navigateToNextItem()"
+    (backToResult)="returnToResult()"
   >
     <header class="memo__card-head">
       <span

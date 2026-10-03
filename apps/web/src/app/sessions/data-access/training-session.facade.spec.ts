@@ -62,24 +62,24 @@ interface CompletionCase {
 const COMPLETION_CASES: CompletionCase[] = [
   {
     axis: AxisType.LOGIC,
-    complete: (facade) => facade.completeTargeted([]),
+    complete: (facade) => facade.completeLogicAxis([]),
   },
   {
     axis: AxisType.MEMORY,
-    complete: (facade) => facade.completeTargetedMemory([]),
+    complete: (facade) => facade.completeMemoryAxis([]),
   },
   {
     axis: AxisType.VISUAL_DISCRIMINATION,
-    complete: (facade) => facade.completeTargetedDiscrimination([], PLAYED_MS),
+    complete: (facade) => facade.completeDiscriminationAxis([], PLAYED_MS),
   },
   {
     axis: AxisType.MOTOR_SKILLS,
     complete: (facade) =>
-      facade.completeTargetedMotricity([], ControlModality.KEYBOARD),
+      facade.completeMotricityAxis([], ControlModality.KEYBOARD),
   },
   {
     axis: AxisType.REACTIVITY,
-    complete: (facade) => facade.completeTargetedReactivity([], [], PLAYED_MS),
+    complete: (facade) => facade.completeReactivityAxis([], [], PLAYED_MS),
   },
 ];
 
@@ -198,10 +198,10 @@ function globalDurationSec(axis: AxisType): number {
 
 describe('TrainingSessionFacade', () => {
   let api: {
-    start: ReturnType<typeof vi.fn>;
-    get: ReturnType<typeof vi.fn>;
-    completeTargeted: ReturnType<typeof vi.fn>;
-    targetedResult: ReturnType<typeof vi.fn>;
+    startSession: ReturnType<typeof vi.fn>;
+    fetchSession: ReturnType<typeof vi.fn>;
+    completeAxis: ReturnType<typeof vi.fn>;
+    fetchTargetedAxisResult: ReturnType<typeof vi.fn>;
   };
   let facade: TrainingSessionFacade;
   let store: InstanceType<typeof TrainingSessionStore>;
@@ -210,10 +210,10 @@ describe('TrainingSessionFacade', () => {
     vi.useFakeTimers();
     vi.setSystemTime(INSTALLED_AT_MS);
     api = {
-      start: vi.fn(),
-      get: vi.fn(),
-      completeTargeted: vi.fn(),
-      targetedResult: vi.fn(),
+      startSession: vi.fn(),
+      fetchSession: vi.fn(),
+      completeAxis: vi.fn(),
+      fetchTargetedAxisResult: vi.fn(),
     };
     TestBed.configureTestingModule({
       providers: [
@@ -229,14 +229,14 @@ describe('TrainingSessionFacade', () => {
   });
 
   afterEach(() => {
-    facade.clear();
+    facade.clearSession();
     vi.useRealTimers();
   });
 
   function install(session: SessionDto): void {
-    api.get.mockReturnValueOnce(of(session));
-    facade.load(session.id).subscribe();
-    api.get.mockClear();
+    api.fetchSession.mockReturnValueOnce(of(session));
+    facade.loadSession(session.id).subscribe();
+    api.fetchSession.mockClear();
   }
 
   describe('completion answered with a 409', () => {
@@ -244,15 +244,15 @@ describe('TrainingSessionFacade', () => {
       const running = targetedSessionOn(AxisType.LOGIC);
       install(running);
       const recorded = completedTargeted(running);
-      api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-      api.get.mockReturnValueOnce(of(recorded));
+      api.completeAxis.mockReturnValueOnce(throwError(conflict));
+      api.fetchSession.mockReturnValueOnce(of(recorded));
 
-      const outcome = observe(facade.completeTargeted([]));
+      const outcome = observe(facade.completeLogicAxis([]));
 
       expect(outcome.error).toBeNull();
       expect(outcome.value).toBe(recorded);
-      expect(api.get).toHaveBeenCalledTimes(1);
-      expect(api.get).toHaveBeenCalledWith(SESSION_ID);
+      expect(api.fetchSession).toHaveBeenCalledTimes(1);
+      expect(api.fetchSession).toHaveBeenCalledWith(SESSION_ID);
       expect(facade.session()).toBe(recorded);
       expect(facade.axis()).toBeNull();
       expect(vi.getTimerCount()).toBe(0);
@@ -264,12 +264,10 @@ describe('TrainingSessionFacade', () => {
       const advanced = withRecordedAxes({ ...running, currentAxisIndex: 1 }, [
         AxisType.VISUAL_DISCRIMINATION,
       ]);
-      api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-      api.get.mockReturnValueOnce(of(advanced));
+      api.completeAxis.mockReturnValueOnce(throwError(conflict));
+      api.fetchSession.mockReturnValueOnce(of(advanced));
 
-      const outcome = observe(
-        facade.completeTargetedDiscrimination([], PLAYED_MS),
-      );
+      const outcome = observe(facade.completeDiscriminationAxis([], PLAYED_MS));
 
       expect(outcome.error).toBeNull();
       expect(outcome.value).toBe(advanced);
@@ -282,14 +280,14 @@ describe('TrainingSessionFacade', () => {
       const running = targetedSessionOn(AxisType.MEMORY);
       install(running);
       const original = conflict();
-      api.completeTargeted.mockReturnValueOnce(throwError(() => original));
-      api.get.mockReturnValueOnce(of({ ...running }));
+      api.completeAxis.mockReturnValueOnce(throwError(() => original));
+      api.fetchSession.mockReturnValueOnce(of({ ...running }));
 
-      const outcome = observe(facade.completeTargetedMemory([]));
+      const outcome = observe(facade.completeMemoryAxis([]));
 
       expect(outcome.value).toBeNull();
       expect(outcome.error).toBe(original);
-      expect(api.get).toHaveBeenCalledTimes(1);
+      expect(api.fetchSession).toHaveBeenCalledTimes(1);
       expect(facade.session()).toBe(running);
       expect(facade.axis()).toBe(AxisType.MEMORY);
       expect(vi.getTimerCount()).toBe(1);
@@ -301,10 +299,10 @@ describe('TrainingSessionFacade', () => {
         const running = targetedSessionOn(AxisType.MEMORY);
         install(running);
         const closed = inStatus({ ...running }, status);
-        api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-        api.get.mockReturnValueOnce(of(closed));
+        api.completeAxis.mockReturnValueOnce(throwError(conflict));
+        api.fetchSession.mockReturnValueOnce(of(closed));
 
-        const outcome = observe(facade.completeTargetedMemory([]));
+        const outcome = observe(facade.completeMemoryAxis([]));
 
         expect(outcome.value).toBeNull();
         expect(outcome.error).toBeInstanceOf(SessionNoLongerActiveError);
@@ -315,22 +313,22 @@ describe('TrainingSessionFacade', () => {
     it('replays the same session and axis when the user retries after a rethrown 409', () => {
       const running = fullSessionOn(AxisType.MOTOR_SKILLS);
       install(running);
-      api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-      api.get.mockReturnValueOnce(of({ ...running }));
+      api.completeAxis.mockReturnValueOnce(throwError(conflict));
+      api.fetchSession.mockReturnValueOnce(of({ ...running }));
       const complete = (): Observable<SessionDto> =>
-        facade.completeTargetedMotricity([], ControlModality.KEYBOARD);
+        facade.completeMotricityAxis([], ControlModality.KEYBOARD);
       observe(complete());
       const advanced = withRecordedAxes(
         { ...running, currentAxisIndex: running.currentAxisIndex + 1 },
         [AxisType.MOTOR_SKILLS],
       );
-      api.completeTargeted.mockReturnValueOnce(of(advanced));
+      api.completeAxis.mockReturnValueOnce(of(advanced));
 
       const outcome = observe(complete());
 
       expect(outcome.value).toBe(advanced);
-      expect(api.completeTargeted).toHaveBeenCalledTimes(2);
-      expect(api.completeTargeted).toHaveBeenLastCalledWith(
+      expect(api.completeAxis).toHaveBeenCalledTimes(2);
+      expect(api.completeAxis).toHaveBeenLastCalledWith(
         SESSION_ID,
         AxisType.MOTOR_SKILLS,
         expect.objectContaining({ axis: AxisType.MOTOR_SKILLS }),
@@ -344,8 +342,8 @@ describe('TrainingSessionFacade', () => {
         const running = fullSessionOn(axis);
         install(running);
         const original = conflict();
-        api.completeTargeted.mockReturnValueOnce(throwError(() => original));
-        api.get.mockReturnValueOnce(
+        api.completeAxis.mockReturnValueOnce(throwError(() => original));
+        api.fetchSession.mockReturnValueOnce(
           of(
             withRecordedAxes(
               running,
@@ -356,7 +354,7 @@ describe('TrainingSessionFacade', () => {
 
         const outcome = observe(complete(facade));
 
-        expect(api.completeTargeted).toHaveBeenCalledWith(
+        expect(api.completeAxis).toHaveBeenCalledWith(
           SESSION_ID,
           axis,
           expect.objectContaining({ axis }),
@@ -375,8 +373,8 @@ describe('TrainingSessionFacade', () => {
         });
         install(running);
         const recorded = withRecordedAxes(running, [axis]);
-        api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-        api.get.mockReturnValueOnce(of(recorded));
+        api.completeAxis.mockReturnValueOnce(throwError(conflict));
+        api.fetchSession.mockReturnValueOnce(of(recorded));
 
         const outcome = observe(complete(facade));
 
@@ -390,9 +388,9 @@ describe('TrainingSessionFacade', () => {
       const running = targetedSessionOn(AxisType.REACTIVITY);
       install(running);
       const complete = (): Observable<SessionDto> =>
-        facade.completeTargetedReactivity([], [], PLAYED_MS);
-      api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-      api.get.mockReturnValueOnce(
+        facade.completeReactivityAxis([], [], PLAYED_MS);
+      api.completeAxis.mockReturnValueOnce(throwError(conflict));
+      api.fetchSession.mockReturnValueOnce(
         throwError(() => new HttpErrorResponse({ status: OFFLINE_STATUS })),
       );
 
@@ -403,8 +401,8 @@ describe('TrainingSessionFacade', () => {
       expect(facade.session()).toBe(running);
 
       const recorded = completedTargeted(running);
-      api.completeTargeted.mockReturnValueOnce(throwError(conflict));
-      api.get.mockReturnValueOnce(of(recorded));
+      api.completeAxis.mockReturnValueOnce(throwError(conflict));
+      api.fetchSession.mockReturnValueOnce(of(recorded));
 
       const recovered = observe(complete());
 
@@ -421,13 +419,13 @@ describe('TrainingSessionFacade', () => {
         const running = targetedSessionOn(AxisType.LOGIC);
         install(running);
         const failure = new HttpErrorResponse({ status });
-        api.completeTargeted.mockReturnValueOnce(throwError(() => failure));
+        api.completeAxis.mockReturnValueOnce(throwError(() => failure));
 
-        const outcome = observe(facade.completeTargeted([]));
+        const outcome = observe(facade.completeLogicAxis([]));
 
         expect(outcome.value).toBeNull();
         expect(outcome.error).toBe(failure);
-        expect(api.get).not.toHaveBeenCalled();
+        expect(api.fetchSession).not.toHaveBeenCalled();
         expect(facade.session()).toBe(running);
       },
     );
@@ -435,12 +433,12 @@ describe('TrainingSessionFacade', () => {
     it('rethrows a non-HTTP failure without fetching the session', () => {
       install(targetedSessionOn(AxisType.LOGIC));
       const failure = new Error('serialization failed');
-      api.completeTargeted.mockReturnValueOnce(throwError(() => failure));
+      api.completeAxis.mockReturnValueOnce(throwError(() => failure));
 
-      const outcome = observe(facade.completeTargeted([]));
+      const outcome = observe(facade.completeLogicAxis([]));
 
       expect(outcome.error).toBe(failure);
-      expect(api.get).not.toHaveBeenCalled();
+      expect(api.fetchSession).not.toHaveBeenCalled();
     });
   });
 
@@ -452,8 +450,8 @@ describe('TrainingSessionFacade', () => {
 
         expect(outcome.value).toBeNull();
         expect(outcome.error).toBeInstanceOf(Error);
-        expect(api.completeTargeted).not.toHaveBeenCalled();
-        expect(api.get).not.toHaveBeenCalled();
+        expect(api.completeAxis).not.toHaveBeenCalled();
+        expect(api.fetchSession).not.toHaveBeenCalled();
       },
     );
   });
@@ -494,8 +492,8 @@ describe('TrainingSessionFacade', () => {
       const started = buildSession(FULL_SESSION_AXIS_ORDER);
       const [firstAxis] = FULL_SESSION_AXIS_ORDER;
       const durationSec = globalDurationSec(firstAxis);
-      api.start.mockReturnValueOnce(of(started));
-      facade.startFull().subscribe();
+      api.startSession.mockReturnValueOnce(of(started));
+      facade.startFullSession().subscribe();
       expect(facade.axis()).toBe(firstAxis);
       expireDuringBriefing(durationSec);
 
@@ -540,7 +538,7 @@ describe('TrainingSessionFacade', () => {
       expect(vi.getTimerCount()).toBe(0);
 
       install(targetedSessionOn(AxisType.LOGIC));
-      facade.clear();
+      facade.clearSession();
       facade.rebaseClock();
 
       expect(vi.getTimerCount()).toBe(0);
@@ -551,8 +549,8 @@ describe('TrainingSessionFacade', () => {
       const running = targetedSessionOn(AxisType.REACTIVITY);
       install(running);
       expireDuringBriefing(globalDurationSec(AxisType.REACTIVITY));
-      api.completeTargeted.mockReturnValueOnce(of(completedTargeted(running)));
-      facade.completeTargetedReactivity([], [], PLAYED_MS).subscribe();
+      api.completeAxis.mockReturnValueOnce(of(completedTargeted(running)));
+      facade.completeReactivityAxis([], [], PLAYED_MS).subscribe();
 
       facade.rebaseClock();
 

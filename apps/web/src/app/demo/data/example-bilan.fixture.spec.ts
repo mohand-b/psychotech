@@ -6,12 +6,12 @@ import {
   buildSimulationStamp,
 } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
-import { buildExampleBilan } from './example-bilan.fixture';
+import { buildExampleSummary } from './example-bilan.fixture';
 
 const COMPLETED_AT = '2026-08-20T18:30:00.000Z';
 
-describe('buildExampleBilan', () => {
-  const summary = buildExampleBilan(COMPLETED_AT);
+describe('buildExampleSummary', () => {
+  const summary = buildExampleSummary(COMPLETED_AT);
 
   it('reads as an attainable profile, never as a perfect one', () => {
     expect(summary.axes).toHaveLength(5);

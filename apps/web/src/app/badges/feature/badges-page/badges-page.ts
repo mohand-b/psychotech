@@ -40,7 +40,7 @@ export class BadgesPage {
   );
 
   constructor() {
-    this.overviewFacade.load(this.sector());
+    this.overviewFacade.loadOverview(this.sector());
   }
 
   private readonly outlook = computed<BadgeOutlook>(() => {

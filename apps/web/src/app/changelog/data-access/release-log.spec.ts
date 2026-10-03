@@ -4,7 +4,7 @@ import {
   ReleaseCategory,
   UPCOMING_ITEMS,
   formatVersionLabel,
-  releaseAnchor,
+  buildReleaseAnchor,
 } from './release-log';
 import { ReleaseLogFacade } from './release-log.facade';
 
@@ -80,7 +80,7 @@ describe('release log', () => {
 
   it('dérive une étiquette et une ancre stables de chaque version', () => {
     expect(formatVersionLabel('1.1.0')).toBe('v1.1.0');
-    expect(releaseAnchor('1.1.0')).toBe('v1-1-0');
+    expect(buildReleaseAnchor('1.1.0')).toBe('v1-1-0');
   });
 });
 

@@ -24,7 +24,7 @@ export class SimulationSummaryFacade {
     }
     this.summarySignal.set(null);
     return this.api
-      .simulationSummary(sessionId)
+      .fetchSimulationSummary(sessionId)
       .pipe(tap((summary) => this.summarySignal.set(summary)));
   }
 
@@ -38,7 +38,7 @@ export class SimulationSummaryFacade {
       return of(cached);
     }
     return this.api
-      .targetedResult(sessionId, axis)
+      .fetchTargetedAxisResult(sessionId, axis)
       .pipe(tap((detail) => this.axisDetailCache.set(key, detail)));
   }
 }

@@ -26,7 +26,7 @@
       [energyCost]="header.energyCost"
       [securityBadge]="header.securityBadge"
       [closeLink]="header.closeLink"
-      (closeRequested)="onCloseRequested(header)"
+      (closeRequested)="closeFocusedScreen(header)"
     />
   } @else {
     <ui-navbar

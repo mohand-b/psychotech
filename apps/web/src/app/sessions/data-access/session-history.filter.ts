@@ -23,7 +23,7 @@ function isModeFilter(
   return filter === SessionMode.FULL || filter === SessionMode.TARGETED;
 }
 
-export function selectionFor(
+export function resolveHistorySelection(
   filter: SessionHistoryFilter,
 ): SessionHistorySelection {
   if (filter === 'ALL') {
@@ -35,10 +35,10 @@ export function selectionFor(
   return { mode: SessionMode.TARGETED, axis: filter };
 }
 
-export function historyQueryFor(
+export function buildHistoryQuery(
   filter: SessionHistoryFilter,
 ): SessionHistoryQuery {
-  const selection = selectionFor(filter);
+  const selection = resolveHistorySelection(filter);
   return {
     ...(selection.mode ? { mode: selection.mode } : {}),
     ...(selection.axis ? { axis: selection.axis } : {}),
@@ -49,7 +49,7 @@ export function isChipActive(
   filter: SessionHistoryFilter,
   chip: SessionHistoryFilter,
 ): boolean {
-  const selection = selectionFor(filter);
+  const selection = resolveHistorySelection(filter);
   if (chip === 'ALL') {
     return selection.mode === null;
   }
@@ -60,5 +60,5 @@ export function isChipActive(
 }
 
 export function areAxisChipsEnabled(filter: SessionHistoryFilter): boolean {
-  return selectionFor(filter).mode !== SessionMode.FULL;
+  return resolveHistorySelection(filter).mode !== SessionMode.FULL;
 }

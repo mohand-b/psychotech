@@ -6,7 +6,7 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+    <ui-axis-countdown [axis]="axis" (finished)="startPlayAfterCountdown()" />
   }
   <div
     class="memo__progress"
@@ -143,7 +143,7 @@
               <button
                 type="button"
                 class="memo__key t-mono"
-                (click)="press(digit)"
+                (click)="enterSequenceDigit(digit)"
               >
                 {{ digit }}
               </button>
@@ -160,7 +160,7 @@
             <button
               type="button"
               class="memo__key memo__key--zero t-mono"
-              (click)="press(0)"
+              (click)="enterSequenceDigit(0)"
             >
               0
             </button>
@@ -169,7 +169,7 @@
               class="memo__key memo__key--erase"
               aria-label="Effacer"
               [disabled]="input().length === 0"
-              (click)="erase()"
+              (click)="eraseLastInput()"
             >
               <ui-icon [img]="eraseIcon" [size]="18" />
             </button>
@@ -179,7 +179,7 @@
                 block="mobile"
                 relief="mobile"
                 [disabled]="input().length !== sequence.length || submitting()"
-                (click)="validate()"
+                (click)="validateSequenceInput()"
               >
                 Valider
               </ui-button>
@@ -191,7 +191,7 @@
               [color]="buttonColor"
               [iconEnd]="validateIcon"
               [disabled]="input().length !== sequence.length || submitting()"
-              (click)="validate()"
+              (click)="validateSequenceInput()"
             >
               Valider
             </ui-button>
@@ -211,7 +211,7 @@
         [mode]="sessionMode()"
         [color]="buttonColor"
         (continueRequested)="confirmingExit.set(false)"
-        (quitRequested)="quit()"
+        (quitRequested)="quitToDashboard()"
       />
     }
   }
@@ -221,8 +221,8 @@
       [simulation]="resultWait.simulation()"
       [failure]="resultWait.failure()"
       [slow]="resultWait.slow()"
-      (retry)="resultWait.retry()"
-      (quit)="resultWait.quit()"
+      (retry)="resultWait.retryFailedStep()"
+      (quit)="resultWait.quitToDashboard()"
     />
   }
 </section>

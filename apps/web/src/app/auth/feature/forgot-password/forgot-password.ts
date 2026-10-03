@@ -13,7 +13,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-angular';
 import { Button } from '../../../shared/ui/button/button';
 import { FormField } from '../../../shared/ui/form-field/form-field';
 import { AuthFacade } from '../../data-access/auth.facade';
-import { emailErrorMessage } from '../email-validation';
+import { describeEmailError } from '../email-validation';
 
 @Component({
   selector: 'app-forgot-password',
@@ -37,20 +37,20 @@ export class ForgotPassword {
   protected readonly resent = signal(false);
 
   protected readonly emailError = computed(() =>
-    this.submitted() ? emailErrorMessage(this.email()) : null,
+    this.submitted() ? describeEmailError(this.email()) : null,
   );
 
-  protected submitOnEnter(event: Event): void {
+  protected submitResetRequestOnEnter(event: Event): void {
     if (
       event instanceof KeyboardEvent &&
       event.key === 'Enter' &&
       event.target instanceof HTMLInputElement
     ) {
-      this.submit();
+      this.submitResetRequest();
     }
   }
 
-  protected submit(): void {
+  protected submitResetRequest(): void {
     if (this.sending()) {
       return;
     }
@@ -58,17 +58,17 @@ export class ForgotPassword {
     if (this.emailError()) {
       return;
     }
-    this.send(() => this.sentTo.set(this.email().trim()));
+    this.requestResetLink(() => this.sentTo.set(this.email().trim()));
   }
 
-  protected resend(): void {
+  protected resendResetLink(): void {
     if (this.sending() || this.resent()) {
       return;
     }
-    this.send(() => this.resent.set(true));
+    this.requestResetLink(() => this.resent.set(true));
   }
 
-  private send(onDone: () => void): void {
+  private requestResetLink(onDone: () => void): void {
     this.sending.set(true);
     this.authFacade
       .requestPasswordReset(this.email())

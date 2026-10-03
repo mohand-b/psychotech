@@ -30,15 +30,15 @@ export class LogicTriangle {
 
   private readonly ruleHint = viewChild<RuleHint>('ruleHint');
 
-  hintOpen(): boolean {
+  isHintOpen(): boolean {
     return this.ruleHint()?.hintOpen() ?? false;
   }
 
   toggleHint(): void {
-    this.ruleHint()?.toggle();
+    this.ruleHint()?.toggleHint();
   }
 
   closeHint(returnFocus = false): void {
-    this.ruleHint()?.close(returnFocus);
+    this.ruleHint()?.closeHint(returnFocus);
   }
 }

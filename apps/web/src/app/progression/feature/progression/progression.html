@@ -118,14 +118,14 @@
           class="prog__chart-desktop"
           [points]="evolutionPoints()"
           [threshold]="threshold()"
-          (pointSelected)="openSession($event)"
+          (pointSelected)="openSimulationResult($event)"
         />
         <ui-evolution-chart
           class="prog__chart-mobile"
           [points]="evolutionPoints()"
           [threshold]="threshold()"
           [compact]="true"
-          (pointSelected)="openSession($event)"
+          (pointSelected)="openSimulationResult($event)"
         />
         <span class="prog__caption prog__caption-desktop"
           >La couleur de chaque point reprend l'avis de l'{{
@@ -163,7 +163,7 @@
           <button
             class="prog__axis-row"
             [disabled]="!row.clickable"
-            (click)="openAxis(row.axis)"
+            (click)="openAxisLastResult(row.axis)"
           >
             <span class="prog__axis-ident">
               <span

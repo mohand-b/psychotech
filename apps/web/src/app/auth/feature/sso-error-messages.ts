@@ -13,7 +13,7 @@ const SSO_ERROR_MESSAGES: Record<SsoErrorCode, string> = {
   GOOGLE_FAILED: 'La connexion avec Google a échoué. Réessayez.',
 };
 
-export function ssoErrorMessageFromParam(value: string | null): string | null {
+export function describeSsoError(value: string | null): string | null {
   return value !== null && isSsoErrorCode(value)
     ? SSO_ERROR_MESSAGES[value]
     : null;

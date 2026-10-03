@@ -38,7 +38,7 @@ const CERTIFIE: EarnedBadgeDto = {
 };
 
 async function setup(unacknowledged: EarnedBadgeDto[] = []) {
-  const acknowledge = vi.fn().mockReturnValue(of(undefined));
+  const acknowledgeBadge = vi.fn().mockReturnValue(of(undefined));
   const energyReload = vi.fn();
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -48,11 +48,16 @@ async function setup(unacknowledged: EarnedBadgeDto[] = []) {
       {
         provide: BadgesApi,
         useValue: {
-          acknowledge,
-          unacknowledged: vi.fn().mockReturnValue(of(unacknowledged)),
+          acknowledgeBadge,
+          fetchUnacknowledgedBadges: vi
+            .fn()
+            .mockReturnValue(of(unacknowledged)),
         },
       },
-      { provide: EnergyFacade, useValue: { reload: energyReload } },
+      {
+        provide: EnergyFacade,
+        useValue: { reloadEnergyBalance: energyReload },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -64,7 +69,7 @@ async function setup(unacknowledged: EarnedBadgeDto[] = []) {
   return {
     fixture,
     store: TestBed.inject(BadgeStore),
-    acknowledge,
+    acknowledgeBadge,
     energyReload,
   };
 }
@@ -85,8 +90,8 @@ describe('BadgeCelebration', () => {
   });
 
   it('chains two badges on the advance event and acknowledges each one', async () => {
-    const { fixture, store, acknowledge } = await setup();
-    store.enqueue([AGUERRI, CERTIFIE]);
+    const { fixture, store, acknowledgeBadge } = await setup();
+    store.enqueueBadges([AGUERRI, CERTIFIE]);
     fixture.detectChanges();
 
     let card = cardOf(fixture);
@@ -103,18 +108,18 @@ describe('BadgeCelebration', () => {
     expect(card?.textContent).toContain('Badge 2 sur 2');
     expect(card?.textContent).toContain('Certifié');
     expect(card?.textContent).toContain('Continuer');
-    expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
+    expect(acknowledgeBadge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
 
     card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
     fixture.detectChanges();
     expect(cardOf(fixture)).toBeNull();
-    expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FAVORABLE);
-    expect(acknowledge).toHaveBeenCalledTimes(2);
+    expect(acknowledgeBadge).toHaveBeenCalledWith(BadgeId.EXAM_FAVORABLE);
+    expect(acknowledgeBadge).toHaveBeenCalledTimes(2);
   });
 
   it('shows the struck condition and no gain line for a badge without credits', async () => {
     const { fixture, store } = await setup();
-    store.enqueue([AGUERRI]);
+    store.enqueueBadges([AGUERRI]);
     fixture.detectChanges();
 
     const card = cardOf(fixture);
@@ -125,8 +130,8 @@ describe('BadgeCelebration', () => {
   });
 
   it('acknowledges every queued badge when closed from the overlay', async () => {
-    const { fixture, store, acknowledge } = await setup();
-    store.enqueue([AGUERRI, CERTIFIE]);
+    const { fixture, store, acknowledgeBadge } = await setup();
+    store.enqueueBadges([AGUERRI, CERTIFIE]);
     fixture.detectChanges();
 
     (fixture.nativeElement as HTMLElement)
@@ -135,12 +140,12 @@ describe('BadgeCelebration', () => {
     fixture.detectChanges();
 
     expect(cardOf(fixture)).toBeNull();
-    expect(acknowledge).toHaveBeenCalledTimes(2);
+    expect(acknowledgeBadge).toHaveBeenCalledTimes(2);
   });
 
   it('refreshes the credit balance only once a badge granting credits is acknowledged', async () => {
     const { fixture, store, energyReload } = await setup();
-    store.enqueue([AGUERRI, CERTIFIE]);
+    store.enqueueBadges([AGUERRI, CERTIFIE]);
     fixture.detectChanges();
 
     let card = cardOf(fixture);

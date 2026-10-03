@@ -28,11 +28,13 @@ const TIER_COLOR_VARS: Record<BadgeTier, string> = {
   [BadgeTier.GOLD]: 'var(--badge-or)',
 };
 
-export function energyGain(energyReward: number): number | null {
+export function computeDisplayedEnergyGain(
+  energyReward: number,
+): number | null {
   return energyReward > 0 ? energyReward : null;
 }
 
-function familyLabelFor(definition: BadgeDefinition): string {
+function buildFamilyLabel(definition: BadgeDefinition): string {
   switch (definition.family) {
     case BadgeFamily.AXIS:
       return definition.axis
@@ -45,13 +47,13 @@ function familyLabelFor(definition: BadgeDefinition): string {
   }
 }
 
-function tierLineFor(definition: BadgeDefinition): string | null {
+function buildTierLine(definition: BadgeDefinition): string | null {
   return definition.tier
-    ? `${familyLabelFor(definition)} · ${TIER_NAMES[definition.tier]}`
-    : familyLabelFor(definition);
+    ? `${buildFamilyLabel(definition)} · ${TIER_NAMES[definition.tier]}`
+    : buildFamilyLabel(definition);
 }
 
-export function badgeCelebrationViewFor(
+export function buildBadgeCelebrationView(
   badge: EarnedBadgeDto,
   sector: Sector,
 ): BadgeCelebrationView | null {
@@ -70,7 +72,7 @@ export function badgeCelebrationViewFor(
     badgeId: badge.badgeId,
     name: badgeDisplayName(definition, sector),
     assetPath: badgeAssetPath(definition, sector),
-    familyLabel: familyLabelFor(definition),
+    familyLabel: buildFamilyLabel(definition),
     tierName: definition.tier ? TIER_NAMES[definition.tier] : null,
     tierColorVar: definition.tier ? TIER_COLOR_VARS[definition.tier] : null,
     conditions,
@@ -84,7 +86,7 @@ const TIER_PRESTIGE: Record<BadgeTier, number> = {
   [BadgeTier.GOLD]: 3,
 };
 
-function ladderKeyFor(definition: BadgeDefinition): string {
+function buildLadderKey(definition: BadgeDefinition): string {
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
     return `${BadgeFamily.AXIS}:${definition.axis}`;
   }
@@ -94,7 +96,7 @@ function ladderKeyFor(definition: BadgeDefinition): string {
   return definition.id;
 }
 
-function keepMostPrestigious(
+function keepTopTierPerLadder(
   definitions: { badge: EarnedBadgeDto; definition: BadgeDefinition }[],
 ): { badge: EarnedBadgeDto; definition: BadgeDefinition }[] {
   const bestByLadder = new Map<
@@ -102,7 +104,7 @@ function keepMostPrestigious(
     { badge: EarnedBadgeDto; definition: BadgeDefinition }
   >();
   for (const entry of definitions) {
-    const key = ladderKeyFor(entry.definition);
+    const key = buildLadderKey(entry.definition);
     const current = bestByLadder.get(key);
     const prestige = entry.definition.tier
       ? TIER_PRESTIGE[entry.definition.tier]
@@ -115,11 +117,11 @@ function keepMostPrestigious(
     }
   }
   return definitions.filter(
-    (entry) => bestByLadder.get(ladderKeyFor(entry.definition)) === entry,
+    (entry) => bestByLadder.get(buildLadderKey(entry.definition)) === entry,
   );
 }
 
-export function badgeAnnounceViewFor(
+export function buildBadgeAnnounceView(
   badges: EarnedBadgeDto[],
   sector: Sector,
 ): BadgeAnnounceView | null {
@@ -130,7 +132,7 @@ export function badgeAnnounceViewFor(
   if (definitions.length === 0) {
     return null;
   }
-  const displayed = keepMostPrestigious(definitions);
+  const displayed = keepTopTierPerLadder(definitions);
   const thumbs: BadgeAnnounceThumb[] = displayed.map(({ definition }) => ({
     assetPath: badgeAssetPath(definition, sector),
     name: badgeDisplayName(definition, sector),
@@ -144,6 +146,6 @@ export function badgeAnnounceViewFor(
     thumbs,
     title: `${names} ${displayed.length > 1 ? 'rejoignent' : 'rejoint'} votre collection`,
     gain: totalGain > 0 ? totalGain : null,
-    plainLine: totalGain > 0 ? null : tierLineFor(displayed[0].definition),
+    plainLine: totalGain > 0 ? null : buildTierLine(displayed[0].definition),
   };
 }

@@ -54,7 +54,7 @@ describe('HybridHeader', () => {
           provide: EnergyFacade,
           useValue: {
             state: signal<EnergyStateDto | null>(null),
-            load: loadEnergy,
+            loadEnergyBalance: loadEnergy,
           },
         },
       ],

@@ -32,8 +32,8 @@ import {
   groupSessionsByPeriod,
 } from './session-history-view';
 import {
-  simulationSessionRoute,
-  targetedSessionRoute,
+  buildSimulationSessionRoute,
+  buildTargetedSessionRoute,
 } from '../../../shared/util/session-links';
 
 interface FilterChipView {
@@ -125,40 +125,40 @@ export class Sessions {
   );
 
   constructor() {
-    this.facade.load('ALL');
-    this.facade.refreshCurrent();
+    this.facade.loadHistory('ALL');
+    this.facade.loadCurrentSession();
   }
 
   protected readonly axisChipsEnabled = computed(() =>
     areAxisChipsEnabled(this.filter()),
   );
 
-  protected isActive(chip: SessionHistoryFilter): boolean {
+  protected isFilterChipActive(chip: SessionHistoryFilter): boolean {
     return isChipActive(this.filter(), chip);
   }
 
-  protected isDisabled(chip: FilterChipView): boolean {
+  protected isFilterChipDisabled(chip: FilterChipView): boolean {
     return chip.axis !== null && !this.axisChipsEnabled();
   }
 
   protected selectFilter(filter: SessionHistoryFilter): void {
     if (filter !== this.facade.filter()) {
-      this.facade.load(filter);
+      this.facade.loadHistory(filter);
     }
   }
 
-  protected loadMore(): void {
-    this.facade.loadMore();
+  protected loadNextHistoryPage(): void {
+    this.facade.loadNextHistoryPage();
   }
 
-  protected resume(session: CurrentSessionDto): void {
+  protected resumeCurrentSession(session: CurrentSessionDto): void {
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate(simulationSessionRoute(session.id));
+      this.router.navigate(buildSimulationSessionRoute(session.id));
       return;
     }
     if (session.mode === SessionMode.TARGETED && session.axes.length > 0) {
       this.router.navigate(
-        targetedSessionRoute(session.axes[0].axis, session.id),
+        buildTargetedSessionRoute(session.axes[0].axis, session.id),
       );
       return;
     }

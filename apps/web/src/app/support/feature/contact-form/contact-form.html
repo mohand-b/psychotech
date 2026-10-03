@@ -157,7 +157,7 @@
             class="capture__input"
             type="file"
             [accept]="screenshotAccept"
-            (change)="onScreenshotPicked($event)"
+            (change)="attachScreenshot($event)"
           />
         </label>
       }
@@ -185,7 +185,7 @@
       color="brand"
       [disabled]="blocked()"
       [loading]="sending()"
-      (click)="send()"
+      (click)="submitContactMessage()"
     >
       Envoyer
     </ui-button>
@@ -198,7 +198,7 @@
     block="mobile"
     [disabled]="blocked()"
     [loading]="sending()"
-    (click)="send()"
+    (click)="submitContactMessage()"
   >
     Envoyer
   </ui-button>

@@ -24,7 +24,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { ElementSequence } from '../../../shared/ui/element-sequence/element-sequence';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
@@ -33,9 +33,12 @@ import { LeavablePlay } from '../play-leave.guard';
 import {
   confirmExitOnCloseRequest,
   loadPlayableSession,
-  playLeaveControl,
+  createPlayLeaveControl,
 } from '../play-session';
-import { JitterZoneMetrics, jitterTransform } from './discrimination-jitter';
+import {
+  JitterZoneMetrics,
+  buildJitterTransform,
+} from './discrimination-jitter';
 
 const SEQUENCE_SIZE = 28;
 
@@ -47,8 +50,8 @@ const SEQUENCE_SIZE = 28;
   templateUrl: './discrimination-play.html',
   styleUrl: './discrimination-play.css',
   host: {
-    '(document:keydown)': 'onKeydown($event)',
-    '(window:beforeunload)': 'onBeforeUnload($event)',
+    '(document:keydown)': 'answerTrialWithArrowKeys($event)',
+    '(window:beforeunload)': 'blockUnloadDuringPlay($event)',
   },
 })
 export class DiscriminationPlay implements LeavablePlay {
@@ -62,10 +65,10 @@ export class DiscriminationPlay implements LeavablePlay {
   protected readonly axis = AxisType.VISUAL_DISCRIMINATION;
   protected readonly presentation =
     AXIS_PRESENTATION[AxisType.VISUAL_DISCRIMINATION];
-  protected readonly buttonColor = axisButtonColor(
+  protected readonly buttonColor = resolveAxisButtonColor(
     AxisType.VISUAL_DISCRIMINATION,
   );
-  protected readonly total = this.facade.trainingConfig(
+  protected readonly total = this.facade.getTrainingConfig(
     AxisType.VISUAL_DISCRIMINATION,
   ).exerciseCount;
 
@@ -82,7 +85,7 @@ export class DiscriminationPlay implements LeavablePlay {
 
   private trialStartedAtMs = Date.now();
   private hasSubmitted = false;
-  private readonly leave = playLeaveControl(
+  private readonly leave = createPlayLeaveControl(
     this.loaded,
     () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
@@ -114,13 +117,13 @@ export class DiscriminationPlay implements LeavablePlay {
   protected readonly transformA = computed(() => {
     const trial = this.currentTrial();
     return trial
-      ? jitterTransform(trial.offsetA, this.metricsA())
+      ? buildJitterTransform(trial.offsetA, this.metricsA())
       : 'translate(0px, 0px)';
   });
   protected readonly transformB = computed(() => {
     const trial = this.currentTrial();
     return trial
-      ? jitterTransform(trial.offsetB, this.metricsB())
+      ? buildJitterTransform(trial.offsetB, this.metricsB())
       : 'translate(0px, 0px)';
   });
 
@@ -129,7 +132,7 @@ export class DiscriminationPlay implements LeavablePlay {
     this.observeJitterZone(this.zoneB, this.contentB, this.metricsB);
     effect(() => {
       if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {
-        this.submitAll();
+        this.submitAnswers();
       }
     });
     confirmExitOnCloseRequest(
@@ -139,7 +142,7 @@ export class DiscriminationPlay implements LeavablePlay {
     loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
   }
 
-  protected answer(value: DiscriminationAnswer): void {
+  protected answerCurrentTrial(value: DiscriminationAnswer): void {
     if (
       !this.loaded() ||
       this.locked() ||
@@ -159,7 +162,7 @@ export class DiscriminationPlay implements LeavablePlay {
       this.currentIndex.set(nextIndex);
       this.trialStartedAtMs = Date.now();
     } else {
-      this.submitAll();
+      this.submitAnswers();
     }
   }
 
@@ -167,16 +170,16 @@ export class DiscriminationPlay implements LeavablePlay {
     return this.leave.confirmLeave();
   }
 
-  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+  protected blockUnloadDuringPlay(event: BeforeUnloadEvent): void {
     this.leave.blockUnload(event);
   }
 
-  protected quit(): void {
-    this.leave.accept();
+  protected quitToDashboard(): void {
+    this.leave.acceptLeave();
     this.router.navigate(['/dashboard']);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected answerTrialWithArrowKeys(event: KeyboardEvent): void {
     if (
       event.repeat ||
       !this.loaded() ||
@@ -194,12 +197,12 @@ export class DiscriminationPlay implements LeavablePlay {
     }
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      this.answer('IDENTICAL');
+      this.answerCurrentTrial('IDENTICAL');
       return;
     }
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.answer('DIFFERENT');
+      this.answerCurrentTrial('DIFFERENT');
     }
   }
 
@@ -209,7 +212,7 @@ export class DiscriminationPlay implements LeavablePlay {
     this.currentIndex.set(0);
   }
 
-  protected onCountdownFinished(): void {
+  protected startPlayAfterCountdown(): void {
     if (!this.countingDown()) {
       return;
     }
@@ -223,7 +226,7 @@ export class DiscriminationPlay implements LeavablePlay {
     content: Signal<ElementRef<HTMLElement> | undefined>,
     metrics: WritableSignal<JitterZoneMetrics | null>,
   ): void {
-    const measure = () => {
+    const measureJitterZone = () => {
       const zoneElement = zone()?.nativeElement;
       const contentElement = content()?.nativeElement;
       if (!zoneElement || !contentElement) {
@@ -238,7 +241,7 @@ export class DiscriminationPlay implements LeavablePlay {
     };
     afterRenderEffect(() => {
       this.currentIndex();
-      measure();
+      measureJitterZone();
     });
     effect((onCleanup) => {
       const zoneElement = zone()?.nativeElement;
@@ -246,14 +249,14 @@ export class DiscriminationPlay implements LeavablePlay {
       if (!zoneElement || !contentElement) {
         return;
       }
-      const observer = new ResizeObserver(measure);
+      const observer = new ResizeObserver(measureJitterZone);
       observer.observe(zoneElement);
       observer.observe(contentElement);
       onCleanup(() => observer.disconnect());
     });
   }
 
-  private submitAll(): void {
+  private submitAnswers(): void {
     if (this.hasSubmitted) {
       return;
     }
@@ -265,11 +268,10 @@ export class DiscriminationPlay implements LeavablePlay {
     for (let index = recorded.length; index < this.total; index += 1) {
       answers.push({ index, answer: null, timeMs: 0 });
     }
-    const playedMs = this.facade.elapsedPlayMs();
-    this.resultWait.submit({
+    const playedMs = this.facade.measureElapsedPlayMs();
+    this.resultWait.submitAxisCompletion({
       axis: this.axis,
-      complete: () =>
-        this.facade.completeTargetedDiscrimination(answers, playedMs),
+      complete: () => this.facade.completeDiscriminationAxis(answers, playedMs),
     });
   }
 }

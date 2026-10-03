@@ -28,7 +28,7 @@ interface RevealStub {
   stampStrike: WritableSignal<boolean>;
   settlePulse: WritableSignal<boolean>;
   completed: WritableSignal<boolean>;
-  start: ReturnType<typeof vi.fn>;
+  revealScore: ReturnType<typeof vi.fn>;
 }
 
 async function setup(): Promise<{
@@ -41,7 +41,7 @@ async function setup(): Promise<{
     stampStrike: signal(false),
     settlePulse: signal(false),
     completed: signal(false),
-    start: vi.fn(),
+    revealScore: vi.fn(),
   };
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -111,8 +111,8 @@ describe('ResultSummary reveal wiring', () => {
   it('starts the reveal once, on the final score', async () => {
     const { reveal } = await setup();
 
-    expect(reveal.start).toHaveBeenCalledTimes(1);
-    expect(reveal.start).toHaveBeenCalledWith(82);
+    expect(reveal.revealScore).toHaveBeenCalledTimes(1);
+    expect(reveal.revealScore).toHaveBeenCalledWith(82);
   });
 
   it('holds the stamp back while wobbling, then strikes it', async () => {

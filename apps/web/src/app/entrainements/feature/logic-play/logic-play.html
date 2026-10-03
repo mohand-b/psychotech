@@ -1,6 +1,6 @@
 <section class="play">
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+    <ui-axis-countdown [axis]="axis" (finished)="startPlayAfterCountdown()" />
   }
   @if (loaded() && durationSec(); as total) {
     <div
@@ -24,7 +24,7 @@
     [axis]="axis"
     [remainingCount]="unansweredCount()"
     [segments]="segments()"
-    (navigate)="goTo($event)"
+    (navigate)="navigateToItem($event)"
   />
 
   @if (loaded() && currentItem(); as item) {
@@ -48,7 +48,7 @@
                 [disabled]="locked()"
                 [hint]="helpEnabled() ? currentHint() : null"
                 [hintUsed]="currentHelpUsed()"
-                (faceSelected)="selectFace($event)"
+                (faceSelected)="selectDominoFace($event)"
                 (digitEntered)="enterDominoDigit($event)"
                 (cleared)="clearDominoAnswer()"
                 (lastFaceErased)="eraseLastDominoFace()"
@@ -77,7 +77,7 @@
                     [disabled]="locked()"
                     [hint]="helpEnabled() ? currentHint() : null"
                     [hintUsed]="currentHelpUsed()"
-                    (chosen)="select($event)"
+                    (chosen)="chooseAnswer($event)"
                     (hintOpened)="markHelpUsed()"
                   >
                     <ui-logic-item-head
@@ -119,7 +119,7 @@
                         [choices]="numeric.choices"
                         [selectedIndex]="answers()[currentIndex()]"
                         [disabled]="locked()"
-                        (chosen)="select($event)"
+                        (chosen)="chooseAnswer($event)"
                       />
                       <span class="play__card-hint"
                         >A-D ou 1-4 pour répondre</span
@@ -139,7 +139,7 @@
                 [disabled]="locked()"
                 [hint]="helpEnabled() ? currentHint() : null"
                 [hintUsed]="currentHelpUsed()"
-                (chosen)="select($event)"
+                (chosen)="chooseAnswer($event)"
                 (hintOpened)="markHelpUsed()"
               >
                 <ui-logic-item-head
@@ -169,7 +169,7 @@
             appearance="outlined"
             [icon]="backIcon"
             [disabled]="currentIndex() === 0 || locked()"
-            (click)="previous()"
+            (click)="navigateToPreviousItem()"
           >
             Précédent
           </ui-button>
@@ -180,7 +180,7 @@
             [icon]="backIcon"
             aria-label="Précédent"
             [disabled]="currentIndex() === 0 || locked()"
-            (click)="previous()"
+            (click)="navigateToPreviousItem()"
           />
           <div class="play__actions-end">
             <ui-button
@@ -189,7 +189,7 @@
               appearance="ghost"
               [iconEnd]="skipIcon"
               [disabled]="locked() || nextUnansweredIndex() === -1"
-              (click)="skip()"
+              (click)="skipToNextUnansweredItem()"
             >
               Passer
             </ui-button>
@@ -198,7 +198,7 @@
               color="neutral"
               appearance="outlined"
               [disabled]="locked() || nextUnansweredIndex() === -1"
-              (click)="skip()"
+              (click)="skipToNextUnansweredItem()"
             >
               Passer
             </ui-button>
@@ -208,7 +208,7 @@
               [block]="true"
               [showArrow]="!isLastItem()"
               [disabled]="locked() || (!currentAnswered() && !isLastItem())"
-              (click)="confirmNext()"
+              (click)="navigateToNextItemOrSubmit()"
             >
               {{ isLastItem() ? 'Terminer' : 'Suivant' }}
             </ui-button>
@@ -218,7 +218,7 @@
               [block]="true"
               [showArrow]="!isLastItem()"
               [disabled]="locked() || (!currentAnswered() && !isLastItem())"
-              (click)="confirmNext()"
+              (click)="navigateToNextItemOrSubmit()"
             >
               {{ isLastItem() ? 'Terminer' : 'Suivant' }}
             </ui-button>
@@ -235,7 +235,7 @@
           [mode]="sessionMode()"
           [color]="buttonColor"
           (continueRequested)="confirmingExit.set(false)"
-          (quitRequested)="quit()"
+          (quitRequested)="quitToDashboard()"
         />
       }
     </div>
@@ -246,8 +246,8 @@
       [simulation]="resultWait.simulation()"
       [failure]="resultWait.failure()"
       [slow]="resultWait.slow()"
-      (retry)="resultWait.retry()"
-      (quit)="resultWait.quit()"
+      (retry)="resultWait.retryFailedStep()"
+      (quit)="resultWait.quitToDashboard()"
     />
   }
 </section>

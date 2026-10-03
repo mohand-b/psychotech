@@ -14,7 +14,7 @@ import { SimulationSummary } from '../../sessions/feature/simulation-summary/sim
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ExampleBilanFacade } from '../data-access/example-bilan.facade';
 
-const celebrateResult = vi.fn();
+const prepareResultCelebration = vi.fn();
 const acknowledgeAll = vi.fn();
 
 async function setup() {
@@ -25,7 +25,10 @@ async function setup() {
       { provide: SimulationSummaryFacade, useClass: ExampleBilanFacade },
       { provide: TrainingSessionFacade, useValue: { session: signal(null) } },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
-      { provide: BadgeCelebrationFacade, useValue: { celebrateResult } },
+      {
+        provide: BadgeCelebrationFacade,
+        useValue: { prepareResultCelebration },
+      },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -47,7 +50,7 @@ async function setup() {
 
 describe('Public example bilan', () => {
   beforeEach(() => {
-    celebrateResult.mockClear();
+    prepareResultCelebration.mockClear();
     acknowledgeAll.mockClear();
   });
 
@@ -65,7 +68,7 @@ describe('Public example bilan', () => {
   it('never touches the badge engine nor acknowledges anything', async () => {
     await setup();
 
-    expect(celebrateResult).not.toHaveBeenCalled();
+    expect(prepareResultCelebration).not.toHaveBeenCalled();
     expect(acknowledgeAll).not.toHaveBeenCalled();
   });
 

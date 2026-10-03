@@ -13,7 +13,7 @@ interface Pip {
 
 const PIP_COLUMNS = { left: 16, center: 30, right: 44 };
 
-function pipsFor(face: DominoFace, offsetY: number): Pip[] {
+function computeFacePips(face: DominoFace, offsetY: number): Pip[] {
   const rows = {
     top: offsetY + 10,
     middle: offsetY + 22,
@@ -137,11 +137,11 @@ export class DominoTile {
 
   protected readonly topPips = computed<Pip[]>(() => {
     const face = this.top();
-    return face === null ? [] : pipsFor(face, 0);
+    return face === null ? [] : computeFacePips(face, 0);
   });
 
   protected readonly bottomPips = computed<Pip[]>(() => {
     const face = this.bottom();
-    return face === null ? [] : pipsFor(face, 47);
+    return face === null ? [] : computeFacePips(face, 47);
   });
 }

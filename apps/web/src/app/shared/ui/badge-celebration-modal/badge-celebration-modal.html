@@ -2,8 +2,8 @@
   class="cb__overlay"
   role="presentation"
   tabindex="-1"
-  (click)="close()"
-  (keyup.escape)="close()"
+  (click)="dismissRemainingBadges()"
+  (keyup.escape)="dismissRemainingBadges()"
 ></div>
 <div
   class="cb__card flex flex-col items-center"
@@ -12,10 +12,15 @@
   aria-modal="true"
   aria-label="Badge débloqué"
   tabindex="-1"
-  (click)="settle()"
-  (keyup.escape)="close()"
+  (click)="skipCelebrationAnimation()"
+  (keyup.escape)="dismissRemainingBadges()"
 >
-  <button type="button" class="cb__close" title="Fermer" (click)="close()">
+  <button
+    type="button"
+    class="cb__close"
+    title="Fermer"
+    (click)="dismissRemainingBadges()"
+  >
     <svg
       width="16"
       height="16"
@@ -97,7 +102,7 @@
     </span>
   }
 
-  <button type="button" class="cb__cta" (click)="next($event)">
+  <button type="button" class="cb__cta" (click)="advanceToNextBadge($event)">
     {{ ctaLabel() }}
   </button>
 </div>

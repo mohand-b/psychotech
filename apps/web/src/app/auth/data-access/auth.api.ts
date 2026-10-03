@@ -45,11 +45,11 @@ export class AuthApi {
     return this.http.post<void>(`${this.baseUrl}/auth/logout`, {});
   }
 
-  refresh(): Observable<UserProfileDto> {
+  refreshSession(): Observable<UserProfileDto> {
     return this.http.post<UserProfileDto>(`${this.baseUrl}/auth/refresh`, {});
   }
 
-  currentUser(): Observable<UserProfileDto> {
+  fetchCurrentUser(): Observable<UserProfileDto> {
     return this.http.get<UserProfileDto>(`${this.baseUrl}/me`);
   }
 

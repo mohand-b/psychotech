@@ -40,56 +40,56 @@ export class ContactFacade {
   readonly status: Signal<ContactSendStatus> = this.store.status;
   readonly receipt: Signal<ContactReceiptDto | null> = this.store.receipt;
 
-  prepare(): void {
+  ensureFormToken(): void {
     if (this.store.formToken() !== null) {
       return;
     }
-    this.api.formToken().subscribe({
+    this.api.fetchContactFormToken().subscribe({
       next: ({ token }) => this.store.setFormToken(token),
       error: () => this.store.setFormToken(null),
     });
   }
 
-  submit(draft: ContactDraft): void {
+  submitContactMessage(draft: ContactDraft): void {
     if (this.store.status() === 'sending') {
       return;
     }
-    this.store.startSending();
-    this.formTokenForSubmission()
+    this.store.setSending();
+    this.getOrFetchFormToken()
       .pipe(
         switchMap((formToken) => {
-          const message = this.toMessage(draft, formToken);
+          const message = this.buildContactMessage(draft, formToken);
           return this.authFacade.isAuthenticated()
-            ? this.api.submitFromAccount(message)
-            : this.api.submitAnonymously(message);
+            ? this.api.submitContactFromAccount(message)
+            : this.api.submitContactAnonymously(message);
         }),
       )
       .subscribe({
         next: (receipt) => this.store.setSent(receipt),
-        error: (error: unknown) => this.handleFailure(error),
+        error: (error: unknown) => this.recordSendFailure(error),
       });
   }
 
-  reset(): void {
-    this.store.reset();
+  resetSendStatus(): void {
+    this.store.resetSendStatus();
   }
 
-  startAnother(): void {
-    this.store.reset();
-    this.prepare();
+  startNewContactMessage(): void {
+    this.store.resetSendStatus();
+    this.ensureFormToken();
   }
 
-  private formTokenForSubmission(): Observable<string> {
+  private getOrFetchFormToken(): Observable<string> {
     const formToken = this.store.formToken();
     return formToken !== null
       ? of(formToken)
-      : this.api.formToken().pipe(
+      : this.api.fetchContactFormToken().pipe(
           map(({ token }) => token),
           tap((token) => this.store.setFormToken(token)),
         );
   }
 
-  private handleFailure(error: unknown): void {
+  private recordSendFailure(error: unknown): void {
     const response = error instanceof HttpErrorResponse ? error : null;
     if (
       response !== null &&
@@ -98,7 +98,7 @@ export class ContactFacade {
       )
     ) {
       this.store.setFormToken(null);
-      this.prepare();
+      this.ensureFormToken();
     }
     this.store.setFailed(
       response?.status === HttpStatusCode.TooManyRequests
@@ -107,7 +107,10 @@ export class ContactFacade {
     );
   }
 
-  private toMessage(draft: ContactDraft, formToken: string): SubmitContactDto {
+  private buildContactMessage(
+    draft: ContactDraft,
+    formToken: string,
+  ): SubmitContactDto {
     return {
       reason: draft.reason,
       message: draft.message,

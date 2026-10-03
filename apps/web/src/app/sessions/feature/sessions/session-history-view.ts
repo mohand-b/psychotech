@@ -13,13 +13,13 @@ import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance'
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
   DAY_MS,
-  capitalize,
+  capitalizeFirstLetter,
   formatSessionDate,
-  startOfWeek,
+  computeStartOfWeek,
 } from '../../../shared/util/format-session-date';
 import {
-  sessionResultRoute,
-  targetedResultRoute,
+  buildSimulationResultRoute,
+  buildTargetedResultRoute,
 } from '../../../shared/util/session-links';
 
 export { formatSessionDate };
@@ -48,8 +48,8 @@ export interface SessionRowView {
 
 const WEEK_MS = 7 * DAY_MS;
 
-export function periodLabelFor(finishedAt: Date, now: Date): string {
-  const weekStart = startOfWeek(now);
+export function formatPeriodLabel(finishedAt: Date, now: Date): string {
+  const weekStart = computeStartOfWeek(now);
   const finished = finishedAt.getTime();
   if (finished >= weekStart) {
     return 'Cette semaine';
@@ -57,7 +57,7 @@ export function periodLabelFor(finishedAt: Date, now: Date): string {
   if (finished >= weekStart - WEEK_MS) {
     return 'Semaine dernière';
   }
-  return capitalize(
+  return capitalizeFirstLetter(
     finishedAt.toLocaleDateString('fr-FR', {
       month: 'long',
       year: 'numeric',
@@ -71,7 +71,7 @@ export function groupSessionsByPeriod(
 ): SessionHistoryGroup[] {
   const groups: SessionHistoryGroup[] = [];
   for (const item of items) {
-    const label = periodLabelFor(new Date(item.finishedAt), now);
+    const label = formatPeriodLabel(new Date(item.finishedAt), now);
     const lastGroup = groups[groups.length - 1];
     if (lastGroup && lastGroup.label === label) {
       lastGroup.items.push(item);
@@ -107,9 +107,9 @@ export function buildSessionRowView(
   const detailLink = abandoned
     ? null
     : isFull
-      ? sessionResultRoute(item.id)
+      ? buildSimulationResultRoute(item.id)
       : item.axis
-        ? targetedResultRoute(item.axis, item.id)
+        ? buildTargetedResultRoute(item.axis, item.id)
         : null;
   return {
     id: item.id,

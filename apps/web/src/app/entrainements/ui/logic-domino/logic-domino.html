@@ -28,7 +28,7 @@
               [attr.aria-pressed]="activeFace() === 'top'"
               aria-label="Face du haut"
               title="Face du haut"
-              (click)="pickFace('top')"
+              (click)="selectDominoFace('top')"
             >
               @if (top(); as value) {
                 <ui-domino-pips [value]="value" />
@@ -46,7 +46,7 @@
               [attr.aria-pressed]="activeFace() === 'bottom'"
               aria-label="Face du bas"
               title="Face du bas"
-              (click)="pickFace('bottom')"
+              (click)="selectDominoFace('bottom')"
             >
               @if (bottom(); as value) {
                 <ui-domino-pips [value]="value" />
@@ -78,7 +78,7 @@
           class="dom__chip"
           [class.dom__chip--active]="activeFace() === 'top'"
           title="Saisir la face du haut"
-          (click)="pickFace('top')"
+          (click)="selectDominoFace('top')"
         >
           <span class="dom__chip-label">Haut</span>
           <span
@@ -92,7 +92,7 @@
           class="dom__chip"
           [class.dom__chip--active]="activeFace() === 'bottom'"
           title="Saisir la face du bas"
-          (click)="pickFace('bottom')"
+          (click)="selectDominoFace('bottom')"
         >
           <span class="dom__chip-label">Bas</span>
           <span
@@ -109,7 +109,7 @@
             type="button"
             class="dom__key t-mono"
             [disabled]="disabled()"
-            (click)="pressDigit(digit)"
+            (click)="enterDominoDigit(digit)"
           >
             {{ digit }}
           </button>
@@ -120,7 +120,7 @@
           title="Effacer la dernière face"
           aria-label="Effacer la dernière face"
           [disabled]="disabled()"
-          (click)="eraseLast()"
+          (click)="eraseLastDominoFace()"
         >
           <ui-icon [img]="eraseIcon" [size]="18" />
         </button>
@@ -131,7 +131,7 @@
         title="Effacer la réponse"
         aria-label="Effacer la réponse"
         [disabled]="disabled()"
-        (click)="clear()"
+        (click)="clearDominoAnswer()"
       >
         <ui-icon [img]="eraseIcon" [size]="18" />
       </button>

@@ -106,15 +106,19 @@ const DOMINO_PIP_LAYOUT: Record<number, readonly [number, number][]> = {
   ],
 };
 
-function pipsFor(value: number): DominoPip[] {
+function computeFacePips(value: number): DominoPip[] {
   return DOMINO_PIP_LAYOUT[value].map(([x, y]) => ({
     left: `calc(${x}% - 3px)`,
     top: `calc(${y}% - 3px)`,
   }));
 }
 
-function dominoTile(top: number, bottom: number): GuideDominoTile {
-  return { answer: false, topPips: pipsFor(top), bottomPips: pipsFor(bottom) };
+function buildDominoTile(top: number, bottom: number): GuideDominoTile {
+  return {
+    answer: false,
+    topPips: computeFacePips(top),
+    bottomPips: computeFacePips(bottom),
+  };
 }
 
 const DOMINO_ANSWER_TILE: GuideDominoTile = {
@@ -123,7 +127,10 @@ const DOMINO_ANSWER_TILE: GuideDominoTile = {
   bottomPips: [],
 };
 
-function sequenceRow(values: number[], ops: string[] = []): SequenceCell[] {
+function buildSequenceCells(
+  values: number[],
+  ops: string[] = [],
+): SequenceCell[] {
   const cells: SequenceCell[] = [];
   values.forEach((value, index) => {
     const last = index === values.length - 1;
@@ -135,7 +142,7 @@ function sequenceRow(values: number[], ops: string[] = []): SequenceCell[] {
   return cells;
 }
 
-function loopChip(text: string, highlighted = false): DominoLoopChip {
+function buildLoopChip(text: string, highlighted = false): DominoLoopChip {
   return { text, highlighted };
 }
 
@@ -145,7 +152,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Pas constant',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [3, 7, 11, 15, 19, 23],
           ['+4', '+4', '+4', '+4', '+4'],
         ),
@@ -154,7 +161,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
       },
       {
         name: 'Doublement ou triplement',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [2, 6, 18, 54, 162, 486],
           ['×3', '×3', '×3', '×3', '×3'],
         ),
@@ -163,7 +170,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
       },
       {
         name: 'Multiplication rapide ou moitiés',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [96, 48, 24, 12, 6, 3],
           ['÷2', '÷2', '÷2', '÷2', '÷2'],
         ),
@@ -178,7 +185,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Deux pas en alternance',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [4, 7, 13, 16, 22, 25],
           ['+3', '+6', '+3', '+6', '+3'],
         ),
@@ -187,7 +194,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
       },
       {
         name: 'Addition puis soustraction',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [12, 19, 16, 23, 20, 27],
           ['+7', '−3', '+7', '−3', '+7'],
         ),
@@ -201,7 +208,7 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Pas croissant',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [5, 7, 10, 14, 19, 25],
           ['+2', '+3', '+4', '+5', '+6'],
         ),
@@ -215,13 +222,13 @@ const SEQUENCE_GROUPS: readonly SequenceGroup[] = [
     rules: [
       {
         name: 'Type Fibonacci',
-        cells: sequenceRow([2, 5, 7, 12, 19, 31]),
+        cells: buildSequenceCells([2, 5, 7, 12, 19, 31]),
         lecture: 'Chaque terme est la somme des deux précédents.',
         note: '2+5=7 · 5+7=12 · 7+12=19 · 12+19=31',
       },
       {
         name: 'Ajout de la somme des chiffres',
-        cells: sequenceRow(
+        cells: buildSequenceCells(
           [23, 28, 38, 49, 62, 70],
           ['+5', '+10', '+11', '+13', '+8'],
         ),
@@ -236,11 +243,11 @@ const DOMINO_CARDS: readonly DominoCard[] = [
   {
     name: 'Deux faces indépendantes',
     tiles: [
-      dominoTile(1, 4),
-      dominoTile(2, 4),
-      dominoTile(3, 4),
-      dominoTile(4, 4),
-      dominoTile(5, 4),
+      buildDominoTile(1, 4),
+      buildDominoTile(2, 4),
+      buildDominoTile(3, 4),
+      buildDominoTile(4, 4),
+      buildDominoTile(5, 4),
       DOMINO_ANSWER_TILE,
     ],
     caption:
@@ -254,35 +261,35 @@ const DOMINO_CARDS: readonly DominoCard[] = [
   {
     name: 'La boucle après 6',
     tiles: [
-      dominoTile(3, 1),
-      dominoTile(5, 0),
-      dominoTile(0, 6),
-      dominoTile(2, 5),
+      buildDominoTile(3, 1),
+      buildDominoTile(5, 0),
+      buildDominoTile(0, 6),
+      buildDominoTile(2, 5),
       DOMINO_ANSWER_TILE,
     ],
     caption:
       'Les faces comptent en boucle : après 6 on revient à 0, et en reculant, avant 0 on retombe sur 6. Ici le haut avance de 2 (5 puis 0), le bas recule de 1 (0 puis 6). Réponse : 4 et 4.',
     faceRules: null,
     loop: [
-      loopChip('0'),
-      loopChip('1'),
-      loopChip('2'),
-      loopChip('3'),
-      loopChip('4'),
-      loopChip('5'),
-      loopChip('6'),
-      loopChip('0', true),
-      loopChip('1', true),
-      loopChip('…', true),
+      buildLoopChip('0'),
+      buildLoopChip('1'),
+      buildLoopChip('2'),
+      buildLoopChip('3'),
+      buildLoopChip('4'),
+      buildLoopChip('5'),
+      buildLoopChip('6'),
+      buildLoopChip('0', true),
+      buildLoopChip('1', true),
+      buildLoopChip('…', true),
     ],
   },
   {
     name: 'Les diagonales avancent',
     tiles: [
-      dominoTile(2, 0),
-      dominoTile(1, 3),
-      dominoTile(4, 2),
-      dominoTile(3, 5),
+      buildDominoTile(2, 0),
+      buildDominoTile(1, 3),
+      buildDominoTile(4, 2),
+      buildDominoTile(3, 5),
       DOMINO_ANSWER_TILE,
     ],
     caption:
@@ -293,10 +300,10 @@ const DOMINO_CARDS: readonly DominoCard[] = [
   {
     name: 'Diagonales opposées',
     tiles: [
-      dominoTile(0, 4),
-      dominoTile(3, 1),
-      dominoTile(2, 2),
-      dominoTile(1, 3),
+      buildDominoTile(0, 4),
+      buildDominoTile(3, 1),
+      buildDominoTile(2, 2),
+      buildDominoTile(1, 3),
       DOMINO_ANSWER_TILE,
     ],
     caption:
@@ -340,11 +347,11 @@ export class GuideLogicRules {
   protected readonly sequenceGroups = SEQUENCE_GROUPS;
   protected readonly dominoCards = DOMINO_CARDS;
 
-  protected back(): void {
+  protected navigateToPreviousPage(): void {
     navigateBack(this.location, this.router, GUIDE_PATH);
   }
 
-  protected markRead(): void {
+  protected markGuideRead(): void {
     this.locallyMarked.set(true);
     this.badgesFacade
       .markGuideRead(GuideId.LOGIC_GUIDE)

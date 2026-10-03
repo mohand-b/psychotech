@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { countdownFrom } from './session-countdown';
+import { computeCountdown } from './session-countdown';
 import { TrainingSessionStore } from './training-session.store';
 
 describe('TrainingSessionStore.rebaseAnchor', () => {
@@ -13,13 +13,13 @@ describe('TrainingSessionStore.rebaseAnchor', () => {
     const store = TestBed.inject(TrainingSessionStore);
     store.setSession(null);
     vi.setSystemTime(1_003_000);
-    store.tick(Date.now());
+    store.setNowMs(Date.now());
     expect(
-      countdownFrom(store.anchorMs(), store.nowMs(), 600).remainingSec,
+      computeCountdown(store.anchorMs(), store.nowMs(), 600).remainingSec,
     ).toBe(597);
     store.rebaseAnchor();
     expect(
-      countdownFrom(store.anchorMs(), store.nowMs(), 600).remainingSec,
+      computeCountdown(store.anchorMs(), store.nowMs(), 600).remainingSec,
     ).toBe(600);
   });
 });

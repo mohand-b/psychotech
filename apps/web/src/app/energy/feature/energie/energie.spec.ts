@@ -24,15 +24,15 @@ async function setup(sessionId: string | null = null) {
         provide: EnergyFacade,
         useValue: {
           state: () => energyState(12),
-          load: () => of(energyState(12)),
-          reload: () => undefined,
+          loadEnergyBalance: () => of(energyState(12)),
+          reloadEnergyBalance: () => undefined,
         },
       },
       {
         provide: BillingFacade,
         useValue: {
           createPackCheckout: () => Promise.reject(new Error('not mocked')),
-          checkoutStatus: () =>
+          fetchCheckoutStatus: () =>
             of({ status: 'complete' as const, credited: true }),
         },
       },

@@ -2,7 +2,7 @@ import { Signal, effect, inject } from '@angular/core';
 import { Sector, SectorReferentialDto } from '@psychotech/shared';
 import { CatalogFacade } from '../../catalog/data-access/catalog.facade';
 
-export function sectorReferentialFor(
+export function syncSectorReferential(
   sector: Signal<Sector | null>,
 ): Signal<SectorReferentialDto | null> {
   const catalogFacade = inject(CatalogFacade);

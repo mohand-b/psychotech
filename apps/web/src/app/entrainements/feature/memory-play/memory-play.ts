@@ -19,7 +19,7 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
 import { ExitConfirm } from '../../ui/exit-confirm/exit-confirm';
@@ -28,7 +28,7 @@ import { LeavablePlay } from '../play-leave.guard';
 import {
   confirmExitOnCloseRequest,
   loadPlayableSession,
-  playLeaveControl,
+  createPlayLeaveControl,
 } from '../play-session';
 
 type MemoryStage =
@@ -53,8 +53,8 @@ const RESTITUTION_TICK_MS = 200;
   templateUrl: './memory-play.html',
   styleUrl: './memory-play.css',
   host: {
-    '(document:keydown)': 'onKeydown($event)',
-    '(window:beforeunload)': 'onBeforeUnload($event)',
+    '(document:keydown)': 'enterSequenceWithKeyboard($event)',
+    '(window:beforeunload)': 'blockUnloadDuringPlay($event)',
   },
 })
 export class MemoryPlay implements LeavablePlay {
@@ -68,13 +68,14 @@ export class MemoryPlay implements LeavablePlay {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
   protected readonly axis = AxisType.MEMORY;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.MEMORY];
-  protected readonly buttonColor = axisButtonColor(AxisType.MEMORY);
+  protected readonly buttonColor = resolveAxisButtonColor(AxisType.MEMORY);
   protected readonly padDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  private readonly restitutionSec = this.facade.trainingConfig(AxisType.MEMORY)
-    .restitutionSec;
+  private readonly restitutionSec = this.facade.getTrainingConfig(
+    AxisType.MEMORY,
+  ).restitutionSec;
 
   protected readonly sequences = this.facade.memorySequences;
-  protected readonly total = this.facade.trainingConfig(AxisType.MEMORY)
+  protected readonly total = this.facade.getTrainingConfig(AxisType.MEMORY)
     .exerciseCount;
   protected readonly loaded = signal(false);
   protected readonly countingDown = signal(true);
@@ -96,7 +97,7 @@ export class MemoryPlay implements LeavablePlay {
   private restitutionIntervalId: number | null = null;
   private restitutionStartedAtMs = 0;
   private hasSubmitted = false;
-  private readonly leave = playLeaveControl(
+  private readonly leave = createPlayLeaveControl(
     this.loaded,
     () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
@@ -131,7 +132,7 @@ export class MemoryPlay implements LeavablePlay {
     loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
   }
 
-  protected press(digit: number): void {
+  protected enterSequenceDigit(digit: number): void {
     const sequence = this.currentSequence();
     if (
       this.hasSubmitted ||
@@ -157,14 +158,14 @@ export class MemoryPlay implements LeavablePlay {
     this.input.update((input) => [...input, null]);
   }
 
-  protected erase(): void {
+  protected eraseLastInput(): void {
     if (this.hasSubmitted || this.stage() !== 'RESTITUTION') {
       return;
     }
     this.input.update((input) => input.slice(0, -1));
   }
 
-  protected validate(): void {
+  protected validateSequenceInput(): void {
     const sequence = this.currentSequence();
     if (
       this.stage() !== 'RESTITUTION' ||
@@ -180,16 +181,16 @@ export class MemoryPlay implements LeavablePlay {
     return this.leave.confirmLeave();
   }
 
-  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+  protected blockUnloadDuringPlay(event: BeforeUnloadEvent): void {
     this.leave.blockUnload(event);
   }
 
-  protected quit(): void {
-    this.leave.accept();
+  protected quitToDashboard(): void {
+    this.leave.acceptLeave();
     this.router.navigate(['/dashboard']);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected enterSequenceWithKeyboard(event: KeyboardEvent): void {
     if (
       event.repeat ||
       !this.loaded() ||
@@ -210,12 +211,12 @@ export class MemoryPlay implements LeavablePlay {
     }
     if (event.key === 'Backspace') {
       event.preventDefault();
-      this.erase();
+      this.eraseLastInput();
       return;
     }
     if (event.key === 'Enter') {
       event.preventDefault();
-      this.validate();
+      this.validateSequenceInput();
       return;
     }
     if (event.key === ' ') {
@@ -227,7 +228,7 @@ export class MemoryPlay implements LeavablePlay {
       return;
     }
     event.preventDefault();
-    this.press(Number(event.key));
+    this.enterSequenceDigit(Number(event.key));
   }
 
   private openPlay(): void {
@@ -235,7 +236,7 @@ export class MemoryPlay implements LeavablePlay {
     this.results.set([]);
   }
 
-  protected onCountdownFinished(): void {
+  protected startPlayAfterCountdown(): void {
     if (!this.countingDown()) {
       return;
     }
@@ -254,7 +255,7 @@ export class MemoryPlay implements LeavablePlay {
     ) {
       this.stage.set('PHASE_TRANSITION');
       this.facade.setPerExerciseCountdown(null);
-      this.schedule(PHASE_TRANSITION_MS, () => this.beginPreparation());
+      this.scheduleNextStep(PHASE_TRANSITION_MS, () => this.beginPreparation());
       return;
     }
     this.beginPreparation();
@@ -263,23 +264,23 @@ export class MemoryPlay implements LeavablePlay {
   private beginPreparation(): void {
     this.stage.set('PREPARATION');
     this.facade.setPerExerciseCountdown(null);
-    this.schedule(PREPARATION_MS, () => this.beginMemorization());
+    this.scheduleNextStep(PREPARATION_MS, () => this.beginMemorization());
   }
 
   private beginMemorization(): void {
     this.stage.set('MEMORIZATION');
-    this.showElement(0);
+    this.showSequenceElement(0);
   }
 
-  private showElement(step: number): void {
+  private showSequenceElement(step: number): void {
     this.memorizeStep.set(step);
     this.digitVisible.set(true);
-    this.schedule(ELEMENT_ENTER_MS + ELEMENT_HOLD_MS, () => {
+    this.scheduleNextStep(ELEMENT_ENTER_MS + ELEMENT_HOLD_MS, () => {
       this.digitVisible.set(false);
-      this.schedule(ELEMENT_EXIT_MS + ELEMENT_GAP_MS, () => {
+      this.scheduleNextStep(ELEMENT_EXIT_MS + ELEMENT_GAP_MS, () => {
         const sequence = this.currentSequence();
         if (sequence && step + 1 < sequence.length) {
-          this.showElement(step + 1);
+          this.showSequenceElement(step + 1);
         } else {
           this.beginRestitution();
         }
@@ -323,11 +324,11 @@ export class MemoryPlay implements LeavablePlay {
     if (nextIndex < this.total) {
       this.beginSequence(nextIndex);
     } else {
-      this.submitAll();
+      this.submitAnswers();
     }
   }
 
-  private submitAll(): void {
+  private submitAnswers(): void {
     if (this.hasSubmitted) {
       return;
     }
@@ -335,13 +336,13 @@ export class MemoryPlay implements LeavablePlay {
     this.submitting.set(true);
     this.confirmingExit.set(false);
     const sequences = this.results();
-    this.resultWait.submit({
+    this.resultWait.submitAxisCompletion({
       axis: this.axis,
-      complete: () => this.facade.completeTargetedMemory(sequences),
+      complete: () => this.facade.completeMemoryAxis(sequences),
     });
   }
 
-  private schedule(delayMs: number, callback: () => void): void {
+  private scheduleNextStep(delayMs: number, callback: () => void): void {
     this.pendingTimerId = window.setTimeout(callback, delayMs);
   }
 

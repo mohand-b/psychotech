@@ -69,7 +69,11 @@
               >.
             </p>
             <div class="sent__actions">
-              <button type="button" class="sent__again" (click)="sendAnother()">
+              <button
+                type="button"
+                class="sent__again"
+                (click)="startNewContactMessage()"
+              >
                 Envoyer un autre message
               </button>
               <a class="sent__home" [routerLink]="homeLink()">{{

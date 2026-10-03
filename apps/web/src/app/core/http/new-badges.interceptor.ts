@@ -5,7 +5,7 @@ import { tap } from 'rxjs';
 import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { BadgeStore } from '../badges/badge.store';
 
-function earnedBadgesOf(body: unknown): EarnedBadgeDto[] | null {
+function extractEarnedBadges(body: unknown): EarnedBadgeDto[] | null {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
     return null;
   }
@@ -30,11 +30,11 @@ export const newBadgesInterceptor: HttpInterceptorFn = (request, next) => {
   return next(request).pipe(
     tap((event) => {
       if (event instanceof HttpResponse) {
-        const badges = earnedBadgesOf(event.body);
+        const badges = extractEarnedBadges(event.body);
         if (badges) {
-          store.enqueue(badges);
+          store.enqueueBadges(badges);
           if (badges.some((badge) => (badge.gain ?? 0) > 0)) {
-            energyFacade.reload();
+            energyFacade.reloadEnergyBalance();
           }
         }
       }

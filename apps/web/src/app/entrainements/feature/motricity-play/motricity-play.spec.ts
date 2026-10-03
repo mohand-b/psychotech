@@ -28,8 +28,8 @@ const FRAMES_PER_COURSE = (SECONDS_PER_COURSE * 1000) / FRAME_MS + 3;
 const MOTRICITY_INDEX = FULL_SESSION_AXIS_ORDER.indexOf(AxisType.MOTOR_SKILLS);
 
 interface MotricityPlayHarness {
-  onCountdownFinished(): void;
-  resultWait: { failed(): boolean; retry(): void };
+  startPlayAfterCountdown(): void;
+  resultWait: { failed(): boolean; retryFailedStep(): void };
 }
 
 function examSessionOnMotricity(): SessionDto {
@@ -115,7 +115,7 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
   }
 
   function setup(complete: () => Observable<SessionDto>) {
-    const completeTargetedMotricity = vi.fn<
+    const completeMotricityAxis = vi.fn<
       (courses: MotricityCourseTrajectoryDto[]) => Observable<SessionDto>
     >(() => complete());
     const session = examSessionOnMotricity();
@@ -135,7 +135,7 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
           provide: TrainingSessionFacade,
           useValue: {
             session: () => session,
-            trainingConfig: () => ({
+            getTrainingConfig: () => ({
               exerciseCount: COURSE_COUNT,
               secondsPerCourse: SECONDS_PER_COURSE,
               pauseBetweenCoursesSec: PAUSE_BETWEEN_COURSES_SEC,
@@ -145,8 +145,8 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
             enabledTrainingOptions: () => [],
             closeRequests: signal(0),
             setPerExerciseCountdown: vi.fn(),
-            completeTargetedMotricity,
-            clear: vi.fn(),
+            completeMotricityAxis,
+            clearSession: vi.fn(),
           },
         },
         {
@@ -157,14 +157,14 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
             everConnected: signal(false),
             latency: signal(null),
             latencyIsGood: signal(true),
-            pair: vi.fn(),
-            pairTutorial: vi.fn(),
-            disconnect: vi.fn(),
+            pairSessionGamepad: vi.fn(),
+            pairTutorialGamepad: vi.fn(),
+            disconnectGamepad: vi.fn(),
             sendPhase: vi.fn(),
             sendHaptic: vi.fn(),
-            courseLatency: () => null,
+            computeCourseLatency: () => null,
             beginCourseLatencyWindow: vi.fn(),
-            gamepadInputLost: () => false,
+            isGamepadInputLost: () => false,
             stick: () => ({ x: 0, y: 0 }),
           },
         },
@@ -185,14 +185,14 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
     fixture.detectChanges();
     const harness =
       fixture.componentInstance as unknown as MotricityPlayHarness;
-    return { fixture, harness, completeTargetedMotricity, navigate };
+    return { fixture, harness, completeMotricityAxis, navigate };
   }
 
   function playEveryCourseUntilTimeout(
     harness: MotricityPlayHarness,
     fixture: ComponentFixture<MotricityPlay>,
   ): void {
-    harness.onCountdownFinished();
+    harness.startPlayAfterCountdown();
     for (let course = 0; course < COURSE_COUNT; course += 1) {
       runFrames(FRAMES_PER_COURSE);
       fixture.detectChanges();
@@ -202,27 +202,26 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
   }
 
   function sentCourses(
-    completeTargetedMotricity: ReturnType<typeof vi.fn>,
+    completeMotricityAxis: ReturnType<typeof vi.fn>,
     attempt: number,
   ): MotricityCourseTrajectoryDto[] {
-    return completeTargetedMotricity.mock.calls[
+    return completeMotricityAxis.mock.calls[
       attempt
     ][0] as MotricityCourseTrajectoryDto[];
   }
 
   it('plays three courses, sends one trajectory per course and really stops the animation loop', () => {
-    const { fixture, harness, completeTargetedMotricity, navigate } = setup(
-      () =>
-        of({
-          ...examSessionOnMotricity(),
-          currentAxisIndex: MOTRICITY_INDEX + 1,
-        }),
+    const { fixture, harness, completeMotricityAxis, navigate } = setup(() =>
+      of({
+        ...examSessionOnMotricity(),
+        currentAxisIndex: MOTRICITY_INDEX + 1,
+      }),
     );
 
     playEveryCourseUntilTimeout(harness, fixture);
 
-    expect(completeTargetedMotricity).toHaveBeenCalledTimes(1);
-    const courses = sentCourses(completeTargetedMotricity, 0);
+    expect(completeMotricityAxis).toHaveBeenCalledTimes(1);
+    const courses = sentCourses(completeMotricityAxis, 0);
     expect(courses.map((course) => course.index)).toEqual([0, 1, 2]);
     for (const course of courses) {
       expect(course.samples.at(-1)?.t).toBe(SECONDS_PER_COURSE * 1000);
@@ -234,7 +233,7 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
 
   it('never resubmits by itself after a failed completion and retries with the very same three courses', () => {
     let attempts = 0;
-    const { fixture, harness, completeTargetedMotricity } = setup(() => {
+    const { fixture, harness, completeMotricityAxis } = setup(() => {
       attempts += 1;
       return attempts === 1
         ? throwError(() => new Error('network down'))
@@ -249,13 +248,13 @@ describe('MotricityPlay (boucle de jeu et envoi des trajectoires)', () => {
 
     runFrames(FRAMES_PER_COURSE * COURSE_COUNT);
     vi.advanceTimersByTime(10_000);
-    expect(completeTargetedMotricity).toHaveBeenCalledTimes(1);
+    expect(completeMotricityAxis).toHaveBeenCalledTimes(1);
     expect(scheduledFrames.size).toBe(0);
 
-    harness.resultWait.retry();
-    expect(completeTargetedMotricity).toHaveBeenCalledTimes(2);
-    const first = sentCourses(completeTargetedMotricity, 0);
-    const replayed = sentCourses(completeTargetedMotricity, 1);
+    harness.resultWait.retryFailedStep();
+    expect(completeMotricityAxis).toHaveBeenCalledTimes(2);
+    const first = sentCourses(completeMotricityAxis, 0);
+    const replayed = sentCourses(completeMotricityAxis, 1);
     expect(replayed).toEqual(first);
     expect(new Set(replayed.map((course) => course.index)).size).toBe(3);
   });

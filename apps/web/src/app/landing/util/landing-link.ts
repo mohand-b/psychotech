@@ -29,6 +29,8 @@ const RESUME_ACTION: LandingAction = {
   link: { route: LANDING_ROUTE.dashboard },
 };
 
-export function landingPrimaryAction(authenticated: boolean): LandingAction {
+export function resolveLandingPrimaryAction(
+  authenticated: boolean,
+): LandingAction {
   return authenticated ? RESUME_ACTION : SIGNUP_ACTION;
 }

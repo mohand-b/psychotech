@@ -26,19 +26,19 @@ import { TrainingSessionFacade } from '../../../sessions/data-access/training-se
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
-import { axisFromSlug, axisSlug } from '../../../shared/util/axis-slug';
+import { parseAxisSlug, resolveAxisSlug } from '../../../shared/util/axis-slug';
 import { isEnergyInsufficientError } from '../../../shared/util/energy-error';
 import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_PATH,
-  guideAxisAnchor,
+  resolveGuideAxisAnchor,
 } from '../../../shared/util/guide-anchors';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
-import { sectorReferentialFor } from '../sector-referential';
+import { syncSectorReferential } from '../sector-referential';
 import {
-  targetedAxisRoute,
-  tutorialAxisRoute,
+  buildTargetedAxisRoute,
+  buildTutorialAxisRoute,
 } from '../../../shared/util/session-links';
 
 @Component({
@@ -70,12 +70,12 @@ export class AxisStart {
   protected readonly energyCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
 
   protected readonly axis =
-    axisFromSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
-  protected readonly buttonColor = axisButtonColor(this.axis);
+    parseAxisSlug(this.route.snapshot.paramMap.get('axis')) ?? AxisType.LOGIC;
+  protected readonly buttonColor = resolveAxisButtonColor(this.axis);
   protected readonly tutorial = this.route.snapshot.data['tutorial'] === true;
   protected readonly showPairing = this.axis === AxisType.MOTOR_SKILLS;
   protected readonly guidePath = GUIDE_PATH;
-  protected readonly guideAnchor = guideAxisAnchor(this.axis);
+  protected readonly guideAnchor = resolveGuideAxisAnchor(this.axis);
   protected readonly logicRulesPath =
     this.axis === AxisType.LOGIC ? GUIDE_LOGIC_RULES_PATH : null;
 
@@ -95,7 +95,7 @@ export class AxisStart {
   protected readonly sector = computed(
     () => this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY,
   );
-  private readonly referential = sectorReferentialFor(this.sector);
+  private readonly referential = syncSectorReferential(this.sector);
   protected readonly criticalAxis = computed(
     () =>
       this.referential()?.axes.find((entry) => entry.code === this.axis)
@@ -112,32 +112,32 @@ export class AxisStart {
   protected readonly gamepadLatencyGood = this.gamepad.latencyIsGood;
 
   constructor() {
-    if (axisFromSlug(this.route.snapshot.paramMap.get('axis')) === null) {
+    if (parseAxisSlug(this.route.snapshot.paramMap.get('axis')) === null) {
       this.router.navigate(['/entrainements'], {
         queryParams: { panel: 'cible' },
       });
     }
     if (this.showPairing) {
       this.destroyRef.onDestroy(() => {
-        if (!this.leavingTowardsPlay()) {
-          this.gamepad.disconnect();
+        if (!this.isLeavingTowardsPlay()) {
+          this.gamepad.disconnectGamepad();
         }
       });
       if (!this.gamepad.connected()) {
-        this.gamepad.pairTutorial();
+        this.gamepad.pairTutorialGamepad();
       }
     }
   }
 
-  private leavingTowardsPlay(): boolean {
-    const slug = axisSlug(this.axis);
+  private isLeavingTowardsPlay(): boolean {
+    const slug = resolveAxisSlug(this.axis);
     return (
       this.router.url.includes(`/entrainements/cible/${slug}/session/`) ||
       this.router.url.includes(`/entrainements/tutoriel/${slug}/session/`)
     );
   }
 
-  private targetedOptions(): TargetedSessionOptionsDto {
+  private buildTargetedSessionOptions(): TargetedSessionOptionsDto {
     const options: TargetedSessionOptionsDto = {
       enabledOptions: this.enabledOptions(),
     };
@@ -147,18 +147,20 @@ export class AxisStart {
     return options;
   }
 
-  protected start(): void {
+  protected startAxisSession(): void {
     if (this.starting() || this.energyLocked()) {
       return;
     }
     this.starting.set(true);
     this.trainingSessionFacade
-      .startTargeted(this.axis, this.targetedOptions())
+      .startTargetedSession(this.axis, this.buildTargetedSessionOptions())
       .pipe(
         switchMap((session) =>
           this.tutorial
             ? of(session)
-            : this.energyFacade.refresh().pipe(map(() => session)),
+            : this.energyFacade
+                .loadEnergyBalanceSafely()
+                .pipe(map(() => session)),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -166,8 +168,8 @@ export class AxisStart {
         next: (session) =>
           this.router.navigate([
             ...(this.tutorial
-              ? tutorialAxisRoute(this.axis)
-              : targetedAxisRoute(this.axis)),
+              ? buildTutorialAxisRoute(this.axis)
+              : buildTargetedAxisRoute(this.axis)),
             'session',
             session.id,
           ]),
@@ -175,7 +177,7 @@ export class AxisStart {
           this.starting.set(false);
           if (isEnergyInsufficientError(error)) {
             this.energyFacade
-              .load()
+              .loadEnergyBalance()
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({ error: () => undefined });
           }

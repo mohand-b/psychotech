@@ -49,7 +49,7 @@ import { ReleaseLogFacade } from '../../../changelog/data-access/release-log.fac
 import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
-import { inputValue } from '../../../shared/util/input-value';
+import { readInputValue } from '../../../shared/util/input-value';
 import { passwordsMatch } from '../../../shared/util/password-match';
 
 type ProfileSection = 'account' | 'security' | 'sector' | 'privacy' | 'credits';
@@ -130,7 +130,7 @@ export class Profile {
   protected readonly latestVersion = this.releaseLog.latestVersionLabel;
   protected readonly chevronIcon = ChevronRight;
   protected readonly deleteConfirmation = DELETE_ACCOUNT_CONFIRMATION;
-  protected readonly readValue = inputValue;
+  protected readonly readInputValue = readInputValue;
   protected readonly upcomingSectors = UPCOMING_SECTORS;
   protected readonly totalBadges = BADGE_CATALOG.length;
 
@@ -249,13 +249,13 @@ export class Profile {
       this.email().trim().length > 3,
   );
 
-  protected startEdit(): void {
+  protected startAccountEdit(): void {
     this.edit.set(true);
     this.saved.set(false);
     this.accountError.set(null);
   }
 
-  protected cancelEdit(): void {
+  protected cancelAccountEdit(): void {
     const current = this.user();
     this.edit.set(false);
     this.firstName.set(current?.firstName ?? '');
@@ -264,7 +264,7 @@ export class Profile {
     this.accountError.set(null);
   }
 
-  protected save(): void {
+  protected saveAccountDetails(): void {
     if (!this.canSave()) {
       return;
     }
@@ -321,7 +321,7 @@ export class Profile {
           this.saving.set(false);
           this.email.set(this.user()?.email ?? '');
           this.accountError.set(
-            this.errorIncludes(error, 'EMAIL_TAKEN')
+            this.hasErrorCode(error, 'EMAIL_TAKEN')
               ? 'Cette adresse est déjà utilisée par un autre compte.'
               : 'Le changement d’adresse n’a pas pu être demandé. Réessayez.',
           );
@@ -329,7 +329,7 @@ export class Profile {
       });
   }
 
-  protected resendVerification(): void {
+  protected resendConfirmationEmail(): void {
     if (this.resendSending()) {
       return;
     }
@@ -365,7 +365,7 @@ export class Profile {
       this.confirmation().length > 0,
   );
 
-  protected cancelSecurity(): void {
+  protected cancelPasswordUpdate(): void {
     this.currentPassword.set('');
     this.newPassword.set('');
     this.confirmation.set('');
@@ -419,19 +419,19 @@ export class Profile {
     this.section() === 'security' ? !this.securityDirty() : !this.dirty(),
   );
 
-  protected mobileCancel(): void {
+  protected cancelSectionChanges(): void {
     if (this.section() === 'security') {
-      this.cancelSecurity();
+      this.cancelPasswordUpdate();
     } else {
-      this.cancelEdit();
+      this.cancelAccountEdit();
     }
   }
 
-  protected mobileSave(): void {
+  protected saveSectionChanges(): void {
     if (this.section() === 'security') {
       this.updatePassword();
     } else {
-      this.save();
+      this.saveAccountDetails();
     }
   }
 
@@ -475,7 +475,7 @@ export class Profile {
         error: (error: unknown) => {
           this.pwSaving.set(false);
           this.securityError.set(
-            this.errorIncludes(error, INVALID_CURRENT_PASSWORD_ERROR_CODE)
+            this.hasErrorCode(error, INVALID_CURRENT_PASSWORD_ERROR_CODE)
               ? 'Le mot de passe actuel est incorrect.'
               : 'La mise à jour a échoué. Réessayez.',
           );
@@ -488,7 +488,7 @@ export class Profile {
   );
   protected readonly filSaved = signal(false);
 
-  protected toggleFeed(next: boolean): void {
+  protected saveFeedVisibility(next: boolean): void {
     this.showInFeed.set(next);
     this.authFacade
       .updateProfile({ showInFeed: next })
@@ -535,18 +535,18 @@ export class Profile {
         DELETE_ACCOUNT_CONFIRMATION,
   );
 
-  protected openDelete(): void {
+  protected openAccountDeletion(): void {
     this.deleteOpen.set(true);
     this.deletePassword.set('');
     this.deleteConfirmationInput.set('');
     this.deleteError.set(null);
   }
 
-  protected closeDelete(): void {
+  protected closeAccountDeletion(): void {
     this.deleteOpen.set(false);
   }
 
-  protected confirmDelete(): void {
+  protected confirmAccountDeletion(): void {
     if (!this.canDelete()) {
       return;
     }
@@ -563,7 +563,7 @@ export class Profile {
         error: (error: unknown) => {
           this.deleting.set(false);
           this.deleteError.set(
-            this.errorIncludes(error, INVALID_CURRENT_PASSWORD_ERROR_CODE)
+            this.hasErrorCode(error, INVALID_CURRENT_PASSWORD_ERROR_CODE)
               ? 'Le mot de passe est incorrect.'
               : 'La suppression a échoué. Réessayez.',
           );
@@ -575,14 +575,14 @@ export class Profile {
     this.router.navigate(['/credits']);
   }
 
-  protected open(section: ProfileSection): void {
+  protected openSection(section: ProfileSection): void {
     this.section.set(section);
     this.saved.set(false);
     this.pwDone.set(false);
     this.filSaved.set(false);
     this.accountError.set(null);
     this.securityError.set(null);
-    this.cancelEdit();
+    this.cancelAccountEdit();
   }
 
   protected logout(): void {
@@ -595,11 +595,11 @@ export class Profile {
       });
   }
 
-  protected touchAccount(): void {
+  protected clearAccountSavedStatus(): void {
     this.saved.set(false);
   }
 
-  private errorIncludes(error: unknown, code: string): boolean {
+  private hasErrorCode(error: unknown, code: string): boolean {
     if (typeof error !== 'object' || error === null) {
       return false;
     }

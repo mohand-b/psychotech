@@ -20,13 +20,13 @@ import { GamepadPairing } from '../../../shared/ui/gamepad-pairing/gamepad-pairi
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
 import { Button } from '../../../shared/ui/button/button';
-import { axisSlug } from '../../../shared/util/axis-slug';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisSlug } from '../../../shared/util/axis-slug';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { AxisBriefing } from '../../ui/axis-briefing/axis-briefing';
-import { sectorReferentialFor } from '../sector-referential';
+import { syncSectorReferential } from '../sector-referential';
 import {
-  sessionResultRoute,
-  simulationSessionRoute,
+  buildSimulationResultRoute,
+  buildSimulationSessionRoute,
 } from '../../../shared/util/session-links';
 
 @Component({
@@ -52,7 +52,7 @@ export class SimulationBriefing {
   protected readonly sector = computed(
     () => this.facade.session()?.sector ?? Sector.RAILWAY,
   );
-  private readonly referential = sectorReferentialFor(
+  private readonly referential = syncSectorReferential(
     computed(() => this.facade.session()?.sector ?? null),
   );
   protected readonly criticalAxis = computed(() => {
@@ -69,7 +69,7 @@ export class SimulationBriefing {
 
   protected readonly buttonColor = computed(() => {
     const axis = this.axis();
-    return axis ? axisButtonColor(axis) : 'brand';
+    return axis ? resolveAxisButtonColor(axis) : 'brand';
   });
 
   protected readonly gamepadPairing = this.gamepad.pairing;
@@ -79,49 +79,49 @@ export class SimulationBriefing {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      if (!this.leavingTowardsAxisPlay()) {
-        this.gamepad.disconnect();
+      if (!this.isLeavingTowardsAxisPlay()) {
+        this.gamepad.disconnectGamepad();
       }
     });
     const active = this.facade.session();
     if (active?.id === this.sessionId) {
-      this.handleLoaded(active);
+      this.showBriefingOrRedirect(active);
     } else {
       this.facade
-        .load(this.sessionId)
+        .loadSession(this.sessionId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (session) => this.handleLoaded(session),
+          next: (session) => this.showBriefingOrRedirect(session),
           error: () => this.router.navigate(['/entrainements']),
         });
     }
   }
 
-  protected start(): void {
+  protected navigateToCurrentAxisPlay(): void {
     const axis = this.axis();
     if (!this.loaded() || !axis) {
       return;
     }
     this.router.navigate([
-      ...simulationSessionRoute(this.sessionId),
+      ...buildSimulationSessionRoute(this.sessionId),
       'axe',
-      axisSlug(axis),
+      resolveAxisSlug(axis),
     ]);
   }
 
-  private leavingTowardsAxisPlay(): boolean {
+  private isLeavingTowardsAxisPlay(): boolean {
     return this.router.url.startsWith(
       `/entrainements/examen-blanc/session/${this.sessionId}/axe/`,
     );
   }
 
-  private handleLoaded(session: SessionDto): void {
+  private showBriefingOrRedirect(session: SessionDto): void {
     if (session.mode !== SessionMode.FULL) {
       this.router.navigate(['/entrainements'], { replaceUrl: true });
       return;
     }
     if (session.status === SessionStatus.COMPLETED) {
-      this.router.navigate(sessionResultRoute(session.id), {
+      this.router.navigate(buildSimulationResultRoute(session.id), {
         replaceUrl: true,
       });
       return;
@@ -132,7 +132,7 @@ export class SimulationBriefing {
     }
     this.loaded.set(true);
     if (this.motricityAxis() && !this.gamepad.connected()) {
-      this.gamepad.pair(this.sessionId);
+      this.gamepad.pairSessionGamepad(this.sessionId);
     }
   }
 }

@@ -110,7 +110,7 @@ export function mergeExitWindows(
   return merged;
 }
 
-export function courseContactTimes(
+export function collectCourseContactTimes(
   events: MotricityErrorEvent[],
   courseIndex: number,
 ): number[] {
@@ -124,7 +124,7 @@ export function courseContactTimes(
   );
 }
 
-export function courseExitWindows(
+export function collectCourseExitWindows(
   events: MotricityErrorEvent[],
   courseIndex: number,
 ): TrajectoryExitWindow[] {
@@ -168,14 +168,17 @@ export function interpolateDeviationAt(
   return last.deviationPct;
 }
 
-function cosineBell(distanceMs: number, halfWidthMs: number): number {
+function evaluateCosineBell(distanceMs: number, halfWidthMs: number): number {
   if (Math.abs(distanceMs) >= halfWidthMs) {
     return 0;
   }
   return 0.5 * (1 + Math.cos((Math.PI * Math.abs(distanceMs)) / halfWidthMs));
 }
 
-function exitTarget(tMs: number, window: TrajectoryExitWindow): number {
+function computeExitDomeDeviation(
+  tMs: number,
+  window: TrajectoryExitWindow,
+): number {
   const span = Math.max(1, window.endMs - window.startMs);
   const inside = Math.min(Math.max(tMs, window.startMs), window.endMs);
   const dome =
@@ -188,16 +191,19 @@ function exitTarget(tMs: number, window: TrajectoryExitWindow): number {
   );
 }
 
-function exitRamp(tMs: number, window: TrajectoryExitWindow): number {
+function computeExitRampWeight(
+  tMs: number,
+  window: TrajectoryExitWindow,
+): number {
   if (tMs >= window.startMs && tMs <= window.endMs) {
     return 1;
   }
   const distance =
     tMs < window.startMs ? window.startMs - tMs : tMs - window.endMs;
-  return cosineBell(distance, TRAJECTORY_EXIT_EASE_MS);
+  return evaluateCosineBell(distance, TRAJECTORY_EXIT_EASE_MS);
 }
 
-function contactBellHalfMs(totalMs: number): number {
+function computeContactBellHalfMs(totalMs: number): number {
   return Math.max(
     TRAJECTORY_CONTACT_BELL_HALF_MS,
     totalMs * TRAJECTORY_CONTACT_BELL_MIN_SPAN_RATIO,
@@ -216,27 +222,27 @@ export function buildDisplaySeries(
   const baseline = smoothTimelinePoints(bucketTimelinePoints(raw));
   const firstMs = raw[0].tMs;
   const lastMs = raw[raw.length - 1].tMs;
-  const bellHalfMs = contactBellHalfMs(totalMs);
+  const bellHalfMs = computeContactBellHalfMs(totalMs);
 
   const times = new Set<number>(baseline.map((point) => point.tMs));
   times.add(firstMs);
   times.add(lastMs);
-  const addTime = (tMs: number) => {
+  const addTimeIfInRange = (tMs: number) => {
     if (tMs >= firstMs && tMs <= lastMs) {
       times.add(tMs);
     }
   };
   for (const contactTMs of contactsTMs) {
-    addTime(contactTMs);
-    addTime(contactTMs - bellHalfMs);
-    addTime(contactTMs + bellHalfMs);
+    addTimeIfInRange(contactTMs);
+    addTimeIfInRange(contactTMs - bellHalfMs);
+    addTimeIfInRange(contactTMs + bellHalfMs);
   }
   for (const window of exitWindows) {
-    addTime(window.startMs);
-    addTime(window.endMs);
-    addTime(window.startMs - TRAJECTORY_EXIT_EASE_MS);
-    addTime(window.endMs + TRAJECTORY_EXIT_EASE_MS);
-    addTime((window.startMs + window.endMs) / 2);
+    addTimeIfInRange(window.startMs);
+    addTimeIfInRange(window.endMs);
+    addTimeIfInRange(window.startMs - TRAJECTORY_EXIT_EASE_MS);
+    addTimeIfInRange(window.endMs + TRAJECTORY_EXIT_EASE_MS);
+    addTimeIfInRange((window.startMs + window.endMs) / 2);
   }
 
   return [...times]
@@ -245,7 +251,7 @@ export function buildDisplaySeries(
       const base = interpolateDeviationAt(baseline, tMs);
       let lift = 0;
       for (const contactTMs of contactsTMs) {
-        lift = Math.max(lift, cosineBell(tMs - contactTMs, bellHalfMs));
+        lift = Math.max(lift, evaluateCosineBell(tMs - contactTMs, bellHalfMs));
       }
       const anchored =
         base < TRAJECTORY_BORDER_PCT
@@ -253,9 +259,9 @@ export function buildDisplaySeries(
           : base;
       let value = anchored;
       for (const window of exitWindows) {
-        const ramp = exitRamp(tMs, window);
+        const ramp = computeExitRampWeight(tMs, window);
         if (ramp > 0) {
-          const target = exitTarget(tMs, window);
+          const target = computeExitDomeDeviation(tMs, window);
           value = Math.max(value, anchored + ramp * (target - anchored));
         }
       }
@@ -298,7 +304,7 @@ interface TrajectoryBorderMarker {
   kind: TrajectoryBorderMarkerKind;
 }
 
-export function borderMarkers(
+export function findBorderMarkers(
   points: MotricityTimelinePoint[],
   borderPct: number = TRAJECTORY_BORDER_PCT,
 ): TrajectoryBorderMarker[] {
@@ -322,7 +328,7 @@ interface CurveRun {
   to: number;
 }
 
-export function curveAboveBorderRuns(
+export function findRunsAboveBorder(
   deviationsPct: number[],
   borderPct: number = TRAJECTORY_BORDER_PCT,
 ): CurveRun[] {
@@ -358,7 +364,7 @@ export interface CurvePoint {
   y: number;
 }
 
-function monotoneCubicTangents(coords: CurvePoint[]): number[] {
+function computeMonotoneCubicTangents(coords: CurvePoint[]): number[] {
   const count = coords.length;
   const slopes: number[] = [];
   for (let index = 0; index < count - 1; index += 1) {
@@ -392,7 +398,7 @@ function monotoneCubicTangents(coords: CurvePoint[]): number[] {
   return tangents;
 }
 
-export function monotoneCubicSubPath(
+export function buildMonotoneCubicSubPath(
   coords: CurvePoint[],
   from: number,
   to: number,
@@ -400,7 +406,7 @@ export function monotoneCubicSubPath(
   if (coords.length < 2 || to <= from) {
     return '';
   }
-  const tangents = monotoneCubicTangents(coords);
+  const tangents = computeMonotoneCubicTangents(coords);
   let path = `M ${coords[from].x.toFixed(2)} ${coords[from].y.toFixed(2)}`;
   for (let index = from; index < to; index += 1) {
     const current = coords[index];
@@ -411,6 +417,6 @@ export function monotoneCubicSubPath(
   return path;
 }
 
-export function monotoneCubicPath(coords: CurvePoint[]): string {
-  return monotoneCubicSubPath(coords, 0, coords.length - 1);
+export function buildMonotoneCubicPath(coords: CurvePoint[]): string {
+  return buildMonotoneCubicSubPath(coords, 0, coords.length - 1);
 }

@@ -35,9 +35,7 @@ export const TUTORIAL_AXIS = new InjectionToken<RailwayPlayableAxis>(
   'TUTORIAL_AXIS',
 );
 
-export function tutorialSessionProviders(
-  axis?: RailwayPlayableAxis,
-): Provider[] {
+export function provideTutorialSession(axis?: RailwayPlayableAxis): Provider[] {
   const providers: Provider[] = [
     TrainingSessionStore,
     { provide: TrainingSessionFacade, useClass: TutorialSessionFacade },
@@ -51,7 +49,7 @@ export function tutorialSessionProviders(
 export const tutorialPlayResetGuard: CanActivateFn = () => {
   const facade = inject(TrainingSessionFacade);
   if (facade instanceof TutorialSessionFacade) {
-    facade.resetForNewRun();
+    facade.restartTutorialSession();
   }
   return true;
 };
@@ -69,35 +67,37 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
     }
   }
 
-  resetForNewRun(): void {
+  restartTutorialSession(): void {
     if (this.presetAxis) {
       this.installTutorialSession(this.presetAxis);
     }
   }
 
-  protected override trainingFor(axis: AxisType): AxisTraining | undefined {
+  protected override findTrainingConfig(
+    axis: AxisType,
+  ): AxisTraining | undefined {
     return AXIS_TUTORIAL[axis as RailwayPlayableAxis];
   }
 
-  protected override logicItemsFor(session: SessionDto): LogicItem[] {
+  protected override generateLogicItems(session: SessionDto): LogicItem[] {
     return generateLogicTutorial(session.seed);
   }
 
-  protected override motricityGeneration(): MotricityGenerationOptions {
+  protected override getMotricityGenerationOptions(): MotricityGenerationOptions {
     return { courseCount: 1, startWidths: [MOTRICITY_TUTORIAL_START_WIDTH] };
   }
 
-  override startTargeted(axis: AxisType): Observable<SessionDto> {
+  override startTargetedSession(axis: AxisType): Observable<SessionDto> {
     return of(this.installTutorialSession(axis as RailwayPlayableAxis));
   }
 
-  override startFull(): Observable<SessionDto> {
+  override startFullSession(): Observable<SessionDto> {
     return throwError(
       () => new Error('Un tutoriel ne démarre jamais de session complète'),
     );
   }
 
-  override load(): Observable<SessionDto> {
+  override loadSession(): Observable<SessionDto> {
     const session = this.session();
     return session
       ? of(session)
@@ -110,49 +110,52 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
     );
   }
 
-  override completeTargeted(
+  override completeLogicAxis(
     items: LogicItemAnswerDto[],
   ): Observable<SessionDto> {
-    this.runFacade.record({ axis: AxisType.LOGIC, items });
-    return this.completeLocally();
+    this.runFacade.recordRunResult({ axis: AxisType.LOGIC, items });
+    return this.completeSessionLocally();
   }
 
-  override completeTargetedMemory(
+  override completeMemoryAxis(
     sequences: MemorySequenceAnswerDto[],
   ): Observable<SessionDto> {
-    this.runFacade.record({ axis: AxisType.MEMORY, sequences });
-    return this.completeLocally();
+    this.runFacade.recordRunResult({ axis: AxisType.MEMORY, sequences });
+    return this.completeSessionLocally();
   }
 
-  override completeTargetedDiscrimination(
+  override completeDiscriminationAxis(
     trials: DiscriminationTrialAnswerDto[],
   ): Observable<SessionDto> {
-    this.runFacade.record({ axis: AxisType.VISUAL_DISCRIMINATION, trials });
-    return this.completeLocally();
+    this.runFacade.recordRunResult({
+      axis: AxisType.VISUAL_DISCRIMINATION,
+      trials,
+    });
+    return this.completeSessionLocally();
   }
 
-  override completeTargetedMotricity(
+  override completeMotricityAxis(
     courses: MotricityCourseTrajectoryDto[],
   ): Observable<SessionDto> {
-    this.runFacade.record({ axis: AxisType.MOTOR_SKILLS, courses });
-    return this.completeLocally();
+    this.runFacade.recordRunResult({ axis: AxisType.MOTOR_SKILLS, courses });
+    return this.completeSessionLocally();
   }
 
-  override completeTargetedReactivity(
+  override completeReactivityAxis(
     stimuli: ReactivityStimulusAnswerDto[],
     waitPresses: ReactivityWaitPressDto[],
     playedMs: number,
   ): Observable<SessionDto> {
-    this.runFacade.record({
+    this.runFacade.recordRunResult({
       axis: AxisType.REACTIVITY,
       stimuli,
       waitPresses,
       playedMs,
     });
-    return this.completeLocally();
+    return this.completeSessionLocally();
   }
 
-  private completeLocally(): Observable<SessionDto> {
+  private completeSessionLocally(): Observable<SessionDto> {
     const current = this.session();
     if (!current) {
       return throwError(() => new Error('Aucun tutoriel en cours'));
@@ -162,12 +165,12 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
       status: SessionStatus.COMPLETED,
       completedAt: new Date().toISOString(),
     };
-    this.install(completed);
+    this.installSession(completed);
     return of(completed);
   }
 
   private installTutorialSession(axis: RailwayPlayableAxis): SessionDto {
-    this.runFacade.clear();
+    this.runFacade.clearRunResult();
     const startedAt = new Date().toISOString();
     const session: SessionDto = {
       id: TUTORIAL_SESSION_ID,
@@ -203,7 +206,7 @@ export class TutorialSessionFacade extends TrainingSessionFacade {
       ],
       recommendations: [],
     };
-    this.install(session);
+    this.installSession(session);
     return session;
   }
 }

@@ -56,10 +56,10 @@ import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
 import {
-  sessionResultRoute,
-  simulationSessionRoute,
-  targetedAxisRoute,
-  targetedSessionRoute,
+  buildSimulationResultRoute,
+  buildSimulationSessionRoute,
+  buildTargetedAxisRoute,
+  buildTargetedSessionRoute,
 } from '../../../shared/util/session-links';
 
 type DayVariant = 'session' | 'train' | 'new';
@@ -136,8 +136,8 @@ export class Dashboard {
   protected readonly radarMode = signal<RadarMode>('derniere');
 
   constructor() {
-    this.overviewFacade.load(this.sector());
-    this.sessionHistoryFacade.refreshCurrent();
+    this.overviewFacade.loadOverview(this.sector());
+    this.sessionHistoryFacade.loadCurrentSession();
   }
 
   protected readonly overviewLoaded = computed(
@@ -155,7 +155,7 @@ export class Dashboard {
   );
 
   protected retryOverview(): void {
-    this.overviewFacade.reload();
+    this.overviewFacade.reloadOverview();
   }
 
   private readonly overview = this.overviewFacade.overview;
@@ -391,32 +391,32 @@ export class Dashboard {
     this.radarMode.set(mode);
   }
 
-  protected resume(): void {
+  protected resumeCurrentSession(): void {
     const session = this.current();
     if (!session) {
       return;
     }
     if (session.mode === SessionMode.FULL) {
-      this.router.navigate(simulationSessionRoute(session.id));
+      this.router.navigate(buildSimulationSessionRoute(session.id));
       return;
     }
     if (session.axes.length > 0) {
       this.router.navigate(
-        targetedSessionRoute(session.axes[0].axis, session.id),
+        buildTargetedSessionRoute(session.axes[0].axis, session.id),
       );
       return;
     }
     this.router.navigate(['/entrainements']);
   }
 
-  protected train(): void {
+  protected openTrainings(): void {
     this.router.navigate(['/entrainements']);
   }
 
   protected openLastResult(): void {
     const sessionId = this.lastResult()?.sessionId;
     if (sessionId) {
-      this.router.navigate(sessionResultRoute(sessionId));
+      this.router.navigate(buildSimulationResultRoute(sessionId));
     }
   }
 
@@ -424,10 +424,10 @@ export class Dashboard {
     this.router.navigate(['/progression']);
   }
 
-  protected workWeakAxis(): void {
+  protected openWeakAxisTraining(): void {
     const weakAxis = this.weakAxis();
     if (weakAxis) {
-      this.router.navigate(targetedAxisRoute(weakAxis.axis));
+      this.router.navigate(buildTargetedAxisRoute(weakAxis.axis));
     }
   }
 }

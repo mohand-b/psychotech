@@ -12,11 +12,11 @@ import {
   AxisIcon,
 } from '../../../shared/ui/axis-icon/axis-icon';
 import { LandingAxis } from '../../data/landing-axes';
-import { tabIndexAfterKey } from '../../util/tab-navigation';
+import { computeTabIndexAfterKey } from '../../util/tab-navigation';
 
 export const LANDING_AXIS_PANEL_ID = 'landing-axis-panel';
 
-export function landingAxisTabId(axis: AxisType): string {
+export function buildLandingAxisTabId(axis: AxisType): string {
   return `landing-axis-tab-${axis}`;
 }
 
@@ -33,13 +33,13 @@ export function landingAxisTabId(axis: AxisType): string {
           role="tab"
           class="tabs__tab"
           [class.tabs__tab--active]="index === selected()"
-          [id]="tabId(axis.axis)"
+          [id]="buildLandingAxisTabId(axis.axis)"
           [attr.aria-selected]="index === selected()"
           [attr.aria-controls]="panelId"
           [attr.tabindex]="index === selected() ? 0 : -1"
           [style.--axis-color]="axis.colorVar"
           (click)="selected.set(index)"
-          (keydown)="navigate($event)"
+          (keydown)="selectTabWithKeyboard($event)"
         >
           <ui-axis-icon
             class="tabs__icon"
@@ -164,10 +164,10 @@ export class LandingAxisTabs {
 
   protected readonly iconSize = AXIS_ICON_SIZE.tab;
   protected readonly panelId = LANDING_AXIS_PANEL_ID;
-  protected readonly tabId = landingAxisTabId;
+  protected readonly buildLandingAxisTabId = buildLandingAxisTabId;
 
-  protected navigate(event: KeyboardEvent): void {
-    const next = tabIndexAfterKey(
+  protected selectTabWithKeyboard(event: KeyboardEvent): void {
+    const next = computeTabIndexAfterKey(
       event.key,
       this.selected(),
       this.axes().length,

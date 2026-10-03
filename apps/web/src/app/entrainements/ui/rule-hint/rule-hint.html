@@ -7,13 +7,13 @@
     [attr.aria-expanded]="hintOpen()"
     [attr.title]="used() ? 'Règle affichée' : 'Voir la règle'"
     aria-label="Voir la règle de l'item"
-    (click)="toggle()"
+    (click)="toggleHint()"
   >
     <ui-icon [img]="bulbIcon" [size]="16" />
   </button>
 
   @if (hintOpen()) {
-    <span class="hint__veil" aria-hidden="true" (click)="close()"></span>
+    <span class="hint__veil" aria-hidden="true" (click)="closeHint()"></span>
     <div class="hint__pop" role="dialog" aria-label="Règle de l'item">
       <span class="hint__handle" aria-hidden="true"></span>
       <div class="hint__line">
@@ -23,7 +23,7 @@
           type="button"
           class="hint__close"
           aria-label="Fermer l'aide"
-          (click)="close(true)"
+          (click)="closeHint(true)"
         >
           <ui-icon [img]="closeIcon" [size]="12" />
         </button>

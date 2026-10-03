@@ -1,4 +1,4 @@
-export function tabIndexAfterKey(
+export function computeTabIndexAfterKey(
   key: string,
   currentIndex: number,
   tabCount: number,

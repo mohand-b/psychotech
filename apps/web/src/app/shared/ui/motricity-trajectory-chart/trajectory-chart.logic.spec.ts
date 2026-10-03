@@ -6,19 +6,19 @@ import {
   TRAJECTORY_DISPLAY_CLAMP_PCT,
   TRAJECTORY_EXIT_CEILING_PCT,
   TrajectoryExitWindow,
-  borderMarkers,
+  findBorderMarkers,
   buildDisplaySeries,
   bucketTimelinePoints,
   clampDeviation,
-  courseContactTimes,
-  courseExitWindows,
-  curveAboveBorderRuns,
+  collectCourseContactTimes,
+  collectCourseExitWindows,
+  findRunsAboveBorder,
   insertBorderCrossings,
   interpolateDeviationAt,
   mergeContactTimes,
   mergeExitWindows,
-  monotoneCubicPath,
-  monotoneCubicSubPath,
+  buildMonotoneCubicPath,
+  buildMonotoneCubicSubPath,
   smoothTimelinePoints,
 } from './trajectory-chart.logic';
 
@@ -98,9 +98,9 @@ describe('merging', () => {
         durationMs: 500,
       },
     ];
-    expect(courseContactTimes(events, 0)).toEqual([1_500]);
-    expect(courseContactTimes(events, 1)).toEqual([5_000]);
-    expect(courseExitWindows(events, 0)).toEqual([
+    expect(collectCourseContactTimes(events, 0)).toEqual([1_500]);
+    expect(collectCourseContactTimes(events, 1)).toEqual([5_000]);
+    expect(collectCourseExitWindows(events, 0)).toEqual([
       { startMs: 8_000, endMs: 9_500 },
     ]);
   });
@@ -149,9 +149,9 @@ describe('buildDisplaySeries', () => {
   });
 });
 
-describe('monotoneCubicPath', () => {
+describe('buildMonotoneCubicPath', () => {
   it('draws a flat series as a flat path without oscillation', () => {
-    const path = monotoneCubicPath([
+    const path = buildMonotoneCubicPath([
       { x: 0, y: 50 },
       { x: 25, y: 50 },
       { x: 50, y: 50 },
@@ -164,7 +164,7 @@ describe('monotoneCubicPath', () => {
   });
 
   it('never overshoots a monotone ramp', () => {
-    const path = monotoneCubicPath([
+    const path = buildMonotoneCubicPath([
       { x: 0, y: 100 },
       { x: 10, y: 90 },
       { x: 20, y: 20 },
@@ -214,7 +214,7 @@ describe('insertBorderCrossings', () => {
   });
 });
 
-describe('curveAboveBorderRuns', () => {
+describe('findRunsAboveBorder', () => {
   it('starts and ends every red run exactly at the border crossings', () => {
     const inserted = insertBorderCrossings([
       { tMs: 0, deviationPct: 40 },
@@ -222,7 +222,7 @@ describe('curveAboveBorderRuns', () => {
       { tMs: 2_000, deviationPct: 108 },
       { tMs: 3_000, deviationPct: 55 },
     ]);
-    const runs = curveAboveBorderRuns(
+    const runs = findRunsAboveBorder(
       inserted.map((point) => point.deviationPct),
     );
     expect(runs).toEqual([{ from: 1, to: 4 }]);
@@ -232,7 +232,7 @@ describe('curveAboveBorderRuns', () => {
 
   it('keeps every point below the border out of the red runs', () => {
     const values = [40, 100, 102, 108, 100, 55, 40];
-    const runs = curveAboveBorderRuns(values);
+    const runs = findRunsAboveBorder(values);
     expect(runs).toEqual([{ from: 1, to: 4 }]);
     for (const run of runs) {
       for (let index = run.from; index <= run.to; index += 1) {
@@ -242,12 +242,12 @@ describe('curveAboveBorderRuns', () => {
   });
 
   it('keeps a peak at exactly one hundred black', () => {
-    expect(curveAboveBorderRuns([40, 100, 40])).toEqual([]);
-    expect(curveAboveBorderRuns([])).toEqual([]);
+    expect(findRunsAboveBorder([40, 100, 40])).toEqual([]);
+    expect(findRunsAboveBorder([])).toEqual([]);
   });
 });
 
-describe('borderMarkers', () => {
+describe('findBorderMarkers', () => {
   const totalMs = 90_000;
   const raw = flatSeries(90_000, 40);
 
@@ -262,25 +262,23 @@ describe('borderMarkers', () => {
 
   it('marks pure contacts with a single touch each and no red run', () => {
     const series = renderedSeries([15_000, 40_000], []);
-    const markers = borderMarkers(series);
+    const markers = findBorderMarkers(series);
     expect(markers).toEqual([
       { tMs: 15_000, kind: 'TOUCH' },
       { tMs: 40_000, kind: 'TOUCH' },
     ]);
     expect(
-      curveAboveBorderRuns(series.map((point) => point.deviationPct)),
+      findRunsAboveBorder(series.map((point) => point.deviationPct)),
     ).toEqual([]);
   });
 
   it('marks a long exit with one marker per crossing, reconciled with the red run', () => {
     const series = renderedSeries([], [{ startMs: 20_000, endMs: 28_000 }]);
-    const markers = borderMarkers(series);
+    const markers = findBorderMarkers(series);
     expect(markers).toHaveLength(2);
     expect(markers[0].kind).toBe('EXIT_START');
     expect(markers[1].kind).toBe('EXIT_END');
-    const runs = curveAboveBorderRuns(
-      series.map((point) => point.deviationPct),
-    );
+    const runs = findRunsAboveBorder(series.map((point) => point.deviationPct));
     expect(runs).toHaveLength(1);
     expect(series[runs[0].from].tMs).toBe(markers[0].tMs);
     expect(series[runs[0].to].tMs).toBe(markers[1].tMs);
@@ -294,16 +292,14 @@ describe('borderMarkers', () => {
         { startMs: 60_000, endMs: 60_400 },
       ],
     );
-    const markers = borderMarkers(series);
+    const markers = findBorderMarkers(series);
     expect(markers.map((marker) => marker.kind)).toEqual([
       'EXIT_START',
       'EXIT_END',
       'EXIT_START',
       'EXIT_END',
     ]);
-    const runs = curveAboveBorderRuns(
-      series.map((point) => point.deviationPct),
-    );
+    const runs = findRunsAboveBorder(series.map((point) => point.deviationPct));
     expect(runs).toHaveLength(2);
   });
 
@@ -312,18 +308,16 @@ describe('borderMarkers', () => {
       [15_000],
       [{ startMs: 30_000, endMs: 33_000 }],
     );
-    const markers = borderMarkers(series);
+    const markers = findBorderMarkers(series);
     const meetings = series.filter((point) => point.deviationPct === 100);
     expect(markers).toHaveLength(meetings.length);
-    const runs = curveAboveBorderRuns(
-      series.map((point) => point.deviationPct),
-    );
+    const runs = findRunsAboveBorder(series.map((point) => point.deviationPct));
     const crossingMarkers = markers.filter((marker) => marker.kind !== 'TOUCH');
     expect(crossingMarkers).toHaveLength(runs.length * 2);
   });
 });
 
-describe('monotoneCubicSubPath', () => {
+describe('buildMonotoneCubicSubPath', () => {
   it('renders a red run with the same geometry as the base curve', () => {
     const coords = [
       { x: 0, y: 80 },
@@ -332,8 +326,8 @@ describe('monotoneCubicSubPath', () => {
       { x: 60, y: 30 },
       { x: 80, y: 70 },
     ];
-    const base = monotoneCubicPath(coords);
-    const sub = monotoneCubicSubPath(coords, 1, 3);
+    const base = buildMonotoneCubicPath(coords);
+    const sub = buildMonotoneCubicSubPath(coords, 1, 3);
     const segments = base.split(' C ');
     expect(sub).toBe(`M 20.00 50.00 C ${segments[2]} C ${segments[3]}`);
   });

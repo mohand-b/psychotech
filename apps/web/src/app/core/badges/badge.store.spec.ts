@@ -24,30 +24,30 @@ function setup(): Store {
 describe('BadgeStore', () => {
   it('starts celebrating immediately when nothing holds the scene', () => {
     const store = setup();
-    store.enqueue([badge(BadgeId.LOGIC_PROGRESSION)]);
+    store.enqueueBadges([badge(BadgeId.LOGIC_PROGRESSION)]);
     expect(store.phase()).toBe('celebrating');
     expect(store.current()?.badgeId).toBe(BadgeId.LOGIC_PROGRESSION);
   });
 
   it('waits for every hold to be released before celebrating', () => {
     const store = setup();
-    store.placeHold('play-route');
-    store.placeHold('score-scene');
-    store.enqueue([badge(BadgeId.EXAM_FIRST)]);
+    store.placeSceneHold('play-route');
+    store.placeSceneHold('score-scene');
+    store.enqueueBadges([badge(BadgeId.EXAM_FIRST)]);
     expect(store.phase()).toBe('awaitingScene');
     expect(store.current()).toBeNull();
 
-    store.releaseHold('play-route');
+    store.releaseSceneHold('play-route');
     expect(store.phase()).toBe('awaitingScene');
 
-    store.releaseHold('score-scene');
+    store.releaseSceneHold('score-scene');
     expect(store.phase()).toBe('celebrating');
     expect(store.current()?.badgeId).toBe(BadgeId.EXAM_FIRST);
   });
 
   it('advances one badge at a time and finishes on the last one', () => {
     const store = setup();
-    store.enqueue([
+    store.enqueueBadges([
       badge(BadgeId.EXAM_FIRST),
       badge(BadgeId.EXAM_FAVORABLE, 2),
     ]);
@@ -55,13 +55,13 @@ describe('BadgeStore', () => {
     expect(store.total()).toBe(2);
     expect(store.isLast()).toBe(false);
 
-    const first = store.completeCurrent();
+    const first = store.completeCurrentBadge();
     expect(first?.badgeId).toBe(BadgeId.EXAM_FIRST);
     expect(store.phase()).toBe('celebrating');
     expect(store.current()?.badgeId).toBe(BadgeId.EXAM_FAVORABLE);
     expect(store.isLast()).toBe(true);
 
-    const second = store.completeCurrent();
+    const second = store.completeCurrentBadge();
     expect(second?.badgeId).toBe(BadgeId.EXAM_FAVORABLE);
     expect(store.phase()).toBe('done');
     expect(store.current()).toBeNull();
@@ -69,19 +69,19 @@ describe('BadgeStore', () => {
 
   it('never enqueues a badge twice, even after its celebration', () => {
     const store = setup();
-    store.enqueue([badge(BadgeId.FIRST_STEPS, 5)]);
-    store.enqueue([badge(BadgeId.FIRST_STEPS, 5)]);
+    store.enqueueBadges([badge(BadgeId.FIRST_STEPS, 5)]);
+    store.enqueueBadges([badge(BadgeId.FIRST_STEPS, 5)]);
     expect(store.total()).toBe(1);
 
-    store.completeCurrent();
-    store.enqueue([badge(BadgeId.FIRST_STEPS, 5)]);
+    store.completeCurrentBadge();
+    store.enqueueBadges([badge(BadgeId.FIRST_STEPS, 5)]);
     expect(store.phase()).toBe('done');
   });
 
   it('appends fresh badges to a running celebration without restarting', () => {
     const store = setup();
-    store.enqueue([badge(BadgeId.EXAM_FIRST)]);
-    store.enqueue([badge(BadgeId.EXAM_FAVORABLE, 2)]);
+    store.enqueueBadges([badge(BadgeId.EXAM_FIRST)]);
+    store.enqueueBadges([badge(BadgeId.EXAM_FAVORABLE, 2)]);
     expect(store.phase()).toBe('celebrating');
     expect(store.current()?.badgeId).toBe(BadgeId.EXAM_FIRST);
     expect(store.total()).toBe(2);
@@ -89,11 +89,11 @@ describe('BadgeStore', () => {
 
   it('dismisses the whole run and reports every remaining badge', () => {
     const store = setup();
-    store.enqueue([
+    store.enqueueBadges([
       badge(BadgeId.EXAM_FIRST),
       badge(BadgeId.EXAM_FAVORABLE, 2),
     ]);
-    const dismissed = store.dismissAll();
+    const dismissed = store.dismissRemainingBadges();
     expect(dismissed.map((entry) => entry.badgeId)).toEqual([
       BadgeId.EXAM_FIRST,
       BadgeId.EXAM_FAVORABLE,
@@ -103,21 +103,21 @@ describe('BadgeStore', () => {
 
   it('replays already celebrated badges without waiting when the scene is free', () => {
     const store = setup();
-    store.enqueue([badge(BadgeId.EXAM_FIRST)]);
-    store.completeCurrent();
+    store.enqueueBadges([badge(BadgeId.EXAM_FIRST)]);
+    store.completeCurrentBadge();
     expect(store.phase()).toBe('done');
 
-    store.replay([badge(BadgeId.EXAM_FIRST)]);
+    store.replayCelebration([badge(BadgeId.EXAM_FIRST)]);
     expect(store.phase()).toBe('celebrating');
     expect(store.current()?.badgeId).toBe(BadgeId.EXAM_FIRST);
   });
 
   it('keeps a replay on hold while the scene is not ready', () => {
     const store = setup();
-    store.placeHold('score-scene');
-    store.replay([badge(BadgeId.EXAM_FIRST)]);
+    store.placeSceneHold('score-scene');
+    store.replayCelebration([badge(BadgeId.EXAM_FIRST)]);
     expect(store.phase()).toBe('awaitingScene');
-    store.releaseHold('score-scene');
+    store.releaseSceneHold('score-scene');
     expect(store.phase()).toBe('celebrating');
   });
 });

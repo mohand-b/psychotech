@@ -4,18 +4,18 @@
       type="button"
       class="choices__item"
       [class.choices__item--selected]="!review() && selectedIndex() === $index"
-      [class.choices__item--correct]="isCorrect($index)"
-      [class.choices__item--wrong]="isUserWrong($index)"
+      [class.choices__item--correct]="isCorrectChoice($index)"
+      [class.choices__item--wrong]="isWrongUserChoice($index)"
       [class.choices__item--readonly]="review()"
       [attr.aria-pressed]="review() ? null : selectedIndex() === $index"
       [disabled]="disabled() || review()"
-      (click)="onChoose($index)"
+      (click)="chooseAnswer($index)"
     >
       <span class="choices__letter" aria-hidden="true">{{
         letters[$index]
       }}</span>
       <span class="choices__value t-mono">{{ choice }}</span>
-      @if (isUserWrong($index)) {
+      @if (isWrongUserChoice($index)) {
         <span class="choices__mention">Votre réponse</span>
         <ui-icon
           class="choices__mark choices__mark--bad"
@@ -23,7 +23,7 @@
           [size]="16"
         />
       }
-      @if (isCorrect($index)) {
+      @if (isCorrectChoice($index)) {
         <ui-icon
           class="choices__mark choices__mark--good"
           [img]="checkIcon"

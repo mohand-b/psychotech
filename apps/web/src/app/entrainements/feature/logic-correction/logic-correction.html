@@ -7,10 +7,10 @@
     [boundariesAfter]="familyBoundaries()"
     [isFirst]="isFirst()"
     [isLast]="isLast()"
-    (navigate)="goTo($event)"
-    (previous)="previous()"
-    (next)="next()"
-    (backToResult)="backToResult()"
+    (navigate)="navigateToItem($event)"
+    (previous)="navigateToPreviousItem()"
+    (next)="navigateToNextItem()"
+    (backToResult)="returnToResult()"
   >
     <header class="corr__card-head">
       <span

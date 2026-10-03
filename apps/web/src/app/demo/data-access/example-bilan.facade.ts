@@ -6,7 +6,7 @@ import {
 } from '@psychotech/shared';
 import { EMPTY, Observable, of } from 'rxjs';
 import { buildExampleAxisDetail } from '../data/example-axis-detail.fixture';
-import { buildExampleBilan } from '../data/example-bilan.fixture';
+import { buildExampleSummary } from '../data/example-bilan.fixture';
 
 const EXAMPLE_STARTED_AT = '2026-06-14T18:00:00.000Z';
 const EXAMPLE_COMPLETED_AT = '2026-06-14T18:30:00.000Z';
@@ -14,7 +14,7 @@ const EXAMPLE_COMPLETED_AT = '2026-06-14T18:30:00.000Z';
 @Injectable()
 export class ExampleBilanFacade {
   private readonly summarySignal = signal<SimulationSummaryDto | null>(
-    buildExampleBilan(EXAMPLE_COMPLETED_AT),
+    buildExampleSummary(EXAMPLE_COMPLETED_AT),
   );
 
   readonly summary: Signal<SimulationSummaryDto | null> =

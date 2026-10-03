@@ -27,7 +27,7 @@ export const ContactStore = signalStore(
     setFormToken(formToken: string | null): void {
       patchState(store, { formToken });
     },
-    startSending(): void {
+    setSending(): void {
       patchState(store, { status: 'sending' });
     },
     setSent(receipt: ContactReceiptDto): void {
@@ -36,7 +36,7 @@ export const ContactStore = signalStore(
     setFailed(status: 'failed' | 'rate-limited'): void {
       patchState(store, { status });
     },
-    reset(): void {
+    resetSendStatus(): void {
       patchState(store, { status: 'idle', receipt: null });
     },
   })),

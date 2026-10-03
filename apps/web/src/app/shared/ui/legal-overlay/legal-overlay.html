@@ -1,6 +1,10 @@
 @if (legalDocument(); as doc) {
   <div class="legal-overlay">
-    <div class="legal-overlay__veil" (click)="close()" aria-hidden="true"></div>
+    <div
+      class="legal-overlay__veil"
+      (click)="closeLegalDocument()"
+      aria-hidden="true"
+    ></div>
     <div
       #panel
       class="legal-overlay__panel"
@@ -21,7 +25,7 @@
           type="button"
           class="legal-overlay__close"
           aria-label="Fermer"
-          (click)="close()"
+          (click)="closeLegalDocument()"
         >
           <svg
             width="18"
@@ -45,7 +49,9 @@
       </div>
 
       <footer class="legal-overlay__foot">
-        <ui-button block="mobile" (click)="close()">J'ai compris</ui-button>
+        <ui-button block="mobile" (click)="closeLegalDocument()"
+          >J'ai compris</ui-button
+        >
       </footer>
     </div>
   </div>

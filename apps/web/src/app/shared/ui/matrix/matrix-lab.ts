@@ -33,7 +33,7 @@ const REGISTER_LABELS: Record<MatrixRegister, string> = {
   [MatrixRegister.TRAITS]: 'traits',
 };
 
-function randomSeed(): string {
+function createRandomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
@@ -44,7 +44,11 @@ function randomSeed(): string {
   template: `
     <div class="lab">
       <div class="lab__controls">
-        <button type="button" class="lab__generate" (click)="generate()">
+        <button
+          type="button"
+          class="lab__generate"
+          (click)="regenerateWithRandomSeed()"
+        >
           Générer
         </button>
         <label class="lab__field">
@@ -52,7 +56,7 @@ function randomSeed(): string {
           <input
             class="lab__seed t-mono"
             [value]="seed()"
-            (input)="onSeedInput($any($event.target).value)"
+            (input)="setSeed($any($event.target).value)"
           />
         </label>
         <button type="button" class="lab__chip" (click)="copySeed()">
@@ -153,7 +157,7 @@ export class MatrixLab {
   protected readonly registerLabels = REGISTER_LABELS;
 
   protected readonly catalogId = signal(MATRIX_CATALOG[0].id);
-  protected readonly seed = signal(randomSeed());
+  protected readonly seed = signal(createRandomSeed());
   protected readonly revealed = signal(false);
   protected readonly selected = signal<number | null>(null);
 
@@ -177,12 +181,12 @@ export class MatrixLab {
       })) ?? [],
   );
 
-  protected generate(): void {
-    this.seed.set(randomSeed());
+  protected regenerateWithRandomSeed(): void {
+    this.seed.set(createRandomSeed());
     this.selected.set(null);
   }
 
-  protected onSeedInput(value: string): void {
+  protected setSeed(value: string): void {
     this.seed.set(value);
     this.selected.set(null);
   }

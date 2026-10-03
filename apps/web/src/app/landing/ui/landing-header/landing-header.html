@@ -2,18 +2,22 @@
   <div class="header__inner">
     <a
       class="header__logo"
-      [href]="anchor(section.hero)"
+      [href]="buildSectionHref(section.hero)"
       [attr.aria-label]="siteName"
       >Psycho<span class="header__logo-accent">Tech</span></a
     >
     <nav class="header__nav" aria-label="Sections">
-      <a class="header__link" [href]="anchor(section.story)">Fonctionnement</a>
-      <a class="header__link" [href]="anchor(section.axes)">Les axes</a>
+      <a class="header__link" [href]="buildSectionHref(section.story)"
+        >Fonctionnement</a
+      >
+      <a class="header__link" [href]="buildSectionHref(section.axes)"
+        >Les axes</a
+      >
       <a class="header__link" [routerLink]="route.pricing">Tarifs</a>
-      <a class="header__link" [href]="anchor(section.enterprise)"
+      <a class="header__link" [href]="buildSectionHref(section.enterprise)"
         >Entreprises</a
       >
-      <a class="header__link" [href]="anchor(section.faq)">FAQ</a>
+      <a class="header__link" [href]="buildSectionHref(section.faq)">FAQ</a>
     </nav>
     <div class="header__actions">
       @if (authenticated()) {

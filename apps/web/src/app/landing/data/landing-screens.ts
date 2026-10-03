@@ -9,7 +9,7 @@ const SCREENS_DIRECTORY = '/landing/screens';
 const PHONE_SCREENS_DIRECTORY = `${SCREENS_DIRECTORY}/mobile`;
 const CLOSE_UP_SCREENS_DIRECTORY = `${SCREENS_DIRECTORY}/mobile-close-up`;
 
-function screen(
+function buildScreenAsset(
   file: string,
   alt: string,
   compactDirectory?: string,
@@ -23,71 +23,71 @@ function screen(
 const MOTRICITY_ALT =
   'Épreuve de Motricité en cours : curseur à guider dans un couloir en diagonale';
 
-const GAMEPAD = screen(
+const GAMEPAD = buildScreenAsset(
   'manette-paysage',
   'Téléphone en paysage connecté comme manette : deux manivelles pour piloter le curseur',
 );
 
 export const LANDING_SCREENS = {
-  dashboard: screen(
+  dashboard: buildScreenAsset(
     'accueil',
     'Tableau de bord PsychoTech : séance du jour, crédits, dernier résultat et profil par axe',
   ),
-  dominosMobile: screen(
+  dominosMobile: buildScreenAsset(
     'dominos-mobile',
     'Entraînement ciblé de Logique sur mobile : suite de dominos à compléter',
   ),
-  targetedTraining: screen(
+  targetedTraining: buildScreenAsset(
     'entrainements-cible',
     "Choix d'un entraînement ciblé parmi les axes du secteur ferroviaire",
     PHONE_SCREENS_DIRECTORY,
   ),
   motricity: {
-    ...screen('motricite', MOTRICITY_ALT, PHONE_SCREENS_DIRECTORY),
+    ...buildScreenAsset('motricite', MOTRICITY_ALT, PHONE_SCREENS_DIRECTORY),
     companion: GAMEPAD,
   },
-  matrices: screen(
+  matrices: buildScreenAsset(
     'matrices-distribution',
     'Matrice de Logique générée au lancement, registre Distribution',
     PHONE_SCREENS_DIRECTORY,
   ),
-  simulationReport: screen(
+  simulationReport: buildScreenAsset(
     'bilan-examen-blanc',
     "Bilan d'examen blanc : avis d'admissibilité, score global et détail par axe",
     PHONE_SCREENS_DIRECTORY,
   ),
-  reactivityResult: screen(
+  reactivityResult: buildScreenAsset(
     'resultat-reactivite',
     "Détail du résultat de l'axe Réactivité",
     PHONE_SCREENS_DIRECTORY,
   ),
-  progression: screen(
+  progression: buildScreenAsset(
     'progression',
     'Progression : évolution du score global et de chaque axe face au seuil',
     PHONE_SCREENS_DIRECTORY,
   ),
-  triangles: screen(
+  triangles: buildScreenAsset(
     'triangles',
     'Exercice de triangles chiffrés en cours',
     CLOSE_UP_SCREENS_DIRECTORY,
   ),
-  memory: screen(
+  memory: buildScreenAsset(
     'memoire',
     "Exercice de Mémoire : restitution d'une séquence dans l'ordre demandé",
     CLOSE_UP_SCREENS_DIRECTORY,
   ),
-  discrimination: screen(
+  discrimination: buildScreenAsset(
     'discrimination',
     'Exercice de Discrimination visuelle : deux suites de signes à comparer',
     CLOSE_UP_SCREENS_DIRECTORY,
   ),
-  reactivity: screen(
+  reactivity: buildScreenAsset(
     'reactivite',
     'Exercice de Réactivité : un signal à associer à la bonne commande',
     CLOSE_UP_SCREENS_DIRECTORY,
   ),
   motricityCloseUp: {
-    ...screen('motricite', MOTRICITY_ALT, CLOSE_UP_SCREENS_DIRECTORY),
+    ...buildScreenAsset('motricite', MOTRICITY_ALT, CLOSE_UP_SCREENS_DIRECTORY),
     companion: GAMEPAD,
   },
 } satisfies Record<string, LandingScreenAsset>;

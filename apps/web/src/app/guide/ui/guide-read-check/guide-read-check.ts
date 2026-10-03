@@ -17,7 +17,7 @@ export class GuideReadCheck {
   readonly markedLabel = input.required<string>();
   readonly mark = output<void>();
 
-  protected activate(event?: Event): void {
+  protected markGuideRead(event?: Event): void {
     event?.preventDefault();
     if (!this.marked()) {
       this.mark.emit();

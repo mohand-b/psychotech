@@ -55,19 +55,19 @@ export interface LegalDocument {
   sections: readonly LegalSection[];
 }
 
-function todo(text: string): LegalRun {
+function createTodoRun(text: string): LegalRun {
   return { text, todo: true };
 }
 
 const SITE_HOME_LINK: LegalRun = { text: SITE_NAME, href: '/' };
 
-function value(text: string, fallback: string): LegalRun {
-  return text ? { text } : todo(fallback);
+function createValueRunOrTodo(text: string, fallback: string): LegalRun {
+  return text ? { text } : createTodoRun(fallback);
 }
 
 const HOSTING_REGION_SENTENCE: LegalRun = LEGAL_DATA_HOSTING_REGION
   ? { text: ` ${LEGAL_DATA_HOSTING_REGION}` }
-  : todo(
+  : createTodoRun(
       'Région d’hébergement des données à préciser, avec, le cas échéant, les garanties encadrant un transfert hors Union européenne.',
     );
 
@@ -89,9 +89,9 @@ const MENTIONS_LEGALES: LegalDocument = {
             { text: 'Le site et l’application ' },
             SITE_HOME_LINK,
             { text: ' sont édités par ' },
-            value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
+            createValueRunOrTodo(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', ' },
-            value(LEGAL_COMPANY.legalForm, 'statut'),
+            createValueRunOrTodo(LEGAL_COMPANY.legalForm, 'statut'),
             { text: '.' },
           ],
         },
@@ -100,11 +100,17 @@ const MENTIONS_LEGALES: LegalDocument = {
           rows: [
             {
               label: 'Adresse',
-              value: value(LEGAL_COMPANY.headOfficeAddress, 'adresse complète'),
+              value: createValueRunOrTodo(
+                LEGAL_COMPANY.headOfficeAddress,
+                'adresse complète',
+              ),
             },
             {
               label: 'Immatriculation',
-              value: value(LEGAL_REGISTRATION, 'numéro d’immatriculation'),
+              value: createValueRunOrTodo(
+                LEGAL_REGISTRATION,
+                'numéro d’immatriculation',
+              ),
             },
             {
               label: 'TVA',
@@ -129,7 +135,10 @@ const MENTIONS_LEGALES: LegalDocument = {
           kind: 'text',
           runs: [
             { text: 'Le directeur de la publication est ' },
-            value(LEGAL_COMPANY.publicationDirector, 'prénom et nom'),
+            createValueRunOrTodo(
+              LEGAL_COMPANY.publicationDirector,
+              'prénom et nom',
+            ),
             {
               text: ', en qualité d’éditeur du site.',
             },
@@ -145,12 +154,12 @@ const MENTIONS_LEGALES: LegalDocument = {
           kind: 'text',
           runs: [
             { text: 'Le service est hébergé par ' },
-            value(
+            createValueRunOrTodo(
               LEGAL_HOSTING_PROVIDER.legalName,
               `${LEGAL_HOSTING_PROVIDER.name} — raison sociale`,
             ),
             { text: ', ' },
-            value(
+            createValueRunOrTodo(
               LEGAL_HOSTING_PROVIDER.address,
               `${LEGAL_HOSTING_PROVIDER.name} — adresse`,
             ),
@@ -233,7 +242,7 @@ const CONFIDENTIALITE: LegalDocument = {
             },
             SITE_HOME_LINK,
             { text: ' est ' },
-            value(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
+            createValueRunOrTodo(LEGAL_COMPANY.legalName, 'nom de l’éditeur'),
             { text: ', dont les coordonnées figurent dans les ' },
             { text: 'mentions légales', href: '/mentions-legales' },
             { text: '.' },
@@ -811,7 +820,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
   CGU,
 ];
 
-export function legalDocumentById(id: LegalDocumentId): LegalDocument {
+export function getLegalDocument(id: LegalDocumentId): LegalDocument {
   const document = LEGAL_DOCUMENTS.find((entry) => entry.id === id);
   if (!document) {
     throw new Error(`Unknown legal document: ${id}`);

@@ -5,32 +5,32 @@ const OPEN_CLASS = 'tip-open';
 @Directive({
   selector: '[uiChartTouchTips]',
   host: {
-    '(click)': 'onClick($event)',
-    '(document:click)': 'onDocumentClick($event)',
+    '(click)': 'toggleClickedTip($event)',
+    '(document:click)': 'closeTipsOnOutsideClick($event)',
   },
 })
 export class ChartTouchTips {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
-  protected onClick(event: Event): void {
+  protected toggleClickedTip(event: Event): void {
     const slot = (event.target as HTMLElement).closest('[data-tip-slot]');
     if (!slot || !this.elementRef.nativeElement.contains(slot)) {
       return;
     }
     const wasOpen = slot.classList.contains(OPEN_CLASS);
-    this.closeAll();
+    this.closeAllTips();
     if (!wasOpen) {
       slot.classList.add(OPEN_CLASS);
     }
   }
 
-  protected onDocumentClick(event: Event): void {
+  protected closeTipsOnOutsideClick(event: Event): void {
     if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.closeAll();
+      this.closeAllTips();
     }
   }
 
-  private closeAll(): void {
+  private closeAllTips(): void {
     const open = this.elementRef.nativeElement.querySelectorAll(
       `.${OPEN_CLASS}`,
     );

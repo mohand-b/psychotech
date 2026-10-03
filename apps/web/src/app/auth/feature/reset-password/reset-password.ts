@@ -118,17 +118,17 @@ export class ResetPassword {
       });
   }
 
-  protected submitOnEnter(event: Event): void {
+  protected submitNewPasswordOnEnter(event: Event): void {
     if (
       event instanceof KeyboardEvent &&
       event.key === 'Enter' &&
       event.target instanceof HTMLInputElement
     ) {
-      this.submit();
+      this.submitNewPassword();
     }
   }
 
-  protected submit(): void {
+  protected submitNewPassword(): void {
     if (this.saving()) {
       return;
     }

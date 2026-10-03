@@ -24,7 +24,7 @@ function badge(badgeId: BadgeId, gain: number | null = null): EarnedBadgeDto {
 }
 
 function setup(unacknowledged: EarnedBadgeDto[] = []) {
-  const acknowledge = vi.fn().mockReturnValue(of(undefined));
+  const acknowledgeBadge = vi.fn().mockReturnValue(of(undefined));
   const unacknowledgedCall = vi.fn().mockReturnValue(of(unacknowledged));
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -32,7 +32,10 @@ function setup(unacknowledged: EarnedBadgeDto[] = []) {
       provideRouter([]),
       {
         provide: BadgesApi,
-        useValue: { acknowledge, unacknowledged: unacknowledgedCall },
+        useValue: {
+          acknowledgeBadge,
+          fetchUnacknowledgedBadges: unacknowledgedCall,
+        },
       },
       {
         provide: AuthFacade,
@@ -43,64 +46,64 @@ function setup(unacknowledged: EarnedBadgeDto[] = []) {
   return {
     facade: TestBed.inject(BadgeCelebrationFacade),
     store: TestBed.inject(BadgeStore),
-    acknowledge,
+    acknowledgeBadge,
     unacknowledgedCall,
   };
 }
 
 describe('BadgeCelebrationFacade', () => {
   it('acknowledges a completed celebration exactly once', () => {
-    const { facade, store, acknowledge } = setup();
-    store.enqueue([badge(BadgeId.EXAM_FIRST)]);
-    facade.completeCurrent();
-    facade.completeCurrent();
+    const { facade, store, acknowledgeBadge } = setup();
+    store.enqueueBadges([badge(BadgeId.EXAM_FIRST)]);
+    facade.completeCurrentBadge();
+    facade.completeCurrentBadge();
 
-    expect(acknowledge).toHaveBeenCalledTimes(1);
-    expect(acknowledge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
+    expect(acknowledgeBadge).toHaveBeenCalledTimes(1);
+    expect(acknowledgeBadge).toHaveBeenCalledWith(BadgeId.EXAM_FIRST);
   });
 
   it('returns only the badges it has just acknowledged', () => {
     const { facade, store } = setup();
     const favorable = badge(BadgeId.EXAM_FAVORABLE, 2);
-    store.enqueue([favorable]);
+    store.enqueueBadges([favorable]);
 
-    expect(facade.completeCurrent()).toEqual([favorable]);
-    store.replay([favorable]);
-    expect(facade.completeCurrent()).toEqual([]);
+    expect(facade.completeCurrentBadge()).toEqual([favorable]);
+    store.replayCelebration([favorable]);
+    expect(facade.completeCurrentBadge()).toEqual([]);
   });
 
   it('acknowledges every remaining badge when the run is dismissed', () => {
-    const { facade, store, acknowledge } = setup();
-    store.enqueue([
+    const { facade, store, acknowledgeBadge } = setup();
+    store.enqueueBadges([
       badge(BadgeId.EXAM_FIRST),
       badge(BadgeId.EXAM_FAVORABLE, 2),
     ]);
-    facade.dismissAll();
+    facade.dismissRemainingBadges();
 
-    expect(acknowledge).toHaveBeenCalledTimes(2);
+    expect(acknowledgeBadge).toHaveBeenCalledTimes(2);
   });
 
   it('enqueues reconciled unacknowledged badges once', () => {
     const { facade, store } = setup([badge(BadgeId.FIRST_STEPS, 5)]);
-    facade.reconcileUnacknowledged();
+    facade.reconcileUnacknowledgedBadges();
     expect(store.current()?.badgeId).toBe(BadgeId.FIRST_STEPS);
 
-    facade.completeCurrent();
-    facade.reconcileUnacknowledged();
+    facade.completeCurrentBadge();
+    facade.reconcileUnacknowledgedBadges();
     expect(store.phase()).toBe('done');
   });
 
   it('holds the celebration until the result scene is ready', () => {
     const { facade, store } = setup();
     const celebration = TestBed.runInInjectionContext(() =>
-      facade.celebrateResult(
+      facade.prepareResultCelebration(
         'session-1',
         signal<ResultBadgesSource | null>(null),
       ),
     );
-    store.enqueue([badge(BadgeId.EXAM_FIRST)]);
+    store.enqueueBadges([badge(BadgeId.EXAM_FIRST)]);
     expect(store.phase()).toBe('awaitingScene');
-    celebration.sceneReady();
+    celebration.releaseSceneHold();
     expect(store.phase()).toBe('celebrating');
   });
 });

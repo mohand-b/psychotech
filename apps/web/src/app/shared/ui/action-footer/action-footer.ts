@@ -76,17 +76,17 @@ export class ActionFooter {
         return;
       }
       const media = view.matchMedia(MOBILE_QUERY);
-      const measure = () =>
+      const measureReservedHeight = () =>
         this.reservedHeight.set(
           media.matches ? this.bar().nativeElement.offsetHeight : 0,
         );
-      const observer = new view.ResizeObserver(measure);
+      const observer = new view.ResizeObserver(measureReservedHeight);
       observer.observe(this.bar().nativeElement);
-      media.addEventListener('change', measure);
-      measure();
+      media.addEventListener('change', measureReservedHeight);
+      measureReservedHeight();
       this.destroyRef.onDestroy(() => {
         observer.disconnect();
-        media.removeEventListener('change', measure);
+        media.removeEventListener('change', measureReservedHeight);
       });
     });
   }

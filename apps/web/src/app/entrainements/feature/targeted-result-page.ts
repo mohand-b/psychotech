@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AxisType, TargetedAxisResultDto } from '@psychotech/shared';
 import { BadgeCelebrationFacade } from '../../badges/data-access/badge-celebration.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
-import { targetedAxisRoute } from '../../shared/util/session-links';
-import { sectorReferentialFor } from './sector-referential';
+import { buildTargetedAxisRoute } from '../../shared/util/session-links';
+import { syncSectorReferential } from './sector-referential';
 
 type TargetedResultOf<A extends AxisType> = Extract<
   TargetedAxisResultDto,
@@ -19,7 +19,7 @@ function isResultOf<A extends AxisType>(
   return result.axis === axis;
 }
 
-export function targetedResultOf<A extends AxisType>(
+export function loadTargetedResultFromRoute<A extends AxisType>(
   axis: A,
 ): { sessionId: string; result: Signal<TargetedResultOf<A> | null> } {
   const router = inject(Router);
@@ -40,9 +40,9 @@ export function targetedResultOf<A extends AxisType>(
   return { sessionId, result: result.asReadonly() };
 }
 
-export function targetedResultPage<A extends AxisType>(axis: A) {
+export function createTargetedResultPage<A extends AxisType>(axis: A) {
   const router = inject(Router);
-  const { sessionId, result } = targetedResultOf(axis);
+  const { sessionId, result } = loadTargetedResultFromRoute(axis);
   const cameFromPlay =
     inject(TrainingSessionFacade).session()?.id === sessionId;
   return {
@@ -50,7 +50,7 @@ export function targetedResultPage<A extends AxisType>(axis: A) {
     sessionId,
     result,
     backLabel: cameFromPlay ? 'Retour aux axes' : 'Retour aux sessions',
-    celebration: inject(BadgeCelebrationFacade).celebrateResult(
+    celebration: inject(BadgeCelebrationFacade).prepareResultCelebration(
       sessionId,
       computed(() => {
         const current = result();
@@ -59,9 +59,11 @@ export function targetedResultPage<A extends AxisType>(axis: A) {
           : null;
       }),
     ),
-    referential: sectorReferentialFor(computed(() => result()?.sector ?? null)),
-    newTraining: () => router.navigate(targetedAxisRoute(axis)),
-    back: () =>
+    referential: syncSectorReferential(
+      computed(() => result()?.sector ?? null),
+    ),
+    navigateToAxisStart: () => router.navigate(buildTargetedAxisRoute(axis)),
+    returnToAxesOrSessions: () =>
       cameFromPlay
         ? router.navigate(['/entrainements'], {
             queryParams: { panel: 'cible' },

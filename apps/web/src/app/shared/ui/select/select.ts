@@ -33,7 +33,7 @@ let nextSelectId = 0;
   host: {
     '[class.ui-select-host--open]': 'open()',
     '[style.--select-list-offset.px]': 'listOffsetPx',
-    '(document:pointerdown)': 'closeWhenOutside($event)',
+    '(document:pointerdown)': 'closeOptionListOnOutsidePress($event)',
   },
   template: `
     <button
@@ -49,9 +49,9 @@ let nextSelectId = 0;
       [attr.aria-labelledby]="labelledBy()"
       [attr.aria-activedescendant]="activeDescendant()"
       [disabled]="disabled()"
-      (click)="toggle()"
-      (keydown)="onKeydown($event)"
-      (blur)="close()"
+      (click)="toggleOptionList()"
+      (keydown)="navigateOptionsWithKeyboard($event)"
+      (blur)="closeOptionList()"
     >
       <span
         class="ui-select__value"
@@ -75,14 +75,14 @@ let nextSelectId = 0;
           <li
             role="option"
             class="ui-select__option"
-            [id]="optionId(index)"
+            [id]="buildOptionId(index)"
             [class.ui-select__option--active]="activeIndex() === index"
             [class.ui-select__option--selected]="option.value === value()"
             [attr.aria-selected]="option.value === value()"
-            (mousemove)="followPointer($event, index)"
+            (mousemove)="highlightHoveredOption($event, index)"
             tabindex="-1"
-            (click)="choose(index)"
-            (keydown.enter)="choose(index)"
+            (click)="selectOption(index)"
+            (keydown.enter)="selectOption(index)"
           >
             <span class="ui-select__option-label">{{ option.label }}</span>
             @if (option.value === value()) {
@@ -268,7 +268,7 @@ export class Select<Value extends string = string>
   );
   protected readonly activeDescendant = computed(() =>
     this.open() && this.activeIndex() !== NO_ACTIVE_OPTION
-      ? this.optionId(this.activeIndex())
+      ? this.buildOptionId(this.activeIndex())
       : null,
   );
 
@@ -282,19 +282,19 @@ export class Select<Value extends string = string>
     });
   }
 
-  protected optionId(index: number): string {
+  protected buildOptionId(index: number): string {
     return `${this.listId}-option-${index}`;
   }
 
-  protected toggle(): void {
+  protected toggleOptionList(): void {
     if (this.open()) {
-      this.close();
+      this.closeOptionList();
     } else {
-      this.show();
+      this.openOptionList();
     }
   }
 
-  protected close(): void {
+  protected closeOptionList(): void {
     if (!this.open()) {
       return;
     }
@@ -302,48 +302,48 @@ export class Select<Value extends string = string>
     this.touched.set(true);
   }
 
-  protected closeWhenOutside(event: Event): void {
+  protected closeOptionListOnOutsidePress(event: Event): void {
     if (
       this.open() &&
       event.target instanceof Node &&
       !this.host.nativeElement.contains(event.target)
     ) {
-      this.close();
+      this.closeOptionList();
     }
   }
 
-  protected followPointer(event: MouseEvent, index: number): void {
+  protected highlightHoveredOption(event: MouseEvent, index: number): void {
     if (event.movementX !== 0 || event.movementY !== 0) {
       this.activeIndex.set(index);
     }
   }
 
-  protected choose(index: number): void {
+  protected selectOption(index: number): void {
     const option = this.options()[index];
     if (option) {
       this.value.set(option.value);
     }
-    this.close();
+    this.closeOptionList();
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected navigateOptionsWithKeyboard(event: KeyboardEvent): void {
     const handled = this.open()
-      ? this.handleOpenKey(event.key)
-      : this.handleClosedKey(event.key);
+      ? this.navigateOpenListWithKey(event.key)
+      : this.navigateClosedListWithKey(event.key);
     if (handled) {
       event.preventDefault();
     }
   }
 
-  private handleClosedKey(key: string): boolean {
+  private navigateClosedListWithKey(key: string): boolean {
     if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(key)) {
-      this.show();
+      this.openOptionList();
       return true;
     }
     return this.jumpToLabelStartingWith(key, true);
   }
 
-  private handleOpenKey(key: string): boolean {
+  private navigateOpenListWithKey(key: string): boolean {
     const last = this.options().length - 1;
     switch (key) {
       case 'ArrowDown':
@@ -360,10 +360,10 @@ export class Select<Value extends string = string>
         return true;
       case 'Enter':
       case ' ':
-        this.choose(this.activeIndex());
+        this.selectOption(this.activeIndex());
         return true;
       case 'Escape':
-        this.close();
+        this.closeOptionList();
         return true;
       default:
         return this.jumpToLabelStartingWith(key, false);
@@ -393,7 +393,7 @@ export class Select<Value extends string = string>
     return true;
   }
 
-  private show(): void {
+  private openOptionList(): void {
     const selectedIndex = this.options().findIndex(
       (option) => option.value === this.value(),
     );

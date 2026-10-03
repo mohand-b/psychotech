@@ -27,11 +27,11 @@ export class LogicChoices {
   protected readonly checkIcon = Check;
   protected readonly crossIcon = X;
 
-  protected isCorrect(index: number): boolean {
+  protected isCorrectChoice(index: number): boolean {
     return this.review() && this.correctIndex() === index;
   }
 
-  protected isUserWrong(index: number): boolean {
+  protected isWrongUserChoice(index: number): boolean {
     return (
       this.review() &&
       this.userAnswerIndex() === index &&
@@ -39,7 +39,7 @@ export class LogicChoices {
     );
   }
 
-  protected onChoose(index: number): void {
+  protected chooseAnswer(index: number): void {
     if (!this.review() && !this.disabled()) {
       this.chosen.emit(index);
     }

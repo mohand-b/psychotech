@@ -68,7 +68,7 @@ interface DecoratedStep {
             (pointerenter)="previewStep(index)"
             (pointerleave)="clearPreview()"
             (click)="selectStep(index)"
-            (keydown)="onKeydown($event)"
+            (keydown)="selectStepWithArrowKeys($event)"
           >
             <ng-container
               [ngTemplateOutlet]="stepContent"
@@ -339,7 +339,7 @@ export class ChevronStepper {
     this.selectedIndex.set(index);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected selectStepWithArrowKeys(event: KeyboardEvent): void {
     const delta =
       event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
     if (delta === 0) {

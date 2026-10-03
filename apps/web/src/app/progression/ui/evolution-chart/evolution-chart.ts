@@ -6,10 +6,10 @@ import {
   output,
 } from '@angular/core';
 import { EvolutionPointDto } from '@psychotech/shared';
-import { fullSessionVerdictColorVar } from '../../../shared/ui/verdict-appearance';
+import { resolveFullSessionVerdictColor } from '../../../shared/ui/verdict-appearance';
 import { formatDayMonth } from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
-import { daysSince } from '../../../shared/util/format-session-date';
+import { countDaysSince } from '../../../shared/util/format-session-date';
 
 interface ChartGeometry {
   viewWidth: number;
@@ -268,7 +268,7 @@ export class EvolutionChart {
     };
   });
 
-  private yFor(score: number): number {
+  private computeScoreY(score: number): number {
     const { lo, hi } = this.domain();
     const geometry = this.g;
     const ratio = (hi - score) / (hi - lo);
@@ -279,7 +279,7 @@ export class EvolutionChart {
     );
   }
 
-  private xFor(index: number): number {
+  private computePointX(index: number): number {
     const geometry = this.g;
     const count = this.points().length;
     if (count <= 1) {
@@ -294,7 +294,9 @@ export class EvolutionChart {
     );
   }
 
-  protected readonly thresholdY = computed(() => this.yFor(this.threshold()));
+  protected readonly thresholdY = computed(() =>
+    this.computeScoreY(this.threshold()),
+  );
 
   protected readonly linePoints = computed(() => {
     const points = this.points();
@@ -303,7 +305,8 @@ export class EvolutionChart {
     }
     return points
       .map(
-        (point, index) => `${this.xFor(index)},${this.yFor(point.globalScore)}`,
+        (point, index) =>
+          `${this.computePointX(index)},${this.computeScoreY(point.globalScore)}`,
       )
       .join(' ');
   });
@@ -315,9 +318,9 @@ export class EvolutionChart {
       const last = index === points.length - 1;
       return {
         sessionId: point.sessionId,
-        x: this.xFor(index),
-        y: this.yFor(point.globalScore),
-        colorVar: fullSessionVerdictColorVar(
+        x: this.computePointX(index),
+        y: this.computeScoreY(point.globalScore),
+        colorVar: resolveFullSessionVerdictColor(
           point.globalScore,
           point.isEliminated,
         ),
@@ -342,22 +345,22 @@ export class EvolutionChart {
     );
     if (maxIndex !== lastIndex) {
       labels.push({
-        x: this.xFor(maxIndex),
-        y: this.yFor(points[maxIndex].globalScore) - 15,
+        x: this.computePointX(maxIndex),
+        y: this.computeScoreY(points[maxIndex].globalScore) - 15,
         text: formatFrenchDecimal(points[maxIndex].globalScore),
         muted: false,
       });
     }
     labels.push({
-      x: this.xFor(lastIndex),
-      y: this.yFor(points[lastIndex].globalScore) - 15,
+      x: this.computePointX(lastIndex),
+      y: this.computeScoreY(points[lastIndex].globalScore) - 15,
       text: formatFrenchDecimal(points[lastIndex].globalScore),
       muted: false,
     });
     if (this.g.showFirstValue && points.length > 1 && maxIndex !== 0) {
       labels.push({
-        x: this.xFor(0),
-        y: this.yFor(points[0].globalScore) + 22,
+        x: this.computePointX(0),
+        y: this.computeScoreY(points[0].globalScore) + 22,
         text: formatFrenchDecimal(points[0].globalScore),
         muted: true,
       });
@@ -380,7 +383,7 @@ export class EvolutionChart {
 }
 
 function formatChartDate(iso: string): string {
-  const diff = daysSince(iso);
+  const diff = countDaysSince(iso);
   if (diff === 0) {
     return "Aujourd'hui";
   }

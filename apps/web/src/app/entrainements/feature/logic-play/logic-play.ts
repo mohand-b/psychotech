@@ -23,12 +23,12 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { Button } from '../../../shared/ui/button/button';
 import { DOCUMENT } from '@angular/common';
 import { ActionFooter } from '../../../shared/ui/action-footer/action-footer';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { LeavablePlay } from '../play-leave.guard';
 import {
   confirmExitOnCloseRequest,
   loadPlayableSession,
-  playLeaveControl,
+  createPlayLeaveControl,
 } from '../play-session';
 import { ResultWaitOrchestrator } from '../../data-access/result-wait.orchestrator';
 import { AxisCountdown } from '../../ui/axis-countdown/axis-countdown';
@@ -95,8 +95,8 @@ const SEGMENT_LABELS: Record<LogicFamily, string> = {
   templateUrl: './logic-play.html',
   styleUrl: './logic-play.css',
   host: {
-    '(document:keydown)': 'onKeydown($event)',
-    '(window:beforeunload)': 'onBeforeUnload($event)',
+    '(document:keydown)': 'navigateAndAnswerWithKeyboard($event)',
+    '(window:beforeunload)': 'blockUnloadDuringPlay($event)',
   },
 })
 export class LogicPlay implements LeavablePlay {
@@ -112,7 +112,7 @@ export class LogicPlay implements LeavablePlay {
     this.route.snapshot.data?.['tutorial'] === true;
   protected readonly axis = AxisType.LOGIC;
   protected readonly presentation = AXIS_PRESENTATION[this.axis];
-  protected readonly buttonColor = axisButtonColor(this.axis);
+  protected readonly buttonColor = resolveAxisButtonColor(this.axis);
   protected readonly families = LogicFamily;
   protected readonly structures = LogicNumericStructure;
 
@@ -146,7 +146,7 @@ export class LogicPlay implements LeavablePlay {
   private enteredAtMs = Date.now();
   private lastItemReachedByNextAtMs: number | null = null;
   private hasSubmitted = false;
-  private readonly leave = playLeaveControl(
+  private readonly leave = createPlayLeaveControl(
     this.loaded,
     () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
@@ -236,7 +236,7 @@ export class LogicPlay implements LeavablePlay {
     const visited = this.visited();
     const current = this.currentIndex();
     return this.items().map((_, index) =>
-      this.answeredAt(index)
+      this.isItemAnswered(index)
         ? 'answered'
         : visited.has(index) && index !== current
           ? 'skipped'
@@ -244,10 +244,10 @@ export class LogicPlay implements LeavablePlay {
     );
   });
   protected readonly unansweredCount = computed(
-    () => this.items().filter((_, index) => !this.answeredAt(index)).length,
+    () => this.items().filter((_, index) => !this.isItemAnswered(index)).length,
   );
   protected readonly currentAnswered = computed(() =>
-    this.answeredAt(this.currentIndex()),
+    this.isItemAnswered(this.currentIndex()),
   );
   protected readonly isLastItem = computed(
     () => this.currentIndex() === this.items().length - 1,
@@ -257,7 +257,7 @@ export class LogicPlay implements LeavablePlay {
     const current = this.currentIndex();
     for (let offset = 1; offset < total; offset += 1) {
       const index = (current + offset) % total;
-      if (!this.answeredAt(index)) {
+      if (!this.isItemAnswered(index)) {
         return index;
       }
     }
@@ -271,7 +271,7 @@ export class LogicPlay implements LeavablePlay {
     loadPlayableSession(this.sessionId, this.axis, () => this.openPlay());
     effect(() => {
       if (this.facade.isExpired() && this.loaded() && !this.countingDown()) {
-        this.submit();
+        this.submitAnswers();
       }
     });
     confirmExitOnCloseRequest(
@@ -280,7 +280,7 @@ export class LogicPlay implements LeavablePlay {
     );
   }
 
-  private answeredAt(index: number): boolean {
+  private isItemAnswered(index: number): boolean {
     const item = this.items()[index];
     if (!item) {
       return false;
@@ -297,40 +297,40 @@ export class LogicPlay implements LeavablePlay {
     return this.answers()[index] !== undefined;
   }
 
-  protected finish(): void {
+  protected submitAnswersIfUnlocked(): void {
     if (this.locked() || !this.loaded()) {
       return;
     }
-    this.submit();
+    this.submitAnswers();
   }
 
   confirmLeave(): boolean {
     return this.leave.confirmLeave();
   }
 
-  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+  protected blockUnloadDuringPlay(event: BeforeUnloadEvent): void {
     this.leave.blockUnload(event);
   }
 
-  protected quit(): void {
-    this.leave.accept();
+  protected quitToDashboard(): void {
+    this.leave.acceptLeave();
     this.router.navigate(['/dashboard']);
   }
 
-  protected submit(): void {
+  protected submitAnswers(): void {
     if (this.hasSubmitted || !this.loaded()) {
       return;
     }
     this.hasSubmitted = true;
     this.submitting.set(true);
     this.confirmingExit.set(false);
-    this.commitTime();
+    this.recordItemTimeSpent();
     const payload: LogicItemAnswerDto[] = this.items().map((item, index) => {
       const base = {
         index,
         timeMs: Math.max(0, Math.round(this.timeSpentMs.get(index) ?? 0)),
         helpUsed: this.helpUsed().has(index),
-        visited: this.visited().has(index) || this.answeredAt(index),
+        visited: this.visited().has(index) || this.isItemAnswered(index),
       };
       if (item.family === LogicFamily.DOMINO) {
         const answer = this.dominoAnswers()[index];
@@ -350,13 +350,13 @@ export class LogicPlay implements LeavablePlay {
       }
       return { ...base, answerIndex: this.answers()[index] ?? null };
     });
-    this.resultWait.submit({
+    this.resultWait.submitAxisCompletion({
       axis: this.axis,
-      complete: () => this.facade.completeTargeted(payload),
+      complete: () => this.facade.completeLogicAxis(payload),
     });
   }
 
-  protected select(choiceIndex: number): void {
+  protected chooseAnswer(choiceIndex: number): void {
     if (this.locked() || !this.loaded()) {
       return;
     }
@@ -373,7 +373,7 @@ export class LogicPlay implements LeavablePlay {
     this.answers.update((answers) => ({ ...answers, [index]: choiceIndex }));
   }
 
-  protected selectFace(face: DominoAnswerFace): void {
+  protected selectDominoFace(face: DominoAnswerFace): void {
     if (this.locked() || !this.loaded()) {
       return;
     }
@@ -439,7 +439,7 @@ export class LogicPlay implements LeavablePlay {
     this.activeFace.set('top');
   }
 
-  protected goTo(index: number): void {
+  protected navigateToItem(index: number): void {
     if (
       !this.loaded() ||
       this.locked() ||
@@ -449,7 +449,7 @@ export class LogicPlay implements LeavablePlay {
     ) {
       return;
     }
-    this.commitTime();
+    this.recordItemTimeSpent();
     this.closeHint();
     this.visited.update((visited) => new Set(visited).add(index));
     this.currentIndex.set(index);
@@ -462,63 +462,63 @@ export class LogicPlay implements LeavablePlay {
     this.helpUsed.update((used) => new Set(used).add(index));
   }
 
-  protected previous(): void {
-    this.goTo(this.currentIndex() - 1);
+  protected navigateToPreviousItem(): void {
+    this.navigateToItem(this.currentIndex() - 1);
   }
 
-  protected skip(): void {
+  protected skipToNextUnansweredItem(): void {
     const target = this.nextUnansweredIndex();
     if (target !== -1) {
-      this.goTo(target);
+      this.navigateToItem(target);
     }
   }
 
-  protected confirmNext(): void {
+  protected navigateToNextItemOrSubmit(): void {
     if (this.locked() || (!this.currentAnswered() && !this.isLastItem())) {
       return;
     }
     if (this.isLastItem()) {
-      if (!this.lastItemJustReachedByNext()) {
-        this.finish();
+      if (!this.isLastItemJustReachedByNext()) {
+        this.submitAnswersIfUnlocked();
       }
       return;
     }
-    this.goTo(this.currentIndex() + 1);
+    this.navigateToItem(this.currentIndex() + 1);
     this.lastItemReachedByNextAtMs = this.isLastItem() ? Date.now() : null;
   }
 
-  private lastItemJustReachedByNext(): boolean {
+  private isLastItemJustReachedByNext(): boolean {
     return (
       this.lastItemReachedByNextAtMs !== null &&
       Date.now() - this.lastItemReachedByNextAtMs < LAST_ITEM_FINISH_GUARD_MS
     );
   }
 
-  private hintOpenNow(): boolean {
+  private isHintOpen(): boolean {
     return (
-      (this.sequence()?.hintOpen() ||
-        this.dominoBoard()?.hintOpen() ||
-        this.matrixBoard()?.hintOpen() ||
-        this.triangleBoard()?.hintOpen()) ??
+      (this.sequence()?.isHintOpen() ||
+        this.dominoBoard()?.isHintOpen() ||
+        this.matrixBoard()?.isHintOpen() ||
+        this.triangleBoard()?.isHintOpen()) ??
       false
     );
   }
 
   private toggleHint(): void {
-    this.sequence()?.toggle();
+    this.sequence()?.toggleHint();
     this.dominoBoard()?.toggleHint();
     this.matrixBoard()?.toggleHint();
     this.triangleBoard()?.toggleHint();
   }
 
   private closeHint(returnFocus = false): void {
-    this.sequence()?.close(returnFocus);
+    this.sequence()?.closeHint(returnFocus);
     this.dominoBoard()?.closeHint(returnFocus);
     this.matrixBoard()?.closeHint(returnFocus);
     this.triangleBoard()?.closeHint(returnFocus);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected navigateAndAnswerWithKeyboard(event: KeyboardEvent): void {
     if (
       event.repeat ||
       !this.loaded() ||
@@ -528,7 +528,7 @@ export class LogicPlay implements LeavablePlay {
       return;
     }
     if (event.key === 'Escape') {
-      if (this.hintOpenNow()) {
+      if (this.isHintOpen()) {
         this.closeHint(true);
       } else {
         this.confirmingExit.set(false);
@@ -547,17 +547,17 @@ export class LogicPlay implements LeavablePlay {
     }
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      this.previous();
+      this.navigateToPreviousItem();
       return;
     }
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.goTo(this.currentIndex() + 1);
+      this.navigateToItem(this.currentIndex() + 1);
       return;
     }
     if (event.key === 'Enter') {
       event.preventDefault();
-      this.confirmNext();
+      this.navigateToNextItemOrSubmit();
       return;
     }
     const item = this.currentItem();
@@ -587,7 +587,7 @@ export class LogicPlay implements LeavablePlay {
     const digit = Number(event.key);
     if (Number.isInteger(digit) && digit >= 1 && digit <= choiceCount) {
       event.preventDefault();
-      this.select(digit - 1);
+      this.chooseAnswer(digit - 1);
       return;
     }
     const letterIndex = MATRIX_PROPOSAL_LETTERS.indexOf(
@@ -595,7 +595,7 @@ export class LogicPlay implements LeavablePlay {
     );
     if (letterIndex !== -1 && letterIndex < choiceCount) {
       event.preventDefault();
-      this.select(letterIndex);
+      this.chooseAnswer(letterIndex);
     }
   }
 
@@ -604,7 +604,7 @@ export class LogicPlay implements LeavablePlay {
     this.loaded.set(true);
   }
 
-  protected onCountdownFinished(): void {
+  protected startPlayAfterCountdown(): void {
     if (!this.countingDown()) {
       return;
     }
@@ -613,7 +613,7 @@ export class LogicPlay implements LeavablePlay {
     this.enteredAtMs = Date.now();
   }
 
-  private commitTime(): void {
+  private recordItemTimeSpent(): void {
     const now = Date.now();
     const index = this.currentIndex();
     this.timeSpentMs.set(

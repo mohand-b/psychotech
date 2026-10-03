@@ -69,7 +69,7 @@
                 size="lg"
                 [block]="true"
                 [appearance]="pack.featured ? 'solid' : 'outlined'"
-                (click)="selectPack(pack.id)"
+                (click)="openPackCheckout(pack.id)"
               >
                 {{ pack.ctaLabel }}
               </ui-button>
@@ -119,7 +119,7 @@
           <span class="energie__confirmation-text"
             >Le paiement n'a pas abouti. Aucune somme n'a été débitée.</span
           >
-          <ui-button color="brand" size="md" (click)="backToPacks()">
+          <ui-button color="brand" size="md" (click)="returnToPacks()">
             Revenir aux packs
           </ui-button>
         }
@@ -131,7 +131,7 @@
             >Le crédit peut prendre quelques instants. Votre solde se mettra à
             jour automatiquement.</span
           >
-          <ui-button color="brand" size="md" (click)="backToPacks()">
+          <ui-button color="brand" size="md" (click)="returnToPacks()">
             Revenir aux packs
           </ui-button>
         }
@@ -146,7 +146,7 @@
     <button
       type="button"
       class="energie__back flex items-center"
-      (click)="backToPacks()"
+      (click)="returnToPacks()"
     >
       <ui-icon [img]="arrowLeftIcon" [size]="15" />
       Revenir aux packs
@@ -208,14 +208,14 @@
               [class.energie__gift-input--error]="giftStatus() === 'error'"
               placeholder="XXXX-XXXX-XXXX"
               [value]="giftCode()"
-              (input)="onGiftInput($event)"
-              (keydown.enter)="applyGiftCode()"
+              (input)="updateGiftCode($event)"
+              (keydown.enter)="redeemGiftCode()"
             />
             <ui-button
               color="brand"
               [disabled]="giftCode().trim().length === 0"
               [loading]="giftSending()"
-              (click)="applyGiftCode()"
+              (click)="redeemGiftCode()"
             >
               Utiliser
             </ui-button>
@@ -247,7 +247,7 @@
           <button
             type="button"
             class="energie__gift-again"
-            (click)="resetGift()"
+            (click)="resetGiftCodeForm()"
           >
             Utiliser un autre code
           </button>

@@ -11,7 +11,7 @@ import { GamepadPairingDto } from '@psychotech/shared';
 import QRCode from 'qrcode';
 import {
   GamepadLatencyStats,
-  gamepadControllerUrl,
+  buildGamepadControllerUrl,
 } from '../../util/gamepad-logic';
 
 const QR_SIZE_PX = 148;
@@ -44,7 +44,7 @@ export class GamepadPairing {
         .trim();
       void QRCode.toCanvas(
         canvas,
-        gamepadControllerUrl(window.location.origin, pairing.token),
+        buildGamepadControllerUrl(window.location.origin, pairing.token),
         {
           width: QR_SIZE_PX,
           margin: 1,

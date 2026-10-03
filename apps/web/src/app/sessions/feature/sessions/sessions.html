@@ -1,7 +1,7 @@
 @if (current(); as session) {
   <app-current-session-banner
     [session]="session"
-    (resumeRequested)="resume(session)"
+    (resumeRequested)="resumeCurrentSession(session)"
   />
 }
 <section class="page-shell sessions">
@@ -15,9 +15,9 @@
         type="button"
         class="sessions__filter"
         [class.sessions__filter--axis]="chip.axis !== null"
-        [class.sessions__filter--active]="isActive(chip.value)"
-        [disabled]="isDisabled(chip)"
-        [attr.aria-pressed]="isActive(chip.value)"
+        [class.sessions__filter--active]="isFilterChipActive(chip.value)"
+        [disabled]="isFilterChipDisabled(chip)"
+        [attr.aria-pressed]="isFilterChipActive(chip.value)"
         [style.--chip-pastel]="chip.pastelVar"
         [style.--chip-pastel-bd]="chip.pastelBorderVar"
         [style.--chip-text]="chip.textVar"
@@ -63,7 +63,7 @@
         color="neutral"
         [iconEnd]="chevronDownIcon"
         [loading]="loadingMore()"
-        (click)="loadMore()"
+        (click)="loadNextHistoryPage()"
       >
         Charger plus
       </ui-button>

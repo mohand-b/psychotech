@@ -54,7 +54,7 @@ export class Navbar {
 
   protected readonly energyLink = computed(() => '/credits');
 
-  protected logout(): void {
+  protected requestLogout(): void {
     this.logoutRequested.emit();
   }
 }

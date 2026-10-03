@@ -26,7 +26,7 @@ async function applyLanding(): Promise<void> {
     ],
   });
   await TestBed.inject(Router).navigate(['/']);
-  TestBed.inject(Seo).start();
+  TestBed.inject(Seo).syncSeoWithRouter();
 }
 
 beforeEach(() => {

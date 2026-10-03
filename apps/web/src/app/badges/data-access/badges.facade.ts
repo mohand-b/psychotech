@@ -32,7 +32,7 @@ export class BadgesFacade {
       return;
     }
     this.tutorialNotified = true;
-    this.api.tutorialDiscovered().subscribe({ error: () => undefined });
+    this.api.notifyTutorialDiscovered().subscribe({ error: () => undefined });
   }
 
   markGuideRead(guide: GuideId): Observable<void> {

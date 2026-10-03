@@ -28,8 +28,8 @@ import { LegalDocumentId } from '../../../shared/data/legal-documents';
 import { LegalOverlay } from '../../../shared/ui/legal-overlay/legal-overlay';
 import { AuthSeparator } from '../../ui/auth-separator/auth-separator';
 import { GoogleSignInButton } from '../../ui/google-sign-in-button/google-sign-in-button';
-import { emailErrorMessage } from '../email-validation';
-import { ssoErrorMessageFromParam } from '../sso-error-messages';
+import { describeEmailError } from '../email-validation';
+import { describeSsoError } from '../sso-error-messages';
 
 interface SectorOption {
   value: string;
@@ -86,7 +86,7 @@ export class Register {
   });
 
   protected readonly ssoError = linkedSignal(() =>
-    ssoErrorMessageFromParam(this.queryParams().get(SSO_ERROR_QUERY_PARAM)),
+    describeSsoError(this.queryParams().get(SSO_ERROR_QUERY_PARAM)),
   );
 
   protected readonly displayedError = computed(
@@ -131,13 +131,13 @@ export class Register {
   );
 
   protected readonly googleHref = computed(() =>
-    this.authFacade.googleStartUrl({
+    this.authFacade.buildGoogleSignInUrl({
       from: 'register',
       sector: this.sector() as Sector,
     }),
   );
 
-  protected sectorIcon(value: string) {
+  protected resolveSectorIcon(value: string) {
     return SECTOR_PRESENTATION[value as Sector].icon;
   }
 
@@ -153,7 +153,7 @@ export class Register {
     this.submitted() && this.lastName().trim() === '' ? 'Nom requis' : null,
   );
   protected readonly emailError = computed(() =>
-    this.submitted() ? emailErrorMessage(this.email()) : null,
+    this.submitted() ? describeEmailError(this.email()) : null,
   );
   protected readonly passwordError = computed(() => {
     if (!this.submitted()) {
@@ -167,7 +167,7 @@ export class Register {
       : null;
   });
 
-  protected openLegal(
+  protected openLegalDocument(
     event: MouseEvent,
     documentId: LegalDocumentId,
     anchor: string,
@@ -187,23 +187,23 @@ export class Register {
     this.legalDocumentId.set(documentId);
   }
 
-  protected closeLegal(): void {
+  protected closeLegalDocument(): void {
     this.legalDocumentId.set(null);
     this.legalAnchor.set(null);
     this.legalTrigger?.focus();
     this.legalTrigger = null;
   }
 
-  protected submitOnEnter(event: Event): void {
+  protected submitRegistrationOnEnter(event: Event): void {
     if (!(event instanceof KeyboardEvent) || event.key !== 'Enter') {
       return;
     }
     if (event.target instanceof HTMLInputElement) {
-      this.submit();
+      this.submitRegistration();
     }
   }
 
-  protected submit(): void {
+  protected submitRegistration(): void {
     if (this.pending()) {
       return;
     }
@@ -233,11 +233,11 @@ export class Register {
       .subscribe({
         next: () => this.router.navigate(['/verification-email']),
         error: (error: unknown) =>
-          this.serverError.set(this.toServerError(error)),
+          this.serverError.set(this.describeRegistrationError(error)),
       });
   }
 
-  private toServerError(error: unknown): string {
+  private describeRegistrationError(error: unknown): string {
     if (error instanceof HttpErrorResponse && error.status === 409) {
       return 'Un compte existe déjà avec cette adresse email.';
     }

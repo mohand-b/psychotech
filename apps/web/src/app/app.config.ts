@@ -30,7 +30,7 @@ import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
 import { newBadgesInterceptor } from './core/http/new-badges.interceptor';
-import { appAnchorOffset } from './core/scroll/anchor-offset';
+import { createAnchorOffset } from './core/scroll/anchor-offset';
 import { StaleChunkErrorHandler } from './core/stale-chunk-error.handler';
 import { isStaleChunkError, reloadOnceForStaleChunk } from './core/stale-chunk';
 import { appRoutes } from './app.routes';
@@ -71,7 +71,7 @@ export const appConfig: ApplicationConfig = {
       if (isPlatformServer(inject(PLATFORM_ID))) {
         return;
       }
-      inject(ViewportScroller).setOffset(appAnchorOffset(window));
+      inject(ViewportScroller).setOffset(createAnchorOffset(window));
     }),
     provideAppInitializer(() => {
       if (isPlatformServer(inject(PLATFORM_ID))) {

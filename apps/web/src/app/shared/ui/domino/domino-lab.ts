@@ -22,11 +22,11 @@ import {
 
 const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4];
 
-function randomSeed(): string {
+function createRandomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function signedDelta(from: DominoFace, to: DominoFace): string {
+function formatSignedFaceDelta(from: DominoFace, to: DominoFace): string {
   const raw = mod7(to - from);
   const signed = raw > 3 ? raw - 7 : raw;
   if (signed === 0) {
@@ -35,26 +35,31 @@ function signedDelta(from: DominoFace, to: DominoFace): string {
   return signed > 0 ? `+${signed}` : `${signed}`;
 }
 
-function dominoGapAnnotations(
+function buildStraightGapAnnotations(
   tiles: readonly DominoTile[],
 ): DominoGapAnnotation[] {
   const annotations: DominoGapAnnotation[] = [];
   for (let index = 0; index < tiles.length - 1; index += 1) {
     annotations.push({
-      top: signedDelta(tiles[index].top, tiles[index + 1].top),
-      bottom: signedDelta(tiles[index].bottom, tiles[index + 1].bottom),
+      top: formatSignedFaceDelta(tiles[index].top, tiles[index + 1].top),
+      bottom: formatSignedFaceDelta(
+        tiles[index].bottom,
+        tiles[index + 1].bottom,
+      ),
     });
   }
   return annotations;
 }
 
-export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
+export function buildDominoItemAnnotations(
+  item: DominoItem,
+): DominoGapAnnotation[] {
   if (item.ruleSpec.pattern !== DominoPattern.DIAGONAL) {
-    return dominoGapAnnotations(item.tiles);
+    return buildStraightGapAnnotations(item.tiles);
   }
   return item.tiles.slice(0, -1).map((tile, index) => ({
-    top: `↗${signedDelta(tile.bottom, item.tiles[index + 1].top)}`,
-    bottom: `↘${signedDelta(tile.top, item.tiles[index + 1].bottom)}`,
+    top: `↗${formatSignedFaceDelta(tile.bottom, item.tiles[index + 1].top)}`,
+    bottom: `↘${formatSignedFaceDelta(tile.top, item.tiles[index + 1].bottom)}`,
   }));
 }
 
@@ -65,7 +70,11 @@ export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
   template: `
     <div class="lab">
       <div class="lab__controls">
-        <button type="button" class="lab__generate" (click)="generate()">
+        <button
+          type="button"
+          class="lab__generate"
+          (click)="regenerateWithRandomSeed()"
+        >
           Générer
         </button>
         <label class="lab__field">
@@ -73,7 +82,7 @@ export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
           <input
             class="lab__seed t-mono"
             [value]="seed()"
-            (input)="onSeedInput($any($event.target).value)"
+            (input)="setSeed($any($event.target).value)"
           />
         </label>
         <button type="button" class="lab__chip" (click)="copySeed()">
@@ -95,7 +104,7 @@ export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
           type="button"
           class="lab__chip"
           [class.lab__chip--active]="revealed()"
-          (click)="toggleReveal()"
+          (click)="toggleAnswerReveal()"
         >
           Révéler
         </button>
@@ -115,7 +124,7 @@ export function dominoItemAnnotations(item: DominoItem): DominoGapAnnotation[] {
             [top]="inputTop()"
             [bottom]="inputBottom()"
             [activeHalf]="activeHalf()"
-            (pickFace)="onFace($event)"
+            (pickFace)="fillActiveHalf($event)"
             (pickHalf)="activeHalf.set($event)"
           />
           @if (verdict(); as state) {
@@ -200,7 +209,7 @@ export class DominoLab {
   protected readonly levels = LEVELS;
 
   protected readonly level = signal<DominoLevel>(1);
-  protected readonly seed = signal(randomSeed());
+  protected readonly seed = signal(createRandomSeed());
   protected readonly revealed = signal(false);
   protected readonly activeHalf = signal<DominoHalf>('top');
   protected readonly inputTop = signal<DominoFace | null>(null);
@@ -220,7 +229,7 @@ export class DominoLab {
 
   protected readonly annotations = computed<DominoGapAnnotation[]>(() => {
     const current = this.item();
-    return current ? dominoItemAnnotations(current) : [];
+    return current ? buildDominoItemAnnotations(current) : [];
   });
 
   protected readonly verdict = computed<'good' | 'bad' | null>(() => {
@@ -235,7 +244,7 @@ export class DominoLab {
       : 'bad';
   });
 
-  protected onFace(face: DominoFace): void {
+  protected fillActiveHalf(face: DominoFace): void {
     if (this.activeHalf() === 'top') {
       this.inputTop.set(face);
       this.activeHalf.set('bottom');
@@ -244,7 +253,7 @@ export class DominoLab {
     }
   }
 
-  protected toggleReveal(): void {
+  protected toggleAnswerReveal(): void {
     const next = !this.revealed();
     this.revealed.set(next);
     if (next) {
@@ -256,22 +265,22 @@ export class DominoLab {
     }
   }
 
-  protected generate(): void {
-    this.seed.set(randomSeed());
-    this.resetInput();
+  protected regenerateWithRandomSeed(): void {
+    this.seed.set(createRandomSeed());
+    this.resetAnswerEntry();
   }
 
-  protected onSeedInput(value: string): void {
+  protected setSeed(value: string): void {
     this.seed.set(value);
-    this.resetInput();
+    this.resetAnswerEntry();
   }
 
   protected setLevel(level: DominoLevel): void {
     this.level.set(level);
-    this.resetInput();
+    this.resetAnswerEntry();
   }
 
-  private resetInput(): void {
+  private resetAnswerEntry(): void {
     this.inputTop.set(null);
     this.inputBottom.set(null);
     this.activeHalf.set('top');

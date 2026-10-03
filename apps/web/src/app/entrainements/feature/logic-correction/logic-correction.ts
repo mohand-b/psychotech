@@ -26,18 +26,18 @@ import { DominoPips } from '../../ui/domino-pips/domino-pips';
 import { LogicChoices } from '../../ui/logic-choices/logic-choices';
 import { LogicSequence } from '../../ui/logic-sequence/logic-sequence';
 import { MATRIX_PROPOSAL_LETTERS } from '../../ui/logic-matrix/logic-matrix';
-import { targetedResultOf } from '../targeted-result-page';
+import { loadTargetedResultFromRoute } from '../targeted-result-page';
 import {
   LOGIC_STATUS_COLORS,
   LOGIC_STATUS_LABELS,
 } from '../../../shared/ui/logic-status';
 import {
-  logicFamilyBoundaries,
-  logicItemsForResult,
+  findLogicFamilyBoundaries,
+  regenerateLogicItems,
 } from '../../../shared/ui/logic-result-items';
 import {
-  sessionResultRoute,
-  targetedResultRoute,
+  buildSimulationResultRoute,
+  buildTargetedResultRoute,
 } from '../../../shared/util/session-links';
 
 const STATUS_BADGES: Record<
@@ -94,12 +94,12 @@ interface DominoUserAnswer {
   ],
   templateUrl: './logic-correction.html',
   styleUrl: './logic-correction.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: { '(document:keydown)': 'navigateItemsWithArrowKeys($event)' },
 })
 export class LogicCorrection {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly targetedResult = targetedResultOf(AxisType.LOGIC);
+  private readonly targetedResult = loadTargetedResultFromRoute(AxisType.LOGIC);
 
   private readonly sessionId = this.targetedResult.sessionId;
   private readonly fromSimulation =
@@ -114,13 +114,13 @@ export class LogicCorrection {
 
   protected readonly items = computed(() => {
     const result = this.result();
-    return result ? logicItemsForResult(result) : [];
+    return result ? regenerateLogicItems(result) : [];
   });
 
   protected readonly total = computed(() => this.items().length);
 
   protected readonly familyBoundaries = computed<number[]>(() =>
-    logicFamilyBoundaries(this.items()),
+    findLogicFamilyBoundaries(this.items()),
   );
 
   protected readonly statuses = computed<LogicItemStatus[]>(() => {
@@ -282,38 +282,40 @@ export class LogicCorrection {
     () => this.currentIndex() >= this.items().length - 1,
   );
 
-  protected goTo(index: number): void {
+  protected navigateToItem(index: number): void {
     if (index < 0 || index >= this.items().length) {
       return;
     }
     this.currentIndex.set(index);
   }
 
-  protected previous(): void {
-    this.goTo(this.currentIndex() - 1);
+  protected navigateToPreviousItem(): void {
+    this.navigateToItem(this.currentIndex() - 1);
   }
 
-  protected next(): void {
-    this.goTo(this.currentIndex() + 1);
+  protected navigateToNextItem(): void {
+    this.navigateToItem(this.currentIndex() + 1);
   }
 
-  protected backToResult(): void {
+  protected returnToResult(): void {
     if (this.fromSimulation) {
-      this.router.navigate(sessionResultRoute(this.sessionId));
+      this.router.navigate(buildSimulationResultRoute(this.sessionId));
       return;
     }
-    this.router.navigate(targetedResultRoute(AxisType.LOGIC, this.sessionId));
+    this.router.navigate(
+      buildTargetedResultRoute(AxisType.LOGIC, this.sessionId),
+    );
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected navigateItemsWithArrowKeys(event: KeyboardEvent): void {
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      this.previous();
+      this.navigateToPreviousItem();
       return;
     }
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.next();
+      this.navigateToNextItem();
     }
   }
 }

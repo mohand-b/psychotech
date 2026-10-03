@@ -12,7 +12,9 @@ export interface LeavablePlay {
   confirmLeave(): boolean;
 }
 
-export function playLeaveDecision(state: PlayLeaveState): PlayLeaveDecision {
+export function resolvePlayLeaveDecision(
+  state: PlayLeaveState,
+): PlayLeaveDecision {
   if (!state.live) {
     return 'leave';
   }
@@ -30,12 +32,12 @@ export class PlayLeaveControl {
     private readonly askConfirmation: () => void,
   ) {}
 
-  accept(): void {
+  acceptLeave(): void {
     this.accepted = true;
   }
 
   confirmLeave(): boolean {
-    const decision = this.decision();
+    const decision = this.resolveLeaveDecision();
     if (decision === 'confirm') {
       this.askConfirmation();
     }
@@ -43,13 +45,13 @@ export class PlayLeaveControl {
   }
 
   blockUnload(event: BeforeUnloadEvent): void {
-    if (this.decision() !== 'leave') {
+    if (this.resolveLeaveDecision() !== 'leave') {
       event.preventDefault();
     }
   }
 
-  private decision(): PlayLeaveDecision {
-    return this.accepted ? 'leave' : playLeaveDecision(this.state());
+  private resolveLeaveDecision(): PlayLeaveDecision {
+    return this.accepted ? 'leave' : resolvePlayLeaveDecision(this.state());
   }
 }
 

@@ -4,7 +4,7 @@ import {
   SignalGridLayout,
   WIDE_SIGNAL_GRID,
   generateSignalPattern,
-  nextSignalCells,
+  computeNextSignalCells,
 } from './signal-grid-pattern';
 
 function sequence(values: number[]): () => number {
@@ -97,14 +97,14 @@ describe('generateSignalPattern', () => {
   });
 });
 
-describe('nextSignalCells', () => {
+describe('computeNextSignalCells', () => {
   it('lights the new pattern, fades the cells it drops and forgets cells already faded, ordered by index', () => {
     const previous: SignalCell[] = [
       { index: 4, state: 'lit' },
       { index: 9, state: 'fading' },
       { index: 12, state: 'vivid' },
     ];
-    const next = nextSignalCells(
+    const next = computeNextSignalCells(
       previous,
       new Map([
         [12, 'lit'],

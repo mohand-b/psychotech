@@ -47,7 +47,7 @@
           [attr.aria-pressed]="selectedIndex() === $index"
           [attr.aria-label]="'Proposition ' + letters[$index]"
           [disabled]="disabled()"
-          (click)="choose($index)"
+          (click)="chooseAnswer($index)"
         >
           <span class="mx__thumb">
             <ui-matrix-cell

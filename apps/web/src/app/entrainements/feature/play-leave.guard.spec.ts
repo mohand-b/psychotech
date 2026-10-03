@@ -1,27 +1,31 @@
-import { PlayLeaveControl, playLeaveDecision } from './play-leave.guard';
+import { PlayLeaveControl, resolvePlayLeaveDecision } from './play-leave.guard';
 
-describe('playLeaveDecision', () => {
+describe('resolvePlayLeaveDecision', () => {
   it('lets the candidate leave a screen that is not a live play', () => {
     expect(
-      playLeaveDecision({ live: false, submitted: false, unsent: false }),
+      resolvePlayLeaveDecision({
+        live: false,
+        submitted: false,
+        unsent: false,
+      }),
     ).toBe('leave');
   });
 
   it('asks for a confirmation while the axis is being played', () => {
     expect(
-      playLeaveDecision({ live: true, submitted: false, unsent: false }),
+      resolvePlayLeaveDecision({ live: true, submitted: false, unsent: false }),
     ).toBe('confirm');
   });
 
   it('keeps the candidate on the page while submitted answers are still unsent', () => {
     expect(
-      playLeaveDecision({ live: true, submitted: true, unsent: true }),
+      resolvePlayLeaveDecision({ live: true, submitted: true, unsent: true }),
     ).toBe('stay');
   });
 
   it('lets the navigation through once the answers are stored', () => {
     expect(
-      playLeaveDecision({ live: true, submitted: true, unsent: false }),
+      resolvePlayLeaveDecision({ live: true, submitted: true, unsent: false }),
     ).toBe('leave');
   });
 });
@@ -67,7 +71,7 @@ describe('PlayLeaveControl', () => {
       submitted: false,
       unsent: false,
     });
-    control.accept();
+    control.acceptLeave();
 
     expect(control.confirmLeave()).toBe(true);
     expect(askConfirmation).not.toHaveBeenCalled();

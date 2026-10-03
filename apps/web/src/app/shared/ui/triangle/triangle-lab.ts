@@ -15,11 +15,11 @@ import { TriangleSeries } from './triangle-series';
 
 const LEVELS: readonly TriangleLevel[] = [1, 2, 3, 4, 5];
 
-function randomSeed(): string {
+function createRandomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function triangleAnnotations(item: TriangleItem): string[] {
+export function buildTriangleItemAnnotations(item: TriangleItem): string[] {
   return item.triangles.map((triangle, index) =>
     formatTriangleReading(
       item.patternId,
@@ -36,7 +36,11 @@ export function triangleAnnotations(item: TriangleItem): string[] {
   template: `
     <div class="lab">
       <div class="lab__controls">
-        <button type="button" class="lab__generate" (click)="generate()">
+        <button
+          type="button"
+          class="lab__generate"
+          (click)="regenerateWithRandomSeed()"
+        >
           Générer
         </button>
         <label class="lab__field">
@@ -44,7 +48,7 @@ export function triangleAnnotations(item: TriangleItem): string[] {
           <input
             class="lab__seed t-mono"
             [value]="seed()"
-            (input)="onSeedInput($any($event.target).value)"
+            (input)="setSeed($any($event.target).value)"
           />
         </label>
         <button type="button" class="lab__chip" (click)="copySeed()">
@@ -66,7 +70,7 @@ export function triangleAnnotations(item: TriangleItem): string[] {
           type="button"
           class="lab__chip"
           [class.lab__chip--active]="revealed()"
-          (click)="toggleReveal()"
+          (click)="toggleAnswerReveal()"
         >
           Révéler
         </button>
@@ -165,7 +169,7 @@ export class TriangleLab {
   protected readonly levels = LEVELS;
 
   protected readonly level = signal<TriangleLevel>(1);
-  protected readonly seed = signal(randomSeed());
+  protected readonly seed = signal(createRandomSeed());
   protected readonly revealed = signal(false);
   protected readonly inputValue = signal<number | null>(null);
 
@@ -179,7 +183,7 @@ export class TriangleLab {
 
   protected readonly annotations = computed<string[]>(() => {
     const current = this.item();
-    return current ? triangleAnnotations(current) : [];
+    return current ? buildTriangleItemAnnotations(current) : [];
   });
 
   protected readonly verdict = computed<'good' | 'bad' | null>(() => {
@@ -191,7 +195,7 @@ export class TriangleLab {
     return value === current.answer ? 'good' : 'bad';
   });
 
-  protected toggleReveal(): void {
+  protected toggleAnswerReveal(): void {
     const next = !this.revealed();
     this.revealed.set(next);
     if (next) {
@@ -202,22 +206,22 @@ export class TriangleLab {
     }
   }
 
-  protected generate(): void {
-    this.seed.set(randomSeed());
-    this.resetInput();
+  protected regenerateWithRandomSeed(): void {
+    this.seed.set(createRandomSeed());
+    this.resetAnswerEntry();
   }
 
-  protected onSeedInput(value: string): void {
+  protected setSeed(value: string): void {
     this.seed.set(value);
-    this.resetInput();
+    this.resetAnswerEntry();
   }
 
   protected setLevel(level: TriangleLevel): void {
     this.level.set(level);
-    this.resetInput();
+    this.resetAnswerEntry();
   }
 
-  private resetInput(): void {
+  private resetAnswerEntry(): void {
     this.inputValue.set(null);
     this.revealed.set(false);
   }

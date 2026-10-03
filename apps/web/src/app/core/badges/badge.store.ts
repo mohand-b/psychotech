@@ -30,7 +30,7 @@ const initialState: BadgeCelebrationState = {
   celebratedIds: [],
 };
 
-function advanced(
+function promoteToCelebratingIfReady(
   state: BadgeCelebrationState,
 ): Partial<BadgeCelebrationState> {
   if (
@@ -57,7 +57,7 @@ export const BadgeStore = signalStore(
     isLast: computed(() => store.currentIndex() === store.queue().length - 1),
   })),
   withMethods((store) => ({
-    enqueue(badges: EarnedBadgeDto[]): void {
+    enqueueBadges(badges: EarnedBadgeDto[]): void {
       const known = new Set([
         ...store.queue().map((badge) => badge.badgeId),
         ...store.celebratedIds(),
@@ -74,9 +74,9 @@ export const BadgeStore = signalStore(
         sceneHolds: store.sceneHolds(),
         celebratedIds: store.celebratedIds(),
       };
-      patchState(store, { ...state, ...advanced(state) });
+      patchState(store, { ...state, ...promoteToCelebratingIfReady(state) });
     },
-    replay(badges: EarnedBadgeDto[]): void {
+    replayCelebration(badges: EarnedBadgeDto[]): void {
       if (badges.length === 0 || store.phase() === 'celebrating') {
         return;
       }
@@ -87,15 +87,15 @@ export const BadgeStore = signalStore(
         sceneHolds: store.sceneHolds(),
         celebratedIds: store.celebratedIds(),
       };
-      patchState(store, { ...state, ...advanced(state) });
+      patchState(store, { ...state, ...promoteToCelebratingIfReady(state) });
     },
-    placeHold(reason: string): void {
+    placeSceneHold(reason: string): void {
       if (store.sceneHolds().includes(reason)) {
         return;
       }
       patchState(store, { sceneHolds: [...store.sceneHolds(), reason] });
     },
-    releaseHold(reason: string): void {
+    releaseSceneHold(reason: string): void {
       if (!store.sceneHolds().includes(reason)) {
         return;
       }
@@ -106,9 +106,9 @@ export const BadgeStore = signalStore(
         sceneHolds: store.sceneHolds().filter((held) => held !== reason),
         celebratedIds: store.celebratedIds(),
       };
-      patchState(store, { ...state, ...advanced(state) });
+      patchState(store, { ...state, ...promoteToCelebratingIfReady(state) });
     },
-    completeCurrent(): EarnedBadgeDto | null {
+    completeCurrentBadge(): EarnedBadgeDto | null {
       if (store.phase() !== 'celebrating') {
         return null;
       }
@@ -135,7 +135,7 @@ export const BadgeStore = signalStore(
       }
       return completed;
     },
-    dismissAll(): EarnedBadgeDto[] {
+    dismissRemainingBadges(): EarnedBadgeDto[] {
       if (store.phase() !== 'celebrating') {
         return [];
       }

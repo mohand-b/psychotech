@@ -11,6 +11,6 @@ import { Seo } from './core/seo/seo';
 })
 export class App {
   constructor() {
-    inject(Seo).start();
+    inject(Seo).syncSeoWithRouter();
   }
 }

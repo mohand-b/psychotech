@@ -9,7 +9,7 @@ import {
   TriangleLevel,
   generateTriangleItem,
 } from '@psychotech/shared';
-import { triangleAnnotations } from './triangle-lab';
+import { buildTriangleItemAnnotations } from './triangle-lab';
 import { TriangleSeries } from './triangle-series';
 
 interface GalleryRow {
@@ -33,7 +33,7 @@ const LEVELS: readonly TriangleLevel[] = [1, 2, 3, 4, 5];
               [triangles]="item.triangles"
               [missing]="item.missing"
               [answerValue]="item.answer"
-              [annotations]="annotationsFor(item)"
+              [annotations]="buildItemAnnotations(item)"
               [tileSize]="84"
             />
             <span class="row__rule">{{ item.rule.userText }}</span>
@@ -88,7 +88,7 @@ export class TriangleGallery {
     }),
   );
 
-  protected annotationsFor(item: TriangleItem): string[] {
-    return triangleAnnotations(item);
+  protected buildItemAnnotations(item: TriangleItem): string[] {
+    return buildTriangleItemAnnotations(item);
   }
 }

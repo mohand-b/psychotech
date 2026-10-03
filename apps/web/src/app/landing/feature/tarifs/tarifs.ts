@@ -25,18 +25,20 @@ interface PackView {
 
 const HIGHLIGHTED_PACK = EnergyPackId.PRE_EXAM;
 
-function formatEuros(cents: number): string {
+function formatCentsAsEuros(cents: number): string {
   const euros = Math.floor(cents / 100);
   const decimals = `${cents % 100}`.padStart(2, '0');
   return `${euros},${decimals}\u00A0€`;
 }
 
-function toPackView(pack: EnergyPackDefinition): PackView {
+function buildPackView(pack: EnergyPackDefinition): PackView {
   return {
     title: pack.title,
     credits: pack.energyAmount,
-    priceLabel: formatEuros(pack.priceCents),
-    unitLabel: formatEuros(Math.round(pack.priceCents / pack.energyAmount)),
+    priceLabel: formatCentsAsEuros(pack.priceCents),
+    unitLabel: formatCentsAsEuros(
+      Math.round(pack.priceCents / pack.energyAmount),
+    ),
     examCount: Math.floor(
       pack.energyAmount / SESSION_ENERGY_COST[SessionMode.FULL],
     ),
@@ -54,6 +56,6 @@ function toPackView(pack: EnergyPackDefinition): PackView {
 export class Tarifs {
   protected readonly scrolled = injectLandingChrome();
   protected readonly authenticated = inject(AuthFacade).isAuthenticated;
-  protected readonly packs: PackView[] = ENERGY_PACKS.map(toPackView);
+  protected readonly packs: PackView[] = ENERGY_PACKS.map(buildPackView);
   protected readonly signupGrant = SIGNUP_ENERGY_GRANT;
 }

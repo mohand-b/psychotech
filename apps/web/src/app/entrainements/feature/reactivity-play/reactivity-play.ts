@@ -31,7 +31,7 @@ import { LeavablePlay } from '../play-leave.guard';
 import {
   confirmExitOnCloseRequest,
   loadPlayableSession,
-  playLeaveControl,
+  createPlayLeaveControl,
 } from '../play-session';
 
 type PlayState = 'WAITING' | 'STIMULUS' | 'TRANSITION';
@@ -87,8 +87,8 @@ const TRANSITION_CARDS: Record<'BLUE' | 'RED', TransitionCard> = {
   templateUrl: './reactivity-play.html',
   styleUrl: './reactivity-play.css',
   host: {
-    '(document:keydown)': 'onKeydown($event)',
-    '(window:beforeunload)': 'onBeforeUnload($event)',
+    '(document:keydown)': 'pressCommandWithKeyboard($event)',
+    '(window:beforeunload)': 'blockUnloadDuringPlay($event)',
   },
 })
 export class ReactivityPlay implements LeavablePlay {
@@ -102,7 +102,9 @@ export class ReactivityPlay implements LeavablePlay {
     this.route.snapshot.paramMap.get('sessionId') ?? '';
   protected readonly axis = AxisType.REACTIVITY;
   protected readonly presentation = AXIS_PRESENTATION[AxisType.REACTIVITY];
-  private readonly training = this.facade.trainingConfig(AxisType.REACTIVITY);
+  private readonly training = this.facade.getTrainingConfig(
+    AxisType.REACTIVITY,
+  );
   private readonly totalMs = this.training.timer.durationSec * 1000;
   private readonly phaseMs = this.training.phaseDurationSec * 1000;
 
@@ -143,7 +145,7 @@ export class ReactivityPlay implements LeavablePlay {
   private tickerId: number | null = null;
   private feedbackTimerId: number | null = null;
   private hasSubmitted = false;
-  private readonly leave = playLeaveControl(
+  private readonly leave = createPlayLeaveControl(
     this.loaded,
     () => this.hasSubmitted,
     () => this.confirmingExit.set(true),
@@ -165,7 +167,7 @@ export class ReactivityPlay implements LeavablePlay {
     });
   }
 
-  protected stimulusColorVar(type: ReactivityStimulusType): string {
+  protected resolveStimulusColor(type: ReactivityStimulusType): string {
     return type === 'YELLOW'
       ? 'var(--stimulus-yellow)'
       : type === 'BLUE'
@@ -176,7 +178,7 @@ export class ReactivityPlay implements LeavablePlay {
   protected readonly blueActive = computed(() => this.phase() >= 2);
   protected readonly redActive = computed(() => this.phase() >= 3);
 
-  protected press(command: ReactivityCommand): void {
+  protected pressCommand(command: ReactivityCommand): void {
     if (
       !this.loaded() ||
       this.hasSubmitted ||
@@ -192,7 +194,7 @@ export class ReactivityPlay implements LeavablePlay {
       this.answerStimulus(command);
       return;
     }
-    this.waitPresses.push({ atMs: Math.round(this.effectiveNow()) });
+    this.waitPresses.push({ atMs: Math.round(this.measureEffectivePlayMs()) });
     this.showFeedback({
       kind: 'early',
       text: 'Trop tôt',
@@ -205,21 +207,21 @@ export class ReactivityPlay implements LeavablePlay {
     return this.leave.confirmLeave();
   }
 
-  protected onBeforeUnload(event: BeforeUnloadEvent): void {
+  protected blockUnloadDuringPlay(event: BeforeUnloadEvent): void {
     this.leave.blockUnload(event);
   }
 
-  protected confirmExit(): void {
+  protected quitToDashboard(): void {
     if (this.leaving()) {
       return;
     }
     this.leaving.set(true);
-    this.leave.accept();
+    this.leave.acceptLeave();
     this.stopTicker();
     this.router.navigate(['/dashboard']);
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected pressCommandWithKeyboard(event: KeyboardEvent): void {
     if (event.repeat || this.hasSubmitted) {
       return;
     }
@@ -239,7 +241,7 @@ export class ReactivityPlay implements LeavablePlay {
       return;
     }
     event.preventDefault();
-    this.press(command);
+    this.pressCommand(command);
   }
 
   private openPlay(): void {
@@ -248,7 +250,7 @@ export class ReactivityPlay implements LeavablePlay {
     this.loaded.set(true);
   }
 
-  protected onCountdownFinished(): void {
+  protected startPlayAfterCountdown(): void {
     if (!this.countingDown()) {
       return;
     }
@@ -258,12 +260,15 @@ export class ReactivityPlay implements LeavablePlay {
     this.startTicker();
   }
 
-  private effectiveNow(): number {
+  private measureEffectivePlayMs(): number {
     return performance.now() - this.epochMs - this.suspendedMs;
   }
 
   private startTicker(): void {
-    this.tickerId = window.setInterval(() => this.tick(), TICK_MS);
+    this.tickerId = window.setInterval(
+      () => this.advanceStimulusTimeline(),
+      TICK_MS,
+    );
   }
 
   private stopTicker(): void {
@@ -273,11 +278,11 @@ export class ReactivityPlay implements LeavablePlay {
     }
   }
 
-  private tick(): void {
+  private advanceStimulusTimeline(): void {
     if (this.hasSubmitted || this.state() === 'TRANSITION') {
       return;
     }
-    const effective = this.effectiveNow();
+    const effective = this.measureEffectivePlayMs();
     this.facade.setEffectiveCountdown({
       remainingSec: Math.max(0, Math.ceil((this.totalMs - effective) / 1000)),
       fraction: Math.min(1, Math.max(0, 1 - effective / this.totalMs)),
@@ -297,14 +302,14 @@ export class ReactivityPlay implements LeavablePlay {
       return;
     }
     if (effective >= this.totalMs) {
-      this.submit();
+      this.submitAnswers();
       return;
     }
     if (
       this.nextTransitionBoundary !== null &&
       effective >= this.nextTransitionBoundary
     ) {
-      this.startTransition();
+      this.startPhaseTransition();
       return;
     }
     const next = this.stimuli[this.nextStimulusIndex];
@@ -313,7 +318,7 @@ export class ReactivityPlay implements LeavablePlay {
     }
   }
 
-  private startTransition(): void {
+  private startPhaseTransition(): void {
     const card =
       this.nextTransitionBoundary === this.phaseMs
         ? TRANSITION_CARDS.BLUE
@@ -426,23 +431,23 @@ export class ReactivityPlay implements LeavablePlay {
     }
   }
 
-  private submit(): void {
+  private submitAnswers(): void {
     if (this.hasSubmitted) {
       return;
     }
     this.hasSubmitted = true;
     this.stopTicker();
-    const playedMs = Math.max(0, Math.round(this.effectiveNow()));
+    const playedMs = Math.max(0, Math.round(this.measureEffectivePlayMs()));
     for (const stimulus of this.stimuli.slice(this.nextStimulusIndex)) {
       this.recordAnswer(stimulus.index, null, null);
     }
     const stimuli = [...this.answers];
     const waitPresses = [...this.waitPresses];
-    this.resultWait.submit({
+    this.resultWait.submitAxisCompletion({
       axis: this.axis,
       complete: () =>
         this.facade
-          .completeTargetedReactivity(stimuli, waitPresses, playedMs)
+          .completeReactivityAxis(stimuli, waitPresses, playedMs)
           .pipe(tap(() => this.facade.setEffectiveCountdown(null))),
     });
   }

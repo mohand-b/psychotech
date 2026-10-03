@@ -23,11 +23,11 @@ export class TrainingsOverviewFacade {
   readonly loading: Signal<boolean> = this.overviewResource.isLoading;
   readonly error: Signal<unknown> = this.overviewResource.error;
 
-  load(sector: Sector): void {
+  loadOverview(sector: Sector): void {
     this.sector.set(sector);
   }
 
-  reload(): void {
+  reloadOverview(): void {
     this.overviewResource.reload();
   }
 }

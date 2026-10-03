@@ -6,7 +6,7 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+    <ui-axis-countdown [axis]="axis" (finished)="startPlayAfterCountdown()" />
   }
   <div
     class="react__progress"
@@ -33,7 +33,7 @@
           [class.react__stimulus--square]="active.stimulus.type === 'RED'"
           [style.left.px]="active.x"
           [style.top.px]="active.y"
-          [style.--stimulus-color]="stimulusColorVar(active.stimulus.type)"
+          [style.--stimulus-color]="resolveStimulusColor(active.stimulus.type)"
         ></span>
       }
       @if (feedback(); as fugitive) {
@@ -55,7 +55,7 @@
           color="reactivity"
           [leaving]="leaving()"
           (continueRequested)="confirmingExit.set(false)"
-          (quitRequested)="confirmExit()"
+          (quitRequested)="quitToDashboard()"
         />
       }
       @if (transitionCard(); as card) {
@@ -64,7 +64,7 @@
           <span
             class="react__transition-stimulus"
             [class.react__transition-stimulus--square]="card.type === 'RED'"
-            [style.--stimulus-color]="stimulusColorVar(card.type)"
+            [style.--stimulus-color]="resolveStimulusColor(card.type)"
           ></span>
           <span class="react__transition-key">
             <kbd class="react__keycap">{{ card.keycap }}</kbd>
@@ -78,7 +78,7 @@
             @for (type of card.alreadyActive; track type) {
               <span
                 class="react__mini-stimulus"
-                [style.--stimulus-color]="stimulusColorVar(type)"
+                [style.--stimulus-color]="resolveStimulusColor(type)"
               ></span>
             }
           </span>
@@ -94,7 +94,7 @@
       <span class="react__mapping">
         <span
           class="react__mapping-dot"
-          [style.--stimulus-color]="stimulusColorVar('YELLOW')"
+          [style.--stimulus-color]="resolveStimulusColor('YELLOW')"
         ></span>
         <kbd class="react__keycap">←</kbd>
       </span>
@@ -104,7 +104,7 @@
       >
         <span
           class="react__mapping-dot"
-          [style.--stimulus-color]="stimulusColorVar('BLUE')"
+          [style.--stimulus-color]="resolveStimulusColor('BLUE')"
         ></span>
         <kbd class="react__keycap">→</kbd>
       </span>
@@ -114,7 +114,7 @@
       >
         <span
           class="react__mapping-dot react__mapping-dot--square"
-          [style.--stimulus-color]="stimulusColorVar('RED')"
+          [style.--stimulus-color]="resolveStimulusColor('RED')"
         ></span>
         <kbd class="react__keycap">Espace</kbd>
       </span>
@@ -124,29 +124,29 @@
       <button
         type="button"
         class="react__touch-button"
-        [style.--stimulus-color]="stimulusColorVar('YELLOW')"
+        [style.--stimulus-color]="resolveStimulusColor('YELLOW')"
         aria-label="Rond jaune"
-        (pointerdown)="press('LEFT')"
+        (pointerdown)="pressCommand('LEFT')"
       >
         <span class="react__touch-dot"></span>
       </button>
       <button
         type="button"
         class="react__touch-button"
-        [style.--stimulus-color]="stimulusColorVar('BLUE')"
+        [style.--stimulus-color]="resolveStimulusColor('BLUE')"
         [disabled]="!blueActive()"
         aria-label="Rond bleu"
-        (pointerdown)="press('RIGHT')"
+        (pointerdown)="pressCommand('RIGHT')"
       >
         <span class="react__touch-dot"></span>
       </button>
       <button
         type="button"
         class="react__touch-button react__touch-button--wide"
-        [style.--stimulus-color]="stimulusColorVar('RED')"
+        [style.--stimulus-color]="resolveStimulusColor('RED')"
         [disabled]="!redActive()"
         aria-label="Carré rouge"
-        (pointerdown)="press('SPACE')"
+        (pointerdown)="pressCommand('SPACE')"
       >
         <span class="react__touch-dot react__touch-dot--square"></span>
       </button>
@@ -158,8 +158,8 @@
       [simulation]="resultWait.simulation()"
       [failure]="resultWait.failure()"
       [slow]="resultWait.slow()"
-      (retry)="resultWait.retry()"
-      (quit)="resultWait.quit()"
+      (retry)="resultWait.retryFailedStep()"
+      (quit)="resultWait.quitToDashboard()"
     />
   }
 </section>

@@ -15,7 +15,7 @@ import {
   SignalGridLayout,
   WIDE_SIGNAL_GRID,
   generateSignalPattern,
-  nextSignalCells,
+  computeNextSignalCells,
 } from '../../util/signal-grid-pattern';
 
 const CELL_RADIUS = 2;
@@ -46,7 +46,7 @@ interface PlacedSignalCell extends SignalCell {
   top: number;
 }
 
-function signalField(
+function buildSignalField(
   key: SignalFieldKey,
   layout: SignalGridLayout,
   { cellSize, cellGap }: SignalCellGeometry,
@@ -65,11 +65,11 @@ function signalField(
   };
 }
 
-const WIDE_FIELD = signalField('wide', WIDE_SIGNAL_GRID, {
+const WIDE_FIELD = buildSignalField('wide', WIDE_SIGNAL_GRID, {
   cellSize: 10,
   cellGap: 16,
 });
-const COMPACT_FIELD = signalField('compact', COMPACT_SIGNAL_GRID, {
+const COMPACT_FIELD = buildSignalField('compact', COMPACT_SIGNAL_GRID, {
   cellSize: 8,
   cellGap: 12,
 });
@@ -111,7 +111,7 @@ export class LandingSignalGrid {
       const applyLayout = () => {
         this.compact.set(compactLayout.matches);
         this.state.set([]);
-        this.advance();
+        this.advanceSignalPattern();
       };
       compactLayout.addEventListener('change', applyLayout);
       this.destroyRef.onDestroy(() =>
@@ -123,17 +123,20 @@ export class LandingSignalGrid {
       }
       const timer = view.setInterval(() => {
         if (this.document.visibilityState !== 'hidden') {
-          this.advance();
+          this.advanceSignalPattern();
         }
       }, PATTERN_INTERVAL_MS);
       this.destroyRef.onDestroy(() => view.clearInterval(timer));
     });
   }
 
-  private advance(): void {
+  private advanceSignalPattern(): void {
     const { layout } = this.activeField();
     this.state.update((previous) =>
-      nextSignalCells(previous, generateSignalPattern(Math.random, layout)),
+      computeNextSignalCells(
+        previous,
+        generateSignalPattern(Math.random, layout),
+      ),
     );
   }
 }

@@ -82,7 +82,10 @@ const CHIP_AXES_ORDER: readonly AxisType[] = [
 
 const FRENCH_COLLATOR = new Intl.Collator('fr');
 
-function byFrenchLabel(a: AxisPresentation, b: AxisPresentation): number {
+function compareByFrenchLabel(
+  a: AxisPresentation,
+  b: AxisPresentation,
+): number {
   return FRENCH_COLLATOR.compare(a.label, b.label);
 }
 
@@ -142,13 +145,13 @@ export class GuideHub {
         SECTOR_AXES[sector].includes(axis),
       ),
     }))
-    .sort((a, b) => byFrenchLabel(a.presentation, b.presentation));
+    .sort((a, b) => compareByFrenchLabel(a.presentation, b.presentation));
 
-  protected back(): void {
+  protected navigateToPreviousPage(): void {
     navigateBack(this.location, this.router, '/entrainements');
   }
 
-  protected markRead(): void {
+  protected markGuideRead(): void {
     this.locallyMarked.set(true);
     this.badgesFacade
       .markGuideRead(GuideId.EXAM_GUIDE)
@@ -162,6 +165,6 @@ export class GuideHub {
       current: column.sector === Sector.RAILWAY,
       axes: SECTOR_AXES[column.sector]
         .map((axis) => ({ axis, presentation: AXIS_PRESENTATION[axis] }))
-        .sort((a, b) => byFrenchLabel(a.presentation, b.presentation)),
+        .sort((a, b) => compareByFrenchLabel(a.presentation, b.presentation)),
     }));
 }

@@ -11,7 +11,7 @@ import {
   resolveLogicRuleHint,
 } from '@psychotech/shared';
 
-export function logicItemsForResult(
+export function regenerateLogicItems(
   result: TargetedLogicResultDto,
 ): LogicItem[] {
   return result.contentVersion >= LOGIC_CONTENT_VERSION_V2
@@ -26,14 +26,16 @@ export function logicItemsForResult(
       );
 }
 
-export function logicFamilyBoundaries(items: LogicItem[]): number[] {
+export function findLogicFamilyBoundaries(items: LogicItem[]): number[] {
   return items
     .slice(1)
     .map((item, index) => (item.family !== items[index].family ? index : null))
     .filter((index): index is number => index !== null);
 }
 
-export function logicAnalyzerItems(items: LogicItem[]): LogicRuleItem[] {
+export function adaptLogicItemsForAnalyzer(
+  items: LogicItem[],
+): LogicRuleItem[] {
   return items.map((item) =>
     item.family === LogicFamily.NUMERIC &&
     item.structure === LogicNumericStructure.SEQUENCE

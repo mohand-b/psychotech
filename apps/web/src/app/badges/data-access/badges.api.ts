@@ -9,20 +9,20 @@ export class BadgesApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  unacknowledged(): Observable<EarnedBadgeDto[]> {
+  fetchUnacknowledgedBadges(): Observable<EarnedBadgeDto[]> {
     return this.http.get<EarnedBadgeDto[]>(
       `${this.baseUrl}/me/badges/unacknowledged`,
     );
   }
 
-  acknowledge(badgeId: BadgeId): Observable<void> {
+  acknowledgeBadge(badgeId: BadgeId): Observable<void> {
     return this.http.post<void>(
       `${this.baseUrl}/me/badges/${badgeId}/acknowledge`,
       null,
     );
   }
 
-  tutorialDiscovered(): Observable<void> {
+  notifyTutorialDiscovered(): Observable<void> {
     return this.http.post<void>(
       `${this.baseUrl}/me/badges/tutorial-discovered`,
       null,

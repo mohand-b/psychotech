@@ -108,19 +108,23 @@ const ELEMENT_PATHS: Record<MatrixElementId, { d: string; filled: boolean }> = {
 
 const NESTED_SCALES = [1, 0.78, 0.58, 0.4, 0.26];
 
-function round(value: number): number {
+function roundToHundredth(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function polygonPoints(
+function formatGlyphPolygonPoints(
   offsets: readonly (readonly [number, number])[],
   cx: number,
   cy: number,
 ): string {
-  return offsets.map(([x, y]) => `${round(cx + x)},${round(cy + y)}`).join(' ');
+  return offsets
+    .map(([x, y]) => `${roundToHundredth(cx + x)},${roundToHundredth(cy + y)}`)
+    .join(' ');
 }
 
-function plusOffsets(radius: number): (readonly [number, number])[] {
+function computePlusVertexOffsets(
+  radius: number,
+): (readonly [number, number])[] {
   const arm = radius * 0.4;
   return [
     [-arm, -radius],
@@ -138,7 +142,9 @@ function plusOffsets(radius: number): (readonly [number, number])[] {
   ];
 }
 
-function starOffsets(radius: number): (readonly [number, number])[] {
+function computeStarVertexOffsets(
+  radius: number,
+): (readonly [number, number])[] {
   const inner = radius * 0.42;
   const offsets: (readonly [number, number])[] = [];
   for (let index = 0; index < 8; index += 1) {
@@ -149,7 +155,9 @@ function starOffsets(radius: number): (readonly [number, number])[] {
   return offsets;
 }
 
-function diamondOffsets(radius: number): (readonly [number, number])[] {
+function computeDiamondVertexOffsets(
+  radius: number,
+): (readonly [number, number])[] {
   return [
     [0, -radius],
     [radius, 0],
@@ -158,7 +166,9 @@ function diamondOffsets(radius: number): (readonly [number, number])[] {
   ];
 }
 
-function triangleOffsets(radius: number): (readonly [number, number])[] {
+function computeTriangleVertexOffsets(
+  radius: number,
+): (readonly [number, number])[] {
   return [
     [0, -radius],
     [radius * 0.93, radius * 0.72],
@@ -166,26 +176,26 @@ function triangleOffsets(radius: number): (readonly [number, number])[] {
   ];
 }
 
-function symbolOffsets(
+function computeSymbolVertexOffsets(
   symbol: MatrixSymbol,
   radius: number,
 ): (readonly [number, number])[] {
   switch (symbol) {
     case MatrixSymbol.PLUS:
     case MatrixSymbol.CROSS:
-      return plusOffsets(radius);
+      return computePlusVertexOffsets(radius);
     case MatrixSymbol.STAR:
-      return starOffsets(radius);
+      return computeStarVertexOffsets(radius);
     case MatrixSymbol.DIAMOND:
-      return diamondOffsets(radius);
+      return computeDiamondVertexOffsets(radius);
     case MatrixSymbol.TRIANGLE:
-      return triangleOffsets(radius);
+      return computeTriangleVertexOffsets(radius);
     case MatrixSymbol.DOT:
       return [];
   }
 }
 
-function strokeFamilyPaths(
+function buildStrokeFamilyPaths(
   type: MatrixStrokeType,
   count: MatrixStrokeCount,
 ): RenderedPath[] {
@@ -420,15 +430,15 @@ export class MatrixCell {
     const slots = SLOT_LAYOUTS[cell.count];
     const baseRadius = GLYPH_BASE_RADIUS * SIZE_SCALES[cell.size];
     return slots.map((slot) => {
-      const radius = round(baseRadius * slot.radius);
+      const radius = roundToHundredth(baseRadius * slot.radius);
       const rotation =
         cell.rotation + (cell.symbol === MatrixSymbol.CROSS ? 45 : 0);
       return {
         cx: slot.cx,
         cy: slot.cy,
         radius,
-        points: polygonPoints(
-          symbolOffsets(cell.symbol, radius),
+        points: formatGlyphPolygonPoints(
+          computeSymbolVertexOffsets(cell.symbol, radius),
           slot.cx,
           slot.cy,
         ),
@@ -444,8 +454,8 @@ export class MatrixCell {
       return [];
     }
     return [
-      ...strokeFamilyPaths(cell.strokeAType, cell.strokeACount),
-      ...strokeFamilyPaths(cell.strokeBType, cell.strokeBCount),
+      ...buildStrokeFamilyPaths(cell.strokeAType, cell.strokeACount),
+      ...buildStrokeFamilyPaths(cell.strokeBType, cell.strokeBCount),
     ];
   });
 

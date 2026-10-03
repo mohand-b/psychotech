@@ -14,7 +14,7 @@ import {
   TrainingSessionFacade,
 } from '../../sessions/data-access/training-session.facade';
 import { ResultWaitFailure } from '../ui/result-wait/result-wait';
-import { afterAxisSubmitRoute } from '../ui/session-flow';
+import { resolveRouteAfterAxis } from '../ui/session-flow';
 import { TUTORIAL_SESSION_ID } from './tutorial-session.facade';
 
 export const RESULT_WAIT_MIN_DISPLAY_MS = 1200;
@@ -90,38 +90,38 @@ export class ResultWaitOrchestrator {
     });
   }
 
-  submit(request: AxisCompletionRequest): void {
+  submitAxisCompletion(request: AxisCompletionRequest): void {
     if (this.phaseSignal() !== 'idle') {
       return;
     }
     const session = this.trainingFacade.session();
     this.request = request;
-    this.awaitsResult = session !== null && this.requiresWait(session);
+    this.awaitsResult = session !== null && this.shouldAwaitResult(session);
     this.simulationSignal.set(
       this.awaitsResult && session?.mode === SessionMode.FULL,
     );
     this.startTimers();
-    this.runCompletion();
+    this.sendAxisCompletion();
   }
 
-  retry(): void {
+  retryFailedStep(): void {
     if (this.phaseSignal() === 'failed-complete') {
-      this.restartSlowTimer();
-      this.runCompletion();
+      this.restartSlowHintTimer();
+      this.sendAxisCompletion();
     } else if (this.phaseSignal() === 'failed-prefetch') {
-      this.restartSlowTimer();
-      this.runPrefetch();
+      this.restartSlowHintTimer();
+      this.prefetchAxisResult();
     }
   }
 
-  quit(): void {
+  quitToDashboard(): void {
     this.quitSignal.set(true);
     this.clearTimers();
-    this.trainingFacade.clear();
+    this.trainingFacade.clearSession();
     this.router.navigate(QUIT_ROUTE);
   }
 
-  private requiresWait(session: SessionDto): boolean {
+  private shouldAwaitResult(session: SessionDto): boolean {
     if (session.id === TUTORIAL_SESSION_ID) {
       return false;
     }
@@ -131,7 +131,7 @@ export class ResultWaitOrchestrator {
     return session.currentAxisIndex === session.axisResults.length - 1;
   }
 
-  private runCompletion(): void {
+  private sendAxisCompletion(): void {
     const request = this.request;
     if (!request) {
       return;
@@ -145,13 +145,13 @@ export class ResultWaitOrchestrator {
           this.completedSession = completed;
           this.phaseSignal.set('completed');
           if (this.awaitsResult) {
-            this.runPrefetch();
+            this.prefetchAxisResult();
           } else {
-            this.navigate();
+            this.navigateAfterAxis();
           }
         },
         error: (error: unknown) =>
-          this.fail(
+          this.revealFailure(
             error instanceof SessionNoLongerActiveError
               ? 'failed-session-closed'
               : 'failed-complete',
@@ -159,7 +159,7 @@ export class ResultWaitOrchestrator {
       });
   }
 
-  private runPrefetch(): void {
+  private prefetchAxisResult(): void {
     const request = this.request;
     const completed = this.completedSession;
     if (!request || !completed || this.destroyed) {
@@ -173,33 +173,33 @@ export class ResultWaitOrchestrator {
     prefetch.pipe(timeout(RESULT_WAIT_PREFETCH_TIMEOUT_MS)).subscribe({
       next: () => {
         this.resultReady = true;
-        this.tryNavigate();
+        this.navigateWhenResultReady();
       },
-      error: () => this.fail('failed-prefetch'),
+      error: () => this.revealFailure('failed-prefetch'),
     });
   }
 
-  private fail(
+  private revealFailure(
     phase: 'failed-complete' | 'failed-prefetch' | 'failed-session-closed',
   ): void {
     this.revealedSignal.set(true);
     this.phaseSignal.set(phase);
   }
 
-  private tryNavigate(): void {
+  private navigateWhenResultReady(): void {
     if (this.resultReady && this.minDisplayElapsed) {
-      this.navigate();
+      this.navigateAfterAxis();
     }
   }
 
-  private navigate(): void {
+  private navigateAfterAxis(): void {
     const request = this.request;
     const completed = this.completedSession;
     if (!request || !completed || this.destroyed) {
       return;
     }
     this.clearTimers();
-    this.router.navigate(afterAxisSubmitRoute(completed, request.axis), {
+    this.router.navigate(resolveRouteAfterAxis(completed, request.axis), {
       replaceUrl: true,
     });
   }
@@ -212,7 +212,7 @@ export class ResultWaitOrchestrator {
       this.minTimerId = window.setTimeout(() => {
         this.minTimerId = null;
         this.minDisplayElapsed = true;
-        this.tryNavigate();
+        this.navigateWhenResultReady();
       }, RESULT_WAIT_MIN_DISPLAY_MS);
     } else {
       this.revealTimerId = window.setTimeout(() => {
@@ -220,10 +220,10 @@ export class ResultWaitOrchestrator {
         this.revealedSignal.set(true);
       }, RESULT_WAIT_DIRECT_REVEAL_MS);
     }
-    this.restartSlowTimer();
+    this.restartSlowHintTimer();
   }
 
-  private restartSlowTimer(): void {
+  private restartSlowHintTimer(): void {
     if (this.slowTimerId !== null) {
       window.clearTimeout(this.slowTimerId);
     }

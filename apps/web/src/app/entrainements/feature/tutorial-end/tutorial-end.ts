@@ -29,15 +29,15 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { AxisLabel } from '../../../shared/ui/axis-label/axis-label';
 import { Button, ButtonColor } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { axisFromSlug } from '../../../shared/util/axis-slug';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { parseAxisSlug } from '../../../shared/util/axis-slug';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import { TutorialRunResult } from '../../data-access/tutorial-run.store';
 import { formatOverviewDate } from '../entrainements/trainings-overview-view';
 import {
-  targetedAxisRoute,
-  tutorialAxisRoute,
+  buildTargetedAxisRoute,
+  buildTutorialAxisRoute,
 } from '../../../shared/util/session-links';
 
 interface TutorialMetricRow {
@@ -57,7 +57,9 @@ function formatSeconds(ms: number | null): string {
   return ms === null ? '-' : (ms / 1000).toFixed(1).replace('.', ',');
 }
 
-function tutorialMetricRows(result: TutorialRunResult): TutorialMetricRow[] {
+function buildTutorialMetricRows(
+  result: TutorialRunResult,
+): TutorialMetricRow[] {
   switch (result.axis) {
     case AxisType.LOGIC: {
       const scored = scoreLogicSession(
@@ -185,7 +187,7 @@ export class TutorialEnd {
   protected readonly checkIcon = Check;
   protected readonly evaluationPoints = FULL_EVALUATION_POINTS;
 
-  protected readonly axis = axisFromSlug(
+  protected readonly axis = parseAxisSlug(
     this.route.snapshot.paramMap.get('axis'),
   );
 
@@ -200,7 +202,7 @@ export class TutorialEnd {
   );
 
   protected readonly targetedLink = this.axis
-    ? targetedAxisRoute(this.axis)
+    ? buildTargetedAxisRoute(this.axis)
     : ['/entrainements'];
 
   protected readonly primaryLabel = 'Entraînement ciblé';
@@ -208,12 +210,12 @@ export class TutorialEnd {
   protected readonly primaryLink = this.targetedLink;
 
   protected readonly primaryColor: ButtonColor =
-    this.axis === null ? 'brand' : axisButtonColor(this.axis);
+    this.axis === null ? 'brand' : resolveAxisButtonColor(this.axis);
 
   protected readonly metricRows = computed<TutorialMetricRow[]>(() => {
     const result = this.runFacade.result();
     return result && result.axis === this.axis
-      ? tutorialMetricRows(result)
+      ? buildTutorialMetricRows(result)
       : [];
   });
 
@@ -221,7 +223,7 @@ export class TutorialEnd {
     const result = this.runFacade.result();
     if (this.axis === null || result === null || result.axis !== this.axis) {
       this.router.navigate(
-        this.axis ? tutorialAxisRoute(this.axis) : ['/entrainements'],
+        this.axis ? buildTutorialAxisRoute(this.axis) : ['/entrainements'],
       );
       return;
     }

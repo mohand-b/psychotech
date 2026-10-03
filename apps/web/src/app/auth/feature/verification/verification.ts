@@ -49,7 +49,9 @@ export class Verification {
   protected readonly email = signal<string | null>(null);
 
   protected readonly title = computed(() => VIEW_TITLES[this.state()]);
-  protected readonly subtitle = computed(() => this.subtitleFor(this.state()));
+  protected readonly subtitle = computed(() =>
+    this.resolveSubtitle(this.state()),
+  );
 
   constructor() {
     const token = this.route.snapshot.queryParamMap.get('token');
@@ -92,7 +94,7 @@ export class Verification {
       .subscribe({ error: () => undefined });
   }
 
-  private subtitleFor(state: VerificationViewState): string {
+  private resolveSubtitle(state: VerificationViewState): string {
     switch (state) {
       case 'PENDING':
         return 'Un instant, nous confirmons votre adresse email.';

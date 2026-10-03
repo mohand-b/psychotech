@@ -42,7 +42,7 @@ export function resolveVerdictAppearance(
   };
 }
 
-export function fullSessionVerdictColorVar(
+export function resolveFullSessionVerdictColor(
   score: number,
   isEliminated: boolean,
 ): string {
@@ -51,14 +51,18 @@ export function fullSessionVerdictColorVar(
     : resolveVerdictAppearance(score).colorVar;
 }
 
-export function verdictWordInkVar(word: AxisStampWord): string {
+export function resolveVerdictWordInk(word: AxisStampWord): string {
   return VERDICT_TONE_INK_VARS[VERDICT_WORD_PRESENTATION[word].tone];
 }
 
-export function simulationVerdictColorVar(verdict: SimulationVerdict): string {
+export function resolveSimulationVerdictColor(
+  verdict: SimulationVerdict,
+): string {
   return VERDICT_TONE_COLOR_VARS[SIMULATION_VERDICT_TONES[verdict]];
 }
 
-export function simulationVerdictInkVar(verdict: SimulationVerdict): string {
+export function resolveSimulationVerdictInk(
+  verdict: SimulationVerdict,
+): string {
   return VERDICT_TONE_INK_VARS[SIMULATION_VERDICT_TONES[verdict]];
 }

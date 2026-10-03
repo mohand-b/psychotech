@@ -149,7 +149,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
                   @if (signal.key; as key) {
                     <ui-keycap [label]="key" />
                   } @else if (signal.arrow; as arrow) {
-                    <ui-keycap [icon]="arrowIcon(arrow)" />
+                    <ui-keycap [icon]="resolveArrowIcon(arrow)" />
                   }
                 </div>
               }
@@ -191,7 +191,7 @@ const ARROW_ICONS: Record<BriefingArrow, LucideIconData> = {
                       @if (part.key; as key) {
                         <ui-keycap [label]="key" />
                       } @else if (part.arrow; as arrow) {
-                        <ui-keycap [icon]="arrowIcon(arrow)" />
+                        <ui-keycap [icon]="resolveArrowIcon(arrow)" />
                       } @else {
                         <span class="axis-briefing__row-text">{{
                           part.text
@@ -468,7 +468,7 @@ export class AxisBriefing {
   protected readonly mappingDownIcon = ArrowDown;
   protected readonly heroIconSize = AXIS_ICON_SIZE.hero;
 
-  protected arrowIcon(arrow: BriefingArrow): LucideIconData {
+  protected resolveArrowIcon(arrow: BriefingArrow): LucideIconData {
     return ARROW_ICONS[arrow];
   }
 

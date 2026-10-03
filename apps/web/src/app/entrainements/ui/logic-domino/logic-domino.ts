@@ -42,37 +42,37 @@ export class LogicDomino {
 
   private readonly ruleHint = viewChild<RuleHint>('ruleHint');
 
-  hintOpen(): boolean {
+  isHintOpen(): boolean {
     return this.ruleHint()?.hintOpen() ?? false;
   }
 
   toggleHint(): void {
-    this.ruleHint()?.toggle();
+    this.ruleHint()?.toggleHint();
   }
 
   closeHint(returnFocus = false): void {
-    this.ruleHint()?.close(returnFocus);
+    this.ruleHint()?.closeHint(returnFocus);
   }
 
-  protected pickFace(face: DominoAnswerFace): void {
+  protected selectDominoFace(face: DominoAnswerFace): void {
     if (!this.disabled()) {
       this.faceSelected.emit(face);
     }
   }
 
-  protected pressDigit(digit: DominoFace): void {
+  protected enterDominoDigit(digit: DominoFace): void {
     if (!this.disabled()) {
       this.digitEntered.emit(digit);
     }
   }
 
-  protected clear(): void {
+  protected clearDominoAnswer(): void {
     if (!this.disabled()) {
       this.cleared.emit();
     }
   }
 
-  protected eraseLast(): void {
+  protected eraseLastDominoFace(): void {
     if (!this.disabled()) {
       this.lastFaceErased.emit();
     }

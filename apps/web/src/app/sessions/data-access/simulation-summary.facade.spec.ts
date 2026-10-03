@@ -10,16 +10,19 @@ function summaryFor(sessionId: string): SimulationSummaryDto {
 
 describe('SimulationSummaryFacade', () => {
   let facade: SimulationSummaryFacade;
-  let simulationSummary: ReturnType<typeof vi.fn>;
+  let fetchSimulationSummary: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    simulationSummary = vi.fn();
+    fetchSimulationSummary = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         SimulationSummaryFacade,
         {
           provide: SessionsApi,
-          useValue: { simulationSummary, targetedResult: vi.fn() },
+          useValue: {
+            fetchSimulationSummary,
+            fetchTargetedAxisResult: vi.fn(),
+          },
         },
       ],
     });
@@ -28,21 +31,21 @@ describe('SimulationSummaryFacade', () => {
 
   it('serves the cached summary when the same session is requested again', () => {
     const first = summaryFor('session-1');
-    simulationSummary.mockReturnValue(of(first));
+    fetchSimulationSummary.mockReturnValue(of(first));
     facade.loadSummary('session-1').subscribe();
 
     facade.loadSummary('session-1').subscribe();
 
-    expect(simulationSummary).toHaveBeenCalledTimes(1);
+    expect(fetchSimulationSummary).toHaveBeenCalledTimes(1);
     expect(facade.summary()).toEqual(first);
   });
 
   it('clears the previous summary before another session loads so its score never leaks', () => {
-    simulationSummary.mockReturnValue(of(summaryFor('session-1')));
+    fetchSimulationSummary.mockReturnValue(of(summaryFor('session-1')));
     facade.loadSummary('session-1').subscribe();
 
     const pending = new Subject<SimulationSummaryDto>();
-    simulationSummary.mockReturnValue(pending.asObservable());
+    fetchSimulationSummary.mockReturnValue(pending.asObservable());
     facade.loadSummary('session-2').subscribe();
 
     expect(facade.summary()).toBeNull();

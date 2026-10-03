@@ -53,7 +53,7 @@ export function computeJitterPlacement(
   };
 }
 
-export function jitterTransform(
+export function buildJitterTransform(
   offset: SequenceOffset,
   metrics: JitterZoneMetrics | null,
 ): string {

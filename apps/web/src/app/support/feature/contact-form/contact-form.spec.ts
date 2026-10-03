@@ -28,8 +28,8 @@ class ResizeObserverStub implements ResizeObserver {
 
 describe('ContactForm', () => {
   let status: WritableSignal<ContactSendStatus>;
-  let submit: ReturnType<typeof vi.fn>;
-  let prepare: ReturnType<typeof vi.fn>;
+  let submitContactMessage: ReturnType<typeof vi.fn>;
+  let ensureFormToken: ReturnType<typeof vi.fn>;
   let loadHistory: ReturnType<typeof vi.fn>;
   let fixture: ComponentFixture<ContactForm>;
   const originalMatchMedia = window.matchMedia;
@@ -59,15 +59,15 @@ describe('ContactForm', () => {
     history?: SessionHistoryItemDto[];
   }): Promise<HTMLElement> {
     status = signal<ContactSendStatus>('idle');
-    submit = vi.fn();
-    prepare = vi.fn();
+    submitContactMessage = vi.fn();
+    ensureFormToken = vi.fn();
     loadHistory = vi.fn();
     await TestBed.configureTestingModule({
       imports: [ContactForm],
       providers: [
         {
           provide: ContactFacade,
-          useValue: { status, submit, prepare },
+          useValue: { status, submitContactMessage, ensureFormToken },
         },
         {
           provide: AuthFacade,
@@ -84,7 +84,7 @@ describe('ContactForm', () => {
           provide: SessionHistoryFacade,
           useValue: {
             items: signal(options.history ?? []),
-            load: loadHistory,
+            loadHistory: loadHistory,
           },
         },
         {
@@ -132,7 +132,7 @@ describe('ContactForm', () => {
   }
 
   function submittedDraft(): ContactDraft {
-    return submit.mock.calls[0][0] as ContactDraft;
+    return submitContactMessage.mock.calls[0][0] as ContactDraft;
   }
 
   it('garde l’envoi bloqué tant que l’email et le message ne sont pas valides', async () => {

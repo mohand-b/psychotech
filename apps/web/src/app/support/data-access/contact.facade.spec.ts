@@ -36,23 +36,27 @@ function draft(overrides: Partial<ContactDraft> = {}): ContactDraft {
 
 describe('ContactFacade', () => {
   let authenticated: WritableSignal<boolean>;
-  let formToken: ReturnType<typeof vi.fn>;
-  let submitAnonymously: ReturnType<typeof vi.fn>;
-  let submitFromAccount: ReturnType<typeof vi.fn>;
+  let fetchContactFormToken: ReturnType<typeof vi.fn>;
+  let submitContactAnonymously: ReturnType<typeof vi.fn>;
+  let submitContactFromAccount: ReturnType<typeof vi.fn>;
 
   function setup(
     outcome: () => Observable<ContactReceiptDto> = () => of(RECEIPT),
   ): ContactFacade {
     authenticated = signal(false);
-    formToken = vi.fn(() => of({ token: 'token-1' }));
-    submitAnonymously = vi.fn(outcome);
-    submitFromAccount = vi.fn(outcome);
+    fetchContactFormToken = vi.fn(() => of({ token: 'token-1' }));
+    submitContactAnonymously = vi.fn(outcome);
+    submitContactFromAccount = vi.fn(outcome);
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthFacade, useValue: { isAuthenticated: authenticated } },
         {
           provide: SupportApi,
-          useValue: { formToken, submitAnonymously, submitFromAccount },
+          useValue: {
+            fetchContactFormToken,
+            submitContactAnonymously,
+            submitContactFromAccount,
+          },
         },
       ],
     });
@@ -69,18 +73,18 @@ describe('ContactFacade', () => {
 
   it('ne demande le jeton de formulaire qu’une seule fois', () => {
     const facade = setup();
-    facade.prepare();
-    facade.prepare();
-    expect(formToken).toHaveBeenCalledTimes(1);
+    facade.ensureFormToken();
+    facade.ensureFormToken();
+    expect(fetchContactFormToken).toHaveBeenCalledTimes(1);
   });
 
   it('envoie un visiteur sans compte sur la route publique, avec son email et le jeton', () => {
     const facade = setup();
-    facade.prepare();
-    facade.submit(draft());
+    facade.ensureFormToken();
+    facade.submitContactMessage(draft());
 
-    expect(submitFromAccount).not.toHaveBeenCalled();
-    expect(sentMessage(submitAnonymously)).toEqual({
+    expect(submitContactFromAccount).not.toHaveBeenCalled();
+    expect(sentMessage(submitContactAnonymously)).toEqual({
       reason: ContactReason.QUESTION,
       message: 'Comment fonctionne le calcul du score global ?',
       formToken: 'token-1',
@@ -94,22 +98,22 @@ describe('ContactFacade', () => {
   it('envoie un utilisateur connecté sur la route de compte, sans jamais transmettre d’email', () => {
     const facade = setup();
     authenticated.set(true);
-    facade.submit(draft({ email: 'autre@exemple.fr' }));
+    facade.submitContactMessage(draft({ email: 'autre@exemple.fr' }));
 
-    expect(submitAnonymously).not.toHaveBeenCalled();
-    expect(sentMessage(submitFromAccount)).not.toHaveProperty('email');
+    expect(submitContactAnonymously).not.toHaveBeenCalled();
+    expect(sentMessage(submitContactFromAccount)).not.toHaveProperty('email');
   });
 
   it('n’ajoute ni contexte technique, ni session, ni capture quand ils sont absents du brouillon', () => {
     const facade = setup();
-    facade.submit(
+    facade.submitContactMessage(
       draft({
         reason: ContactReason.BUG_REPORT,
         location: ContactProblemLocation.EXAM,
       }),
     );
 
-    const message = sentMessage(submitAnonymously);
+    const message = sentMessage(submitContactAnonymously);
     expect(message).not.toHaveProperty('technicalContext');
     expect(message).not.toHaveProperty('sessionId');
     expect(message).not.toHaveProperty('screenshot');
@@ -123,7 +127,7 @@ describe('ContactFacade', () => {
       userAgent: 'Navigateur de test',
       viewport: '390x844',
     };
-    facade.submit(
+    facade.submitContactMessage(
       draft({
         reason: ContactReason.BUG_REPORT,
         location: ContactProblemLocation.RESULTS,
@@ -132,17 +136,17 @@ describe('ContactFacade', () => {
       }),
     );
 
-    const message = sentMessage(submitAnonymously);
+    const message = sentMessage(submitContactAnonymously);
     expect(message.technicalContext).toEqual(technicalContext);
     expect(message.sessionId).toBe('session-1');
   });
 
   it('récupère un jeton au moment de l’envoi si la préparation n’a pas abouti', () => {
     const facade = setup();
-    facade.submit(draft());
+    facade.submitContactMessage(draft());
 
-    expect(formToken).toHaveBeenCalledTimes(1);
-    expect(sentMessage(submitAnonymously).formToken).toBe('token-1');
+    expect(fetchContactFormToken).toHaveBeenCalledTimes(1);
+    expect(sentMessage(submitContactAnonymously).formToken).toBe('token-1');
   });
 
   it('signale une limite d’envoi sans la confondre avec une panne', () => {
@@ -151,7 +155,7 @@ describe('ContactFacade', () => {
         () => new HttpErrorResponse({ status: HttpStatusCode.TooManyRequests }),
       ),
     );
-    facade.submit(draft());
+    facade.submitContactMessage(draft());
     expect(facade.status()).toBe('rate-limited');
   });
 
@@ -164,11 +168,11 @@ describe('ContactFacade', () => {
           }),
       ),
     );
-    facade.submit(draft());
+    facade.submitContactMessage(draft());
     expect(facade.status()).toBe('failed');
 
-    facade.submit(draft());
-    expect(submitAnonymously).toHaveBeenCalledTimes(2);
+    facade.submitContactMessage(draft());
+    expect(submitContactAnonymously).toHaveBeenCalledTimes(2);
   });
 
   it('renouvelle le jeton quand le serveur le déclare expiré', () => {
@@ -181,20 +185,20 @@ describe('ContactFacade', () => {
           }),
       ),
     );
-    facade.prepare();
-    facade.submit(draft());
+    facade.ensureFormToken();
+    facade.submitContactMessage(draft());
 
     expect(facade.status()).toBe('failed');
-    expect(formToken).toHaveBeenCalledTimes(2);
+    expect(fetchContactFormToken).toHaveBeenCalledTimes(2);
   });
 
   it('repart d’un état neuf pour un autre message', () => {
     const facade = setup();
-    facade.submit(draft());
-    facade.startAnother();
+    facade.submitContactMessage(draft());
+    facade.startNewContactMessage();
 
     expect(facade.status()).toBe('idle');
     expect(facade.receipt()).toBeNull();
-    expect(formToken).toHaveBeenCalledTimes(2);
+    expect(fetchContactFormToken).toHaveBeenCalledTimes(2);
   });
 });

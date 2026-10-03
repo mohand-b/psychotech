@@ -16,7 +16,7 @@ const CASCADE_MAX_INDEX = 4;
 
 type BrowserWindow = Window & typeof globalThis;
 
-function cascadeIndex(value: unknown): number {
+function parseCascadeIndex(value: unknown): number {
   return numberAttribute(value, 0);
 }
 
@@ -25,7 +25,7 @@ function cascadeIndex(value: unknown): number {
   host: { class: 'landing-reveal' },
 })
 export class LandingReveal {
-  readonly appLandingReveal = input(0, { transform: cascadeIndex });
+  readonly appLandingReveal = input(0, { transform: parseCascadeIndex });
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
@@ -67,29 +67,29 @@ export class LandingReveal {
       (entries: IntersectionObserverEntry[]) => {
         answered = true;
         if (entries.some((entry) => entry.isIntersecting)) {
-          reveal();
+          revealElement();
         }
       },
       { threshold: 0.12, rootMargin: '0px 0px -6% 0px' },
     );
 
-    function stop(): void {
+    function stopObserving(): void {
       observer.disconnect();
       view.clearTimeout(handshake);
     }
 
-    function reveal(): void {
+    function revealElement(): void {
       element.classList.add(REVEALED_CLASS);
-      stop();
+      stopObserving();
     }
 
     handshake = view.setTimeout(() => {
       if (!answered) {
-        reveal();
+        revealElement();
       }
     }, OBSERVER_HANDSHAKE_MS);
 
     observer.observe(element);
-    this.destroyRef.onDestroy(stop);
+    this.destroyRef.onDestroy(stopObserving);
   }
 }

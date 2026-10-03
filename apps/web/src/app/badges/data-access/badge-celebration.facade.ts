@@ -11,10 +11,13 @@ import { BadgeId, EarnedBadgeDto, Sector } from '@psychotech/shared';
 import { filter } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
 import { BadgeStore } from '../../core/badges/badge.store';
-import { isQuietForCelebration } from '../../core/badges/play-routes';
+import { isOutsidePlayRoute } from '../../core/badges/play-routes';
 import { BadgeAnnounceView } from '../../shared/ui/badge-announce/badge-announce';
 import { BadgeCelebrationView } from '../../shared/ui/badge-celebration-modal/badge-celebration-modal';
-import { badgeAnnounceViewFor, badgeCelebrationViewFor } from './badge-display';
+import {
+  buildBadgeAnnounceView,
+  buildBadgeCelebrationView,
+} from './badge-display';
 import { BadgesApi } from './badges.api';
 
 const PLAY_ROUTE_HOLD = 'play-route';
@@ -26,8 +29,8 @@ export interface ResultBadgesSource {
 
 export interface ResultCelebration {
   announceView: Signal<BadgeAnnounceView | null>;
-  sceneReady(): void;
-  replay(): void;
+  releaseSceneHold(): void;
+  replayCelebration(): void;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,7 +53,7 @@ export class BadgeCelebrationFacade {
     }
     const sector =
       this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
-    return badgeCelebrationViewFor(badge, sector);
+    return buildBadgeCelebrationView(badge, sector);
   });
 
   constructor() {
@@ -65,76 +68,79 @@ export class BadgeCelebrationFacade {
       .subscribe((event) => this.syncPlayRouteHold(event.urlAfterRedirects));
   }
 
-  reconcileUnacknowledged(): void {
-    this.retryFailedAcks();
-    this.api.unacknowledged().subscribe({
+  reconcileUnacknowledgedBadges(): void {
+    this.retryFailedAcknowledgements();
+    this.api.fetchUnacknowledgedBadges().subscribe({
       next: (badges) =>
-        this.store.enqueue(
+        this.store.enqueueBadges(
           badges.filter((badge) => !this.acknowledgedIds.has(badge.badgeId)),
         ),
       error: () => undefined,
     });
   }
 
-  celebrateResult(
+  prepareResultCelebration(
     sessionId: string,
     source: Signal<ResultBadgesSource | null>,
   ): ResultCelebration {
     const destroyRef = inject(DestroyRef);
     const hold = `score-scene:${sessionId}`;
-    this.store.placeHold(hold);
-    destroyRef.onDestroy(() => this.store.releaseHold(hold));
+    this.store.placeSceneHold(hold);
+    destroyRef.onDestroy(() => this.store.releaseSceneHold(hold));
     return {
       announceView: computed(() => {
         const current = source();
         return current
-          ? badgeAnnounceViewFor(current.badges, current.sector)
+          ? buildBadgeAnnounceView(current.badges, current.sector)
           : null;
       }),
-      sceneReady: () => this.store.releaseHold(hold),
-      replay: () => this.store.replay(source()?.badges ?? []),
+      releaseSceneHold: () => this.store.releaseSceneHold(hold),
+      replayCelebration: () =>
+        this.store.replayCelebration(source()?.badges ?? []),
     };
   }
 
-  completeCurrent(): EarnedBadgeDto[] {
-    const completed = this.store.completeCurrent();
-    return completed ? this.acknowledge([completed]) : [];
+  completeCurrentBadge(): EarnedBadgeDto[] {
+    const completed = this.store.completeCurrentBadge();
+    return completed ? this.acknowledgeBadges([completed]) : [];
   }
 
-  dismissAll(): EarnedBadgeDto[] {
-    return this.acknowledge(this.store.dismissAll());
+  dismissRemainingBadges(): EarnedBadgeDto[] {
+    return this.acknowledgeBadges(this.store.dismissRemainingBadges());
   }
 
   private syncPlayRouteHold(url: string): void {
-    if (isQuietForCelebration(url)) {
-      this.store.releaseHold(PLAY_ROUTE_HOLD);
+    if (isOutsidePlayRoute(url)) {
+      this.store.releaseSceneHold(PLAY_ROUTE_HOLD);
     } else {
-      this.store.placeHold(PLAY_ROUTE_HOLD);
+      this.store.placeSceneHold(PLAY_ROUTE_HOLD);
     }
   }
 
-  private acknowledge(badges: readonly EarnedBadgeDto[]): EarnedBadgeDto[] {
+  private acknowledgeBadges(
+    badges: readonly EarnedBadgeDto[],
+  ): EarnedBadgeDto[] {
     const acknowledged: EarnedBadgeDto[] = [];
     for (const badge of badges) {
       if (!this.acknowledgedIds.has(badge.badgeId)) {
         this.acknowledgedIds.add(badge.badgeId);
-        this.sendAcknowledge(badge.badgeId);
+        this.sendBadgeAcknowledgement(badge.badgeId);
         acknowledged.push(badge);
       }
     }
     return acknowledged;
   }
 
-  private sendAcknowledge(badgeId: BadgeId): void {
-    this.api.acknowledge(badgeId).subscribe({
+  private sendBadgeAcknowledgement(badgeId: BadgeId): void {
+    this.api.acknowledgeBadge(badgeId).subscribe({
       next: () => this.failedAcks.delete(badgeId),
       error: () => this.failedAcks.add(badgeId),
     });
   }
 
-  private retryFailedAcks(): void {
+  private retryFailedAcknowledgements(): void {
     for (const badgeId of this.failedAcks) {
-      this.sendAcknowledge(badgeId);
+      this.sendBadgeAcknowledgement(badgeId);
     }
   }
 }

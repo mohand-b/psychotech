@@ -54,7 +54,7 @@ interface RenderedSegment {
               [class.band__group--active]="
                 currentIndex() >= group.start && currentIndex() <= group.end
               "
-              [attr.title]="groupTitle(group)"
+              [attr.title]="formatGroupTitle(group)"
             >
               @for (state of group.states; track $index) {
                 <button
@@ -69,7 +69,9 @@ interface RenderedSegment {
                     group.start + $index === currentIndex() ? 'true' : null
                   "
                   [attr.title]="'Item ' + (group.start + $index + 1)"
-                  [attr.aria-label]="ariaLabel(group.start + $index, state)"
+                  [attr.aria-label]="
+                    formatItemAriaLabel(group.start + $index, state)
+                  "
                   (click)="navigate.emit(group.start + $index)"
                 ></button>
               }
@@ -86,7 +88,7 @@ interface RenderedSegment {
               [class.band__item--skipped]="state === 'skipped'"
               [class.band__item--current]="$index === currentIndex()"
               [attr.aria-current]="$index === currentIndex() ? 'true' : null"
-              [attr.aria-label]="ariaLabel($index, state)"
+              [attr.aria-label]="formatItemAriaLabel($index, state)"
               (click)="navigate.emit($index)"
             >
               <span class="band__dot"></span>
@@ -153,11 +155,11 @@ export class ItemNavBand {
     });
   }
 
-  protected groupTitle(group: RenderedSegment): string {
+  protected formatGroupTitle(group: RenderedSegment): string {
     return `${group.label} · items ${group.start + 1} à ${group.end + 1}`;
   }
 
-  protected ariaLabel(index: number, state: ItemNavState): string {
+  protected formatItemAriaLabel(index: number, state: ItemNavState): string {
     return `Item ${index + 1} - ${state === 'answered' ? 'répondu' : 'non répondu'}`;
   }
 }

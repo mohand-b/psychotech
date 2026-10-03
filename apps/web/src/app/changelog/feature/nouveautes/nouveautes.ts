@@ -10,12 +10,12 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { HybridHeader } from '../../../layout/hybrid-header/hybrid-header';
 import {
   CONTACT_ROUTE,
-  contactQueryParams,
+  buildContactQueryParams,
 } from '../../../shared/util/contact-link';
 import {
   ReleaseCategory,
   formatVersionLabel,
-  releaseAnchor,
+  buildReleaseAnchor,
 } from '../../data-access/release-log';
 import { ReleaseLogFacade } from '../../data-access/release-log.facade';
 import {
@@ -69,7 +69,7 @@ export class Nouveautes {
 
   protected readonly upcomingAnchor = UPCOMING_ANCHOR;
   protected readonly contactRoute = CONTACT_ROUTE;
-  protected readonly suggestionParams = contactQueryParams({
+  protected readonly suggestionParams = buildContactQueryParams({
     motif: 'suggestion',
   });
 
@@ -77,7 +77,7 @@ export class Nouveautes {
 
   private readonly releases = computed<ReleaseView[]>(() =>
     this.releaseLog.releases().map((release, index) => ({
-      anchor: releaseAnchor(release.version),
+      anchor: buildReleaseAnchor(release.version),
       versionLabel: formatVersionLabel(release.version),
       dateLabel: formatReleaseDate(release.releasedOn),
       monthLabel: formatReleaseMonth(release.releasedOn),

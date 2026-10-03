@@ -9,7 +9,7 @@ export const LANDING_SECTION = {
 export type LandingSectionId =
   (typeof LANDING_SECTION)[keyof typeof LANDING_SECTION];
 
-export function landingAnchorHref(
+export function buildLandingAnchorHref(
   section: LandingSectionId,
   onLanding: boolean,
 ): string {

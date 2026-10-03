@@ -24,7 +24,7 @@ const REFRESH_EXEMPT_PATHS = [
   '/auth/logout',
 ] as const;
 
-function replayAfterRefresh(
+function buildRetriedRequest(
   request: HttpRequest<unknown>,
   refreshedXsrfToken: string | null,
 ): HttpRequest<unknown> {
@@ -67,7 +67,7 @@ export const errorInterceptor: HttpInterceptorFn = (request, next) => {
             return throwError(() => refreshError);
           }),
           switchMap(() =>
-            next(replayAfterRefresh(request, xsrfTokenExtractor.getToken())),
+            next(buildRetriedRequest(request, xsrfTokenExtractor.getToken())),
           ),
         );
       }

@@ -23,27 +23,27 @@ export class Seo {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
 
-  start(): void {
-    this.applyCurrentRoute();
+  syncSeoWithRouter(): void {
+    this.applyCurrentRouteSeo();
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.applyCurrentRoute());
+      .subscribe(() => this.applyCurrentRouteSeo());
   }
 
-  private applyCurrentRoute(): void {
+  private applyCurrentRouteSeo(): void {
     let route: ActivatedRouteSnapshot = this.router.routerState.snapshot.root;
     while (route.firstChild) {
       route = route.firstChild;
     }
     const seo = route.data['seo'] as RouteSeo | undefined;
-    this.apply(seo ?? APP_FALLBACK_SEO, seo !== undefined);
+    this.applySeoTags(seo ?? APP_FALLBACK_SEO, seo !== undefined);
   }
 
-  private apply(seo: RouteSeo, indexable: boolean): void {
-    const canonicalUrl = this.canonicalUrl();
+  private applySeoTags(seo: RouteSeo, indexable: boolean): void {
+    const canonicalUrl = this.buildCanonicalUrl();
     this.titleService.setTitle(seo.title);
     this.meta.updateTag({ name: 'description', content: seo.description });
     this.meta.updateTag({
@@ -76,19 +76,19 @@ export class Seo {
       name: 'twitter:image',
       content: `${CANONICAL_ORIGIN}${OG_IMAGE_PATH}`,
     });
-    this.setCanonical(indexable ? canonicalUrl : null);
+    this.setCanonicalLink(indexable ? canonicalUrl : null);
     this.setStructuredData(seo.structuredData ?? []);
     this.setFontPreloads(seo.preloadFonts ?? []);
   }
 
-  private canonicalUrl(): string {
+  private buildCanonicalUrl(): string {
     const path = this.router.url.split('?')[0].split('#')[0];
     return path === '/'
       ? `${CANONICAL_ORIGIN}/`
       : `${CANONICAL_ORIGIN}${path.replace(/\/+$/, '')}`;
   }
 
-  private setCanonical(url: string | null): void {
+  private setCanonicalLink(url: string | null): void {
     const head = this.document.head;
     let link = head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (url === null) {

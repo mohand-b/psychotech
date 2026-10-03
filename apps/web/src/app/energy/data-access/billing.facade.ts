@@ -19,14 +19,14 @@ export class BillingFacade {
     });
   }
 
-  checkoutStatus(sessionId: string): Observable<PackCheckoutStatusDto> {
-    return this.api.checkoutStatus(sessionId);
+  fetchCheckoutStatus(sessionId: string): Observable<PackCheckoutStatusDto> {
+    return this.api.fetchCheckoutStatus(sessionId);
   }
 
   private async resolveStripe(): Promise<Stripe> {
     if (!this.stripePromise) {
-      this.stripePromise = firstValueFrom(this.api.config()).then((config) =>
-        loadStripe(config.publishableKey),
+      this.stripePromise = firstValueFrom(this.api.fetchBillingConfig()).then(
+        (config) => loadStripe(config.publishableKey),
       );
     }
     const stripe = await this.stripePromise;

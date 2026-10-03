@@ -155,14 +155,17 @@ async function setupWithBadges(
       {
         provide: SessionsApi,
         useValue: {
-          start: vi.fn(),
-          get: vi.fn(),
-          targetedResult: vi.fn(() => of(result)),
+          startSession: vi.fn(),
+          fetchSession: vi.fn(),
+          fetchTargetedAxisResult: vi.fn(() => of(result)),
         },
       },
       { provide: BadgesFacade, useValue: { acknowledgeAll } },
       { provide: BadgesApi, useValue: {} },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { loadEnergyBalance: vi.fn(() => of(null)) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },

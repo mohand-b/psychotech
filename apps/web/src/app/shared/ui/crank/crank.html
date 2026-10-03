@@ -4,10 +4,10 @@
     #surface
     class="crank__surface"
     [attr.viewBox]="'0 0 ' + viewboxSize + ' ' + viewboxSize"
-    (pointerdown)="onPointerDown($event)"
-    (pointermove)="onPointerMove($event)"
-    (pointerup)="onPointerEnd($event)"
-    (pointercancel)="onPointerEnd($event)"
+    (pointerdown)="startCrankDrag($event)"
+    (pointermove)="rotateCrankByDrag($event)"
+    (pointerup)="endCrankDrag($event)"
+    (pointercancel)="endCrankDrag($event)"
   >
     <circle
       class="crank__disc"

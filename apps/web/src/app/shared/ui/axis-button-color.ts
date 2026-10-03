@@ -9,6 +9,6 @@ const AXIS_BUTTON_COLOR: Partial<Record<AxisType, ButtonColor>> = {
   [AxisType.MOTOR_SKILLS]: 'motor',
 };
 
-export function axisButtonColor(axis: AxisType): ButtonColor {
+export function resolveAxisButtonColor(axis: AxisType): ButtonColor {
   return AXIS_BUTTON_COLOR[axis] ?? 'brand';
 }

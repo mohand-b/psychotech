@@ -7,14 +7,14 @@ import {
   UpcomingItem,
 } from './release-log';
 
-function byMostRecentFirst(left: Release, right: Release): number {
+function compareNewestReleaseFirst(left: Release, right: Release): number {
   return right.releasedOn.localeCompare(left.releasedOn);
 }
 
 @Injectable({ providedIn: 'root' })
 export class ReleaseLogFacade {
   readonly releases: Signal<readonly Release[]> = signal(
-    [...RELEASE_LOG].sort(byMostRecentFirst),
+    [...RELEASE_LOG].sort(compareNewestReleaseFirst),
   ).asReadonly();
   readonly upcoming: Signal<readonly UpcomingItem[]> =
     signal(UPCOMING_ITEMS).asReadonly();

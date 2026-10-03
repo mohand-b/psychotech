@@ -28,10 +28,10 @@ import {
 import { Icon } from '../../../shared/ui/icon/icon';
 import { CorrectionShell } from '../../ui/correction-shell/correction-shell';
 import { StatusBandEntry } from '../../ui/correction-status-band/correction-status-band';
-import { targetedResultOf } from '../targeted-result-page';
+import { loadTargetedResultFromRoute } from '../targeted-result-page';
 import {
-  sessionResultRoute,
-  targetedResultRoute,
+  buildSimulationResultRoute,
+  buildTargetedResultRoute,
 } from '../../../shared/util/session-links';
 
 const STATUS_COLORS: Record<MemorySequenceStatus, string> = {
@@ -78,12 +78,14 @@ interface AnswerCell {
   imports: [CorrectionShell, Icon],
   templateUrl: './memory-correction.html',
   styleUrl: './memory-correction.css',
-  host: { '(document:keydown)': 'onKeydown($event)' },
+  host: { '(document:keydown)': 'navigateItemsWithArrowKeys($event)' },
 })
 export class MemoryCorrection {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly targetedResult = targetedResultOf(AxisType.MEMORY);
+  private readonly targetedResult = loadTargetedResultFromRoute(
+    AxisType.MEMORY,
+  );
 
   private readonly sessionId = this.targetedResult.sessionId;
   private readonly fromSimulation =
@@ -184,37 +186,39 @@ export class MemoryCorrection {
     () => this.currentIndex() >= this.sequences().length - 1,
   );
 
-  protected goTo(index: number): void {
+  protected navigateToItem(index: number): void {
     if (index >= 0 && index < this.sequences().length) {
       this.currentIndex.set(index);
     }
   }
 
-  protected previous(): void {
-    this.goTo(this.currentIndex() - 1);
+  protected navigateToPreviousItem(): void {
+    this.navigateToItem(this.currentIndex() - 1);
   }
 
-  protected next(): void {
-    this.goTo(this.currentIndex() + 1);
+  protected navigateToNextItem(): void {
+    this.navigateToItem(this.currentIndex() + 1);
   }
 
-  protected backToResult(): void {
+  protected returnToResult(): void {
     if (this.fromSimulation) {
-      this.router.navigate(sessionResultRoute(this.sessionId));
+      this.router.navigate(buildSimulationResultRoute(this.sessionId));
       return;
     }
-    this.router.navigate(targetedResultRoute(AxisType.MEMORY, this.sessionId));
+    this.router.navigate(
+      buildTargetedResultRoute(AxisType.MEMORY, this.sessionId),
+    );
   }
 
-  protected onKeydown(event: KeyboardEvent): void {
+  protected navigateItemsWithArrowKeys(event: KeyboardEvent): void {
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      this.previous();
+      this.navigateToPreviousItem();
       return;
     }
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      this.next();
+      this.navigateToNextItem();
     }
   }
 }

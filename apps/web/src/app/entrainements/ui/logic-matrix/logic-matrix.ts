@@ -36,19 +36,19 @@ export class LogicMatrix {
 
   private readonly ruleHint = viewChild<RuleHint>('ruleHint');
 
-  hintOpen(): boolean {
+  isHintOpen(): boolean {
     return this.ruleHint()?.hintOpen() ?? false;
   }
 
   toggleHint(): void {
-    this.ruleHint()?.toggle();
+    this.ruleHint()?.toggleHint();
   }
 
   closeHint(returnFocus = false): void {
-    this.ruleHint()?.close(returnFocus);
+    this.ruleHint()?.closeHint(returnFocus);
   }
 
-  protected choose(index: number): void {
+  protected chooseAnswer(index: number): void {
     if (!this.disabled()) {
       this.chosen.emit(index);
     }

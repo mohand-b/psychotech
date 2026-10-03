@@ -36,7 +36,7 @@ import { ChevronStepper } from '../../../shared/ui/chevron-stepper/chevron-stepp
 import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
-import { simulationSessionRoute } from '../../../shared/util/session-links';
+import { buildSimulationSessionRoute } from '../../../shared/util/session-links';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
 
@@ -134,7 +134,7 @@ export class SimulationStart {
     return axis;
   }
 
-  protected onAxisExplored(axis: AxisType): void {
+  protected slideToAxisPanel(axis: AxisType): void {
     const next = axis as RailwayPlayableAxis;
     const previous = this.exploredAxis();
     if (next === previous) {
@@ -149,27 +149,27 @@ export class SimulationStart {
     this.exploredAxis.set(next);
   }
 
-  protected start(): void {
+  protected startSimulationSession(): void {
     if (this.starting() || this.energyShort()) {
       return;
     }
     this.starting.set(true);
     this.trainingSessionFacade
-      .startFull()
+      .startFullSession()
       .pipe(
         switchMap((session) =>
-          this.energyFacade.refresh().pipe(map(() => session)),
+          this.energyFacade.loadEnergyBalanceSafely().pipe(map(() => session)),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: (session) =>
-          this.router.navigate(simulationSessionRoute(session.id)),
+          this.router.navigate(buildSimulationSessionRoute(session.id)),
         error: (error: unknown) => {
           this.starting.set(false);
           if (isEnergyInsufficientError(error)) {
             this.energyFacade
-              .load()
+              .loadEnergyBalance()
               .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({ error: () => undefined });
           }

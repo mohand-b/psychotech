@@ -140,7 +140,7 @@ export class AuthFacade {
   }
 
   loadCurrentUser(): Observable<UserProfileDto | null> {
-    return this.api.currentUser().pipe(
+    return this.api.fetchCurrentUser().pipe(
       tap((user) => this.store.setCurrentUser(user)),
       catchError((error: unknown) => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
@@ -153,7 +153,7 @@ export class AuthFacade {
   }
 
   refreshSession(): Observable<void> {
-    this.refresh$ ??= this.api.refresh().pipe(
+    this.refresh$ ??= this.api.refreshSession().pipe(
       timeout(AUTH_REFRESH_TIMEOUT_MS),
       tap((user) => this.store.setCurrentUser(user)),
       map(() => undefined),
@@ -169,7 +169,7 @@ export class AuthFacade {
     this.store.setCurrentUser(null);
   }
 
-  googleStartUrl(params: GoogleStartParams): string {
+  buildGoogleSignInUrl(params: GoogleStartParams): string {
     const query = new URLSearchParams({ [SSO_FROM_QUERY_PARAM]: params.from });
     if (params.returnUrl !== undefined) {
       query.set(SSO_RETURN_URL_QUERY_PARAM, params.returnUrl);

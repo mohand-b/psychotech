@@ -14,7 +14,7 @@ import {
   CorrectionStatusBand,
   StatusBandEntry,
 } from '../correction-status-band/correction-status-band';
-import { axisButtonColor } from '../../../shared/ui/axis-button-color';
+import { resolveAxisButtonColor } from '../../../shared/ui/axis-button-color';
 
 @Component({
   selector: 'ui-correction-shell',
@@ -43,5 +43,7 @@ export class CorrectionShell {
     () => AXIS_PRESENTATION[this.axis()],
   );
 
-  protected readonly buttonColor = computed(() => axisButtonColor(this.axis()));
+  protected readonly buttonColor = computed(() =>
+    resolveAxisButtonColor(this.axis()),
+  );
 }

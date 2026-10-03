@@ -6,7 +6,7 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+    <ui-axis-countdown [axis]="axis" (finished)="startPlayAfterCountdown()" />
   }
   <div
     class="motri__progress"
@@ -202,7 +202,7 @@
             [mode]="sessionMode()"
             color="motor"
             (continueRequested)="confirmingExit.set(false)"
-            (quitRequested)="quit()"
+            (quitRequested)="quitToDashboard()"
           />
         }
       </div>
@@ -213,14 +213,14 @@
           hintClockwise="droite"
           hintCounterClockwise="gauche"
           [speed]="crankSpeedX()"
-          (rotated)="onCrankRotate('x', $event)"
+          (rotated)="accumulateCrankRotation('x', $event)"
         />
         <ui-crank
           label="Vertical"
           hintClockwise="bas"
           hintCounterClockwise="haut"
           [speed]="crankSpeedY()"
-          (rotated)="onCrankRotate('y', $event)"
+          (rotated)="accumulateCrankRotation('y', $event)"
         />
       </div>
 
@@ -239,8 +239,8 @@
       [simulation]="resultWait.simulation()"
       [failure]="resultWait.failure()"
       [slow]="resultWait.slow()"
-      (retry)="resultWait.retry()"
-      (quit)="resultWait.quit()"
+      (retry)="resultWait.retryFailedStep()"
+      (quit)="resultWait.quitToDashboard()"
     />
   }
 </section>

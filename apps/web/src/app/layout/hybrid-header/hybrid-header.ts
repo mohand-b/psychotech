@@ -46,7 +46,7 @@ export class HybridHeader {
   constructor() {
     afterNextRender(() => {
       if (this.authenticated() && this.energy() === null) {
-        this.energyFacade.load().subscribe();
+        this.energyFacade.loadEnergyBalance().subscribe();
       }
     });
   }

@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { ArrowRight } from 'lucide-angular';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { LandingLink } from '../../util/landing-link';
-import { landingAnchorHref } from '../../util/landing-sections';
+import { buildLandingAnchorHref } from '../../util/landing-sections';
 
 export type LandingButtonSize = 'nav' | 'hero' | 'step' | 'cta';
 export type LandingButtonAppearance = 'solid' | 'outline';
@@ -173,6 +173,8 @@ export class LandingButton {
   });
   protected readonly anchor = computed(() => {
     const link = this.link();
-    return 'section' in link ? landingAnchorHref(link.section, true) : null;
+    return 'section' in link
+      ? buildLandingAnchorHref(link.section, true)
+      : null;
   });
 }

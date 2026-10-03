@@ -16,7 +16,7 @@
   <div
     class="auth__fields"
     tabindex="-1"
-    (keydown.enter)="submitOnEnter($event)"
+    (keydown.enter)="submitCredentialsOnEnter($event)"
   >
     <ui-form-field
       label="Email"
@@ -63,7 +63,7 @@
       [block]="true"
       [iconEnd]="arrowIcon"
       [loading]="pending()"
-      (click)="submit()"
+      (click)="submitCredentials()"
     >
       Se connecter
     </ui-button>

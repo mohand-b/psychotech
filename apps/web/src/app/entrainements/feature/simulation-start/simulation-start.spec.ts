@@ -30,14 +30,16 @@ function buildEnergyState(
 async function setup(
   options: {
     energyState?: EnergyStateDto | null;
-    startFull?: () => Observable<{ id: string }>;
+    startFullSession?: () => Observable<{ id: string }>;
     emailVerifiedAt?: string | null;
     examGuideReadAt?: string | null;
   } = {},
 ) {
   const energyLoad = vi.fn(() => of(null));
   const energyRefresh = vi.fn(() => of(undefined));
-  const startFull = vi.fn(options.startFull ?? (() => of({ id: 'session-1' })));
+  const startFullSession = vi.fn(
+    options.startFullSession ?? (() => of({ id: 'session-1' })),
+  );
   await TestBed.configureTestingModule({
     imports: [SimulationStart],
     providers: [
@@ -59,18 +61,18 @@ async function setup(
         provide: EnergyFacade,
         useValue: {
           state: signal(options.energyState ?? buildEnergyState()),
-          load: energyLoad,
-          refresh: energyRefresh,
+          loadEnergyBalance: energyLoad,
+          loadEnergyBalanceSafely: energyRefresh,
         },
       },
-      { provide: TrainingSessionFacade, useValue: { startFull } },
+      { provide: TrainingSessionFacade, useValue: { startFullSession } },
     ],
   }).compileComponents();
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SimulationStart);
   fixture.detectChanges();
-  return { fixture, startFull, navigate, energyLoad, energyRefresh };
+  return { fixture, startFullSession, navigate, energyLoad, energyRefresh };
 }
 
 function text(fixture: { nativeElement: HTMLElement }): string {
@@ -92,7 +94,8 @@ describe('SimulationStart', () => {
   });
 
   it('briefs the full session with its cost and starts it', async () => {
-    const { fixture, startFull, navigate, energyRefresh } = await setup();
+    const { fixture, startFullSession, navigate, energyRefresh } =
+      await setup();
     expect(text(fixture)).toContain('Examen blanc');
     expect(text(fixture)).toContain('Comment ça se passe');
     expect(text(fixture)).toContain('axes en Ferroviaire');
@@ -104,7 +107,7 @@ describe('SimulationStart', () => {
     expect(cta.querySelector('ui-axis-icon')).not.toBeNull();
 
     cta.click();
-    expect(startFull).toHaveBeenCalledTimes(1);
+    expect(startFullSession).toHaveBeenCalledTimes(1);
     expect(energyRefresh).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith([
       '/entrainements/examen-blanc/session',
@@ -155,7 +158,7 @@ describe('SimulationStart', () => {
   });
 
   it('locks the launch and offers the recharge path when energy is short', async () => {
-    const { fixture, startFull } = await setup({
+    const { fixture, startFullSession } = await setup({
       energyState: buildEnergyState({ balance: 3, canStartFull: false }),
     });
     const locked = fixture.nativeElement.querySelector(
@@ -168,12 +171,12 @@ describe('SimulationStart', () => {
     expect(link?.getAttribute('href')).toBe('/credits');
     expect(text(fixture)).not.toContain('recharge dans');
     (locked as HTMLElement).click();
-    expect(startFull).not.toHaveBeenCalled();
+    expect(startFullSession).not.toHaveBeenCalled();
   });
 
   it('handles the backend insufficient-energy refusal by reloading the balance', async () => {
     const { fixture, energyLoad } = await setup({
-      startFull: () =>
+      startFullSession: () =>
         throwError(
           () =>
             new HttpErrorResponse({

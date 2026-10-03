@@ -9,7 +9,7 @@ import {
   DominoLevel,
   generateDominoItem,
 } from '@psychotech/shared';
-import { dominoItemAnnotations } from './domino-lab';
+import { buildDominoItemAnnotations } from './domino-lab';
 import { DominoSequence } from './domino-sequence';
 
 interface GalleryRow {
@@ -33,7 +33,7 @@ const LEVELS: readonly DominoLevel[] = [1, 2, 3, 4];
               [tiles]="item.visibleTiles"
               [answerTop]="item.answer.top"
               [answerBottom]="item.answer.bottom"
-              [annotations]="annotationsFor(item)"
+              [annotations]="buildItemAnnotations(item)"
               [tileWidth]="46"
             />
             <span class="row__rule">{{ item.rule.userText }}</span>
@@ -88,7 +88,7 @@ export class DominoGallery {
     }),
   );
 
-  protected annotationsFor(item: DominoItem) {
-    return dominoItemAnnotations(item);
+  protected buildItemAnnotations(item: DominoItem) {
+    return buildDominoItemAnnotations(item);
   }
 }

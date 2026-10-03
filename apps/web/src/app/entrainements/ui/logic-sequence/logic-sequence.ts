@@ -24,15 +24,15 @@ export class LogicSequence {
 
   private readonly ruleHint = viewChild<RuleHint>('ruleHint');
 
-  hintOpen(): boolean {
+  isHintOpen(): boolean {
     return this.ruleHint()?.hintOpen() ?? false;
   }
 
-  toggle(): void {
-    this.ruleHint()?.toggle();
+  toggleHint(): void {
+    this.ruleHint()?.toggleHint();
   }
 
-  close(returnFocus = false): void {
-    this.ruleHint()?.close(returnFocus);
+  closeHint(returnFocus = false): void {
+    this.ruleHint()?.closeHint(returnFocus);
   }
 }

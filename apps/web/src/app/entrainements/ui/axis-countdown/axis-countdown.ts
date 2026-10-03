@@ -50,7 +50,7 @@ const AXIS_COUNTDOWN_TICK_MS = 1000;
       <p class="countdown__title">L'épreuve commence</p>
       <p class="countdown__mobile-hint">Préparez-vous, l'axe commence.</p>
 
-      <button type="button" class="countdown__skip" (click)="skip()">
+      <button type="button" class="countdown__skip" (click)="skipCountdown()">
         <span class="countdown__skip-label--desktop">Passer le décompte</span>
         <span class="countdown__skip-label--mobile">Passer</span>
         <ui-icon class="countdown__skip-arrow" [img]="arrowIcon" [size]="15" />
@@ -82,7 +82,7 @@ export class AxisCountdown {
     this.timerId = window.setInterval(() => {
       const next = this.value() - 1;
       if (next <= 0) {
-        this.finish();
+        this.finishCountdown();
         return;
       }
       this.value.set(next);
@@ -90,11 +90,11 @@ export class AxisCountdown {
     this.destroyRef.onDestroy(() => this.clearTimer());
   }
 
-  protected skip(): void {
-    this.finish();
+  protected skipCountdown(): void {
+    this.finishCountdown();
   }
 
-  private finish(): void {
+  private finishCountdown(): void {
     if (this.done) {
       return;
     }

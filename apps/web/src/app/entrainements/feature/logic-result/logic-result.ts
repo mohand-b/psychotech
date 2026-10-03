@@ -21,9 +21,9 @@ import {
   buildLogicMetricRows,
 } from '../../../shared/ui/axis-result-content';
 import {
-  logicAnalyzerItems,
-  logicFamilyBoundaries,
-  logicItemsForResult,
+  adaptLogicItemsForAnalyzer,
+  findLogicFamilyBoundaries,
+  regenerateLogicItems,
 } from '../../../shared/ui/logic-result-items';
 import { ResultActions } from '../../ui/result-actions/result-actions';
 import { ResultFamilyBars } from '../../../shared/ui/result-family-bars/result-family-bars';
@@ -35,13 +35,13 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { targetedResultPage } from '../targeted-result-page';
+import { createTargetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import {
   TimeChart,
   TimeChartEntry,
 } from '../../../shared/ui/time-chart/time-chart';
-import { targetedCorrectionRoute } from '../../../shared/util/session-links';
+import { buildTargetedCorrectionRoute } from '../../../shared/util/session-links';
 
 @Component({
   selector: 'app-logic-result',
@@ -62,11 +62,11 @@ import { targetedCorrectionRoute } from '../../../shared/util/session-links';
 })
 export class LogicResult {
   private readonly router = inject(Router);
-  protected readonly page = targetedResultPage(AxisType.LOGIC);
+  protected readonly page = createTargetedResultPage(AxisType.LOGIC);
 
   private readonly items = computed<LogicItem[] | null>(() => {
     const result = this.page.result();
-    return result ? logicItemsForResult(result) : null;
+    return result ? regenerateLogicItems(result) : null;
   });
 
   protected readonly scored = computed<LogicSessionScore | null>(() => {
@@ -82,7 +82,7 @@ export class LogicResult {
     return result && items && scored
       ? getAxisRecommendations(
           analyzeLogic(
-            logicAnalyzerItems(items),
+            adaptLogicItemsForAnalyzer(items),
             scored,
             result.items,
             items,
@@ -108,7 +108,7 @@ export class LogicResult {
   );
 
   protected readonly familyBoundaries = computed<number[]>(() =>
-    logicFamilyBoundaries(this.items() ?? []),
+    findLogicFamilyBoundaries(this.items() ?? []),
   );
 
   protected readonly chartEntries = computed<TimeChartEntry[]>(() => {
@@ -117,9 +117,9 @@ export class LogicResult {
     return result && scored ? buildLogicChartEntries(scored, result) : [];
   });
 
-  protected review(): void {
+  protected navigateToCorrection(): void {
     this.router.navigate(
-      targetedCorrectionRoute(AxisType.LOGIC, this.page.sessionId),
+      buildTargetedCorrectionRoute(AxisType.LOGIC, this.page.sessionId),
     );
   }
 }

@@ -62,13 +62,13 @@ export class ReactivityTrChart {
     return Math.max(Y_MIN_DOMAIN_MS, maxTr + Y_HEADROOM_MS);
   });
 
-  protected yPct(valueMs: number): number {
+  protected computeBottomPct(valueMs: number): number {
     return Math.min(100, (valueMs / this.yMax()) * 100);
   }
 
   protected readonly meanBottomPct = computed(() => {
     const mean = this.meanMs();
-    return mean === null ? null : this.yPct(mean);
+    return mean === null ? null : this.computeBottomPct(mean);
   });
 
   protected readonly dots = computed<ChartDot[]>(() => {
@@ -81,7 +81,7 @@ export class ReactivityTrChart {
           ? 0
           : point.classification === 'ANTICIPATION'
             ? ANTICIPATION_FLOOR_PCT
-            : this.yPct(point.trMs ?? 0);
+            : this.computeBottomPct(point.trMs ?? 0);
       const tooltip =
         point.trMs === null
           ? `${time} · ${label}`
@@ -107,7 +107,7 @@ export class ReactivityTrChart {
     }
     const coords = trend.map(({ appearAtMs, trMs }) => ({
       x: (appearAtMs / this.totalMs) * 100,
-      y: 100 - this.yPct(trMs),
+      y: 100 - this.computeBottomPct(trMs),
     }));
     let path = `M ${coords[0].x.toFixed(2)} ${coords[0].y.toFixed(2)}`;
     for (let position = 1; position < coords.length; position += 1) {

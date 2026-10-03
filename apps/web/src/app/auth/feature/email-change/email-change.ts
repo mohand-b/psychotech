@@ -60,7 +60,7 @@ const SUBTITLES: Record<ViewState, string> = {
             color="brand"
             size="lg"
             [block]="true"
-            (click)="continueToApp()"
+            (click)="goToProfileOrLogin()"
           >
             {{ isAuthenticated() ? 'Revenir à mon profil' : 'Se connecter' }}
           </ui-button>
@@ -114,7 +114,7 @@ export class EmailChange {
       });
   }
 
-  protected continueToApp(): void {
+  protected goToProfileOrLogin(): void {
     this.router.navigate([this.isAuthenticated() ? '/profil' : '/login']);
   }
 }

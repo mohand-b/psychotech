@@ -27,9 +27,9 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { targetedResultPage } from '../targeted-result-page';
+import { createTargetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
-import { targetedCorrectionRoute } from '../../../shared/util/session-links';
+import { buildTargetedCorrectionRoute } from '../../../shared/util/session-links';
 
 @Component({
   selector: 'app-memory-result',
@@ -49,7 +49,7 @@ import { targetedCorrectionRoute } from '../../../shared/util/session-links';
 })
 export class MemoryResult {
   private readonly router = inject(Router);
-  protected readonly page = targetedResultPage(AxisType.MEMORY);
+  protected readonly page = createTargetedResultPage(AxisType.MEMORY);
 
   private readonly sequences = computed<MemorySequence[] | null>(() => {
     const result = this.page.result();
@@ -77,9 +77,9 @@ export class MemoryResult {
     return scored ? buildMemoryMetricRows(scored) : [];
   });
 
-  protected review(): void {
+  protected navigateToCorrection(): void {
     this.router.navigate(
-      targetedCorrectionRoute(AxisType.MEMORY, this.page.sessionId),
+      buildTargetedCorrectionRoute(AxisType.MEMORY, this.page.sessionId),
     );
   }
 }

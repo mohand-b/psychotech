@@ -68,7 +68,7 @@ async function setup(options: SetupOptions = {}): Promise<Setup> {
         provide: AuthFacade,
         useValue: { currentUser, loadCurrentUser, resendVerification },
       },
-      { provide: EnergyFacade, useValue: { load: energyLoad } },
+      { provide: EnergyFacade, useValue: { loadEnergyBalance: energyLoad } },
     ],
   }).compileComponents();
   const router = TestBed.inject(Router);

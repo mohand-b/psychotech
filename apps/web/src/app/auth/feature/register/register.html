@@ -35,7 +35,10 @@
                 (click)="sector.set(option.value)"
               >
                 <span class="register__sector-tile">
-                  <ui-icon [img]="sectorIcon(option.value)" [size]="21" />
+                  <ui-icon
+                    [img]="resolveSectorIcon(option.value)"
+                    [size]="21"
+                  />
                 </span>
                 <span class="register__sector-copy">
                   <span class="register__sector-name">{{ option.label }}</span>
@@ -73,7 +76,10 @@
               @for (option of comingSectors(); track option.value) {
                 <div class="register__soon-card" title="En préparation">
                   <span class="register__soon-tile">
-                    <ui-icon [img]="sectorIcon(option.value)" [size]="18" />
+                    <ui-icon
+                      [img]="resolveSectorIcon(option.value)"
+                      [size]="18"
+                    />
                   </span>
                   <span class="register__soon-copy">
                     <span class="register__soon-name">{{ option.label }}</span>
@@ -121,7 +127,7 @@
             class="register__sector-chip"
             (click)="goToStep(1)"
           >
-            <ui-icon [img]="sectorIcon(sector())" [size]="15" />
+            <ui-icon [img]="resolveSectorIcon(sector())" [size]="15" />
             <span class="register__sector-chip-label"
               >Secteur&nbsp;: {{ sectorLabel() }}</span
             >
@@ -138,14 +144,16 @@
               <a
                 class="register__sso-link"
                 href="/cgu"
-                (click)="openLegal($event, 'cgu', 'cgu')"
+                (click)="openLegalDocument($event, 'cgu', 'cgu')"
                 >conditions d'utilisation</a
               >
               et la
               <a
                 class="register__sso-link"
                 href="/confidentialite"
-                (click)="openLegal($event, 'confidentialite', 'responsable')"
+                (click)="
+                  openLegalDocument($event, 'confidentialite', 'responsable')
+                "
                 >politique de confidentialité</a
               >.</span
             >
@@ -156,7 +164,7 @@
           <div
             class="auth__fields register__fields"
             tabindex="-1"
-            (keydown.enter)="submitOnEnter($event)"
+            (keydown.enter)="submitRegistrationOnEnter($event)"
           >
             <div class="register__names">
               <ui-form-field
@@ -214,14 +222,16 @@
                 <a
                   class="register__cgu-link"
                   href="/cgu"
-                  (click)="openLegal($event, 'cgu', 'cgu')"
+                  (click)="openLegalDocument($event, 'cgu', 'cgu')"
                   >conditions d'utilisation</a
                 >
                 et la
                 <a
                   class="register__cgu-link"
                   href="/confidentialite"
-                  (click)="openLegal($event, 'confidentialite', 'responsable')"
+                  (click)="
+                    openLegalDocument($event, 'confidentialite', 'responsable')
+                  "
                   >politique de confidentialité</a
                 >.</span
               >
@@ -255,7 +265,7 @@
               [block]="true"
               [iconEnd]="arrowIcon"
               [loading]="pending()"
-              (click)="submit()"
+              (click)="submitRegistration()"
             >
               Créer mon compte
             </ui-button>
@@ -294,5 +304,5 @@
 <ui-legal-overlay
   [documentId]="legalDocumentId()"
   [anchor]="legalAnchor()"
-  (closed)="closeLegal()"
+  (closed)="closeLegalDocument()"
 />

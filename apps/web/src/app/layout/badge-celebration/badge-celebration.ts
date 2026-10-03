@@ -15,8 +15,8 @@ import { BadgeCelebrationModal } from '../../shared/ui/badge-celebration-modal/b
         [position]="facade.position()"
         [total]="facade.total()"
         [isLast]="facade.isLast()"
-        (advance)="advance()"
-        (closeAll)="closeAll()"
+        (advance)="completeCurrentBadge()"
+        (closeAll)="dismissRemainingBadges()"
       />
     }
   `,
@@ -26,22 +26,22 @@ export class BadgeCelebration {
   private readonly energyFacade = inject(EnergyFacade);
 
   constructor() {
-    this.facade.reconcileUnacknowledged();
+    this.facade.reconcileUnacknowledgedBadges();
   }
 
-  protected advance(): void {
-    this.reloadEnergyOnCreditGain(this.facade.completeCurrent());
+  protected completeCurrentBadge(): void {
+    this.reloadEnergyOnCreditGain(this.facade.completeCurrentBadge());
   }
 
-  protected closeAll(): void {
-    this.reloadEnergyOnCreditGain(this.facade.dismissAll());
+  protected dismissRemainingBadges(): void {
+    this.reloadEnergyOnCreditGain(this.facade.dismissRemainingBadges());
   }
 
   private reloadEnergyOnCreditGain(
     acknowledged: readonly EarnedBadgeDto[],
   ): void {
     if (acknowledged.some((badge) => (badge.gain ?? 0) > 0)) {
-      this.energyFacade.reload();
+      this.energyFacade.reloadEnergyBalance();
     }
   }
 }

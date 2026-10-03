@@ -6,7 +6,7 @@
   [style.--axis-text]="presentation.textVar"
 >
   @if (loaded() && countingDown()) {
-    <ui-axis-countdown [axis]="axis" (finished)="onCountdownFinished()" />
+    <ui-axis-countdown [axis]="axis" (finished)="startPlayAfterCountdown()" />
   }
   @if (durationSec()) {
     <div
@@ -66,7 +66,7 @@
           type="button"
           class="discri__answer"
           [disabled]="locked()"
-          (click)="answer('IDENTICAL')"
+          (click)="answerCurrentTrial('IDENTICAL')"
         >
           <span class="discri__key" aria-hidden="true">
             <ui-icon [img]="identicalIcon" [size]="14" />
@@ -77,7 +77,7 @@
           type="button"
           class="discri__answer discri__answer--different"
           [disabled]="locked()"
-          (click)="answer('DIFFERENT')"
+          (click)="answerCurrentTrial('DIFFERENT')"
         >
           <span class="discri__answer-label">Différent</span>
           <span class="discri__key" aria-hidden="true">
@@ -98,7 +98,7 @@
         [mode]="sessionMode()"
         [color]="buttonColor"
         (continueRequested)="confirmingExit.set(false)"
-        (quitRequested)="quit()"
+        (quitRequested)="quitToDashboard()"
       />
     }
   }
@@ -108,8 +108,8 @@
       [simulation]="resultWait.simulation()"
       [failure]="resultWait.failure()"
       [slow]="resultWait.slow()"
-      (retry)="resultWait.retry()"
-      (quit)="resultWait.quit()"
+      (retry)="resultWait.retryFailedStep()"
+      (quit)="resultWait.quitToDashboard()"
     />
   }
 </section>

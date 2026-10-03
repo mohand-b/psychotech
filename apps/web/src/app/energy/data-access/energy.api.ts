@@ -9,7 +9,7 @@ export class EnergyApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  state(): Observable<EnergyStateDto> {
+  fetchEnergyBalance(): Observable<EnergyStateDto> {
     return this.http.get<EnergyStateDto>(`${this.baseUrl}/me/energy`);
   }
 

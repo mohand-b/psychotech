@@ -17,7 +17,7 @@ const VISIBLE_AFTER_PX = 480;
   selector: 'app-guide-scroll-top',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Icon],
-  host: { '(window:scroll)': 'onScroll()' },
+  host: { '(window:scroll)': 'refreshButtonVisibility()' },
   template: `
     <button
       type="button"
@@ -82,19 +82,19 @@ export class GuideScrollTop {
   protected readonly visible = signal(false);
 
   constructor() {
-    afterNextRender(() => this.onScroll());
+    afterNextRender(() => this.refreshButtonVisibility());
     inject(Router)
       .events.pipe(takeUntilDestroyed())
       .subscribe((event) => {
         if (event instanceof Scroll) {
           this.document.defaultView?.requestAnimationFrame(() =>
-            this.onScroll(),
+            this.refreshButtonVisibility(),
           );
         }
       });
   }
 
-  protected onScroll(): void {
+  protected refreshButtonVisibility(): void {
     this.visible.set(
       (this.document.defaultView?.scrollY ?? 0) > VISIBLE_AFTER_PX,
     );

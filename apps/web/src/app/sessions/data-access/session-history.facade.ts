@@ -2,7 +2,7 @@ import { ErrorHandler, Injectable, Signal, inject } from '@angular/core';
 import { CurrentSessionDto, SessionHistoryItemDto } from '@psychotech/shared';
 import {
   SessionHistoryFilter,
-  historyQueryFor,
+  buildHistoryQuery,
 } from './session-history.filter';
 import { SessionHistoryStore } from './session-history.store';
 import { SessionsApi } from './sessions.api';
@@ -21,30 +21,30 @@ export class SessionHistoryFacade {
   readonly current: Signal<CurrentSessionDto | null> = this.store.current;
   readonly error: Signal<unknown> = this.store.error;
 
-  load(filter: SessionHistoryFilter): void {
+  loadHistory(filter: SessionHistoryFilter): void {
     this.store.startLoading(filter);
-    this.api.history(historyQueryFor(filter)).subscribe({
+    this.api.fetchHistoryPage(buildHistoryQuery(filter)).subscribe({
       next: (page) => this.store.setPage(page),
       error: (err: unknown) => this.store.setError(err),
     });
   }
 
-  loadMore(): void {
+  loadNextHistoryPage(): void {
     const cursor = this.store.nextCursor();
     if (!cursor || this.store.loadingMore()) {
       return;
     }
     this.store.startLoadingMore();
     this.api
-      .history({ ...historyQueryFor(this.store.filter()), cursor })
+      .fetchHistoryPage({ ...buildHistoryQuery(this.store.filter()), cursor })
       .subscribe({
         next: (page) => this.store.appendPage(page),
         error: (err: unknown) => this.store.setError(err),
       });
   }
 
-  refreshCurrent(): void {
-    this.api.current().subscribe({
+  loadCurrentSession(): void {
+    this.api.fetchCurrentSession().subscribe({
       next: (current) => this.store.setCurrent(current),
       error: (error: unknown) => {
         this.errorHandler.handleError(error);

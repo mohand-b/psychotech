@@ -244,7 +244,7 @@ async function setup(
             useValue: {
               overview: signal<TrainingsOverviewDto | null>(overview),
               loading: signal(false),
-              load: vi.fn(),
+              loadOverview: vi.fn(),
             },
           },
         ],

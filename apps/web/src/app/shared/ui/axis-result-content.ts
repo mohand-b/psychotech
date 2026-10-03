@@ -25,7 +25,7 @@ const OUTCOME_LABELS: Record<DiscriminationOutcome, string> = {
   FALSE_NEGATIVE: 'Répondu "identiques" à tort',
 };
 
-function frenchSeconds(valueMs: number): string {
+function formatMillisecondsAsSeconds(valueMs: number): string {
   return formatFrenchDecimal(valueMs / 1000);
 }
 
@@ -63,7 +63,7 @@ export function buildLogicMetricRows(
     },
     {
       label: 'Temps moyen par réponse',
-      value: avg === null ? '-' : frenchSeconds(avg),
+      value: avg === null ? '-' : formatMillisecondsAsSeconds(avg),
       suffix: avg === null ? undefined : ' s',
     },
     {
@@ -160,7 +160,7 @@ export function buildDiscriminationMetricRows(
     },
     {
       label: 'Temps moyen par réponse',
-      value: avg === null ? '-' : frenchSeconds(avg),
+      value: avg === null ? '-' : formatMillisecondsAsSeconds(avg),
       suffix: avg === null ? undefined : ' s',
     },
   ];

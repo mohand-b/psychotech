@@ -12,7 +12,7 @@ import { LegalDocument } from '../../data/legal-documents';
 export class LegalDocumentView {
   readonly document = input.required<LegalDocument>();
 
-  protected sectionNumber(index: number): string {
+  protected formatSectionNumber(index: number): string {
     return String(index + 1).padStart(2, '0');
   }
 }

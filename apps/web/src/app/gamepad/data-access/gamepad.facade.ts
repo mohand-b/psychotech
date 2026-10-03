@@ -21,11 +21,11 @@ import { Observable } from 'rxjs';
 import {
   GamepadLatencyStats,
   GamepadStickVector,
-  acceptGamepadFrame,
-  gamepadConnectionLost,
-  gamepadLatencyStats,
-  gamepadSignalingUrl,
-  gamepadStickFromFrame,
+  isNewerGamepadFrame,
+  isGamepadConnectionLost,
+  computeGamepadLatencyStats,
+  buildGamepadSignalingUrl,
+  computeGamepadStick,
 } from '../../shared/util/gamepad-logic';
 import { GamepadTransport } from './gamepad-transport';
 import { GamepadApi } from './gamepad.api';
@@ -81,17 +81,17 @@ export class GamepadFacade {
     );
   });
 
-  pair(sessionId: string): void {
+  pairSessionGamepad(sessionId: string): void {
     this.startPairing(() => this.api.createPairing(sessionId));
   }
 
-  pairTutorial(): void {
+  pairTutorialGamepad(): void {
     this.startPairing(() => this.api.createTutorialPairing());
   }
 
   private startPairing(request: () => Observable<GamepadPairingDto>): void {
     const keepExclusivity = this.everConnectedSignal();
-    this.disconnect();
+    this.disconnectGamepad();
     this.everConnectedSignal.set(keepExclusivity);
     this.pairingRequest = request;
     request().subscribe({
@@ -107,34 +107,34 @@ export class GamepadFacade {
     });
   }
 
-  gamepadInputLost(nowMs: number): boolean {
+  isGamepadInputLost(nowMs: number): boolean {
     return (
       !this.connected() ||
-      gamepadConnectionLost(this.lastFrameAtSignal(), nowMs)
+      isGamepadConnectionLost(this.lastFrameAtSignal(), nowMs)
     );
   }
 
   sendHaptic(effect: GamepadHapticEffect): void {
-    this.transport?.send({ kind: 'haptic', effect });
+    this.transport?.sendChannelMessage({ kind: 'haptic', effect });
   }
 
   sendPhase(phase: GamepadSessionPhase): void {
-    this.transport?.send({ kind: 'phase', phase });
+    this.transport?.sendChannelMessage({ kind: 'phase', phase });
   }
 
   beginCourseLatencyWindow(): void {
     this.courseRttSamples = [];
   }
 
-  courseLatency(): GamepadLatencyStats | null {
-    return gamepadLatencyStats(this.courseRttSamples);
+  computeCourseLatency(): GamepadLatencyStats | null {
+    return computeGamepadLatencyStats(this.courseRttSamples);
   }
 
-  disconnect(): void {
+  disconnectGamepad(): void {
     this.stopPingLoop();
     this.clearExpiryTimer();
     if (this.transport) {
-      this.transport.close();
+      this.transport.closeConnections();
       this.transport = null;
     }
     this.pairingSignal.set(null);
@@ -156,11 +156,11 @@ export class GamepadFacade {
       isDevMode() &&
       new URLSearchParams(window.location.search).get('transport') === 'relay';
     this.transport = new GamepadTransport({
-      url: gamepadSignalingUrl(window.location),
+      url: buildGamepadSignalingUrl(window.location),
       token,
       role: 'DESKTOP',
       forceRelay,
-      onMessage: (message) => this.handleChannelMessage(message),
+      onMessage: (message) => this.applyChannelMessage(message),
       onStateChange: (state) => {
         this.stateSignal.set(state);
         if (state === GamepadConnectionState.CONNECTED) {
@@ -176,16 +176,16 @@ export class GamepadFacade {
       onModeChange: (mode) => this.modeSignal.set(mode),
       onError: () => this.stateSignal.set(GamepadConnectionState.DISCONNECTED),
     });
-    this.transport.connect();
+    this.transport.openSignalingSocket();
   }
 
-  private handleChannelMessage(message: GamepadChannelMessage): void {
+  private applyChannelMessage(message: GamepadChannelMessage): void {
     if (message.kind === 'input') {
-      if (!acceptGamepadFrame(this.lastSeq, message)) {
+      if (!isNewerGamepadFrame(this.lastSeq, message)) {
         return;
       }
       this.lastSeq = message.seq;
-      this.stickSignal.set(gamepadStickFromFrame(message));
+      this.stickSignal.set(computeGamepadStick(message));
       this.lastFrameAtSignal.set(performance.now());
       return;
     }
@@ -198,7 +198,7 @@ export class GamepadFacade {
       const rtt = performance.now() - sentAt;
       this.rttWindow = [...this.rttWindow.slice(-(RTT_WINDOW_SIZE - 1)), rtt];
       this.courseRttSamples.push(rtt);
-      this.latencySignal.set(gamepadLatencyStats(this.rttWindow));
+      this.latencySignal.set(computeGamepadLatencyStats(this.rttWindow));
     }
   }
 
@@ -215,7 +215,7 @@ export class GamepadFacade {
       }
       this.pingCounter += 1;
       this.pendingPings.set(this.pingCounter, performance.now());
-      this.transport?.send({
+      this.transport?.sendChannelMessage({
         kind: 'ping',
         id: this.pingCounter,
         t: Math.round(performance.now()),

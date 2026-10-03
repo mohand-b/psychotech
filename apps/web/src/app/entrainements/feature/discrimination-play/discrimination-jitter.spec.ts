@@ -3,7 +3,7 @@ import {
   JITTER_SAFE_MARGIN_Y,
   JitterZoneMetrics,
   computeJitterPlacement,
-  jitterTransform,
+  buildJitterTransform,
 } from './discrimination-jitter';
 
 function assertWithinSafeMargins(
@@ -97,14 +97,16 @@ describe('computeJitterPlacement', () => {
   });
 });
 
-describe('jitterTransform', () => {
+describe('buildJitterTransform', () => {
   it('falls back to a neutral transform before any measurement', () => {
-    expect(jitterTransform({ fx: 1, fy: 1 }, null)).toBe('translate(0px, 0px)');
+    expect(buildJitterTransform({ fx: 1, fy: 1 }, null)).toBe(
+      'translate(0px, 0px)',
+    );
   });
 
   it('renders the computed placement as a css transform', () => {
     expect(
-      jitterTransform(
+      buildJitterTransform(
         { fx: 0.5, fy: -0.5 },
         {
           zoneWidth: 360,

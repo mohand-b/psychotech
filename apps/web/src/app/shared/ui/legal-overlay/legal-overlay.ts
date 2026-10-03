@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { LEGAL_LAST_UPDATED } from '@psychotech/shared';
-import { LegalDocumentId, legalDocumentById } from '../../data/legal-documents';
+import { LegalDocumentId, getLegalDocument } from '../../data/legal-documents';
 import { Button } from '../button/button';
 import { LegalDocumentView } from '../legal-document/legal-document';
 
@@ -25,7 +25,7 @@ const FOCUSABLE =
   templateUrl: './legal-overlay.html',
   styleUrl: './legal-overlay.css',
   host: {
-    '(document:keydown.escape)': 'onEscape()',
+    '(document:keydown.escape)': 'closeLegalDocumentIfOpen()',
   },
 })
 export class LegalOverlay {
@@ -41,7 +41,7 @@ export class LegalOverlay {
 
   protected readonly legalDocument = computed(() => {
     const id = this.documentId();
-    return id ? legalDocumentById(id) : null;
+    return id ? getLegalDocument(id) : null;
   });
 
   constructor() {
@@ -51,17 +51,17 @@ export class LegalOverlay {
       if (!open) {
         return;
       }
-      queueMicrotask(() => this.focusPanel());
+      queueMicrotask(() => this.focusPanelAndScrollToAnchor());
     });
   }
 
-  protected onEscape(): void {
+  protected closeLegalDocumentIfOpen(): void {
     if (this.legalDocument()) {
       this.closed.emit();
     }
   }
 
-  protected close(): void {
+  protected closeLegalDocument(): void {
     this.closed.emit();
   }
 
@@ -93,7 +93,7 @@ export class LegalOverlay {
     }
   }
 
-  private focusPanel(): void {
+  private focusPanelAndScrollToAnchor(): void {
     const host = this.panel()?.nativeElement;
     if (!host) {
       return;

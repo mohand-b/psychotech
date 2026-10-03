@@ -26,14 +26,14 @@ export function applyGamepadDeadzone(value: number): number {
   return Math.sign(value) * Math.min(GAMEPAD_MAX_OVERDRIVE, rescaled);
 }
 
-export function acceptGamepadFrame(
+export function isNewerGamepadFrame(
   lastSeq: number | null,
   frame: GamepadInputFrame,
 ): boolean {
   return lastSeq === null || frame.seq > lastSeq;
 }
 
-export function gamepadStickFromFrame(
+export function computeGamepadStick(
   frame: GamepadInputFrame,
 ): GamepadStickVector {
   return {
@@ -52,7 +52,7 @@ export function gamepadStickFromFrame(
   };
 }
 
-export function gamepadConnectionLost(
+export function isGamepadConnectionLost(
   lastMessageAtMs: number | null,
   nowMs: number,
 ): boolean {
@@ -62,7 +62,7 @@ export function gamepadConnectionLost(
   );
 }
 
-export function gamepadLatencyStats(
+export function computeGamepadLatencyStats(
   rttSamples: number[],
 ): GamepadLatencyStats | null {
   if (rttSamples.length === 0) {
@@ -76,7 +76,7 @@ export function gamepadLatencyStats(
   return { avgMs, jitterMs };
 }
 
-export function gamepadSignalingUrl(location: {
+export function buildGamepadSignalingUrl(location: {
   protocol: string;
   host: string;
 }): string {
@@ -84,13 +84,16 @@ export function gamepadSignalingUrl(location: {
   return `${scheme}://${location.host}${GAMEPAD_SIGNALING_PATH}`;
 }
 
-export function gamepadControllerUrl(origin: string, token: string): string {
+export function buildGamepadControllerUrl(
+  origin: string,
+  token: string,
+): string {
   return `${origin}/manette?t=${encodeURIComponent(token)}`;
 }
 
 export const GAMEPAD_CRANK_FULL_SPEED_RAD_PER_SEC = 2 * Math.PI;
 
-export function crankPointerAngle(
+export function computeCrankPointerAngle(
   centerX: number,
   centerY: number,
   pointX: number,
@@ -99,7 +102,10 @@ export function crankPointerAngle(
   return Math.atan2(pointY - centerY, pointX - centerX);
 }
 
-export function crankAngleDelta(previousRad: number, nextRad: number): number {
+export function computeCrankAngleDelta(
+  previousRad: number,
+  nextRad: number,
+): number {
   let delta = nextRad - previousRad;
   while (delta > Math.PI) {
     delta -= 2 * Math.PI;
@@ -110,7 +116,7 @@ export function crankAngleDelta(previousRad: number, nextRad: number): number {
   return delta;
 }
 
-export function crankValueFromVelocity(radPerSec: number): number {
+export function normalizeCrankVelocity(radPerSec: number): number {
   return Math.max(
     -GAMEPAD_MAX_OVERDRIVE,
     Math.min(
@@ -123,11 +129,8 @@ export function crankValueFromVelocity(radPerSec: number): number {
 export const GAMEPAD_CRANK_SPEED_SMOOTHING = 0.35;
 const GAMEPAD_CRANK_REST_EPSILON = 0.02;
 
-export function crankSmoothedSpeed(
-  previous: number,
-  radPerSec: number,
-): number {
-  const target = crankValueFromVelocity(radPerSec);
+export function smoothCrankSpeed(previous: number, radPerSec: number): number {
+  const target = normalizeCrankVelocity(radPerSec);
   const smoothed =
     previous + (target - previous) * GAMEPAD_CRANK_SPEED_SMOOTHING;
   return Math.abs(smoothed) < GAMEPAD_CRANK_REST_EPSILON && target === 0

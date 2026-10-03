@@ -31,7 +31,7 @@ async function setup() {
     ],
   }).compileComponents();
   const runFacade = TestBed.inject(TutorialRunFacade);
-  runFacade.record({
+  runFacade.recordRunResult({
     axis: AxisType.LOGIC,
     items: [
       {

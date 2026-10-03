@@ -26,7 +26,7 @@ describe('EnergyFacade — synchronisation avec la session utilisateur', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthFacade, useValue: { currentUser } },
-        { provide: EnergyApi, useValue: { state: stateApi } },
+        { provide: EnergyApi, useValue: { fetchEnergyBalance: stateApi } },
       ],
     });
     return TestBed.inject(EnergyFacade);

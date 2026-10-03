@@ -6,7 +6,10 @@ import {
 } from '@angular/core';
 import { SIGNUP_ENERGY_GRANT } from '@psychotech/shared';
 import { LANDING_SCREENS } from '../../data/landing-screens';
-import { LandingLink, landingPrimaryAction } from '../../util/landing-link';
+import {
+  LandingLink,
+  resolveLandingPrimaryAction,
+} from '../../util/landing-link';
 import { LANDING_SECTION } from '../../util/landing-sections';
 import { LandingButton } from '../landing-button/landing-button';
 import { LandingDeviceFrame } from '../landing-device-frame/landing-device-frame';
@@ -35,6 +38,6 @@ export class LandingHero {
     section: LANDING_SECTION.story,
   };
   protected readonly primaryAction = computed(() =>
-    landingPrimaryAction(this.authenticated()),
+    resolveLandingPrimaryAction(this.authenticated()),
   );
 }

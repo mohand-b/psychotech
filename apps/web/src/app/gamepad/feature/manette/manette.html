@@ -27,14 +27,14 @@
             autocomplete="one-time-code"
             [attr.maxlength]="codeLength"
             placeholder="000000"
-            (input)="onCodeInput($event)"
+            (input)="updatePairingCode($event)"
           />
           <ui-button
             color="brand"
             size="lg"
             [block]="true"
             [disabled]="!codeReady()"
-            (click)="submitCode()"
+            (click)="submitPairingCode()"
           >
             Se connecter
           </ui-button>
@@ -89,7 +89,7 @@
         hintCounterClockwise="gauche"
         [speed]="leftSpeed()"
         [disabled]="view() === 'SUSPENDED'"
-        (rotated)="onLeftRotate($event)"
+        (rotated)="pushLeftRotation($event)"
       />
       <ui-crank
         class="manette__crank manette__crank--right"
@@ -98,7 +98,7 @@
         hintCounterClockwise="haut"
         [speed]="rightSpeed()"
         [disabled]="view() === 'SUSPENDED'"
-        (rotated)="onRightRotate($event)"
+        (rotated)="pushRightRotation($event)"
       />
     </div>
     <p class="manette__wakelock">L'écran reste allumé pendant la session.</p>

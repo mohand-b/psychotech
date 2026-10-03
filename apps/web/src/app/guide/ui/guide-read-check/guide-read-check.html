@@ -5,9 +5,9 @@
     tabindex="0"
     [attr.aria-checked]="marked()"
     [class.read-check__box--marked]="marked()"
-    (click)="activate()"
-    (keydown.enter)="activate()"
-    (keydown.space)="activate($event)"
+    (click)="markGuideRead()"
+    (keydown.enter)="markGuideRead()"
+    (keydown.space)="markGuideRead($event)"
   >
     <span class="read-check__check inline-flex items-center justify-center">
       <span class="read-check__tick inline-flex">

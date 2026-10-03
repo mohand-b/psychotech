@@ -11,7 +11,7 @@ interface ContactLinkTarget {
   origin?: string;
 }
 
-export function contactQueryParams(
+export function buildContactQueryParams(
   target: ContactLinkTarget,
 ): Record<string, string> {
   return {

@@ -99,7 +99,7 @@ interface Submission {
 interface Setup {
   fixture: ComponentFixture<DiscriminationPlay>;
   element: HTMLElement;
-  completeTargeted: ReturnType<typeof vi.fn>;
+  completeAxis: ReturnType<typeof vi.fn>;
   submissions: Submission[];
   navigate: ReturnType<typeof vi.spyOn>;
 }
@@ -109,7 +109,7 @@ async function setup(
   session: SessionDto = buildExamSession(),
 ): Promise<Setup> {
   const submissions: Submission[] = [];
-  const completeTargeted = vi.fn(
+  const completeAxis = vi.fn(
     (sessionId: string, axis: AxisType, body: CompleteTargetedSessionDto) => {
       submissions.push({ sessionId, axis, body: structuredClone(body) });
       const outcome = outcomes[submissions.length - 1] ?? accepted;
@@ -123,12 +123,15 @@ async function setup(
       {
         provide: SessionsApi,
         useValue: {
-          start: vi.fn(),
-          get: vi.fn(() => of(session)),
-          completeTargeted,
+          startSession: vi.fn(),
+          fetchSession: vi.fn(() => of(session)),
+          completeAxis,
         },
       },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { loadEnergyBalance: vi.fn(() => of(null)) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -146,7 +149,7 @@ async function setup(
   const fixture = TestBed.createComponent(DiscriminationPlay);
   fixture.detectChanges();
   const element: HTMLElement = fixture.nativeElement;
-  return { fixture, element, completeTargeted, submissions, navigate };
+  return { fixture, element, completeAxis, submissions, navigate };
 }
 
 async function setupPlaying(outcomes: CompletionOutcome[]): Promise<Setup> {
@@ -253,7 +256,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
   });
 
   afterEach(() => {
-    TestBed.inject(TrainingSessionFacade).clear();
+    TestBed.inject(TrainingSessionFacade).clearSession();
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
@@ -264,7 +267,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
 
     advance(result, AXIS_DURATION_MS - given.length * TRIAL_PACE_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).not.toHaveBeenCalled();
     expect(overlay(result.element)?.classList).toContain('wait--failed');
     expect(result.element.querySelector('.wait__title')?.textContent).toContain(
@@ -291,13 +294,13 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     ).toBe(true);
 
     advance(result, READING_THE_ERROR_MS);
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(overlay(result.element)?.classList).toContain('wait--failed');
 
     retryButton(result.element).click();
     result.fixture.detectChanges();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     expect(result.submissions[1]).toEqual(first);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
@@ -309,7 +312,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     const result = await setupPlaying([rejected(HttpStatusCode.Forbidden)]);
     const given = answerTrials(result, TRIAL_COUNT);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(overlay(result.element)?.classList).toContain('wait--failed');
     expect(result.navigate).not.toHaveBeenCalled();
 
@@ -320,11 +323,11 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
       pressKey(result, 'ArrowLeft');
       pressKey(result, 'ArrowRight');
     }
-    TestBed.inject(TrainingSessionFacade).requestClose();
+    TestBed.inject(TrainingSessionFacade).requestSessionClose();
     result.fixture.detectChanges();
     advance(result, AXIS_DURATION_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).not.toHaveBeenCalled();
     expect(result.element.querySelector('app-exit-confirm')).toBeNull();
     expect(overlay(result.element)?.classList).toContain('wait--failed');
@@ -335,7 +338,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     retryButton(result.element).click();
     result.fixture.detectChanges();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     const [first, second] = result.submissions;
     expect(submittedTrials(first)).toEqual(pacedEntries(given));
     expect(second).toEqual(first);
@@ -357,7 +360,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
       TRIALS_BEFORE_SECOND_CLOCK_CORRECTION,
     );
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     const [submission] = result.submissions;
     const trials = submittedTrials(submission);
     expect(trials).toHaveLength(TRIAL_COUNT);
@@ -387,7 +390,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
 
     retryButton(result.element).click();
     result.fixture.detectChanges();
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     expect(overlay(result.element)?.classList).toContain('wait--failed');
     expect(result.navigate).not.toHaveBeenCalled();
 
@@ -395,7 +398,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     retry.click();
     retry.click();
     result.fixture.detectChanges();
-    expect(result.completeTargeted).toHaveBeenCalledTimes(3);
+    expect(result.completeAxis).toHaveBeenCalledTimes(3);
     expect(overlay(result.element)).not.toBeNull();
     expect(overlay(result.element)?.classList).not.toContain('wait--failed');
     expect(result.element.querySelector('.wait__retry')).toBeNull();
@@ -421,7 +424,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     (result.element.querySelector('.wait__quit') as HTMLButtonElement).click();
     result.fixture.detectChanges();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
@@ -431,7 +434,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     const result = await setupPlaying([() => slowCompletion]);
     answerTrials(result, TRIAL_COUNT);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(overlay(result.element)).toBeNull();
 
     advance(result, RESULT_WAIT_DIRECT_REVEAL_MS - 1);
@@ -443,7 +446,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
 
     tapAnswer(result, 'IDENTICAL');
     pressKey(result, 'ArrowRight');
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
 
     slowCompletion.next(buildSessionAfterDiscrimination());
     slowCompletion.complete();
@@ -466,7 +469,7 @@ describe('DiscriminationPlay (examen blanc, premier axe)', () => {
     );
 
     expect(result.element.querySelector('.countdown__skip')).toBeNull();
-    expect(result.completeTargeted).not.toHaveBeenCalled();
+    expect(result.completeAxis).not.toHaveBeenCalled();
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(
       ['/sessions', SESSION_ID, 'resultat'],

@@ -155,8 +155,8 @@ async function setup(options: SetupOptions = {}) {
     overview: signal<TrainingsOverviewDto | null>(overview),
     loading: signal(false),
     error: signal<unknown>(undefined),
-    load: vi.fn(),
-    reload: vi.fn(),
+    loadOverview: vi.fn(),
+    reloadOverview: vi.fn(),
   };
   const progressionFacade = {
     progression: signal<ProgressionDto | null>(
@@ -168,7 +168,7 @@ async function setup(options: SetupOptions = {}) {
   };
   const sessionHistoryFacade = {
     current: signal<CurrentSessionDto | null>(options.current ?? null),
-    refreshCurrent: vi.fn(),
+    loadCurrentSession: vi.fn(),
   };
 
   await TestBed.configureTestingModule({

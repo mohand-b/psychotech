@@ -24,7 +24,7 @@ import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
-import { tutorialSessionProviders } from '../../data-access/tutorial-session.facade';
+import { provideTutorialSession } from '../../data-access/tutorial-session.facade';
 import { AxisStart } from './axis-start';
 
 function gamepadFacadeStub() {
@@ -33,8 +33,8 @@ function gamepadFacadeStub() {
     connected: signal(false),
     latency: signal(null),
     latencyIsGood: signal(true),
-    pairTutorial: vi.fn(),
-    disconnect: vi.fn(),
+    pairTutorialGamepad: vi.fn(),
+    disconnectGamepad: vi.fn(),
   };
 }
 
@@ -78,7 +78,7 @@ function buildSession(): SessionDto {
 interface Setup {
   fixture: ComponentFixture<AxisStart>;
   element: HTMLElement;
-  start: ReturnType<typeof vi.fn>;
+  startSession: ReturnType<typeof vi.fn>;
   gamepad: ReturnType<typeof gamepadFacadeStub>;
   energyLoad: ReturnType<typeof vi.fn>;
   energyRefresh: ReturnType<typeof vi.fn>;
@@ -99,7 +99,7 @@ async function setup(
   options: SetupOptions = {},
 ): Promise<Setup> {
   TestBed.resetTestingModule();
-  const start = vi.fn(options.startResult ?? (() => of(buildSession())));
+  const startSession = vi.fn(options.startResult ?? (() => of(buildSession())));
   const gamepad = gamepadFacadeStub();
   const energyLoad = vi.fn(() => of(null));
   const energyRefresh = vi.fn(() => of(undefined));
@@ -110,12 +110,15 @@ async function setup(
       provideRouter([]),
       { provide: BadgesFacade, useValue: { notifyTutorialDiscovered } },
       { provide: GamepadFacade, useValue: gamepad },
-      { provide: SessionsApi, useValue: { start, get: vi.fn() } },
+      {
+        provide: SessionsApi,
+        useValue: { startSession, fetchSession: vi.fn() },
+      },
       {
         provide: EnergyFacade,
         useValue: {
-          load: energyLoad,
-          refresh: energyRefresh,
+          loadEnergyBalance: energyLoad,
+          loadEnergyBalanceSafely: energyRefresh,
           state: signal(options.energyState ?? null),
         },
       },
@@ -142,7 +145,7 @@ async function setup(
           },
         },
       },
-      ...(tutorial ? tutorialSessionProviders() : []),
+      ...(tutorial ? provideTutorialSession() : []),
     ],
   }).compileComponents();
   const router = TestBed.inject(Router);
@@ -152,7 +155,7 @@ async function setup(
   return {
     fixture,
     element: fixture.nativeElement,
-    start,
+    startSession,
     gamepad,
     energyLoad,
     energyRefresh,
@@ -186,8 +189,8 @@ function clickStart(result: Setup): void {
   result.fixture.detectChanges();
 }
 
-function startPayload(start: ReturnType<typeof vi.fn>): StartSessionDto {
-  return start.mock.calls[0][0] as StartSessionDto;
+function startPayload(startSession: ReturnType<typeof vi.fn>): StartSessionDto {
+  return startSession.mock.calls[0][0] as StartSessionDto;
 }
 
 describe('AxisStart - option Familles', () => {
@@ -214,8 +217,8 @@ describe('AxisStart - option Familles', () => {
 
     clickStart(result);
 
-    expect(result.start).toHaveBeenCalledTimes(1);
-    expect(startPayload(result.start).options?.logicFamily).toBe(
+    expect(result.startSession).toHaveBeenCalledTimes(1);
+    expect(startPayload(result.startSession).options?.logicFamily).toBe(
       LogicFamilyFilter.DOMINO,
     );
   });
@@ -223,7 +226,7 @@ describe('AxisStart - option Familles', () => {
   it('sends a null family when all blocks stay selected', async () => {
     const result = await setup('logique');
     clickStart(result);
-    expect(startPayload(result.start).options).toEqual({
+    expect(startPayload(result.startSession).options).toEqual({
       enabledOptions: [],
       logicFamily: null,
     });
@@ -233,31 +236,31 @@ describe('AxisStart - option Familles', () => {
     const result = await setup('memoire');
     expect(familySegments(result.element)).toHaveLength(0);
     clickStart(result);
-    expect('logicFamily' in (startPayload(result.start).options ?? {})).toBe(
-      false,
-    );
+    expect(
+      'logicFamily' in (startPayload(result.startSession).options ?? {}),
+    ).toBe(false);
   });
 
   it('shows no selector and calls no api for the discovery mode', async () => {
     const result = await setup('logique', true);
     expect(familySegments(result.element)).toHaveLength(0);
     clickStart(result);
-    expect(result.start).not.toHaveBeenCalled();
+    expect(result.startSession).not.toHaveBeenCalled();
   });
 
   it('pairs the phone gamepad from every motricity briefing, discovery included', async () => {
     const targeted = await setup('motricite');
-    expect(targeted.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
+    expect(targeted.gamepad.pairTutorialGamepad).toHaveBeenCalledTimes(1);
     expect(targeted.element.querySelector('ui-gamepad-pairing')).not.toBeNull();
 
     const discovery = await setup('motricite', true);
-    expect(discovery.gamepad.pairTutorial).toHaveBeenCalledTimes(1);
+    expect(discovery.gamepad.pairTutorialGamepad).toHaveBeenCalledTimes(1);
     expect(
       discovery.element.querySelector('ui-gamepad-pairing'),
     ).not.toBeNull();
 
     const other = await setup('logique');
-    expect(other.gamepad.pairTutorial).not.toHaveBeenCalled();
+    expect(other.gamepad.pairTutorialGamepad).not.toHaveBeenCalled();
   });
 
   it('labels the discovery call to action without the word tutoriel', async () => {
@@ -339,7 +342,7 @@ describe('AxisStart - crédits', () => {
 
     clickStart(result);
 
-    expect(result.start).toHaveBeenCalledTimes(1);
+    expect(result.startSession).toHaveBeenCalledTimes(1);
     expect(result.energyRefresh).toHaveBeenCalledTimes(1);
   });
 

@@ -10,11 +10,11 @@ import {
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ResultWaitOrchestrator } from '../data-access/result-wait.orchestrator';
 import {
-  inactiveSessionRoute,
-  simulationCurrentAxis,
+  resolveInactiveSessionRoute,
+  findCurrentSimulationAxis,
 } from '../ui/session-flow';
 import { PlayLeaveControl } from './play-leave.guard';
-import { simulationSessionRoute } from '../../shared/util/session-links';
+import { buildSimulationSessionRoute } from '../../shared/util/session-links';
 
 export function loadPlayableSession(
   sessionId: string,
@@ -23,18 +23,18 @@ export function loadPlayableSession(
 ): void {
   const facade = inject(TrainingSessionFacade);
   const router = inject(Router);
-  const open = (session: SessionDto): void => {
+  const enterPlayOrRedirect = (session: SessionDto): void => {
     if (session.status !== SessionStatus.IN_PROGRESS) {
-      router.navigate(inactiveSessionRoute(session, axis), {
+      router.navigate(resolveInactiveSessionRoute(session, axis), {
         replaceUrl: true,
       });
       return;
     }
     if (
       session.mode === SessionMode.FULL &&
-      simulationCurrentAxis(session) !== axis
+      findCurrentSimulationAxis(session) !== axis
     ) {
-      router.navigate(simulationSessionRoute(session.id), {
+      router.navigate(buildSimulationSessionRoute(session.id), {
         replaceUrl: true,
       });
       return;
@@ -43,14 +43,14 @@ export function loadPlayableSession(
   };
   const active = facade.session();
   if (active?.id === sessionId) {
-    open(active);
+    enterPlayOrRedirect(active);
     return;
   }
   facade
-    .load(sessionId)
+    .loadSession(sessionId)
     .pipe(takeUntilDestroyed())
     .subscribe({
-      next: open,
+      next: enterPlayOrRedirect,
       error: () => router.navigate(['/entrainements']),
     });
 }
@@ -72,7 +72,7 @@ export function confirmExitOnCloseRequest(
   });
 }
 
-export function playLeaveControl(
+export function createPlayLeaveControl(
   loaded: Signal<boolean>,
   submitted: () => boolean,
   askConfirmation: () => void,

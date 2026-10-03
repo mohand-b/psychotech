@@ -18,8 +18,8 @@ import {
   scoreReactivitySession,
 } from '@psychotech/shared';
 import {
-  logicFamilyBoundaries,
-  logicItemsForResult,
+  findLogicFamilyBoundaries,
+  regenerateLogicItems,
 } from '../../../shared/ui/logic-result-items';
 import { ResultFamilyBars } from '../../../shared/ui/result-family-bars/result-family-bars';
 import {
@@ -108,7 +108,7 @@ export class SimulationAxisDetail {
   protected readonly logicScored = computed(() => {
     const detail = this.detail();
     return detail.axis === AxisType.LOGIC
-      ? scoreLogicSession(logicItemsForResult(detail), detail.items)
+      ? scoreLogicSession(regenerateLogicItems(detail), detail.items)
       : null;
   });
 
@@ -198,7 +198,7 @@ export class SimulationAxisDetail {
   protected readonly logicBoundaries = computed<number[]>(() => {
     const detail = this.detail();
     return detail.axis === AxisType.LOGIC
-      ? logicFamilyBoundaries(logicItemsForResult(detail))
+      ? findLogicFamilyBoundaries(regenerateLogicItems(detail))
       : [];
   });
 

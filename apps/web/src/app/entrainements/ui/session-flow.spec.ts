@@ -8,9 +8,9 @@ import {
 } from '@psychotech/shared';
 import { TUTORIAL_SESSION_ID } from '../data-access/tutorial-session.facade';
 import {
-  afterAxisSubmitRoute,
-  inactiveSessionRoute,
-  simulationCurrentAxis,
+  resolveRouteAfterAxis,
+  resolveInactiveSessionRoute,
+  findCurrentSimulationAxis,
 } from './session-flow';
 
 const FULL_ORDER = [
@@ -59,24 +59,24 @@ function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
   };
 }
 
-describe('simulationCurrentAxis', () => {
+describe('findCurrentSimulationAxis', () => {
   it('returns the axis at the current index', () => {
-    expect(simulationCurrentAxis(buildSession({ currentAxisIndex: 2 }))).toBe(
-      AxisType.VISUAL_DISCRIMINATION,
-    );
+    expect(
+      findCurrentSimulationAxis(buildSession({ currentAxisIndex: 2 })),
+    ).toBe(AxisType.VISUAL_DISCRIMINATION);
   });
 
   it('returns null once every axis is played', () => {
     expect(
-      simulationCurrentAxis(buildSession({ currentAxisIndex: 5 })),
+      findCurrentSimulationAxis(buildSession({ currentAxisIndex: 5 })),
     ).toBeNull();
   });
 });
 
-describe('afterAxisSubmitRoute', () => {
+describe('resolveRouteAfterAxis', () => {
   it('routes a targeted session to its axis result page', () => {
     expect(
-      afterAxisSubmitRoute(
+      resolveRouteAfterAxis(
         buildSession({ mode: SessionMode.TARGETED }),
         AxisType.MEMORY,
       ),
@@ -91,7 +91,7 @@ describe('afterAxisSubmitRoute', () => {
 
   it('routes a running simulation to the next axis briefing', () => {
     expect(
-      afterAxisSubmitRoute(
+      resolveRouteAfterAxis(
         buildSession({ currentAxisIndex: 1 }),
         AxisType.LOGIC,
       ),
@@ -100,7 +100,7 @@ describe('afterAxisSubmitRoute', () => {
 
   it('routes a completed simulation to the session results', () => {
     expect(
-      afterAxisSubmitRoute(
+      resolveRouteAfterAxis(
         buildSession({
           status: SessionStatus.COMPLETED,
           currentAxisIndex: 5,
@@ -111,10 +111,10 @@ describe('afterAxisSubmitRoute', () => {
   });
 });
 
-describe('inactiveSessionRoute', () => {
+describe('resolveInactiveSessionRoute', () => {
   it('routes a completed targeted session to its axis result page', () => {
     expect(
-      inactiveSessionRoute(
+      resolveInactiveSessionRoute(
         buildSession({
           mode: SessionMode.TARGETED,
           status: SessionStatus.COMPLETED,
@@ -138,7 +138,7 @@ describe('inactiveSessionRoute', () => {
       completedAt: '2026-07-11T10:45:00.000Z',
     });
     for (const axis of FULL_ORDER) {
-      expect(inactiveSessionRoute(completed, axis)).toEqual([
+      expect(resolveInactiveSessionRoute(completed, axis)).toEqual([
         '/sessions',
         'session-1',
         'resultat',
@@ -148,7 +148,7 @@ describe('inactiveSessionRoute', () => {
 
   it('routes a completed tutorial session to the tutorial end page', () => {
     expect(
-      inactiveSessionRoute(
+      resolveInactiveSessionRoute(
         buildSession({
           id: TUTORIAL_SESSION_ID,
           mode: SessionMode.TARGETED,
@@ -170,7 +170,7 @@ describe('inactiveSessionRoute', () => {
     'routes a $status $mode session back to the training hub',
     ({ status, mode }) => {
       expect(
-        inactiveSessionRoute(
+        resolveInactiveSessionRoute(
           buildSession({ status, mode, currentAxisIndex: 2 }),
           AxisType.VISUAL_DISCRIMINATION,
         ),
@@ -180,7 +180,7 @@ describe('inactiveSessionRoute', () => {
 
   it('routes an abandoned full session with every axis played back to the training hub', () => {
     expect(
-      inactiveSessionRoute(
+      resolveInactiveSessionRoute(
         buildSession({
           status: SessionStatus.ABANDONED,
           currentAxisIndex: 5,
@@ -193,7 +193,7 @@ describe('inactiveSessionRoute', () => {
 
   it('routes an abandoned tutorial session back to the training hub', () => {
     expect(
-      inactiveSessionRoute(
+      resolveInactiveSessionRoute(
         buildSession({
           id: TUTORIAL_SESSION_ID,
           mode: SessionMode.TARGETED,

@@ -7,11 +7,11 @@ export class TutorialRunFacade {
 
   readonly result: Signal<TutorialRunResult | null> = this.store.result;
 
-  record(result: TutorialRunResult): void {
+  recordRunResult(result: TutorialRunResult): void {
     this.store.setResult(result);
   }
 
-  clear(): void {
+  clearRunResult(): void {
     this.store.setResult(null);
   }
 }

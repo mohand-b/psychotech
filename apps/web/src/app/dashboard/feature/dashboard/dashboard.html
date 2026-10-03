@@ -95,7 +95,7 @@
                   size="lg"
                   block="mobile"
                   [icon]="playIcon"
-                  (click)="resume()"
+                  (click)="resumeCurrentSession()"
                 >
                   Reprendre la session
                 </ui-button>
@@ -107,7 +107,7 @@
                   size="lg"
                   block="mobile"
                   [showArrow]="true"
-                  (click)="train()"
+                  (click)="openTrainings()"
                 >
                   S'entraîner
                 </ui-button>
@@ -119,7 +119,7 @@
                   size="lg"
                   block="mobile"
                   [showArrow]="true"
-                  (click)="train()"
+                  (click)="openTrainings()"
                 >
                   Lancer ma première session
                 </ui-button>
@@ -390,7 +390,7 @@
               color="neutral"
               block="mobile"
               [showArrow]="true"
-              (click)="workWeakAxis()"
+              (click)="openWeakAxisTraining()"
             >
               Travailler cet axe
             </ui-button>

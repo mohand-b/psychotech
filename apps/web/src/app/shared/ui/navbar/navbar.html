@@ -31,7 +31,7 @@
           >{{ current.firstName }} {{ current.lastName }}</a
         >
       }
-      <button type="button" class="logout" (click)="logout()">
+      <button type="button" class="logout" (click)="requestLogout()">
         <ui-icon [img]="logOutIcon" [size]="15" />
         <span>Déconnexion</span>
       </button>
@@ -73,7 +73,7 @@
         type="button"
         class="logout-mobile"
         aria-label="Déconnexion"
-        (click)="logout()"
+        (click)="requestLogout()"
       >
         <ui-icon [img]="logOutIcon" [size]="17" />
       </button>

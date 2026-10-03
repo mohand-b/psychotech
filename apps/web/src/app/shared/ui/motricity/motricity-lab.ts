@@ -19,7 +19,7 @@ interface MotricityLabEntry {
   meta: string;
 }
 
-function randomSeed(): string {
+function createRandomSeed(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
@@ -30,7 +30,11 @@ function randomSeed(): string {
   template: `
     <div class="lab">
       <div class="lab__controls">
-        <button type="button" class="lab__generate" (click)="generate()">
+        <button
+          type="button"
+          class="lab__generate"
+          (click)="regenerateWithRandomSeed()"
+        >
           Générer
         </button>
         <label class="lab__field">
@@ -102,7 +106,7 @@ function randomSeed(): string {
   `,
 })
 export class MotricityLab {
-  protected readonly seed = signal(randomSeed());
+  protected readonly seed = signal(createRandomSeed());
 
   protected readonly entries = computed<MotricityLabEntry[] | null>(() => {
     try {
@@ -119,8 +123,8 @@ export class MotricityLab {
     }
   });
 
-  protected generate(): void {
-    this.seed.set(randomSeed());
+  protected regenerateWithRandomSeed(): void {
+    this.seed.set(createRandomSeed());
   }
 
   protected copySeed(): void {

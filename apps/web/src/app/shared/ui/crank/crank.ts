@@ -8,7 +8,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { crankAngleDelta, crankPointerAngle } from '../../util/gamepad-logic';
+import {
+  computeCrankAngleDelta,
+  computeCrankPointerAngle,
+} from '../../util/gamepad-logic';
 
 const VIEWBOX_SIZE = 160;
 const CENTER = VIEWBOX_SIZE / 2;
@@ -95,35 +98,35 @@ export class Crank {
     () => Math.min(1, Math.abs(this.speed())) * TRAIL_MAX_OPACITY,
   );
 
-  protected onPointerDown(event: PointerEvent): void {
+  protected startCrankDrag(event: PointerEvent): void {
     if (this.disabled()) {
       return;
     }
     (event.target as Element).setPointerCapture(event.pointerId);
     this.pointerId = event.pointerId;
-    this.lastPointerAngle = this.pointerAngle(event);
+    this.lastPointerAngle = this.computePointerAngle(event);
   }
 
-  protected onPointerMove(event: PointerEvent): void {
+  protected rotateCrankByDrag(event: PointerEvent): void {
     if (this.disabled() || event.pointerId !== this.pointerId) {
       return;
     }
-    const angle = this.pointerAngle(event);
-    const delta = crankAngleDelta(this.lastPointerAngle, angle);
+    const angle = this.computePointerAngle(event);
+    const delta = computeCrankAngleDelta(this.lastPointerAngle, angle);
     this.lastPointerAngle = angle;
     this.handleAngle.update((current) => current + delta);
     this.rotated.emit(delta);
   }
 
-  protected onPointerEnd(event: PointerEvent): void {
+  protected endCrankDrag(event: PointerEvent): void {
     if (event.pointerId === this.pointerId) {
       this.pointerId = null;
     }
   }
 
-  private pointerAngle(event: PointerEvent): number {
+  private computePointerAngle(event: PointerEvent): number {
     const rect = this.surface().nativeElement.getBoundingClientRect();
-    return crankPointerAngle(
+    return computeCrankPointerAngle(
       rect.left + rect.width / 2,
       rect.top + rect.height / 2,
       event.clientX,

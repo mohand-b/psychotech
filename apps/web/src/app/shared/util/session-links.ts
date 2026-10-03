@@ -1,39 +1,39 @@
 import { AxisType } from '@psychotech/shared';
-import { axisSlug } from './axis-slug';
+import { resolveAxisSlug } from './axis-slug';
 
-export function sessionResultRoute(sessionId: string): string[] {
+export function buildSimulationResultRoute(sessionId: string): string[] {
   return ['/sessions', sessionId, 'resultat'];
 }
 
-export function simulationSessionRoute(sessionId: string): string[] {
+export function buildSimulationSessionRoute(sessionId: string): string[] {
   return ['/entrainements/examen-blanc/session', sessionId];
 }
 
-export function targetedAxisRoute(axis: AxisType): string[] {
-  return ['/entrainements/cible', axisSlug(axis)];
+export function buildTargetedAxisRoute(axis: AxisType): string[] {
+  return ['/entrainements/cible', resolveAxisSlug(axis)];
 }
 
-export function tutorialAxisRoute(axis: AxisType): string[] {
-  return ['/entrainements/tutoriel', axisSlug(axis)];
+export function buildTutorialAxisRoute(axis: AxisType): string[] {
+  return ['/entrainements/tutoriel', resolveAxisSlug(axis)];
 }
 
-export function targetedSessionRoute(
+export function buildTargetedSessionRoute(
   axis: AxisType,
   sessionId: string,
 ): string[] {
-  return [...targetedAxisRoute(axis), 'session', sessionId];
+  return [...buildTargetedAxisRoute(axis), 'session', sessionId];
 }
 
-export function targetedResultRoute(
+export function buildTargetedResultRoute(
   axis: AxisType,
   sessionId: string,
 ): string[] {
-  return [...targetedSessionRoute(axis, sessionId), 'resultat'];
+  return [...buildTargetedSessionRoute(axis, sessionId), 'resultat'];
 }
 
-export function targetedCorrectionRoute(
+export function buildTargetedCorrectionRoute(
   axis: AxisType,
   sessionId: string,
 ): string[] {
-  return [...targetedSessionRoute(axis, sessionId), 'correction'];
+  return [...buildTargetedSessionRoute(axis, sessionId), 'correction'];
 }

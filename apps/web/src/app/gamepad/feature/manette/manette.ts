@@ -65,18 +65,24 @@ export class Manette {
   });
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.facade.release());
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
+    this.destroyRef.onDestroy(() => this.facade.disconnectFromDesktop());
+    document.addEventListener(
+      'visibilitychange',
+      this.refreshWakeLockWhenVisible,
+    );
     this.destroyRef.onDestroy(() =>
-      document.removeEventListener('visibilitychange', this.onVisibilityChange),
+      document.removeEventListener(
+        'visibilitychange',
+        this.refreshWakeLockWhenVisible,
+      ),
     );
     const token = this.route.snapshot.queryParamMap.get('t');
     if (token) {
-      this.connect(token);
+      this.connectToDesktop(token);
     }
   }
 
-  protected onCodeInput(event: Event): void {
+  protected updatePairingCode(event: Event): void {
     const digits = (event.target as HTMLInputElement).value
       .replace(/\D/g, '')
       .slice(0, GAMEPAD_PAIRING_CODE_LENGTH);
@@ -84,28 +90,28 @@ export class Manette {
     this.code.set(digits);
   }
 
-  protected submitCode(): void {
+  protected submitPairingCode(): void {
     if (this.codeReady()) {
-      this.connect(this.code());
+      this.connectToDesktop(this.code());
     }
   }
 
-  protected onLeftRotate(deltaRad: number): void {
+  protected pushLeftRotation(deltaRad: number): void {
     this.facade.pushLeftRotation(deltaRad);
   }
 
-  protected onRightRotate(deltaRad: number): void {
+  protected pushRightRotation(deltaRad: number): void {
     this.facade.pushRightRotation(deltaRad);
   }
 
-  private connect(token: string): void {
+  private connectToDesktop(token: string): void {
     const forceRelay =
       isDevMode() &&
       this.route.snapshot.queryParamMap.get('transport') === 'relay';
-    this.facade.connect(token, forceRelay);
+    this.facade.connectToDesktop(token, forceRelay);
   }
 
-  private readonly onVisibilityChange = (): void => {
+  private readonly refreshWakeLockWhenVisible = (): void => {
     if (document.visibilityState === 'visible') {
       this.facade.refreshWakeLock();
     }

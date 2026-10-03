@@ -90,14 +90,14 @@
             <article
               class="bilan__axis-card"
               [class.bilan__axis-card--eliminatory]="
-                isUnderEliminatory(axis.axis)
+                isUnderEliminatoryThreshold(axis.axis)
               "
             >
               <button
                 type="button"
                 class="bilan__axis-row"
                 [attr.aria-expanded]="openAxis() === axis.axis"
-                (click)="toggle(axis.axis)"
+                (click)="toggleAxisDetail(axis.axis)"
               >
                 <span class="bilan__axis-line">
                   <ui-axis-label [axis]="axis.axis" />
@@ -110,12 +110,12 @@
                   />
                   <span
                     class="bilan__axis-dot"
-                    [style.background]="axisDotVar(axis)"
+                    [style.background]="resolveAxisDotColor(axis)"
                   ></span>
                   <span
                     class="bilan__axis-score t-mono"
                     [class.bilan__axis-score--eliminatory]="
-                      isUnderEliminatory(axis.axis)
+                      isUnderEliminatoryThreshold(axis.axis)
                     "
                     >{{ axis.score }}</span
                   >
@@ -151,7 +151,7 @@
                     <ui-simulation-axis-detail
                       [detail]="detail"
                       [showReview]="!isExample"
-                      (review)="reviewAxis(axis.axis)"
+                      (review)="navigateToAxisCorrection(axis.axis)"
                     />
                   } @else if (loadingAxis() === axis.axis) {
                     <p class="bilan__detail-loading">Chargement du détail...</p>
@@ -220,7 +220,7 @@
                       presentations[weakness.axis].label
                     }}</span>
                     <span class="bilan__side-why">{{
-                      weaknessMention(weakness)
+                      describeWeaknessThreshold(weakness)
                     }}</span>
                   </span>
                   <span class="bilan__side-score t-mono"
@@ -338,9 +338,9 @@
                 <ui-button
                   class="bilan__next-cta"
                   appearance="ghost"
-                  [color]="buttonColorFor(recommendation.axis)"
+                  [color]="resolveAxisButtonColor(recommendation.axis)"
                   [block]="true"
-                  (click)="trainAxis(recommendation.axis)"
+                  (click)="navigateToAxisStart(recommendation.axis)"
                 >
                   Entraîner cet axe
                 </ui-button>
@@ -352,19 +352,26 @@
     }
 
     @if (celebration.announceView(); as announce) {
-      <ui-badge-announce [view]="announce" (replay)="celebration.replay()" />
+      <ui-badge-announce
+        [view]="announce"
+        (replay)="celebration.replayCelebration()"
+      />
     }
 
     @if (isExample) {
       <ui-action-footer>
-        <ui-button color="brand" block="mobile" (click)="startForFree()">
+        <ui-button
+          color="brand"
+          block="mobile"
+          (click)="navigateToRegistration()"
+        >
           Obtenez votre propre bilan gratuitement
         </ui-button>
         <ui-button
           color="neutral"
           appearance="outlined"
           block="mobile"
-          (click)="discover()"
+          (click)="navigateToLanding()"
         >
           Découvrir PsychoTech Training
         </ui-button>
@@ -375,7 +382,7 @@
           color="brand"
           [icon]="playIcon"
           block="mobile"
-          (click)="newTraining()"
+          (click)="navigateToSimulationStart()"
         >
           Nouvel entraînement
         </ui-button>
@@ -390,7 +397,7 @@
           color="neutral"
           appearance="outlined"
           block="mobile"
-          (click)="back()"
+          (click)="navigateToTrainings()"
         >
           Retour aux entraînements
         </ui-button>

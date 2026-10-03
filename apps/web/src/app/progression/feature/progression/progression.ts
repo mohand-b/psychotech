@@ -37,19 +37,19 @@ import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
 import { formatDayMonth } from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
-  daysSince,
+  countDaysSince,
   formatSessionDate,
 } from '../../../shared/util/format-session-date';
 import { ProgressionFacade } from '../../data-access/progression.facade';
 import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
 import {
   SparklineGeometry,
-  axisScoresWithinWindow,
-  sparklinePoints,
+  extractScoresWithinWindow,
+  buildSparklinePoints,
 } from './axis-row-metrics';
 import {
-  sessionResultRoute,
-  targetedResultRoute,
+  buildSimulationResultRoute,
+  buildTargetedResultRoute,
 } from '../../../shared/util/session-links';
 
 const EVOLUTION_DISPLAY_LIMIT = 10;
@@ -69,8 +69,8 @@ interface AxisRowView {
   clickable: boolean;
 }
 
-function relativeDayLabel(iso: string): string {
-  const diff = daysSince(iso);
+function formatRelativeDay(iso: string): string {
+  const diff = countDaysSince(iso);
   if (diff === 0) {
     return "aujourd'hui";
   }
@@ -103,7 +103,7 @@ export class Progression {
 
   constructor() {
     this.catalogFacade.loadSectorReferential(this.sector);
-    this.overviewFacade.load(this.sector);
+    this.overviewFacade.loadOverview(this.sector);
   }
 
   protected readonly progression = this.facade.progression;
@@ -195,15 +195,15 @@ export class Progression {
       ]),
     );
     return axes.map((axis) =>
-      this.buildRow(axis, overviewByAxis.get(axis.axis)),
+      this.buildAxisRow(axis, overviewByAxis.get(axis.axis)),
     );
   });
 
-  private buildRow(
+  private buildAxisRow(
     axis: AxisProgressionDto,
     overview: TrainingsAxisOverviewDto | undefined,
   ): AxisRowView {
-    const scores = axisScoresWithinWindow(axis.sparkline, this.now);
+    const scores = extractScoresWithinWindow(axis.sparkline, this.now);
     const neverPlayed = overview?.neverPlayed ?? axis.currentScore === null;
     return {
       axis: axis.axis,
@@ -213,7 +213,7 @@ export class Progression {
         overview?.bestScore == null ? null : Math.round(overview.bestScore),
       lastScore:
         axis.currentScore === null ? null : Math.round(axis.currentScore),
-      sparklinePoints: sparklinePoints(scores, SPARKLINE_GEOMETRY),
+      sparklinePoints: buildSparklinePoints(scores, SPARKLINE_GEOMETRY),
       clickable: axis.lastSessionId !== null,
     };
   }
@@ -241,7 +241,7 @@ export class Progression {
   protected readonly radarLastDate = computed(() => {
     const evolution = this.progression()?.evolution ?? [];
     const last = evolution[evolution.length - 1];
-    return last ? relativeDayLabel(last.date) : null;
+    return last ? formatRelativeDay(last.date) : null;
   });
 
   protected readonly strongestGain = computed(() => {
@@ -273,11 +273,11 @@ export class Progression {
       : null;
   });
 
-  protected openSession(sessionId: string): void {
-    this.router.navigate(sessionResultRoute(sessionId));
+  protected openSimulationResult(sessionId: string): void {
+    this.router.navigate(buildSimulationResultRoute(sessionId));
   }
 
-  protected openAxis(axis: AxisType): void {
+  protected openAxisLastResult(axis: AxisType): void {
     const row = (this.progression()?.axes ?? []).find(
       (entry) => entry.axis === axis,
     );
@@ -285,9 +285,9 @@ export class Progression {
       return;
     }
     if (row.lastSessionMode === SessionMode.TARGETED) {
-      this.router.navigate(targetedResultRoute(axis, row.lastSessionId));
+      this.router.navigate(buildTargetedResultRoute(axis, row.lastSessionId));
       return;
     }
-    this.router.navigate(sessionResultRoute(row.lastSessionId));
+    this.router.navigate(buildSimulationResultRoute(row.lastSessionId));
   }
 }

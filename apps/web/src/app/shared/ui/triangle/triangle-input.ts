@@ -44,7 +44,7 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
             class="pad__key t-mono"
             [class.pad__key--zero]="digit === 0"
             [disabled]="disabled()"
-            (click)="onDigit(digit)"
+            (click)="appendDigit(digit)"
           >
             {{ digit }}
           </button>
@@ -55,7 +55,7 @@ export function eraseTriangleInputDigit(current: number | null): number | null {
           title="Effacer le dernier chiffre"
           aria-label="Effacer le dernier chiffre"
           [disabled]="disabled()"
-          (click)="onErase()"
+          (click)="eraseLastDigit()"
         >
           <svg
             width="18"
@@ -239,14 +239,14 @@ export class TriangleInput {
 
   protected readonly digits = DIGITS;
 
-  protected onDigit(digit: number): void {
+  protected appendDigit(digit: number): void {
     const next = appendTriangleInputDigit(this.value(), digit);
     if (next !== this.value()) {
       this.valueChange.emit(next);
     }
   }
 
-  protected onErase(): void {
+  protected eraseLastDigit(): void {
     const next = eraseTriangleInputDigit(this.value());
     if (next !== this.value()) {
       this.valueChange.emit(next);

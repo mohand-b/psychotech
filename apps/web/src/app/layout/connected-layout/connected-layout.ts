@@ -28,7 +28,7 @@ import { EnergyFacade } from '../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../sessions/data-access/training-session.facade';
 import { ChevronStep } from '../../shared/ui/chevron-stepper/chevron-stepper';
 import { AxisLabel } from '../../shared/ui/axis-label/axis-label';
-import { axisFromSlug } from '../../shared/util/axis-slug';
+import { parseAxisSlug } from '../../shared/util/axis-slug';
 import { FocusedHeader } from '../../shared/ui/focused-header/focused-header';
 import { formatDuration } from '../../shared/ui/format-duration';
 import { Navbar } from '../../shared/ui/navbar/navbar';
@@ -168,9 +168,9 @@ export class ConnectedLayout {
     });
   }
 
-  protected onCloseRequested(header: FocusedHeaderView): void {
+  protected closeFocusedScreen(header: FocusedHeaderView): void {
     if (header.live) {
-      this.trainingSessionFacade.requestClose();
+      this.trainingSessionFacade.requestSessionClose();
       return;
     }
     if (header.closeLink) {
@@ -178,7 +178,7 @@ export class ConnectedLayout {
     }
   }
 
-  private deepestSnapshot() {
+  private findDeepestSnapshot() {
     let route: ActivatedRoute | null = this.route;
     while (route?.firstChild) {
       route = route.firstChild;
@@ -187,25 +187,25 @@ export class ConnectedLayout {
   }
 
   private readHideMobileNav(): boolean {
-    return this.deepestSnapshot()?.data?.['hideMobileNav'] === true;
+    return this.findDeepestSnapshot()?.data?.['hideMobileNav'] === true;
   }
 
   private readHideMobileHeader(): boolean {
-    return this.deepestSnapshot()?.data?.['hideMobileHeader'] === true;
+    return this.findDeepestSnapshot()?.data?.['hideMobileHeader'] === true;
   }
 
   private readMobileFlow(): MobileFlowView | null {
-    const snapshot = this.deepestSnapshot();
+    const snapshot = this.findDeepestSnapshot();
     const data = snapshot?.data?.['mobileFlow'] as MobileFlowData | undefined;
     if (!data) {
       return null;
     }
-    const axis = axisFromSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
+    const axis = parseAxisSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
     return axis ? { axis, suffix: data.suffix } : null;
   }
 
   private readFocusedHeader(): FocusedHeaderView | null {
-    const snapshot = this.deepestSnapshot();
+    const snapshot = this.findDeepestSnapshot();
     const data = snapshot?.data?.['focusedHeader'] as
       | FocusedHeaderData
       | undefined;
@@ -224,7 +224,9 @@ export class ConnectedLayout {
     let duration: string | null = null;
     let axisChip: AxisType | null = null;
     if (data.axisParam) {
-      const axis = axisFromSlug(snapshot?.paramMap.get(data.axisParam) ?? null);
+      const axis = parseAxisSlug(
+        snapshot?.paramMap.get(data.axisParam) ?? null,
+      );
       if (axis) {
         title = data.title ?? AXIS_META[axis].label;
         axisChip = data.axisChip ? axis : null;

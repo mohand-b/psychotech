@@ -6,9 +6,9 @@
   </div>
   <div class="chart__frame">
     <div class="chart__y-axis t-mono" aria-hidden="true">
-      <span [style.bottom.%]="yTickBottom(100)">100</span>
-      <span [style.bottom.%]="yTickBottom(50)">50</span>
-      <span [style.bottom.%]="yTickBottom(0)">0</span>
+      <span [style.bottom.%]="computeTickBottomPct(100)">100</span>
+      <span [style.bottom.%]="computeTickBottomPct(50)">50</span>
+      <span [style.bottom.%]="computeTickBottomPct(0)">0</span>
     </div>
     <div class="chart__plot" uiChartTouchTips>
       @for (zone of zones(); track zone.label) {

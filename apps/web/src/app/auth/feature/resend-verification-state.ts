@@ -14,7 +14,7 @@ export class ResendVerificationState {
   readonly resent = signal(false);
   readonly cooldownSeconds = signal<number | null>(null);
 
-  resend(): void {
+  resendVerification(): void {
     if (this.sending() || this.cooldownSeconds() !== null) {
       return;
     }

@@ -20,7 +20,10 @@ function setup() {
     providers: [
       provideHttpClient(withInterceptors([newBadgesInterceptor])),
       provideHttpClientTesting(),
-      { provide: EnergyFacade, useValue: { reload: energyReload } },
+      {
+        provide: EnergyFacade,
+        useValue: { reloadEnergyBalance: energyReload },
+      },
     ],
   });
   return {

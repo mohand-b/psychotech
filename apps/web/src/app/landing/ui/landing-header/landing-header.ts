@@ -5,7 +5,7 @@ import { LANDING_ROUTE, LandingLink } from '../../util/landing-link';
 import {
   LANDING_SECTION,
   LandingSectionId,
-  landingAnchorHref,
+  buildLandingAnchorHref,
 } from '../../util/landing-sections';
 import { LandingButton } from '../landing-button/landing-button';
 
@@ -31,7 +31,7 @@ export class LandingHeader {
     route: LANDING_ROUTE.dashboard,
   };
 
-  protected anchor(section: LandingSectionId): string {
-    return landingAnchorHref(section, this.onLanding());
+  protected buildSectionHref(section: LandingSectionId): string {
+    return buildLandingAnchorHref(section, this.onLanding());
   }
 }

@@ -2,7 +2,7 @@
   <button
     type="button"
     class="guide__bar-back"
-    (click)="back()"
+    (click)="navigateToPreviousPage()"
     aria-label="Revenir en arrière"
   >
     <ui-icon [img]="backIcon" [size]="20" [strokeWidth]="2.2" />
@@ -15,7 +15,7 @@
     <button
       type="button"
       class="guide__back hidden md:inline-flex"
-      (click)="back()"
+      (click)="navigateToPreviousPage()"
     >
       <ui-icon [img]="backIcon" [size]="16" [strokeWidth]="2" />
       Retour
@@ -607,7 +607,7 @@
     [marked]="guideRead()"
     label="J'ai compris les règles"
     markedLabel="Règles comprises"
-    (mark)="markRead()"
+    (mark)="markGuideRead()"
   />
 
   <aside class="rules__footer flex flex-col items-center">

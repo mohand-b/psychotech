@@ -59,8 +59,8 @@ import {
   formatSignedGap,
 } from './trainings-overview-view';
 import {
-  targetedAxisRoute,
-  tutorialAxisRoute,
+  buildTargetedAxisRoute,
+  buildTutorialAxisRoute,
 } from '../../../shared/util/session-links';
 
 interface AxisRowView {
@@ -159,7 +159,7 @@ export class Entrainements {
   protected readonly animationsReady = signal(false);
 
   constructor() {
-    this.facade.load(this.sector);
+    this.facade.loadOverview(this.sector);
     afterNextRender(() => {
       requestAnimationFrame(() => this.animationsReady.set(true));
     });
@@ -174,7 +174,7 @@ export class Entrainements {
       const copy = AXIS_OVERVIEW_COPY[entry.axis];
       return {
         axis: entry.axis,
-        link: targetedAxisRoute(entry.axis),
+        link: buildTargetedAxisRoute(entry.axis),
         presentation: AXIS_PRESENTATION[entry.axis],
         description: copy?.description ?? '',
         mobileDescription: copy?.mobileDescription ?? '',
@@ -189,14 +189,14 @@ export class Entrainements {
   protected readonly tutorialAxes: TutorialAxisView[] =
     FULL_SESSION_AXIS_ORDER.map((axis) => ({
       axis,
-      link: tutorialAxisRoute(axis),
+      link: buildTutorialAxisRoute(axis),
       presentation: AXIS_PRESENTATION[axis],
     }));
 
   protected readonly lastSimulation = computed<LastSimulationView | null>(
     () => {
       const simulation = this.facade.overview()?.lastSimulation ?? null;
-      return simulation ? this.toLastSimulationView(simulation) : null;
+      return simulation ? this.buildLastSimulationView(simulation) : null;
     },
   );
 
@@ -215,18 +215,18 @@ export class Entrainements {
   protected readonly skeletonAxisRows = [0, 1, 2, 3, 4];
 
   protected retryOverview(): void {
-    this.facade.reload();
+    this.facade.reloadOverview();
   }
 
   protected openPanel(panel: TrainingsPanel): void {
     this.panel.set(panel);
   }
 
-  protected startSimulation(): void {
+  protected navigateToSimulationStart(): void {
     this.router.navigate(['/entrainements/examen-blanc']);
   }
 
-  private toLastSimulationView(
+  private buildLastSimulationView(
     simulation: TrainingsLastSimulationDto,
   ): LastSimulationView {
     return {

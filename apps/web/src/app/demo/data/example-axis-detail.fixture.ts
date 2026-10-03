@@ -49,7 +49,11 @@ interface DetailContext {
   completedAt: string;
 }
 
-function base(score: number, band: ScoreBand, context: DetailContext) {
+function buildAxisDetailBase(
+  score: number,
+  band: ScoreBand,
+  context: DetailContext,
+) {
   return {
     sessionId: EXAMPLE_SESSION_ID,
     earnedBadges: [],
@@ -68,7 +72,7 @@ function base(score: number, band: ScoreBand, context: DetailContext) {
   };
 }
 
-function logicAnswers(): LogicItemAnswerDto[] {
+function buildLogicAnswers(): LogicItemAnswerDto[] {
   const items = generateLogicSession(
     EXAMPLE_SEED,
     null,
@@ -127,7 +131,7 @@ function logicAnswers(): LogicItemAnswerDto[] {
   });
 }
 
-function memoryAnswers(): MemorySequenceAnswerDto[] {
+function buildMemoryAnswers(): MemorySequenceAnswerDto[] {
   const sequences = generateMemorySession(EXAMPLE_SEED);
   return sequences.map((sequence, index) => {
     const input: (number | null)[] = [...expectedMemoryAnswer(sequence)];
@@ -143,7 +147,7 @@ function memoryAnswers(): MemorySequenceAnswerDto[] {
   });
 }
 
-function discriminationAnswers(): DiscriminationTrialAnswerDto[] {
+function buildDiscriminationAnswers(): DiscriminationTrialAnswerDto[] {
   const trials = generateDiscriminationSession(EXAMPLE_SEED);
   const rng = createSeededRng(`${EXAMPLE_SEED}:discrimination`);
   return trials.map((trial) => {
@@ -158,7 +162,7 @@ function discriminationAnswers(): DiscriminationTrialAnswerDto[] {
   });
 }
 
-function reactivityAnswers(): ReactivityStimulusAnswerDto[] {
+function buildReactivityAnswers(): ReactivityStimulusAnswerDto[] {
   const stimuli = generateReactivitySession(EXAMPLE_SEED);
   const rng = createSeededRng(`${EXAMPLE_SEED}:reactivity`);
   return stimuli.map((stimulus, index) => {
@@ -188,7 +192,9 @@ interface CourseShape {
   events: number[];
 }
 
-function motricityTimeline(shapes: CourseShape[]): MotricityCourseTimeline[] {
+function buildMotricityTimelines(
+  shapes: CourseShape[],
+): MotricityCourseTimeline[] {
   return shapes.map((shape) => {
     const rng = createSeededRng(`${EXAMPLE_SEED}:motricity:${shape.index}`);
     const points: MotricityTimelinePoint[] = [];
@@ -258,7 +264,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
       jitterMs: null,
     },
   ],
-  timeline: motricityTimeline(MOTRICITY_COURSE_SHAPES),
+  timeline: buildMotricityTimelines(MOTRICITY_COURSE_SHAPES),
   events: [
     {
       courseIndex: 1,
@@ -278,7 +284,7 @@ const MOTRICITY_METRICS: MotorSkillsMetrics = {
   ],
 };
 
-function motricityScore(): number {
+function computeMotricityScore(): number {
   const scores = MOTRICITY_METRICS.courses.map((course) =>
     scoreMotricityRecap(course),
   );
@@ -292,13 +298,13 @@ function motricityScore(): number {
   return Math.round(weightedSum / totalWeight);
 }
 
-export function exampleAxisFindings(): AxisFindingsEntry[] {
+export function buildExampleAxisFindings(): AxisFindingsEntry[] {
   const logicItems = generateLogicSession(
     EXAMPLE_SEED,
     null,
     SESSION_CONTENT_VERSION,
   );
-  const logicResponses = logicAnswers();
+  const logicResponses = buildLogicAnswers();
   const logicRuleItems: LogicRuleItem[] = logicItems.map((item) => ({
     index: item.index,
     ruleId: item.rule.id,
@@ -325,7 +331,7 @@ export function exampleAxisFindings(): AxisFindingsEntry[] {
       axis: AxisType.MEMORY,
       findings: analyzeMemory(
         memorySequences,
-        scoreMemorySession(memorySequences, memoryAnswers()),
+        scoreMemorySession(memorySequences, buildMemoryAnswers()),
       ),
     },
     {
@@ -333,7 +339,7 @@ export function exampleAxisFindings(): AxisFindingsEntry[] {
       findings: analyzeDiscrimination(
         scoreDiscriminationSession(
           generateDiscriminationSession(EXAMPLE_SEED),
-          discriminationAnswers(),
+          buildDiscriminationAnswers(),
         ),
       ),
     },
@@ -342,7 +348,7 @@ export function exampleAxisFindings(): AxisFindingsEntry[] {
       findings: analyzeReactivity(
         scoreReactivitySession(
           generateReactivitySession(EXAMPLE_SEED),
-          reactivityAnswers(),
+          buildReactivityAnswers(),
           [],
         ),
       ),
@@ -354,22 +360,22 @@ export function exampleAxisFindings(): AxisFindingsEntry[] {
   ];
 }
 
-export function exampleAxisScores(): Record<AxisType, number> {
+export function computeExampleAxisScores(): Record<AxisType, number> {
   const logic = scoreLogicSession(
     generateLogicSession(EXAMPLE_SEED, null, SESSION_CONTENT_VERSION),
-    logicAnswers(),
+    buildLogicAnswers(),
   ).score;
   const memory = scoreMemorySession(
     generateMemorySession(EXAMPLE_SEED),
-    memoryAnswers(),
+    buildMemoryAnswers(),
   ).score;
   const discrimination = scoreDiscriminationSession(
     generateDiscriminationSession(EXAMPLE_SEED),
-    discriminationAnswers(),
+    buildDiscriminationAnswers(),
   ).score;
   const reactivity = scoreReactivitySession(
     generateReactivitySession(EXAMPLE_SEED),
-    reactivityAnswers(),
+    buildReactivityAnswers(),
     [],
   ).score;
   return {
@@ -377,7 +383,7 @@ export function exampleAxisScores(): Record<AxisType, number> {
     [AxisType.MEMORY]: memory,
     [AxisType.VISUAL_DISCRIMINATION]: discrimination,
     [AxisType.REACTIVITY]: reactivity,
-    [AxisType.MOTOR_SKILLS]: motricityScore(),
+    [AxisType.MOTOR_SKILLS]: computeMotricityScore(),
   } as Record<AxisType, number>;
 }
 
@@ -385,31 +391,35 @@ export function buildExampleAxisDetail(
   axis: AxisType,
   context: DetailContext,
 ): TargetedAxisResultDto | null {
-  const scores = exampleAxisScores();
+  const scores = computeExampleAxisScores();
   const score = scores[axis];
-  const shared = base(score, avisFromScore(score), context);
+  const shared = buildAxisDetailBase(score, avisFromScore(score), context);
   switch (axis) {
     case AxisType.LOGIC:
       return {
         ...shared,
         axis: AxisType.LOGIC,
-        items: logicAnswers(),
+        items: buildLogicAnswers(),
         contentVersion: SESSION_CONTENT_VERSION,
         logicFamily: null,
       };
     case AxisType.MEMORY:
-      return { ...shared, axis: AxisType.MEMORY, sequences: memoryAnswers() };
+      return {
+        ...shared,
+        axis: AxisType.MEMORY,
+        sequences: buildMemoryAnswers(),
+      };
     case AxisType.VISUAL_DISCRIMINATION:
       return {
         ...shared,
         axis: AxisType.VISUAL_DISCRIMINATION,
-        trials: discriminationAnswers(),
+        trials: buildDiscriminationAnswers(),
       };
     case AxisType.REACTIVITY:
       return {
         ...shared,
         axis: AxisType.REACTIVITY,
-        stimuli: reactivityAnswers(),
+        stimuli: buildReactivityAnswers(),
         waitPresses: [],
       };
     case AxisType.MOTOR_SKILLS:

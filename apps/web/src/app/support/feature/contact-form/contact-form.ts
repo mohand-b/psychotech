@@ -195,7 +195,7 @@ export class ContactForm {
       label: this.mobile() ? label.mobile : label.desktop,
     })),
   );
-  protected readonly contextDetail = this.originPath()
+  protected readonly contextDetail = this.readOriginPath()
     ? "Page d'origine, navigateur et taille d'écran. Rien d'autre."
     : "Navigateur et taille d'écran. Rien d'autre.";
   protected readonly presentation = computed(
@@ -232,14 +232,14 @@ export class ContactForm {
           ? {
               id: requestedId,
               label: 'Session du bilan consulté',
-              reference: this.sessionReference(requestedId),
+              reference: this.formatSessionReference(requestedId),
             }
           : null;
       }
       return {
         id: session.id,
         label: `${SESSION_MODE_LABELS[session.mode]} du ${SESSION_DATE_FORMAT.format(new Date(session.finishedAt))}`,
-        reference: this.sessionReference(session.id),
+        reference: this.formatSessionReference(session.id),
       };
     },
   );
@@ -249,15 +249,15 @@ export class ContactForm {
       this.sendNotice()?.nativeElement.scrollIntoView({ block: 'center' });
     });
     afterNextRender(() => {
-      this.contactFacade.prepare();
+      this.contactFacade.ensureFormToken();
       this.watchViewport();
       if (this.authenticated() && this.historyFacade.items().length === 0) {
-        this.historyFacade.load('ALL');
+        this.historyFacade.loadHistory('ALL');
       }
     });
   }
 
-  protected async onScreenshotPicked(event: Event): Promise<void> {
+  protected async attachScreenshot(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
@@ -274,7 +274,7 @@ export class ContactForm {
     this.screenshotRejected.set(false);
   }
 
-  protected send(): void {
+  protected submitContactMessage(): void {
     if (this.blocked()) {
       return;
     }
@@ -282,8 +282,8 @@ export class ContactForm {
     const motif = this.motif();
     const problem = motif === 'probleme';
     const session = this.attachableSession();
-    this.contactFacade.submit({
-      reason: this.reasonFor(motif, value.location),
+    this.contactFacade.submitContactMessage({
+      reason: this.resolveContactReason(motif, value.location),
       email: value.email.trim(),
       subject: motif === 'question' ? value.subject.trim() : '',
       area: motif === 'suggestion' && value.area !== '' ? value.area : null,
@@ -291,13 +291,13 @@ export class ContactForm {
       message: value.message.trim(),
       honeypot: value.website,
       technicalContext:
-        problem && value.attachContext ? this.collectContext() : null,
+        problem && value.attachContext ? this.collectTechnicalContext() : null,
       sessionId: problem && value.attachSession && session ? session.id : null,
       screenshot: problem ? (this.screenshot()?.payload ?? null) : null,
     });
   }
 
-  reset(): void {
+  clearMessageDraft(): void {
     this.draft.update((model) => ({
       ...model,
       subject: '',
@@ -308,7 +308,7 @@ export class ContactForm {
     this.removeScreenshot();
   }
 
-  private reasonFor(
+  private resolveContactReason(
     motif: ContactMotif,
     location: ContactProblemLocation | '',
   ): ContactReason {
@@ -323,12 +323,12 @@ export class ContactForm {
       : problemReasonFor(location);
   }
 
-  private collectContext(): ContactTechnicalContextDto | null {
+  private collectTechnicalContext(): ContactTechnicalContextDto | null {
     const view = this.document.defaultView;
     if (!view) {
       return null;
     }
-    const origin = this.originPath();
+    const origin = this.readOriginPath();
     return {
       ...(origin
         ? {
@@ -346,14 +346,14 @@ export class ContactForm {
     };
   }
 
-  private originPath(): string | null {
+  private readOriginPath(): string | null {
     const origin = this.route.snapshot.queryParamMap.get(
       CONTACT_ORIGIN_QUERY_PARAM,
     );
     return origin && isSafeReturnUrl(origin) ? origin : null;
   }
 
-  private sessionReference(sessionId: string): string {
+  private formatSessionReference(sessionId: string): string {
     return `S-${sessionId.slice(0, SESSION_REFERENCE_LENGTH).toUpperCase()}`;
   }
 
@@ -363,9 +363,11 @@ export class ContactForm {
       return;
     }
     const media = view.matchMedia(MOBILE_QUERY);
-    const sync = () => this.mobile.set(media.matches);
-    sync();
-    media.addEventListener('change', sync);
-    this.destroyRef.onDestroy(() => media.removeEventListener('change', sync));
+    const syncMobileState = () => this.mobile.set(media.matches);
+    syncMobileState();
+    media.addEventListener('change', syncMobileState);
+    this.destroyRef.onDestroy(() =>
+      media.removeEventListener('change', syncMobileState),
+    );
   }
 }

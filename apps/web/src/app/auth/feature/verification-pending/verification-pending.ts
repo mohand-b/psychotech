@@ -46,7 +46,7 @@ export class VerificationPending {
       if (verifiedAt === null) {
         return;
       }
-      untracked(() => this.leaveAsVerified());
+      untracked(() => this.reloadEnergyAndGoToDashboard());
     });
     interval(PROFILE_POLL_INTERVAL_MS)
       .pipe(
@@ -62,9 +62,9 @@ export class VerificationPending {
     this.router.navigate(['/dashboard']);
   }
 
-  private leaveAsVerified(): void {
+  private reloadEnergyAndGoToDashboard(): void {
     this.energyFacade
-      .load()
+      .loadEnergyBalance()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ error: () => undefined });
     this.router.navigate(['/dashboard']);

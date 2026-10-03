@@ -6,7 +6,7 @@ export const GUIDE_LOGIC_RULES_PATH = '/guide/logique';
 
 export const GUIDE_AXIS_ANCHORS: Record<AxisType, string> = AXIS_SLUGS;
 
-export function guideAxisAnchor(axis: AxisType): string {
+export function resolveGuideAxisAnchor(axis: AxisType): string {
   return GUIDE_AXIS_ANCHORS[axis];
 }
 

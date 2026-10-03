@@ -10,7 +10,7 @@
       type="button"
       class="profilm__tab"
       [class.profilm__tab--active]="section() === item.id"
-      (click)="open(item.id)"
+      (click)="openSection(item.id)"
     >
       <ui-icon [img]="item.icon" [size]="15" [strokeWidth]="1.8" />
       {{ item.label }}
@@ -44,7 +44,7 @@
           type="button"
           class="profil__nav-item"
           [class.profil__nav-item--active]="section() === item.id"
-          (click)="open(item.id)"
+          (click)="openSection(item.id)"
         >
           <ui-icon [img]="item.icon" [size]="16" [strokeWidth]="1.8" />
           {{ item.label }}
@@ -85,7 +85,7 @@
                   <ui-button
                     color="neutral"
                     appearance="outlined"
-                    (click)="startEdit()"
+                    (click)="startAccountEdit()"
                   >
                     Modifier
                   </ui-button>
@@ -161,7 +161,7 @@
                       color="warning"
                       appearance="outlined"
                       [loading]="resendSending()"
-                      (click)="resendVerification()"
+                      (click)="resendConfirmationEmail()"
                     >
                       Renvoyer l'email
                     </ui-button>
@@ -176,13 +176,19 @@
                 <input
                   class="profil__input"
                   [value]="firstName()"
-                  (input)="firstName.set(readValue($event)); touchAccount()"
+                  (input)="
+                    firstName.set(readInputValue($event));
+                    clearAccountSavedStatus()
+                  "
                 />
                 <span class="profil__row-label">Nom</span>
                 <input
                   class="profil__input"
                   [value]="lastName()"
-                  (input)="lastName.set(readValue($event)); touchAccount()"
+                  (input)="
+                    lastName.set(readInputValue($event));
+                    clearAccountSavedStatus()
+                  "
                 />
                 <span class="profil__row-label">Adresse email</span>
                 <span class="profil__form-mail flex flex-col">
@@ -190,7 +196,10 @@
                     class="profil__input"
                     type="email"
                     [value]="email()"
-                    (input)="email.set(readValue($event)); touchAccount()"
+                    (input)="
+                      email.set(readInputValue($event));
+                      clearAccountSavedStatus()
+                    "
                   />
                   <span class="profil__hint"
                     >Un email de confirmation sera envoyé en cas de changement
@@ -213,7 +222,7 @@
                   color="neutral"
                   appearance="outlined"
                   [disabled]="!dirty()"
-                  (click)="cancelEdit()"
+                  (click)="cancelAccountEdit()"
                 >
                   Annuler
                 </ui-button>
@@ -221,7 +230,7 @@
                   color="brand"
                   [disabled]="!canSave()"
                   [loading]="saving()"
-                  (click)="save()"
+                  (click)="saveAccountDetails()"
                 >
                   Enregistrer
                 </ui-button>
@@ -241,7 +250,7 @@
                     appearance="outlined"
                     [block]="true"
                     [loading]="resendSending()"
-                    (click)="resendVerification()"
+                    (click)="resendConfirmationEmail()"
                   >
                     Renvoyer l'email de vérification
                   </ui-button>
@@ -258,7 +267,10 @@
                 <input
                   class="profil__input"
                   [value]="firstName()"
-                  (input)="firstName.set(readValue($event)); touchAccount()"
+                  (input)="
+                    firstName.set(readInputValue($event));
+                    clearAccountSavedStatus()
+                  "
                 />
               </label>
               <label class="profil__field flex flex-col">
@@ -266,7 +278,10 @@
                 <input
                   class="profil__input"
                   [value]="lastName()"
-                  (input)="lastName.set(readValue($event)); touchAccount()"
+                  (input)="
+                    lastName.set(readInputValue($event));
+                    clearAccountSavedStatus()
+                  "
                 />
               </label>
               <label class="profil__field flex flex-col">
@@ -296,7 +311,9 @@
                   class="profil__input"
                   type="email"
                   [value]="email()"
-                  (input)="email.set(readValue($event)); touchAccount()"
+                  (input)="
+                    email.set(readInputValue($event)); clearAccountSavedStatus()
+                  "
                 />
                 <span class="profil__hint"
                   >Un email de confirmation sera envoyé en cas de changement
@@ -344,7 +361,7 @@
               class="shrink-0"
               color="danger"
               appearance="outlined"
-              (click)="openDelete()"
+              (click)="openAccountDeletion()"
             >
               Supprimer
             </ui-button>
@@ -416,7 +433,7 @@
                   type="password"
                   placeholder="Votre mot de passe"
                   [value]="currentPassword()"
-                  (input)="currentPassword.set(readValue($event))"
+                  (input)="currentPassword.set(readInputValue($event))"
                 />
               </label>
               <label class="profil__sec-field">
@@ -427,7 +444,7 @@
                   placeholder="8 caractères minimum"
                   [value]="newPassword()"
                   (input)="
-                    newPassword.set(readValue($event)); pwDone.set(false)
+                    newPassword.set(readInputValue($event)); pwDone.set(false)
                   "
                 />
               </label>
@@ -438,7 +455,7 @@
                   type="password"
                   placeholder="Répétez le mot de passe"
                   [value]="confirmation()"
-                  (input)="confirmation.set(readValue($event))"
+                  (input)="confirmation.set(readInputValue($event))"
                 />
               </label>
               <div class="profil__sec-field profil__sec-field--meter">
@@ -547,7 +564,7 @@
               </span>
               <ui-toggle
                 [checked]="showInFeed()"
-                (checkedChange)="toggleFeed($event)"
+                (checkedChange)="saveFeedVisibility($event)"
                 label="Apparaître dans le fil avec mon prénom"
               />
             </div>
@@ -700,7 +717,7 @@
           appearance="outlined"
           [block]="true"
           [disabled]="mobileCancelDisabled()"
-          (click)="mobileCancel()"
+          (click)="cancelSectionChanges()"
         >
           Annuler
         </ui-button>
@@ -710,7 +727,7 @@
           [block]="true"
           [disabled]="mobileSaveDisabled()"
           [loading]="mobileSaving()"
-          (click)="mobileSave()"
+          (click)="saveSectionChanges()"
         >
           Enregistrer
         </ui-button>
@@ -724,8 +741,8 @@
     class="profil__modal-overlay"
     role="presentation"
     tabindex="-1"
-    (click)="closeDelete()"
-    (keyup.escape)="closeDelete()"
+    (click)="closeAccountDeletion()"
+    (keyup.escape)="closeAccountDeletion()"
   ></div>
   <div
     class="profil__modal flex flex-col"
@@ -745,7 +762,7 @@
         class="profil__input"
         type="password"
         [value]="deletePassword()"
-        (input)="deletePassword.set(readValue($event))"
+        (input)="deletePassword.set(readInputValue($event))"
       />
     </label>
     <label class="profil__field flex flex-col">
@@ -755,7 +772,7 @@
       <input
         class="profil__input"
         [value]="deleteConfirmationInput()"
-        (input)="deleteConfirmationInput.set(readValue($event))"
+        (input)="deleteConfirmationInput.set(readInputValue($event))"
       />
     </label>
     @if (deleteError(); as error) {
@@ -767,7 +784,7 @@
         color="neutral"
         appearance="outlined"
         [block]="true"
-        (click)="closeDelete()"
+        (click)="closeAccountDeletion()"
       >
         Annuler
       </ui-button>
@@ -777,7 +794,7 @@
         [block]="true"
         [disabled]="!canDelete()"
         [loading]="deleting()"
-        (click)="confirmDelete()"
+        (click)="confirmAccountDeletion()"
       >
         Supprimer définitivement
       </ui-button>

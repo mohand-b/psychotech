@@ -19,15 +19,15 @@ export class SessionsApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
 
-  start(payload: StartSessionDto): Observable<SessionDto> {
+  startSession(payload: StartSessionDto): Observable<SessionDto> {
     return this.http.post<SessionDto>(`${this.baseUrl}/sessions`, payload);
   }
 
-  get(sessionId: string): Observable<SessionDto> {
+  fetchSession(sessionId: string): Observable<SessionDto> {
     return this.http.get<SessionDto>(`${this.baseUrl}/sessions/${sessionId}`);
   }
 
-  completeTargeted(
+  completeAxis(
     sessionId: string,
     axis: AxisType,
     payload: CompleteTargetedSessionDto,
@@ -38,7 +38,7 @@ export class SessionsApi {
     );
   }
 
-  targetedResult(
+  fetchTargetedAxisResult(
     sessionId: string,
     axis: AxisType,
   ): Observable<TargetedAxisResultDto> {
@@ -47,7 +47,9 @@ export class SessionsApi {
     );
   }
 
-  history(query: SessionHistoryQuery): Observable<SessionHistoryPageDto> {
+  fetchHistoryPage(
+    query: SessionHistoryQuery,
+  ): Observable<SessionHistoryPageDto> {
     let params = new HttpParams();
     if (query.mode) {
       params = params.set('mode', query.mode);
@@ -63,13 +65,13 @@ export class SessionsApi {
     });
   }
 
-  current(): Observable<CurrentSessionDto | null> {
+  fetchCurrentSession(): Observable<CurrentSessionDto | null> {
     return this.http.get<CurrentSessionDto | null>(
       `${this.baseUrl}/sessions/current`,
     );
   }
 
-  simulationSummary(sessionId: string): Observable<SimulationSummaryDto> {
+  fetchSimulationSummary(sessionId: string): Observable<SimulationSummaryDto> {
     return this.http.get<SimulationSummaryDto>(
       `${this.baseUrl}/sessions/${sessionId}/summary`,
     );

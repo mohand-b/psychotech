@@ -11,7 +11,7 @@
       [completedAt]="r.completedAt"
       [referential]="page.referential()"
       [recordVisible]="!r.untimed"
-      (revealDone)="page.celebration.sceneReady()"
+      (revealDone)="page.celebration.releaseSceneHold()"
     />
 
     @if (metrics(); as m) {
@@ -43,14 +43,14 @@
     @if (page.celebration.announceView(); as announce) {
       <ui-badge-announce
         [view]="announce"
-        (replay)="page.celebration.replay()"
+        (replay)="page.celebration.replayCelebration()"
       />
     }
 
     <ui-result-actions
-      (newTraining)="page.newTraining()"
+      (newTraining)="page.navigateToAxisStart()"
       [backLabel]="page.backLabel"
-      (back)="page.back()"
+      (back)="page.returnToAxesOrSessions()"
     />
   }
 </ui-result-page>

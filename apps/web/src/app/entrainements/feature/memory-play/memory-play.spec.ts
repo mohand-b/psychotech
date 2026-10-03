@@ -110,8 +110,8 @@ function buildFullSession(currentAxisIndex: number): SessionDto {
 interface Setup {
   fixture: ComponentFixture<MemoryPlay>;
   element: HTMLElement;
-  completeTargeted: ReturnType<typeof vi.fn>;
-  get: ReturnType<typeof vi.fn>;
+  completeAxis: ReturnType<typeof vi.fn>;
+  fetchSession: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.spyOn>;
 }
 
@@ -119,9 +119,9 @@ async function setup(
   session: SessionDto = buildSession(),
   completed: SessionDto = { ...session, status: SessionStatus.COMPLETED },
 ): Promise<Setup> {
-  const completeTargeted = vi.fn(() => of(completed));
-  const get = vi.fn();
-  const targetedResult = vi.fn(() =>
+  const completeAxis = vi.fn(() => of(completed));
+  const fetchSession = vi.fn();
+  const fetchTargetedAxisResult = vi.fn(() =>
     of({
       sessionId: SESSION_ID,
       axis: AxisType.MEMORY,
@@ -133,9 +133,17 @@ async function setup(
       provideRouter([]),
       {
         provide: SessionsApi,
-        useValue: { start: vi.fn(), get, completeTargeted, targetedResult },
+        useValue: {
+          startSession: vi.fn(),
+          fetchSession,
+          completeAxis,
+          fetchTargetedAxisResult,
+        },
       },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { loadEnergyBalance: vi.fn(() => of(null)) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -156,7 +164,7 @@ async function setup(
   const element: HTMLElement = fixture.nativeElement;
   (element.querySelector('.countdown__skip') as HTMLButtonElement).click();
   fixture.detectChanges();
-  return { fixture, element, completeTargeted, get, navigate };
+  return { fixture, element, completeAxis, fetchSession, navigate };
 }
 
 function setupExamAtMemory(): Promise<Setup> {
@@ -269,7 +277,7 @@ function sentSequences(
   setupResult: Setup,
   attempt: number,
 ): MemorySequenceAnswerDto[] {
-  const [, , body] = setupResult.completeTargeted.mock.calls[attempt] as [
+  const [, , body] = setupResult.completeAxis.mock.calls[attempt] as [
     string,
     AxisType,
     CompleteTargetedSessionDto,
@@ -368,8 +376,8 @@ describe('MemoryPlay (passer un emplacement)', () => {
       pressKey(result, 'Enter');
     }
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
-    const [sessionId, axis, body] = result.completeTargeted.mock.calls[0] as [
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
+    const [sessionId, axis, body] = result.completeAxis.mock.calls[0] as [
       string,
       AxisType,
       CompleteTargetedSessionDto,
@@ -388,12 +396,12 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
 
   it('replays the frozen five sequences after a failed completion whatever the candidate presses meanwhile', async () => {
     const result = await setupExamAtMemory();
-    result.completeTargeted.mockImplementationOnce(() =>
+    result.completeAxis.mockImplementationOnce(() =>
       rejectWith(HttpStatusCode.Forbidden),
     );
     answerSequencesBefore(result, TRAINING_SEQUENCES.length);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(failedOverlay(result.element)).not.toBeNull();
     const firstAttempt = structuredClone(sentSequences(result, 0));
     expectOneAnswerPerSequence(firstAttempt);
@@ -409,13 +417,13 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     pressKey(result, 'Enter');
     advance(result, RESTITUTION_MS + RESTITUTION_TICK_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).not.toHaveBeenCalled();
     expect(failedOverlay(result.element)).not.toBeNull();
 
     tap(result, '.wait__retry');
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     const replayed = sentSequences(result, 1);
     expectOneAnswerPerSequence(replayed);
     expect(replayed).toEqual(firstAttempt);
@@ -430,7 +438,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
 
   it('replays the same five sequences when the last one was closed by the restitution timeout and the completion failed twice', async () => {
     const result = await setupExamAtMemory();
-    result.completeTargeted
+    result.completeAxis
       .mockImplementationOnce(() => rejectWith(HttpStatusCode.Forbidden))
       .mockImplementationOnce(() => rejectWith(NETWORK_DOWN_STATUS));
     answerSequencesBefore(result, LAST_SEQUENCE_INDEX);
@@ -438,7 +446,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     typeDigit(result, 8, 2);
     advance(result, RESTITUTION_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(failedOverlay(result.element)).not.toBeNull();
     const firstAttempt = structuredClone(sentSequences(result, 0));
     expectOneAnswerPerSequence(firstAttempt);
@@ -458,17 +466,17 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     tap(result, VALIDATE_HOSTS);
     advance(result, RESTITUTION_MS + RESTITUTION_TICK_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
 
     tap(result, '.wait__retry');
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     expect(failedOverlay(result.element)).not.toBeNull();
     expect(result.navigate).not.toHaveBeenCalled();
 
     tap(result, '.wait__retry');
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(3);
+    expect(result.completeAxis).toHaveBeenCalledTimes(3);
     expect(sentSequences(result, 1)).toEqual(firstAttempt);
     expect(sentSequences(result, 2)).toEqual(firstAttempt);
     expect(result.navigate).toHaveBeenCalledTimes(1);
@@ -499,7 +507,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     answerSequence(result, 3, THINKING_MS);
     answerSequence(result, LAST_SEQUENCE_INDEX, THINKING_MS);
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     const sequences = sentSequences(result, 0);
     expectOneAnswerPerSequence(sequences);
     expect(sequences.map((sequence) => sequence.timeMs)).toEqual([
@@ -524,7 +532,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
   it('sends a single replay when the candidate double-taps the retry button', async () => {
     const result = await setupExamAtMemory();
     const replay = new Subject<SessionDto>();
-    result.completeTargeted
+    result.completeAxis
       .mockImplementationOnce(() => rejectWith(NETWORK_DOWN_STATUS))
       .mockImplementationOnce(() => replay.asObservable());
     answerSequencesBefore(result, TRAINING_SEQUENCES.length);
@@ -537,14 +545,14 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     retry.click();
     result.fixture.detectChanges();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     expect(failedOverlay(result.element)).toBeNull();
     expect(result.element.querySelector('ui-result-wait')).not.toBeNull();
 
     replay.next(buildFullSession(MEMORY_AXIS_INDEX + 1));
     replay.complete();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(2);
+    expect(result.completeAxis).toHaveBeenCalledTimes(2);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
       replaceUrl: true,
@@ -553,18 +561,20 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
 
   it('reaches the exam hub when the first response was lost and the replay is answered 409 with the axis recorded', async () => {
     const result = await setupExamAtMemory();
-    result.completeTargeted
+    result.completeAxis
       .mockImplementationOnce(() => rejectWith(NETWORK_DOWN_STATUS))
       .mockImplementationOnce(() => rejectWith(HttpStatusCode.Conflict));
-    result.get.mockReturnValue(of(buildFullSession(MEMORY_AXIS_INDEX + 1)));
+    result.fetchSession.mockReturnValue(
+      of(buildFullSession(MEMORY_AXIS_INDEX + 1)),
+    );
     answerSequencesBefore(result, TRAINING_SEQUENCES.length);
 
     expect(failedOverlay(result.element)).not.toBeNull();
-    expect(result.get).not.toHaveBeenCalled();
+    expect(result.fetchSession).not.toHaveBeenCalled();
 
     tap(result, '.wait__retry');
 
-    expect(result.get).toHaveBeenCalledWith(SESSION_ID);
+    expect(result.fetchSession).toHaveBeenCalledWith(SESSION_ID);
     expect(sentSequences(result, 1)).toEqual(sentSequences(result, 0));
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
@@ -574,7 +584,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
 
   it('tells the truth about unsent answers and lets the candidate leave without sending again', async () => {
     const result = await setupExamAtMemory();
-    result.completeTargeted.mockImplementationOnce(() =>
+    result.completeAxis.mockImplementationOnce(() =>
       rejectWith(HttpStatusCode.Forbidden),
     );
     answerSequencesBefore(result, TRAINING_SEQUENCES.length);
@@ -588,7 +598,7 @@ describe("MemoryPlay (fin d'axe en examen blanc)", () => {
     quitButton.click();
     result.fixture.detectChanges();
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
   });

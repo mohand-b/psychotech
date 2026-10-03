@@ -5,13 +5,13 @@ import { LEGAL_DOCUMENTS } from '../../../shared/data/legal-documents';
 import { NOUVEAUTES_ROUTE } from '../../../shared/util/changelog-link';
 import {
   CONTACT_ROUTE,
-  contactQueryParams,
+  buildContactQueryParams,
 } from '../../../shared/util/contact-link';
 import { LANDING_ROUTE } from '../../util/landing-link';
 import {
   LANDING_SECTION,
   LandingSectionId,
-  landingAnchorHref,
+  buildLandingAnchorHref,
 } from '../../util/landing-sections';
 
 @Component({
@@ -32,12 +32,14 @@ import {
         </div>
         <nav class="footer__col" aria-label="Produit">
           <span class="footer__col-title">Produit</span>
-          <a class="footer__link" [href]="anchor(section.story)"
+          <a class="footer__link" [href]="buildSectionHref(section.story)"
             >Fonctionnement</a
           >
-          <a class="footer__link" [href]="anchor(section.axes)">Les axes</a>
+          <a class="footer__link" [href]="buildSectionHref(section.axes)"
+            >Les axes</a
+          >
           <a class="footer__link" [routerLink]="route.pricing">Tarifs</a>
-          <a class="footer__link" [href]="anchor(section.enterprise)"
+          <a class="footer__link" [href]="buildSectionHref(section.enterprise)"
             >Offre entreprise</a
           >
         </nav>
@@ -218,9 +220,11 @@ export class LandingFooter {
   protected readonly route = LANDING_ROUTE;
   protected readonly contactRoute = CONTACT_ROUTE;
   protected readonly nouveautesRoute = NOUVEAUTES_ROUTE;
-  protected readonly problemParams = contactQueryParams({ motif: 'probleme' });
+  protected readonly problemParams = buildContactQueryParams({
+    motif: 'probleme',
+  });
 
-  protected anchor(section: LandingSectionId): string {
-    return landingAnchorHref(section, this.onLanding());
+  protected buildSectionHref(section: LandingSectionId): string {
+    return buildLandingAnchorHref(section, this.onLanding());
   }
 }

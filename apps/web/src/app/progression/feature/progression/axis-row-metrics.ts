@@ -17,7 +17,7 @@ export interface SparklineDomain {
   max: number;
 }
 
-export function axisScoresWithinWindow(
+export function extractScoresWithinWindow(
   sparkline: readonly AxisSparklinePointDto[],
   now: Date,
   windowDays = AXIS_HISTORY_WINDOW_DAYS,
@@ -28,7 +28,9 @@ export function axisScoresWithinWindow(
     .map((point) => point.score);
 }
 
-export function sparklineDomain(scores: readonly number[]): SparklineDomain {
+export function computeSparklineDomain(
+  scores: readonly number[],
+): SparklineDomain {
   if (scores.length === 0) {
     return { min: 0, max: 1 };
   }
@@ -45,14 +47,14 @@ export function sparklineDomain(scores: readonly number[]): SparklineDomain {
   return { min: lowest - margin, max: highest + margin };
 }
 
-export function sparklinePoints(
+export function buildSparklinePoints(
   scores: readonly number[],
   geometry: SparklineGeometry,
 ): string | null {
   if (scores.length < 2) {
     return null;
   }
-  const domain = sparklineDomain(scores);
+  const domain = computeSparklineDomain(scores);
   const span = domain.max - domain.min;
   const usableHeight = geometry.bottom - geometry.top;
   const step = geometry.width / (scores.length - 1);

@@ -6,37 +6,39 @@ import {
 } from '@psychotech/shared';
 import { TUTORIAL_SESSION_ID } from '../data-access/tutorial-session.facade';
 import {
-  sessionResultRoute,
-  simulationSessionRoute,
-  targetedResultRoute,
-  tutorialAxisRoute,
+  buildSimulationResultRoute,
+  buildSimulationSessionRoute,
+  buildTargetedResultRoute,
+  buildTutorialAxisRoute,
 } from '../../shared/util/session-links';
 
-export function simulationCurrentAxis(session: SessionDto): AxisType | null {
+export function findCurrentSimulationAxis(
+  session: SessionDto,
+): AxisType | null {
   return session.axisResults[session.currentAxisIndex]?.axis ?? null;
 }
 
-export function afterAxisSubmitRoute(
+export function resolveRouteAfterAxis(
   session: SessionDto,
   axis: AxisType,
 ): string[] {
   if (session.id === TUTORIAL_SESSION_ID) {
-    return [...tutorialAxisRoute(axis), 'fin'];
+    return [...buildTutorialAxisRoute(axis), 'fin'];
   }
   if (session.mode !== SessionMode.FULL) {
-    return targetedResultRoute(axis, session.id);
+    return buildTargetedResultRoute(axis, session.id);
   }
   if (session.status === SessionStatus.COMPLETED) {
-    return sessionResultRoute(session.id);
+    return buildSimulationResultRoute(session.id);
   }
-  return simulationSessionRoute(session.id);
+  return buildSimulationSessionRoute(session.id);
 }
 
-export function inactiveSessionRoute(
+export function resolveInactiveSessionRoute(
   session: SessionDto,
   axis: AxisType,
 ): string[] {
   return session.status === SessionStatus.COMPLETED
-    ? afterAxisSubmitRoute(session, axis)
+    ? resolveRouteAfterAxis(session, axis)
     : ['/entrainements'];
 }

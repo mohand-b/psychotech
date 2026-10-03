@@ -28,14 +28,14 @@
           class="simb__stepper simb__stepper--desktop"
           mode="explorer"
           [axes]="courseAxes"
-          (activeAxisChange)="onAxisExplored($event)"
+          (activeAxisChange)="slideToAxisPanel($event)"
         />
         <ui-chevron-stepper
           class="simb__stepper simb__stepper--mobile"
           mode="explorer"
           variant="mini"
           [axes]="courseAxes"
-          (activeAxisChange)="onAxisExplored($event)"
+          (activeAxisChange)="slideToAxisPanel($event)"
         />
         <div class="simb__panel-viewport">
           @for (axis of courseAxes; track axis) {
@@ -146,7 +146,7 @@
       block="mobile"
       [loading]="starting()"
       [disabled]="energyShort()"
-      (click)="start()"
+      (click)="startSimulationSession()"
     >
       <span class="simb__cta-content">
         Commencer la session

@@ -8,7 +8,7 @@ const SCREENSHOT_JPEG_QUALITY = 0.8;
 const SCREENSHOT_MIME_TYPE = 'image/jpeg';
 const BASE64_CHUNK_BYTES = 0x8000;
 
-function toBase64(bytes: Uint8Array): string {
+function encodeBase64(bytes: Uint8Array): string {
   let binary = '';
   for (let offset = 0; offset < bytes.length; offset += BASE64_CHUNK_BYTES) {
     binary += String.fromCharCode(
@@ -47,7 +47,7 @@ export async function encodeScreenshot(
     }
     return {
       mimeType: SCREENSHOT_MIME_TYPE,
-      dataBase64: toBase64(new Uint8Array(await blob.arrayBuffer())),
+      dataBase64: encodeBase64(new Uint8Array(await blob.arrayBuffer())),
     };
   } catch {
     return null;

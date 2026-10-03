@@ -36,7 +36,7 @@ import { RESULT_WAIT_DIRECT_REVEAL_MS } from '../../data-access/result-wait.orch
 import { TutorialRunFacade } from '../../data-access/tutorial-run.facade';
 import {
   TUTORIAL_SESSION_ID,
-  tutorialSessionProviders,
+  provideTutorialSession,
 } from '../../data-access/tutorial-session.facade';
 import { LogicPlay } from './logic-play';
 
@@ -90,17 +90,17 @@ function buildSession(overrides: Partial<SessionDto> = {}): SessionDto {
 interface Setup {
   fixture: ComponentFixture<LogicPlay>;
   element: HTMLElement;
-  completeTargeted: ReturnType<typeof vi.fn>;
+  completeAxis: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.spyOn>;
 }
 
 async function setup(
   overrides: Partial<SessionDto> = {},
-  completeTargeted: Setup['completeTargeted'] = vi.fn(() =>
+  completeAxis: Setup['completeAxis'] = vi.fn(() =>
     of(buildSession({ ...overrides, status: SessionStatus.COMPLETED })),
   ),
 ): Promise<Setup> {
-  const targetedResult = vi.fn(() =>
+  const fetchTargetedAxisResult = vi.fn(() =>
     of({
       sessionId: SESSION_ID,
       axis: AxisType.LOGIC,
@@ -113,13 +113,16 @@ async function setup(
       {
         provide: SessionsApi,
         useValue: {
-          start: vi.fn(),
-          get: vi.fn(),
-          completeTargeted,
-          targetedResult,
+          startSession: vi.fn(),
+          fetchSession: vi.fn(),
+          completeAxis,
+          fetchTargetedAxisResult,
         },
       },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { loadEnergyBalance: vi.fn(() => of(null)) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -140,7 +143,7 @@ async function setup(
   const element: HTMLElement = fixture.nativeElement;
   (element.querySelector('.countdown__skip') as HTMLButtonElement).click();
   fixture.detectChanges();
-  return { fixture, element, completeTargeted, navigate };
+  return { fixture, element, completeAxis, navigate };
 }
 
 function pressKey(fixture: Setup['fixture'], key: string): void {
@@ -364,8 +367,8 @@ describe('LogicPlay (contenu v2)', () => {
     pressKey(result.fixture, '1');
     pressKey(result.fixture, 'Enter');
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
-    const [sessionId, axis, body] = result.completeTargeted.mock.calls[0] as [
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
+    const [sessionId, axis, body] = result.completeAxis.mock.calls[0] as [
       string,
       AxisType,
       CompleteTargetedSessionDto,
@@ -395,14 +398,14 @@ describe('LogicPlay (contenu v2)', () => {
 
     pressKey(result.fixture, 'Enter');
     pressKey(result.fixture, 'Enter');
-    expect(result.completeTargeted).not.toHaveBeenCalled();
+    expect(result.completeAxis).not.toHaveBeenCalled();
 
     const clock = vi
       .spyOn(Date, 'now')
       .mockReturnValue(Date.now() + DOUBLE_TAP_GUARD_ELAPSED_MS);
     pressKey(result.fixture, 'Enter');
     clock.mockRestore();
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
   });
 
   it('lets the candidate finish from an unanswered last item', async () => {
@@ -416,8 +419,8 @@ describe('LogicPlay (contenu v2)', () => {
 
     finish.click();
     result.fixture.detectChanges();
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
-    const [, , body] = result.completeTargeted.mock.calls[0] as [
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
+    const [, , body] = result.completeAxis.mock.calls[0] as [
       string,
       AxisType,
       CompleteTargetedSessionDto,
@@ -622,8 +625,8 @@ describe('LogicPlay (triangles v3)', () => {
     pressKey(result.fixture, '1');
     pressKey(result.fixture, 'Enter');
 
-    expect(result.completeTargeted).toHaveBeenCalledTimes(1);
-    const [, , body] = result.completeTargeted.mock.calls[0] as [
+    expect(result.completeAxis).toHaveBeenCalledTimes(1);
+    const [, , body] = result.completeAxis.mock.calls[0] as [
       string,
       AxisType,
       CompleteTargetedSessionDto,
@@ -657,7 +660,7 @@ describe('LogicPlay (triangles v3)', () => {
     goToItem(result, 39);
     pressKey(result.fixture, '1');
     pressKey(result.fixture, 'Enter');
-    const [, , body] = result.completeTargeted.mock.calls[0] as [
+    const [, , body] = result.completeAxis.mock.calls[0] as [
       string,
       AxisType,
       CompleteTargetedSessionDto,
@@ -668,16 +671,23 @@ describe('LogicPlay (triangles v3)', () => {
 
 async function setupTutorial(): Promise<Setup> {
   TestBed.resetTestingModule();
-  const completeTargeted = vi.fn();
+  const completeAxis = vi.fn();
   await TestBed.configureTestingModule({
     imports: [LogicPlay],
     providers: [
       provideRouter([]),
       {
         provide: SessionsApi,
-        useValue: { start: vi.fn(), get: vi.fn(), completeTargeted },
+        useValue: {
+          startSession: vi.fn(),
+          fetchSession: vi.fn(),
+          completeAxis,
+        },
       },
-      { provide: EnergyFacade, useValue: { load: vi.fn(() => of(null)) } },
+      {
+        provide: EnergyFacade,
+        useValue: { loadEnergyBalance: vi.fn(() => of(null)) },
+      },
       {
         provide: AuthFacade,
         useValue: { currentUser: () => ({ currentSector: Sector.RAILWAY }) },
@@ -690,7 +700,7 @@ async function setupTutorial(): Promise<Setup> {
           },
         },
       },
-      ...tutorialSessionProviders(AxisType.LOGIC),
+      ...provideTutorialSession(AxisType.LOGIC),
     ],
   }).compileComponents();
   const router = TestBed.inject(Router);
@@ -700,7 +710,7 @@ async function setupTutorial(): Promise<Setup> {
   const element: HTMLElement = fixture.nativeElement;
   (element.querySelector('.countdown__skip') as HTMLButtonElement).click();
   fixture.detectChanges();
-  return { fixture, element, completeTargeted, navigate };
+  return { fixture, element, completeAxis, navigate };
 }
 
 describe('LogicPlay (tutoriel mixte)', () => {
@@ -709,7 +719,7 @@ describe('LogicPlay (tutoriel mixte)', () => {
   });
 
   afterEach(() => {
-    TestBed.inject(TutorialRunFacade).clear();
+    TestBed.inject(TutorialRunFacade).clearRunResult();
     TestBed.resetTestingModule();
   });
 
@@ -755,7 +765,7 @@ describe('LogicPlay (tutoriel mixte)', () => {
     pressKey(result.fixture, 'Enter');
     clock.mockRestore();
 
-    expect(result.completeTargeted).not.toHaveBeenCalled();
+    expect(result.completeAxis).not.toHaveBeenCalled();
     const run = TestBed.inject(TutorialRunFacade).result();
     expect(run?.axis).toBe(AxisType.LOGIC);
     if (run?.axis === AxisType.LOGIC) {
@@ -803,10 +813,8 @@ function buildExamSession(currentAxisIndex: number): SessionDto {
   });
 }
 
-function setupExam(
-  completeTargeted: Setup['completeTargeted'],
-): Promise<Setup> {
-  return setup(buildExamSession(LOGIC_AXIS_INDEX), completeTargeted);
+function setupExam(completeAxis: Setup['completeAxis']): Promise<Setup> {
+  return setup(buildExamSession(LOGIC_AXIS_INDEX), completeAxis);
 }
 
 function failWith(status: number): Observable<never> {
@@ -822,7 +830,7 @@ function sentItems(
   setupResult: Setup,
   callIndex: number,
 ): LogicItemAnswerDto[] {
-  const [, , body] = setupResult.completeTargeted.mock.calls[callIndex] as [
+  const [, , body] = setupResult.completeAxis.mock.calls[callIndex] as [
     string,
     AxisType,
     CompleteTargetedSessionDto,
@@ -876,10 +884,10 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
   });
 
   it('shows the retry overlay when the auto-submit fails at timer expiry, then resends the same payload and returns to the exam hub', async () => {
-    const completeTargeted = vi
+    const completeAxis = vi
       .fn(() => of(buildExamSession(LOGIC_AXIS_INDEX + 1)))
       .mockImplementationOnce(() => failWith(HttpStatusCode.Forbidden));
-    const result = await setupExam(completeTargeted);
+    const result = await setupExam(completeAxis);
 
     advance(result, FIRST_ITEM_TIME_MS);
     pressKey(result.fixture, '2');
@@ -896,11 +904,11 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
         SECOND_ITEM_TIME_MS -
         MS_PER_SECOND,
     );
-    expect(completeTargeted).not.toHaveBeenCalled();
+    expect(completeAxis).not.toHaveBeenCalled();
     expect(waitOverlay(result.element)).toBeNull();
 
     advance(result, MS_PER_SECOND);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     const overlay = waitOverlay(result.element);
     expect(overlay).not.toBeNull();
     expect(overlay?.querySelector('.wait--failed')).not.toBeNull();
@@ -930,10 +938,10 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
     });
 
     advance(result, RETRY_DELAY_MS);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
 
     clickOverlayButton(result, '.wait__retry');
-    expect(completeTargeted).toHaveBeenCalledTimes(2);
+    expect(completeAxis).toHaveBeenCalledTimes(2);
     expect(sentItems(result, 1)).toEqual(frozenItems);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
@@ -943,27 +951,27 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
 
   it('sends a single request when Terminer and Enter are repeated while the completion is pending', async () => {
     const completion = new Subject<SessionDto>();
-    const completeTargeted = vi.fn(() => completion.asObservable());
-    const result = await setupExam(completeTargeted);
+    const completeAxis = vi.fn(() => completion.asObservable());
+    const result = await setupExam(completeAxis);
 
     finishFromLastItem(result);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     expect(waitOverlay(result.element)).toBeNull();
 
     insistOnFinishing(result);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
 
     advance(result, RESULT_WAIT_DIRECT_REVEAL_MS);
     expect(waitOverlay(result.element)).not.toBeNull();
     expect(overlayButton(result.element, '.wait__retry')).toBeNull();
 
     insistOnFinishing(result);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).not.toHaveBeenCalled();
 
     completion.next(buildExamSession(LOGIC_AXIS_INDEX + 1));
     completion.complete();
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(EXAM_HUB_ROUTE, {
       replaceUrl: true,
@@ -971,11 +979,11 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
   });
 
   it('keeps Terminer and Enter inert after a failed completion so that only Réessayer resends the frozen payload', async () => {
-    const completeTargeted = vi
+    const completeAxis = vi
       .fn(() => of(buildExamSession(LOGIC_AXIS_INDEX + 1)))
       .mockImplementationOnce(() => failWith(NETWORK_DOWN_STATUS))
       .mockImplementationOnce(() => failWith(NETWORK_DOWN_STATUS));
-    const result = await setupExam(completeTargeted);
+    const result = await setupExam(completeAxis);
 
     advance(result, FIRST_ITEM_TIME_MS);
     goToItem(result, LAST_ITEM_INDEX);
@@ -983,7 +991,7 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
     pressKey(result.fixture, '1');
     pressKey(result.fixture, 'Enter');
 
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     expect(overlayButton(result.element, '.wait__retry')).not.toBeNull();
     const frozenItems = sentItems(result, 0).map((item) => ({ ...item }));
     expect(frozenItems[0].timeMs).toBe(FIRST_ITEM_TIME_MS);
@@ -995,18 +1003,18 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
     advance(result, RETRY_DELAY_MS);
     pressKey(result.fixture, '3');
     insistOnFinishing(result);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
 
     advance(result, LOGIC_DURATION_MS);
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
 
     clickOverlayButton(result, '.wait__retry');
-    expect(completeTargeted).toHaveBeenCalledTimes(2);
+    expect(completeAxis).toHaveBeenCalledTimes(2);
     expect(overlayButton(result.element, '.wait__retry')).not.toBeNull();
     expect(result.navigate).not.toHaveBeenCalled();
 
     clickOverlayButton(result, '.wait__retry');
-    expect(completeTargeted).toHaveBeenCalledTimes(3);
+    expect(completeAxis).toHaveBeenCalledTimes(3);
     expect(sentItems(result, 1)).toEqual(frozenItems);
     expect(sentItems(result, 2)).toEqual(frozenItems);
     expect(result.navigate).toHaveBeenCalledTimes(1);
@@ -1016,8 +1024,8 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
   });
 
   it('lets the candidate leave from the failed overlay without resending anything', async () => {
-    const completeTargeted = vi.fn(() => failWith(NETWORK_DOWN_STATUS));
-    const result = await setupExam(completeTargeted);
+    const completeAxis = vi.fn(() => failWith(NETWORK_DOWN_STATUS));
+    const result = await setupExam(completeAxis);
 
     finishFromLastItem(result);
     expect(
@@ -1025,16 +1033,16 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
     ).toBe('Quitter sans envoyer');
 
     clickOverlayButton(result, '.wait__quit');
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledTimes(1);
     expect(result.navigate).toHaveBeenCalledWith(['/dashboard']);
   });
 
   it('clamps a negative accumulated time to zero when the device clock jumps backwards', async () => {
-    const completeTargeted = vi.fn(() =>
+    const completeAxis = vi.fn(() =>
       of(buildExamSession(LOGIC_AXIS_INDEX + 1)),
     );
-    const result = await setupExam(completeTargeted);
+    const result = await setupExam(completeAxis);
 
     vi.setSystemTime(Date.now() - CLOCK_JUMP_BACK_MS);
     goToItem(result, LAST_ITEM_INDEX);
@@ -1042,7 +1050,7 @@ describe('LogicPlay (examen blanc, axe intermédiaire)', () => {
     nextButton(result.element).click();
     result.fixture.detectChanges();
 
-    expect(completeTargeted).toHaveBeenCalledTimes(1);
+    expect(completeAxis).toHaveBeenCalledTimes(1);
     const items = sentItems(result, 0);
     expect(items[0].timeMs).toBe(0);
     expect(items[LAST_ITEM_INDEX].timeMs).toBe(LAST_ITEM_TIME_MS);

@@ -10,14 +10,14 @@ import { ChartTouchTips } from '../chart-touch-tips';
 import {
   CurvePoint,
   TrajectoryBorderMarkerKind,
-  borderMarkers,
+  findBorderMarkers,
   buildDisplaySeries,
-  courseContactTimes,
-  courseExitWindows,
-  curveAboveBorderRuns,
+  collectCourseContactTimes,
+  collectCourseExitWindows,
+  findRunsAboveBorder,
   insertBorderCrossings,
-  monotoneCubicPath,
-  monotoneCubicSubPath,
+  buildMonotoneCubicPath,
+  buildMonotoneCubicSubPath,
 } from './trajectory-chart.logic';
 
 const Y_DOMAIN_PCT = 120;
@@ -93,7 +93,7 @@ export class MotricityTrajectoryChart {
       new Map(
         this.metrics().timeline.map((series) => [
           series.courseIndex,
-          courseContactTimes(this.metrics().events, series.courseIndex),
+          collectCourseContactTimes(this.metrics().events, series.courseIndex),
         ]),
       ),
   );
@@ -103,7 +103,7 @@ export class MotricityTrajectoryChart {
       new Map(
         this.metrics().timeline.map((series) => [
           series.courseIndex,
-          courseExitWindows(this.metrics().events, series.courseIndex),
+          collectCourseExitWindows(this.metrics().events, series.courseIndex),
         ]),
       ),
   );
@@ -133,19 +133,19 @@ export class MotricityTrajectoryChart {
   });
 
   protected readonly curvePath = computed(() =>
-    monotoneCubicPath(this.coords()),
+    buildMonotoneCubicPath(this.coords()),
   );
 
   protected readonly exitCurvePaths = computed<string[]>(() => {
     const coords = this.coords();
-    return curveAboveBorderRuns(coords.map((coord) => coord.deviationPct))
-      .map((run) => monotoneCubicSubPath(coords, run.from, run.to))
+    return findRunsAboveBorder(coords.map((coord) => coord.deviationPct))
+      .map((run) => buildMonotoneCubicSubPath(coords, run.from, run.to))
       .filter((path) => path !== '');
   });
 
   protected readonly contacts = computed<ContactDot[]>(() => {
     const totalMs = this.totalMs();
-    return borderMarkers(this.coords()).map((marker) => ({
+    return findBorderMarkers(this.coords()).map((marker) => ({
       xPct: (marker.tMs / totalMs) * 100,
       tooltip: `${formatDuration(Math.round(marker.tMs / 1000))} · ${MARKER_LABELS[marker.kind]}`,
     }));
@@ -156,7 +156,7 @@ export class MotricityTrajectoryChart {
     return [0, Math.round(totalSec / 2), totalSec].map(formatDuration);
   });
 
-  protected yTickBottom(valuePct: number): number {
+  protected computeTickBottomPct(valuePct: number): number {
     return (valuePct / Y_DOMAIN_PCT) * 100;
   }
 }

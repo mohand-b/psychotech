@@ -37,7 +37,7 @@ export interface SignalCell {
   state: SignalCellState;
 }
 
-function pick(random: RandomSource, count: number): number {
+function pickRandomIndex(random: RandomSource, count: number): number {
   return Math.floor(random() * count);
 }
 
@@ -47,10 +47,13 @@ export function generateSignalPattern(
 ): SignalPattern {
   const pattern = new Map<number, SignalLevel>();
   for (let segment = 0; segment < layout.segmentCount; segment++) {
-    const row = pick(random, layout.rows);
-    const column = pick(random, layout.columns - SEGMENT_COLUMN_MARGIN);
+    const row = pickRandomIndex(random, layout.rows);
+    const column = pickRandomIndex(
+      random,
+      layout.columns - SEGMENT_COLUMN_MARGIN,
+    );
     const length =
-      SEGMENT_MIN_LENGTH + pick(random, layout.segmentLengthSpread);
+      SEGMENT_MIN_LENGTH + pickRandomIndex(random, layout.segmentLengthSpread);
     const horizontal = random() > VERTICAL_SEGMENT_SHARE;
     const level: SignalLevel =
       segment % VIVID_SEGMENT_PERIOD === 0 ? 'vivid' : 'lit';
@@ -61,12 +64,12 @@ export function generateSignalPattern(
     }
   }
   for (let scattered = 0; scattered < layout.scatteredCellCount; scattered++) {
-    pattern.set(pick(random, layout.rows * layout.columns), 'lit');
+    pattern.set(pickRandomIndex(random, layout.rows * layout.columns), 'lit');
   }
   return pattern;
 }
 
-export function nextSignalCells(
+export function computeNextSignalCells(
   previous: readonly SignalCell[],
   pattern: SignalPattern,
 ): SignalCell[] {

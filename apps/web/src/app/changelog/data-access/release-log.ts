@@ -31,7 +31,7 @@ export function formatVersionLabel(version: string): string {
   return `v${version}`;
 }
 
-export function releaseAnchor(version: string): string {
+export function buildReleaseAnchor(version: string): string {
   return `v${version.split('.').join('-')}`;
 }
 

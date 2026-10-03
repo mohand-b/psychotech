@@ -63,17 +63,17 @@ export class BadgeCelebrationModal {
       : [],
   );
 
-  protected settle(): void {
+  protected skipCelebrationAnimation(): void {
     this.settled.set(true);
   }
 
-  protected next(event: Event): void {
+  protected advanceToNextBadge(event: Event): void {
     event.stopPropagation();
     this.settled.set(false);
     this.advance.emit();
   }
 
-  protected close(): void {
+  protected dismissRemainingBadges(): void {
     this.closeAll.emit();
   }
 }

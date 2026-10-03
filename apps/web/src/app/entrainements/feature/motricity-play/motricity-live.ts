@@ -27,7 +27,7 @@ function isSafeZone(zone: MotricityCursorZone): boolean {
   return zone === 'GARAGE' || zone === 'END' || zone === 'INSIDE';
 }
 
-export function advanceMotricityLive(
+export function advanceMotricityLiveState(
   state: MotricityLiveState,
   zone: MotricityCursorZone,
   deltaMs: number,
@@ -69,7 +69,7 @@ export function advanceMotricityLive(
   return next;
 }
 
-export function liveMajorErrors(state: MotricityLiveState): number {
+export function countLiveMajorErrors(state: MotricityLiveState): number {
   if (state.outsideSinceMs === null) {
     return state.closedMajorErrors;
   }

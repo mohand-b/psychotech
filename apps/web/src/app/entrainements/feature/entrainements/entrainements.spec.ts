@@ -85,8 +85,8 @@ async function setup(
     overview: signal(overview),
     loading: signal(false),
     error: signal(options.error),
-    load: vi.fn(),
-    reload: vi.fn(),
+    loadOverview: vi.fn(),
+    reloadOverview: vi.fn(),
   };
   await TestBed.configureTestingModule({
     imports: [Entrainements],
@@ -249,7 +249,7 @@ describe('Entrainements', () => {
       expect(element.querySelector('ui-skeleton')).toBeNull();
       expect(element.textContent).toContain('Impossible de charger');
       (element.querySelector('.duo__retry') as HTMLButtonElement).click();
-      expect(facade.reload).toHaveBeenCalled();
+      expect(facade.reloadOverview).toHaveBeenCalled();
     });
   });
 });

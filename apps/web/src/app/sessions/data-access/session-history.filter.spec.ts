@@ -2,9 +2,9 @@ import { AxisType, SessionMode } from '@psychotech/shared';
 import {
   SessionHistoryFilter,
   areAxisChipsEnabled,
-  historyQueryFor,
+  buildHistoryQuery,
   isChipActive,
-  selectionFor,
+  resolveHistorySelection,
 } from './session-history.filter';
 
 const AXIS_CHIPS: SessionHistoryFilter[] = [
@@ -15,9 +15,9 @@ const AXIS_CHIPS: SessionHistoryFilter[] = [
   AxisType.MOTOR_SKILLS,
 ];
 
-describe('selectionFor', () => {
+describe('resolveHistorySelection', () => {
   it('leaves both dimensions open on the default filter', () => {
-    expect(selectionFor('ALL')).toEqual({ mode: null, axis: null });
+    expect(resolveHistorySelection('ALL')).toEqual({ mode: null, axis: null });
   });
 
   const MODE_CHIPS: (SessionMode.FULL | SessionMode.TARGETED)[] = [
@@ -26,33 +26,33 @@ describe('selectionFor', () => {
   ];
 
   it.each(MODE_CHIPS)('keeps the axis open on the %s type filter', (mode) => {
-    expect(selectionFor(mode)).toEqual({ mode, axis: null });
+    expect(resolveHistorySelection(mode)).toEqual({ mode, axis: null });
   });
 
   it.each(AXIS_CHIPS)('couples the axis %s to the targeted mode', (axis) => {
-    expect(selectionFor(axis)).toEqual({
+    expect(resolveHistorySelection(axis)).toEqual({
       mode: SessionMode.TARGETED,
       axis,
     });
   });
 });
 
-describe('historyQueryFor', () => {
+describe('buildHistoryQuery', () => {
   it('asks for nothing on the default filter', () => {
-    expect(historyQueryFor('ALL')).toEqual({});
+    expect(buildHistoryQuery('ALL')).toEqual({});
   });
 
   it('asks for the mode alone on a type filter', () => {
-    expect(historyQueryFor(SessionMode.FULL)).toEqual({
+    expect(buildHistoryQuery(SessionMode.FULL)).toEqual({
       mode: SessionMode.FULL,
     });
-    expect(historyQueryFor(SessionMode.TARGETED)).toEqual({
+    expect(buildHistoryQuery(SessionMode.TARGETED)).toEqual({
       mode: SessionMode.TARGETED,
     });
   });
 
   it('asks for the targeted mode alongside the axis so full sessions are excluded', () => {
-    expect(historyQueryFor(AxisType.REACTIVITY)).toEqual({
+    expect(buildHistoryQuery(AxisType.REACTIVITY)).toEqual({
       mode: SessionMode.TARGETED,
       axis: AxisType.REACTIVITY,
     });
@@ -102,7 +102,7 @@ describe('areAxisChipsEnabled', () => {
 describe('filter transitions', () => {
   function state(filter: SessionHistoryFilter) {
     return {
-      query: historyQueryFor(filter),
+      query: buildHistoryQuery(filter),
       axisChips: areAxisChipsEnabled(filter),
       lit: (
         [

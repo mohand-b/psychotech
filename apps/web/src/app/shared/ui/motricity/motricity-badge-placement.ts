@@ -14,29 +14,29 @@ const BADGE_GAP = 12;
 const CANVAS_EDGE = 8;
 const CORRIDOR_PADDING = 6;
 
-function clampX(x: number): number {
+function clampBadgeX(x: number): number {
   return Math.min(
     Math.max(x, CANVAS_EDGE),
     MOTRICITY_CANVAS_WIDTH - MOTRICITY_BADGE_WIDTH - CANVAS_EDGE,
   );
 }
 
-function clampY(y: number): number {
+function clampBadgeY(y: number): number {
   return Math.min(
     Math.max(y, CANVAS_EDGE),
     MOTRICITY_CANVAS_HEIGHT - MOTRICITY_BADGE_HEIGHT - CANVAS_EDGE,
   );
 }
 
-function candidatePlacements(anchor: MotricityRect): MotricityPoint[] {
-  const centeredX = clampX(
+function listCandidatePlacements(anchor: MotricityRect): MotricityPoint[] {
+  const centeredX = clampBadgeX(
     anchor.x + anchor.width / 2 - MOTRICITY_BADGE_WIDTH / 2,
   );
   const below = anchor.y + anchor.height + BADGE_GAP;
   const above = anchor.y - BADGE_GAP - MOTRICITY_BADGE_HEIGHT;
   const right = anchor.x + anchor.width + BADGE_GAP;
   const left = anchor.x - BADGE_GAP - MOTRICITY_BADGE_WIDTH;
-  const centeredY = clampY(
+  const centeredY = clampBadgeY(
     anchor.y + anchor.height / 2 - MOTRICITY_BADGE_HEIGHT / 2,
   );
   return [
@@ -47,7 +47,7 @@ function candidatePlacements(anchor: MotricityRect): MotricityPoint[] {
   ];
 }
 
-function insideCanvas(placement: MotricityPoint): boolean {
+function isBadgeInsideCanvas(placement: MotricityPoint): boolean {
   return (
     placement.x >= CANVAS_EDGE &&
     placement.y >= CANVAS_EDGE &&
@@ -58,7 +58,7 @@ function insideCanvas(placement: MotricityPoint): boolean {
   );
 }
 
-function corridorClearance(
+function computeCorridorClearance(
   course: MotricityCourse,
   placement: MotricityPoint,
 ): number {
@@ -82,14 +82,15 @@ function placeBadge(
   course: MotricityCourse,
   anchor: MotricityRect,
 ): MotricityPoint {
-  const candidates = candidatePlacements(anchor).filter(insideCanvas);
+  const candidates =
+    listCandidatePlacements(anchor).filter(isBadgeInsideCanvas);
   let best: MotricityPoint = candidates[0] ?? {
     x: CANVAS_EDGE,
     y: CANVAS_EDGE,
   };
   let bestClearance = -Infinity;
   for (const candidate of candidates) {
-    const clearance = corridorClearance(course, candidate);
+    const clearance = computeCorridorClearance(course, candidate);
     if (clearance >= CORRIDOR_PADDING) {
       return candidate;
     }
@@ -101,13 +102,13 @@ function placeBadge(
   return best;
 }
 
-export function motricityStartBadgePlacement(
+export function placeMotricityStartBadge(
   course: MotricityCourse,
 ): MotricityPoint {
   return placeBadge(course, course.garage);
 }
 
-export function motricityEndBadgePlacement(
+export function placeMotricityEndBadge(
   course: MotricityCourse,
 ): MotricityPoint {
   return placeBadge(course, course.endZone);

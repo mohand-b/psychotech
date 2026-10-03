@@ -13,7 +13,7 @@ const AXIS_SHORT_LABELS: Partial<Record<AxisType, string>> = {
   [AxisType.VISUAL_DISCRIMINATION]: 'Discrimination',
 };
 
-function buildPresentation(axis: AxisType): AxisPresentation {
+function buildAxisPresentation(axis: AxisType): AxisPresentation {
   const meta = AXIS_META[axis];
   return {
     label: meta.label,
@@ -29,6 +29,6 @@ export const AXIS_PRESENTATION: Record<AxisType, AxisPresentation> =
   Object.fromEntries(
     (Object.keys(AXIS_META) as AxisType[]).map((axis) => [
       axis,
-      buildPresentation(axis),
+      buildAxisPresentation(axis),
     ]),
   ) as Record<AxisType, AxisPresentation>;

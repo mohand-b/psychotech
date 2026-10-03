@@ -22,8 +22,8 @@ import { PasswordField } from '../../../shared/ui/password-field/password-field'
 import { AuthFacade } from '../../data-access/auth.facade';
 import { AuthSeparator } from '../../ui/auth-separator/auth-separator';
 import { GoogleSignInButton } from '../../ui/google-sign-in-button/google-sign-in-button';
-import { emailErrorMessage } from '../email-validation';
-import { ssoErrorMessageFromParam } from '../sso-error-messages';
+import { describeEmailError } from '../email-validation';
+import { describeSsoError } from '../sso-error-messages';
 
 @Component({
   selector: 'app-login',
@@ -63,14 +63,14 @@ export class Login {
   });
 
   protected readonly googleHref = computed(() =>
-    this.authFacade.googleStartUrl({
+    this.authFacade.buildGoogleSignInUrl({
       from: 'login',
       returnUrl: this.returnUrl() ?? undefined,
     }),
   );
 
   protected readonly ssoError = linkedSignal(() =>
-    ssoErrorMessageFromParam(this.queryParams().get(SSO_ERROR_QUERY_PARAM)),
+    describeSsoError(this.queryParams().get(SSO_ERROR_QUERY_PARAM)),
   );
 
   protected readonly displayedError = computed(
@@ -78,23 +78,23 @@ export class Login {
   );
 
   protected readonly emailError = computed(() =>
-    this.submitted() ? emailErrorMessage(this.email()) : null,
+    this.submitted() ? describeEmailError(this.email()) : null,
   );
   protected readonly passwordError = computed(() =>
     this.submitted() && this.password() === '' ? 'Mot de passe requis' : null,
   );
 
-  protected submitOnEnter(event: Event): void {
+  protected submitCredentialsOnEnter(event: Event): void {
     if (
       event instanceof KeyboardEvent &&
       event.key === 'Enter' &&
       event.target instanceof HTMLInputElement
     ) {
-      this.submit();
+      this.submitCredentials();
     }
   }
 
-  protected submit(): void {
+  protected submitCredentials(): void {
     if (this.pending()) {
       return;
     }
@@ -110,11 +110,11 @@ export class Login {
       .subscribe({
         next: () => this.router.navigateByUrl(this.returnUrl() ?? '/dashboard'),
         error: (error: unknown) =>
-          this.serverError.set(this.toServerError(error)),
+          this.serverError.set(this.describeLoginError(error)),
       });
   }
 
-  private toServerError(error: unknown): string {
+  private describeLoginError(error: unknown): string {
     if (error instanceof HttpErrorResponse && error.status === 401) {
       return 'Identifiants invalides.';
     }

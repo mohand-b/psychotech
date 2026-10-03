@@ -13,8 +13,8 @@ import {
   roundToTenth,
 } from '@psychotech/shared';
 import {
-  exampleAxisFindings,
-  exampleAxisScores,
+  buildExampleAxisFindings,
+  computeExampleAxisScores,
 } from './example-axis-detail.fixture';
 
 const ADMISSIBILITY_THRESHOLD = 70;
@@ -33,11 +33,11 @@ const CRITICAL_COEFFICIENT = 1.2;
 
 const EXAMPLE_AXIS_ORDER: readonly AxisType[] = FULL_SESSION_AXIS_ORDER;
 
-function isCritical(axis: AxisType): boolean {
+function isCriticalAxis(axis: AxisType): boolean {
   return (AXIS_COEFFICIENT[axis] ?? 1) >= CRITICAL_COEFFICIENT;
 }
 
-function weightedGlobalScore(scores: Record<AxisType, number>): number {
+function computeWeightedGlobalScore(scores: Record<AxisType, number>): number {
   const totals = EXAMPLE_AXIS_ORDER.reduce(
     (acc, axis) => {
       const coefficient = AXIS_COEFFICIENT[axis] ?? 1;
@@ -51,17 +51,17 @@ function weightedGlobalScore(scores: Record<AxisType, number>): number {
   return roundToTenth(totals.weighted / totals.coefficients);
 }
 
-export function buildExampleBilan(completedAt: string): SimulationSummaryDto {
+export function buildExampleSummary(completedAt: string): SimulationSummaryDto {
   const sector = Sector.RAILWAY;
-  const scores = exampleAxisScores();
-  const globalScore = weightedGlobalScore(scores);
+  const scores = computeExampleAxisScores();
+  const globalScore = computeWeightedGlobalScore(scores);
 
   const axes: SimulationAxisSummaryDto[] = EXAMPLE_AXIS_ORDER.map((axis) => ({
     axis,
     score: scores[axis],
     band: avisFromScore(scores[axis]),
-    isCritical: isCritical(axis),
-    eliminatoryThreshold: isCritical(axis) ? ELIMINATORY_THRESHOLD : null,
+    isCritical: isCriticalAxis(axis),
+    eliminatoryThreshold: isCriticalAxis(axis) ? ELIMINATORY_THRESHOLD : null,
     vigilanceThreshold: VIGILANCE_THRESHOLD,
     observables: [],
   }));
@@ -73,7 +73,7 @@ export function buildExampleBilan(completedAt: string): SimulationSummaryDto {
     isCritical: critical,
   }));
 
-  const findingsByAxis: AxisFindingsEntry[] = exampleAxisFindings();
+  const findingsByAxis: AxisFindingsEntry[] = buildExampleAxisFindings();
 
   const selection = buildSimulationSummary(
     outcomes,

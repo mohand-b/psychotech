@@ -8,8 +8,8 @@ import {
   GamepadSignalErrorCode,
 } from '@psychotech/shared';
 import {
-  crankSmoothedSpeed,
-  gamepadSignalingUrl,
+  smoothCrankSpeed,
+  buildGamepadSignalingUrl,
 } from '../../shared/util/gamepad-logic';
 import { GamepadTransport } from './gamepad-transport';
 
@@ -63,7 +63,7 @@ export class GamepadControllerFacade {
   private finished = false;
   private wakeLock: { release: () => Promise<void> } | null = null;
 
-  connect(token: string, forceRelay: boolean): void {
+  connectToDesktop(token: string, forceRelay: boolean): void {
     this.forceRelay = forceRelay;
     this.openTransport(token);
   }
@@ -82,7 +82,7 @@ export class GamepadControllerFacade {
     }
   }
 
-  release(): void {
+  disconnectFromDesktop(): void {
     this.teardownTransport();
     this.activeToken = null;
     if (this.wakeLock) {
@@ -98,12 +98,12 @@ export class GamepadControllerFacade {
     this.errorMessageSignal.set(null);
     this.viewSignal.set('WAITING');
     this.transport = new GamepadTransport({
-      url: gamepadSignalingUrl(window.location),
+      url: buildGamepadSignalingUrl(window.location),
       token,
       role: 'PHONE',
       forceRelay: this.forceRelay,
-      onMessage: (message) => this.handleChannelMessage(message),
-      onStateChange: (state) => this.handleStateChange(state),
+      onMessage: (message) => this.applyChannelMessage(message),
+      onStateChange: (state) => this.applyConnectionState(state),
       onModeChange: () => undefined,
       onError: (errorCode) => {
         this.teardownTransport();
@@ -112,10 +112,10 @@ export class GamepadControllerFacade {
         this.viewSignal.set('INVALID');
       },
     });
-    this.transport.connect();
+    this.transport.openSignalingSocket();
   }
 
-  private handleStateChange(state: GamepadConnectionState): void {
+  private applyConnectionState(state: GamepadConnectionState): void {
     if (this.finished) {
       return;
     }
@@ -138,13 +138,17 @@ export class GamepadControllerFacade {
     }
   }
 
-  private handleChannelMessage(message: GamepadChannelMessage): void {
+  private applyChannelMessage(message: GamepadChannelMessage): void {
     if (message.kind === 'ping') {
       this.lastPingAtMs = performance.now();
       if (this.viewSignal() === 'SUSPENDED') {
         this.viewSignal.set('CONNECTED');
       }
-      this.transport?.send({ kind: 'pong', id: message.id, t: message.t });
+      this.transport?.sendChannelMessage({
+        kind: 'pong',
+        id: message.id,
+        t: message.t,
+      });
       return;
     }
     if (message.kind === 'haptic') {
@@ -173,13 +177,13 @@ export class GamepadControllerFacade {
           : Math.max(1 / 1000, (now - this.lastTickAtMs) / 1000);
       this.lastTickAtMs = now;
       this.leftSpeedSignal.set(
-        crankSmoothedSpeed(
+        smoothCrankSpeed(
           this.leftSpeedSignal(),
           this.leftPendingDeltaRad / dtSec,
         ),
       );
       this.rightSpeedSignal.set(
-        crankSmoothedSpeed(
+        smoothCrankSpeed(
           this.rightSpeedSignal(),
           this.rightPendingDeltaRad / dtSec,
         ),
@@ -187,7 +191,7 @@ export class GamepadControllerFacade {
       this.leftPendingDeltaRad = 0;
       this.rightPendingDeltaRad = 0;
       this.seq += 1;
-      this.transport?.send({
+      this.transport?.sendChannelMessage({
         kind: 'input',
         seq: this.seq,
         t: Math.round(now),
@@ -257,7 +261,7 @@ export class GamepadControllerFacade {
       this.reconnectTimerId = null;
     }
     if (this.transport) {
-      this.transport.close();
+      this.transport.closeConnections();
       this.transport = null;
     }
   }

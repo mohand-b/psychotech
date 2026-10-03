@@ -28,7 +28,7 @@ const SLOT_KEYS: Record<TriangleSlot, string> = {
   [TriangleSlot.CENTER]: 'center',
 };
 
-function toPercent(value: number, extent: number): string {
+function formatPercentOfExtent(value: number, extent: number): string {
   return `${((value / extent) * 100).toFixed(1)}%`;
 }
 
@@ -134,8 +134,8 @@ export class TriangleTile {
       slot,
       value: values[slot],
       accent: slot === accentKey,
-      left: toPercent(x, 132),
-      top: toPercent(y, 156),
+      left: formatPercentOfExtent(x, 132),
+      top: formatPercentOfExtent(y, 156),
     }));
   });
 }

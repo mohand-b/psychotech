@@ -117,8 +117,8 @@ export class ResultSummary {
       return null;
     }
     return this.isCritical()
-      ? criticalThreshold(referential)
-      : vigilanceThreshold(referential);
+      ? buildCriticalThresholdView(referential)
+      : buildVigilanceThresholdView(referential);
   });
 
   protected readonly gap = computed<AxisGapView | null>(() => {
@@ -143,7 +143,7 @@ export class ResultSummary {
   private revealDoneEmitted = false;
 
   constructor() {
-    afterNextRender(() => this.reveal.start(this.score()));
+    afterNextRender(() => this.reveal.revealScore(this.score()));
     effect(() => {
       if (this.reveal.completed() && !this.revealDoneEmitted) {
         this.revealDoneEmitted = true;
@@ -160,7 +160,7 @@ export class ResultSummary {
   });
 }
 
-function criticalThreshold(
+function buildCriticalThresholdView(
   referential: SectorReferentialDto,
 ): AxisThresholdView {
   return {
@@ -171,7 +171,7 @@ function criticalThreshold(
   };
 }
 
-function vigilanceThreshold(
+function buildVigilanceThresholdView(
   referential: SectorReferentialDto,
 ): AxisThresholdView {
   return {

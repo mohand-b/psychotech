@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { Check, LucideIconData } from 'lucide-angular';
 import { Icon } from '../icon/icon';
-import { inputValue } from '../../util/input-value';
+import { readInputValue } from '../../util/input-value';
 
 @Component({
   selector: 'ui-form-field',
@@ -32,7 +32,7 @@ import { inputValue } from '../../util/input-value';
           [type]="type()"
           [placeholder]="placeholder()"
           [value]="value()"
-          (input)="value.set(readValue($event))"
+          (input)="value.set(readInputValue($event))"
         />
         <ng-content select="[field-suffix]" />
         @if (showValid()) {
@@ -128,7 +128,7 @@ export class FormField {
   readonly value = model('');
 
   protected readonly checkIcon = Check;
-  protected readonly readValue = inputValue;
+  protected readonly readInputValue = readInputValue;
 
   protected readonly showValid = computed(() => this.valid() && !this.error());
 

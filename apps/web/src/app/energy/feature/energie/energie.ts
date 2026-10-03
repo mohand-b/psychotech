@@ -43,7 +43,7 @@ import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
-import { inputValue } from '../../../shared/util/input-value';
+import { readInputValue } from '../../../shared/util/input-value';
 
 type EnergieView = 'packs' | 'checkout' | 'confirmation';
 
@@ -73,7 +73,7 @@ const FAMILY_SHOWCASE_ORDER: Record<BadgeFamily, number> = {
   [BadgeFamily.AXIS]: 2,
 };
 
-function topRewardBadges(): RewardBadgeView[] {
+function pickTopRewardBadges(): RewardBadgeView[] {
   return [...BADGE_CATALOG]
     .filter((definition) => definition.energyReward > 0)
     .sort(
@@ -135,7 +135,7 @@ export class Energie implements OnDestroy {
   protected readonly arrowLeftIcon = ArrowLeft;
   protected readonly giftIcon = Gift;
   protected readonly checkIcon = Check;
-  protected readonly readValue = inputValue;
+  protected readonly readValue = readInputValue;
 
   protected readonly targetedCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
   protected readonly fullCost = SESSION_ENERGY_COST[SessionMode.FULL];
@@ -150,13 +150,13 @@ export class Energie implements OnDestroy {
   protected readonly confirmation = signal<ConfirmationState>('pending');
 
   protected readonly packs: readonly PackCardView[] = ENERGY_PACKS.map((pack) =>
-    this.toPackCard(pack),
+    this.buildPackCard(pack),
   );
 
   protected readonly totalReward = BADGE_TOTAL_REWARD;
 
   protected readonly rewardBadges: readonly RewardBadgeView[] =
-    topRewardBadges();
+    pickTopRewardBadges();
 
   constructor() {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
@@ -174,7 +174,7 @@ export class Energie implements OnDestroy {
 
   ngOnDestroy(): void {
     this.embeddedCheckout?.destroy();
-    this.cancelGiftCounter();
+    this.cancelGiftCounterAnimation();
   }
 
   protected readonly giftCode = signal('');
@@ -186,12 +186,12 @@ export class Energie implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private giftFrame: number | null = null;
 
-  protected onGiftInput(event: Event): void {
-    this.giftCode.set(inputValue(event));
+  protected updateGiftCode(event: Event): void {
+    this.giftCode.set(readInputValue(event));
     this.giftStatus.set('idle');
   }
 
-  protected applyGiftCode(): void {
+  protected redeemGiftCode(): void {
     const code = this.giftCode().trim();
     if (code.length === 0 || this.giftSending()) {
       return;
@@ -214,8 +214,8 @@ export class Energie implements OnDestroy {
       });
   }
 
-  protected resetGift(): void {
-    this.cancelGiftCounter();
+  protected resetGiftCodeForm(): void {
+    this.cancelGiftCounterAnimation();
     this.giftCode.set('');
     this.giftGranted.set(0);
     this.giftCounter.set(0);
@@ -223,7 +223,7 @@ export class Energie implements OnDestroy {
   }
 
   private animateGiftCounter(granted: number): void {
-    this.cancelGiftCounter();
+    this.cancelGiftCounterAnimation();
     const view = this.document.defaultView;
     const reduced =
       !view ||
@@ -235,7 +235,7 @@ export class Energie implements OnDestroy {
     }
     this.giftCounter.set(0);
     const start = view.performance.now();
-    const step = (now: number) => {
+    const renderGiftCounterFrame = (now: number) => {
       const elapsed = now - start - GIFT_COUNT_DELAY_MS;
       const value =
         elapsed <= 0
@@ -243,19 +243,21 @@ export class Energie implements OnDestroy {
           : Math.min(granted, Math.floor(elapsed / GIFT_COUNT_STEP_MS) + 1);
       this.giftCounter.set(value);
       this.giftFrame =
-        value >= granted ? null : view.requestAnimationFrame(step);
+        value >= granted
+          ? null
+          : view.requestAnimationFrame(renderGiftCounterFrame);
     };
-    this.giftFrame = view.requestAnimationFrame(step);
+    this.giftFrame = view.requestAnimationFrame(renderGiftCounterFrame);
   }
 
-  private cancelGiftCounter(): void {
+  private cancelGiftCounterAnimation(): void {
     if (this.giftFrame !== null) {
       this.document.defaultView?.cancelAnimationFrame(this.giftFrame);
       this.giftFrame = null;
     }
   }
 
-  protected async selectPack(packId: EnergyPackId): Promise<void> {
+  protected async openPackCheckout(packId: EnergyPackId): Promise<void> {
     if (this.checkoutLoading()) {
       return;
     }
@@ -275,7 +277,7 @@ export class Energie implements OnDestroy {
     }
   }
 
-  protected backToPacks(): void {
+  protected returnToPacks(): void {
     this.embeddedCheckout?.destroy();
     this.embeddedCheckout = null;
     this.checkoutError.set(false);
@@ -287,7 +289,7 @@ export class Energie implements OnDestroy {
       .pipe(
         take(STATUS_POLL_ATTEMPTS),
         concatMap(() =>
-          this.billingFacade.checkoutStatus(sessionId).pipe(
+          this.billingFacade.fetchCheckoutStatus(sessionId).pipe(
             catchError(() => {
               this.confirmation.set('error');
               return EMPTY;
@@ -297,7 +299,7 @@ export class Energie implements OnDestroy {
         takeWhile((status, index) => {
           if (status.credited) {
             this.confirmation.set('credited');
-            this.energyFacade.reload();
+            this.energyFacade.reloadEnergyBalance();
             return false;
           }
           if (status.status !== 'complete') {
@@ -316,7 +318,7 @@ export class Energie implements OnDestroy {
       .subscribe();
   }
 
-  private toPackCard(pack: EnergyPackDefinition): PackCardView {
+  private buildPackCard(pack: EnergyPackDefinition): PackCardView {
     return {
       id: pack.id,
       title: pack.title,

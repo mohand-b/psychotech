@@ -19,7 +19,7 @@ import { ResultPage } from '../../ui/result-page/result-page';
 import { ResultPanel } from '../../ui/result-panel/result-panel';
 import { ResultRecommendation } from '../../ui/result-recommendation/result-recommendation';
 import { ResultSummary } from '../../ui/result-summary/result-summary';
-import { targetedResultPage } from '../targeted-result-page';
+import { createTargetedResultPage } from '../targeted-result-page';
 import { ResultTiming } from '../../ui/result-timing/result-timing';
 import { ReactivityTrChart } from '../../../shared/ui/reactivity-tr-chart/reactivity-tr-chart';
 
@@ -40,7 +40,7 @@ import { ReactivityTrChart } from '../../../shared/ui/reactivity-tr-chart/reacti
   templateUrl: './reactivity-result.html',
 })
 export class ReactivityResult {
-  protected readonly page = targetedResultPage(AxisType.REACTIVITY);
+  protected readonly page = createTargetedResultPage(AxisType.REACTIVITY);
 
   protected readonly scored = computed<ReactivitySessionScore | null>(() => {
     const result = this.page.result();

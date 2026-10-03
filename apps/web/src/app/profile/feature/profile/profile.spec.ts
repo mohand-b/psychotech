@@ -92,7 +92,7 @@ async function setup(user: UserProfileDto = buildUser()) {
         provide: EnergyFacade,
         useValue: {
           state: signal(energyState(12)),
-          load: () => of(energyState(12)),
+          loadEnergyBalance: () => of(energyState(12)),
           fetchPurchases: () => signal(PURCHASES).asReadonly(),
         },
       },

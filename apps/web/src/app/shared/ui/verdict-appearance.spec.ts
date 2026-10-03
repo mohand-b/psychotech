@@ -9,7 +9,7 @@ import {
   VERDICT_TONE_COLOR_VARS,
   VERDICT_TONE_INK_VARS,
   resolveVerdictAppearance,
-  verdictWordInkVar,
+  resolveVerdictWordInk,
 } from './verdict-appearance';
 
 const NON_CRITICAL = { isCritical: false, eliminatoryThreshold: 55 };
@@ -69,7 +69,7 @@ describe('verdict colour single source', () => {
     for (let step = 0; step <= AXIS_STAMP_MAX * 10; step += 1) {
       const score = step / 10;
       const appearance = resolveVerdictAppearance(score, CRITICAL);
-      expect([score, verdictWordInkVar(appearance.word)]).toEqual([
+      expect([score, resolveVerdictWordInk(appearance.word)]).toEqual([
         score,
         appearance.inkVar,
       ]);
@@ -78,7 +78,7 @@ describe('verdict colour single source', () => {
 
   it('covers every word and every tone with a token', () => {
     for (const word of Object.values(AxisStampWord)) {
-      expect(verdictWordInkVar(word)).toMatch(/^var\(--rating-.+-ink\)$/);
+      expect(resolveVerdictWordInk(word)).toMatch(/^var\(--rating-.+-ink\)$/);
     }
     for (const tone of Object.values(VerdictTone)) {
       expect(VERDICT_TONE_COLOR_VARS[tone]).toMatch(/^var\(--rating-.+\)$/);

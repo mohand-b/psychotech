@@ -15,10 +15,10 @@ import { AXIS_PRESENTATION } from '../axis-presentation';
 import {
   MOTRICITY_BADGE_HEIGHT,
   MOTRICITY_BADGE_WIDTH,
-  motricityEndBadgePlacement,
-  motricityStartBadgePlacement,
+  placeMotricityEndBadge,
+  placeMotricityStartBadge,
 } from './motricity-badge-placement';
-import { formatPoints } from './svg-points';
+import { formatSvgPoints } from './svg-points';
 
 @Component({
   selector: 'ui-motricity-course-preview',
@@ -179,22 +179,22 @@ export class MotricityCoursePreview {
   protected readonly badgeHeight = MOTRICITY_BADGE_HEIGHT;
 
   protected readonly startBadge = computed(() =>
-    motricityStartBadgePlacement(this.course()),
+    placeMotricityStartBadge(this.course()),
   );
   protected readonly endBadge = computed(() =>
-    motricityEndBadgePlacement(this.course()),
+    placeMotricityEndBadge(this.course()),
   );
 
   protected readonly polygonPoints = computed(() =>
-    formatPoints(this.course().polygon),
+    formatSvgPoints(this.course().polygon),
   );
   protected readonly leftSidePoints = computed(() =>
-    formatPoints(this.course().leftSide),
+    formatSvgPoints(this.course().leftSide),
   );
   protected readonly rightSidePoints = computed(() =>
-    formatPoints(this.course().rightSide),
+    formatSvgPoints(this.course().rightSide),
   );
   protected readonly centerlinePoints = computed(() =>
-    formatPoints(this.course().centerline),
+    formatSvgPoints(this.course().centerline),
   );
 }

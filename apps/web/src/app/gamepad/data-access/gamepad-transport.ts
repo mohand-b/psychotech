@@ -32,7 +32,7 @@ export class GamepadTransport {
 
   constructor(private readonly options: GamepadTransportOptions) {}
 
-  connect(): void {
+  openSignalingSocket(): void {
     this.closed = false;
     this.options.onStateChange(GamepadConnectionState.CONNECTING);
     const socket = new WebSocket(this.options.url);
@@ -45,7 +45,9 @@ export class GamepadTransport {
       });
     };
     socket.onmessage = (event) => {
-      this.handleSignal(JSON.parse(String(event.data)) as GamepadSignalMessage);
+      this.applySignalMessage(
+        JSON.parse(String(event.data)) as GamepadSignalMessage,
+      );
     };
     socket.onclose = () => {
       if (!this.closed) {
@@ -54,7 +56,7 @@ export class GamepadTransport {
     };
   }
 
-  send(message: GamepadChannelMessage): void {
+  sendChannelMessage(message: GamepadChannelMessage): void {
     if (this.dataChannel && this.dataChannel.readyState === 'open') {
       this.dataChannel.send(JSON.stringify(message));
       return;
@@ -64,7 +66,7 @@ export class GamepadTransport {
     }
   }
 
-  close(): void {
+  closeConnections(): void {
     this.closed = true;
     this.clearIceTimer();
     this.teardownPeerConnection();
@@ -75,17 +77,17 @@ export class GamepadTransport {
     }
   }
 
-  private handleSignal(message: GamepadSignalMessage): void {
+  private applySignalMessage(message: GamepadSignalMessage): void {
     switch (message.type) {
       case 'joined':
         if (message.peerPresent) {
-          this.onPeerAvailable();
+          this.connectToAvailablePeer();
         } else {
           this.options.onStateChange(GamepadConnectionState.WAITING);
         }
         break;
       case 'peer-joined':
-        this.onPeerAvailable();
+        this.connectToAvailablePeer();
         break;
       case 'peer-left':
         this.clearIceTimer();
@@ -121,7 +123,7 @@ export class GamepadTransport {
     }
   }
 
-  private onPeerAvailable(): void {
+  private connectToAvailablePeer(): void {
     this.options.onStateChange(GamepadConnectionState.CONNECTED);
     this.setMode('RELAY');
     if (this.options.forceRelay || typeof RTCPeerConnection === 'undefined') {

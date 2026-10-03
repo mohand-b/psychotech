@@ -18,7 +18,7 @@ export interface TriangleDisplayValues {
   center: number | null;
 }
 
-export function triangleDisplayValues(
+export function fillMissingSlotWithAnswer(
   values: TriangleValues,
   slot: TriangleSlot,
   answerValue: number | null,
@@ -124,7 +124,7 @@ export class TriangleSeries {
     const missing = this.missing();
     return this.triangles().map((triangle, index) =>
       index === missing.triangleIndex
-        ? triangleDisplayValues(triangle, missing.slot, this.answerValue())
+        ? fillMissingSlotWithAnswer(triangle, missing.slot, this.answerValue())
         : triangle,
     );
   });

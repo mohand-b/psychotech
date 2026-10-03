@@ -7,7 +7,7 @@ const SMOOTH_SCROLL_CLASS = 'smooth-anchor-scroll';
 
 @Directive({
   selector: '[appSmoothAnchors]',
-  host: { '(click)': 'onClick($event)' },
+  host: { '(click)': 'enableSmoothScrollForAnchor($event)' },
 })
 export class SmoothAnchors {
   private readonly document = inject(DOCUMENT);
@@ -29,7 +29,7 @@ export class SmoothAnchors {
       });
   }
 
-  protected onClick(event: Event): void {
+  protected enableSmoothScrollForAnchor(event: Event): void {
     const anchor = (event.target as Element).closest('a');
     if (anchor?.getAttribute('href')?.includes('#')) {
       this.document.documentElement.classList.add(SMOOTH_SCROLL_CLASS);

@@ -3,20 +3,20 @@ export interface VerticalSpan {
   bottom: number;
 }
 
-function middleOf(span: VerticalSpan): number {
+function computeSpanMiddle(span: VerticalSpan): number {
   return (span.top + span.bottom) / 2;
 }
 
-export function indexNearestToMiddleOf(
+export function findIndexNearestToMiddle(
   spans: readonly VerticalSpan[],
   band: VerticalSpan,
   fallbackIndex: number,
 ): number {
-  const middle = middleOf(band);
+  const middle = computeSpanMiddle(band);
   let nearestIndex = fallbackIndex;
   let shortestDistance = Number.POSITIVE_INFINITY;
   spans.forEach((span, index) => {
-    const distance = Math.abs(middleOf(span) - middle);
+    const distance = Math.abs(computeSpanMiddle(span) - middle);
     if (distance < shortestDistance) {
       shortestDistance = distance;
       nearestIndex = index;

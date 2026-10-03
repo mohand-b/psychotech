@@ -10,8 +10,8 @@ import {
 import {
   MOTRICITY_BADGE_HEIGHT,
   MOTRICITY_BADGE_WIDTH,
-  motricityEndBadgePlacement,
-  motricityStartBadgePlacement,
+  placeMotricityEndBadge,
+  placeMotricityStartBadge,
 } from './motricity-badge-placement';
 
 function badgeRect(placement: MotricityPoint): MotricityRect {
@@ -23,7 +23,7 @@ function badgeRect(placement: MotricityPoint): MotricityRect {
   };
 }
 
-function corridorClearance(
+function computeCorridorClearance(
   course: MotricityCourse,
   placement: MotricityPoint,
 ): number {
@@ -61,8 +61,8 @@ describe('motricity badge placement', () => {
   it('keeps both badges fully inside the canvas over varied seeded courses', () => {
     for (const course of seededCourses) {
       for (const badge of [
-        motricityStartBadgePlacement(course),
-        motricityEndBadgePlacement(course),
+        placeMotricityStartBadge(course),
+        placeMotricityEndBadge(course),
       ]) {
         expect(badge.x).toBeGreaterThanOrEqual(0);
         expect(badge.y).toBeGreaterThanOrEqual(0);
@@ -79,10 +79,10 @@ describe('motricity badge placement', () => {
   it('never lets a badge intrude on the corridor over varied seeded courses', () => {
     for (const course of seededCourses) {
       expect(
-        corridorClearance(course, motricityStartBadgePlacement(course)),
+        computeCorridorClearance(course, placeMotricityStartBadge(course)),
       ).toBeGreaterThan(0);
       expect(
-        corridorClearance(course, motricityEndBadgePlacement(course)),
+        computeCorridorClearance(course, placeMotricityEndBadge(course)),
       ).toBeGreaterThan(0);
     }
   });
@@ -91,15 +91,12 @@ describe('motricity badge placement', () => {
     for (const course of seededCourses) {
       expect(
         rectsOverlap(
-          badgeRect(motricityStartBadgePlacement(course)),
+          badgeRect(placeMotricityStartBadge(course)),
           course.garage,
         ),
       ).toBe(false);
       expect(
-        rectsOverlap(
-          badgeRect(motricityEndBadgePlacement(course)),
-          course.endZone,
-        ),
+        rectsOverlap(badgeRect(placeMotricityEndBadge(course)), course.endZone),
       ).toBe(false);
     }
   });
@@ -113,7 +110,7 @@ describe('motricity badge placement', () => {
         y: MOTRICITY_CANVAS_HEIGHT - course.garage.height - 2,
       },
     };
-    const badge = motricityStartBadgePlacement(grounded);
+    const badge = placeMotricityStartBadge(grounded);
     expect(badge.y + MOTRICITY_BADGE_HEIGHT).toBeLessThanOrEqual(
       MOTRICITY_CANVAS_HEIGHT,
     );
@@ -126,7 +123,7 @@ describe('motricity badge placement', () => {
       ...course,
       endZone: { ...course.endZone, y: 2 },
     };
-    const badge = motricityEndBadgePlacement(raised);
+    const badge = placeMotricityEndBadge(raised);
     expect(badge.y).toBeGreaterThanOrEqual(0);
     expect(rectsOverlap(badgeRect(badge), raised.endZone)).toBe(false);
   });

@@ -74,7 +74,7 @@
             [block]="true"
             [loading]="resendState.sending()"
             [disabled]="resendState.cooldownSeconds() !== null"
-            (click)="resendState.resend()"
+            (click)="resendState.resendVerification()"
           >
             @if (resendState.cooldownSeconds(); as seconds) {
               Renvoyer dans {{ seconds }}&nbsp;s
