@@ -2,6 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Injectable, Signal, inject, signal } from '@angular/core';
 import { Sector, TrainingsOverviewDto } from '@psychotech/shared';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
+import { readResourceValueOr } from '../../shared/util/resource-value';
 
 @Injectable()
 export class TrainingsOverviewFacade {
@@ -18,8 +19,10 @@ export class TrainingsOverviewFacade {
     { defaultValue: null },
   );
 
-  readonly overview: Signal<TrainingsOverviewDto | null> =
-    this.overviewResource.value;
+  readonly overview: Signal<TrainingsOverviewDto | null> = readResourceValueOr(
+    this.overviewResource,
+    null,
+  );
   readonly loading: Signal<boolean> = this.overviewResource.isLoading;
   readonly error: Signal<unknown> = this.overviewResource.error;
 

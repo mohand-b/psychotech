@@ -9,10 +9,17 @@ import {
   AxisType,
   BADGE_BY_ID,
   BADGE_CATALOG,
+  BadgeFamily,
   BadgeId,
   BadgeStatusDto,
+  BadgeTier,
+  ScoreBand,
   Sector,
+  SimulationVerdict,
+  TrainingsAxisOverviewDto,
+  TrainingsLastSimulationDto,
   TrainingsOverviewDto,
+  isBadgeReachable,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesPage } from './badges-page';
@@ -50,9 +57,86 @@ const EMPTY_OVERVIEW: TrainingsOverviewDto = {
   axes: [],
 };
 
+const EARNED: Partial<BadgeStatusDto> = {
+  earnedAt: '2026-08-01T10:00:00.000Z',
+  acknowledgedAt: '2026-08-01T10:00:00.000Z',
+};
+
+function earnedOnly(
+  badgeIds: readonly BadgeId[],
+): Partial<Record<BadgeId, Partial<BadgeStatusDto>>> {
+  return Object.fromEntries(badgeIds.map((badgeId) => [badgeId, EARNED]));
+}
+
+function conditionLabels(badgeId: BadgeId): string[] {
+  return (BADGE_BY_ID.get(badgeId)?.conditions ?? []).map(
+    (condition) => condition.label,
+  );
+}
+
+function firstStepsWithVerifiedAccount(): Partial<BadgeStatusDto> {
+  return {
+    conditions: (BADGE_BY_ID.get(BadgeId.FIRST_STEPS)?.conditions ?? []).map(
+      (condition, index) => ({
+        id: condition.id,
+        label: condition.label,
+        met: index === 0,
+      }),
+    ),
+  };
+}
+
+function axisOverview(
+  axis: AxisType,
+  bestScore: number,
+  isCriticalAxis = false,
+): TrainingsAxisOverviewDto {
+  return {
+    axis,
+    bestScore,
+    neverPlayed: false,
+    isCriticalAxis,
+    needsWork: false,
+  };
+}
+
+function overviewWith(
+  axes: TrainingsAxisOverviewDto[],
+  lastSimulation: TrainingsLastSimulationDto | null = null,
+): TrainingsOverviewDto {
+  return { ...EMPTY_OVERVIEW, axes, lastSimulation };
+}
+
+function lastSimulationAt(globalScore: number): TrainingsLastSimulationDto {
+  return {
+    sessionId: 'session-exam',
+    globalScore,
+    globalBand: ScoreBand.EXCELLENT,
+    isAdmissible: true,
+    isEliminated: false,
+    verdict: SimulationVerdict.FAVORABLE,
+    sectorThreshold: 70,
+    completedAt: '2026-09-30T10:00:00.000Z',
+  };
+}
+
+const TRANSVERSE_AND_LOWER_TIERS: BadgeId[] = BADGE_CATALOG.filter(
+  ({ family, tier }) =>
+    family === BadgeFamily.TRANSVERSE ||
+    (family === BadgeFamily.AXIS && tier !== BadgeTier.GOLD),
+).map(({ id }) => id);
+
+const OVERVIEW_FAILURE = 'failure';
+
+function closestConditionLabels(closest: HTMLElement): string[] {
+  return Array.from<HTMLElement>(
+    closest.querySelectorAll('.badges__closest-condition'),
+  ).map((condition) => condition.textContent?.trim() ?? '');
+}
+
 async function setup(
   statuses: BadgeStatusDto[],
-  overview: TrainingsOverviewDto = EMPTY_OVERVIEW,
+  overview: TrainingsOverviewDto | typeof OVERVIEW_FAILURE = EMPTY_OVERVIEW,
 ): Promise<ComponentFixture<BadgesPage>> {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -71,9 +155,17 @@ async function setup(
   fixture.detectChanges();
   const controller = TestBed.inject(HttpTestingController);
   controller.expectOne('/api/me/badges').flush(statuses);
-  controller
-    .expectOne((request) => request.url.includes('/me/trainings/overview'))
-    .flush(overview);
+  const overviewRequest = controller.expectOne((request) =>
+    request.url.includes('/me/trainings/overview'),
+  );
+  if (overview === OVERVIEW_FAILURE) {
+    overviewRequest.flush('indisponible', {
+      status: 500,
+      statusText: 'Server Error',
+    });
+  } else {
+    overviewRequest.flush(overview);
+  }
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture;
@@ -167,63 +259,240 @@ describe('BadgesPage', () => {
     expect(text).toContain('Encore +21 à gagner');
   });
 
-  it('picks the cheapest remaining actions when no score is close', async () => {
-    const definition = BADGE_BY_ID.get(BadgeId.FIRST_STEPS);
+  it('puts the free guide reading before the discovery mode and any paid session', async () => {
     const fixture = await setup(
       catalogStatuses({
-        [BadgeId.FIRST_STEPS]: {
-          conditions: (definition?.conditions ?? []).map(
-            (condition, index) => ({
-              id: condition.id,
-              label: condition.label,
-              met: index === 0,
-            }),
-          ),
-        },
+        [BadgeId.FIRST_STEPS]: firstStepsWithVerifiedAccount(),
       }),
+      overviewWith([axisOverview(AxisType.MEMORY, 69)]),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Badge transverse');
+    expect(closest.textContent).not.toContain('Averti');
+    expect(closest.textContent).toContain('+1');
+    expect(closestConditionLabels(closest)).toEqual(
+      conditionLabels(BadgeId.WELL_INFORMED),
+    );
+  });
+
+  it('keeps the remaining discovery action ahead of a one point score gap', async () => {
+    const fixture = await setup(
+      catalogStatuses({
+        [BadgeId.FIRST_STEPS]: firstStepsWithVerifiedAccount(),
+        [BadgeId.WELL_INFORMED]: EARNED,
+      }),
+      overviewWith([axisOverview(AxisType.MEMORY, 69)]),
     );
     const closest = fixture.nativeElement.querySelector('.badges__closest');
     expect(closest.textContent).toContain('Badge transverse');
     expect(closest.textContent).not.toContain('Premiers pas');
-    const conditions = Array.from<HTMLElement>(
-      closest.querySelectorAll('.badges__closest-condition'),
+    expect(closestConditionLabels(closest)).toEqual(
+      conditionLabels(BadgeId.FIRST_STEPS),
     );
     expect(
-      conditions.map((condition) => condition.textContent?.trim()),
-    ).toEqual(
-      (definition?.conditions ?? []).map((condition) => condition.label),
-    );
-    expect(
-      conditions.map((condition) =>
+      Array.from<HTMLElement>(
+        closest.querySelectorAll('.badges__closest-condition'),
+      ).map((condition) =>
         condition.classList.contains('badges__closest-condition--met'),
       ),
     ).toEqual([true, false]);
-    expect(closest.textContent).toContain('Un tutoriel terminé');
+    expect(closest.textContent).toContain(
+      'Un exercice en mode découverte terminé',
+    );
     expect(closest.textContent).toContain('+2');
     expect(
       closest.querySelector('.badges__closest-gain ui-axis-icon'),
     ).not.toBeNull();
   });
 
-  it('picks the smallest real score gap and names it by axis and tier without spoiling it', async () => {
-    const fixture = await setup(catalogStatuses(), {
-      lastSimulation: null,
-      vigilanceThreshold: 65,
-      axes: [
-        {
-          axis: AxisType.MEMORY,
-          bestScore: 65,
-          neverPlayed: false,
-          isCriticalAxis: true,
-          needsWork: false,
-        },
-      ],
-    });
+  it('picks the smallest real score gap once the free actions are done, without spoiling the name', async () => {
+    const fixture = await setup(
+      catalogStatuses(earnedOnly([BadgeId.FIRST_STEPS, BadgeId.WELL_INFORMED])),
+      overviewWith([axisOverview(AxisType.MEMORY, 65, true)]),
+    );
     const closest = fixture.nativeElement.querySelector('.badges__closest');
     expect(closest.textContent).toContain('Mémoire · palier Bronze');
     expect(closest.textContent).not.toContain('Tête bien pleine');
     expect(closest.textContent).toContain(
       'Votre meilleur score 65 · plus que 5 points',
+    );
+  });
+
+  it('never proposes a gold tier before the bronze of an untried axis', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([
+          BadgeId.FIRST_STEPS,
+          BadgeId.WELL_INFORMED,
+          BadgeId.REACTIVITY_PROGRESSION,
+          BadgeId.REACTIVITY_EXCELLENCE,
+        ]),
+      ),
+      overviewWith([axisOverview(AxisType.REACTIVITY, 86, true)]),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('palier Bronze');
+    expect(closest.textContent).not.toContain('Réactivité · palier Or');
+  });
+
+  it('never proposes the memory gold the current training plan cannot prove', async () => {
+    expect(isBadgeReachable(BadgeId.MEMORY_PERFECTION)).toBe(false);
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly(
+          BADGE_CATALOG.map(({ id }) => id).filter(
+            (id) => id !== BadgeId.MEMORY_PERFECTION,
+          ),
+        ),
+      ),
+      overviewWith([axisOverview(AxisType.MEMORY, 100)]),
+    );
+    expect(fixture.nativeElement.querySelector('.badges__closest')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      'Tous les badges accessibles sont obtenus',
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('Encore +');
+  });
+
+  it('announces a complete collection once every badge is earned', async () => {
+    const fixture = await setup(
+      catalogStatuses(earnedOnly(BADGE_CATALOG.map(({ id }) => id))),
+    );
+    expect(fixture.nativeElement.querySelector('.badges__closest')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Collection complète');
+  });
+
+  it('prefers the bronze of an untried axis to the silver of an axis already played', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([
+          BadgeId.FIRST_STEPS,
+          BadgeId.WELL_INFORMED,
+          BadgeId.LOGIC_PROGRESSION,
+          BadgeId.MEMORY_PROGRESSION,
+          BadgeId.DISCRIMINATION_PROGRESSION,
+          BadgeId.REACTIVITY_PROGRESSION,
+        ]),
+      ),
+      overviewWith([
+        axisOverview(AxisType.LOGIC, 72),
+        axisOverview(AxisType.MEMORY, 71, true),
+        axisOverview(AxisType.VISUAL_DISCRIMINATION, 72, true),
+        axisOverview(AxisType.REACTIVITY, 71, true),
+      ]),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Motricité · palier Bronze');
+  });
+
+  it('weighs the top exam tier as a proof, behind a gold within three points', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([
+          ...TRANSVERSE_AND_LOWER_TIERS,
+          BadgeId.EXAM_FIRST,
+          BadgeId.EXAM_FAVORABLE,
+        ]),
+      ),
+      overviewWith(
+        [
+          axisOverview(AxisType.LOGIC, 92),
+          axisOverview(AxisType.MEMORY, 88, true),
+          axisOverview(AxisType.VISUAL_DISCRIMINATION, 90, true),
+          axisOverview(AxisType.REACTIVITY, 97, true),
+          axisOverview(AxisType.MOTOR_SKILLS, 90),
+        ],
+        lastSimulationAt(88),
+      ),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Réactivité · palier Or');
+    expect(closest.textContent).not.toContain('Examen blanc · palier Or');
+  });
+
+  it('weighs the lane exit silver like the other silvers, never like a gold', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([
+          ...TRANSVERSE_AND_LOWER_TIERS.filter(
+            (badgeId) => badgeId !== BadgeId.MOTOR_EXCELLENCE,
+          ),
+          BadgeId.EXAM_FIRST,
+        ]),
+      ),
+      overviewWith([
+        axisOverview(AxisType.LOGIC, 90),
+        axisOverview(AxisType.MEMORY, 90, true),
+        axisOverview(AxisType.VISUAL_DISCRIMINATION, 90, true),
+        axisOverview(AxisType.REACTIVITY, 90, true),
+        axisOverview(AxisType.MOTOR_SKILLS, 82),
+      ]),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Motricité · palier Argent');
+  });
+
+  it('rounds and formats the exam progress line in french', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([...TRANSVERSE_AND_LOWER_TIERS, BadgeId.EXAM_FIRST]),
+      ),
+      overviewWith(
+        [
+          axisOverview(AxisType.LOGIC, 84),
+          axisOverview(AxisType.MEMORY, 84, true),
+          axisOverview(AxisType.VISUAL_DISCRIMINATION, 84, true),
+          axisOverview(AxisType.REACTIVITY, 84, true),
+          axisOverview(AxisType.MOTOR_SKILLS, 84),
+        ],
+        lastSimulationAt(84.6),
+      ),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Examen blanc · palier Argent');
+    expect(closest.textContent).toContain(
+      'Dernier examen à 84,6 · plus que 0,4 point',
+    );
+  });
+
+  it('still proposes a free badge when the trainings overview fails', async () => {
+    const fixture = await setup(catalogStatuses(), OVERVIEW_FAILURE);
+    expect(
+      fixture.nativeElement.querySelector('.badges__board'),
+    ).not.toBeNull();
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Badge transverse');
+  });
+
+  it('prefers a measured one point gap to the projection of an untried axis', async () => {
+    const fixture = await setup(
+      catalogStatuses(
+        earnedOnly([
+          BadgeId.FIRST_STEPS,
+          BadgeId.WELL_INFORMED,
+          BadgeId.LOGIC_PROGRESSION,
+        ]),
+      ),
+      overviewWith([
+        axisOverview(AxisType.LOGIC, 80),
+        axisOverview(AxisType.MEMORY, 69, true),
+      ]),
+    );
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Mémoire · palier Bronze');
+    expect(closest.textContent).toContain(
+      'Votre meilleur score 69 · plus que 1 point',
+    );
+  });
+
+  it('never guesses a paid badge when the trainings overview fails', async () => {
+    const fixture = await setup(
+      catalogStatuses(earnedOnly([BadgeId.FIRST_STEPS, BadgeId.WELL_INFORMED])),
+      OVERVIEW_FAILURE,
+    );
+    expect(fixture.nativeElement.querySelector('.badges__closest')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      'Indisponible pour le moment',
     );
   });
 

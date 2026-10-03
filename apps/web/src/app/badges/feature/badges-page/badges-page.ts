@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
-import { AxisType, FULL_SESSION_LABEL, Sector } from '@psychotech/shared';
+import { FULL_SESSION_LABEL, Sector } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { BadgesFacade } from '../../data-access/badges.facade';
@@ -16,7 +16,9 @@ import { BadgeTransverseRow } from '../../ui/badge-transverse-row';
 import {
   BadgeBoardView,
   BadgeOutlook,
+  UNAVAILABLE_BADGE_OUTLOOK,
   buildBadgeBoard,
+  buildBadgeOutlook,
 } from './badges-page-view';
 
 @Component({
@@ -43,22 +45,18 @@ export class BadgesPage {
     this.overviewFacade.loadOverview(this.sector());
   }
 
-  private readonly outlook = computed<BadgeOutlook>(() => {
+  private readonly outlook = computed<BadgeOutlook | null>(() => {
     const overview = this.overviewFacade.overview();
-    const bestScores: Partial<Record<AxisType, number>> = {};
-    for (const axis of overview?.axes ?? []) {
-      if (axis.bestScore !== null) {
-        bestScores[axis.axis] = axis.bestScore;
-      }
+    if (overview) {
+      return buildBadgeOutlook(overview);
     }
-    return {
-      bestScores,
-      lastExamScore: overview?.lastSimulation?.globalScore ?? null,
-      examThreshold: overview?.lastSimulation?.sectorThreshold ?? null,
-    };
+    return this.overviewFacade.error() ? UNAVAILABLE_BADGE_OUTLOOK : null;
   });
 
-  protected readonly board = computed<BadgeBoardView>(() =>
-    buildBadgeBoard(this.statuses() ?? [], this.sector(), this.outlook()),
-  );
+  protected readonly board = computed<BadgeBoardView | null>(() => {
+    const statuses = this.statuses();
+    return statuses
+      ? buildBadgeBoard(statuses, this.sector(), this.outlook())
+      : null;
+  });
 }

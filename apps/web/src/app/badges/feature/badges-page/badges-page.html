@@ -35,7 +35,7 @@
         <ui-axis-icon class="badges__summary-bolt" axis="credit" [size]="14" />
         <span class="badges__summary-caption">ajoutés</span>
       </span>
-      @if (view.summary.energyRemaining > 0) {
+      @if (view.summary.energyRemaining > 0 && !view.summary.closestNote) {
         <span class="badges__summary-note"
           >Encore +{{ view.summary.energyRemaining }} à gagner</span
         >
@@ -84,8 +84,8 @@
             }
           </span>
         </span>
-      } @else {
-        <span class="badges__summary-note">Collection complète</span>
+      } @else if (view.summary.closestNote; as note) {
+        <span class="badges__summary-note">{{ note }}</span>
       }
     </div>
   </section>

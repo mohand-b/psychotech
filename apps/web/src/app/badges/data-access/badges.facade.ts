@@ -3,6 +3,7 @@ import { Injectable, Signal, inject } from '@angular/core';
 import { BadgeFeedDto, BadgeStatusDto, GuideId } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
+import { readResourceValueOr } from '../../shared/util/resource-value';
 import { BadgesApi } from './badges.api';
 
 const EMPTY_BADGE_FEED: BadgeFeedDto = { visible: false, entries: [] };
@@ -15,16 +16,21 @@ export class BadgesFacade {
   private tutorialNotified = false;
 
   fetchStatuses(): Signal<BadgeStatusDto[] | null> {
-    return httpResource<BadgeStatusDto[] | null>(
-      () => `${this.baseUrl}/me/badges`,
-      { defaultValue: null },
-    ).value.asReadonly();
+    return readResourceValueOr(
+      httpResource<BadgeStatusDto[] | null>(() => `${this.baseUrl}/me/badges`, {
+        defaultValue: null,
+      }),
+      null,
+    );
   }
 
   fetchFeed(): Signal<BadgeFeedDto> {
-    return httpResource<BadgeFeedDto>(() => `${this.baseUrl}/me/badges/feed`, {
-      defaultValue: EMPTY_BADGE_FEED,
-    }).value.asReadonly();
+    return readResourceValueOr(
+      httpResource<BadgeFeedDto>(() => `${this.baseUrl}/me/badges/feed`, {
+        defaultValue: EMPTY_BADGE_FEED,
+      }),
+      EMPTY_BADGE_FEED,
+    );
   }
 
   notifyTutorialDiscovered(): void {
