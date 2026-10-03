@@ -4,25 +4,33 @@
 }
 
 .tarifs {
+  --hero-enter-offset: 18px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background: var(--landing-bg);
   padding-top: calc(var(--landing-header-height) + var(--safe-top));
 }
 
 .tarifs__inner {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 72px 32px 56px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
-  gap: 44px;
+  gap: 40px;
 }
 
 .tarifs__head {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 14px;
   text-align: center;
-  align-items: center;
+  animation: hero-enter 800ms var(--landing-ease-enter) 60ms both;
 }
 
 .tarifs__eyebrow {
@@ -33,159 +41,494 @@
 }
 
 .tarifs__title {
-  margin: 0;
-  font: 600 44px/1.08 var(--landing-font-display);
+  font: 600 42px/1.08 var(--landing-font-display);
   letter-spacing: -0.025em;
   color: var(--landing-text);
-  max-width: 680px;
+  white-space: nowrap;
 }
 
 .tarifs__text {
-  margin: 0;
+  max-width: 620px;
   font: 400 16px/1.55 var(--landing-font-ui);
   color: var(--landing-text-body);
-  max-width: 560px;
+}
+
+.tarifs__costs {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font: 400 14px/20px var(--landing-font-ui);
+  color: var(--landing-text-body);
+}
+
+.tarifs__costs-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--landing-border-strong);
+}
+
+.tarifs__cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarifs__cost-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 600 15px/20px var(--font-mono);
+  color: var(--landing-text);
 }
 
 .tarifs__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   align-items: stretch;
+  padding-top: 12px;
+  animation: hero-enter 900ms var(--landing-ease-enter) 220ms both;
 }
 
 .tarifs__card {
   position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 18px;
-  background: var(--landing-border-soft);
+  padding: 30px 28px 28px;
   border: 1px solid var(--landing-border);
   border-radius: 18px;
-  padding: 30px 28px;
+  background: var(--landing-border-soft);
+  text-align: center;
 }
 
-.tarifs__card--highlighted {
+.tarifs__card--featured {
   border-color: var(--landing-accent);
-  background: rgba(124, 92, 252, 0.1);
+  background: color-mix(in srgb, var(--landing-accent) 10%, transparent);
 }
 
-.tarifs__badge {
+.tarifs__flag {
   position: absolute;
   top: -12px;
-  left: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  border-radius: var(--landing-radius-round);
   background: var(--landing-accent);
-  color: var(--landing-text);
   font: 600 11px/14px var(--landing-font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 5px 10px;
-  border-radius: 999px;
+  color: var(--landing-text);
+  white-space: nowrap;
+}
+
+.tarifs__card-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .tarifs__card-title {
-  margin: 0;
   font: 600 20px/1.2 var(--landing-font-display);
+  color: var(--landing-text);
+  white-space: nowrap;
+}
+
+.tarifs__card-tagline {
+  font: 400 13px/1.4 var(--landing-font-ui);
+  color: var(--landing-text-caption);
+}
+
+.tarifs__offer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarifs__credits {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tarifs__credits-value {
+  font: 600 52px/1 var(--landing-font-display);
+  letter-spacing: -0.03em;
   color: var(--landing-text);
 }
 
 .tarifs__price {
-  margin: 0;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarifs__price-main {
+  display: inline-flex;
   align-items: baseline;
   gap: 10px;
 }
 
 .tarifs__price-value {
-  font: 600 38px/1 var(--landing-font-display);
-  letter-spacing: -0.02em;
+  font: 600 22px/1.1 var(--landing-font-display);
+  letter-spacing: -0.015em;
   color: var(--landing-text);
+  white-space: nowrap;
 }
 
-.tarifs__price-note {
-  font: 400 13px/1.4 var(--landing-font-ui);
+.tarifs__price-note,
+.tarifs__price-unit {
+  font: 400 13px/14px var(--landing-font-ui);
   color: var(--landing-text-muted);
 }
 
-.tarifs__credits {
-  margin: 0;
-  font: 400 14px/1.5 var(--landing-font-ui);
+.tarifs__price-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 16px;
+}
+
+.tarifs__price-unit {
+  font-size: 12.5px;
+  line-height: 16px;
+}
+
+.tarifs__price-discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12.5px/16px var(--landing-font-ui);
+  color: var(--landing-accent-soft);
+  white-space: nowrap;
+}
+
+.tarifs__price-discount::before {
+  content: '';
+  width: 1px;
+  height: 10px;
+  background: var(--landing-border-strong);
+}
+
+.tarifs__uses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding-top: 16px;
+  border-top: 1px solid var(--landing-rule-strong);
+  font: 400 14px/1.4 var(--landing-font-ui);
   color: var(--landing-text-body);
 }
 
-.tarifs__credits-value {
+.tarifs__uses strong {
   font-weight: 600;
   color: var(--landing-text);
 }
 
-.tarifs__features {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-top: 1px solid var(--landing-border);
-  padding-top: 18px;
-}
-
-.tarifs__features li {
-  position: relative;
-  padding-left: 22px;
-  font: 400 13.5px/1.5 var(--landing-font-ui);
-  color: var(--landing-text-body);
-}
-
-.tarifs__features li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 7px;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--landing-accent);
+.tarifs__card app-landing-button {
+  margin-top: auto;
 }
 
 .tarifs__footnote {
   margin: 0 auto;
-  font: 400 13.5px/1.6 var(--landing-font-ui);
+  font: 400 13px/1.6 var(--landing-font-ui);
   color: var(--landing-text-muted);
   text-align: center;
-  max-width: 620px;
 }
 
-@media (max-width: 900px) {
-  .tarifs__grid {
-    grid-template-columns: 1fr;
-    max-width: 460px;
-    margin: 0 auto;
-    width: 100%;
+.tarifs-free {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.tarifs-free__inner {
+  max-width: var(--landing-container-width);
+  margin: 0 auto;
+  padding: 64px var(--landing-gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.tarifs-free__head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.tarifs-free__eyebrow {
+  font: 600 11px/14px var(--landing-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--landing-accent);
+}
+
+.tarifs-free__title {
+  font: 600 34px/1.1 var(--landing-font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.tarifs-free__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+}
+
+.tarifs-free__item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 22px;
+  border-left: 1px solid var(--border);
+}
+
+.tarifs-free__item-title {
+  font: 600 18px/1.25 var(--landing-font-display);
+}
+
+.tarifs-free__coin {
+  vertical-align: middle;
+}
+
+.tarifs-free__item-text {
+  font: 400 14.5px/1.6 var(--landing-font-ui);
+  color: var(--text-secondary);
+}
+
+.tarifs-free__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding-bottom: 2px;
+  border-bottom: 1px solid currentColor;
+  font: 600 14.5px/20px var(--landing-font-ui);
+  color: var(--landing-accent);
+  text-decoration: none;
+}
+
+.tarifs-free__cta:hover {
+  color: var(--landing-accent-hover);
+}
+
+@media (max-width: 1023px) {
+  .tarifs {
+    --hero-enter-offset: 16px;
+    min-height: 0;
+    justify-content: flex-start;
   }
-}
 
-@media (max-width: 767px) {
   .tarifs__inner {
-    padding: 56px 20px 44px;
-    gap: 32px;
+    max-width: var(--landing-container-width);
+    padding: 40px var(--landing-gutter) 48px;
+    gap: 28px;
+  }
+
+  .tarifs__head {
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
   }
 
   .tarifs__title {
     font-size: 30px;
+    line-height: 1.1;
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .tarifs__text {
+    font-size: 14.5px;
+  }
+
+  .tarifs__costs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .tarifs__costs-divider {
+    display: none;
+  }
+
+  .tarifs__cost-value {
+    min-width: 34px;
+  }
+
+  .tarifs__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 8px;
+  }
+
+  .tarifs__card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'head credits'
+      'price price'
+      'uses uses'
+      'cta cta';
+    align-items: start;
+    gap: 14px 12px;
+    padding: 22px 20px 20px;
+    text-align: left;
+  }
+
+  .tarifs__card--featured {
+    order: -1;
+    padding-top: 24px;
+  }
+
+  .tarifs__flag {
+    left: 20px;
+    transform: none;
+  }
+
+  .tarifs__card-head {
+    grid-area: head;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .tarifs__card-title {
+    font-size: 19px;
+    white-space: normal;
+  }
+
+  .tarifs__card-tagline {
+    font-size: 12.5px;
+  }
+
+  .tarifs__offer,
+  .tarifs__price-main,
+  .tarifs__price-detail {
+    display: contents;
+  }
+
+  .tarifs__credits {
+    grid-area: credits;
+    gap: 7px;
+  }
+
+  .tarifs__credits-value {
+    font-size: 36px;
+  }
+
+  .tarifs__credits-coin {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .tarifs__price {
+    grid-area: price;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .tarifs__price-note {
+    font-size: 12.5px;
+  }
+
+  .tarifs__price-note::after {
+    content: ' ·';
+  }
+
+  .tarifs__price-discount::before {
+    display: none;
+  }
+
+  .tarifs__uses {
+    grid-area: uses;
+    display: block;
+    padding-top: 12px;
+    line-height: 1.45;
+  }
+
+  .tarifs__card app-landing-button {
+    grid-area: cta;
+  }
+
+  .tarifs__footnote {
+    font-size: 12.5px;
+  }
+
+  .tarifs__footnote-more {
+    display: none;
+  }
+
+  .tarifs-free__inner {
+    padding: 48px var(--landing-gutter);
+    gap: 24px;
+  }
+
+  .tarifs-free__head {
+    gap: 10px;
+  }
+
+  .tarifs-free__title {
+    font-size: 26px;
     line-height: 1.12;
     letter-spacing: -0.02em;
   }
 
-  .tarifs__text {
+  .tarifs-free__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .tarifs-free__item {
+    gap: 6px;
+    padding-left: 16px;
+  }
+
+  .tarifs-free__item-title {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .tarifs-free__item-text {
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
-  .tarifs__card {
-    padding: 26px 22px;
+  .tarifs-free__cta {
+    justify-content: center;
+    align-self: stretch;
+    height: 50px;
+    padding: 0;
+    border-bottom: 3px solid var(--brand-relief);
+    border-radius: var(--landing-radius-cta);
+    background: var(--landing-accent);
+    font-size: 15px;
+    color: var(--landing-text);
   }
 
-  .tarifs__price-value {
-    font-size: 32px;
+  .tarifs-free__cta:hover {
+    color: var(--landing-text);
+  }
+
+  .tarifs-free__cta:active {
+    transform: translateY(2px);
+    border-bottom-width: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarifs__head,
+  .tarifs__grid {
+    animation: none;
   }
 }

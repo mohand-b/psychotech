@@ -11,6 +11,7 @@
   --landing-text-soft: rgba(255, 255, 255, 0.82);
   --landing-link: rgba(255, 255, 255, 0.65);
   --landing-text-body: rgba(255, 255, 255, 0.62);
+  --landing-text-caption: rgba(255, 255, 255, 0.5);
   --landing-text-muted: rgba(255, 255, 255, 0.45);
   --landing-text-dim: rgba(255, 255, 255, 0.38);
   --landing-text-faint: rgba(255, 255, 255, 0.35);
@@ -22,6 +23,7 @@
   --landing-rule-strong: rgba(255, 255, 255, 0.1);
   --landing-border: rgba(255, 255, 255, 0.12);
   --landing-border-strong: rgba(255, 255, 255, 0.18);
+  --landing-border-card: rgba(255, 255, 255, 0.2);
   --landing-border-hover: rgba(255, 255, 255, 0.45);
   --landing-veil-core: rgba(20, 17, 31, 0.92);
   --landing-veil-mid: rgba(20, 17, 31, 0.6);

@@ -231,17 +231,6 @@
   }
 }
 
-@keyframes hero-enter {
-  from {
-    opacity: 0;
-    transform: translateY(var(--hero-enter-offset));
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .hero__enter {
     animation: none;

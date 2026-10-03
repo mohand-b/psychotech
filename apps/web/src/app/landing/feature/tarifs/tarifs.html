@@ -6,57 +6,142 @@
 
 <main class="tarifs">
   <div class="tarifs__inner">
-    <header class="tarifs__head" appLandingReveal>
+    <header class="tarifs__head">
       <span class="tarifs__eyebrow">Tarifs</span>
       <h1 class="tarifs__title">Des packs de crédits, sans abonnement</h1>
       <p class="tarifs__text">
-        Un crédit lance un entraînement ciblé, cinq crédits lancent un examen
-        blanc complet. Vos crédits n'expirent jamais et
-        {{ signupGrant }} crédits vous sont offerts à l'inscription.
+        Vos crédits n'expirent jamais. {{ signupGrant }} vous sont offerts à
+        l'inscription, et jusqu'à {{ badgeReward }} de plus en débloquant des
+        badges, gratuitement.
       </p>
+      <div class="tarifs__costs">
+        @for (entry of sessionCosts; track entry.cost; let first = $first) {
+          @if (!first) {
+            <span class="tarifs__costs-divider"></span>
+          }
+          <span class="tarifs__cost">
+            <span class="tarifs__cost-value">
+              <ui-axis-icon axis="credit" [size]="16" />{{ entry.cost }}
+            </span>
+            {{ entry.label }}
+          </span>
+        }
+      </div>
     </header>
 
     <div class="tarifs__grid">
-      @for (pack of packs; track pack.title) {
+      @for (pack of packs; track pack.id) {
         <article
           class="tarifs__card"
-          [class.tarifs__card--highlighted]="pack.highlighted"
-          appLandingReveal
+          [class.tarifs__card--featured]="pack.featured"
         >
-          @if (pack.highlighted) {
-            <span class="tarifs__badge">Le plus choisi</span>
+          @if (pack.featured) {
+            <span class="tarifs__flag">Le plus choisi</span>
           }
-          <h2 class="tarifs__card-title">{{ pack.title }}</h2>
-          <p class="tarifs__price">
-            <span class="tarifs__price-value">{{ pack.priceLabel }}</span>
-            <span class="tarifs__price-note">paiement unique</span>
-          </p>
-          <p class="tarifs__credits">
-            <span class="tarifs__credits-value">{{ pack.credits }}</span>
-            crédits · soit {{ pack.unitLabel }} le crédit
-          </p>
-          <ul class="tarifs__features">
-            <li>
-              Jusqu'à {{ pack.examCount }} examens blancs complets, 5 axes
-              enchaînés
-            </li>
-            <li>
-              Ou {{ pack.credits }} entraînements ciblés, un axe à la fois
-            </li>
-            <li>Exercices renouvelés à chaque session</li>
-            <li>Crédits sans date d'expiration</li>
-          </ul>
+          <div class="tarifs__card-head">
+            <h2 class="tarifs__card-title">{{ pack.title }}</h2>
+            <span class="tarifs__card-tagline">{{ pack.tagline }}</span>
+          </div>
+          <div class="tarifs__offer">
+            <span class="tarifs__credits">
+              <span class="tarifs__credits-value">{{ pack.credits }}</span>
+              <ui-axis-icon
+                class="tarifs__credits-coin"
+                axis="credit"
+                [size]="26"
+                label="crédits"
+              />
+            </span>
+            <span class="tarifs__price">
+              <span class="tarifs__price-main">
+                <span class="tarifs__price-value">{{ pack.priceLabel }}</span>
+                <span class="tarifs__price-note">paiement unique</span>
+              </span>
+              <span class="tarifs__price-detail">
+                <span class="tarifs__price-unit"
+                  >soit {{ pack.unitPriceLabel }} le crédit</span
+                >
+                @if (pack.discountLabel) {
+                  <span class="tarifs__price-discount">{{
+                    pack.discountLabel
+                  }}</span>
+                }
+              </span>
+            </span>
+          </div>
+          <span class="tarifs__uses">
+            <span
+              >Jusqu'à <strong>{{ pack.examCountLabel }}</strong></span
+            >
+            <span>
+              ou <strong>{{ pack.targetedCountLabel }}</strong></span
+            >
+          </span>
+          <app-landing-button
+            size="card"
+            [appearance]="pack.featured ? 'solid' : 'outline'"
+            [link]="packLink()"
+            >Choisir</app-landing-button
+          >
         </article>
       }
     </div>
 
-    <p class="tarifs__footnote" appLandingReveal>
+    <p class="tarifs__footnote">
       Paiement unique et sécurisé via Stripe. Aucun abonnement, aucune
-      reconduction : vous achetez des crédits quand vous en avez besoin. Le mode
-      découverte de chaque épreuve reste gratuit.
+      reconduction<span class="tarifs__footnote-more">
+        : vous achetez des crédits quand vous en avez besoin</span
+      >.
     </p>
   </div>
 </main>
 
-<app-landing-cta [authenticated]="authenticated()" />
+<section class="tarifs-free">
+  <div class="tarifs-free__inner" appLandingReveal>
+    <div class="tarifs-free__head">
+      <span class="tarifs-free__eyebrow">Sans rien payer</span>
+      <h2 class="tarifs-free__title">
+        Vous pouvez aussi vous entraîner gratuitement
+      </h2>
+    </div>
+    <div class="tarifs-free__grid">
+      <div class="tarifs-free__item">
+        <span class="tarifs-free__item-title"
+          >Mode découverte sur chaque épreuve</span
+        >
+        <p class="tarifs-free__item-text">
+          Chaque axe se découvre en accès libre, pour apprendre le format et
+          vous situer.
+        </p>
+      </div>
+      <div class="tarifs-free__item">
+        <span class="tarifs-free__item-title"
+          >{{ signupGrant }}
+          <ui-axis-icon class="tarifs-free__coin" axis="credit" [size]="16" />
+          crédits offerts à l'inscription</span
+        >
+        <p class="tarifs-free__item-text">
+          De quoi lancer vos premiers entraînements ciblés avant d'acheter quoi
+          que ce soit.
+        </p>
+      </div>
+      <div class="tarifs-free__item">
+        <span class="tarifs-free__item-title"
+          >Des crédits à gagner avec les badges</span
+        >
+        <p class="tarifs-free__item-text">
+          Au fil de votre préparation, certains badges débloqués créditent
+          directement votre solde.
+        </p>
+      </div>
+    </div>
+    @if (!authenticated()) {
+      <a class="tarifs-free__cta" [routerLink]="registerRoute">
+        Créer un compte gratuit
+        <ui-icon [img]="arrowIcon" [size]="16" />
+      </a>
+    }
+  </div>
+</section>
+
 <app-landing-footer [onLanding]="false" />

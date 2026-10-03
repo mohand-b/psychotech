@@ -260,6 +260,17 @@ html:has(body.landing-active) {
   }
 }
 
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--hero-enter-offset));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes auth-in {
   from {
     opacity: 0;

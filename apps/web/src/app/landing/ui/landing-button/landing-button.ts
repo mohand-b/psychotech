@@ -11,7 +11,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { LandingLink } from '../../util/landing-link';
 import { buildLandingAnchorHref } from '../../util/landing-sections';
 
-export type LandingButtonSize = 'nav' | 'hero' | 'step' | 'cta';
+export type LandingButtonSize = 'nav' | 'hero' | 'step' | 'cta' | 'card';
 export type LandingButtonAppearance = 'solid' | 'outline';
 
 const ARROW_SIZE: Record<LandingButtonSize, number> = {
@@ -19,6 +19,7 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
   hero: 18,
   step: 16,
   cta: 17,
+  card: 16,
 };
 
 @Component({
@@ -27,6 +28,7 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
   imports: [Icon, NgTemplateOutlet, RouterLink],
   host: {
     '[class.landing-button--block]': "size() !== 'nav'",
+    '[class.landing-button--card]': "size() === 'card'",
   },
   template: `
     @if (route(); as target) {
@@ -52,6 +54,10 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
   styles: `
     :host {
       display: inline-flex;
+    }
+    :host(.landing-button--card) {
+      display: flex;
+      width: 100%;
     }
     .button {
       display: inline-flex;
@@ -93,6 +99,22 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
       border-radius: var(--landing-radius-button);
       font-size: 14.5px;
     }
+    .button--card {
+      justify-content: center;
+      width: 100%;
+      height: 44px;
+      border-radius: var(--landing-radius-button);
+      font-size: 14px;
+    }
+    .button--outline.button--card {
+      border-color: var(--landing-border-card);
+      background: transparent;
+      color: var(--landing-text);
+    }
+    .button--outline.button--card:hover {
+      border-color: var(--landing-border-card);
+      background: var(--landing-surface-raised);
+    }
     .button--cta {
       padding: 16px 28px;
       border-radius: var(--landing-radius-cta);
@@ -110,7 +132,8 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
       }
       .button--hero,
       .button--step,
-      .button--cta {
+      .button--cta,
+      .button--card {
         justify-content: center;
         width: 100%;
         padding: 0;
@@ -125,6 +148,17 @@ const ARROW_SIZE: Record<LandingButtonSize, number> = {
       }
       .button--step {
         height: 48px;
+      }
+      .button--card {
+        height: 48px;
+        font-size: 14.5px;
+      }
+      .button--solid.button--card {
+        border-bottom: 3px solid var(--brand-relief);
+      }
+      .button--solid.button--card:active {
+        transform: translateY(2px);
+        border-bottom-width: 1px;
       }
       .button--cta {
         height: 52px;

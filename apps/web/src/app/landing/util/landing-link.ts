@@ -7,6 +7,7 @@ export const LANDING_ROUTE = {
   dashboard: '/dashboard',
   trainings: '/entrainements',
   pricing: '/tarifs',
+  credits: '/credits',
   guide: '/guide',
 } as const;
 
