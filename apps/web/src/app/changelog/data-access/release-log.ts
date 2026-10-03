@@ -37,6 +37,18 @@ export function buildReleaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
+    version: '1.2.1',
+    releasedOn: '2026-10-03',
+    title: 'Tarifs, crédits et badges',
+    entries: {
+      [ReleaseCategory.IMPROVEMENT]: [
+        'Page Tarifs repensée : packs présentés côte à côte avec leur équivalent en examens blancs et en entraînements ciblés, et accès gratuits réunis dans une même section.',
+        'Page Crédits repensée : solde, recharge et crédits déjà obtenus grâce aux badges réunis sur un seul écran, sur ordinateur comme sur mobile.',
+        'Page Badges : prochain badge à portée mis en avant avec l’ensemble de ses conditions.',
+      ],
+    },
+  },
+  {
     version: '1.2.0',
     releasedOn: '2026-10-02',
     title: 'Nouvelle page d’accueil',
