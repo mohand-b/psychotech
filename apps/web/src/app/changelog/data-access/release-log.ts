@@ -37,6 +37,16 @@ export function buildReleaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
+    version: '1.2.3',
+    releasedOn: '2026-10-03',
+    title: 'Badge Or de Mémoire',
+    entries: {
+      [ReleaseCategory.FIX]: [
+        'Badge Or de l’épreuve Mémoire désormais accessible : toutes les séquences de la session restituées sans erreur.',
+      ],
+    },
+  },
+  {
     version: '1.2.2',
     releasedOn: '2026-10-03',
     title: 'Prochain badge',
