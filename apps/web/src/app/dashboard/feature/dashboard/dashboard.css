@@ -393,7 +393,7 @@
 }
 
 .home__result-axis-icon {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .home__result-axis-score {
@@ -418,7 +418,7 @@
   bottom: 0;
   left: 0;
   border-radius: 999px;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .home__result-date {
