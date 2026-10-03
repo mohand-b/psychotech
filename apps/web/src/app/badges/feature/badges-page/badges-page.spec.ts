@@ -19,7 +19,6 @@ import {
   TrainingsAxisOverviewDto,
   TrainingsLastSimulationDto,
   TrainingsOverviewDto,
-  isBadgeReachable,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesPage } from './badges-page';
@@ -335,8 +334,7 @@ describe('BadgesPage', () => {
     expect(closest.textContent).not.toContain('Réactivité · palier Or');
   });
 
-  it('never proposes the memory gold the current training plan cannot prove', async () => {
-    expect(isBadgeReachable(BadgeId.MEMORY_PERFECTION)).toBe(false);
+  it('proposes the memory gold with its condition once it is the last badge', async () => {
     const fixture = await setup(
       catalogStatuses(
         earnedOnly(
@@ -347,11 +345,11 @@ describe('BadgesPage', () => {
       ),
       overviewWith([axisOverview(AxisType.MEMORY, 100)]),
     );
-    expect(fixture.nativeElement.querySelector('.badges__closest')).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain(
-      'Tous les badges accessibles sont obtenus',
-    );
-    expect(fixture.nativeElement.textContent).not.toContain('Encore +');
+    const closest = fixture.nativeElement.querySelector('.badges__closest');
+    expect(closest.textContent).toContain('Mémoire · palier Or');
+    expect(closestConditionLabels(closest)).toEqual([
+      'Toutes les séquences restituées sans erreur',
+    ]);
   });
 
   it('announces a complete collection once every badge is earned', async () => {

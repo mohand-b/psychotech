@@ -22,7 +22,6 @@ import {
   TrainingsOverviewDto,
   badgeAssetPath,
   badgeDisplayName,
-  isBadgeReachable,
   roundToTenth,
 } from '@psychotech/shared';
 import { formatFrenchNumber } from '../../../shared/util/format-number';
@@ -239,8 +238,6 @@ const FREE_ACTION_EFFORTS: Readonly<Record<string, number>> = {
 };
 
 const COLLECTION_COMPLETE_NOTE = 'Collection complète';
-const REACHABLE_COLLECTION_COMPLETE_NOTE =
-  'Tous les badges accessibles sont obtenus';
 const UNAVAILABLE_PROPOSAL_NOTE = 'Indisponible pour le moment';
 
 function parseAxisScoreTarget(definition: BadgeDefinition): number | undefined {
@@ -418,7 +415,6 @@ function estimateLockedEfforts(
   for (const entry of entries) {
     if (
       entry.earned ||
-      !isBadgeReachable(entry.definition.id) ||
       (!outlook.scoresAvailable && !onlyFreeActionsRemain(entry))
     ) {
       continue;
@@ -580,9 +576,7 @@ function buildClosestNote(
   if (entries.every((entry) => entry.earned)) {
     return COLLECTION_COMPLETE_NOTE;
   }
-  return outlook.scoresAvailable
-    ? REACHABLE_COLLECTION_COMPLETE_NOTE
-    : UNAVAILABLE_PROPOSAL_NOTE;
+  return outlook.scoresAvailable ? null : UNAVAILABLE_PROPOSAL_NOTE;
 }
 
 function buildSummary(
