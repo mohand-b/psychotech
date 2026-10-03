@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AXIS_TRAINING } from '../domain';
-import { AxisType, LogicFamily, MemoryPhase } from '../enums';
+import { LogicFamily, MemoryPhase } from '../enums';
 import {
   MemorySequenceAnswerDto,
   MotricitySampleDto,
@@ -119,15 +118,7 @@ describe('logicPerfectionAchieved', () => {
 });
 
 describe('memoryPerfectionAchieved', () => {
-  const spanEightTraining = {
-    ...AXIS_TRAINING[AxisType.MEMORY],
-    exerciseCount: 2,
-    sequences: [
-      { phase: MemoryPhase.NORMAL, length: 8 },
-      { phase: MemoryPhase.INVERSE, length: 5 },
-    ],
-  };
-  const sequences = generateMemorySession(SEED, spanEightTraining);
+  const sequences = generateMemorySession(SEED);
   const perfectAnswers: MemorySequenceAnswerDto[] = sequences.map(
     (sequence) => ({
       index: sequence.index,
@@ -137,14 +128,20 @@ describe('memoryPerfectionAchieved', () => {
     }),
   );
 
-  it('holds once a sequence of eight elements is restituted', () => {
+  it('holds once every sequence of the standard plan is restituted', () => {
     const scored = scoreMemorySession(sequences, perfectAnswers);
-    expect(memoryPerfectionAchieved(sequences, scored)).toBe(true);
+    expect(memoryPerfectionAchieved(scored)).toBe(true);
   });
 
-  it('falls when the eight-element sequence has a single misplaced digit', () => {
+  it('covers both phases of the standard plan', () => {
+    const phases = new Set(sequences.map((sequence) => sequence.phase));
+    expect(phases).toEqual(new Set([MemoryPhase.NORMAL, MemoryPhase.INVERSE]));
+  });
+
+  it('falls when a single sequence has a misplaced digit', () => {
+    const longest = Math.max(...sequences.map((sequence) => sequence.length));
     const flawedAnswers = perfectAnswers.map((answer, position) =>
-      sequences[position].length === 8
+      sequences[position].length === longest
         ? {
             ...answer,
             input: [...answer.input.slice(1), answer.input[0]],
@@ -152,22 +149,15 @@ describe('memoryPerfectionAchieved', () => {
         : answer,
     );
     const scored = scoreMemorySession(sequences, flawedAnswers);
-    expect(memoryPerfectionAchieved(sequences, scored)).toBe(false);
+    expect(memoryPerfectionAchieved(scored)).toBe(false);
   });
 
-  it('never holds on the standard plan whose longest sequence is under eight', () => {
-    const standardSequences = generateMemorySession(SEED);
-    const answers: MemorySequenceAnswerDto[] = standardSequences.map(
-      (sequence) => ({
-        index: sequence.index,
-        input: expectedMemoryAnswer(sequence),
-        timeMs: 6000,
-        timedOut: false,
-      }),
+  it('falls when a single sequence times out', () => {
+    const answers = perfectAnswers.map((answer, position) =>
+      position === 0 ? { ...answer, input: [], timedOut: true } : answer,
     );
-    const scored = scoreMemorySession(standardSequences, answers);
-    expect(scored.score).toBe(100);
-    expect(memoryPerfectionAchieved(standardSequences, scored)).toBe(false);
+    const scored = scoreMemorySession(sequences, answers);
+    expect(memoryPerfectionAchieved(scored)).toBe(false);
   });
 });
 

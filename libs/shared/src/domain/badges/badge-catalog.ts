@@ -137,7 +137,7 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MEMORY_PERFECTION,
     ],
     ['Tête bien pleine', "Mémoire d'éléphant", 'Disque dur'],
-    'Une séquence de 8 éléments restituée, ordre normal ou inversé',
+    'Toutes les séquences restituées sans erreur',
   ),
   ...axisBadges(
     AxisType.VISUAL_DISCRIMINATION,

@@ -1,10 +1,7 @@
 import { DiscriminationSessionScore } from './discrimination/discrimination-scoring';
 import { LogicSessionScore } from './logic/logic-scoring';
 import { MemorySessionScore } from './memory/memory-scoring';
-import { MemorySequence } from './memory/memory-sequence';
 import { ReactivitySessionScore } from './reactivity/reactivity-scoring';
-
-export const MEMORY_PERFECTION_SEQUENCE_LENGTH = 8;
 
 export function logicPerfectionAchieved(scored: LogicSessionScore): boolean {
   return (
@@ -13,14 +10,10 @@ export function logicPerfectionAchieved(scored: LogicSessionScore): boolean {
   );
 }
 
-export function memoryPerfectionAchieved(
-  sequences: MemorySequence[],
-  scored: MemorySessionScore,
-): boolean {
-  return sequences.some(
-    (sequence, position) =>
-      sequence.length >= MEMORY_PERFECTION_SEQUENCE_LENGTH &&
-      scored.results[position]?.status === 'PERFECT',
+export function memoryPerfectionAchieved(scored: MemorySessionScore): boolean {
+  return (
+    scored.results.length > 0 &&
+    scored.results.every(({ status }) => status === 'PERFECT')
   );
 }
 
