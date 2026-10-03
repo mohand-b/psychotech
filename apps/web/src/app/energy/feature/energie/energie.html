@@ -8,77 +8,112 @@
   </header>
 
   <section class="energie__solde flex">
-    <div class="energie__solde-main flex items-center">
-      <span class="energie__solde-tile">
-        <ui-axis-icon axis="credit" [size]="30" />
-      </span>
-      <span class="flex flex-col">
-        <span class="t-label">Solde actuel</span>
-        <span class="energie__solde-line flex items-baseline">
+    <span class="energie__solde-block flex flex-col">
+      <span class="t-label">Votre solde</span>
+      <span class="energie__solde-line flex items-baseline">
+        <span class="energie__solde-amount flex items-center">
           <span class="energie__solde-value t-mono">{{ balance() }}</span>
-          <span class="energie__solde-unit">crédits disponibles</span>
+          <ui-axis-icon axis="credit" [size]="18" />
         </span>
-        <span class="energie__solde-note">Sans date d'expiration</span>
+        <span class="energie__solde-unit">{{ balanceLabel() }}</span>
       </span>
-    </div>
-    <span class="energie__solde-divider"></span>
-    <div class="energie__solde-uses flex flex-col">
+    </span>
+    <span class="energie__solde-block energie__solde-uses flex flex-col">
       <span class="t-label">Ce que ça permet</span>
-      <span class="energie__use flex items-center">
-        <span class="energie__use-cost flex items-center">
-          <span class="t-mono">{{ targetedCost }}</span>
-          <ui-axis-icon axis="credit" [size]="12" />
-        </span>
-        <span class="energie__use-text">Une session ciblée sur un axe</span>
+      <span class="energie__uses flex">
+        @for (entry of sessionCosts; track entry.cost; let first = $first) {
+          @if (!first) {
+            <span class="energie__uses-divider"></span>
+          }
+          <span class="energie__use flex items-center">
+            <span class="energie__use-cost flex items-center">
+              <ui-axis-icon axis="credit" [size]="16" />
+              <span class="t-mono">{{ entry.cost }}</span>
+            </span>
+            {{ entry.label }}
+          </span>
+        }
       </span>
-      <span class="energie__use flex items-center">
-        <span class="energie__use-cost flex items-center">
-          <span class="t-mono">{{ fullCost }}</span>
-          <ui-axis-icon axis="credit" [size]="12" />
-        </span>
-        <span class="energie__use-text">Un examen blanc complet</span>
-      </span>
-    </div>
+    </span>
   </section>
 
   @if (view() === 'packs') {
     <section class="energie__recharge flex flex-col">
-      <div class="energie__recharge-head flex items-baseline">
+      <div class="energie__recharge-head flex">
         <span class="energie__recharge-title">Recharger</span>
-        <span class="energie__recharge-hint">Paiement unique, à la carte</span>
+        <span class="energie__recharge-hint energie__recharge-hint--wide"
+          >Paiement unique, à la carte</span
+        >
+        <span class="energie__recharge-hint energie__recharge-hint--compact"
+          >Paiement unique. Vos crédits n'expirent jamais.</span
+        >
       </div>
       <div class="energie__packs grid">
         @for (pack of packs; track pack.id) {
           <article
-            class="energie__pack flex flex-col items-center"
+            class="energie__pack flex flex-col"
             [class.energie__pack--featured]="pack.featured"
           >
             @if (pack.featured) {
               <span class="energie__pack-flag">Le plus choisi</span>
             }
-            <span class="energie__pack-title">{{ pack.title }}</span>
-            <span class="energie__pack-amount flex items-center">
-              <span class="t-mono">{{ pack.energyAmount }}</span>
-              <ui-axis-icon axis="credit" [size]="21" />
+            <div class="energie__pack-top flex">
+              <span class="energie__pack-head flex flex-col">
+                <span class="energie__pack-title">{{ pack.title }}</span>
+                <span class="energie__pack-tagline">{{ pack.tagline }}</span>
+              </span>
+              <span class="energie__pack-amount flex items-center">
+                <span class="t-mono">{{ pack.credits }}</span>
+                <ui-axis-icon
+                  class="energie__pack-coin"
+                  axis="credit"
+                  [size]="20"
+                  label="crédits"
+                />
+              </span>
+            </div>
+            <span class="energie__pack-uses flex flex-col">
+              <span
+                >Jusqu'à <strong>{{ pack.examCountLabel }}</strong></span
+              >
+              <span>
+                ou <strong>{{ pack.targetedCountLabel }}</strong></span
+              >
             </span>
-            <span class="energie__pack-desc">{{ pack.description }}</span>
-            <span class="energie__pack-unit">{{ pack.unitPriceLabel }}</span>
-            <div class="energie__pack-cta">
+            <div class="energie__pack-foot flex">
+              <span class="energie__pack-unit flex items-center">
+                <span class="energie__pack-unit-price"
+                  >{{ pack.unitPriceLabel }} le crédit</span
+                >
+                @if (pack.discountLabel) {
+                  <span class="energie__pack-discount">{{
+                    pack.discountLabel
+                  }}</span>
+                }
+              </span>
               <ui-button
+                class="energie__pack-cta"
                 color="brand"
-                size="lg"
                 [block]="true"
                 [appearance]="pack.featured ? 'solid' : 'outlined'"
                 (click)="openPackCheckout(pack.id)"
               >
-                {{ pack.ctaLabel }}
+                <span class="energie__pack-cta-content flex items-center">
+                  Recharger
+                  <span class="energie__pack-cta-divider"></span>
+                  <span class="energie__pack-cta-price t-mono">{{
+                    pack.priceLabel
+                  }}</span>
+                </span>
               </ui-button>
             </div>
           </article>
         }
       </div>
-      <div class="energie__reassurances flex justify-center">
-        <span class="energie__reassurance flex items-center">
+      <div class="energie__reassurances flex">
+        <span
+          class="energie__reassurance energie__reassurance--wide flex items-center"
+        >
           <ui-icon [img]="shieldIcon" [size]="15" />
           Vos crédits n'expirent jamais
         </span>
@@ -160,46 +195,56 @@
   </section>
 
   @if (view() === 'packs') {
-    <section class="energie__badges flex items-center">
-      <div class="energie__badges-copy flex flex-col">
-        <span class="energie__badges-title flex items-center"
-          >Ou gagnez jusqu’à <span class="t-mono">+{{ totalReward }}</span
-          ><ui-axis-icon axis="credit" [size]="15"
-        /></span>
+    <section class="energie__badges grid">
+      <div class="energie__badges-intro flex flex-col">
+        <span class="energie__badges-title"
+          >Ou gagnez jusqu’à
+          <span class="energie__badges-total t-mono"
+            >+{{ totalReward
+            }}<ui-axis-icon axis="credit" [size]="15" label="crédits"
+          /></span>
+          avec les badges</span
+        >
         <span class="energie__badges-text"
           >Certains badges créditent votre solde dès leur obtention, sans rien
           payer.</span
         >
-        <a class="energie__badges-link flex items-center" routerLink="/badges">
-          Voir tous les badges
-          <ui-icon [img]="arrowRightIcon" [size]="14" />
-        </a>
       </div>
-      <div class="energie__badges-tiles flex">
-        @for (badge of rewardBadges; track badge.name) {
-          <span class="energie__badge-tile flex flex-col items-center">
-            <img [src]="badge.asset" [alt]="badge.name" />
-            <span class="energie__badge-name">{{ badge.name }}</span>
-            <span class="energie__badge-gain t-mono"
-              >+{{ badge.gain }}<ui-axis-icon axis="credit" [size]="11"
-            /></span>
-          </span>
-        }
+      <div class="energie__badges-progress flex flex-col">
+        <span class="energie__badges-earned flex items-baseline">
+          <span class="energie__badges-earned-value t-mono">{{
+            earnedReward()
+          }}</span>
+          <ui-axis-icon
+            class="energie__badges-earned-coin"
+            axis="credit"
+            [size]="15"
+            label="crédits"
+          />
+          <span class="energie__badges-earned-label"
+            >/ {{ totalReward }} déjà gagnés</span
+          >
+        </span>
+        <span class="energie__badges-track">
+          <span
+            class="energie__badges-fill"
+            [style.width.%]="earnedRewardPercent()"
+          ></span>
+        </span>
       </div>
+      <a class="energie__badges-link flex items-center" routerLink="/badges">
+        Voir tous les badges
+        <ui-icon [img]="arrowRightIcon" [size]="14" />
+      </a>
     </section>
 
     <section class="energie__gift flex items-center">
-      <div class="energie__gift-copy flex items-center">
-        <span class="energie__gift-tile">
-          <ui-icon [img]="giftIcon" [size]="21" [strokeWidth]="1.8" />
-        </span>
-        <span class="energie__gift-text flex flex-col">
-          <span class="energie__gift-title">Un code cadeau&nbsp;?</span>
-          <span class="energie__gift-sub"
-            >Saisissez-le pour créditer votre solde immédiatement.</span
-          >
-        </span>
-      </div>
+      <span class="energie__gift-text flex flex-col">
+        <span class="energie__gift-title">Un code cadeau&nbsp;?</span>
+        <span class="energie__gift-sub"
+          >Saisissez-le pour créditer votre solde immédiatement.</span
+        >
+      </span>
       <div class="energie__gift-zone flex flex-col">
         @if (giftStatus() !== 'ok') {
           <span class="energie__gift-row flex">
@@ -213,6 +258,7 @@
             />
             <ui-button
               color="brand"
+              size="lg"
               [disabled]="giftCode().trim().length === 0"
               [loading]="giftSending()"
               (click)="redeemGiftCode()"

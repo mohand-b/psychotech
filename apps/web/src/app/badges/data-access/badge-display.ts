@@ -3,6 +3,7 @@ import {
   BADGE_BY_ID,
   BadgeDefinition,
   BadgeFamily,
+  BadgeStatusDto,
   BadgeTier,
   EarnedBadgeDto,
   FULL_SESSION_LABEL_LOWER,
@@ -27,6 +28,18 @@ const TIER_COLOR_VARS: Record<BadgeTier, string> = {
   [BadgeTier.SILVER]: 'var(--badge-argent)',
   [BadgeTier.GOLD]: 'var(--badge-or)',
 };
+
+export function sumEarnedBadgeRewards(
+  statuses: readonly BadgeStatusDto[],
+): number {
+  return statuses
+    .filter((status) => status.earnedAt !== null)
+    .reduce(
+      (sum, status) =>
+        sum + (BADGE_BY_ID.get(status.badgeId)?.energyReward ?? 0),
+      0,
+    );
+}
 
 export function computeDisplayedEnergyGain(
   energyReward: number,

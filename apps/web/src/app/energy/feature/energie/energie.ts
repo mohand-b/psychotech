@@ -12,20 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import {
-  BADGE_CATALOG,
-  BADGE_TOTAL_REWARD,
-  BadgeFamily,
-  ENERGY_PACKS,
-  EnergyPackDefinition,
-  EnergyPackId,
-  SESSION_ENERGY_COST,
-  Sector,
-  SessionMode,
-  badgeAssetPath,
-  badgeDisplayName,
-  energyPackUnitPriceEur,
-} from '@psychotech/shared';
+import { BADGE_TOTAL_REWARD, EnergyPackId } from '@psychotech/shared';
 import { StripeEmbeddedCheckout } from '@stripe/stripe-js';
 import {
   ArrowLeft,
@@ -33,71 +20,32 @@ import {
   Ban,
   Check,
   CreditCard,
-  Gift,
   ShieldCheck,
 } from 'lucide-angular';
 import { EMPTY, catchError, concatMap, of, take, takeWhile, timer } from 'rxjs';
+import { sumEarnedBadgeRewards } from '../../../badges/data-access/badge-display';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
 import { Button } from '../../../shared/ui/button/button';
 import { Icon } from '../../../shared/ui/icon/icon';
-import { formatEuroAmount } from '../../../shared/util/format-euro';
+import {
+  ENERGY_PACK_OFFERS,
+  SESSION_CREDIT_COSTS,
+} from '../../../shared/util/energy-pack-offer';
 import { readInputValue } from '../../../shared/util/input-value';
 
 type EnergieView = 'packs' | 'checkout' | 'confirmation';
 
 type ConfirmationState = 'pending' | 'credited' | 'incomplete' | 'error';
 
-interface PackCardView {
-  id: EnergyPackId;
-  title: string;
-  energyAmount: number;
-  description: string;
-  unitPriceLabel: string;
-  ctaLabel: string;
-  featured: boolean;
+function buildBalanceLabel(balance: number): string {
+  if (balance === 0) {
+    return 'Aucun crédit disponible';
+  }
+  return balance === 1 ? 'crédit disponible' : 'crédits disponibles';
 }
-
-interface RewardBadgeView {
-  asset: string;
-  name: string;
-  gain: number;
-}
-
-const REWARD_SHOWCASE_COUNT = 3;
-
-const FAMILY_SHOWCASE_ORDER: Record<BadgeFamily, number> = {
-  [BadgeFamily.TRANSVERSE]: 0,
-  [BadgeFamily.EXAM]: 1,
-  [BadgeFamily.AXIS]: 2,
-};
-
-function pickTopRewardBadges(): RewardBadgeView[] {
-  return [...BADGE_CATALOG]
-    .filter((definition) => definition.energyReward > 0)
-    .sort(
-      (a, b) =>
-        b.energyReward - a.energyReward ||
-        FAMILY_SHOWCASE_ORDER[a.family] - FAMILY_SHOWCASE_ORDER[b.family],
-    )
-    .slice(0, REWARD_SHOWCASE_COUNT)
-    .map((definition) => ({
-      asset: badgeAssetPath(definition, Sector.RAILWAY),
-      name: badgeDisplayName(definition, Sector.RAILWAY),
-      gain: definition.energyReward,
-    }));
-}
-
-const PACK_DESCRIPTIONS: Record<EnergyPackId, string> = {
-  [EnergyPackId.DISCOVERY]: 'Soit 3 examens blancs, ou 15 sessions ciblées',
-  [EnergyPackId.PRE_EXAM]:
-    "Soit 10 examens blancs, ou un mois d'entraînement quotidien",
-  [EnergyPackId.FULL_PREP]:
-    'Soit 24 examens blancs, de quoi couvrir toute une préparation',
-};
-
-const FEATURED_PACK = EnergyPackId.PRE_EXAM;
 
 const STATUS_POLL_INTERVAL_MS = 1500;
 
@@ -133,30 +81,35 @@ export class Energie implements OnDestroy {
   protected readonly cardIcon = CreditCard;
   protected readonly arrowRightIcon = ArrowRight;
   protected readonly arrowLeftIcon = ArrowLeft;
-  protected readonly giftIcon = Gift;
   protected readonly checkIcon = Check;
   protected readonly readValue = readInputValue;
 
-  protected readonly targetedCost = SESSION_ENERGY_COST[SessionMode.TARGETED];
-  protected readonly fullCost = SESSION_ENERGY_COST[SessionMode.FULL];
+  protected readonly sessionCosts = SESSION_CREDIT_COSTS;
+  protected readonly packs = ENERGY_PACK_OFFERS;
+  protected readonly totalReward = BADGE_TOTAL_REWARD;
+
+  private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
 
   protected readonly balance = computed(
     () => this.energyFacade.state()?.balance ?? 0,
+  );
+
+  protected readonly balanceLabel = computed(() =>
+    buildBalanceLabel(this.balance()),
+  );
+
+  protected readonly earnedReward = computed(() =>
+    sumEarnedBadgeRewards(this.badgeStatuses() ?? []),
+  );
+
+  protected readonly earnedRewardPercent = computed(() =>
+    Math.round((this.earnedReward() / BADGE_TOTAL_REWARD) * 100),
   );
 
   protected readonly view = signal<EnergieView>('packs');
   protected readonly checkoutLoading = signal(false);
   protected readonly checkoutError = signal(false);
   protected readonly confirmation = signal<ConfirmationState>('pending');
-
-  protected readonly packs: readonly PackCardView[] = ENERGY_PACKS.map((pack) =>
-    this.buildPackCard(pack),
-  );
-
-  protected readonly totalReward = BADGE_TOTAL_REWARD;
-
-  protected readonly rewardBadges: readonly RewardBadgeView[] =
-    pickTopRewardBadges();
 
   constructor() {
     const sessionId = this.route.snapshot.queryParamMap.get('session_id');
@@ -316,17 +269,5 @@ export class Energie implements OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-  }
-
-  private buildPackCard(pack: EnergyPackDefinition): PackCardView {
-    return {
-      id: pack.id,
-      title: pack.title,
-      energyAmount: pack.energyAmount,
-      description: PACK_DESCRIPTIONS[pack.id],
-      unitPriceLabel: `${formatEuroAmount(energyPackUnitPriceEur(pack))} € par crédit`,
-      ctaLabel: `Recharger · ${formatEuroAmount(pack.priceCents / 100)} €`,
-      featured: pack.id === FEATURED_PACK,
-    };
   }
 }

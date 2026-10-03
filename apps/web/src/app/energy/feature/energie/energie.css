@@ -1,5 +1,6 @@
 .energie {
-  gap: 32px;
+  max-width: 1100px;
+  gap: 24px;
 }
 
 .energie__head {
@@ -10,45 +11,33 @@
   font: 400 14.5px / 1.55 var(--font-ui);
   color: var(--text-secondary);
   max-width: 600px;
-  margin: 0;
 }
 
 .energie__solde {
+  justify-content: space-between;
+  gap: 32px;
+  padding: 18px 28px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  align-items: stretch;
 }
 
-.energie__solde-main {
-  flex: 1;
-  gap: 16px;
-  padding: 24px 32px;
-}
-
-.energie__solde-main > span:last-child {
-  gap: 4px;
-}
-
-.energie__solde-tile {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-panel);
-  background: var(--brand-pastel);
-  color: var(--brand);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.energie__solde-block {
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .energie__solde-line {
   gap: 8px;
 }
 
+.energie__solde-amount {
+  gap: 7px;
+}
+
 .energie__solde-value {
-  font: 600 40px/1 var(--font-mono);
+  font: 600 32px/1 var(--font-mono);
   color: var(--ink);
 }
 
@@ -57,42 +46,30 @@
   color: var(--text-secondary);
 }
 
-.energie__solde-note {
-  font: 400 12.5px/18px var(--font-ui);
-  color: var(--label);
+.energie__uses {
+  align-items: flex-end;
+  gap: 20px;
+  height: 32px;
+  padding-bottom: 2px;
+  font: 400 13.5px/18px var(--font-ui);
+  color: var(--text-secondary);
 }
 
-.energie__solde-divider {
+.energie__uses-divider {
+  align-self: center;
   width: 1px;
-  background: var(--divider-soft);
-  margin: 20px 0;
-}
-
-.energie__solde-uses {
-  flex: 1;
-  gap: 12px;
-  padding: 24px 32px;
-  justify-content: center;
+  height: 14px;
+  background: var(--border);
 }
 
 .energie__use {
-  gap: 10px;
+  gap: 8px;
 }
 
 .energie__use-cost {
   gap: 4px;
-  min-width: 44px;
-  color: var(--brand);
-}
-
-.energie__use-cost .t-mono {
-  font: 600 15px/20px var(--font-mono);
+  font: 600 15px/18px var(--font-mono);
   color: var(--ink);
-}
-
-.energie__use-text {
-  font: 400 13.5px/20px var(--font-ui);
-  color: var(--text-secondary);
 }
 
 .energie__recharge {
@@ -100,6 +77,7 @@
 }
 
 .energie__recharge-head {
+  align-items: baseline;
   gap: 12px;
 }
 
@@ -113,24 +91,31 @@
   color: var(--label);
 }
 
+.energie__recharge-hint--compact {
+  display: none;
+}
+
 .energie__packs {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   align-items: stretch;
+  padding-top: 10px;
 }
 
 .energie__pack {
   position: relative;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 24px 24px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 24px;
-  gap: 8px;
   text-align: center;
 }
 
 .energie__pack--featured {
+  padding: 25px 23px 23px;
   border: 2px solid var(--brand);
   box-shadow: var(--shadow-raised);
 }
@@ -140,51 +125,118 @@
   top: -11px;
   left: 50%;
   transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 999px;
   background: var(--brand);
-  color: var(--card);
   font: 700 10.5px/14px var(--font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 4px 12px;
-  border-radius: 999px;
+  color: var(--card);
   white-space: nowrap;
 }
 
+.energie__pack-top {
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.energie__pack-head {
+  gap: 3px;
+}
+
 .energie__pack-title {
-  font: 700 18px/24px var(--font-display);
+  font: 700 19px/24px var(--font-display);
   color: var(--ink);
+}
+
+.energie__pack-tagline {
+  font: 400 12.5px/18px var(--font-ui);
+  color: var(--label);
 }
 
 .energie__pack-amount {
   gap: 8px;
-  color: var(--brand);
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 .energie__pack-amount .t-mono {
-  font: 600 42px/1 var(--font-mono);
+  font: 600 40px/1 var(--font-mono);
   color: var(--ink);
 }
 
-.energie__pack-desc {
-  font: 400 12.5px/18px var(--font-ui);
+.energie__pack-uses {
+  align-items: center;
+  gap: 3px;
+  font: 400 13.5px/18px var(--font-ui);
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
-.energie__pack-unit {
-  font: 400 11.5px/16px var(--font-ui);
-  color: var(--text-disabled);
+.energie__pack-uses strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.energie__pack-cta {
+.energie__pack-foot {
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   width: 100%;
-  padding-top: 16px;
   margin-top: auto;
 }
 
-.energie__reassurances {
-  gap: 32px;
+.energie__pack-unit {
   flex-wrap: wrap;
+  gap: 2px 8px;
+  white-space: nowrap;
+  font: 400 12px/16px var(--font-ui);
+  color: var(--text-disabled);
+}
+
+.energie__pack-discount {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--brand-hover);
+}
+
+.energie__pack-discount::before {
+  content: '';
+  width: 1px;
+  height: 10px;
+  background: var(--border);
+}
+
+.energie__pack-cta-content {
+  gap: 12px;
+}
+
+.energie__pack-cta-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--brand-pastel-bd);
+}
+
+.energie__pack-cta-price {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--brand-hover);
+}
+
+.energie__pack--featured .energie__pack-cta-divider {
+  background: color-mix(in srgb, var(--card) 30%, transparent);
+}
+
+.energie__pack--featured .energie__pack-cta-price {
+  color: color-mix(in srgb, var(--card) 85%, transparent);
+}
+
+.energie__reassurances {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
 }
 
 .energie__reassurance {
@@ -251,30 +303,39 @@
 }
 
 .energie__badges {
+  grid-template-columns: minmax(0, 380px) auto;
+  grid-template-areas:
+    'intro progress'
+    'link progress';
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 40px;
+  padding: 24px 32px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 24px 32px;
-  gap: 32px;
-  flex-wrap: wrap;
 }
 
-.energie__badges-copy {
-  flex: 1;
-  min-width: 250px;
-  gap: 8px;
+.energie__badges-intro {
+  grid-area: intro;
+  gap: 6px;
 }
 
 .energie__badges-title {
   font: 700 19px/24px var(--font-display);
   color: var(--ink);
-  gap: 6px;
 }
 
-.energie__badges-title .t-mono {
-  font: 600 18px/24px var(--font-mono);
-  color: var(--ink);
+.energie__badges-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: top;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--brand-hover);
 }
 
 .energie__badges-text {
@@ -282,8 +343,54 @@
   color: var(--text-secondary);
 }
 
+.energie__badges-progress {
+  grid-area: progress;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.energie__badges-earned {
+  gap: 6px;
+}
+
+.energie__badges-earned-value {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.energie__badges-earned-coin {
+  align-self: center;
+}
+
+.energie__badges-earned-label {
+  font: 400 13px/18px var(--font-ui);
+  color: var(--text-secondary);
+}
+
+.energie__badges-track {
+  position: relative;
+  width: 260px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.energie__badges-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 999px;
+  background: var(--brand);
+}
+
 .energie__badges-link {
-  gap: 8px;
+  grid-area: link;
+  justify-self: start;
+  gap: 6px;
   font: 600 13.5px/18px var(--font-ui);
   color: var(--brand-hover);
   text-decoration: none;
@@ -293,115 +400,24 @@
   color: var(--brand);
 }
 
-.energie__badges-tiles {
-  gap: 16px;
-  align-items: stretch;
-}
-
-.energie__badge-tile {
-  gap: 8px;
-  background: var(--surface-hover);
-  border: 1px solid var(--divider-soft);
-  border-radius: var(--radius-card);
-  padding: 16px 20px;
-  min-width: 128px;
-}
-
-.energie__badge-tile img {
-  width: 58px;
-  height: 58px;
-}
-
-.energie__badge-name {
-  font: 600 12.5px/18px var(--font-ui);
-  color: var(--ink);
-}
-
-.energie__badge-gain {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font: 600 12.5px/16px var(--font-mono);
-  color: var(--brand-hover);
-}
-
-@media (max-width: 767px) {
-  .energie {
-    gap: 24px;
-  }
-
-  .energie__solde {
-    flex-direction: column;
-  }
-
-  .energie__solde-divider {
-    width: auto;
-    height: 1px;
-    margin: 0 24px;
-  }
-
-  .energie__solde-main,
-  .energie__solde-uses {
-    padding: 20px 24px;
-  }
-
-  .energie__packs {
-    grid-template-columns: 1fr;
-  }
-
-  .energie__pack--featured {
-    order: -1;
-  }
-
-  .energie__reassurances {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .energie__badges {
-    padding: 20px 24px;
-  }
-
-  .energie__badges-tiles {
-    flex-wrap: wrap;
-  }
-}
-
 .energie__gift {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 22px 32px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-card);
-  padding: 22px 28px;
-  gap: 28px;
-  flex-wrap: wrap;
-}
-
-.energie__gift-copy {
-  gap: 16px;
-  flex: 1;
-  min-width: 280px;
-}
-
-.energie__gift-tile {
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  background: var(--brand-pastel);
-  color: var(--brand-hover);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 
 .energie__gift-text {
-  gap: 3px;
+  gap: 4px;
 }
 
 .energie__gift-title {
-  font: 700 19px/1.3 var(--font-display);
+  font: 700 19px/24px var(--font-display);
+  color: var(--ink);
 }
 
 .energie__gift-sub {
@@ -410,6 +426,7 @@
 }
 
 .energie__gift-zone {
+  align-items: flex-end;
   gap: 8px;
 }
 
@@ -418,8 +435,8 @@
 }
 
 .energie__gift-input {
-  width: 220px;
-  height: 40px;
+  width: 240px;
+  height: 46px;
   border: 1px solid var(--keycap-bd);
   border-radius: var(--radius-button);
   padding: 0 14px;
@@ -447,7 +464,7 @@
 
 .energie__gift-success {
   gap: 10px;
-  height: 40px;
+  height: 46px;
   padding: 0 18px;
   background: var(--success-pastel);
   border: 1px solid color-mix(in srgb, var(--success-text) 30%, var(--card));
@@ -504,7 +521,6 @@
 }
 
 .energie__gift-again {
-  align-self: flex-start;
   background: none;
   border: none;
   padding: 0;
@@ -517,6 +533,251 @@
 .energie__gift-again:hover {
   color: var(--brand);
   text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+  .energie__solde {
+    flex-direction: column;
+    gap: 16px;
+    padding: 18px 20px;
+  }
+
+  .energie__solde-uses {
+    padding-top: 14px;
+    border-top: 1px solid var(--divider-soft);
+  }
+
+  .energie__uses {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    height: auto;
+    padding-bottom: 0;
+  }
+
+  .energie__uses-divider {
+    display: none;
+  }
+
+  .energie__use-cost {
+    min-width: 34px;
+  }
+
+  .energie__recharge {
+    gap: 12px;
+  }
+
+  .energie__recharge-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 8px 4px 0;
+  }
+
+  .energie__recharge-title {
+    font-size: 19px;
+  }
+
+  .energie__recharge-hint {
+    color: var(--text-secondary);
+  }
+
+  .energie__recharge-hint--wide {
+    display: none;
+  }
+
+  .energie__recharge-hint--compact {
+    display: inline;
+  }
+
+  .energie__packs {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding-top: 0;
+  }
+
+  .energie__pack {
+    align-items: stretch;
+    padding: 18px 20px;
+    text-align: left;
+  }
+
+  .energie__pack--featured {
+    padding: 17px 19px;
+  }
+
+  .energie__pack-flag {
+    left: 19px;
+    transform: none;
+  }
+
+  .energie__pack--featured .energie__pack-top {
+    padding-top: 4px;
+  }
+
+  .energie__pack-top {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .energie__pack-head {
+    gap: 2px;
+  }
+
+  .energie__pack-title {
+    font-size: 18px;
+    line-height: 22px;
+  }
+
+  .energie__pack-tagline {
+    line-height: 16px;
+  }
+
+  .energie__pack-amount {
+    gap: 6px;
+    padding-top: 0;
+  }
+
+  .energie__pack-amount .t-mono {
+    font-size: 28px;
+  }
+
+  .energie__pack-coin {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .energie__pack-uses {
+    display: block;
+    line-height: 19px;
+    white-space: normal;
+  }
+
+  .energie__pack-foot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--divider-soft);
+  }
+
+  .energie__pack-discount {
+    display: inline-flex;
+  }
+
+  .energie__pack-foot .energie__pack-cta {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: auto;
+  }
+
+  .energie__pack-cta-content {
+    gap: 10px;
+  }
+
+  .energie__reassurances {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 4px 0;
+  }
+
+  .energie__reassurance {
+    font-size: 12.5px;
+  }
+
+  .energie__reassurance--wide {
+    display: none;
+  }
+
+  .energie__badges {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'intro'
+      'progress'
+      'link';
+    align-items: stretch;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .energie__badges-intro {
+    gap: 12px;
+  }
+
+  .energie__badges-title {
+    font-size: 18px;
+  }
+
+  .energie__badges-total {
+    font-size: 17px;
+  }
+
+  .energie__badges-progress {
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .energie__badges-earned-value {
+    font-size: 22px;
+  }
+
+  .energie__badges-track {
+    width: 100%;
+  }
+
+  .energie__badges-link {
+    min-height: 44px;
+  }
+
+  .energie__gift {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 18px 20px;
+  }
+
+  .energie__gift-title {
+    font-size: 18px;
+  }
+
+  .energie__gift-zone {
+    align-items: stretch;
+  }
+
+  .energie__gift-row {
+    gap: 8px;
+  }
+
+  .energie__gift-input {
+    flex: 1;
+    width: 0;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .energie__gift-success {
+    align-self: flex-start;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    height: auto;
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .energie__gift-divider {
+    display: none;
+  }
+
+  .energie__gift-again {
+    align-self: flex-start;
+    min-height: 44px;
+    font-size: 13px;
+  }
 }
 
 @keyframes energie-gift-pop {
