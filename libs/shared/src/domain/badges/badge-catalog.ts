@@ -263,7 +263,7 @@ const TRANSVERSE_BADGES: BadgeDefinition[] = [
       },
       {
         id: 'tutorial',
-        label: 'Un tutoriel terminé',
+        label: 'Un exercice en mode découverte terminé',
         met: (facts) => facts.user.tutorialDiscovered,
       },
     ],

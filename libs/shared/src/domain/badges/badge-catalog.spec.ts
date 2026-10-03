@@ -129,6 +129,16 @@ describe('badge catalog shape', () => {
     }
   });
 
+  it('never says tutoriel in a condition label, only mode découverte', () => {
+    const labels = BADGE_CATALOG.flatMap((definition) =>
+      definition.conditions.map((condition) => condition.label),
+    );
+    for (const label of labels) {
+      expect(label).not.toMatch(/tutoriel/i);
+    }
+    expect(labels).toContain('Un exercice en mode découverte terminé');
+  });
+
   it('credits energy on the axis tiers, the favorable exam and first steps', () => {
     for (const definition of BADGE_CATALOG) {
       if (definition.family === BadgeFamily.AXIS) {
