@@ -101,8 +101,26 @@
 }
 
 .badges__closest-text {
+  gap: 2px;
   font: 400 13.5px/1.5 var(--font-ui);
   color: var(--text-secondary);
+}
+
+.badges__closest-head {
+  gap: 8px;
+}
+
+.badges__closest-conditions {
+  flex-wrap: wrap;
+  column-gap: 6px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.badges__closest-condition--met {
+  font-weight: 500;
+  color: var(--success-text);
+  text-decoration: line-through;
 }
 
 .badges__closest-name {
@@ -241,6 +259,15 @@
 
   .badges__closest-text {
     font-size: 12.5px;
+  }
+
+  .badges__closest-head {
+    gap: 6px;
+  }
+
+  .badges__closest-conditions {
+    font-size: 12px;
+    line-height: 1.45;
   }
 
   .badges__board {

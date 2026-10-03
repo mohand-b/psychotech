@@ -43,7 +43,7 @@
     </div>
     <span class="badges__summary-divider"></span>
     <div class="badges__summary-block badges__summary-closest">
-      <span class="t-label">Le plus proche</span>
+      <span class="t-label">Prochain badge</span>
       @if (view.summary.closest; as closest) {
         <span class="badges__closest">
           <ui-badge-art
@@ -53,13 +53,28 @@
             [locked]="true"
           />
           <span class="badges__closest-text flex flex-col">
-            <span>
+            <span class="badges__closest-head flex items-center">
               <span class="badges__closest-name">{{ closest.name }}</span>
-              · {{ closest.hint }}
               @if (closest.gain) {
                 <span class="badges__closest-gain t-mono"
                   >+{{ closest.gain }}<ui-axis-icon axis="credit" [size]="11"
                 /></span>
+              }
+            </span>
+            <span class="badges__closest-conditions flex">
+              @for (
+                condition of closest.conditions;
+                track condition.label;
+                let first = $first
+              ) {
+                @if (!first) {
+                  <span aria-hidden="true">·</span>
+                }
+                <span
+                  class="badges__closest-condition"
+                  [class.badges__closest-condition--met]="condition.met"
+                  >{{ condition.label }}</span
+                >
               }
             </span>
             @if (closest.progress) {

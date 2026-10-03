@@ -7,6 +7,7 @@ import {
   EXAM_EXCELLENCE_THRESHOLD,
   EXAM_PERFECTION_THRESHOLD,
   EXAM_PROGRESSION_THRESHOLD,
+  FULL_SESSION_LABEL,
   BadgeDefinition,
   BadgeFamily,
   BadgeId,
@@ -52,7 +53,7 @@ export const EMPTY_BADGE_OUTLOOK: BadgeOutlook = {
 export interface ClosestBadgeView {
   name: string;
   assetPath: string;
-  hint: string;
+  conditions: BadgeConditionView[];
   progress: string | null;
   gain: number | null;
 }
@@ -322,6 +323,18 @@ function buildClosestProgressLine(
   return null;
 }
 
+const TRANSVERSE_BADGE_LABEL = 'Badge transverse';
+
+function buildClosestBadgeLabel(definition: BadgeDefinition): string {
+  if (definition.family === BadgeFamily.TRANSVERSE || !definition.tier) {
+    return TRANSVERSE_BADGE_LABEL;
+  }
+  const familyLabel = definition.axis
+    ? AXIS_META[definition.axis].label
+    : FULL_SESSION_LABEL;
+  return `${familyLabel} · palier ${TIER_LABELS[definition.tier]}`;
+}
+
 function buildSummary(
   entries: BadgeEntry[],
   sector: Sector,
@@ -353,13 +366,9 @@ function buildSummary(
     energyRemaining,
     closest: closestEntry
       ? {
-          name: closestEntry.name,
+          name: buildClosestBadgeLabel(closestEntry.definition),
           assetPath: closestEntry.assetPath,
-          hint:
-            closestEntry.conditions.find((condition) => !condition.met)
-              ?.label ??
-            closestEntry.conditions[0]?.label ??
-            '',
+          conditions: closestEntry.conditions,
           progress: buildClosestProgressLine(closestEntry, sector, outlook),
           gain: computeDisplayedEnergyGain(
             closestEntry.definition.energyReward,

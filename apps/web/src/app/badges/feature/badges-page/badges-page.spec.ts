@@ -183,7 +183,21 @@ describe('BadgesPage', () => {
       }),
     );
     const closest = fixture.nativeElement.querySelector('.badges__closest');
-    expect(closest.textContent).toContain('Premiers pas');
+    expect(closest.textContent).toContain('Badge transverse');
+    expect(closest.textContent).not.toContain('Premiers pas');
+    const conditions = Array.from<HTMLElement>(
+      closest.querySelectorAll('.badges__closest-condition'),
+    );
+    expect(
+      conditions.map((condition) => condition.textContent?.trim()),
+    ).toEqual(
+      (definition?.conditions ?? []).map((condition) => condition.label),
+    );
+    expect(
+      conditions.map((condition) =>
+        condition.classList.contains('badges__closest-condition--met'),
+      ),
+    ).toEqual([true, false]);
     expect(closest.textContent).toContain('Un tutoriel terminé');
     expect(closest.textContent).toContain('+2');
     expect(
@@ -191,7 +205,7 @@ describe('BadgesPage', () => {
     ).not.toBeNull();
   });
 
-  it('picks the smallest real score gap from the trainings overview', async () => {
+  it('picks the smallest real score gap and names it by axis and tier without spoiling it', async () => {
     const fixture = await setup(catalogStatuses(), {
       lastSimulation: null,
       vigilanceThreshold: 65,
@@ -206,7 +220,8 @@ describe('BadgesPage', () => {
       ],
     });
     const closest = fixture.nativeElement.querySelector('.badges__closest');
-    expect(closest.textContent).toContain('Tête bien pleine');
+    expect(closest.textContent).toContain('Mémoire · palier Bronze');
+    expect(closest.textContent).not.toContain('Tête bien pleine');
     expect(closest.textContent).toContain(
       'Votre meilleur score 65 · plus que 5 points',
     );
