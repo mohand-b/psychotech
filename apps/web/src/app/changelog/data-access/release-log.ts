@@ -37,34 +37,15 @@ export function buildReleaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
-    version: '1.2.3',
-    releasedOn: '2026-10-03',
-    title: 'Badge Or de Mémoire',
-    entries: {
-      [ReleaseCategory.FIX]: [
-        'Badge Or de l’épreuve Mémoire désormais accessible : toutes les séquences de la session restituées sans erreur.',
-      ],
-    },
-  },
-  {
-    version: '1.2.2',
-    releasedOn: '2026-10-03',
-    title: 'Prochain badge',
-    entries: {
-      [ReleaseCategory.IMPROVEMENT]: [
-        'Page Badges : prochain badge choisi selon l’effort réellement nécessaire, actions gratuites en tête, sans dévoiler son nom avant l’obtention.',
-      ],
-    },
-  },
-  {
     version: '1.2.1',
     releasedOn: '2026-10-03',
     title: 'Tarifs, crédits et badges',
     entries: {
       [ReleaseCategory.IMPROVEMENT]: [
-        'Page Tarifs repensée : packs présentés côte à côte avec leur équivalent en examens blancs et en entraînements ciblés, et accès gratuits réunis dans une même section.',
-        'Page Crédits repensée : solde, recharge et crédits déjà obtenus grâce aux badges réunis sur un seul écran, sur ordinateur comme sur mobile.',
-        'Page Badges : prochain badge à portée mis en avant avec l’ensemble de ses conditions.',
+        'Pages Tarifs, Crédits et Badges repensées, sur ordinateur comme sur mobile.',
+      ],
+      [ReleaseCategory.FIX]: [
+        'Badge Or de l’épreuve Mémoire désormais accessible : toutes les séquences de la session restituées sans erreur.',
       ],
     },
   },
