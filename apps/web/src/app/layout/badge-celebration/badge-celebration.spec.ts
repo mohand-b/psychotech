@@ -117,6 +117,14 @@ describe('BadgeCelebration', () => {
     expect(acknowledgeBadge).toHaveBeenCalledTimes(2);
   });
 
+  it('makes the celebrated badge shine whatever its tier', async () => {
+    const { fixture, store } = await setup();
+    store.enqueueBadges([AGUERRI]);
+    fixture.detectChanges();
+
+    expect(cardOf(fixture)?.querySelector('ui-badge-shine')).not.toBeNull();
+  });
+
   it('shows the struck condition and no gain line for a badge without credits', async () => {
     const { fixture, store } = await setup();
     store.enqueueBadges([AGUERRI]);

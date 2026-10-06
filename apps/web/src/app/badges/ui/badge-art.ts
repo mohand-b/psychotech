@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { BadgeShine } from '../../shared/ui/badge-shine/badge-shine';
 
 @Component({
   selector: 'ui-badge-art',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BadgeShine],
   template: `
     <img
       class="badge-art"
@@ -10,9 +12,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       [src]="src()"
       [alt]="alt()"
     />
+    @if (!locked()) {
+      <ui-badge-shine />
+    }
   `,
   styles: `
     :host {
+      position: relative;
       display: inline-flex;
       flex-shrink: 0;
     }

@@ -26,6 +26,12 @@
   }
 }
 
+@keyframes cbShineIn {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes cbUp {
   from {
     opacity: 0;
@@ -163,9 +169,11 @@
 }
 
 .cb__stage {
+  --cb-stage-size: 168px;
+  --cb-badge-size: 148px;
   position: relative;
-  width: 168px;
-  height: 168px;
+  width: var(--cb-stage-size);
+  height: var(--cb-stage-size);
   margin: 12px 0 4px;
   display: flex;
   align-items: center;
@@ -281,10 +289,15 @@
 
 .cb__badge {
   position: relative;
-  width: 148px;
-  height: 148px;
+  width: var(--cb-badge-size);
+  height: var(--cb-badge-size);
   object-fit: contain;
   animation: cbPop 560ms cubic-bezier(0.22, 1, 0.36, 1) 140ms backwards;
+}
+
+.cb__shine {
+  inset: calc((var(--cb-stage-size) - var(--cb-badge-size)) / 2);
+  animation: cbShineIn 400ms ease 750ms backwards;
 }
 
 .cb__name {
@@ -407,6 +420,7 @@
   :is(
     .cb__micro,
     .cb__badge,
+    .cb__shine,
     .cb__halo,
     .cb__name,
     .cb__tier,

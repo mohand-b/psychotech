@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { BadgeId } from '@psychotech/shared';
 import { AxisIcon } from '../axis-icon/axis-icon';
+import { BadgeShine } from '../badge-shine/badge-shine';
 
 export interface BadgeCelebrationCondition {
   label: string;
@@ -28,7 +29,7 @@ export interface BadgeCelebrationView {
 @Component({
   selector: 'ui-badge-celebration-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon],
+  imports: [AxisIcon, BadgeShine],
   templateUrl: './badge-celebration-modal.html',
   styleUrl: './badge-celebration-modal.css',
 })

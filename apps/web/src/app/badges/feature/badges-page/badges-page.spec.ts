@@ -188,6 +188,26 @@ describe('BadgesPage', () => {
     expect(text).toContain('sur 21 badges');
   });
 
+  it('makes every earned badge shine and never a locked one', async () => {
+    const nothingEarned = await setup(catalogStatuses());
+    expect(
+      nothingEarned.nativeElement.querySelectorAll('ui-badge-shine').length,
+    ).toBe(0);
+
+    const fixture = await setup(
+      catalogStatuses(earnedOnly(TRANSVERSE_AND_LOWER_TIERS)),
+    );
+    const arts = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('ui-badge-art'),
+    );
+    const unlocked = arts.filter(
+      (art) => !art.querySelector('.badge-art--locked'),
+    );
+    const shining = arts.filter((art) => art.querySelector('ui-badge-shine'));
+    expect(unlocked.length).toBeGreaterThan(0);
+    expect(shining).toEqual(unlocked);
+  });
+
   it('desaturates every asset while nothing is earned', async () => {
     const fixture = await setup(catalogStatuses());
     const arts = fixture.nativeElement.querySelectorAll('.badge-art');
