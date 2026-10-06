@@ -24,7 +24,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     }
     .badge-art--locked {
       filter: grayscale(1);
-      opacity: 0.35;
+      opacity: 0.4;
     }
   `,
 })
