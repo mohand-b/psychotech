@@ -10,6 +10,6 @@
 <g fill="#C47436"><path d="M73.94 32.00Q80.00 28.50 86.06 32.00L115.07 48.75Q121.14 52.25 121.14 59.25L121.14 92.75Q121.14 99.75 115.07 103.25L86.06 120.00Q80.00 123.50 73.94 120.00L44.93 103.25Q38.86 99.75 38.86 92.75L38.86 59.25Q38.86 52.25 44.93 48.75Z"/></g>
 <g fill="#B5692F" clip-path="url(#A-discrimination-bronze-f)"><polygon points="480,-316 -320,484 480,476"/></g>
 <g fill="#FFFFFF" fill-opacity="0.13" clip-path="url(#A-discrimination-bronze-f)"><polygon points="20,70 74,16 86,16 20,82"/></g>
-<g fill="#7A3E16" transform="translate(50.556 49.756) scale(2.454)"><path d="M1.2 12A12 12 0 0 1 22.8 12A12 12 0 0 1 1.2 12Z" stroke="#7A3E16" stroke-width="0.53" stroke-linejoin="round"/></g>
-<g transform="translate(50.556 46.556) scale(2.454)"><g fill="#FFFFFF"><path d="M1.2 12A12 12 0 0 1 22.8 12A12 12 0 0 1 1.2 12Z" stroke="#FFFFFF" stroke-width="0.53" stroke-linejoin="round"/></g><path d="M7.75 12a4.25 4.25 0 1 0 8.5 0a4.25 4.25 0 1 0 -8.5 0Z" fill="none" stroke="#C47436" stroke-width="1.223" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.75" fill="#7A3E16"/></g>
+<g fill="#7A3E16" stroke="#7A3E16" stroke-width="0" transform="translate(49.54 48.74) scale(2.5380)"><path d="M1.6 12.35a1 1 0 0 1 0-.7 11.2 11.2 0 0 1 20.8 0 1 1 0 0 1 0 .7 11.2 11.2 0 0 1-20.8 0" stroke-width="0.8" stroke-linejoin="round"/></g>
+<g transform="translate(49.54 45.54) scale(2.5380)"><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M1.6 12.35a1 1 0 0 1 0-.7 11.2 11.2 0 0 1 20.8 0 1 1 0 0 1 0 .7 11.2 11.2 0 0 1-20.8 0" stroke-width="0.8" stroke-linejoin="round"/></g><circle cx="12" cy="12" r="4.6" fill="#7A3E16"/><circle cx="12" cy="12" r="2.1" fill="#0B1020"/><circle cx="13.6" cy="10.4" r="1.15" fill="#FFFFFF"/></g>
 </svg>
