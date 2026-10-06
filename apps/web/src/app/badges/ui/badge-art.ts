@@ -12,7 +12,7 @@ import { BadgeShine } from '../../shared/ui/badge-shine/badge-shine';
       [src]="src()"
       [alt]="alt()"
     />
-    @if (!locked()) {
+    @if (shining() && !locked()) {
       <ui-badge-shine />
     }
   `,
@@ -38,4 +38,5 @@ export class BadgeArt {
   readonly src = input.required<string>();
   readonly alt = input('');
   readonly locked = input(false);
+  readonly shining = input(false);
 }

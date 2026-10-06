@@ -37,6 +37,20 @@ const CERTIFIE: EarnedBadgeDto = {
   ],
 };
 
+const PREMIER_DE_LA_CLASSE: EarnedBadgeDto = {
+  badgeId: BadgeId.EXAM_SOLID,
+  earnedAt: '2026-08-07T10:00:02.000Z',
+  gain: 3,
+  conditions: [
+    {
+      id: 'exam-best-95',
+      label: 'Score ≥ 95',
+      met: true,
+      justValidated: true,
+    },
+  ],
+};
+
 async function setup(unacknowledged: EarnedBadgeDto[] = []) {
   const acknowledgeBadge = vi.fn().mockReturnValue(of(undefined));
   const energyReload = vi.fn();
@@ -117,12 +131,22 @@ describe('BadgeCelebration', () => {
     expect(acknowledgeBadge).toHaveBeenCalledTimes(2);
   });
 
-  it('makes the celebrated badge shine whatever its tier', async () => {
+  it('makes only a gold badge shine during its celebration', async () => {
     const { fixture, store } = await setup();
-    store.enqueueBadges([AGUERRI]);
+    store.enqueueBadges([AGUERRI, PREMIER_DE_LA_CLASSE]);
     fixture.detectChanges();
 
-    expect(cardOf(fixture)?.querySelector('ui-badge-shine')).not.toBeNull();
+    const card = cardOf(fixture);
+    expect(card?.querySelector('ui-badge-shine')).toBeNull();
+
+    card?.querySelector<HTMLButtonElement>('.cb__cta')?.click();
+    fixture.detectChanges();
+    card?.dispatchEvent(new Event('animationend'));
+    fixture.detectChanges();
+
+    const goldCard = cardOf(fixture);
+    expect(goldCard?.textContent).toContain('Premier de la classe');
+    expect(goldCard?.querySelector('ui-badge-shine')).not.toBeNull();
   });
 
   it('shows the struck condition and no gain line for a badge without credits', async () => {

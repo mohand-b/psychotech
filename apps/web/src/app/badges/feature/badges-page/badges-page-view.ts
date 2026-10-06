@@ -25,7 +25,10 @@ import {
   roundToTenth,
 } from '@psychotech/shared';
 import { formatFrenchNumber } from '../../../shared/util/format-number';
-import { computeDisplayedEnergyGain } from '../../data-access/badge-display';
+import {
+  computeDisplayedEnergyGain,
+  isGoldBadge,
+} from '../../data-access/badge-display';
 import {
   BadgeConditionView,
   BadgeTierStepView,
@@ -157,6 +160,7 @@ function buildTierStep(entry: BadgeEntry, next: boolean): BadgeTierStepView {
     badgeId: entry.definition.id,
     assetPath: entry.assetPath,
     earned: entry.earned,
+    shining: entry.earned && isGoldBadge(entry.definition),
     next,
     tierLine: TIER_LABELS[tier],
     gain: computeDisplayedEnergyGain(entry.definition.energyReward),
@@ -185,6 +189,7 @@ function buildTieredCard(
     hero: {
       assetPath: shown.assetPath,
       locked: top === null,
+      shining: top !== null && isGoldBadge(top.definition),
       name: top ? shown.name : null,
       tierName: top ? TIER_LABELS[shownTier] : null,
       tierColorVar: top ? TIER_COLOR_VARS[shownTier] : null,

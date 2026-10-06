@@ -19,6 +19,7 @@ export interface BadgeCelebrationView {
   badgeId: BadgeId;
   name: string;
   assetPath: string;
+  shining: boolean;
   familyLabel: string;
   tierName: string | null;
   tierColorVar: string | null;

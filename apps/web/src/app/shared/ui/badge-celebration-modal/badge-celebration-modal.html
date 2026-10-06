@@ -53,7 +53,9 @@
         <span class="cb__spark cb__spark--7"></span>
         <span class="cb__spark cb__spark--8"></span>
         <img class="cb__badge" [src]="v.assetPath" [alt]="v.name" />
-        <ui-badge-shine class="cb__shine" />
+        @if (v.shining) {
+          <ui-badge-shine class="cb__shine" />
+        }
       </span>
 
       <span class="cb__name">{{ v.name }}</span>

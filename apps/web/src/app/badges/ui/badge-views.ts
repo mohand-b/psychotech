@@ -9,6 +9,7 @@ export interface BadgeTierStepView {
   badgeId: BadgeId;
   assetPath: string;
   earned: boolean;
+  shining: boolean;
   next: boolean;
   tierLine: string;
   gain: number | null;
@@ -22,6 +23,7 @@ export interface BadgeTierStepView {
 export interface BadgeHeroView {
   assetPath: string;
   locked: boolean;
+  shining: boolean;
   name: string | null;
   tierName: string | null;
   tierColorVar: string | null;

@@ -41,6 +41,10 @@ export function sumEarnedBadgeRewards(
     );
 }
 
+export function isGoldBadge(definition: BadgeDefinition): boolean {
+  return definition.tier === BadgeTier.GOLD;
+}
+
 export function computeDisplayedEnergyGain(
   energyReward: number,
 ): number | null {
@@ -85,6 +89,7 @@ export function buildBadgeCelebrationView(
     badgeId: badge.badgeId,
     name: badgeDisplayName(definition, sector),
     assetPath: badgeAssetPath(definition, sector),
+    shining: isGoldBadge(definition),
     familyLabel: buildFamilyLabel(definition),
     tierName: definition.tier ? TIER_NAMES[definition.tier] : null,
     tierColorVar: definition.tier ? TIER_COLOR_VARS[definition.tier] : null,

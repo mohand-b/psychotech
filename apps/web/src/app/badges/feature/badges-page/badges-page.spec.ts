@@ -188,24 +188,32 @@ describe('BadgesPage', () => {
     expect(text).toContain('sur 21 badges');
   });
 
-  it('makes every earned badge shine and never a locked one', async () => {
-    const nothingEarned = await setup(catalogStatuses());
+  it('makes only the earned gold badges shine', async () => {
+    const lowerTiers = await setup(
+      catalogStatuses(earnedOnly(TRANSVERSE_AND_LOWER_TIERS)),
+    );
     expect(
-      nothingEarned.nativeElement.querySelectorAll('ui-badge-shine').length,
+      lowerTiers.nativeElement.querySelectorAll('ui-badge-shine').length,
     ).toBe(0);
 
     const fixture = await setup(
-      catalogStatuses(earnedOnly(TRANSVERSE_AND_LOWER_TIERS)),
+      catalogStatuses(
+        earnedOnly([
+          BadgeId.REACTIVITY_PROGRESSION,
+          BadgeId.REACTIVITY_EXCELLENCE,
+          BadgeId.REACTIVITY_PERFECTION,
+        ]),
+      ),
     );
-    const arts = Array.from<HTMLElement>(
-      fixture.nativeElement.querySelectorAll('ui-badge-art'),
+    const shiningSources = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('ui-badge-shine'),
+    ).map((shine) =>
+      shine.closest('ui-badge-art')?.querySelector('img')?.getAttribute('src'),
     );
-    const unlocked = arts.filter(
-      (art) => !art.querySelector('.badge-art--locked'),
-    );
-    const shining = arts.filter((art) => art.querySelector('ui-badge-shine'));
-    expect(unlocked.length).toBeGreaterThan(0);
-    expect(shining).toEqual(unlocked);
+    expect(shiningSources).toEqual([
+      'badges/badge-reactivite-or.svg',
+      'badges/badge-reactivite-or.svg',
+    ]);
   });
 
   it('desaturates every asset while nothing is earned', async () => {

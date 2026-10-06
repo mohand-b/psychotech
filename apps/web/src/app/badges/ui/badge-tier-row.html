@@ -5,6 +5,7 @@
       [src]="view.hero.assetPath"
       [alt]="view.hero.name ?? view.label"
       [locked]="view.hero.locked"
+      [shining]="view.hero.shining"
     />
     <div class="tier-row__hero-text">
       <span class="tier-row__context">{{ view.label }}</span>
@@ -43,6 +44,7 @@
             [src]="step.assetPath"
             [alt]="step.name ?? step.tierLine"
             [locked]="!step.earned"
+            [shining]="step.shining"
           />
           @if (!last) {
             <span class="tier-row__step-line"></span>
