@@ -42,7 +42,7 @@ export const RELEASE_LOG: readonly Release[] = [
     title: 'Page Progression repensée',
     entries: {
       [ReleaseCategory.IMPROVEMENT]: [
-        'Page Progression repensée, sur ordinateur comme sur mobile.',
+        'Page Progression repensée, sur ordinateur comme sur mobile : évolution de chaque épreuve depuis la première session et résumé des badges.',
       ],
     },
   },
