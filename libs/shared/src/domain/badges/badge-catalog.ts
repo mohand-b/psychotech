@@ -30,16 +30,29 @@ export const SECTOR_BADGE_NAMES: Partial<Record<Sector, string>> = {
   [Sector.RAILWAY]: 'Sur les rails',
 };
 
+const BEST_SCORE_CONDITION_PREFIX = 'best-';
+
 function bestScoreCondition(
   axis: AxisType,
   threshold: number,
   label: string,
 ): BadgeCondition {
   return {
-    id: `best-${threshold}`,
+    id: `${BEST_SCORE_CONDITION_PREFIX}${threshold}`,
     label,
     met: (facts) => (facts.bestScores[axis] ?? 0) >= threshold,
   };
+}
+
+export function findAxisScoreTarget(
+  definition: BadgeDefinition,
+): number | null {
+  const condition = definition.conditions.find((entry) =>
+    entry.id.startsWith(BEST_SCORE_CONDITION_PREFIX),
+  );
+  return condition
+    ? Number(condition.id.slice(BEST_SCORE_CONDITION_PREFIX.length))
+    : null;
 }
 
 function perfectionCondition(axis: AxisType, label: string): BadgeCondition {

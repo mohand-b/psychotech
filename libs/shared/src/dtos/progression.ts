@@ -45,6 +45,7 @@ export interface AxisFeaturedMetricDto {
 
 export interface AxisProgressionDto {
   axis: AxisType;
+  firstScore: number | null;
   currentScore: number | null;
   band: ScoreBand | null;
   deltaOver30Days: number | null;

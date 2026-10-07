@@ -6,6 +6,7 @@ import {
   BADGE_TOTAL_REWARD,
   badgeDisplayName,
   badgesListeningTo,
+  findAxisScoreTarget,
 } from './badge-catalog';
 import { BadgeDefinition } from './badge-model';
 import { badgeAssetPath } from './badge-assets';
@@ -207,6 +208,15 @@ describe('axis threshold badges', () => {
         facts({ bestScores: { [AxisType.LOGIC]: 85 } }),
       ),
     ).toBe(true);
+  });
+
+  it('exposes the best score target of the score-based axis tiers only', () => {
+    expect(findAxisScoreTarget(badge(BadgeId.LOGIC_PROGRESSION))).toBe(70);
+    expect(findAxisScoreTarget(badge(BadgeId.LOGIC_EXCELLENCE))).toBe(85);
+    expect(findAxisScoreTarget(badge(BadgeId.MOTOR_EXCELLENCE))).toBeNull();
+    expect(findAxisScoreTarget(badge(BadgeId.LOGIC_PERFECTION))).toBeNull();
+    expect(findAxisScoreTarget(badge(BadgeId.EXAM_FIRST))).toBeNull();
+    expect(findAxisScoreTarget(badge(BadgeId.SECTOR_MASTERY))).toBeNull();
   });
 });
 
