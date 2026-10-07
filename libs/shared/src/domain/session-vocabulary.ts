@@ -18,7 +18,7 @@ const DISCOVERY_SESSION_LABEL_LOWER = 'mode découverte';
 export const TARGETED_SESSION_LABEL = 'Entraînement ciblé';
 const TARGETED_SESSION_LABEL_LOWER = 'entraînement ciblé';
 export const TARGETED_SESSION_LABEL_PLURAL = 'Entraînements ciblés';
-const TARGETED_SESSION_LABEL_PLURAL_LOWER = 'entraînements ciblés';
+export const TARGETED_SESSION_LABEL_PLURAL_LOWER = 'entraînements ciblés';
 const TARGETED_SESSION_SHORT_LABEL_LOWER = 'ciblé';
 const TARGETED_SESSION_SHORT_LABEL_PLURAL_LOWER = 'ciblés';
 
