@@ -46,6 +46,7 @@ function repositoryMock(overrides: Partial<Record<keyof ProgressionRepository, u
         sessionMode: SessionMode.FULL,
       },
     ]),
+    getFirstAxisScore: vi.fn().mockResolvedValue(70),
     ...overrides,
   } as unknown as ProgressionRepository;
 }
@@ -72,6 +73,8 @@ describe('ProgressionService.getProgression', () => {
     expect(progression.radar.last[1]).toEqual({ axis: AxisType.LOGIC, score: 82 });
     expect(progression.axes[0].lastSessionId).toBe('last');
     expect(progression.axes[0].lastSessionMode).toBe(SessionMode.FULL);
+    expect(progression.axes[0].firstScore).toBe(70);
+    expect(progression.axes[0].currentScore).toBe(82);
   });
 
   it('returns empty aggregates for an account with no completed session', async () => {
@@ -85,6 +88,7 @@ describe('ProgressionService.getProgression', () => {
         getFirstFullSession: vi.fn().mockResolvedValue(null),
         getLastFullSession: vi.fn().mockResolvedValue(null),
         getAxisHistory: vi.fn().mockResolvedValue([]),
+        getFirstAxisScore: vi.fn().mockResolvedValue(null),
       }),
     );
 
@@ -104,6 +108,7 @@ describe('ProgressionService.getProgression', () => {
     });
     expect(progression.evolution).toEqual([]);
     expect(progression.axes.every((axis) => axis.currentScore === null)).toBe(true);
+    expect(progression.axes.every((axis) => axis.firstScore === null)).toBe(true);
     expect(progression.axes.every((axis) => axis.lastSessionId === null)).toBe(true);
     expect(progression.radar.last.every((entry) => entry.score === null)).toBe(true);
   });

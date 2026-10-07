@@ -86,14 +86,14 @@ export class ProgressionService {
     axis: AxisType,
     now: Date,
   ): Promise<AxisProgressionDto> {
-    const timeline = await this.repository.getAxisHistory(
-      userId,
-      axis,
-      PROGRESSION_AXIS_HISTORY_LIMIT,
-    );
+    const [timeline, firstScore] = await Promise.all([
+      this.repository.getAxisHistory(userId, axis, PROGRESSION_AXIS_HISTORY_LIMIT),
+      this.repository.getFirstAxisScore(userId, axis),
+    ]);
     const current = timeline.length > 0 ? timeline[timeline.length - 1] : null;
     return {
       axis,
+      firstScore,
       currentScore: current ? current.score : null,
       band: current ? current.band : null,
       deltaOver30Days: computeDeltaOverWindow(timeline, now, PROGRESSION_DELTA_WINDOW_DAYS),

@@ -1,3 +1,4 @@
+import { AxisType } from '@psychotech/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProgressionRepository } from './progression.repository';
@@ -91,5 +92,36 @@ describe('ProgressionRepository.getBestFullSession', () => {
     const repository = new ProgressionRepository(prisma as unknown as PrismaService);
 
     expect(await repository.getBestFullSession('user-1')).toBeNull();
+  });
+});
+
+describe('ProgressionRepository.getFirstAxisScore', () => {
+  it('reads the oldest scored axis result of a completed full or targeted session', async () => {
+    const prisma = {
+      sessionAxis: { findFirst: vi.fn().mockResolvedValue({ normalizedScore: 58 }) },
+    };
+    const repository = new ProgressionRepository(prisma as unknown as PrismaService);
+
+    const first = await repository.getFirstAxisScore('user-1', AxisType.LOGIC);
+
+    expect(prisma.sessionAxis.findFirst).toHaveBeenCalledWith({
+      where: {
+        axis: 'LOGIC',
+        normalizedScore: { not: null },
+        band: { not: null },
+        completedAt: { not: null },
+        session: { userId: 'user-1', status: 'COMPLETED', mode: { in: ['FULL', 'TARGETED'] } },
+      },
+      orderBy: { completedAt: 'asc' },
+      select: { normalizedScore: true },
+    });
+    expect(first).toBe(58);
+  });
+
+  it('returns null when the axis was never scored', async () => {
+    const prisma = { sessionAxis: { findFirst: vi.fn().mockResolvedValue(null) } };
+    const repository = new ProgressionRepository(prisma as unknown as PrismaService);
+
+    expect(await repository.getFirstAxisScore('user-1', AxisType.LOGIC)).toBeNull();
   });
 });

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AxisType as DbAxisType } from '@prisma/client';
+import { AxisType as DbAxisType, Prisma } from '@prisma/client';
 import { AxisType, ScoreBand, SessionMode } from '@psychotech/shared';
 import { mapEnumValue } from '../common/enum.util';
 import { PrismaService } from '../prisma/prisma.service';
@@ -119,17 +119,7 @@ export class ProgressionRepository {
     limit: number,
   ): Promise<AxisTimelinePoint[]> {
     const rows = await this.prisma.sessionAxis.findMany({
-      where: {
-        axis: mapEnumValue(DbAxisType, axis),
-        normalizedScore: { not: null },
-        band: { not: null },
-        completedAt: { not: null },
-        session: {
-          userId,
-          status: 'COMPLETED',
-          mode: { in: ['FULL', 'TARGETED'] },
-        },
-      },
+      where: this.buildScoredAxisFilter(userId, axis),
       orderBy: { completedAt: 'desc' },
       take: limit,
       select: {
@@ -155,6 +145,29 @@ export class ProgressionRepository {
       });
     }
     return timeline.reverse();
+  }
+
+  async getFirstAxisScore(userId: string, axis: AxisType): Promise<number | null> {
+    const row = await this.prisma.sessionAxis.findFirst({
+      where: this.buildScoredAxisFilter(userId, axis),
+      orderBy: { completedAt: 'asc' },
+      select: { normalizedScore: true },
+    });
+    return row?.normalizedScore ?? null;
+  }
+
+  private buildScoredAxisFilter(userId: string, axis: AxisType): Prisma.SessionAxisWhereInput {
+    return {
+      axis: mapEnumValue(DbAxisType, axis),
+      normalizedScore: { not: null },
+      band: { not: null },
+      completedAt: { not: null },
+      session: {
+        userId,
+        status: 'COMPLETED',
+        mode: { in: ['FULL', 'TARGETED'] },
+      },
+    };
   }
 
   getFirstFullSession(userId: string): Promise<BoundaryFullSession | null> {
