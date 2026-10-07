@@ -7,220 +7,131 @@ import {
 } from '@angular/core';
 import { EvolutionPointDto } from '@psychotech/shared';
 import { resolveFullSessionVerdictColor } from '../../../shared/ui/verdict-appearance';
-import { formatDayMonth } from '../../../shared/util/format-day-month-year';
+import { formatNumericDayMonth } from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import { countDaysSince } from '../../../shared/util/format-session-date';
 
-interface ChartGeometry {
-  viewWidth: number;
-  viewHeight: number;
-  left: number;
-  right: number;
-  topY: number;
-  bottomY: number;
-  yLabelX: number;
-  yLabelFont: number;
-  dateY: number;
-  dateFont: number;
-  valueFont: number;
-  pointRadius: number;
-  lastPointRadius: number;
-  lastPointStroke: number;
-  thresholdWidth: number;
-  thresholdDash: string;
-  showFirstValue: boolean;
-}
-
-const DESKTOP_GEOMETRY: ChartGeometry = {
-  viewWidth: 1100,
-  viewHeight: 270,
-  left: 40,
-  right: 1060,
-  topY: 38,
-  bottomY: 222,
-  yLabelX: 30,
-  yLabelFont: 11,
-  dateY: 252,
-  dateFont: 11,
-  valueFont: 12,
-  pointRadius: 4,
-  lastPointRadius: 5.5,
-  lastPointStroke: 2,
-  thresholdWidth: 1.5,
-  thresholdDash: '6 6',
-  showFirstValue: true,
-};
-
-const COMPACT_GEOMETRY: ChartGeometry = {
-  viewWidth: 340,
-  viewHeight: 170,
-  left: 26,
-  right: 330,
-  topY: 24,
-  bottomY: 138,
-  yLabelX: 20,
-  yLabelFont: 9,
-  dateY: 158,
-  dateFont: 9.5,
-  valueFont: 10,
-  pointRadius: 3.5,
-  lastPointRadius: 4.5,
-  lastPointStroke: 2,
-  thresholdWidth: 1.2,
-  thresholdDash: '5 5',
-  showFirstValue: false,
-};
+const VIEW_WIDTH = 460;
+const VIEW_HEIGHT = 250;
+const PLOT_TOP = 12;
+const PLOT_BOTTOM = 238;
+const DOMAIN_STEP = 10;
 
 interface ChartDot {
   sessionId: string;
-  x: number;
-  y: number;
+  xRatio: number;
+  yRatio: number;
   colorVar: string;
-  radius: number;
-  strokeWidth: number;
+  last: boolean;
   title: string;
 }
 
-interface ChartValueLabel {
-  x: number;
-  y: number;
-  text: string;
-  muted: boolean;
+interface ChartTick {
+  value: number;
+  yRatio: number;
 }
 
 @Component({
   selector: 'ui-evolution-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @for (tick of ticks(); track tick.value) {
+      <span class="chart__tick t-mono" [style.--y]="tick.yRatio">{{
+        tick.value
+      }}</span>
+    }
+    @if (firstDateLabel(); as first) {
+      <span class="chart__date chart__date--start">{{ first }}</span>
+    }
+    @if (lastDateLabel(); as last) {
+      <span class="chart__date chart__date--end">{{ last }}</span>
+    }
+    @if (lastValue(); as value) {
+      <span class="chart__value t-mono" [style.--y]="value.yRatio">{{
+        value.label
+      }}</span>
+    }
     <svg
-      class="chart"
-      [attr.viewBox]="'0 0 ' + g.viewWidth + ' ' + g.viewHeight"
+      class="chart__plot"
+      [attr.viewBox]="viewBox"
+      preserveAspectRatio="none"
       role="img"
       aria-label="Évolution du score global"
     >
       <line
         class="chart__grid"
-        [attr.x1]="g.left"
-        [attr.y1]="g.topY"
-        [attr.x2]="g.right"
-        [attr.y2]="g.topY"
+        x1="0"
+        [attr.y1]="plotTop"
+        [attr.x2]="viewWidth"
+        [attr.y2]="plotTop"
+        vector-effect="non-scaling-stroke"
       />
       <line
         class="chart__grid"
-        [attr.x1]="g.left"
-        [attr.y1]="g.bottomY"
-        [attr.x2]="g.right"
-        [attr.y2]="g.bottomY"
+        x1="0"
+        [attr.y1]="plotBottom"
+        [attr.x2]="viewWidth"
+        [attr.y2]="plotBottom"
+        vector-effect="non-scaling-stroke"
       />
-      <text
-        class="chart__y-label"
-        [attr.x]="g.yLabelX"
-        [attr.y]="g.topY + 4"
-        [attr.font-size]="g.yLabelFont"
-        text-anchor="end"
-      >
-        {{ domain().hi }}
-      </text>
-      <text
-        class="chart__y-label"
-        [attr.x]="g.yLabelX"
-        [attr.y]="thresholdY() + 4"
-        [attr.font-size]="g.yLabelFont"
-        text-anchor="end"
-      >
-        {{ threshold() }}
-      </text>
-      <text
-        class="chart__y-label"
-        [attr.x]="g.yLabelX"
-        [attr.y]="g.bottomY + 4"
-        [attr.font-size]="g.yLabelFont"
-        text-anchor="end"
-      >
-        {{ domain().lo }}
-      </text>
       <line
         class="chart__threshold"
-        [attr.x1]="g.left"
+        x1="0"
         [attr.y1]="thresholdY()"
-        [attr.x2]="g.right"
+        [attr.x2]="viewWidth"
         [attr.y2]="thresholdY()"
-        [attr.stroke-width]="g.thresholdWidth"
-        [attr.stroke-dasharray]="g.thresholdDash"
+        vector-effect="non-scaling-stroke"
       />
       @if (linePoints(); as line) {
-        <polyline class="chart__line" [attr.points]="line" />
-      }
-      @for (dot of dots(); track dot.sessionId) {
-        <circle
-          class="chart__dot"
-          [attr.cx]="dot.x"
-          [attr.cy]="dot.y"
-          [attr.r]="dot.radius"
-          [attr.fill]="dot.colorVar"
-          [attr.stroke-width]="dot.strokeWidth"
-          (click)="pointSelected.emit(dot.sessionId)"
-        >
-          <title>{{ dot.title }}</title>
-        </circle>
-      }
-      @for (label of valueLabels(); track label.text + label.x) {
-        <text
-          class="chart__value"
-          [class.chart__value--muted]="label.muted"
-          [attr.x]="label.x"
-          [attr.y]="label.y"
-          [attr.font-size]="g.valueFont"
-          text-anchor="middle"
-        >
-          {{ label.text }}
-        </text>
-      }
-      @if (firstDateLabel(); as first) {
-        <text
-          class="chart__date"
-          [attr.x]="g.left"
-          [attr.y]="g.dateY"
-          [attr.font-size]="g.dateFont"
-          [attr.text-anchor]="compact() ? 'start' : 'middle'"
-        >
-          {{ first }}
-        </text>
-      }
-      @if (lastDateLabel(); as last) {
-        <text
-          class="chart__date"
-          [attr.x]="g.right"
-          [attr.y]="g.dateY"
-          [attr.font-size]="g.dateFont"
-          [attr.text-anchor]="compact() ? 'end' : 'middle'"
-        >
-          {{ last }}
-        </text>
+        <polyline
+          class="chart__line"
+          [attr.points]="line"
+          vector-effect="non-scaling-stroke"
+        />
       }
     </svg>
+    @for (dot of dots(); track dot.sessionId) {
+      <button
+        type="button"
+        class="chart__dot"
+        [class.chart__dot--last]="dot.last"
+        [style.--x]="dot.xRatio"
+        [style.--y]="dot.yRatio"
+        [style.--dot-color]="dot.colorVar"
+        [attr.aria-label]="dot.title"
+        [title]="dot.title"
+        (click)="pointSelected.emit(dot.sessionId)"
+      ></button>
+    }
   `,
   styles: `
     :host {
+      --chart-gutter: 30px;
+      --chart-date-band: 18px;
+      --chart-tick-offset: 6px;
+      --chart-value-offset: 22px;
+      position: relative;
       display: block;
+      min-height: 214px;
     }
-    .chart {
+    .chart__plot {
+      position: absolute;
+      top: 0;
+      left: var(--chart-gutter);
       display: block;
-      width: 100%;
-      height: auto;
+      width: calc(100% - var(--chart-gutter));
+      height: calc(100% - var(--chart-date-band));
       overflow: visible;
     }
     .chart__grid {
       stroke: var(--divider-soft);
       stroke-width: 1;
     }
-    .chart__y-label {
-      font-family: var(--font-mono);
-      fill: var(--label);
-    }
     .chart__threshold {
       stroke: var(--ink);
-      opacity: 0.55;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 6;
+      opacity: 0.5;
     }
     .chart__line {
       fill: none;
@@ -229,74 +140,126 @@ interface ChartValueLabel {
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .chart__dot {
-      stroke: var(--card);
-      cursor: pointer;
-    }
-    .chart__value {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      fill: var(--ink);
-    }
-    .chart__value--muted {
-      font-weight: 400;
-      fill: var(--label);
+    .chart__tick {
+      position: absolute;
+      left: 0;
+      top: calc(
+        (100% - var(--chart-date-band)) * var(--y) - var(--chart-tick-offset)
+      );
+      font-size: 11px;
+      line-height: 1;
+      color: var(--label);
     }
     .chart__date {
-      font-family: var(--font-ui);
-      fill: var(--label);
+      position: absolute;
+      bottom: 0;
+      font: 400 11px/1 var(--font-ui);
+      color: var(--label);
+    }
+    .chart__date--start {
+      left: var(--chart-gutter);
+    }
+    .chart__date--end {
+      right: 0;
+    }
+    .chart__value {
+      position: absolute;
+      right: 0;
+      top: calc(
+        (100% - var(--chart-date-band)) * var(--y) - var(--chart-value-offset)
+      );
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .chart__dot {
+      position: absolute;
+      left: calc(var(--chart-gutter) + (100% - var(--chart-gutter)) * var(--x));
+      top: calc((100% - var(--chart-date-band)) * var(--y));
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      translate: -50% -50%;
+      border: 1.5px solid var(--card);
+      border-radius: var(--radius-pill);
+      background: var(--dot-color);
+      cursor: pointer;
+    }
+    .chart__dot::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: var(--radius-pill);
+    }
+    .chart__dot--last {
+      width: 11px;
+      height: 11px;
+      border-width: 2px;
+    }
+    @media (max-width: 767px) {
+      :host {
+        --chart-gutter: 28px;
+        --chart-tick-offset: 5px;
+        min-height: 0;
+        height: 170px;
+      }
+      .chart__tick,
+      .chart__date {
+        font-size: 10.5px;
+      }
     }
   `,
 })
 export class EvolutionChart {
   readonly points = input.required<EvolutionPointDto[]>();
   readonly threshold = input.required<number>();
-  readonly compact = input(false);
   readonly pointSelected = output<string>();
 
-  protected get g(): ChartGeometry {
-    return this.compact() ? COMPACT_GEOMETRY : DESKTOP_GEOMETRY;
-  }
+  protected readonly viewWidth = VIEW_WIDTH;
+  protected readonly viewBox = `0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`;
+  protected readonly plotTop = PLOT_TOP;
+  protected readonly plotBottom = PLOT_BOTTOM;
 
   protected readonly domain = computed(() => {
     const scores = this.points().map((point) => point.globalScore);
-    const min = scores.length ? Math.min(...scores) : this.threshold();
-    const max = scores.length ? Math.max(...scores) : this.threshold();
+    const threshold = this.threshold();
+    const min = scores.length ? Math.min(...scores) : threshold;
+    const max = scores.length ? Math.max(...scores) : threshold;
     return {
-      lo: Math.min(Math.floor(min / 10) * 10, this.threshold() - 10),
-      hi: Math.max(Math.ceil(max / 10) * 10, this.threshold() + 10),
+      lo: Math.min(
+        Math.floor(min / DOMAIN_STEP) * DOMAIN_STEP,
+        threshold - DOMAIN_STEP,
+      ),
+      hi: Math.max(
+        Math.ceil(max / DOMAIN_STEP) * DOMAIN_STEP,
+        threshold + DOMAIN_STEP,
+      ),
     };
   });
 
   private computeScoreY(score: number): number {
     const { lo, hi } = this.domain();
-    const geometry = this.g;
     const ratio = (hi - score) / (hi - lo);
-    return (
-      Math.round(
-        (geometry.topY + ratio * (geometry.bottomY - geometry.topY)) * 10,
-      ) / 10
-    );
+    return PLOT_TOP + ratio * (PLOT_BOTTOM - PLOT_TOP);
   }
 
-  private computePointX(index: number): number {
-    const geometry = this.g;
+  private computePointXRatio(index: number): number {
     const count = this.points().length;
-    if (count <= 1) {
-      return geometry.right;
-    }
-    return (
-      Math.round(
-        (geometry.left +
-          (index * (geometry.right - geometry.left)) / (count - 1)) *
-          10,
-      ) / 10
-    );
+    return count <= 1 ? 1 : index / (count - 1);
   }
 
   protected readonly thresholdY = computed(() =>
     this.computeScoreY(this.threshold()),
   );
+
+  protected readonly ticks = computed<ChartTick[]>(() => {
+    const { lo, hi } = this.domain();
+    return [hi, this.threshold(), lo].map((value) => ({
+      value,
+      yRatio: this.computeScoreY(value) / VIEW_HEIGHT,
+    }));
+  });
 
   protected readonly linePoints = computed(() => {
     const points = this.points();
@@ -306,73 +269,40 @@ export class EvolutionChart {
     return points
       .map(
         (point, index) =>
-          `${this.computePointX(index)},${this.computeScoreY(point.globalScore)}`,
+          `${this.computePointXRatio(index) * VIEW_WIDTH},${this.computeScoreY(point.globalScore)}`,
       )
       .join(' ');
   });
 
   protected readonly dots = computed<ChartDot[]>(() => {
-    const geometry = this.g;
     const points = this.points();
-    return points.map((point, index) => {
-      const last = index === points.length - 1;
-      return {
-        sessionId: point.sessionId,
-        x: this.computePointX(index),
-        y: this.computeScoreY(point.globalScore),
-        colorVar: resolveFullSessionVerdictColor(
-          point.globalScore,
-          point.isEliminated,
-        ),
-        radius: last ? geometry.lastPointRadius : geometry.pointRadius,
-        strokeWidth: last ? geometry.lastPointStroke : 1.5,
-        title: `${formatFrenchDecimal(point.globalScore)} · ouvrir le bilan`,
-      };
-    });
+    return points.map((point, index) => ({
+      sessionId: point.sessionId,
+      xRatio: this.computePointXRatio(index),
+      yRatio: this.computeScoreY(point.globalScore) / VIEW_HEIGHT,
+      colorVar: resolveFullSessionVerdictColor(
+        point.globalScore,
+        point.isEliminated,
+      ),
+      last: index === points.length - 1,
+      title: `${formatFrenchDecimal(point.globalScore)} · ouvrir le bilan`,
+    }));
   });
 
-  protected readonly valueLabels = computed<ChartValueLabel[]>(() => {
+  protected readonly lastValue = computed(() => {
     const points = this.points();
-    if (points.length === 0) {
-      return [];
-    }
-    const labels: ChartValueLabel[] = [];
-    const lastIndex = points.length - 1;
-    const maxIndex = points.reduce(
-      (best, point, index) =>
-        point.globalScore > points[best].globalScore ? index : best,
-      0,
-    );
-    if (maxIndex !== lastIndex) {
-      labels.push({
-        x: this.computePointX(maxIndex),
-        y: this.computeScoreY(points[maxIndex].globalScore) - 15,
-        text: formatFrenchDecimal(points[maxIndex].globalScore),
-        muted: false,
-      });
-    }
-    labels.push({
-      x: this.computePointX(lastIndex),
-      y: this.computeScoreY(points[lastIndex].globalScore) - 15,
-      text: formatFrenchDecimal(points[lastIndex].globalScore),
-      muted: false,
-    });
-    if (this.g.showFirstValue && points.length > 1 && maxIndex !== 0) {
-      labels.push({
-        x: this.computePointX(0),
-        y: this.computeScoreY(points[0].globalScore) + 22,
-        text: formatFrenchDecimal(points[0].globalScore),
-        muted: true,
-      });
-    }
-    return labels;
+    const last = points[points.length - 1];
+    return last
+      ? {
+          label: formatFrenchDecimal(last.globalScore),
+          yRatio: this.computeScoreY(last.globalScore) / VIEW_HEIGHT,
+        }
+      : null;
   });
 
   protected readonly firstDateLabel = computed(() => {
-    const first = this.points()[0];
-    return first && this.points().length > 1
-      ? formatChartDate(first.date)
-      : null;
+    const points = this.points();
+    return points.length > 1 ? formatChartDate(points[0].date) : null;
   });
 
   protected readonly lastDateLabel = computed(() => {
@@ -383,12 +313,12 @@ export class EvolutionChart {
 }
 
 function formatChartDate(iso: string): string {
-  const diff = countDaysSince(iso);
-  if (diff === 0) {
-    return "Aujourd'hui";
+  const days = countDaysSince(iso);
+  if (days === 0) {
+    return 'Aujourd’hui';
   }
-  if (diff === 1) {
+  if (days === 1) {
     return 'Hier';
   }
-  return formatDayMonth(iso);
+  return formatNumericDayMonth(iso);
 }

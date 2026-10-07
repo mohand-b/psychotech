@@ -3,6 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import {
   AxisType,
+  BADGE_CATALOG,
+  BadgeId,
+  BadgeStatusDto,
   FULL_SESSION_AXIS_ORDER,
   ProgressionDto,
   ScoreBand,
@@ -13,6 +16,7 @@ import {
   UserProfileDto,
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import { ProgressionFacade } from '../../data-access/progression.facade';
@@ -71,6 +75,23 @@ const AXIS_BEST: Partial<Record<AxisType, number>> = {
   [AxisType.VISUAL_DISCRIMINATION]: 79,
   [AxisType.REACTIVITY]: 70,
 };
+
+const AXIS_FIRST_SCORE: Partial<Record<AxisType, number>> = {
+  [AxisType.LOGIC]: 64,
+  [AxisType.MEMORY]: 70,
+  [AxisType.VISUAL_DISCRIMINATION]: 78,
+  [AxisType.REACTIVITY]: 68,
+};
+
+function earnedStatus(badgeId: BadgeId, daysBefore: number): BadgeStatusDto {
+  return {
+    badgeId,
+    earnedAt: daysAgo(daysBefore),
+    acknowledgedAt: daysAgo(daysBefore),
+    conditions: [],
+    rarityPercent: null,
+  };
+}
 
 function historyOf(axis: AxisType): number[] {
   return AXIS_HISTORY[axis] ?? [];
@@ -154,6 +175,7 @@ function populatedProgression(): ProgressionDto {
     ],
     axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
       axis,
+      firstScore: AXIS_FIRST_SCORE[axis] ?? null,
       currentScore: scores[axis],
       band: ScoreBand.ACCEPTABLE,
       deltaOver30Days: axis === AxisType.LOGIC ? 6 : 2,
@@ -196,6 +218,7 @@ function emptyProgression(): ProgressionDto {
     evolution: [],
     axes: FULL_SESSION_AXIS_ORDER.map((axis) => ({
       axis,
+      firstScore: null,
       currentScore: null,
       band: null,
       deltaOver30Days: null,
@@ -214,12 +237,17 @@ function emptyProgression(): ProgressionDto {
 async function setup(
   progression: ProgressionDto,
   overview: TrainingsOverviewDto = populatedOverview(),
+  badgeStatuses: BadgeStatusDto[] | null = [],
 ) {
   await TestBed.configureTestingModule({
     imports: [Progression],
     providers: [
       provideRouter([]),
       { provide: AuthFacade, useValue: { currentUser: signal(USER) } },
+      {
+        provide: BadgesFacade,
+        useValue: { fetchStatuses: () => signal(badgeStatuses).asReadonly() },
+      },
       {
         provide: CatalogFacade,
         useValue: {
@@ -263,28 +291,45 @@ function textOf(fixture: { nativeElement: HTMLElement }): string {
   return fixture.nativeElement.textContent ?? '';
 }
 
+function axisRow(
+  fixture: { nativeElement: HTMLElement },
+  index: number,
+): HTMLElement {
+  return fixture.nativeElement.querySelectorAll('.prog__axis-row')[
+    index
+  ] as HTMLElement;
+}
+
+function chartDots(fixture: {
+  nativeElement: HTMLElement;
+}): NodeListOf<HTMLButtonElement> {
+  return fixture.nativeElement.querySelectorAll('.chart__dot');
+}
+
 describe('Progression', () => {
-  it('renders the four aggregates with french formats', async () => {
+  it('renders the aggregates with french formats and numeric dates', async () => {
     const { fixture } = await setup(populatedProgression());
     const text = textOf(fixture);
+    expect(text).toContain(
+      'Votre préparation Ferroviaire depuis le 14/04/2026.',
+    );
     expect(text).toContain('74,8');
+    expect(text).toContain('Dernier examen blanc, le 15/07');
     expect(text).toContain('78,2');
     expect(text).toContain('Examen blanc du');
-    expect(text).toContain('2 juin');
+    expect(text).toContain('02/06');
     expect(text).toContain('+10,6');
     expect(text).toContain('De 64,2 à 74,8');
     expect(text).toContain('23');
-    expect(text).toContain('8');
-    expect(text).toContain('15');
-    expect(text).toContain('depuis le 14 avril');
+    expect(text).toContain('15 ciblés');
   });
 
-  it('draws the evolution curve with one band-colored dot per simulation', async () => {
+  it('draws the evolution curve with one clickable point per simulation', async () => {
     const { fixture } = await setup(populatedProgression());
-    const desktop = fixture.nativeElement.querySelector('.prog__chart-desktop');
-    expect(desktop.querySelectorAll('circle')).toHaveLength(3);
-    expect(desktop.querySelector('polyline')).not.toBeNull();
-    expect(textOf(fixture)).toContain("Seuil d'admissibilité Ferroviaire 70");
+    const chart = fixture.nativeElement.querySelector('ui-evolution-chart');
+    expect(chartDots(fixture)).toHaveLength(3);
+    expect(chart.querySelector('.chart__line')).not.toBeNull();
+    expect(textOf(fixture)).toContain("seuil d'admissibilité Ferroviaire 70.");
   });
 
   it('paints an eliminated simulation red even above the admissibility threshold', async () => {
@@ -296,54 +341,59 @@ describe('Progression', () => {
     expect(eliminated.globalScore).toBeGreaterThan(70);
 
     const { fixture } = await setup(progression);
-    const dots = fixture.nativeElement.querySelectorAll(
-      '.prog__chart-desktop circle',
-    ) as NodeListOf<SVGCircleElement>;
+    const dots = chartDots(fixture);
 
-    expect(dots[1].getAttribute('fill')).toBe('var(--rating-good)');
-    expect(dots[2].getAttribute('fill')).toBe('var(--rating-bad)');
+    expect(dots[1].style.getPropertyValue('--dot-color')).toBe(
+      'var(--rating-good)',
+    );
+    expect(dots[2].style.getPropertyValue('--dot-color')).toBe(
+      'var(--rating-bad)',
+    );
   });
 
   it('opens the report of a simulation from a curve point', async () => {
     const { fixture, navigate } = await setup(populatedProgression());
-    const dot = fixture.nativeElement.querySelector(
-      '.prog__chart-desktop circle',
-    ) as SVGCircleElement;
-    dot.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    chartDots(fixture)[0].click();
     expect(navigate).toHaveBeenCalledWith(['/sessions', 'sim-1', 'resultat']);
   });
 
   it('leads each axis with its best score, never with the last session', async () => {
     const { fixture } = await setup(populatedProgression());
-    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
 
-    const discrimination = rows[0] as HTMLElement;
     expect(
-      discrimination.querySelector('.prog__axis-score-value')?.textContent,
+      axisRow(fixture, 0).querySelector('.prog__axis-best-value')?.textContent,
     ).toContain('79');
     expect(
-      discrimination.querySelector('.prog__axis-last')?.textContent,
-    ).toContain('78');
+      axisRow(fixture, 4).querySelector('.prog__axis-best-value')?.textContent,
+    ).toContain('70');
   });
 
-  it('leaves the curve alone: no trend arrow, no delta between two sessions', async () => {
+  it('compares the last session of each axis with its very first one', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const deltaOf = (index: number) =>
+      axisRow(fixture, index)
+        .querySelector('.prog__axis-delta-value')
+        ?.textContent?.trim();
+
+    expect(deltaOf(1)).toBe('+18');
+    expect(deltaOf(2)).toBe('−9');
+    expect(deltaOf(0)).toBe('0');
+    expect(deltaOf(4)).toBe('+2');
+    expect(
+      axisRow(fixture, 1).querySelector('.prog__axis-delta-value--up'),
+    ).not.toBeNull();
+    expect(
+      axisRow(fixture, 2).querySelector('.prog__axis-delta-value--down'),
+    ).not.toBeNull();
+  });
+
+  it('never shows the thirty-day delta nor a trend arrow', async () => {
     const { fixture } = await setup(populatedProgression());
     const text = textOf(fixture);
 
-    expect(fixture.nativeElement.querySelector('.prog__axis-trend')).toBeNull();
+    expect(text).not.toContain('+6');
     expect(text).not.toContain('↗');
     expect(text).not.toContain('↘');
-    expect(text).not.toContain('+6');
-  });
-
-  it('shows a single session as a score without drawing a line', async () => {
-    const { fixture } = await setup(populatedProgression());
-    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
-
-    expect(
-      (rows[4] as HTMLElement).querySelector('.prog__axis-score-value')
-        ?.textContent,
-    ).toContain('70');
   });
 
   it('carries no axis label beyond its name', async () => {
@@ -371,9 +421,9 @@ describe('Progression', () => {
 
   it('scales each curve on its own sessions so the movement shows', async () => {
     const { fixture } = await setup(populatedProgression());
-    const polyline = fixture.nativeElement
-      .querySelectorAll('.prog__axis-row')[2]
-      .querySelector('polyline') as SVGPolylineElement;
+    const polyline = axisRow(fixture, 2).querySelector(
+      'polyline',
+    ) as SVGPolylineElement;
 
     const heights = (polyline.getAttribute('points') ?? '')
       .split(' ')
@@ -381,22 +431,21 @@ describe('Progression', () => {
     expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(10);
   });
 
-  it('announces an axis never played without a sparkline nor a trend', async () => {
+  it('announces an axis never played without a sparkline nor figures', async () => {
     const { fixture } = await setup(populatedProgression());
-    const motor = fixture.nativeElement.querySelectorAll('.prog__axis-row')[3];
+    const motor = axisRow(fixture, 3);
 
     expect(motor.querySelector('.prog__axis-unplayed')?.textContent).toContain(
       'Aucune session',
     );
-    expect(motor.querySelector('.prog__axis-score-value')).toBeNull();
-    expect(motor.querySelector('.prog__axis-trend')).toBeNull();
+    expect(motor.querySelector('.prog__axis-best-value')).toBeNull();
+    expect(motor.querySelector('.prog__axis-delta-value')).toBeNull();
     expect(motor.querySelector('polyline')).toBeNull();
   });
 
   it('routes an axis row to its latest result by session mode', async () => {
     const { fixture, navigate } = await setup(populatedProgression());
-    const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
-    (rows[1] as HTMLButtonElement).click();
+    (axisRow(fixture, 1) as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith([
       '/entrainements/cible',
       'logique',
@@ -404,8 +453,98 @@ describe('Progression', () => {
       'targeted-9',
       'resultat',
     ]);
-    (rows[2] as HTMLButtonElement).click();
+    (axisRow(fixture, 2) as HTMLButtonElement).click();
     expect(navigate).toHaveBeenCalledWith(['/sessions', 'sim-3', 'resultat']);
+  });
+
+  it('dates the first and last simulations of the radar in full', async () => {
+    const { fixture } = await setup(populatedProgression());
+    const text = textOf(fixture);
+
+    expect(text).toContain('Premier examen blanc, le 14/04/2026');
+    expect(text).toContain('Dernier examen blanc, le 15/07/2026');
+  });
+
+  it('summarizes the badge collection with the latest unlocks first', async () => {
+    const { fixture } = await setup(
+      populatedProgression(),
+      populatedOverview(),
+      [
+        earnedStatus(BadgeId.LOGIC_PROGRESSION, 60),
+        earnedStatus(BadgeId.DISCRIMINATION_PROGRESSION, 40),
+        earnedStatus(BadgeId.EXAM_FIRST, 12),
+        earnedStatus(BadgeId.DISCRIMINATION_EXCELLENCE, 3),
+      ],
+    );
+    const text = textOf(fixture);
+    const latest = [
+      ...fixture.nativeElement.querySelectorAll('.prog__latest'),
+    ] as HTMLElement[];
+    const credits = fixture.nativeElement.querySelector(
+      '.prog__collection-credits',
+    ) as HTMLElement;
+
+    expect(text).toContain(`4 / ${BADGE_CATALOG.length} badges obtenus`);
+    expect(credits.textContent).toContain('+1');
+    expect(credits.textContent).toContain('gagné');
+    expect(credits.textContent).not.toContain('gagnés');
+    expect(latest).toHaveLength(3);
+    expect(latest[0].textContent).toContain('Discrimination · Argent');
+    expect(latest[0].textContent).toContain('Il y a 3 jours');
+    expect(latest[1].textContent).toContain('Examen blanc · Bronze');
+    expect(latest[1].textContent).toContain('Il y a 12 jours');
+    expect(latest[2].textContent).toContain('Discrimination · Bronze');
+    expect(latest[2].textContent).toContain('Il y a 1 mois');
+    expect(
+      fixture.nativeElement.querySelector('.prog__link')?.getAttribute('href'),
+    ).toBe('/badges');
+  });
+
+  it('points to the closest score tier still locked among the played axes', async () => {
+    const { fixture } = await setup(
+      populatedProgression(),
+      populatedOverview(),
+      [earnedStatus(BadgeId.LOGIC_PROGRESSION, 60)],
+    );
+    const next = fixture.nativeElement.querySelector(
+      '.prog__badges-next',
+    ) as HTMLElement;
+
+    expect(next.textContent).toContain('Logique · palier Argent');
+    expect(next.textContent).toContain('Meilleur score ≥ 85');
+    expect(next.textContent).toContain('Vous êtes à 82, encore 3 pts');
+    expect(next.querySelector('.badge-art--locked')).not.toBeNull();
+  });
+
+  it('names the closest tier with the short axis label', async () => {
+    const { fixture } = await setup(
+      populatedProgression(),
+      populatedOverview(),
+      [
+        earnedStatus(BadgeId.LOGIC_PROGRESSION, 60),
+        earnedStatus(BadgeId.LOGIC_EXCELLENCE, 30),
+      ],
+    );
+    const next = fixture.nativeElement.querySelector(
+      '.prog__badges-next',
+    ) as HTMLElement;
+
+    expect(next.textContent).toContain('Discrimination · palier Argent');
+    expect(next.textContent).not.toContain('Discrimination visuelle');
+    expect(next.textContent).toContain('Vous êtes à 79, encore 6 pts');
+  });
+
+  it('keeps the badges card in a loading state until the statuses arrive', async () => {
+    const { fixture } = await setup(
+      populatedProgression(),
+      populatedOverview(),
+      null,
+    );
+
+    expect(
+      fixture.nativeElement.querySelector('.prog__skeleton-stack'),
+    ).not.toBeNull();
+    expect(textOf(fixture)).not.toContain('badges obtenus');
   });
 
   it('renders sober empty states for an account without completed sessions', async () => {
@@ -418,6 +557,9 @@ describe('Progression', () => {
     expect(text).toContain(
       'Votre profil par axe se dessinera après votre premier examen blanc.',
     );
+    expect(text).toContain("Aucun badge obtenu pour l'instant.");
+    expect(text).not.toContain('Prochain palier');
+    expect(chartDots(fixture)).toHaveLength(0);
     const rows = fixture.nativeElement.querySelectorAll('.prog__axis-row');
     expect([...rows].every((row) => (row as HTMLButtonElement).disabled)).toBe(
       true,

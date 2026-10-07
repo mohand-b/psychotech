@@ -156,9 +156,11 @@ function orderEntriesByRadarAxis(
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
     }
-    .radar--outlined .radar__baseline,
-    .radar--outlined .radar__area {
+    .radar--outlined .radar__baseline {
       fill: none;
+    }
+    .radar--outlined .radar__area {
+      fill: var(--radar-outlined-area-fill, none);
     }
     .radar__dot {
       stroke: var(--card);

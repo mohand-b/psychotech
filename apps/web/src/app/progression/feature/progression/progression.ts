@@ -4,7 +4,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   AxisProgressionDto,
   AxisType,
@@ -13,12 +13,17 @@ import {
   FULL_SESSION_LABEL_PLURAL_LOWER,
   Sector,
   SessionMode,
+  TARGETED_SESSION_LABEL_PLURAL_LOWER,
   TrainingsAxisOverviewDto,
   fullSessionCountLabel,
+  fullSessionShortCountLabel,
   roundToTenth,
+  targetedSessionShortCountLabel,
 } from '@psychotech/shared';
-import { ChevronRight } from 'lucide-angular';
+import { ArrowRight, ChevronRight } from 'lucide-angular';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
+import { BadgesFacade } from '../../../badges/data-access/badges.facade';
+import { BadgeArt } from '../../../badges/ui/badge-art';
 import { CatalogFacade } from '../../../catalog/data-access/catalog.facade';
 import { TrainingsOverviewFacade } from '../../../entrainements/data-access/trainings-overview.facade';
 import {
@@ -34,56 +39,85 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SectorChip } from '../../../shared/ui/sector-chip/sector-chip';
 import { Skeleton } from '../../../shared/ui/skeleton/skeleton';
-import { formatDayMonth } from '../../../shared/util/format-day-month-year';
+import {
+  formatNumericDate,
+  formatNumericDayMonth,
+} from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
-import {
-  countDaysSince,
-  formatSessionDate,
-} from '../../../shared/util/format-session-date';
-import { ProgressionFacade } from '../../data-access/progression.facade';
-import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
-import {
-  SparklineGeometry,
-  extractScoresWithinWindow,
-  buildSparklinePoints,
-} from './axis-row-metrics';
+import { countDaysSince } from '../../../shared/util/format-session-date';
 import {
   buildSimulationResultRoute,
   buildTargetedResultRoute,
 } from '../../../shared/util/session-links';
+import { ProgressionFacade } from '../../data-access/progression.facade';
+import { EvolutionChart } from '../../ui/evolution-chart/evolution-chart';
+import {
+  SparklineGeometry,
+  buildSparklinePoints,
+  computeAxisProgressDelta,
+} from './axis-row-metrics';
+import { buildProgressionBadgesView } from './progression-badges-view';
 
-const EVOLUTION_DISPLAY_LIMIT = 10;
 const SPARKLINE_GEOMETRY: SparklineGeometry = {
   width: 140,
-  top: 4,
-  bottom: 24,
+  top: 3,
+  bottom: 25,
 };
+
+type DeltaTone = 'up' | 'down' | 'flat';
+
+interface AxisDeltaView {
+  label: string;
+  tone: DeltaTone;
+}
 
 interface AxisRowView {
   axis: AxisType;
   presentation: AxisPresentation;
   neverPlayed: boolean;
   bestScore: number | null;
-  lastScore: number | null;
   sparklinePoints: string | null;
+  delta: AxisDeltaView | null;
   clickable: boolean;
 }
 
 function formatRelativeDay(iso: string): string {
-  const diff = countDaysSince(iso);
-  if (diff === 0) {
-    return "aujourd'hui";
+  const days = countDaysSince(iso);
+  if (days === 0) {
+    return 'aujourd’hui';
   }
-  if (diff === 1) {
+  if (days === 1) {
     return 'hier';
   }
-  return `le ${formatDayMonth(iso)}`;
+  return `le ${formatNumericDayMonth(iso)}`;
+}
+
+function buildAxisDelta(delta: number | null): AxisDeltaView | null {
+  if (delta === null) {
+    return null;
+  }
+  if (delta > 0) {
+    return { label: `+${delta}`, tone: 'up' };
+  }
+  if (delta < 0) {
+    return { label: `−${Math.abs(delta)}`, tone: 'down' };
+  }
+  return { label: '0', tone: 'flat' };
 }
 
 @Component({
   selector: 'app-progression',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AxisIcon, AxisRadar, EvolutionChart, Icon, SectorChip, Skeleton],
+  imports: [
+    AxisIcon,
+    AxisRadar,
+    BadgeArt,
+    EvolutionChart,
+    Icon,
+    RouterLink,
+    SectorChip,
+    Skeleton,
+  ],
   providers: [ProgressionFacade, TrainingsOverviewFacade],
   templateUrl: './progression.html',
   styleUrl: './progression.css',
@@ -93,10 +127,12 @@ export class Progression {
   private readonly authFacade = inject(AuthFacade);
   private readonly catalogFacade = inject(CatalogFacade);
   private readonly overviewFacade = inject(TrainingsOverviewFacade);
+  private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
   private readonly router = inject(Router);
   private readonly now = new Date();
 
   protected readonly chevronIcon = ChevronRight;
+  protected readonly arrowIcon = ArrowRight;
 
   protected readonly sector =
     this.authFacade.currentUser()?.currentSector ?? Sector.RAILWAY;
@@ -108,13 +144,15 @@ export class Progression {
 
   protected readonly progression = this.facade.progression;
   protected readonly loaded = computed(() => this.progression() !== null);
-  protected readonly skeletonKpis = [0, 1, 2, 3];
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   protected readonly sectorLabel = SECTOR_PRESENTATION[this.sector].label;
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly fullSessionLabelLower = FULL_SESSION_LABEL_LOWER;
   protected readonly fullSessionLabelPluralLower =
     FULL_SESSION_LABEL_PLURAL_LOWER;
+  protected readonly targetedSessionLabelPluralLower =
+    TARGETED_SESSION_LABEL_PLURAL_LOWER;
 
   protected readonly threshold = computed(
     () => this.catalogFacade.sectorReferential()?.admissibilityThreshold ?? 70,
@@ -122,16 +160,25 @@ export class Progression {
 
   protected readonly subtitleDate = computed(() => {
     const first = this.progression()?.stats.firstSessionAt;
-    return first ? formatDayMonth(first) : null;
+    return first ? formatNumericDate(first) : null;
+  });
+
+  protected readonly evolutionPoints = computed(
+    () => this.progression()?.evolution ?? [],
+  );
+
+  protected readonly evolutionTruncated = computed(() => {
+    const fullSessions = this.progression()?.stats.fullSessionsCount ?? 0;
+    return fullSessions > this.evolutionPoints().length;
   });
 
   protected readonly lastSimulation = computed(() => {
-    const evolution = this.progression()?.evolution ?? [];
+    const evolution = this.evolutionPoints();
     const last = evolution[evolution.length - 1];
     return last
       ? {
           scoreLabel: formatFrenchDecimal(last.globalScore),
-          dateLabel: formatSessionDate(last.date, this.now),
+          dayLabel: formatRelativeDay(last.date),
         }
       : null;
   });
@@ -142,7 +189,7 @@ export class Progression {
       ? {
           scoreLabel: formatFrenchDecimal(stats.bestGlobalScore),
           dateLabel: stats.bestGlobalScoreAt
-            ? formatDayMonth(stats.bestGlobalScoreAt)
+            ? formatNumericDayMonth(stats.bestGlobalScoreAt)
             : null,
         }
       : null;
@@ -150,7 +197,7 @@ export class Progression {
 
   protected readonly sinceFirst = computed(() => {
     const stats = this.progression()?.stats;
-    const evolution = this.progression()?.evolution ?? [];
+    const evolution = this.evolutionPoints();
     const last = evolution[evolution.length - 1];
     if (
       !stats ||
@@ -171,19 +218,19 @@ export class Progression {
 
   protected readonly sessionCounts = computed(() => {
     const stats = this.progression()?.stats;
-    return stats
-      ? {
-          total: stats.completedSessions,
-          full: stats.fullSessionsCount,
-          fullLabel: fullSessionCountLabel(stats.fullSessionsCount),
-          targeted: stats.targetedSessionsCount,
-        }
-      : null;
-  });
-
-  protected readonly evolutionPoints = computed(() => {
-    const evolution = this.progression()?.evolution ?? [];
-    return evolution.slice(-EVOLUTION_DISPLAY_LIMIT);
+    if (!stats) {
+      return null;
+    }
+    return {
+      total: stats.completedSessions,
+      full: stats.fullSessionsCount,
+      fullLabel: fullSessionCountLabel(stats.fullSessionsCount),
+      fullShortLabel: fullSessionShortCountLabel(stats.fullSessionsCount),
+      targeted: stats.targetedSessionsCount,
+      targetedLabel: targetedSessionShortCountLabel(
+        stats.targetedSessionsCount,
+      ),
+    };
   });
 
   protected readonly axisRows = computed<AxisRowView[]>(() => {
@@ -203,17 +250,21 @@ export class Progression {
     axis: AxisProgressionDto,
     overview: TrainingsAxisOverviewDto | undefined,
   ): AxisRowView {
-    const scores = extractScoresWithinWindow(axis.sparkline, this.now);
-    const neverPlayed = overview?.neverPlayed ?? axis.currentScore === null;
+    const scores = axis.sparkline.map((point) => point.score);
     return {
       axis: axis.axis,
       presentation: AXIS_PRESENTATION[axis.axis],
-      neverPlayed,
+      neverPlayed: overview?.neverPlayed ?? axis.currentScore === null,
       bestScore:
         overview?.bestScore == null ? null : Math.round(overview.bestScore),
-      lastScore:
-        axis.currentScore === null ? null : Math.round(axis.currentScore),
       sparklinePoints: buildSparklinePoints(scores, SPARKLINE_GEOMETRY),
+      delta: buildAxisDelta(
+        computeAxisProgressDelta(
+          axis.firstScore,
+          axis.currentScore,
+          scores.length,
+        ),
+      ),
       clickable: axis.lastSessionId !== null,
     };
   }
@@ -235,42 +286,32 @@ export class Progression {
 
   protected readonly radarFirstDate = computed(() => {
     const first = this.progression()?.stats.firstFullSessionAt;
-    return first ? formatDayMonth(first) : null;
+    return first ? formatNumericDate(first) : null;
   });
 
   protected readonly radarLastDate = computed(() => {
-    const evolution = this.progression()?.evolution ?? [];
+    const evolution = this.evolutionPoints();
     const last = evolution[evolution.length - 1];
-    return last ? formatRelativeDay(last.date) : null;
+    return last ? formatNumericDate(last.date) : null;
   });
 
-  protected readonly strongestGain = computed(() => {
-    const radar = this.progression()?.radar;
-    if (!radar || this.radarFirst().length === 0) {
+  protected readonly badges = computed(() => {
+    const statuses = this.badgeStatuses();
+    if (statuses === null) {
       return null;
     }
-    let best: { axis: AxisType; gain: number } | null = null;
-    let allImproved = true;
-    for (const last of radar.last) {
-      const first = radar.first.find((entry) => entry.axis === last.axis);
-      if (last.score === null || !first || first.score === null) {
-        continue;
-      }
-      const gain = Math.round(last.score - first.score);
-      if (gain < 0) {
-        allImproved = false;
-      }
-      if (!best || gain > best.gain) {
-        best = { axis: last.axis, gain };
+    const bestScores: Partial<Record<AxisType, number>> = {};
+    for (const axis of this.overviewFacade.overview()?.axes ?? []) {
+      if (axis.bestScore !== null) {
+        bestScores[axis.axis] = axis.bestScore;
       }
     }
-    return best && best.gain > 0
-      ? {
-          label: AXIS_PRESENTATION[best.axis].label,
-          gainLabel: `+${best.gain}`,
-          allImproved,
-        }
-      : null;
+    return buildProgressionBadgesView(
+      statuses,
+      bestScores,
+      this.sector,
+      this.now,
+    );
   });
 
   protected openSimulationResult(sessionId: string): void {

@@ -1,28 +1,22 @@
-import { AxisSparklinePointDto } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
 import {
-  extractScoresWithinWindow,
-  computeSparklineDomain,
   buildSparklinePoints,
+  computeAxisProgressDelta,
+  computeSparklineDomain,
 } from './axis-row-metrics';
 
 const GEOMETRY = { width: 140, top: 4, bottom: 24 };
-const NOW = new Date('2026-06-30T12:00:00Z');
 
-function point(daysAgo: number, score: number): AxisSparklinePointDto {
-  const date = new Date(NOW.getTime() - daysAgo * 86_400_000);
-  return { date: date.toISOString(), score };
-}
-
-describe('extractScoresWithinWindow', () => {
-  it('keeps the sessions of the last thirty days in chronological order', () => {
-    const sparkline = [point(40, 10), point(29, 20), point(2, 30)];
-
-    expect(extractScoresWithinWindow(sparkline, NOW)).toEqual([20, 30]);
+describe('computeAxisProgressDelta', () => {
+  it('compares the last session of the axis with its very first one', () => {
+    expect(computeAxisProgressDelta(58, 72.4, 7)).toBe(14);
+    expect(computeAxisProgressDelta(70, 61, 3)).toBe(-9);
   });
 
-  it('drops everything when the axis was last played before the window', () => {
-    expect(extractScoresWithinWindow([point(31, 80)], NOW)).toEqual([]);
+  it('needs two sessions on the axis and both scores', () => {
+    expect(computeAxisProgressDelta(70, 70, 1)).toBeNull();
+    expect(computeAxisProgressDelta(null, 70, 4)).toBeNull();
+    expect(computeAxisProgressDelta(70, null, 4)).toBeNull();
   });
 });
 

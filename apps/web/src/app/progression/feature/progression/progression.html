@@ -3,183 +3,196 @@
     <div class="prog__head-copy">
       <h1 class="prog__title">Progression</h1>
       <span class="prog__subtitle">
-        Votre préparation {{ sectorLabel }}
         @if (subtitleDate(); as date) {
-          depuis le <span class="prog__subtitle-date t-mono">{{ date }}</span>
+          Votre préparation {{ sectorLabel }} depuis le
+          <span class="prog__subtitle-date t-mono">{{ date }}</span
+          >.
+        } @else {
+          Votre préparation {{ sectorLabel }}.
         }
-        .
       </span>
     </div>
     <ui-sector-chip class="prog__sector" [sector]="sector" />
   </div>
 
   @if (loaded()) {
-    <section class="prog__card prog__kpis">
-      <div class="prog__kpi">
-        <span class="prog__kpi-label">Dernier {{ fullSessionLabelLower }}</span>
-        @if (lastSimulation(); as last) {
-          <span class="prog__kpi-value-row">
-            <span class="prog__kpi-value t-mono">{{ last.scoreLabel }}</span>
-            <span class="prog__kpi-unit t-mono">/100</span>
-          </span>
-          <span class="prog__kpi-sub">{{ last.dateLabel }}</span>
-        } @else {
-          <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub"
-            >Aucun {{ fullSessionLabelLower }} terminé</span
-          >
-        }
-      </div>
-      <div class="prog__kpi">
-        <span class="prog__kpi-label"
-          >Meilleur score<span class="prog__kpi-label-long"> global</span></span
-        >
-        @if (bestScore(); as best) {
-          <span class="prog__kpi-value-row">
-            <span class="prog__kpi-value t-mono">{{ best.scoreLabel }}</span>
-            <span class="prog__kpi-unit t-mono">/100</span>
-          </span>
-          <span class="prog__kpi-sub">
-            @if (best.dateLabel) {
-              {{ fullSessionLabel }} du
-              <span class="t-mono">{{ best.dateLabel }}</span>
+    <div class="prog__grid">
+      <section class="prog__card prog__score">
+        <div class="prog__card-head">
+          <span class="t-label">Score global</span>
+          <span class="prog__card-note">
+            @if (evolutionTruncated()) {
+              <span class="prog__desktop-only"
+                >Vos {{ evolutionPoints().length }} derniers
+                {{ fullSessionLabelPluralLower }}</span
+              >
+              <span class="prog__mobile-only"
+                >{{ evolutionPoints().length }} derniers
+                {{ fullSessionLabelPluralLower }}</span
+              >
+            } @else {
+              <span class="prog__desktop-only"
+                >Vos {{ fullSessionLabelPluralLower }}, du premier au
+                dernier</span
+              >
+              <span class="prog__mobile-only"
+                >Du premier au dernier {{ fullSessionLabelLower }}</span
+              >
             }
           </span>
-        } @else {
-          <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub"
-            >Après votre premier {{ fullSessionLabelLower }}</span
-          >
-        }
-      </div>
-      <div class="prog__kpi">
-        <span class="prog__kpi-label">Depuis la première session</span>
-        @if (sinceFirst(); as since) {
-          <span class="prog__kpi-value-row">
-            <span
-              class="prog__kpi-value t-mono"
-              [class.prog__kpi-value--up]="since.positive"
-              [class.prog__kpi-value--down]="!since.positive"
-              >{{ since.deltaLabel }}</span
-            >
-            <span class="prog__kpi-unit t-mono">pts</span>
-          </span>
-          <span class="prog__kpi-sub">
-            De <span class="t-mono">{{ since.fromLabel }}</span> à
-            <span class="t-mono">{{ since.toLabel }}</span>
-          </span>
-        } @else {
-          <span class="prog__kpi-value t-mono">-</span>
-          <span class="prog__kpi-sub"
-            >Dès votre deuxième {{ fullSessionLabelLower }}</span
-          >
-        }
-      </div>
-      <div class="prog__kpi">
-        <span class="prog__kpi-label">Sessions</span>
-        @if (sessionCounts(); as counts) {
-          <span class="prog__kpi-value t-mono">{{ counts.total }}</span>
-          <span class="prog__kpi-sub">
-            <span class="t-mono">{{ counts.full }}</span>
-            {{ counts.fullLabel }} ·
-            <span class="t-mono">{{ counts.targeted }}</span
-            >&ngsp;
-            <span class="prog__kpi-sub-long"
-              >entraînement{{ counts.targeted > 1 ? 's' : '' }} ciblé{{
-                counts.targeted > 1 ? 's' : ''
-              }}</span
-            >
-            <span class="prog__kpi-sub-short"
-              >ciblé{{ counts.targeted > 1 ? 's' : '' }}</span
-            >
-          </span>
-        }
-      </div>
-    </section>
-
-    <section class="prog__card prog__curve">
-      <div class="prog__curve-head">
-        <span class="t-label"
-          >Score global, 10 derniers {{ fullSessionLabelPluralLower }}</span
-        >
-        <span class="prog__legend">
-          <span class="prog__legend-item">
-            <span class="prog__legend-line"></span>
-            Score
-          </span>
-          <span class="prog__legend-item">
-            <span class="prog__legend-dash"></span>
-            Seuil d'admissibilité {{ sectorLabel }} {{ threshold() }}
-          </span>
-        </span>
-      </div>
-      @if (evolutionPoints().length > 0) {
-        <ui-evolution-chart
-          class="prog__chart-desktop"
-          [points]="evolutionPoints()"
-          [threshold]="threshold()"
-          (pointSelected)="openSimulationResult($event)"
-        />
-        <ui-evolution-chart
-          class="prog__chart-mobile"
-          [points]="evolutionPoints()"
-          [threshold]="threshold()"
-          [compact]="true"
-          (pointSelected)="openSimulationResult($event)"
-        />
-        <span class="prog__caption prog__caption-desktop"
-          >La couleur de chaque point reprend l'avis de l'{{
-            fullSessionLabelLower
-          }}. Les entraînements ciblés n'apparaissent pas dans cette
-          courbe.</span
-        >
-        <span class="prog__caption prog__caption-mobile"
-          >Pointillé&nbsp;: seuil d'admissibilité {{ sectorLabel }}
-          <span class="t-mono">{{ threshold() }}</span
-          >. La couleur des points reprend l'avis de l'{{
-            fullSessionLabelLower
-          }}.</span
-        >
-      } @else {
-        <div class="prog__curve-empty">
-          <span class="prog__empty-title"
-            >Aucun {{ fullSessionLabelLower }} pour l'instant</span
-          >
-          <span class="prog__caption"
-            >Vos {{ fullSessionLabelPluralLower }} dessineront ici votre courbe
-            de score global.</span
-          >
         </div>
-      }
-    </section>
+        <div class="prog__score-body">
+          <div class="prog__score-summary">
+            <span class="prog__score-main">
+              <span class="prog__score-value-line">
+                <span class="prog__score-value t-mono">{{
+                  lastSimulation()?.scoreLabel ?? '-'
+                }}</span>
+                @if (lastSimulation()) {
+                  <span class="prog__score-unit t-mono">/100</span>
+                }
+              </span>
+              @if (lastSimulation(); as last) {
+                <span class="prog__score-sub"
+                  >Dernier {{ fullSessionLabelLower }},
+                  {{ last.dayLabel }}</span
+                >
+              } @else {
+                <span class="prog__score-sub"
+                  >Aucun {{ fullSessionLabelLower }} terminé</span
+                >
+              }
+            </span>
+            <div class="prog__stats">
+              <div class="prog__stat">
+                <span class="prog__stat-label"
+                  >Meilleur<span class="prog__desktop-only"> score</span></span
+                >
+                @if (bestScore(); as best) {
+                  <span class="prog__stat-value t-mono">{{
+                    best.scoreLabel
+                  }}</span>
+                  <span class="prog__stat-sub">
+                    @if (best.dateLabel; as date) {
+                      <span class="prog__desktop-only"
+                        >{{ fullSessionLabel }} du </span
+                      ><span class="prog__mobile-only">Le </span
+                      ><span class="t-mono">{{ date }}</span>
+                    }
+                  </span>
+                } @else {
+                  <span class="prog__stat-value t-mono">-</span>
+                  <span class="prog__stat-sub"
+                    >Après votre premier {{ fullSessionLabelLower }}</span
+                  >
+                }
+              </div>
+              <div class="prog__stat">
+                <span class="prog__stat-label prog__stat-label--fluid"
+                  >Depuis le début</span
+                >
+                @if (sinceFirst(); as since) {
+                  <span
+                    class="prog__stat-value t-mono"
+                    [class.prog__stat-value--up]="since.positive"
+                    [class.prog__stat-value--down]="!since.positive"
+                    >{{ since.deltaLabel }}</span
+                  >
+                  <span class="prog__stat-sub"
+                    >De <span class="t-mono">{{ since.fromLabel }}</span> à
+                    <span class="t-mono">{{ since.toLabel }}</span></span
+                  >
+                } @else {
+                  <span class="prog__stat-value t-mono">-</span>
+                  <span class="prog__stat-sub"
+                    >Dès votre deuxième {{ fullSessionLabelLower }}</span
+                  >
+                }
+              </div>
+              @if (sessionCounts(); as counts) {
+                <div class="prog__stat">
+                  <span class="prog__stat-label">Sessions</span>
+                  <span class="prog__stat-value t-mono">{{
+                    counts.total
+                  }}</span>
+                  <span class="prog__stat-sub"
+                    ><span class="t-mono">{{ counts.full }}</span
+                    >&ngsp;<span class="prog__desktop-only">{{
+                      counts.fullLabel
+                    }}</span
+                    ><span class="prog__mobile-only">{{
+                      counts.fullShortLabel
+                    }}</span
+                    >&nbsp;· <span class="t-mono">{{ counts.targeted }}</span
+                    >&ngsp;{{ counts.targetedLabel }}</span
+                  >
+                </div>
+              }
+            </div>
+          </div>
+          <div class="prog__score-visual">
+            @if (evolutionPoints().length > 0) {
+              <ui-evolution-chart
+                class="prog__chart"
+                [points]="evolutionPoints()"
+                [threshold]="threshold()"
+                (pointSelected)="openSimulationResult($event)"
+              />
+              <span class="prog__caption prog__score-caption"
+                >Un point par {{ fullSessionLabelLower }}, coloré selon
+                l'avis<span class="prog__desktop-only"> obtenu</span>.
+                Pointillé&nbsp;: seuil d'admissibilité {{ sectorLabel }}
+                <span class="t-mono">{{ threshold() }}</span
+                >.</span
+              >
+            } @else {
+              <div class="prog__chart-empty">
+                <span class="prog__empty-title"
+                  >Aucun {{ fullSessionLabelLower }} pour l'instant</span
+                >
+                <span class="prog__caption"
+                  >Vos {{ fullSessionLabelPluralLower }} dessineront ici votre
+                  courbe de score global.</span
+                >
+              </div>
+            }
+          </div>
+        </div>
+      </section>
 
-    <div class="prog__duo">
       <section class="prog__card prog__axes">
-        <div class="prog__axes-head">
+        <div class="prog__card-head prog__axes-head">
           <span class="t-label">Par axe</span>
-          <span class="prog__axes-window">30 derniers jours</span>
+          <span class="prog__card-note">
+            <span class="prog__desktop-only"
+              >Vos dernières sessions sur chaque axe</span
+            >
+            <span class="prog__mobile-only"
+              >Meilleur score · depuis le début</span
+            >
+          </span>
         </div>
         @for (row of axisRows(); track row.axis) {
           <button
+            type="button"
             class="prog__axis-row"
             [disabled]="!row.clickable"
             (click)="openAxisLastResult(row.axis)"
           >
             <span class="prog__axis-ident">
-              <span
-                class="prog__axis-icon"
-                [style.background]="row.presentation.pastelVar"
-              >
-                <ui-axis-icon [axis]="row.axis" />
-              </span>
-              <span class="prog__axis-copy">
-                <span class="prog__axis-name">{{
+              <ui-axis-icon [axis]="row.axis" [size]="20" />
+              <span class="prog__axis-name"
+                ><span class="prog__desktop-only">{{
                   row.presentation.label
-                }}</span>
-              </span>
+                }}</span
+                ><span class="prog__mobile-only">{{
+                  row.presentation.shortLabel
+                }}</span></span
+              >
             </span>
             <svg
               class="prog__axis-spark"
+              [class.prog__axis-spark--empty]="!row.sparklinePoints"
               viewBox="0 0 140 28"
               preserveAspectRatio="none"
               aria-hidden="true"
@@ -191,24 +204,40 @@
                   [attr.stroke]="row.presentation.plainVar"
                   stroke-linecap="round"
                   stroke-linejoin="round"
+                  vector-effect="non-scaling-stroke"
                 />
               }
             </svg>
-            <span class="prog__axis-score">
-              @if (row.neverPlayed) {
-                <span class="prog__axis-unplayed">Aucune session</span>
-              } @else {
-                <span class="prog__axis-score-value t-mono">{{
-                  row.bestScore === null ? '-' : row.bestScore
-                }}</span>
-                @if (row.lastScore !== null) {
-                  <span class="prog__axis-last"
-                    >Dernière session&nbsp;:
-                    <span class="t-mono">{{ row.lastScore }}</span></span
-                  >
-                }
-              }
-            </span>
+            @if (row.neverPlayed) {
+              <span class="prog__axis-unplayed">Aucune session</span>
+            } @else {
+              <span class="prog__axis-figures">
+                <span class="prog__axis-best">
+                  <span class="prog__axis-best-value t-mono">{{
+                    row.bestScore ?? '-'
+                  }}</span>
+                  <span class="prog__axis-caption">Meilleur score</span>
+                </span>
+                <span class="prog__axis-delta">
+                  <span class="prog__axis-delta-line">
+                    @if (row.delta; as delta) {
+                      <span
+                        class="prog__axis-delta-value t-mono"
+                        [class.prog__axis-delta-value--up]="delta.tone === 'up'"
+                        [class.prog__axis-delta-value--down]="
+                          delta.tone === 'down'
+                        "
+                        >{{ delta.label }}</span
+                      >
+                      <span class="prog__axis-delta-unit">pts</span>
+                    } @else {
+                      <span class="prog__axis-delta-value t-mono">-</span>
+                    }
+                  </span>
+                  <span class="prog__axis-caption">Depuis le début</span>
+                </span>
+              </span>
+            }
             <ui-icon
               class="prog__axis-chevron"
               [img]="chevronIcon"
@@ -216,10 +245,18 @@
             />
           </button>
         }
-        <span class="prog__caption prog__axes-caption"
-          >Le chiffre est votre meilleur score sur l'axe&nbsp;; la courbe, vos
-          sessions des 30 derniers jours.</span
-        >
+        <span class="prog__caption prog__axes-caption">
+          <span class="prog__desktop-only"
+            >La courbe reprend vos dernières sessions sur l'axe,
+            {{ fullSessionLabelPluralLower }} et
+            {{ targetedSessionLabelPluralLower }} confondus. Touchez un axe pour
+            revoir son dernier résultat.</span
+          >
+          <span class="prog__mobile-only"
+            >La courbe reprend vos dernières sessions sur l'axe. Le chiffre vert
+            ou rouge compare votre dernière session à la première.</span
+          >
+        </span>
       </section>
 
       <section class="prog__card prog__radar">
@@ -237,7 +274,7 @@
           <div class="prog__radar-legend">
             @if (radarFirst().length > 0 && radarFirstDate(); as firstDate) {
               <span class="prog__radar-legend-item">
-                <span class="prog__legend-dash prog__legend-dash--muted"></span>
+                <span class="prog__legend-dash"></span>
                 Premier {{ fullSessionLabelLower }}, le
                 <span class="t-mono prog__radar-legend-date">{{
                   firstDate
@@ -254,16 +291,6 @@
               </span>
             }
           </div>
-          @if (strongestGain(); as gain) {
-            <span class="prog__caption">
-              @if (gain.allImproved) {
-                Votre profil s'est élargi sur chaque axe.
-              }
-              La plus forte progression&nbsp;: {{ gain.label }},
-              <span class="t-mono prog__gain-value">{{ gain.gainLabel }}</span>
-              pts.
-            </span>
-          }
         } @else {
           <div class="prog__radar-box prog__radar-box--empty">
             <ui-axis-radar [entries]="[]" />
@@ -274,24 +301,125 @@
           >
         }
       </section>
+
+      <section class="prog__card prog__badges">
+        <div class="prog__card-head">
+          <span class="t-label">Badges</span>
+          <a class="prog__link" routerLink="/badges"
+            >Tous les badges<ui-icon [img]="arrowIcon" [size]="13"
+          /></a>
+        </div>
+        @if (badges(); as view) {
+          <div class="prog__collection">
+            <span class="prog__collection-line">
+              <span class="prog__collection-count"
+                ><span class="t-mono">{{ view.earnedCount }}</span> /
+                {{ view.total }} badges obtenus</span
+              >
+              @if (view.creditsEarned > 0) {
+                <span class="prog__collection-credits"
+                  ><span class="prog__collection-credits-value t-mono"
+                    >+{{ view.creditsEarned }}</span
+                  ><ui-axis-icon axis="credit" [size]="11" />&ngsp;{{
+                    view.creditsEarnedLabel
+                  }}</span
+                >
+              }
+            </span>
+            <span class="prog__bar">
+              <span
+                class="prog__bar-fill"
+                [style.width.%]="view.progressPercent"
+              ></span>
+            </span>
+          </div>
+          <div
+            class="prog__badges-section prog__badges-latest"
+            [class.prog__badges-latest--spread]="view.latest.length > 1"
+          >
+            <span class="t-label">Derniers obtenus</span>
+            @for (badge of view.latest; track badge.badgeId) {
+              <span class="prog__latest">
+                <ui-badge-art
+                  class="prog__latest-art"
+                  [src]="badge.assetPath"
+                  [alt]="badge.name"
+                  [shining]="badge.gold"
+                />
+                <span class="prog__latest-copy">
+                  <span class="prog__latest-name">{{ badge.name }}</span>
+                  <span class="prog__latest-kind">{{ badge.kindLabel }}</span>
+                </span>
+                <span class="prog__latest-when">{{ badge.elapsedLabel }}</span>
+              </span>
+            } @empty {
+              <span class="prog__caption"
+                >Aucun badge obtenu pour l'instant.</span
+              >
+            }
+          </div>
+          @if (view.nextTier; as next) {
+            <div class="prog__badges-section prog__badges-next">
+              <span class="t-label">Prochain palier</span>
+              <span class="prog__next">
+                <ui-badge-art
+                  class="prog__next-art"
+                  [src]="next.assetPath"
+                  [alt]="next.label"
+                  [locked]="true"
+                />
+                <span class="prog__next-copy">
+                  <span class="prog__next-name"
+                    >{{ next.label }}
+                    @if (next.gain; as gain) {
+                      <span class="prog__next-gain t-mono"
+                        >+{{ gain }}<ui-axis-icon axis="credit" [size]="11"
+                      /></span>
+                    }
+                  </span>
+                  <span class="prog__next-target"
+                    >Meilleur score ≥
+                    <span class="t-mono">{{ next.targetLabel }}</span></span
+                  >
+                  <span class="prog__next-progress"
+                    >Vous êtes à <span class="t-mono">{{ next.bestLabel }}</span
+                    >, encore <span class="t-mono">{{ next.gapLabel }}</span>
+                    {{ next.gapUnit }}</span
+                  >
+                </span>
+              </span>
+            </div>
+          }
+        } @else {
+          <div class="prog__skeleton-stack">
+            <ui-skeleton class="prog__skeleton-line" />
+            <ui-skeleton class="prog__skeleton-bar" />
+            <ui-skeleton class="prog__skeleton-line" />
+            <ui-skeleton class="prog__skeleton-line" />
+          </div>
+        }
+      </section>
     </div>
   } @else {
-    <section class="prog__card prog__kpis">
-      @for (kpi of skeletonKpis; track kpi) {
-        <div class="prog__kpi">
-          <ui-skeleton class="prog__skeleton-kpi-label" />
-          <ui-skeleton class="prog__skeleton-kpi-value" />
-          <ui-skeleton class="prog__skeleton-kpi-sub" />
-        </div>
-      }
-    </section>
-    <section class="prog__card prog__skeleton-chart-card">
-      <ui-skeleton class="prog__skeleton-kpi-label" />
-      <ui-skeleton class="prog__skeleton-chart" />
-    </section>
-    <section class="prog__card prog__skeleton-chart-card">
-      <ui-skeleton class="prog__skeleton-kpi-label" />
-      <ui-skeleton class="prog__skeleton-radar" />
-    </section>
+    <div class="prog__grid">
+      <section class="prog__card prog__score">
+        <ui-skeleton class="prog__skeleton-label" />
+        <ui-skeleton class="prog__skeleton-chart" />
+      </section>
+      <section class="prog__card prog__axes prog__skeleton-rows">
+        <ui-skeleton class="prog__skeleton-label" />
+        @for (row of skeletonRows; track row) {
+          <ui-skeleton class="prog__skeleton-row" />
+        }
+      </section>
+      <section class="prog__card prog__radar">
+        <ui-skeleton class="prog__skeleton-label" />
+        <ui-skeleton class="prog__skeleton-radar" />
+      </section>
+      <section class="prog__card prog__badges">
+        <ui-skeleton class="prog__skeleton-label" />
+        <ui-skeleton class="prog__skeleton-chart" />
+      </section>
+    </div>
   }
 </div>

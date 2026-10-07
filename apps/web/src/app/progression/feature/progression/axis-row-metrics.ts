@@ -1,10 +1,8 @@
-import { AxisSparklinePointDto, roundToTenth } from '@psychotech/shared';
+import { roundToTenth } from '@psychotech/shared';
 
-export const AXIS_HISTORY_WINDOW_DAYS = 30;
 export const SPARKLINE_MARGIN_RATIO = 0.15;
 export const SPARKLINE_FLAT_MARGIN = 1;
-
-const MS_PER_DAY = 86_400_000;
+const MIN_SESSIONS_FOR_DELTA = 2;
 
 export interface SparklineGeometry {
   width: number;
@@ -15,17 +13,6 @@ export interface SparklineGeometry {
 export interface SparklineDomain {
   min: number;
   max: number;
-}
-
-export function extractScoresWithinWindow(
-  sparkline: readonly AxisSparklinePointDto[],
-  now: Date,
-  windowDays = AXIS_HISTORY_WINDOW_DAYS,
-): number[] {
-  const oldestKept = now.getTime() - windowDays * MS_PER_DAY;
-  return sparkline
-    .filter((point) => Date.parse(point.date) >= oldestKept)
-    .map((point) => point.score);
 }
 
 export function computeSparklineDomain(
@@ -64,4 +51,19 @@ export function buildSparklinePoints(
       return `${roundToTenth(index * step)},${roundToTenth(y)}`;
     })
     .join(' ');
+}
+
+export function computeAxisProgressDelta(
+  firstScore: number | null,
+  currentScore: number | null,
+  sessionCount: number,
+): number | null {
+  if (
+    firstScore === null ||
+    currentScore === null ||
+    sessionCount < MIN_SESSIONS_FOR_DELTA
+  ) {
+    return null;
+  }
+  return Math.round(currentScore - firstScore);
 }
