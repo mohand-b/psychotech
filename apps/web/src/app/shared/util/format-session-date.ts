@@ -1,3 +1,5 @@
+import { formatNumericDayMonth } from './format-day-month-year';
+
 export const DAY_MS = 86_400_000;
 
 export function computeStartOfDay(date: Date): number {
@@ -49,9 +51,5 @@ export function formatSessionDate(iso: string, now: Date): string {
     const weekday = date.toLocaleDateString('fr-FR', { weekday: 'long' });
     return `${capitalizeFirstLetter(weekday)} · ${time}`;
   }
-  const day = date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-  });
-  return `${day} · ${time}`;
+  return `${formatNumericDayMonth(date)} · ${time}`;
 }

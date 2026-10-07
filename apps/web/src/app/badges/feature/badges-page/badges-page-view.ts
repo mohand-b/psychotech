@@ -7,7 +7,6 @@ import {
   EXAM_EXCELLENCE_THRESHOLD,
   EXAM_PERFECTION_THRESHOLD,
   EXAM_PROGRESSION_THRESHOLD,
-  FULL_SESSION_LABEL,
   BadgeConditionStateDto,
   BadgeDefinition,
   BadgeFamily,
@@ -22,10 +21,13 @@ import {
   TrainingsOverviewDto,
   badgeAssetPath,
   badgeDisplayName,
+  findAxisScoreTarget,
   roundToTenth,
 } from '@psychotech/shared';
+import { formatNumericDate } from '../../../shared/util/format-day-month-year';
 import { formatFrenchNumber } from '../../../shared/util/format-number';
 import {
+  buildBadgeTierLabel,
   computeDisplayedEnergyGain,
   isGoldBadge,
 } from '../../data-access/badge-display';
@@ -107,14 +109,6 @@ const CONDITION_COUNT_INTROS: Record<number, string> = {
 
 export const EXAM_CARD_LABEL = 'Tous les axes enchaînés';
 
-function formatEarnedDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
 function buildEntry(
   definition: BadgeDefinition,
   status: BadgeStatusDto | null,
@@ -135,7 +129,7 @@ function buildEntry(
     earned,
     dateLabel:
       status?.earnedAt != null
-        ? `Obtenu le ${formatEarnedDate(status.earnedAt)}`
+        ? `Obtenu le ${formatNumericDate(status.earnedAt)}`
         : null,
     rarityLabel:
       earned && status?.rarityPercent != null
@@ -245,13 +239,6 @@ const FREE_ACTION_EFFORTS: Readonly<Record<string, number>> = {
 const COLLECTION_COMPLETE_NOTE = 'Collection complète';
 const UNAVAILABLE_PROPOSAL_NOTE = 'Indisponible pour le moment';
 
-function parseAxisScoreTarget(definition: BadgeDefinition): number | undefined {
-  const condition = definition.conditions.find((entry) =>
-    entry.id.startsWith('best-'),
-  );
-  return condition ? Number(condition.id.slice('best-'.length)) : undefined;
-}
-
 const EXAM_SCORE_TARGETS: Partial<Record<BadgeId, number>> = {
   [BadgeId.EXAM_FIRST]: EXAM_PROGRESSION_THRESHOLD,
   [BadgeId.EXAM_FAVORABLE]: EXAM_EXCELLENCE_THRESHOLD,
@@ -346,13 +333,13 @@ function estimateRawEffort(
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
     const best = projectBestScore(definition.axis, sector, outlook);
-    const target = parseAxisScoreTarget(definition);
+    const target = findAxisScoreTarget(definition);
     const attempt =
       TARGETED_ATTEMPT_CREDITS * CREDIT_EFFORT +
       (outlook.bestScores[definition.axis] === undefined
         ? UNTRIED_AXIS_EFFORT
         : 0);
-    if (target !== undefined) {
+    if (target !== null) {
       return attempt + computeScoreGap(target, best);
     }
     return definition.tier === BadgeTier.GOLD
@@ -506,8 +493,8 @@ function buildClosestProgressLine(
   const { definition } = entry;
   if (definition.family === BadgeFamily.AXIS && definition.axis) {
     const best = outlook.bestScores[definition.axis];
-    const target = parseAxisScoreTarget(definition);
-    if (target === undefined || best === undefined || best >= target) {
+    const target = findAxisScoreTarget(definition);
+    if (target === null || best === undefined || best >= target) {
       return null;
     }
     return `Votre meilleur score ${formatFrenchNumber(best)} · plus que ${formatPointsLabel(target - best)}`;
@@ -544,25 +531,13 @@ function buildClosestProgressLine(
   return null;
 }
 
-const TRANSVERSE_BADGE_LABEL = 'Badge transverse';
-
-function buildClosestBadgeLabel(definition: BadgeDefinition): string {
-  if (definition.family === BadgeFamily.TRANSVERSE || !definition.tier) {
-    return TRANSVERSE_BADGE_LABEL;
-  }
-  const familyLabel = definition.axis
-    ? AXIS_META[definition.axis].label
-    : FULL_SESSION_LABEL;
-  return `${familyLabel} · palier ${TIER_LABELS[definition.tier]}`;
-}
-
 function buildClosestBadgeView(
   entry: BadgeEntry,
   sector: Sector,
   outlook: BadgeOutlook,
 ): ClosestBadgeView {
   return {
-    name: buildClosestBadgeLabel(entry.definition),
+    name: buildBadgeTierLabel(entry.definition, 'full'),
     assetPath: entry.assetPath,
     conditions: entry.conditions,
     progress: buildClosestProgressLine(entry, sector, outlook),

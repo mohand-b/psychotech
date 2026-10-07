@@ -1,4 +1,5 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
+import { formatNumericDayMonth } from '../../../shared/util/format-day-month-year';
 import { formatFrenchDecimal } from '../../../shared/util/format-number';
 import {
   DAY_MS,
@@ -67,9 +68,5 @@ export function formatOverviewDate(iso: string, now: Date): string {
   if (dayDiff === 1) {
     return `Hier, ${time}`;
   }
-  const day = date.toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-  });
-  return `${day}, ${time}`;
+  return `${formatNumericDayMonth(date)}, ${time}`;
 }

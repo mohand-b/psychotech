@@ -6,11 +6,13 @@ import {
   BadgeStatusDto,
   BadgeTier,
   EarnedBadgeDto,
+  FULL_SESSION_LABEL,
   FULL_SESSION_LABEL_LOWER,
   Sector,
   badgeAssetPath,
   badgeDisplayName,
 } from '@psychotech/shared';
+import { AXIS_PRESENTATION } from '../../shared/ui/axis-presentation';
 import {
   BadgeAnnounceThumb,
   BadgeAnnounceView,
@@ -39,6 +41,45 @@ export function sumEarnedBadgeRewards(
         sum + (BADGE_BY_ID.get(status.badgeId)?.energyReward ?? 0),
       0,
     );
+}
+
+const TRANSVERSE_BADGE_LABEL = 'Badge transverse';
+const TIER_LABEL_PREFIX = 'palier ';
+
+export type BadgeAxisLabelLength = 'full' | 'short';
+
+function resolveBadgeFamilyLabel(
+  definition: BadgeDefinition,
+  axisLabelLength: BadgeAxisLabelLength,
+): string {
+  if (!definition.axis) {
+    return FULL_SESSION_LABEL;
+  }
+  return axisLabelLength === 'short'
+    ? AXIS_PRESENTATION[definition.axis].shortLabel
+    : AXIS_META[definition.axis].label;
+}
+
+function buildTieredBadgeLabel(
+  definition: BadgeDefinition,
+  axisLabelLength: BadgeAxisLabelLength,
+  tierPrefix: string,
+): string {
+  if (definition.family === BadgeFamily.TRANSVERSE || !definition.tier) {
+    return TRANSVERSE_BADGE_LABEL;
+  }
+  return `${resolveBadgeFamilyLabel(definition, axisLabelLength)} · ${tierPrefix}${TIER_NAMES[definition.tier]}`;
+}
+
+export function buildBadgeTierLabel(
+  definition: BadgeDefinition,
+  axisLabelLength: BadgeAxisLabelLength,
+): string {
+  return buildTieredBadgeLabel(definition, axisLabelLength, TIER_LABEL_PREFIX);
+}
+
+export function buildBadgeKindLabel(definition: BadgeDefinition): string {
+  return buildTieredBadgeLabel(definition, 'short', '');
 }
 
 export function isGoldBadge(definition: BadgeDefinition): boolean {
