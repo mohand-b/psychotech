@@ -37,6 +37,16 @@ export function buildReleaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
+    version: '1.2.2',
+    releasedOn: '2026-10-07',
+    title: 'Page Progression repensée',
+    entries: {
+      [ReleaseCategory.IMPROVEMENT]: [
+        'Page Progression repensée, sur ordinateur comme sur mobile : score global présenté à côté de sa courbe, évolution de chaque épreuve depuis la première session et nouveau résumé des badges, avec les derniers obtenus et le prochain à décrocher.',
+      ],
+    },
+  },
+  {
     version: '1.2.1',
     releasedOn: '2026-10-03',
     title: 'Tarifs, crédits et badges',
