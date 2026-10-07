@@ -9,7 +9,9 @@ import {
   SESSION_MODE_LABELS_LOWER,
   TARGETED_SESSION_LABEL,
   fullSessionCountLabel,
+  fullSessionShortCountLabel,
   targetedSessionCountLabel,
+  targetedSessionShortCountLabel,
 } from './session-vocabulary';
 
 const ALL_LABELS = [
@@ -48,6 +50,13 @@ describe('session vocabulary', () => {
     expect(fullSessionCountLabel(2)).toBe('examens blancs');
     expect(targetedSessionCountLabel(1)).toBe('entraînement ciblé');
     expect(targetedSessionCountLabel(15)).toBe('entraînements ciblés');
+  });
+
+  it('agrees the short count labels in number', () => {
+    expect(fullSessionShortCountLabel(1)).toBe('examen');
+    expect(fullSessionShortCountLabel(6)).toBe('examens');
+    expect(targetedSessionShortCountLabel(1)).toBe('ciblé');
+    expect(targetedSessionShortCountLabel(17)).toBe('ciblés');
   });
 
   it('never says simulation anywhere in the user vocabulary', () => {

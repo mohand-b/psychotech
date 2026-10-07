@@ -5,6 +5,8 @@ export const FULL_SESSION_LABEL_LOWER = 'examen blanc';
 export const FULL_SESSION_LABEL_PLURAL = 'Examens blancs';
 export const FULL_SESSION_LABEL_PLURAL_LOWER = 'examens blancs';
 export const FULL_SESSION_REPORT_LABEL = "Bilan d'examen blanc";
+const FULL_SESSION_SHORT_LABEL_LOWER = 'examen';
+const FULL_SESSION_SHORT_LABEL_PLURAL_LOWER = 'examens';
 
 export const ELIMINATORY_AXIS_VERDICT_NOTE =
   `En ${FULL_SESSION_LABEL_LOWER}, un axe critique sous son seuil éliminatoire ` +
@@ -17,6 +19,8 @@ export const TARGETED_SESSION_LABEL = 'Entraînement ciblé';
 const TARGETED_SESSION_LABEL_LOWER = 'entraînement ciblé';
 export const TARGETED_SESSION_LABEL_PLURAL = 'Entraînements ciblés';
 const TARGETED_SESSION_LABEL_PLURAL_LOWER = 'entraînements ciblés';
+const TARGETED_SESSION_SHORT_LABEL_LOWER = 'ciblé';
+const TARGETED_SESSION_SHORT_LABEL_PLURAL_LOWER = 'ciblés';
 
 export const SESSION_MODE_LABELS: Record<SessionMode, string> = {
   [SessionMode.FULL]: FULL_SESSION_LABEL,
@@ -38,4 +42,16 @@ export function targetedSessionCountLabel(count: number): string {
   return count > 1
     ? TARGETED_SESSION_LABEL_PLURAL_LOWER
     : TARGETED_SESSION_LABEL_LOWER;
+}
+
+export function fullSessionShortCountLabel(count: number): string {
+  return count > 1
+    ? FULL_SESSION_SHORT_LABEL_PLURAL_LOWER
+    : FULL_SESSION_SHORT_LABEL_LOWER;
+}
+
+export function targetedSessionShortCountLabel(count: number): string {
+  return count > 1
+    ? TARGETED_SESSION_SHORT_LABEL_PLURAL_LOWER
+    : TARGETED_SESSION_SHORT_LABEL_LOWER;
 }
