@@ -3,13 +3,13 @@
 <clipPath id="A-sur-les-rails-o"><circle cx="80" cy="76" r="64"/></clipPath>
 <clipPath id="A-sur-les-rails-f"><circle cx="80" cy="76" r="46.5"/></clipPath>
 </defs>
-<g fill="#3A2994" transform="translate(0 7)"><circle cx="80" cy="76" r="64"/></g>
-<g fill="#9C86FB"><circle cx="80" cy="76" r="64"/></g>
-<g fill="#C9BCFF" clip-path="url(#A-sur-les-rails-o)"><polygon points="480,-324 -320,476 -320,-324"/></g>
-<g fill="#4A35B8"><circle cx="80" cy="76" r="51"/></g>
-<g fill="#6F59F2"><circle cx="80" cy="76" r="46.5"/></g>
-<g fill="#644DE6" clip-path="url(#A-sur-les-rails-f)"><polygon points="480,-316 -320,484 480,476"/></g>
-<g fill="#FFFFFF" fill-opacity="0.13" clip-path="url(#A-sur-les-rails-f)"><polygon points="20,70 74,16 86,16 20,82"/></g>
-<g fill="#4632BF" stroke="#4632BF" stroke-width="0" transform="translate(51.80 50.00) scale(2.3500)"><path d="M8.2 19.4l-2.1 3" fill="none" stroke="#4632BF" stroke-width="1.9" stroke-linecap="round"/><path d="M15.8 19.4l2.1 3" fill="none" stroke="#4632BF" stroke-width="1.9" stroke-linecap="round"/><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z" stroke-width="0.6"/></g>
-<g transform="translate(51.80 46.80) scale(2.3500)"><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M8.2 19.4l-2.1 3" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/></g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M15.8 19.4l2.1 3" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/></g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z" stroke-width="0.6"/></g><rect x="7.2" y="5.6" width="9.6" height="5.4" rx="2" fill="#4632BF"/><circle cx="8.3" cy="15" r="1.35" fill="#6F59F2"/><circle cx="15.7" cy="15" r="1.35" fill="#6F59F2"/></g>
+<g fill="#38337B" transform="translate(0 5)"><circle cx="80" cy="76" r="64"/></g>
+<g fill="#9487D9"><circle cx="80" cy="76" r="64"/></g>
+<g fill="#AEA5E0" clip-path="url(#A-sur-les-rails-o)"><polygon points="480,-324 -320,476 -320,-324"/></g>
+<g fill="#474199"><circle cx="80" cy="76" r="51"/></g>
+<g fill="#6A62CB"><circle cx="80" cy="76" r="46.5"/></g>
+<g fill="#6058C0" clip-path="url(#A-sur-les-rails-f)"><polygon points="480,-316 -320,484 480,476"/></g>
+<g fill="#FFFFFF" fill-opacity="0.06" clip-path="url(#A-sur-les-rails-f)"><polygon points="20,70 74,16 86,16 20,82"/></g>
+<g fill="#44409E" stroke="#44409E" stroke-width="0" transform="translate(51.80 49.2) scale(2.3500)"><path d="M8.2 19.4l-2.1 3" fill="none" stroke="#44409E" stroke-width="1.9" stroke-linecap="round"/><path d="M15.8 19.4l2.1 3" fill="none" stroke="#44409E" stroke-width="1.9" stroke-linecap="round"/><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z" stroke-width="0.6"/></g>
+<g transform="translate(51.80 46.80) scale(2.3500)"><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M8.2 19.4l-2.1 3" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/></g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M15.8 19.4l2.1 3" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round"/></g><g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z" stroke-width="0.6"/></g><rect x="7.2" y="5.6" width="9.6" height="5.4" rx="2" fill="#44409E"/><circle cx="8.3" cy="15" r="1.35" fill="#6A62CB"/><circle cx="15.7" cy="15" r="1.35" fill="#6A62CB"/></g>
 </svg>
