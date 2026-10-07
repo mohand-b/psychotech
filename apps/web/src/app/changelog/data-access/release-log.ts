@@ -37,6 +37,16 @@ export function buildReleaseAnchor(version: string): string {
 
 export const RELEASE_LOG: readonly Release[] = [
   {
+    version: '1.2.2',
+    releasedOn: '2026-10-07',
+    title: 'Badges redessinés',
+    entries: {
+      [ReleaseCategory.IMPROVEMENT]: [
+        'Nouvelle série de visuels pour l’ensemble des badges.',
+      ],
+    },
+  },
+  {
     version: '1.2.1',
     releasedOn: '2026-10-03',
     title: 'Tarifs, crédits et badges',
