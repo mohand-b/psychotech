@@ -5,6 +5,7 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   inject,
+  isDevMode,
 } from '@angular/core';
 import { ViewportScroller, isPlatformServer } from '@angular/common';
 import {
@@ -30,6 +31,7 @@ import { AuthFacade } from './auth/data-access/auth.facade';
 import { credentialsInterceptor } from './core/http/credentials.interceptor';
 import { errorInterceptor } from './core/http/error.interceptor';
 import { newBadgesInterceptor } from './core/http/new-badges.interceptor';
+import { registerOfflineFallbackWorker } from './core/offline/offline-fallback-worker';
 import { createAnchorOffset } from './core/scroll/anchor-offset';
 import { StaleChunkErrorHandler } from './core/stale-chunk-error.handler';
 import { isStaleChunkError, reloadOnceForStaleChunk } from './core/stale-chunk';
@@ -72,6 +74,12 @@ export const appConfig: ApplicationConfig = {
         return;
       }
       inject(ViewportScroller).setOffset(createAnchorOffset(window));
+    }),
+    provideAppInitializer(() => {
+      if (isPlatformServer(inject(PLATFORM_ID)) || isDevMode()) {
+        return;
+      }
+      registerOfflineFallbackWorker(navigator);
     }),
     provideAppInitializer(() => {
       if (isPlatformServer(inject(PLATFORM_ID))) {

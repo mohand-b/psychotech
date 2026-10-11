@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hors ligne · PsychoTech Training</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#7C5CFC" />
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --ink: #1b2130;
+        --text-secondary: #5b6472;
+        --border: #e6e8ec;
+        --brand: #7c5cfc;
+        --brand-hover: #6a4bea;
+        --on-brand: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .offline {
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 32px 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        text-align: center;
+      }
+      .offline__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+      .offline__text {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+      }
+      .offline__retry {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        background: var(--brand);
+        color: var(--on-brand);
+        font: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .offline__retry:hover {
+        background: var(--brand-hover);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="offline">
+      <svg
+        width="56"
+        height="56"
+        viewBox="0 0 64 64"
+        role="img"
+        aria-label="PsychoTech Training"
+      >
+        <rect width="64" height="64" rx="14" fill="#7C5CFC" />
+        <path
+          fill="#FFFFFF"
+          d="M28.83 24.41L28.83 31.23L30.94 31.23Q32.75 31.23 33.87 30.33Q34.99 29.43 34.99 27.75Q34.99 26.08 33.96 25.18Q32.92 24.28 30.94 24.28Q30.24 24.28 29.78 24.30Q29.32 24.32 28.83 24.41M31.43 37.26L21.18 37.26L21.18 21.37Q21.18 20.45 21.70 19.94Q22.23 19.44 23.07 19.13Q24.56 18.60 26.63 18.36Q28.70 18.12 30.33 18.12Q36.36 18.12 39.59 20.71Q42.82 23.31 42.82 27.75Q42.82 30.61 41.42 32.75Q40.01 34.88 37.46 36.07Q34.90 37.26 31.43 37.26M21.18 42.23L21.18 33.91L28.88 33.91L28.88 45.49Q28.39 45.62 27.38 45.75Q26.37 45.88 25.31 45.88Q23.02 45.88 22.10 45.07Q21.18 44.25 21.18 42.23"
+        />
+      </svg>
+      <h1 class="offline__title">Vous êtes hors ligne</h1>
+      <p class="offline__text">
+        PsychoTech a besoin d'une connexion internet. Vérifiez votre réseau,
+        puis réessayez.
+      </p>
+      <button class="offline__retry" type="button">Réessayer</button>
+    </main>
+    <script>
+      document
+        .querySelector('.offline__retry')
+        .addEventListener('click', () => window.location.reload());
+    </script>
+  </body>
+</html>
