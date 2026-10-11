@@ -14,6 +14,7 @@ export interface UserProfileDto {
   logicGuideReadAt: string | null;
   pendingEmail: string | null;
   passwordChangedAt: string | null;
+  hasPassword: boolean;
   lastLoginAt: string | null;
   createdAt: string;
 }
@@ -51,6 +52,6 @@ export interface VerifyEmailChangeResponseDto {
 }
 
 export interface DeleteAccountDto {
-  password: string;
+  password?: string;
   confirmation: string;
 }
