@@ -35,6 +35,7 @@ function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
     logicGuideReadAt: null,
     pendingEmail: null,
     passwordChangedAt: '2026-04-14T10:00:00.000Z',
+    hasPassword: true,
     lastLoginAt: '2026-08-08T09:12:00.000Z',
     createdAt: '2026-04-14T00:00:00.000Z',
     ...overrides,
@@ -66,6 +67,7 @@ async function setup(user: UserProfileDto = buildUser()) {
     );
   const changePassword = vi.fn().mockReturnValue(of(user));
   const deleteAccount = vi.fn().mockReturnValue(of(undefined));
+  const requestPasswordReset = vi.fn().mockReturnValue(of({ accepted: true }));
   const resendVerification = vi
     .fn()
     .mockReturnValue(of({ sent: true, retryAfterSeconds: null }));
@@ -84,6 +86,7 @@ async function setup(user: UserProfileDto = buildUser()) {
           requestEmailChange,
           changePassword,
           deleteAccount,
+          requestPasswordReset,
           resendVerification,
           logout: vi.fn().mockReturnValue(of(undefined)),
         },
@@ -125,6 +128,7 @@ async function setup(user: UserProfileDto = buildUser()) {
     requestEmailChange,
     changePassword,
     deleteAccount,
+    requestPasswordReset,
   };
 }
 
@@ -238,6 +242,32 @@ describe('Profile - sécurité', () => {
   });
 });
 
+describe('Profile - sécurité, compte Google sans mot de passe', () => {
+  it('offers to receive a link to set a first password instead of changing it', async () => {
+    const { fixture, changePassword, requestPasswordReset } = await setup(
+      buildUser({ hasPassword: false, passwordChangedAt: null }),
+    );
+    clickButton(fixture, 'Sécurité');
+
+    expect(
+      element(fixture).querySelectorAll('.profil__security input'),
+    ).toHaveLength(0);
+    expect(element(fixture).textContent).toContain(
+      'Votre compte utilise la connexion Google',
+    );
+
+    clickButton(fixture, 'Recevoir le lien');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(requestPasswordReset).toHaveBeenCalledWith('mohand@example.com');
+    expect(changePassword).not.toHaveBeenCalled();
+    expect(element(fixture).textContent).toContain(
+      'Lien envoyé à mohand@example.com',
+    );
+  });
+});
+
 describe('Profile - confidentialité', () => {
   it('saves the feed opt-in immediately from the toggle', async () => {
     const { fixture, updateProfile } = await setup();
@@ -309,5 +339,26 @@ describe('Profile - suppression', () => {
       password: 'mon-mdp',
       confirmation: 'SUPPRIMER',
     });
+  });
+
+  it('deletes a Google account without a password once the confirmation word is typed', async () => {
+    const { fixture, deleteAccount } = await setup(
+      buildUser({ hasPassword: false, passwordChangedAt: null }),
+    );
+    clickButton(fixture, 'Supprimer');
+    fixture.detectChanges();
+
+    const inputs = element(fixture).querySelectorAll<HTMLInputElement>(
+      '.profil__modal input',
+    );
+    expect(inputs).toHaveLength(1);
+
+    inputs[0].value = 'supprimer';
+    inputs[0].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    clickButton(fixture, 'Supprimer définitivement');
+    await fixture.whenStable();
+
+    expect(deleteAccount).toHaveBeenCalledWith({ confirmation: 'SUPPRIMER' });
   });
 });

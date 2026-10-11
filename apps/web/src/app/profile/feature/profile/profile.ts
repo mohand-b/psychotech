@@ -17,6 +17,7 @@ import {
   ENERGY_PACK_BY_ID,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
   PASSWORD_MIN_LENGTH,
+  PASSWORD_RESET_TTL_MINUTES,
   Sector,
 } from '@psychotech/shared';
 import {
@@ -209,6 +210,36 @@ export class Profile {
       : `${formatDayMonthYear(at)}, ${time}`;
   });
 
+  protected readonly hasPassword = computed(
+    () => this.user()?.hasPassword ?? true,
+  );
+  protected readonly passwordResetTtlMinutes = PASSWORD_RESET_TTL_MINUTES;
+  protected readonly passwordLinkSending = signal(false);
+  protected readonly passwordLinkSentTo = signal<string | null>(null);
+  protected readonly passwordLinkError = signal<string | null>(null);
+
+  protected sendPasswordCreationLink(): void {
+    const email = this.user()?.email;
+    if (!email || this.passwordLinkSending()) {
+      return;
+    }
+    this.passwordLinkSending.set(true);
+    this.passwordLinkError.set(null);
+    this.authFacade
+      .requestPasswordReset(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.passwordLinkSending.set(false);
+          this.passwordLinkSentTo.set(email);
+        },
+        error: () => {
+          this.passwordLinkSending.set(false);
+          this.passwordLinkError.set("L'envoi a échoué. Réessayez.");
+        },
+      });
+  }
+
   protected readonly passwordChangedLabel = computed(() => {
     const at = this.user()?.passwordChangedAt;
     return at ? `Dernière modification le ${formatDayMonthYear(at)}` : null;
@@ -374,7 +405,9 @@ export class Profile {
   }
 
   protected readonly mobileFooterVisible = computed(
-    () => this.section() === 'account' || this.section() === 'security',
+    () =>
+      this.section() === 'account' ||
+      (this.section() === 'security' && this.hasPassword()),
   );
 
   protected readonly mobileFooterStatus = computed<{
@@ -530,7 +563,7 @@ export class Profile {
   protected readonly canDelete = computed(
     () =>
       !this.deleting() &&
-      this.deletePassword().length > 0 &&
+      (!this.hasPassword() || this.deletePassword().length > 0) &&
       this.deleteConfirmationInput().trim().toUpperCase() ===
         DELETE_ACCOUNT_CONFIRMATION,
   );
@@ -553,10 +586,14 @@ export class Profile {
     this.deleting.set(true);
     this.deleteError.set(null);
     this.authFacade
-      .deleteAccount({
-        password: this.deletePassword(),
-        confirmation: DELETE_ACCOUNT_CONFIRMATION,
-      })
+      .deleteAccount(
+        this.hasPassword()
+          ? {
+              password: this.deletePassword(),
+              confirmation: DELETE_ACCOUNT_CONFIRMATION,
+            }
+          : { confirmation: DELETE_ACCOUNT_CONFIRMATION },
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.router.navigate(['/']),

@@ -15,6 +15,7 @@ const mockUser: UserProfileDto = {
   showInFeed: false,
   pendingEmail: null,
   passwordChangedAt: null,
+  hasPassword: true,
   lastLoginAt: null,
   emailVerifiedAt: '2026-06-27T08:00:00.000Z',
   examGuideReadAt: null,

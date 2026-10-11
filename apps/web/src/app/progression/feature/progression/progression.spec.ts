@@ -33,6 +33,7 @@ const USER: UserProfileDto = {
   showInFeed: false,
   pendingEmail: null,
   passwordChangedAt: null,
+  hasPassword: true,
   lastLoginAt: null,
   emailVerifiedAt: '2026-01-01T00:00:00.000Z',
   examGuideReadAt: null,

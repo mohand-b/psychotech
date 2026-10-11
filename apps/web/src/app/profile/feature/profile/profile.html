@@ -425,84 +425,114 @@
                 <span class="profil__card-note">{{ label }}</span>
               }
             </div>
-            <div class="profil__security flex flex-col">
-              <label class="profil__sec-field">
-                <span class="profil__row-label">Mot de passe actuel</span>
-                <input
-                  class="profil__input"
-                  type="password"
-                  placeholder="Votre mot de passe"
-                  [value]="currentPassword()"
-                  (input)="currentPassword.set(readInputValue($event))"
-                />
-              </label>
-              <label class="profil__sec-field">
-                <span class="profil__row-label">Nouveau mot de passe</span>
-                <input
-                  class="profil__input"
-                  type="password"
-                  placeholder="8 caractères minimum"
-                  [value]="newPassword()"
-                  (input)="
-                    newPassword.set(readInputValue($event)); pwDone.set(false)
-                  "
-                />
-              </label>
-              <label class="profil__sec-field">
-                <span class="profil__row-label">Confirmation</span>
-                <input
-                  class="profil__input"
-                  type="password"
-                  placeholder="Répétez le mot de passe"
-                  [value]="confirmation()"
-                  (input)="confirmation.set(readInputValue($event))"
-                />
-              </label>
-              <div class="profil__sec-field profil__sec-field--meter">
-                <span class="md:inline hidden"></span>
-                <span class="flex flex-col profil__meter">
-                  <ui-password-strength-meter [value]="newPassword()" />
-                  <span class="profil__criteria flex">
-                    @for (criterion of pwCriteria(); track criterion.label) {
-                      <span
-                        class="profil__criterion flex items-center"
-                        [class.profil__criterion--met]="criterion.met"
+            @if (hasPassword()) {
+              <div class="profil__security flex flex-col">
+                <label class="profil__sec-field">
+                  <span class="profil__row-label">Mot de passe actuel</span>
+                  <input
+                    class="profil__input"
+                    type="password"
+                    placeholder="Votre mot de passe"
+                    [value]="currentPassword()"
+                    (input)="currentPassword.set(readInputValue($event))"
+                  />
+                </label>
+                <label class="profil__sec-field">
+                  <span class="profil__row-label">Nouveau mot de passe</span>
+                  <input
+                    class="profil__input"
+                    type="password"
+                    placeholder="8 caractères minimum"
+                    [value]="newPassword()"
+                    (input)="
+                      newPassword.set(readInputValue($event)); pwDone.set(false)
+                    "
+                  />
+                </label>
+                <label class="profil__sec-field">
+                  <span class="profil__row-label">Confirmation</span>
+                  <input
+                    class="profil__input"
+                    type="password"
+                    placeholder="Répétez le mot de passe"
+                    [value]="confirmation()"
+                    (input)="confirmation.set(readInputValue($event))"
+                  />
+                </label>
+                <div class="profil__sec-field profil__sec-field--meter">
+                  <span class="md:inline hidden"></span>
+                  <span class="flex flex-col profil__meter">
+                    <ui-password-strength-meter [value]="newPassword()" />
+                    <span class="profil__criteria flex">
+                      @for (criterion of pwCriteria(); track criterion.label) {
+                        <span
+                          class="profil__criterion flex items-center"
+                          [class.profil__criterion--met]="criterion.met"
+                        >
+                          <ui-icon
+                            [img]="checkIcon"
+                            [size]="13"
+                            [strokeWidth]="2.2"
+                          />
+                          {{ criterion.label }}
+                        </span>
+                      }
+                    </span>
+                  </span>
+                </div>
+                <div class="profil__sec-field profil__sec-field--submit">
+                  <span class="md:inline hidden"></span>
+                  <span class="flex items-center profil__sec-actions">
+                    <ui-button
+                      color="brand"
+                      [disabled]="!canUpdatePassword()"
+                      [loading]="pwSaving()"
+                      (click)="updatePassword()"
+                    >
+                      Mettre à jour le mot de passe
+                    </ui-button>
+                    @if (pwDone()) {
+                      <span class="profil__pw-done"
+                        >Mot de passe mis à jour</span
                       >
-                        <ui-icon
-                          [img]="checkIcon"
-                          [size]="13"
-                          [strokeWidth]="2.2"
-                        />
-                        {{ criterion.label }}
-                      </span>
+                    }
+                    @if (securityError(); as error) {
+                      <span class="profil__error">{{ error }}</span>
                     }
                   </span>
-                </span>
+                </div>
               </div>
-              <div class="profil__sec-field profil__sec-field--submit">
-                <span class="md:inline hidden"></span>
+              <div class="profil__card-foot">
+                Un email de confirmation vous est envoyé après chaque
+                modification du mot de passe.
+              </div>
+            } @else {
+              <div class="profil__security flex flex-col">
+                <span class="profil__security-note"
+                  >Votre compte utilise la connexion Google. Pour vous connecter
+                  aussi avec votre adresse email, définissez un mot de passe :
+                  un lien vous est envoyé par email.</span
+                >
                 <span class="flex items-center profil__sec-actions">
                   <ui-button
                     color="brand"
-                    [disabled]="!canUpdatePassword()"
-                    [loading]="pwSaving()"
-                    (click)="updatePassword()"
+                    [loading]="passwordLinkSending()"
+                    (click)="sendPasswordCreationLink()"
                   >
-                    Mettre à jour le mot de passe
+                    Recevoir le lien
                   </ui-button>
-                  @if (pwDone()) {
-                    <span class="profil__pw-done">Mot de passe mis à jour</span>
+                  @if (passwordLinkSentTo(); as sentTo) {
+                    <span class="profil__pw-done"
+                      >Lien envoyé à {{ sentTo }}, valable
+                      {{ passwordResetTtlMinutes }} minutes.</span
+                    >
                   }
-                  @if (securityError(); as error) {
+                  @if (passwordLinkError(); as error) {
                     <span class="profil__error">{{ error }}</span>
                   }
                 </span>
               </div>
-            </div>
-            <div class="profil__card-foot">
-              Un email de confirmation vous est envoyé après chaque modification
-              du mot de passe.
-            </div>
+            }
           </section>
         }
 
@@ -753,18 +783,25 @@
     <span class="profil__modal-title">Supprimer mon compte</span>
     <span class="profil__modal-text"
       >Cette action est définitive : sessions, résultats, badges et crédits
-      restants seront effacés. Saisissez votre mot de passe puis le mot
-      {{ deleteConfirmation }} pour confirmer.</span
-    >
-    <label class="profil__field flex flex-col">
-      <span class="profil__row-label">Mot de passe</span>
-      <input
-        class="profil__input"
-        type="password"
-        [value]="deletePassword()"
-        (input)="deletePassword.set(readInputValue($event))"
-      />
-    </label>
+      restants seront effacés.
+      @if (hasPassword()) {
+        Saisissez votre mot de passe puis le mot
+        {{ deleteConfirmation }} pour confirmer.
+      } @else {
+        Saisissez le mot {{ deleteConfirmation }} pour confirmer.
+      }
+    </span>
+    @if (hasPassword()) {
+      <label class="profil__field flex flex-col">
+        <span class="profil__row-label">Mot de passe</span>
+        <input
+          class="profil__input"
+          type="password"
+          [value]="deletePassword()"
+          (input)="deletePassword.set(readInputValue($event))"
+        />
+      </label>
+    }
     <label class="profil__field flex flex-col">
       <span class="profil__row-label"
         >Tapez {{ deleteConfirmation }} pour confirmer</span

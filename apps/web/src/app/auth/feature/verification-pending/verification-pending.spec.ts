@@ -23,6 +23,7 @@ function buildUser(emailVerifiedAt: string | null): UserProfileDto {
     showInFeed: false,
     pendingEmail: null,
     passwordChangedAt: null,
+    hasPassword: true,
     lastLoginAt: null,
     emailVerifiedAt,
     examGuideReadAt: null,
