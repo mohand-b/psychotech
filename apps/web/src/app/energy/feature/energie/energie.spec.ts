@@ -17,6 +17,10 @@ import { BadgesFacade } from '../../../badges/data-access/badges.facade';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { Energie } from './energie';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 function energyState(balance: number): EnergyStateDto {
   return { balance, canStartFull: balance >= 5, canStartAxis: balance >= 1 };
@@ -148,5 +152,26 @@ describe('Energie', () => {
     expect(
       fixture.nativeElement.querySelector('.energie__confirmation'),
     ).not.toBeNull();
+  });
+});
+
+describe('Energie - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('keeps the balance, the badges and the gift code but shows no pack nor price', async () => {
+    const fixture = await setup();
+    const text = fixture.nativeElement.textContent ?? '';
+
+    expect(
+      fixture.nativeElement.querySelectorAll('.energie__pack'),
+    ).toHaveLength(0);
+    expect(text).not.toContain('€');
+    expect(text).not.toContain('Rechargez');
+    expect(text).toContain(
+      "Vos crédits s'achètent sur psychotechtraining.com.",
+    );
+    expect(text).toContain('crédits disponibles');
+    expect(text).toContain('Un code cadeau');
   });
 });

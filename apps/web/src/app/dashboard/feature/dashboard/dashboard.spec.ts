@@ -32,6 +32,10 @@ import { ProgressionFacade } from '../../../progression/data-access/progression.
 import { SessionHistoryFacade } from '../../../sessions/data-access/session-history.facade';
 import { Clock } from '../../../shared/util/clock';
 import { Dashboard } from './dashboard';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 const USER: UserProfileDto = {
   id: 'user-1',
@@ -522,5 +526,29 @@ describe('Dashboard - fil des obtentions', () => {
       feed: { visible: false, entries: [] },
     });
     expect(fixture.nativeElement.querySelector('.feed')).toBeNull();
+  });
+});
+
+describe('Dashboard - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('drops the packs and recharge links and only tells where credits are bought', async () => {
+    const { fixture } = await setup({ balance: 0 });
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.home__day-sub a')).toBeNull();
+    expect(
+      element
+        .querySelector('.home__day-sub')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim(),
+    ).toBe(
+      "Vous n'avez plus de crédits. Vos crédits s'achètent sur psychotechtraining.com.",
+    );
+    expect(element.textContent).not.toContain('Voir les packs');
+    expect(
+      element.querySelector('.home__credits a[href="/credits"]'),
+    ).toBeNull();
   });
 });

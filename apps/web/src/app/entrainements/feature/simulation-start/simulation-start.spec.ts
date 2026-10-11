@@ -15,6 +15,10 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { TrainingSessionFacade } from '../../../sessions/data-access/training-session.facade';
 import { SimulationStart } from './simulation-start';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 function buildEnergyState(
   overrides: Partial<EnergyStateDto> = {},
@@ -202,5 +206,21 @@ describe('SimulationStart', () => {
     ) as HTMLButtonElement;
     expect(cta.disabled).toBe(false);
     expect(text(fixture)).not.toContain('Vérifiez votre adresse e-mail');
+  });
+});
+
+describe('SimulationStart - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('replaces the recharge link by where credits are bought', async () => {
+    const { fixture } = await setup({
+      energyState: buildEnergyState({ balance: 3, canStartFull: false }),
+    });
+
+    expect(fixture.nativeElement.querySelector('.simb__short-link')).toBeNull();
+    expect(text(fixture)).toContain(
+      "Vos crédits s'achètent sur psychotechtraining.com.",
+    );
   });
 });

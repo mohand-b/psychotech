@@ -2,8 +2,13 @@
   <header class="energie__head flex flex-col">
     <h1 class="t-page-title">Vos crédits</h1>
     <p class="energie__intro">
-      Rechargez en une fois, ou gagnez des crédits avec les badges. Ils ne sont
-      débités que lorsque vous lancez une séance.
+      @if (isPlayApp()) {
+        {{ playPurchaseNotice }} Vous pouvez aussi en gagner avec les badges ou
+        un code cadeau. Ils ne sont débités que lorsque vous lancez une séance.
+      } @else {
+        Rechargez en une fois, ou gagnez des crédits avec les badges. Ils ne
+        sont débités que lorsque vous lancez une séance.
+      }
     </p>
   </header>
 
@@ -37,7 +42,7 @@
     </span>
   </section>
 
-  @if (view() === 'packs') {
+  @if (view() === 'packs' && !isPlayApp()) {
     <section class="energie__recharge flex flex-col">
       <div class="energie__recharge-head flex">
         <span class="energie__recharge-title">Recharger</span>

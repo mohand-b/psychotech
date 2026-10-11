@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { websiteOnlyGuard } from '../../core/play-app/play-app-context';
 import {
   CANONICAL_ORIGIN,
   LANDING_DISPLAY_FONT_PATH,
@@ -56,11 +57,13 @@ export const landingRoutes: Route[] = [
   {
     path: '',
     pathMatch: 'full',
+    canMatch: [websiteOnlyGuard],
     loadComponent: () => import('./landing/landing').then((m) => m.Landing),
     data: { seo: LANDING_SEO },
   },
   {
     path: 'tarifs',
+    canMatch: [websiteOnlyGuard],
     loadComponent: () => import('./tarifs/tarifs').then((m) => m.Tarifs),
     data: { seo: TARIFS_SEO },
   },

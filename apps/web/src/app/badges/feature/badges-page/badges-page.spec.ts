@@ -22,6 +22,10 @@ import {
 } from '@psychotech/shared';
 import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { BadgesPage } from './badges-page';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 function status(
   badgeId: BadgeId,
@@ -529,5 +533,16 @@ describe('BadgesPage', () => {
     const link = footnote.querySelector('a');
     expect(link.getAttribute('href')).toBe('/credits');
     expect(link.textContent).toContain('Voir les packs');
+  });
+});
+
+describe('BadgesPage - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('drops the footnote pointing to the credit packs', async () => {
+    const fixture = await setup(catalogStatuses());
+
+    expect(fixture.nativeElement.querySelector('.badges__footnote')).toBeNull();
   });
 });

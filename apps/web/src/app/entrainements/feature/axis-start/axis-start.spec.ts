@@ -26,6 +26,10 @@ import { GamepadFacade } from '../../../gamepad/data-access/gamepad.facade';
 import { SessionsApi } from '../../../sessions/data-access/sessions.api';
 import { provideTutorialSession } from '../../data-access/tutorial-session.facade';
 import { AxisStart } from './axis-start';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 function gamepadFacadeStub() {
   return {
@@ -405,5 +409,23 @@ describe('AxisStart - note guides', () => {
     });
 
     expect(result.element.querySelector('.axis-start__guide-note')).toBeNull();
+  });
+});
+
+describe('AxisStart - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('replaces the recharge link by where credits are bought', async () => {
+    const result = await setup('logique', false, {
+      energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
+    });
+
+    expect(
+      result.element.querySelector('.axis-start__recharge-link'),
+    ).toBeNull();
+    expect(result.element.textContent).toContain(
+      "Vos crédits s'achètent sur psychotechtraining.com.",
+    );
   });
 });

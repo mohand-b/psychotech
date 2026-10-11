@@ -61,6 +61,10 @@ import {
   buildTargetedAxisRoute,
   buildTargetedSessionRoute,
 } from '../../../shared/util/session-links';
+import {
+  PLAY_APP_PURCHASE_NOTICE,
+  PlayAppContext,
+} from '../../../core/play-app/play-app-context';
 
 type DayVariant = 'session' | 'train' | 'new';
 type RadarMode = 'derniere' | 'meilleur';
@@ -121,6 +125,9 @@ export class Dashboard {
   private readonly sessionHistoryFacade = inject(SessionHistoryFacade);
   private readonly router = inject(Router);
   private readonly clock = inject(Clock);
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
+  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
   private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
   private readonly now = new Date();
 

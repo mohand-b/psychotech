@@ -107,14 +107,16 @@
               Règles de Logique
             </a>
           }
-          <a class="links__item" routerLink="/" fragment="faq">
-            <ui-icon
-              class="links__icon links__icon--faq"
-              [img]="faqIcon"
-              [size]="16"
-            />
-            Questions fréquentes
-          </a>
+          @if (!isPlayApp()) {
+            <a class="links__item" routerLink="/" fragment="faq">
+              <ui-icon
+                class="links__icon links__icon--faq"
+                [img]="faqIcon"
+                [size]="16"
+              />
+              Questions fréquentes
+            </a>
+          }
           @if (authenticated()) {
             <a class="links__item" routerLink="/credits">
               <img
@@ -126,7 +128,7 @@
               />
               Crédits et codes cadeaux
             </a>
-          } @else {
+          } @else if (!isPlayApp()) {
             <a class="links__item" routerLink="/tarifs">
               <img
                 class="links__coin"

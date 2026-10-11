@@ -37,6 +37,10 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { SIMULATION_COURSE } from './simulation-course-instructions';
 import { buildSimulationSessionRoute } from '../../../shared/util/session-links';
+import {
+  PLAY_APP_PURCHASE_NOTICE,
+  PlayAppContext,
+} from '../../../core/play-app/play-app-context';
 
 const ESTIMATED_DURATION_LABEL = '~25 min';
 
@@ -66,6 +70,9 @@ export class SimulationStart {
   private readonly energyFacade = inject(EnergyFacade);
   private readonly trainingSessionFacade = inject(TrainingSessionFacade);
   private readonly router = inject(Router);
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
+  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
   protected readonly durationIcon = Timer;

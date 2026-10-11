@@ -25,6 +25,10 @@ import {
 import { EMPTY, catchError, concatMap, of, take, takeWhile, timer } from 'rxjs';
 import { sumEarnedBadgeRewards } from '../../../badges/data-access/badge-display';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
+import {
+  PLAY_APP_PURCHASE_NOTICE,
+  PlayAppContext,
+} from '../../../core/play-app/play-app-context';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
@@ -83,6 +87,9 @@ export class Energie implements OnDestroy {
   protected readonly arrowLeftIcon = ArrowLeft;
   protected readonly checkIcon = Check;
   protected readonly readValue = readInputValue;
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
+  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
 
   protected readonly sessionCosts = SESSION_CREDIT_COSTS;
   protected readonly packs = ENERGY_PACK_OFFERS;

@@ -20,6 +20,7 @@ import {
   buildBadgeBoard,
   buildBadgeOutlook,
 } from './badges-page-view';
+import { PlayAppContext } from '../../../core/play-app/play-app-context';
 
 @Component({
   selector: 'app-badges-page',
@@ -34,6 +35,8 @@ export class BadgesPage {
   private readonly authFacade = inject(AuthFacade);
   private readonly overviewFacade = inject(TrainingsOverviewFacade);
   private readonly statuses = inject(BadgesFacade).fetchStatuses();
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
 
   protected readonly fullSessionLabel = FULL_SESSION_LABEL;
 

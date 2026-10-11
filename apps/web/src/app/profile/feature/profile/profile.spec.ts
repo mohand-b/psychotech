@@ -19,6 +19,10 @@ import { AuthFacade } from '../../../auth/data-access/auth.facade';
 import { EnergyFacade } from '../../../energy/data-access/energy.facade';
 import { ProgressionFacade } from '../../../progression/data-access/progression.facade';
 import { Profile } from './profile';
+import {
+  endPlayAppSession,
+  startPlayAppSession,
+} from '../../../core/play-app/play-app.testing';
 
 function buildUser(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
   return {
@@ -360,5 +364,25 @@ describe('Profile - suppression', () => {
     await fixture.whenStable();
 
     expect(deleteAccount).toHaveBeenCalledWith({ confirmation: 'SUPPRIMER' });
+  });
+});
+
+describe('Profile - app Play', () => {
+  beforeEach(startPlayAppSession);
+  afterEach(endPlayAppSession);
+
+  it('keeps the balance but shows neither receipt, price nor recharge button', async () => {
+    const { fixture } = await setup();
+    clickButton(fixture, 'Crédits');
+    const text = element(fixture).textContent ?? '';
+
+    expect(text).toContain('crédits disponibles');
+    expect(text).toContain(
+      "Vos crédits s'achètent sur psychotechtraining.com.",
+    );
+    expect(text).not.toContain('Crédits et reçus');
+    expect(text).not.toContain('7,90 €');
+    expect(text).not.toContain('Recharger');
+    expect(element(fixture).querySelector('.profil__receipt')).toBeNull();
   });
 });

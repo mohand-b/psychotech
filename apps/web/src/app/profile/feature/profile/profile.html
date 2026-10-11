@@ -632,7 +632,7 @@
         @case ('credits') {
           <section class="profil__card">
             <div class="profil__card-head flex items-center">
-              <span class="profil__card-title flex-1">Crédits et reçus</span>
+              <span class="profil__card-title flex-1">{{ meta().title }}</span>
               <span class="profil__card-note hidden md:inline"
                 >Sans date d'expiration</span
               >
@@ -655,68 +655,76 @@
                   >Sans date d'expiration</span
                 >
               </span>
-              <ui-button
-                class="profil__credits-cta"
-                color="brand"
-                (click)="goToCredits()"
-              >
-                Recharger
-              </ui-button>
-            </div>
-            <div class="profil__credits-recharge md:hidden">
-              <ui-button
-                color="brand"
-                appearance="outlined"
-                [block]="true"
-                (click)="goToCredits()"
-              >
-                Recharger
-              </ui-button>
-            </div>
-            <div class="profil__receipts-head flex items-center">
-              <span class="profil__receipts-title flex-1">Reçus</span>
-              <span class="profil__receipts-note">Envoyés aussi par email</span>
-            </div>
-            @if (receipts(); as rows) {
-              @if (rows.length === 0) {
-                <div class="profil__receipt-empty">
-                  Aucun achat pour l'instant.
-                </div>
+              @if (!isPlayApp()) {
+                <ui-button
+                  class="profil__credits-cta"
+                  color="brand"
+                  (click)="goToCredits()"
+                >
+                  Recharger
+                </ui-button>
               }
-              @for (receipt of rows; track receipt.id) {
-                <div class="profil__receipt">
-                  <span class="profil__receipt-date t-mono">{{
-                    receipt.dateLabel
-                  }}</span>
-                  <span class="profil__receipt-label"
-                    >{{ receipt.label }} ·
-                    <span class="t-mono">{{ receipt.energyAmount }}</span>
-                    crédits</span
-                  >
-                  <span class="profil__receipt-price t-mono">{{
-                    receipt.priceLabel
-                  }}</span>
-                  @if (receipt.receiptUrl; as url) {
-                    <a
-                      class="profil__receipt-link"
-                      [href]="url"
-                      target="_blank"
-                      rel="noopener"
-                      ><span class="md:hidden">Reçu</span
-                      ><span class="hidden md:inline">Télécharger</span></a
+            </div>
+            @if (isPlayApp()) {
+              <div class="profil__card-foot">{{ playPurchaseNotice }}</div>
+            } @else {
+              <div class="profil__credits-recharge md:hidden">
+                <ui-button
+                  color="brand"
+                  appearance="outlined"
+                  [block]="true"
+                  (click)="goToCredits()"
+                >
+                  Recharger
+                </ui-button>
+              </div>
+              <div class="profil__receipts-head flex items-center">
+                <span class="profil__receipts-title flex-1">Reçus</span>
+                <span class="profil__receipts-note"
+                  >Envoyés aussi par email</span
+                >
+              </div>
+              @if (receipts(); as rows) {
+                @if (rows.length === 0) {
+                  <div class="profil__receipt-empty">
+                    Aucun achat pour l'instant.
+                  </div>
+                }
+                @for (receipt of rows; track receipt.id) {
+                  <div class="profil__receipt">
+                    <span class="profil__receipt-date t-mono">{{
+                      receipt.dateLabel
+                    }}</span>
+                    <span class="profil__receipt-label"
+                      >{{ receipt.label }} ·
+                      <span class="t-mono">{{ receipt.energyAmount }}</span>
+                      crédits</span
                     >
-                  } @else {
-                    <span class="profil__receipt-link--off">—</span>
-                  }
-                </div>
+                    <span class="profil__receipt-price t-mono">{{
+                      receipt.priceLabel
+                    }}</span>
+                    @if (receipt.receiptUrl; as url) {
+                      <a
+                        class="profil__receipt-link"
+                        [href]="url"
+                        target="_blank"
+                        rel="noopener"
+                        ><span class="md:hidden">Reçu</span
+                        ><span class="hidden md:inline">Télécharger</span></a
+                      >
+                    } @else {
+                      <span class="profil__receipt-link--off">—</span>
+                    }
+                  </div>
+                }
               }
+              <div class="profil__card-foot">
+                Paiement unique et sécurisé via Stripe : aucun abonnement,
+                aucune reconduction.<span class="md:hidden">
+                  Vos reçus sont envoyés à votre adresse email.</span
+                >
+              </div>
             }
-            <div class="profil__card-foot">
-              Paiement unique et sécurisé via Stripe : aucun abonnement, aucune
-              reconduction.<span class="md:hidden">
-                Vos reçus sont envoyés à votre adresse email.</span
-              >
-            </div>
           </section>
         }
       }

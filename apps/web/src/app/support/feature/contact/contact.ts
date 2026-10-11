@@ -28,6 +28,7 @@ import {
   isContactMotif,
 } from '../../ui/contact-presentation';
 import { ContactForm } from '../contact-form/contact-form';
+import { PlayAppContext } from '../../../core/play-app/play-app-context';
 
 @Component({
   selector: 'app-contact',
@@ -40,6 +41,8 @@ export class Contact {
   private readonly authFacade = inject(AuthFacade);
   private readonly contactFacade = inject(ContactFacade);
   private readonly route = inject(ActivatedRoute);
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
 
   private readonly form = viewChild(ContactForm);
 

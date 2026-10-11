@@ -125,9 +125,13 @@
   @if (energyShort()) {
     <span class="simb__short flex items-center">
       Il vous faut {{ energyCost }} crédits, vous en avez {{ balance() }}.
-      <a class="simb__short-link" routerLink="/credits"
-        >Recharger des crédits</a
-      >
+      @if (isPlayApp()) {
+        {{ playPurchaseNotice }}
+      } @else {
+        <a class="simb__short-link" routerLink="/credits"
+          >Recharger des crédits</a
+        >
+      }
     </span>
   }
   @if (showGuideNote()) {

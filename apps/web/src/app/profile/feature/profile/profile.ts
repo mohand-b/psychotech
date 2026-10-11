@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Signal,
   computed,
   inject,
   linkedSignal,
@@ -16,6 +17,7 @@ import {
   DELETE_ACCOUNT_CONFIRMATION,
   ENERGY_PACK_BY_ID,
   INVALID_CURRENT_PASSWORD_ERROR_CODE,
+  PackPurchaseDto,
   PASSWORD_MIN_LENGTH,
   PASSWORD_RESET_TTL_MINUTES,
   Sector,
@@ -52,6 +54,10 @@ import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { readInputValue } from '../../../shared/util/input-value';
 import { passwordsMatch } from '../../../shared/util/password-match';
+import {
+  PLAY_APP_PURCHASE_NOTICE,
+  PlayAppContext,
+} from '../../../core/play-app/play-app-context';
 
 type ProfileSection = 'account' | 'security' | 'sector' | 'privacy' | 'credits';
 
@@ -93,6 +99,11 @@ const SECTION_META: Record<ProfileSection, SectionMeta> = {
   },
 };
 
+const PLAY_APP_CREDITS_META: SectionMeta = {
+  title: 'Crédits',
+  description: 'Votre solde de crédits.',
+};
+
 const UPCOMING_SECTORS = ['Médical', 'Aviation', 'Sécurité', 'Conduite'];
 
 @Component({
@@ -119,7 +130,14 @@ export class Profile {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
-  private readonly purchases = this.energyFacade.fetchPurchases();
+
+  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
+  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
+
+  private readonly purchases: Signal<PackPurchaseDto[] | null> =
+    this.isPlayApp()
+      ? signal<PackPurchaseDto[] | null>(null).asReadonly()
+      : this.energyFacade.fetchPurchases();
 
   protected readonly backIcon = ArrowLeft;
   protected readonly checkIcon = Check;
@@ -140,7 +158,11 @@ export class Profile {
   protected readonly balance = computed(() => this.energy()?.balance ?? 0);
 
   protected readonly section = signal<ProfileSection>('account');
-  protected readonly meta = computed(() => SECTION_META[this.section()]);
+  protected readonly meta = computed(() =>
+    this.section() === 'credits' && this.isPlayApp()
+      ? PLAY_APP_CREDITS_META
+      : SECTION_META[this.section()],
+  );
 
   protected readonly navItems: {
     id: ProfileSection;
@@ -151,7 +173,13 @@ export class Profile {
     { id: 'security', label: 'Sécurité', icon: Lock },
     { id: 'sector', label: 'Secteur', icon: Radar },
     { id: 'privacy', label: 'Confidentialité', icon: Eye },
-    { id: 'credits', label: 'Crédits et reçus', icon: ReceiptText },
+    {
+      id: 'credits',
+      label: this.isPlayApp()
+        ? PLAY_APP_CREDITS_META.title
+        : SECTION_META.credits.title,
+      icon: ReceiptText,
+    },
   ];
 
   protected readonly initial = computed(() =>
