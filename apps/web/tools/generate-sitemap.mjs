@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   '/confidentialite',
   '/cgv',
   '/cgu',
+  '/suppression-du-compte',
   '/exemple-de-bilan',
   '/contact',
   '/nouveautes',

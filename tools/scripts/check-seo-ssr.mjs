@@ -11,7 +11,13 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const browserDir = join(repoRoot, 'dist/apps/web/browser');
 
 const SITE_NAME = 'PsychoTech Training';
-const LEGAL_ROUTES = ['/mentions-legales', '/confidentialite', '/cgv', '/cgu'];
+const LEGAL_ROUTES = [
+  '/mentions-legales',
+  '/confidentialite',
+  '/cgv',
+  '/cgu',
+  '/suppression-du-compte',
+];
 
 const HOME_LINK_PATTERN = new RegExp(
   `<a\\b[^>]*\\bhref="/"[^>]*>\\s*${SITE_NAME}\\s*</a>`,
@@ -61,7 +67,11 @@ check(
   `og:site_name vaut « ${SITE_NAME} »`,
   homeHtml.includes(`<meta property="og:site_name" content="${SITE_NAME}">`),
 );
-check('/', 'lien texte vers la home dans le pied de page', HOME_LINK_PATTERN.test(homeHtml));
+check(
+  '/',
+  'lien texte vers la home dans le pied de page',
+  HOME_LINK_PATTERN.test(homeHtml),
+);
 
 console.log('Pages légales:');
 for (const route of LEGAL_ROUTES) {
@@ -71,8 +81,16 @@ for (const route of LEGAL_ROUTES) {
     `og:site_name vaut « ${SITE_NAME} »`,
     html.includes(`<meta property="og:site_name" content="${SITE_NAME}">`),
   );
-  check(route, `nom complet « ${SITE_NAME} » en texte réel`, html.includes(SITE_NAME));
-  check(route, 'lien vers la home ancré sur le nom du site', HOME_LINK_PATTERN.test(html));
+  check(
+    route,
+    `nom complet « ${SITE_NAME} » en texte réel`,
+    html.includes(SITE_NAME),
+  );
+  check(
+    route,
+    'lien vers la home ancré sur le nom du site',
+    HOME_LINK_PATTERN.test(html),
+  );
 }
 
 if (failures.length > 0) {
