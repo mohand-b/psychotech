@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0d18; }
+  #frame {
+    position: relative;
+    width: 1024px;
+    height: 500px;
+    overflow: hidden;
+    background:
+      radial-gradient(520px 420px at 78% 50%, rgba(124, 92, 252, 0.34), transparent 70%),
+      radial-gradient(600px 400px at 0% 100%, rgba(124, 92, 252, 0.16), transparent 70%),
+      #0f0d18;
+    font-family: Inter, sans-serif;
+    color: #ffffff;
+  }
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(600px 400px at 70% 50%, #000 30%, transparent 80%);
+  }
+  .copy {
+    position: absolute;
+    left: 64px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 52px; height: 52px; border-radius: 12px; }
+  .brand span { font: 700 26px/1 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+  .brand b { color: #9b82ff; font-weight: 700; }
+  .title { font: 700 44px/1.06 'Space Grotesk', sans-serif; letter-spacing: -0.025em; }
+  .title em { font-style: normal; color: #9b82ff; }
+  .lead { font: 400 18px/1.45 Inter, sans-serif; color: rgba(255, 255, 255, 0.66); }
+  .phone {
+    position: absolute;
+    right: 92px;
+    top: 34px;
+    width: 236px;
+    height: 510px;
+    padding: 9px;
+    border-radius: 38px;
+    background: #1c1a26;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  }
+  .phone img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 30px;
+  }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div class="grid"></div>
+  <div class="copy">
+    <div class="brand"><img src="../../web/public/icon-512.png" alt=""><span>Psycho<b>Tech</b> Training</span></div>
+    <div class="title">Les tests psychotechniques <em>ferroviaires</em>, en conditions réelles</div>
+    <div class="lead">Examens blancs, entraînements ciblés et bilan détaillé sur les cinq épreuves.</div>
+  </div>
+  <div class="phone"><img src="../../web/public/landing/screens/mobile/progression.webp" alt=""></div>
+</div>
+</body>
+</html>

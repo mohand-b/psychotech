@@ -1,0 +1,49 @@
+{
+  "packageId": "com.psychotechtraining.app",
+  "host": "psychotechtraining.com",
+  "name": "PsychoTech Training",
+  "launcherName": "PsychoTech",
+  "display": "standalone",
+  "themeColor": "#7C5CFC",
+  "themeColorDark": "#7C5CFC",
+  "navigationColor": "#FFFFFF",
+  "navigationColorDark": "#1B2130",
+  "navigationDividerColor": "#E6E8EC",
+  "navigationDividerColorDark": "#1B2130",
+  "backgroundColor": "#F4F5F7",
+  "enableNotifications": false,
+  "startUrl": "/dashboard?source=twa",
+  "iconUrl": "https://psychotechtraining.com/icon-512.png",
+  "maskableIconUrl": "https://psychotechtraining.com/icon-maskable-512.png",
+  "monochromeIconUrl": "https://psychotechtraining.com/icon-monochrome-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://psychotechtraining.com/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://psychotechtraining.com/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [
+    {
+      "name": "upload",
+      "value": "80:EA:B9:54:4B:FC:E9:F9:09:03:A1:64:F9:ED:4A:FD:EF:9F:C1:5D:AB:4A:4E:9A:5C:3C:1E:85:08:05:F4:0E"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": []
+}

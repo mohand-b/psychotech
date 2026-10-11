@@ -1,0 +1,17 @@
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+const require = createRequire(new URL('../../package.json', import.meta.url));
+const { chromium } = require('playwright');
+const sharp = require('sharp');
+const [htmlPath, out] = process.argv.slice(2);
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1024, height: 500 }, deviceScaleFactor: 2 });
+await page.goto(pathToFileURL(htmlPath).href);
+await page.waitForLoadState('networkidle');
+await page.evaluate(() => document.fonts.ready);
+await page.waitForTimeout(400);
+const buffer = await page.locator('#frame').screenshot();
+await sharp(buffer).resize(1024, 500).flatten({ background: '#0f0d18' }).png().toFile(out);
+const meta = await sharp(out).metadata();
+console.log(meta.width, meta.height, meta.hasAlpha);
+await browser.close();
