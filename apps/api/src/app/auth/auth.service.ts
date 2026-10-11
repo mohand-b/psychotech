@@ -105,7 +105,10 @@ export class AuthService {
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const valid = await this.passwordHasher.verify(user.passwordHash, input.password);
+    const valid = await this.passwordHasher.verify(
+      user.passwordHash,
+      input.password,
+    );
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -240,14 +243,21 @@ export class AuthService {
     }
   }
 
-  async deleteAccount(userId: string, password: string): Promise<void> {
+  async deleteAccount(
+    userId: string,
+    password: string | undefined,
+  ): Promise<void> {
     const user = await this.repository.findById(userId);
-    if (!user || !user.passwordHash) {
+    if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const valid = await this.passwordHasher.verify(user.passwordHash, password);
-    if (!valid) {
-      throw new BadRequestException(INVALID_CURRENT_PASSWORD_ERROR_CODE);
+    if (user.passwordHash !== null) {
+      const valid =
+        password !== undefined &&
+        (await this.passwordHasher.verify(user.passwordHash, password));
+      if (!valid) {
+        throw new BadRequestException(INVALID_CURRENT_PASSWORD_ERROR_CODE);
+      }
     }
     await this.repository.deleteUser(userId);
     this.logger.log(`Account deleted for user ${userId} (${user.email})`);

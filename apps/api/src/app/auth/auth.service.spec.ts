@@ -267,6 +267,52 @@ describe('AuthService.changePassword', () => {
   });
 });
 
+describe('AuthService.deleteAccount', () => {
+  it('deletes a password account once its password is confirmed', async () => {
+    repository.findById.mockResolvedValue(buildUser());
+    passwordHasher.verify.mockResolvedValue(true);
+
+    await service.deleteAccount('user-1', 'super-secret');
+
+    expect(passwordHasher.verify).toHaveBeenCalledWith(
+      'stored-password-hash',
+      'super-secret',
+    );
+    expect(repository.deleteUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('keeps a password account when the password is wrong or missing', async () => {
+    repository.findById.mockResolvedValue(buildUser());
+    passwordHasher.verify.mockResolvedValue(false);
+
+    await expect(
+      service.deleteAccount('user-1', 'wrong'),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      service.deleteAccount('user-1', undefined),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.deleteUser).not.toHaveBeenCalled();
+  });
+
+  it('deletes a Google account that never had a password', async () => {
+    repository.findById.mockResolvedValue(buildUser({ passwordHash: null }));
+
+    await service.deleteAccount('user-1', undefined);
+
+    expect(passwordHasher.verify).not.toHaveBeenCalled();
+    expect(repository.deleteUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('rejects an unknown account', async () => {
+    repository.findById.mockResolvedValue(null);
+
+    await expect(
+      service.deleteAccount('ghost', undefined),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(repository.deleteUser).not.toHaveBeenCalled();
+  });
+});
+
 describe('AuthService.refresh', () => {
   const DEVICE_PAYLOAD = {
     sub: 'user-1',
@@ -330,9 +376,9 @@ describe('AuthService.refresh', () => {
       );
       passwordHasher.verify.mockResolvedValue(false);
 
-      await expect(
-        service.refresh('old-refresh-token'),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(service.refresh('old-refresh-token')).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
       expect(refreshSessions.open).not.toHaveBeenCalled();
     });
 
@@ -377,7 +423,10 @@ describe('AuthService.refresh', () => {
       'ab'.repeat(32) + 'a',
       'ab'.repeat(32) + '\n',
     ])('never echoes the malformed csrf token %j', async (malformed) => {
-      const result = await service.refresh('presented-refresh-token', malformed);
+      const result = await service.refresh(
+        'presented-refresh-token',
+        malformed,
+      );
 
       expect(result.csrfToken).not.toBe(malformed);
       expect(result.csrfToken).toMatch(/^[0-9a-f]{64}$/);
@@ -462,7 +511,10 @@ describe('AuthService.googleSignIn', () => {
       expect.any(Function),
     );
     expect(emailVerification.sendInitialVerification).not.toHaveBeenCalled();
-    expect(repository.markLogin).toHaveBeenCalledWith('user-1', expect.any(Date));
+    expect(repository.markLogin).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(Date),
+    );
     expect(result.tokens.accessToken).toBe('access-token');
   });
 
@@ -474,10 +526,7 @@ describe('AuthService.googleSignIn', () => {
     };
     repository.googleSignIn.mockResolvedValue(outcome);
 
-    await service.googleSignIn(
-      buildGoogleClaims({ emailVerified: false }),
-      {},
-    );
+    await service.googleSignIn(buildGoogleClaims({ emailVerified: false }), {});
 
     expect(emailVerification.sendInitialVerification).toHaveBeenCalledTimes(1);
   });

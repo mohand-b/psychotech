@@ -17,6 +17,7 @@ export function toUserProfileDto(user: User): UserProfileDto {
     logicGuideReadAt: user.logicGuideReadAt?.toISOString() ?? null,
     pendingEmail: user.pendingEmail,
     passwordChangedAt: user.passwordChangedAt?.toISOString() ?? null,
+    hasPassword: user.passwordHash !== null,
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     createdAt: user.createdAt.toISOString(),
   };
