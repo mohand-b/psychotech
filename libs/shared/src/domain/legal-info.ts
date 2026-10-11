@@ -1,6 +1,6 @@
-export const LEGAL_TERMS_VERSION = '2026-07-29';
+export const LEGAL_TERMS_VERSION = '2026-10-11';
 
-export const LEGAL_LAST_UPDATED = '29 juillet 2026';
+export const LEGAL_LAST_UPDATED = '11 octobre 2026';
 
 export const LEGAL_DOMAIN = 'psychotechtraining.com';
 
@@ -87,9 +87,9 @@ export const LEGAL_ACCOUNTING_RETENTION = '10 ans';
 
 export const LEGAL_CONNECTION_LOG_RETENTION = '12 mois';
 
-export const LEGAL_WITHDRAWAL_DAYS = 14;
+export const LEGAL_SUPPORT_MESSAGE_RETENTION = '3 ans à compter de leur envoi';
 
-export const LEGAL_PRICE_CHANGE_NOTICE_DAYS = 30;
+export const LEGAL_WITHDRAWAL_DAYS = 14;
 
 export const LEGAL_TERMS_CHANGE_NOTICE_DAYS = 30;
 
