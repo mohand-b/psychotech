@@ -11,13 +11,16 @@ import {
   LEGAL_INACTIVE_ACCOUNT_RETENTION,
   LEGAL_LIABILITY_WINDOW_MONTHS,
   LEGAL_PAYMENT_PROVIDER,
-  LEGAL_PRICE_CHANGE_NOTICE_DAYS,
   LEGAL_REGISTRATION,
+  LEGAL_SUPPORT_MESSAGE_RETENTION,
   LEGAL_TERMS_CHANGE_NOTICE_DAYS,
   LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
+  SESSION_ENERGY_COST,
+  SessionMode,
 } from '@psychotech/shared';
 import { SITE_NAME } from '../../core/seo/route-seo';
+import { ENERGY_PACK_OFFERS } from '../util/energy-pack-offer';
 
 export type LegalDocumentId =
   | 'mentions-legales'
@@ -187,7 +190,7 @@ const MENTIONS_LEGALES: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Votre abonnement vous accorde un droit d’usage personnel, non exclusif et non transférable. Toute reproduction, capture, extraction, diffusion ou revente des énoncés d’exercices, notamment à des fins de constitution d’annales ou de formation concurrente, est interdite.',
+              text: 'Votre compte vous ouvre un droit d’usage personnel, non exclusif et non transférable. Toute reproduction, capture, extraction, diffusion ou revente des énoncés d’exercices, notamment à des fins de constitution d’annales ou de formation concurrente, est interdite.',
             },
           ],
         },
@@ -272,9 +275,21 @@ const CONFIDENTIALITE: LegalDocument = {
               },
             },
             {
-              label: 'Abonnement',
+              label: 'Achats',
               value: {
-                text: `Formule en cours, dates de facturation, reçus et identifiant client ${LEGAL_PAYMENT_PROVIDER.name}. Les coordonnées bancaires sont traitées par notre prestataire de paiement et ne transitent jamais par nos serveurs.`,
+                text: `Packs de crédits achetés, montants, dates, reçus et identifiant client ${LEGAL_PAYMENT_PROVIDER.name}. Les coordonnées bancaires sont traitées par notre prestataire de paiement et ne transitent jamais par nos serveurs.`,
+              },
+            },
+            {
+              label: 'Communauté',
+              value: {
+                text: 'Prénom et badges obtenus, affichés dans le fil des obtentions visible des autres candidats. Vous pouvez vous retirer du fil à tout moment depuis votre profil.',
+              },
+            },
+            {
+              label: 'Support',
+              value: {
+                text: 'Messages envoyés depuis la page Contact, capture d’écran éventuelle et, sauf si vous décochez la case prévue, informations techniques : page concernée, navigateur, appareil et taille d’écran.',
               },
             },
             {
@@ -300,9 +315,15 @@ const CONFIDENTIALITE: LegalDocument = {
               'Exécution du contrat',
             ],
             [
-              'Gérer l’abonnement, la facturation et les reçus',
-              'Obligation légale',
+              'Traiter vos achats de crédits et vous envoyer vos reçus',
+              'Exécution du contrat',
             ],
+            ['Conserver les pièces comptables', 'Obligation légale'],
+            [
+              'Afficher le fil des obtentions de la communauté',
+              'Intérêt légitime, avec retrait possible depuis le profil',
+            ],
+            ['Répondre à vos messages au support', 'Intérêt légitime'],
             [
               'Améliorer les exercices et la calibration du service, sur données agrégées',
               'Intérêt légitime',
@@ -370,6 +391,7 @@ const CONFIDENTIALITE: LegalDocument = {
             ],
             ['Compte inactif', LEGAL_INACTIVE_ACCOUNT_RETENTION],
             ['Pièces comptables et factures', LEGAL_ACCOUNTING_RETENTION],
+            ['Messages envoyés au support', LEGAL_SUPPORT_MESSAGE_RETENTION],
             ['Journaux de connexion', LEGAL_CONNECTION_LOG_RETENTION],
           ],
         },
@@ -391,8 +413,10 @@ const CONFIDENTIALITE: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Vous pouvez demander la suppression de votre compte et de vos données en écrivant à ',
+              text: 'Vous pouvez supprimer votre compte et vos données à tout moment depuis votre profil, comme l’explique la page ',
             },
+            { text: 'Suppression du compte', href: '/suppression-du-compte' },
+            { text: ', ou en faire la demande en écrivant à ' },
             {
               text: LEGAL_CONTACT.privacy,
               href: `mailto:${LEGAL_CONTACT.privacy}`,
@@ -451,13 +475,20 @@ const CONFIDENTIALITE: LegalDocument = {
   ],
 };
 
+const PACK_PRICE_ROWS: readonly (readonly [string, string, string])[] =
+  ENERGY_PACK_OFFERS.map((offer) => [
+    `Pack ${offer.title}`,
+    `${offer.credits} crédits, soit ${offer.examCountLabel} ou ${offer.targetedCountLabel}`,
+    offer.priceLabel,
+  ]);
+
 const CGV: LegalDocument = {
   id: 'cgv',
   path: '/cgv',
   tabLabel: 'CGV',
   title: 'Conditions générales de vente',
   metaDescription:
-    'Offres, prix, paiement, reconduction, résiliation et droit de rétractation des abonnements PsychoTech.',
+    'Packs de crédits, prix, paiement et droit de rétractation des achats sur PsychoTech.',
   sections: [
     {
       anchor: 'objet',
@@ -467,11 +498,11 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Les présentes conditions régissent la souscription et l’utilisation des offres payantes de ',
+              text: 'Les présentes conditions régissent l’achat de packs de crédits sur ',
             },
             SITE_HOME_LINK,
             {
-              text: ' par tout consommateur majeur. La création d’un compte vaut acceptation sans réserve.',
+              text: ' par tout consommateur majeur. Tout achat vaut acceptation sans réserve des présentes conditions.',
             },
           ],
         },
@@ -493,7 +524,15 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'L’accès aux épreuves est régulé par des crédits : un examen blanc complet consomme cinq crédits, un entraînement ciblé en consomme un. Les crédits s’achètent par packs à paiement unique et n’expirent pas.',
+              text: `L’accès aux épreuves est régulé par des crédits : un examen blanc complet en consomme ${SESSION_ENERGY_COST[SessionMode.FULL]}, un entraînement ciblé ${SESSION_ENERGY_COST[SessionMode.TARGETED]}. Les crédits s’achètent par packs à paiement unique, sans abonnement, et n’expirent pas. Des crédits sont aussi offerts à l’inscription, par certains badges et par les codes cadeaux.`,
+            },
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: 'Les crédits sont rattachés à votre compte : ils ne peuvent être ni cédés, ni convertis en argent. Ils sont utilisables sur tous vos appareils, sur le site comme dans l’application.',
             },
           ],
         },
@@ -505,35 +544,21 @@ const CGV: LegalDocument = {
       blocks: [
         {
           kind: 'grid',
-          head: ['Formule', 'Contenu', 'Prix TTC'],
+          head: ['Offre', 'Contenu', 'Prix'],
           rows: [
             [
-              'Découverte',
-              'Mode découverte de chaque épreuve, sans évaluation',
+              'Mode découverte',
+              'Découverte de chaque épreuve, sans évaluation',
               'Gratuit',
             ],
-            [
-              'Pack Découverte',
-              '15 crédits, soit 3 examens blancs ou 15 sessions ciblées',
-              '2,90 €',
-            ],
-            [
-              'Pack Avant l’examen',
-              '50 crédits, soit 10 examens blancs ou un mois d’entraînement quotidien',
-              '7,90 €',
-            ],
-            [
-              'Pack Préparation complète',
-              '120 crédits, soit 24 examens blancs',
-              '14,90 €',
-            ],
+            ...PACK_PRICE_ROWS,
           ],
         },
         {
           kind: 'text',
           runs: [
             {
-              text: `Les prix sont indiqués toutes taxes comprises, en euros. Toute évolution tarifaire vous est notifiée au moins ${LEGAL_PRICE_CHANGE_NOTICE_DAYS} jours à l’avance et ne s’applique qu’à compter de l’échéance suivante.`,
+              text: `Les prix sont indiqués en euros. ${LEGAL_VAT_MENTION}. Le prix applicable est celui affiché au moment de l’achat.`,
             },
           ],
         },
@@ -541,13 +566,13 @@ const CGV: LegalDocument = {
     },
     {
       anchor: 'paiement',
-      title: 'Paiement, reconduction et résiliation',
+      title: 'Paiement',
       blocks: [
         {
           kind: 'text',
           runs: [
             {
-              text: 'L’abonnement est mensuel, sans engagement de durée, prélevé le jour de la souscription puis à chaque date anniversaire par reconduction tacite.',
+              text: `Les achats se font sur le site, en une seule fois, par l’intermédiaire de notre prestataire de paiement ${LEGAL_PAYMENT_PROVIDER.name}. Aucun abonnement ni prélèvement récurrent n’est mis en place.`,
             },
           ],
         },
@@ -555,15 +580,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Vous pouvez résilier à tout moment depuis vos réglages, sans frais ni justification. La résiliation prend effet à la fin de la période déjà payée : vous conservez l’accès jusque-là, puis votre compte revient à la formule Découverte. Un changement de formule prend effet à l’échéance suivante.',
-            },
-          ],
-        },
-        {
-          kind: 'text',
-          runs: [
-            {
-              text: 'En cas de défaut de paiement, l’accès aux formules payantes est suspendu après une relance restée sans effet.',
+              text: 'Les crédits sont ajoutés à votre solde dès la confirmation du paiement, et un reçu vous est envoyé par e-mail. Vos reçus restent consultables depuis votre profil.',
             },
           ],
         },
@@ -577,7 +594,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: `Vous disposez de ${LEGAL_WITHDRAWAL_DAYS} jours pour vous rétracter, sans motif. En demandant l’accès immédiat au service, vous reconnaissez que son exécution commence aussitôt : en cas de rétractation, la somme due est calculée au prorata de la période utilisée. L’achat de crédits, exécuté immédiatement, n’ouvre pas droit à rétractation.`,
+              text: `Le délai légal de rétractation est de ${LEGAL_WITHDRAWAL_DAYS} jours. Les crédits étant un contenu numérique fourni dès la confirmation du paiement, à votre demande, ce droit ne s’applique plus une fois les crédits ajoutés à votre solde, conformément à l’article L221-28 du Code de la consommation.`,
             },
           ],
         },
@@ -605,7 +622,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Votre compte est strictement personnel : le partage d’identifiants, l’usage collectif et la revente d’accès sont interdits. Il en va de même de toute tentative d’extraction automatisée des contenus. Un manquement peut entraîner la suspension du compte, après information et sans remboursement des sommes échues.',
+              text: 'Votre compte est strictement personnel : le partage d’identifiants, l’usage collectif et la revente d’accès sont interdits. Il en va de même de toute tentative d’extraction automatisée des contenus. Un manquement peut entraîner la suspension du compte, après information, sans remboursement des crédits non utilisés.',
             },
           ],
         },
@@ -619,7 +636,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: `Nous mettons en œuvre les moyens raisonnables pour assurer la continuité du service, sans garantie d’absence d’interruption. Les maintenances programmées sont annoncées. Notre responsabilité est limitée aux dommages directs et prévisibles, dans la limite des sommes versées au titre des ${LEGAL_LIABILITY_WINDOW_MONTHS} derniers mois.`,
+              text: `Nous mettons en œuvre les moyens raisonnables pour assurer la continuité du service, sans garantie d’absence d’interruption. Les maintenances programmées sont annoncées. Notre responsabilité est limitée aux dommages directs et prévisibles, dans la limite des sommes que vous avez versées au cours des ${LEGAL_LIABILITY_WINDOW_MONTHS} derniers mois.`,
             },
           ],
         },
@@ -671,7 +688,7 @@ const CGU: LegalDocument = {
             },
             { text: 'conditions générales de vente', href: '/cgv' },
             {
-              text: ' s’y ajoutent dès que vous souscrivez une formule payante.',
+              text: ' s’y ajoutent dès que vous achetez des crédits.',
             },
           ],
         },
@@ -714,7 +731,7 @@ const CGU: LegalDocument = {
         {
           kind: 'rules',
           allowed: [
-            'Vous entraîner autant que votre formule le permet, sur l’appareil de votre choix',
+            'Vous entraîner autant que vos crédits le permettent, sur l’appareil de votre choix',
             'Prendre des notes personnelles à partir de vos bilans et de votre progression',
           ],
           forbidden: [
@@ -777,7 +794,7 @@ const CGU: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'En cas de manquement aux règles ci-dessus, nous pouvons suspendre votre accès après vous en avoir informé, puis, si le manquement persiste ou s’il est grave, fermer votre compte. Les sommes déjà échues restent dues.',
+              text: 'En cas de manquement aux règles ci-dessus, nous pouvons suspendre votre accès après vous en avoir informé, puis, si le manquement persiste ou s’il est grave, fermer votre compte. Les crédits non utilisés ne sont pas remboursés.',
             },
           ],
         },
@@ -785,15 +802,17 @@ const CGU: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Vous pouvez demander la fermeture de votre compte à tout moment en écrivant à ',
+              text: 'Vous pouvez supprimer votre compte à tout moment depuis votre profil, ou en faire la demande en écrivant à ',
             },
             {
               text: LEGAL_CONTACT.privacy,
               href: `mailto:${LEGAL_CONTACT.privacy}`,
             },
             {
-              text: `. Votre demande est traitée dans un délai maximum d’${LEGAL_DATA_REQUEST_MAX_DELAY} : elle supprime votre historique d’entraînement et met fin, le cas échéant, à votre abonnement selon les modalités des conditions de vente.`,
+              text: `. Une demande écrite est traitée dans un délai maximum d’${LEGAL_DATA_REQUEST_MAX_DELAY}. La suppression efface votre historique d’entraînement et vos crédits restants, comme le détaille la page `,
             },
+            { text: 'Suppression du compte', href: '/suppression-du-compte' },
+            { text: '.' },
           ],
         },
       ],
@@ -806,7 +825,7 @@ const CGU: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Le service évolue : les exercices, les axes couverts et les secteurs proposés peuvent être ajoutés, modifiés ou retirés. Nous veillons à ce que ces évolutions ne réduisent pas les prestations essentielles de votre formule en cours.',
+              text: 'Le service évolue : les exercices, les axes couverts et les secteurs proposés peuvent être ajoutés, modifiés ou retirés. Nous veillons à ce que ces évolutions ne remettent pas en cause l’usage des crédits déjà acquis.',
             },
           ],
         },
@@ -891,17 +910,11 @@ const SUPPRESSION_DU_COMPTE: LegalDocument = {
               'Pièces comptables et factures de vos achats',
               LEGAL_ACCOUNTING_RETENTION,
             ],
+            [
+              'Messages envoyés au support, détachés du compte',
+              LEGAL_SUPPORT_MESSAGE_RETENTION,
+            ],
             ['Journaux de connexion', LEGAL_CONNECTION_LOG_RETENTION],
-          ],
-        },
-        {
-          kind: 'text',
-          runs: [
-            {
-              text: 'Les messages envoyés au support sont détachés du compte supprimé et conservés ',
-            },
-            createTodoRun('durée de conservation à préciser'),
-            { text: '.' },
           ],
         },
         {

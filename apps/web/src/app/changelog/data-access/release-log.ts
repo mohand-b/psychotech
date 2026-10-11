@@ -80,7 +80,7 @@ export const RELEASE_LOG: readonly Release[] = [
       [ReleaseCategory.NEW]: [
         'Page Contact : question, suggestion d’amélioration ou signalement d’un problème, avec ou sans compte, depuis le site comme depuis l’espace candidat.',
         'Pour un utilisateur connecté : adresse email préremplie et session concernée joignable à un signalement.',
-        'Accusé de réception envoyé par email ; informations techniques jointes uniquement avec l’accord de l’expéditeur.',
+        'Accusé de réception envoyé par email ; informations techniques jointes par défaut pour faciliter le diagnostic, retirables avant l’envoi.',
       ],
       [ReleaseCategory.FIX]: [
         'Fin d’épreuve : correction d’un blocage qui pouvait obliger à reprendre le module depuis le début.',
@@ -98,7 +98,7 @@ export const RELEASE_LOG: readonly Release[] = [
         'Bilan détaillé après chaque session : score, avis favorable ou défavorable, radar des épreuves, synthèse et recommandations personnalisées.',
         'Correction consultable après chaque épreuve, et page Progression avec le meilleur score et les courbes d’évolution.',
         '21 badges à décrocher : trois paliers par épreuve, des badges d’examen blanc et des badges de parcours, avec leur rareté et une célébration à l’obtention.',
-        'Fil des obtentions sur l’accueil : le prénom n’y apparaît qu’après activation depuis le profil.',
+        'Fil des obtentions sur l’accueil, avec le prénom de chaque candidat, masquable depuis le profil.',
         'Compte : vérification de l’adresse email, connexion avec Google et mot de passe oublié.',
       ],
       [ReleaseCategory.CONTENT]: [
