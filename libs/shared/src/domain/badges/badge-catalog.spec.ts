@@ -171,12 +171,9 @@ describe('badge catalog shape', () => {
       const path = badgeAssetPath(definition, Sector.RAILWAY);
       expect(path).toMatch(/^badges\/badge-[a-z-]+\.svg$/);
     }
-    expect(
-      badgeAssetPath(
-        badge(BadgeId.SECTOR_MASTERY),
-        Sector.RAILWAY,
-      ),
-    ).toBe('badges/badge-secteur-ferroviaire.svg');
+    expect(badgeAssetPath(badge(BadgeId.SECTOR_MASTERY), Sector.RAILWAY)).toBe(
+      'badges/badge-ferroviaire.svg',
+    );
   });
 
   it('names the sector badge per sector', () => {

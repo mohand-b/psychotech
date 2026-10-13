@@ -31,7 +31,7 @@ export function badgeAssetPath(
   }
   if (definition.id === BadgeId.SECTOR_MASTERY) {
     const slug = BADGE_SECTOR_SLUGS[sector] ?? 'ferroviaire';
-    return `badges/badge-secteur-${slug}.svg`;
+    return `badges/badge-${slug}.svg`;
   }
   const tier = definition.tier ?? BadgeTier.BRONZE;
   const metal = BADGE_TIER_SLUGS[tier];
