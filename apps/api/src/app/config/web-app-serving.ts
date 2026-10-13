@@ -10,7 +10,7 @@ import {
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 const WEB_DIST_PATH = join(__dirname, '..', 'web', 'browser');
-const HASHED_ASSET_FILENAME = /-[A-Z0-9]{8,}\.[a-z0-9]+$/i;
+const HASHED_ASSET_FILENAME = /-[A-Z0-9]{8}\.[a-z0-9]+$/;
 const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const API_PREFIX = '/api';
 const WELL_KNOWN_DIRECTORY = '.well-known';

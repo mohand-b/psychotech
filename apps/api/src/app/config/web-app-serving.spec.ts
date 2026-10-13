@@ -11,6 +11,8 @@ const ASSET_LINKS =
   '[{"relation":["delegate_permission/common.handle_all_urls"]}]';
 const PRIVATE_CONTENT = 'private-content';
 const CLIENT_SHELL = '<html>client shell</html>';
+const YEAR_LONG_IMMUTABLE_CACHE = 'public, max-age=31536000, immutable';
+const REVALIDATED_CACHE = 'no-cache';
 
 describe('applyWebAppServing', () => {
   let webDistPath: string;
@@ -28,6 +30,8 @@ describe('applyWebAppServing', () => {
     writeFileSync(join(webDistPath, '.env'), PRIVATE_CONTENT);
     writeFileSync(join(webDistPath, 'manifest.webmanifest'), '{}');
     writeFileSync(join(webDistPath, 'index.csr.html'), CLIENT_SHELL);
+    writeFileSync(join(webDistPath, 'chunk-2JTO4QAI.js'), '');
+    writeFileSync(join(webDistPath, 'badge-ferroviaire.svg'), '<svg></svg>');
     const app = express();
     applyWebAppServing(app, webDistPath);
     server = app.listen(0);
@@ -63,6 +67,18 @@ describe('applyWebAppServing', () => {
 
     expect(await hidden.text()).not.toContain(PRIVATE_CONTENT);
     expect(await environment.text()).not.toContain(PRIVATE_CONTENT);
+  });
+
+  it('caches only hashed build files for a year and revalidates named public files', async () => {
+    const hashedChunk = await fetch(`${baseUrl}/chunk-2JTO4QAI.js`);
+    const namedPublicFile = await fetch(`${baseUrl}/badge-ferroviaire.svg`);
+
+    expect(hashedChunk.headers.get('cache-control')).toBe(
+      YEAR_LONG_IMMUTABLE_CACHE,
+    );
+    expect(namedPublicFile.headers.get('cache-control')).toBe(
+      REVALIDATED_CACHE,
+    );
   });
 
   it('still answers application routes with the client shell', async () => {
