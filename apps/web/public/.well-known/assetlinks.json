@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.psychotechtraining.app",
+      "sha256_cert_fingerprints": [
+        "33:02:0A:D3:E6:45:48:7F:CB:57:DC:E5:2E:19:72:F2:E2:0A:0C:EC:71:C1:C3:20:8F:9D:67:28:B1:57:28:71",
+        "80:EA:B9:54:4B:FC:E9:F9:09:03:A1:64:F9:ED:4A:FD:EF:9F:C1:5D:AB:4A:4E:9A:5C:3C:1E:85:08:05:F4:0E"
+      ]
+    }
+  }
+]
