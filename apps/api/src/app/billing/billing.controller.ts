@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   BillingConfigDto,
+  GooglePlayPurchaseResultDto,
   PackCheckoutSessionDto,
   PackCheckoutStatusDto,
   PackPurchaseDto,
@@ -20,11 +21,16 @@ import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CurrentUser } from '../common/current-user.decorator';
 import { BillingService } from './billing.service';
+import { GooglePlayPurchaseRequest } from './dto/google-play-purchase.request';
 import { PackCheckoutRequest } from './dto/pack-checkout.request';
+import { GooglePlayBillingService } from './google-play/google-play-billing.service';
 
 @Controller('billing')
 export class BillingController {
-  constructor(private readonly billingService: BillingService) {}
+  constructor(
+    private readonly billingService: BillingService,
+    private readonly googlePlayBillingService: GooglePlayBillingService,
+  ) {}
 
   @Get('purchases')
   listPurchases(@CurrentUser() userId: string): Promise<PackPurchaseDto[]> {
@@ -50,6 +56,18 @@ export class BillingController {
     @Param('sessionId') sessionId: string,
   ): Promise<PackCheckoutStatusDto> {
     return this.billingService.getPackCheckoutStatus(userId, sessionId);
+  }
+
+  @Post('google-play/purchases')
+  creditGooglePlayPurchase(
+    @CurrentUser() userId: string,
+    @Body() request: GooglePlayPurchaseRequest,
+  ): Promise<GooglePlayPurchaseResultDto> {
+    return this.googlePlayBillingService.creditPurchase(
+      userId,
+      request.packId,
+      request.purchaseToken,
+    );
   }
 
   @Public()

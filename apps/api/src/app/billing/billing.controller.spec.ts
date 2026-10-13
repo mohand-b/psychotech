@@ -22,6 +22,13 @@ describe('BillingController.handleWebhook guards', () => {
     ).toBe(true);
   });
 
+  it('keeps the Google Play purchase credit behind the auth and csrf guards', () => {
+    const handler = BillingController.prototype.creditGooglePlayPurchase;
+
+    expect(Reflect.getMetadata(IS_PUBLIC_KEY, handler)).toBeUndefined();
+    expect(Reflect.getMetadata(SKIP_CSRF_KEY, handler)).toBeUndefined();
+  });
+
   it('keeps the billing config behind the auth guard', () => {
     expect(
       Reflect.getMetadata(IS_PUBLIC_KEY, BillingController.prototype.getConfig),

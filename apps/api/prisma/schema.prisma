@@ -58,6 +58,12 @@ enum EnergyLedgerReason {
   BADGE_REWARD
   PURCHASE
   GIFT_CODE
+  PURCHASE_REVOKED
+}
+
+enum PaymentProvider {
+  STRIPE
+  GOOGLE_PLAY
 }
 
 enum RecommendationPriority {
@@ -228,16 +234,18 @@ model EmailChange {
 }
 
 model PackPurchase {
-  id                String   @id @default(uuid())
-  userId            String
-  packId            String
-  energyAmount      Int
-  amountCents       Int
-  currency          String   @default("eur")
-  checkoutSessionId String   @unique
-  receiptUrl        String?
-  purchasedAt       DateTime @default(now())
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String          @id @default(uuid())
+  userId       String
+  packId       String
+  energyAmount Int
+  amountCents  Int
+  currency     String          @default("eur")
+  provider     PaymentProvider @default(STRIPE)
+  paymentRef   String          @unique
+  receiptUrl   String?
+  purchasedAt  DateTime        @default(now())
+  revokedAt    DateTime?
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, purchasedAt])
 }

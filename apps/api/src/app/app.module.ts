@@ -18,6 +18,7 @@ import { TrainingsModule } from './trainings/trainings.module';
 import { UsersModule } from './users/users.module';
 import { authConfig } from './config/auth.config';
 import { googleConfig } from './config/google.config';
+import { googlePlayConfig } from './config/google-play.config';
 import { mailConfig } from './config/mail.config';
 import { billingConfig } from './config/billing.config';
 import { supportConfig } from './config/support.config';
@@ -32,6 +33,7 @@ import { validateEnvironment } from './config/environment.validation';
         authConfig,
         billingConfig,
         googleConfig,
+        googlePlayConfig,
         mailConfig,
         supportConfig,
       ],
