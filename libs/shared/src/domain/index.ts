@@ -2,6 +2,7 @@ export * from './auth-rules';
 export * from './axis-metrics';
 export * from './energy-rules';
 export * from './energy-packs';
+export * from './google-play';
 export * from './axis-meta';
 export * from './legal-info';
 export * from './rounding';

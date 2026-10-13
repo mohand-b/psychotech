@@ -19,6 +19,17 @@ export interface PackCheckoutStatusDto {
   credited: boolean;
 }
 
+export interface GooglePlayPurchaseRequestDto {
+  packId: EnergyPackId;
+  purchaseToken: string;
+}
+
+export type GooglePlayPurchaseStatus = 'credited' | 'pending';
+
+export interface GooglePlayPurchaseResultDto {
+  status: GooglePlayPurchaseStatus;
+}
+
 export interface PackPurchaseDto {
   id: string;
   purchasedAt: string;
