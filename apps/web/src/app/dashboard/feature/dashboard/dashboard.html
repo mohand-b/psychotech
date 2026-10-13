@@ -69,13 +69,9 @@
                 } @else {
                   <span class="home__day-sub"
                     >Vous n'avez plus de crédits.
-                    @if (isPlayApp()) {
-                      {{ playPurchaseNotice }}
-                    } @else {
-                      <a class="t-inline-action" routerLink="/credits"
-                        >Recharger des crédits</a
-                      >
-                    }
+                    <a class="t-inline-action" routerLink="/credits"
+                      >Recharger des crédits</a
+                    >
                   </span>
                 }
               }
@@ -136,12 +132,10 @@
       <section class="home__card home__credits">
         <div class="home__card-head">
           <span class="t-label">Crédits</span>
-          @if (!isPlayApp()) {
-            <a class="home__link" routerLink="/credits">
-              Voir les packs
-              <ui-icon [img]="arrowIcon" [size]="13" />
-            </a>
-          }
+          <a class="home__link" routerLink="/credits">
+            Voir les packs
+            <ui-icon [img]="arrowIcon" [size]="13" />
+          </a>
         </div>
         <div class="home__credits-balance flex items-center">
           <ui-axis-icon axis="credit" [size]="28" />

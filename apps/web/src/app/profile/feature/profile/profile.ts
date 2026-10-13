@@ -54,10 +54,7 @@ import { formatDayMonthYear } from '../../../shared/util/format-day-month-year';
 import { formatEuroAmount } from '../../../shared/util/format-euro';
 import { readInputValue } from '../../../shared/util/input-value';
 import { passwordsMatch } from '../../../shared/util/password-match';
-import {
-  PLAY_APP_PURCHASE_NOTICE,
-  PlayAppContext,
-} from '../../../core/play-app/play-app-context';
+import { PlayAppContext } from '../../../core/play-app/play-app-context';
 
 type ProfileSection = 'account' | 'security' | 'sector' | 'privacy' | 'credits';
 
@@ -132,7 +129,6 @@ export class Profile {
   private readonly badgeStatuses = inject(BadgesFacade).fetchStatuses();
 
   protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
-  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
 
   private readonly purchases: Signal<PackPurchaseDto[] | null> =
     this.isPlayApp()

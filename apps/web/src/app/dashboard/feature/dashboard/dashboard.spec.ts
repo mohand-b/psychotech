@@ -533,22 +533,14 @@ describe('Dashboard - app Play', () => {
   beforeEach(startPlayAppSession);
   afterEach(endPlayAppSession);
 
-  it('drops the packs and recharge links and only tells where credits are bought', async () => {
+  it('links to the in-app credit packs, sold through Google Play', async () => {
     const { fixture } = await setup({ balance: 0 });
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.querySelector('.home__day-sub a')).toBeNull();
     expect(
-      element
-        .querySelector('.home__day-sub')
-        ?.textContent?.replace(/\s+/g, ' ')
-        .trim(),
-    ).toBe(
-      "Vous n'avez plus de crédits. Vos crédits s'achètent sur psychotechtraining.com.",
-    );
-    expect(element.textContent).not.toContain('Voir les packs');
-    expect(
-      element.querySelector('.home__credits a[href="/credits"]'),
-    ).toBeNull();
+      element.querySelector('.home__day-sub a')?.getAttribute('href'),
+    ).toBe('/credits');
+    expect(element.textContent).toContain('Voir les packs');
+    expect(element.textContent).not.toContain('psychotechtraining.com');
   });
 });

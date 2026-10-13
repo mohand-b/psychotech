@@ -213,14 +213,16 @@ describe('SimulationStart - app Play', () => {
   beforeEach(startPlayAppSession);
   afterEach(endPlayAppSession);
 
-  it('replaces the recharge link by where credits are bought', async () => {
+  it('keeps the recharge link to the in-app credit packs', async () => {
     const { fixture } = await setup({
       energyState: buildEnergyState({ balance: 3, canStartFull: false }),
     });
 
-    expect(fixture.nativeElement.querySelector('.simb__short-link')).toBeNull();
-    expect(text(fixture)).toContain(
-      "Vos crédits s'achètent sur psychotechtraining.com.",
-    );
+    expect(
+      fixture.nativeElement
+        .querySelector('.simb__short-link')
+        ?.getAttribute('href'),
+    ).toBe('/credits');
+    expect(text(fixture)).not.toContain('psychotechtraining.com');
   });
 });

@@ -655,29 +655,25 @@
                   >Sans date d'expiration</span
                 >
               </span>
-              @if (!isPlayApp()) {
-                <ui-button
-                  class="profil__credits-cta"
-                  color="brand"
-                  (click)="goToCredits()"
-                >
-                  Recharger
-                </ui-button>
-              }
+              <ui-button
+                class="profil__credits-cta"
+                color="brand"
+                (click)="goToCredits()"
+              >
+                Recharger
+              </ui-button>
             </div>
-            @if (isPlayApp()) {
-              <div class="profil__card-foot">{{ playPurchaseNotice }}</div>
-            } @else {
-              <div class="profil__credits-recharge md:hidden">
-                <ui-button
-                  color="brand"
-                  appearance="outlined"
-                  [block]="true"
-                  (click)="goToCredits()"
-                >
-                  Recharger
-                </ui-button>
-              </div>
+            <div class="profil__credits-recharge md:hidden">
+              <ui-button
+                color="brand"
+                appearance="outlined"
+                [block]="true"
+                (click)="goToCredits()"
+              >
+                Recharger
+              </ui-button>
+            </div>
+            @if (!isPlayApp()) {
               <div class="profil__receipts-head flex items-center">
                 <span class="profil__receipts-title flex-1">Reçus</span>
                 <span class="profil__receipts-note"

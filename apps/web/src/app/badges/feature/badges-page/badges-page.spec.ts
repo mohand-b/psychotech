@@ -540,9 +540,13 @@ describe('BadgesPage - app Play', () => {
   beforeEach(startPlayAppSession);
   afterEach(endPlayAppSession);
 
-  it('drops the footnote pointing to the credit packs', async () => {
+  it('keeps the footnote pointing to the in-app credit packs', async () => {
     const fixture = await setup(catalogStatuses());
 
-    expect(fixture.nativeElement.querySelector('.badges__footnote')).toBeNull();
+    expect(
+      fixture.nativeElement
+        .querySelector('.badges__footnote-link')
+        ?.getAttribute('href'),
+    ).toBe('/credits');
   });
 });

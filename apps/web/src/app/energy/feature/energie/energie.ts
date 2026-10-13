@@ -25,10 +25,7 @@ import {
 import { EMPTY, catchError, concatMap, of, take, takeWhile, timer } from 'rxjs';
 import { sumEarnedBadgeRewards } from '../../../badges/data-access/badge-display';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
-import {
-  PLAY_APP_PURCHASE_NOTICE,
-  PlayAppContext,
-} from '../../../core/play-app/play-app-context';
+import { PlayAppContext } from '../../../core/play-app/play-app-context';
 import { BillingFacade } from '../../data-access/billing.facade';
 import { EnergyFacade } from '../../data-access/energy.facade';
 import { AxisIcon } from '../../../shared/ui/axis-icon/axis-icon';
@@ -42,7 +39,18 @@ import { readInputValue } from '../../../shared/util/input-value';
 
 type EnergieView = 'packs' | 'checkout' | 'confirmation';
 
-type ConfirmationState = 'pending' | 'credited' | 'incomplete' | 'error';
+type ConfirmationState =
+  | 'pending'
+  | 'credited'
+  | 'awaiting-google-play'
+  | 'incomplete'
+  | 'error';
+
+type GooglePlayBillingState = 'loading' | 'ready' | 'unavailable';
+
+function isPaymentCanceled(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'AbortError';
+}
 
 function buildBalanceLabel(balance: number): string {
   if (balance === 0) {
@@ -89,7 +97,6 @@ export class Energie implements OnDestroy {
   protected readonly readValue = readInputValue;
 
   protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
-  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
 
   protected readonly sessionCosts = SESSION_CREDIT_COSTS;
   protected readonly packs = ENERGY_PACK_OFFERS;
@@ -113,6 +120,29 @@ export class Energie implements OnDestroy {
     Math.round((this.earnedReward() / BADGE_TOTAL_REWARD) * 100),
   );
 
+  protected readonly googlePlayBillingState =
+    signal<GooglePlayBillingState>('loading');
+  private readonly googlePlayPrices = signal<ReadonlyMap<EnergyPackId, string>>(
+    new Map(),
+  );
+  private readonly googlePlayPurchasing = signal(false);
+
+  protected readonly rechargeAvailable = computed(
+    () => !this.isPlayApp() || this.googlePlayBillingState() === 'ready',
+  );
+
+  protected readonly packPriceLabels = computed(
+    () =>
+      new Map(
+        ENERGY_PACK_OFFERS.map((pack) => [
+          pack.id,
+          this.isPlayApp()
+            ? (this.googlePlayPrices().get(pack.id) ?? pack.priceLabel)
+            : pack.priceLabel,
+        ]),
+      ),
+  );
+
   protected readonly view = signal<EnergieView>('packs');
   protected readonly checkoutLoading = signal(false);
   protected readonly checkoutError = signal(false);
@@ -129,6 +159,9 @@ export class Energie implements OnDestroy {
         replaceUrl: true,
       });
       this.pollCheckoutStatus(sessionId);
+    }
+    if (this.isPlayApp()) {
+      void this.prepareGooglePlayBilling();
     }
   }
 
@@ -217,7 +250,60 @@ export class Energie implements OnDestroy {
     }
   }
 
-  protected async openPackCheckout(packId: EnergyPackId): Promise<void> {
+  protected async rechargePack(packId: EnergyPackId): Promise<void> {
+    if (this.isPlayApp()) {
+      await this.purchasePackWithGooglePlay(packId);
+      return;
+    }
+    await this.openPackCheckout(packId);
+  }
+
+  private async prepareGooglePlayBilling(): Promise<void> {
+    const prices = await this.billingFacade
+      .fetchGooglePlayPackPrices()
+      .catch(() => null);
+    if (!prices || prices.size === 0) {
+      this.googlePlayBillingState.set('unavailable');
+      return;
+    }
+    this.googlePlayPrices.set(prices);
+    this.googlePlayBillingState.set('ready');
+    const recovered = await this.billingFacade
+      .recoverGooglePlayPurchases()
+      .catch(() => false);
+    if (recovered) {
+      this.energyFacade.reloadEnergyBalance();
+    }
+  }
+
+  private async purchasePackWithGooglePlay(
+    packId: EnergyPackId,
+  ): Promise<void> {
+    if (this.googlePlayPurchasing()) {
+      return;
+    }
+    this.googlePlayPurchasing.set(true);
+    try {
+      const status =
+        await this.billingFacade.purchasePackWithGooglePlay(packId);
+      this.view.set('confirmation');
+      if (status === 'credited') {
+        this.confirmation.set('credited');
+        this.energyFacade.reloadEnergyBalance();
+      } else {
+        this.confirmation.set('awaiting-google-play');
+      }
+    } catch (error) {
+      if (!isPaymentCanceled(error)) {
+        this.view.set('confirmation');
+        this.confirmation.set('error');
+      }
+    } finally {
+      this.googlePlayPurchasing.set(false);
+    }
+  }
+
+  private async openPackCheckout(packId: EnergyPackId): Promise<void> {
     if (this.checkoutLoading()) {
       return;
     }

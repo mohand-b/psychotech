@@ -416,16 +416,16 @@ describe('AxisStart - app Play', () => {
   beforeEach(startPlayAppSession);
   afterEach(endPlayAppSession);
 
-  it('replaces the recharge link by where credits are bought', async () => {
+  it('keeps the recharge link to the in-app credit packs', async () => {
     const result = await setup('logique', false, {
       energyState: buildEnergyState({ balance: 0, canStartAxis: false }),
     });
 
     expect(
-      result.element.querySelector('.axis-start__recharge-link'),
-    ).toBeNull();
-    expect(result.element.textContent).toContain(
-      "Vos crédits s'achètent sur psychotechtraining.com.",
-    );
+      result.element
+        .querySelector('.axis-start__recharge-link')
+        ?.getAttribute('href'),
+    ).toBe('/credits');
+    expect(result.element.textContent).not.toContain('psychotechtraining.com');
   });
 });

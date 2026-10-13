@@ -371,18 +371,17 @@ describe('Profile - app Play', () => {
   beforeEach(startPlayAppSession);
   afterEach(endPlayAppSession);
 
-  it('keeps the balance but shows neither receipt, price nor recharge button', async () => {
+  it('keeps the balance and the recharge button but hides the website receipts', async () => {
     const { fixture } = await setup();
     clickButton(fixture, 'Crédits');
     const text = element(fixture).textContent ?? '';
 
     expect(text).toContain('crédits disponibles');
-    expect(text).toContain(
-      "Vos crédits s'achètent sur psychotechtraining.com.",
-    );
+    expect(text).toContain('Recharger');
     expect(text).not.toContain('Crédits et reçus');
     expect(text).not.toContain('7,90 €');
-    expect(text).not.toContain('Recharger');
+    expect(text).not.toContain('Stripe');
+    expect(text).not.toContain('psychotechtraining.com');
     expect(element(fixture).querySelector('.profil__receipt')).toBeNull();
   });
 });

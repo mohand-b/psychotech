@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import {
   BillingConfigDto,
   EnergyPackId,
+  GooglePlayPurchaseRequestDto,
+  GooglePlayPurchaseResultDto,
   PackCheckoutRequestDto,
   PackCheckoutSessionDto,
   PackCheckoutStatusDto,
@@ -37,6 +39,15 @@ export class BillingApi {
   fetchPurchases(): Observable<PackPurchaseDto[]> {
     return this.http.get<PackPurchaseDto[]>(
       `${this.baseUrl}/billing/purchases`,
+    );
+  }
+
+  creditGooglePlayPurchase(
+    request: GooglePlayPurchaseRequestDto,
+  ): Observable<GooglePlayPurchaseResultDto> {
+    return this.http.post<GooglePlayPurchaseResultDto>(
+      `${this.baseUrl}/billing/google-play/purchases`,
+      request,
     );
   }
 }

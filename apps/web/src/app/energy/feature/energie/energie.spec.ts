@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import {
   ActivatedRoute,
   convertToParamMap,
@@ -10,7 +11,9 @@ import {
   BADGE_TOTAL_REWARD,
   BadgeId,
   BadgeStatusDto,
+  EnergyPackId,
   EnergyStateDto,
+  GooglePlayPurchaseStatus,
 } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { BadgesFacade } from '../../../badges/data-access/badges.facade';
@@ -38,6 +41,18 @@ function earnedStatus(badgeId: BadgeId): BadgeStatusDto {
   };
 }
 
+const GOOGLE_PLAY_PRICES: ReadonlyMap<EnergyPackId, string> = new Map([
+  [EnergyPackId.DISCOVERY, '3,49 €'],
+  [EnergyPackId.PRE_EXAM, '8,99 €'],
+  [EnergyPackId.FULL_PREP, '16,99 €'],
+]);
+
+let googlePlayPrices: ReadonlyMap<EnergyPackId, string> | null =
+  GOOGLE_PLAY_PRICES;
+let googlePlayPurchase: () => Promise<GooglePlayPurchaseStatus>;
+const purchasePackWithGooglePlay = vi.fn(() => googlePlayPurchase());
+const reloadEnergyBalance = vi.fn();
+
 const EARNED_REWARD = EARNED_BADGES.reduce(
   (sum, badgeId) => sum + (BADGE_BY_ID.get(badgeId)?.energyReward ?? 0),
   0,
@@ -54,7 +69,7 @@ async function setup(sessionId: string | null = null) {
         useValue: {
           state: () => energyState(12),
           loadEnergyBalance: () => of(energyState(12)),
-          reloadEnergyBalance: () => undefined,
+          reloadEnergyBalance,
         },
       },
       {
@@ -70,6 +85,9 @@ async function setup(sessionId: string | null = null) {
           createPackCheckout: () => Promise.reject(new Error('not mocked')),
           fetchCheckoutStatus: () =>
             of({ status: 'complete' as const, credited: true }),
+          fetchGooglePlayPackPrices: () => Promise.resolve(googlePlayPrices),
+          recoverGooglePlayPurchases: () => Promise.resolve(false),
+          purchasePackWithGooglePlay,
         },
       },
       {
@@ -156,22 +174,92 @@ describe('Energie', () => {
 });
 
 describe('Energie - app Play', () => {
-  beforeEach(startPlayAppSession);
+  beforeEach(() => {
+    startPlayAppSession();
+    googlePlayPrices = GOOGLE_PLAY_PRICES;
+    googlePlayPurchase = () => Promise.resolve('credited');
+    purchasePackWithGooglePlay.mockClear();
+    reloadEnergyBalance.mockClear();
+  });
   afterEach(endPlayAppSession);
 
-  it('keeps the balance, the badges and the gift code but shows no pack nor price', async () => {
+  async function setupWithGooglePlay() {
     const fixture = await setup();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('sells the three packs at their Google Play prices', async () => {
+    const fixture = await setupWithGooglePlay();
+    const text = fixture.nativeElement.textContent ?? '';
+
+    expect(
+      fixture.nativeElement.querySelectorAll('.energie__pack'),
+    ).toHaveLength(3);
+    expect(text).toContain('3,49 €');
+    expect(text).toContain('16,99 €');
+    expect(text).not.toContain('psychotechtraining.com');
+  });
+
+  it('pays a pack through Google Play and confirms the new credits', async () => {
+    const fixture = await setupWithGooglePlay();
+
+    fixture.debugElement
+      .queryAll(By.css('.energie__pack-cta'))[0]
+      .triggerEventHandler('click');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(purchasePackWithGooglePlay).toHaveBeenCalledWith(
+      EnergyPackId.DISCOVERY,
+    );
+    expect(reloadEnergyBalance).toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Crédits ajoutés');
+  });
+
+  it('waits for Google Play when the payment is still pending', async () => {
+    googlePlayPurchase = () => Promise.resolve('pending');
+    const fixture = await setupWithGooglePlay();
+
+    fixture.debugElement
+      .queryAll(By.css('.energie__pack-cta'))[0]
+      .triggerEventHandler('click');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Paiement en attente');
+    expect(reloadEnergyBalance).not.toHaveBeenCalled();
+  });
+
+  it('stays on the packs when the Google Play payment is canceled', async () => {
+    googlePlayPurchase = () =>
+      Promise.reject(new DOMException('canceled', 'AbortError'));
+    const fixture = await setupWithGooglePlay();
+
+    fixture.debugElement
+      .queryAll(By.css('.energie__pack-cta'))[0]
+      .triggerEventHandler('click');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelectorAll('.energie__pack'),
+    ).toHaveLength(3);
+    expect(fixture.nativeElement.textContent).not.toContain(
+      'Confirmation en attente',
+    );
+  });
+
+  it('explains that Chrome is needed when Google Play billing is unavailable', async () => {
+    googlePlayPrices = null;
+    const fixture = await setupWithGooglePlay();
     const text = fixture.nativeElement.textContent ?? '';
 
     expect(
       fixture.nativeElement.querySelectorAll('.energie__pack'),
     ).toHaveLength(0);
-    expect(text).not.toContain('€');
-    expect(text).not.toContain('Rechargez');
-    expect(text).toContain(
-      "Vos crédits s'achètent sur psychotechtraining.com.",
-    );
-    expect(text).toContain('crédits disponibles');
+    expect(text).toContain('nécessite Google Chrome');
     expect(text).toContain('Un code cadeau');
   });
 });

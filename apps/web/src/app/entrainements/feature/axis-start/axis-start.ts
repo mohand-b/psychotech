@@ -40,10 +40,6 @@ import {
   buildTargetedAxisRoute,
   buildTutorialAxisRoute,
 } from '../../../shared/util/session-links';
-import {
-  PLAY_APP_PURCHASE_NOTICE,
-  PlayAppContext,
-} from '../../../core/play-app/play-app-context';
 
 @Component({
   selector: 'app-axis-start',
@@ -67,8 +63,6 @@ export class AxisStart {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly isPlayApp = inject(PlayAppContext).isPlayApp;
-  protected readonly playPurchaseNotice = PLAY_APP_PURCHASE_NOTICE;
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly starting = signal(false);

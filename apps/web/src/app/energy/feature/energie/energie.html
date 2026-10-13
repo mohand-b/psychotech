@@ -2,13 +2,8 @@
   <header class="energie__head flex flex-col">
     <h1 class="t-page-title">Vos crédits</h1>
     <p class="energie__intro">
-      @if (isPlayApp()) {
-        {{ playPurchaseNotice }} Vous pouvez aussi en gagner avec les badges ou
-        un code cadeau. Ils ne sont débités que lorsque vous lancez une séance.
-      } @else {
-        Rechargez en une fois, ou gagnez des crédits avec les badges. Ils ne
-        sont débités que lorsque vous lancez une séance.
-      }
+      Rechargez en une fois, ou gagnez des crédits avec les badges. Ils ne sont
+      débités que lorsque vous lancez une séance.
     </p>
   </header>
 
@@ -42,7 +37,19 @@
     </span>
   </section>
 
-  @if (view() === 'packs' && !isPlayApp()) {
+  @if (
+    view() === 'packs' &&
+    isPlayApp() &&
+    googlePlayBillingState() === 'unavailable'
+  ) {
+    <p class="energie__confirmation-text">
+      L'achat de crédits dans l'application nécessite Google Chrome comme
+      navigateur par défaut. Vous pouvez aussi en gagner avec les badges ou un
+      code cadeau.
+    </p>
+  }
+
+  @if (view() === 'packs' && rechargeAvailable()) {
     <section class="energie__recharge flex flex-col">
       <div class="energie__recharge-head flex">
         <span class="energie__recharge-title">Recharger</span>
@@ -101,13 +108,13 @@
                 color="brand"
                 [block]="true"
                 [appearance]="pack.featured ? 'solid' : 'outlined'"
-                (click)="openPackCheckout(pack.id)"
+                (click)="rechargePack(pack.id)"
               >
                 <span class="energie__pack-cta-content flex items-center">
                   Recharger
                   <span class="energie__pack-cta-divider"></span>
                   <span class="energie__pack-cta-price t-mono">{{
-                    pack.priceLabel
+                    packPriceLabels().get(pack.id)
                   }}</span>
                 </span>
               </ui-button>
@@ -152,6 +159,16 @@
           >
           <ui-button color="brand" size="md" routerLink="/entrainements">
             Reprendre l'entraînement
+          </ui-button>
+        }
+        @case ('awaiting-google-play') {
+          <span class="energie__confirmation-title">Paiement en attente</span>
+          <span class="energie__confirmation-text"
+            >Vos crédits seront ajoutés dès que Google Play aura confirmé le
+            paiement.</span
+          >
+          <ui-button color="brand" size="md" (click)="returnToPacks()">
+            Revenir aux packs
           </ui-button>
         }
         @case ('incomplete') {

@@ -30,13 +30,9 @@
   @if (energyLocked()) {
     <p class="axis-start__note axis-start__note--short">
       Vous n'avez plus assez de crédits.
-      @if (isPlayApp()) {
-        {{ playPurchaseNotice }}
-      } @else {
-        <a class="axis-start__recharge-link" routerLink="/credits"
-          >Recharger des crédits</a
-        >
-      }
+      <a class="axis-start__recharge-link" routerLink="/credits"
+        >Recharger des crédits</a
+      >
     </p>
   }
   @if (showGuideNote()) {

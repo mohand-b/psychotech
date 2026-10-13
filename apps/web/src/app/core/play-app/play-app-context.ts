@@ -1,16 +1,14 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, Signal, inject, signal } from '@angular/core';
 import { CanMatchFn, Router, UrlTree } from '@angular/router';
+import { GOOGLE_PLAY_PACKAGE_NAME } from '@psychotech/shared';
 
-export const PLAY_APP_PACKAGE_NAME = 'com.psychotechtraining.app';
 export const PLAY_APP_SOURCE_PARAM = 'source';
 export const PLAY_APP_SOURCE = 'twa';
 export const PLAY_APP_SESSION_KEY = 'psychotech.play-app';
-export const PLAY_APP_PURCHASE_NOTICE =
-  "Vos crédits s'achètent sur psychotechtraining.com.";
 
 const PLAY_APP_HOME_ROUTE = '/dashboard';
-const PLAY_APP_REFERRER = `android-app://${PLAY_APP_PACKAGE_NAME}`;
+const PLAY_APP_REFERRER = `android-app://${GOOGLE_PLAY_PACKAGE_NAME}`;
 export const PLAY_APP_SESSION_VALUE = 'true';
 
 export function isPlayAppLaunch(search: string, referrer: string): boolean {
