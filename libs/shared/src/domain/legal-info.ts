@@ -1,8 +1,10 @@
-export const LEGAL_TERMS_VERSION = '2026-10-11';
+export const LEGAL_TERMS_VERSION = '2026-10-13';
 
-export const LEGAL_LAST_UPDATED = '11 octobre 2026';
+export const LEGAL_LAST_UPDATED = '13 octobre 2026';
 
 export const LEGAL_DOMAIN = 'psychotechtraining.com';
+
+export const LEGAL_APP_STORE_NAME = 'Google Play';
 
 export interface LegalCompanyInfo {
   legalName: string;
