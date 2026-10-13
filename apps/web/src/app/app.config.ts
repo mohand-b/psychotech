@@ -20,9 +20,11 @@ import {
 } from '@angular/common/http';
 import {
   NavigationError,
+  PreloadAllModules,
   provideRouter,
   withInMemoryScrolling,
   withNavigationErrorHandler,
+  withPreloading,
   withRouterConfig,
 } from '@angular/router';
 import { XSRF_COOKIE_NAME, XSRF_HEADER_NAME } from '@psychotech/shared';
@@ -52,6 +54,7 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withNavigationErrorHandler(reloadOnStaleChunk),
       withRouterConfig({ canceledNavigationResolution: 'computed' }),
+      withPreloading(PreloadAllModules),
       withInMemoryScrolling({
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
