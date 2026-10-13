@@ -57,7 +57,7 @@ android {
         applicationId "com.psychotechtraining.app"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 2
+        versionCode 3
         versionName "1.0.1"
 
         // The name for the application
