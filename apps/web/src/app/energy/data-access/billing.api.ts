@@ -6,6 +6,7 @@ import {
   PackCheckoutRequestDto,
   PackCheckoutSessionDto,
   PackCheckoutStatusDto,
+  PackPurchaseDto,
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
@@ -30,6 +31,12 @@ export class BillingApi {
   fetchCheckoutStatus(sessionId: string): Observable<PackCheckoutStatusDto> {
     return this.http.get<PackCheckoutStatusDto>(
       `${this.baseUrl}/billing/pack-checkout/${sessionId}`,
+    );
+  }
+
+  fetchPurchases(): Observable<PackPurchaseDto[]> {
+    return this.http.get<PackPurchaseDto[]>(
+      `${this.baseUrl}/billing/purchases`,
     );
   }
 }

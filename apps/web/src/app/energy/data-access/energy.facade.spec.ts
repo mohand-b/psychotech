@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { EnergyStateDto, UserProfileDto } from '@psychotech/shared';
 import { of } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
+import { BillingApi } from './billing.api';
 import { EnergyApi } from './energy.api';
 import { EnergyFacade } from './energy.facade';
 
@@ -27,6 +28,7 @@ describe('EnergyFacade — synchronisation avec la session utilisateur', () => {
       providers: [
         { provide: AuthFacade, useValue: { currentUser } },
         { provide: EnergyApi, useValue: { fetchEnergyBalance: stateApi } },
+        { provide: BillingApi, useValue: {} },
       ],
     });
     return TestBed.inject(EnergyFacade);

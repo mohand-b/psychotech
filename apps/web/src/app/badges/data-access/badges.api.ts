@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BadgeId, EarnedBadgeDto, GuideId } from '@psychotech/shared';
+import {
+  BadgeFeedDto,
+  BadgeId,
+  BadgeStatusDto,
+  EarnedBadgeDto,
+  GuideId,
+} from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
 
@@ -8,6 +14,14 @@ import { API_BASE_URL } from '../../core/http/api-base-url.token';
 export class BadgesApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
+
+  fetchBadgeStatuses(): Observable<BadgeStatusDto[]> {
+    return this.http.get<BadgeStatusDto[]>(`${this.baseUrl}/me/badges`);
+  }
+
+  fetchBadgeFeed(): Observable<BadgeFeedDto> {
+    return this.http.get<BadgeFeedDto>(`${this.baseUrl}/me/badges/feed`);
+  }
 
   fetchUnacknowledgedBadges(): Observable<EarnedBadgeDto[]> {
     return this.http.get<EarnedBadgeDto[]>(

@@ -10,11 +10,6 @@ import {
   RequestPasswordResetResponseDto,
   ResendVerificationResponseDto,
   ResetPasswordResponseDto,
-  SSO_FROM_QUERY_PARAM,
-  SSO_RETURN_URL_QUERY_PARAM,
-  SSO_SECTOR_QUERY_PARAM,
-  Sector,
-  SsoOrigin,
   UpdateUserProfileDto,
   UserProfileDto,
   VerifyEmailChangeResponseDto,
@@ -31,15 +26,8 @@ import {
   throwError,
   timeout,
 } from 'rxjs';
-import { API_BASE_URL } from '../../core/http/api-base-url.token';
-import { AuthApi } from './auth.api';
+import { AuthApi, GoogleStartParams } from './auth.api';
 import { AuthStore } from './auth.store';
-
-export interface GoogleStartParams {
-  from: SsoOrigin;
-  returnUrl?: string;
-  sector?: Sector;
-}
 
 const AUTH_REFRESH_TIMEOUT_MS = 20_000;
 
@@ -47,7 +35,6 @@ const AUTH_REFRESH_TIMEOUT_MS = 20_000;
 export class AuthFacade {
   private readonly api = inject(AuthApi);
   private readonly store = inject(AuthStore);
-  private readonly apiBaseUrl = inject(API_BASE_URL);
   private refresh$: Observable<void> | null = null;
 
   readonly currentUser: Signal<UserProfileDto | null> = this.store.currentUser;
@@ -170,13 +157,6 @@ export class AuthFacade {
   }
 
   buildGoogleSignInUrl(params: GoogleStartParams): string {
-    const query = new URLSearchParams({ [SSO_FROM_QUERY_PARAM]: params.from });
-    if (params.returnUrl !== undefined) {
-      query.set(SSO_RETURN_URL_QUERY_PARAM, params.returnUrl);
-    }
-    if (params.sector !== undefined) {
-      query.set(SSO_SECTOR_QUERY_PARAM, params.sector);
-    }
-    return `${this.apiBaseUrl}/auth/google/start?${query.toString()}`;
+    return this.api.buildGoogleSignInUrl(params);
   }
 }

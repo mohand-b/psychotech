@@ -1,16 +1,19 @@
-import { httpResource } from '@angular/common/http';
 import { Injectable, Signal, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { ProgressionDto } from '@psychotech/shared';
-import { API_BASE_URL } from '../../core/http/api-base-url.token';
+import { ProgressionApi } from './progression.api';
 
 @Injectable()
 export class ProgressionFacade {
-  private readonly baseUrl = inject(API_BASE_URL);
+  private readonly api = inject(ProgressionApi);
 
-  private readonly progressionResource = httpResource<ProgressionDto | null>(
-    () => `${this.baseUrl}/me/progression`,
-    { defaultValue: null },
-  );
+  private readonly progressionResource = rxResource<
+    ProgressionDto | null,
+    void
+  >({
+    stream: () => this.api.fetchProgression(),
+    defaultValue: null,
+  });
 
   readonly progression: Signal<ProgressionDto | null> =
     this.progressionResource.value;

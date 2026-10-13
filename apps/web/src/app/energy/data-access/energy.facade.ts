@@ -1,4 +1,3 @@
-import { httpResource } from '@angular/common/http';
 import {
   ErrorHandler,
   Injectable,
@@ -8,6 +7,7 @@ import {
   inject,
   untracked,
 } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import {
   EnergyStateDto,
   GiftCodeRedemptionDto,
@@ -15,17 +15,17 @@ import {
 } from '@psychotech/shared';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { AuthFacade } from '../../auth/data-access/auth.facade';
-import { API_BASE_URL } from '../../core/http/api-base-url.token';
+import { BillingApi } from './billing.api';
 import { EnergyApi } from './energy.api';
 import { EnergyStore } from './energy.store';
 
 @Injectable({ providedIn: 'root' })
 export class EnergyFacade {
   private readonly api = inject(EnergyApi);
+  private readonly billingApi = inject(BillingApi);
   private readonly store = inject(EnergyStore);
   private readonly authFacade = inject(AuthFacade);
   private readonly errorHandler = inject(ErrorHandler);
-  private readonly baseUrl = inject(API_BASE_URL);
 
   private readonly currentUserId = computed(
     () => this.authFacade.currentUser()?.id ?? null,
@@ -67,10 +67,10 @@ export class EnergyFacade {
   }
 
   fetchPurchases(): Signal<PackPurchaseDto[] | null> {
-    return httpResource<PackPurchaseDto[] | null>(
-      () => `${this.baseUrl}/billing/purchases`,
-      { defaultValue: null },
-    ).value.asReadonly();
+    return rxResource<PackPurchaseDto[] | null, void>({
+      stream: () => this.billingApi.fetchPurchases(),
+      defaultValue: null,
+    }).value.asReadonly();
   }
 
   redeemGiftCode(code: string): Observable<GiftCodeRedemptionDto> {

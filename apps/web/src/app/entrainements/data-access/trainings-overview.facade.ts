@@ -1,23 +1,22 @@
-import { httpResource } from '@angular/common/http';
 import { Injectable, Signal, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Sector, TrainingsOverviewDto } from '@psychotech/shared';
-import { API_BASE_URL } from '../../core/http/api-base-url.token';
 import { readResourceValueOr } from '../../shared/util/resource-value';
+import { TrainingsApi } from './trainings.api';
 
 @Injectable()
 export class TrainingsOverviewFacade {
-  private readonly baseUrl = inject(API_BASE_URL);
-  private readonly sector = signal<Sector | null>(null);
+  private readonly api = inject(TrainingsApi);
+  private readonly sector = signal<Sector | undefined>(undefined);
 
-  private readonly overviewResource = httpResource<TrainingsOverviewDto | null>(
-    () => {
-      const sector = this.sector();
-      return sector
-        ? `${this.baseUrl}/me/trainings/overview?sector=${sector}`
-        : undefined;
-    },
-    { defaultValue: null },
-  );
+  private readonly overviewResource = rxResource<
+    TrainingsOverviewDto | null,
+    Sector | undefined
+  >({
+    params: () => this.sector(),
+    stream: ({ params: sector }) => this.api.fetchTrainingsOverview(sector),
+    defaultValue: null,
+  });
 
   readonly overview: Signal<TrainingsOverviewDto | null> = readResourceValueOr(
     this.overviewResource,

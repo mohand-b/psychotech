@@ -13,6 +13,11 @@ import {
   ResendVerificationResponseDto,
   ResetPasswordDto,
   ResetPasswordResponseDto,
+  SSO_FROM_QUERY_PARAM,
+  SSO_RETURN_URL_QUERY_PARAM,
+  SSO_SECTOR_QUERY_PARAM,
+  Sector,
+  SsoOrigin,
   UpdateUserProfileDto,
   UserProfileDto,
   VerifyEmailChangeResponseDto,
@@ -21,6 +26,12 @@ import {
 } from '@psychotech/shared';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/http/api-base-url.token';
+
+export interface GoogleStartParams {
+  from: SsoOrigin;
+  returnUrl?: string;
+  sector?: Sector;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
@@ -123,5 +134,16 @@ export class AuthApi {
 
   deleteAccount(payload: DeleteAccountDto): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/auth/account/delete`, payload);
+  }
+
+  buildGoogleSignInUrl(params: GoogleStartParams): string {
+    const query = new URLSearchParams({ [SSO_FROM_QUERY_PARAM]: params.from });
+    if (params.returnUrl !== undefined) {
+      query.set(SSO_RETURN_URL_QUERY_PARAM, params.returnUrl);
+    }
+    if (params.sector !== undefined) {
+      query.set(SSO_SECTOR_QUERY_PARAM, params.sector);
+    }
+    return `${this.baseUrl}/auth/google/start?${query.toString()}`;
   }
 }
