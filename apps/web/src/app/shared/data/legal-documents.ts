@@ -1,6 +1,7 @@
 import {
   DELETE_ACCOUNT_CONFIRMATION,
   LEGAL_ACCOUNTING_RETENTION,
+  LEGAL_APP_STORE_NAME,
   LEGAL_COMPANY,
   LEGAL_CONNECTION_LOG_RETENTION,
   LEGAL_CONTACT,
@@ -277,7 +278,7 @@ const CONFIDENTIALITE: LegalDocument = {
             {
               label: 'Achats',
               value: {
-                text: `Packs de crédits achetés, montants, dates, reçus et identifiant client ${LEGAL_PAYMENT_PROVIDER.name}. Les coordonnées bancaires sont traitées par notre prestataire de paiement et ne transitent jamais par nos serveurs.`,
+                text: `Packs de crédits achetés, montants, dates, reçus et identifiant client ${LEGAL_PAYMENT_PROVIDER.name}, ou référence d’achat ${LEGAL_APP_STORE_NAME} pour un achat fait dans l’application Android. Les coordonnées bancaires ne transitent jamais par nos serveurs.`,
               },
             },
             {
@@ -365,6 +366,14 @@ const CONFIDENTIALITE: LegalDocument = {
             [LEGAL_HOSTING_PROVIDER.name, LEGAL_HOSTING_PROVIDER.purpose],
             [LEGAL_PAYMENT_PROVIDER.name, LEGAL_PAYMENT_PROVIDER.purpose],
             [LEGAL_DNS_PROVIDER.name, LEGAL_DNS_PROVIDER.purpose],
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: `Les achats faits dans l’application Android sont traités par ${LEGAL_APP_STORE_NAME}, selon sa propre politique de confidentialité.`,
+            },
           ],
         },
         {
@@ -572,7 +581,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: `Les achats se font sur le site, en une seule fois, par l’intermédiaire de notre prestataire de paiement ${LEGAL_PAYMENT_PROVIDER.name}. Aucun abonnement ni prélèvement récurrent n’est mis en place.`,
+              text: `Les achats se font en une seule fois. Sur le site, ils passent par notre prestataire de paiement ${LEGAL_PAYMENT_PROVIDER.name}. Dans l’application Android, ils passent par le système de paiement de ${LEGAL_APP_STORE_NAME}, aux prix qu’il affiche. Aucun abonnement ni prélèvement récurrent n’est mis en place.`,
             },
           ],
         },
@@ -580,7 +589,7 @@ const CGV: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Les crédits sont ajoutés à votre solde dès la confirmation du paiement, et un reçu vous est envoyé par e-mail. Vos reçus restent consultables depuis votre profil.',
+              text: 'Les crédits sont ajoutés à votre solde dès la confirmation du paiement, et un reçu vous est envoyé par e-mail. Les reçus des achats faits sur le site restent consultables depuis votre profil.',
             },
           ],
         },
@@ -595,6 +604,14 @@ const CGV: LegalDocument = {
           runs: [
             {
               text: `Le délai légal de rétractation est de ${LEGAL_WITHDRAWAL_DAYS} jours. Les crédits étant un contenu numérique fourni dès la confirmation du paiement, à votre demande, ce droit ne s’applique plus une fois les crédits ajoutés à votre solde, conformément à l’article L221-28 du Code de la consommation.`,
+            },
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: `Le remboursement d’un achat fait dans l’application Android relève des règles de ${LEGAL_APP_STORE_NAME}. S’il est accordé, les crédits correspondants sont retirés du solde.`,
             },
           ],
         },
