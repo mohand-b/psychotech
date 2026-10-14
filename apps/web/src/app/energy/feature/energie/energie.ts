@@ -46,7 +46,20 @@ type ConfirmationState =
   | 'incomplete'
   | 'error';
 
-type GooglePlayBillingState = 'loading' | 'ready' | 'unavailable';
+type GooglePlayBillingState =
+  | 'loading'
+  | 'ready'
+  | 'unsupported-browser'
+  | 'unavailable';
+
+const GOOGLE_PLAY_BILLING_NOTICES: Readonly<
+  Partial<Record<GooglePlayBillingState, string>>
+> = {
+  'unsupported-browser':
+    "L'achat de crédits dans l'application nécessite Google Chrome comme navigateur par défaut.",
+  unavailable:
+    "L'achat de crédits n'est pas disponible dans l'application pour le moment.",
+};
 
 function isPaymentCanceled(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'AbortError';
@@ -126,6 +139,12 @@ export class Energie implements OnDestroy {
     new Map(),
   );
   private readonly googlePlayPurchasing = signal(false);
+
+  protected readonly googlePlayBillingNotice = computed(() =>
+    this.isPlayApp()
+      ? (GOOGLE_PLAY_BILLING_NOTICES[this.googlePlayBillingState()] ?? null)
+      : null,
+  );
 
   protected readonly rechargeAvailable = computed(
     () => !this.isPlayApp() || this.googlePlayBillingState() === 'ready',
@@ -263,7 +282,11 @@ export class Energie implements OnDestroy {
       .fetchGooglePlayPackPrices()
       .catch(() => null);
     if (!prices || prices.size === 0) {
-      this.googlePlayBillingState.set('unavailable');
+      this.googlePlayBillingState.set(
+        this.billingFacade.isRunningInGoogleChrome()
+          ? 'unavailable'
+          : 'unsupported-browser',
+      );
       return;
     }
     this.googlePlayPrices.set(prices);

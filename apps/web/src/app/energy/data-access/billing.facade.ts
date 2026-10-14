@@ -36,6 +36,10 @@ export class BillingFacade {
     return this.googlePlayBilling.fetchPackPrices();
   }
 
+  isRunningInGoogleChrome(): boolean {
+    return this.googlePlayBilling.isRunningInGoogleChrome();
+  }
+
   async purchasePackWithGooglePlay(
     packId: EnergyPackId,
   ): Promise<GooglePlayPurchaseStatus> {

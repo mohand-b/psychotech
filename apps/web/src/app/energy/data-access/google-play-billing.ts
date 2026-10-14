@@ -10,6 +10,7 @@ import {
 const PRICE_LOCALE = 'fr-FR';
 const PAYMENT_TOTAL_LABEL = 'Total';
 const PAYMENT_PLACEHOLDER_AMOUNT = { currency: 'EUR', value: '0' };
+const GOOGLE_CHROME_BRAND = 'Google Chrome';
 
 interface DigitalGoodsPrice {
   currency: string;
@@ -35,6 +36,14 @@ interface DigitalGoodsWindow {
   getDigitalGoodsService?: (
     paymentMethod: string,
   ) => Promise<DigitalGoodsService>;
+}
+
+interface UserAgentBrand {
+  brand: string;
+}
+
+interface UserAgentDataNavigator {
+  userAgentData?: { brands: readonly UserAgentBrand[] };
 }
 
 interface GooglePlayPaymentDetails {
@@ -88,6 +97,16 @@ export class GooglePlayBilling {
       );
       return packId ? [{ packId, purchaseToken: purchase.purchaseToken }] : [];
     });
+  }
+
+  isRunningInGoogleChrome(): boolean {
+    const navigator: (Navigator & UserAgentDataNavigator) | undefined =
+      this.window?.navigator;
+    return (
+      navigator?.userAgentData?.brands.some(
+        (entry) => entry.brand === GOOGLE_CHROME_BRAND,
+      ) ?? false
+    );
   }
 
   async payForPack(packId: EnergyPackId): Promise<GooglePlayPackPayment> {

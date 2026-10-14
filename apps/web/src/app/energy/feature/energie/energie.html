@@ -37,15 +37,10 @@
     </span>
   </section>
 
-  @if (
-    view() === 'packs' &&
-    isPlayApp() &&
-    googlePlayBillingState() === 'unavailable'
-  ) {
+  @if (view() === 'packs' && googlePlayBillingNotice(); as notice) {
     <p class="energie__confirmation-text">
-      L'achat de crédits dans l'application nécessite Google Chrome comme
-      navigateur par défaut. Vous pouvez aussi en gagner avec les badges ou un
-      code cadeau.
+      {{ notice }} Vous pouvez aussi en gagner avec les badges ou un code
+      cadeau.
     </p>
   }
 

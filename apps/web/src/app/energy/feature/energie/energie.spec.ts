@@ -52,6 +52,7 @@ let googlePlayPrices: ReadonlyMap<EnergyPackId, string> | null =
 let googlePlayPurchase: () => Promise<GooglePlayPurchaseStatus>;
 const purchasePackWithGooglePlay = vi.fn(() => googlePlayPurchase());
 const reloadEnergyBalance = vi.fn();
+let runningInGoogleChrome = true;
 
 const EARNED_REWARD = EARNED_BADGES.reduce(
   (sum, badgeId) => sum + (BADGE_BY_ID.get(badgeId)?.energyReward ?? 0),
@@ -87,6 +88,7 @@ async function setup(sessionId: string | null = null) {
             of({ status: 'complete' as const, credited: true }),
           fetchGooglePlayPackPrices: () => Promise.resolve(googlePlayPrices),
           recoverGooglePlayPurchases: () => Promise.resolve(false),
+          isRunningInGoogleChrome: () => runningInGoogleChrome,
           purchasePackWithGooglePlay,
         },
       },
@@ -178,6 +180,7 @@ describe('Energie - app Play', () => {
     startPlayAppSession();
     googlePlayPrices = GOOGLE_PLAY_PRICES;
     googlePlayPurchase = () => Promise.resolve('credited');
+    runningInGoogleChrome = true;
     purchasePackWithGooglePlay.mockClear();
     reloadEnergyBalance.mockClear();
   });
@@ -251,8 +254,9 @@ describe('Energie - app Play', () => {
     );
   });
 
-  it('explains that Chrome is needed when Google Play billing is unavailable', async () => {
+  it('explains that Chrome is needed when the app runs in another browser', async () => {
     googlePlayPrices = null;
+    runningInGoogleChrome = false;
     const fixture = await setupWithGooglePlay();
     const text = fixture.nativeElement.textContent ?? '';
 
@@ -261,5 +265,19 @@ describe('Energie - app Play', () => {
     ).toHaveLength(0);
     expect(text).toContain('nécessite Google Chrome');
     expect(text).toContain('Un code cadeau');
+  });
+
+  it('says purchases are unavailable for now without blaming Chrome when the app runs in Chrome', async () => {
+    googlePlayPrices = null;
+    const fixture = await setupWithGooglePlay();
+    const text = fixture.nativeElement.textContent ?? '';
+
+    expect(
+      fixture.nativeElement.querySelectorAll('.energie__pack'),
+    ).toHaveLength(0);
+    expect(text).toContain(
+      "L'achat de crédits n'est pas disponible dans l'application pour le moment.",
+    );
+    expect(text).not.toContain('Google Chrome');
   });
 });
