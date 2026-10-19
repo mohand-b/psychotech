@@ -134,6 +134,7 @@ const LAYOUT = {
     size: OUTPUT_SIZE.mobile,
     device: MOBILE_DEVICE,
     directory: 'mobile',
+    motricityInMotion: true,
     screens: [
       'entrainements-cible',
       'bilan-examen-blanc',
@@ -698,8 +699,8 @@ async function captureControllerInMotion(page, controller, direction, layout) {
         const turn = (now) => {
           const elapsed = now - previous;
           previous = now;
-          manette.onLeftRotate(horizontalStep * elapsed);
-          manette.onRightRotate(verticalStep * elapsed);
+          manette.pushLeftRotation(horizontalStep * elapsed);
+          manette.pushRightRotation(verticalStep * elapsed);
           horizontal.handleAngle.update(
             (angle) => angle + horizontalStep * elapsed,
           );
@@ -875,8 +876,8 @@ async function captureMotricityInMotion(browser, storageState, layout) {
         const [horizontal, vertical] = [
           ...document.querySelectorAll('ui-crank'),
         ].map((element) => window.ng.getComponent(element));
-        play.onCrankRotate('x', deltaX);
-        play.onCrankRotate('y', deltaY);
+        play.accumulateCrankRotation('x', deltaX);
+        play.accumulateCrankRotation('y', deltaY);
         horizontal.handleAngle.update((angle) => angle + deltaX);
         vertical.handleAngle.update((angle) => angle + deltaY);
       },
