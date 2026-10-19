@@ -1,8 +1,14 @@
-export const LEGAL_TERMS_VERSION = '2026-10-13';
+export const LEGAL_TERMS_VERSION = '2026-10-20';
 
-export const LEGAL_LAST_UPDATED = '13 octobre 2026';
+export const LEGAL_LAST_UPDATED = '20 octobre 2026';
 
 export const LEGAL_DOMAIN = 'psychotechtraining.com';
+
+export const LEGAL_TERMS_OF_USE_PATH = '/cgu';
+
+export const LEGAL_ACCOUNT_DELETION_ANCHOR = 'suppression-du-compte';
+
+export const LEGAL_RETIRED_ACCOUNT_DELETION_PATH = '/suppression-du-compte';
 
 export const LEGAL_APP_STORE_NAME = 'Google Play';
 
@@ -87,7 +93,7 @@ export const LEGAL_INACTIVE_ACCOUNT_RETENTION = '3 ans, après relance';
 
 export const LEGAL_ACCOUNTING_RETENTION = '10 ans';
 
-export const LEGAL_CONNECTION_LOG_RETENTION = '12 mois';
+export const LEGAL_CONNECTION_LOG_RETENTION = '12 mois au maximum';
 
 export const LEGAL_SUPPORT_MESSAGE_RETENTION = '3 ans à compter de leur envoi';
 
