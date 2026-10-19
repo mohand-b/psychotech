@@ -8,7 +8,7 @@ import {
 import { EvolutionPointDto } from '@psychotech/shared';
 import { resolveFullSessionVerdictColor } from '../../../shared/ui/verdict-appearance';
 import { formatNumericDayMonth } from '../../../shared/util/format-day-month-year';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import { countDaysSince } from '../../../shared/util/format-session-date';
 
 const VIEW_WIDTH = 460;
@@ -285,7 +285,7 @@ export class EvolutionChart {
         point.isEliminated,
       ),
       last: index === points.length - 1,
-      title: `${formatFrenchDecimal(point.globalScore)} · ouvrir le bilan`,
+      title: `${formatFrenchNumber(point.globalScore)} · ouvrir le bilan`,
     }));
   });
 
@@ -294,7 +294,7 @@ export class EvolutionChart {
     const last = points[points.length - 1];
     return last
       ? {
-          label: formatFrenchDecimal(last.globalScore),
+          label: formatFrenchNumber(last.globalScore),
           yRatio: this.computeScoreY(last.globalScore) / VIEW_HEIGHT,
         }
       : null;

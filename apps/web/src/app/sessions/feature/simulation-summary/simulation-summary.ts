@@ -54,7 +54,10 @@ import {
 } from '../../../shared/ui/axis-radar/axis-radar';
 import { SimulationAxisDetail } from '../../ui/simulation-axis-detail/simulation-axis-detail';
 import { ThresholdGauge } from '../../ui/threshold-gauge/threshold-gauge';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import {
+  formatFrenchNumber,
+  formatFrenchNumberWithPrecisionOf,
+} from '../../../shared/util/format-number';
 import { formatTimeOfDay } from '../../../shared/util/format-session-date';
 import { formatSessionDate } from '../sessions/session-history-view';
 import {
@@ -184,7 +187,12 @@ export class SimulationSummary {
 
   protected readonly scoreLabel = computed(() => {
     const summary = this.summary();
-    return summary ? formatFrenchDecimal(this.reveal.value()) : '';
+    return summary
+      ? formatFrenchNumberWithPrecisionOf(
+          this.reveal.value(),
+          summary.globalScore,
+        )
+      : '';
   });
 
   protected readonly stamp = computed(() => {
@@ -206,8 +214,8 @@ export class SimulationSummary {
     }
     const above = summary.admissibilityGap >= 0;
     const label = above
-      ? `+${formatFrenchDecimal(summary.admissibilityGap)} au-dessus`
-      : `${formatFrenchDecimal(summary.admissibilityGap)} en dessous`;
+      ? `+${formatFrenchNumber(summary.admissibilityGap)} au-dessus`
+      : `${formatFrenchNumber(summary.admissibilityGap)} en dessous`;
     return { above, label };
   });
 

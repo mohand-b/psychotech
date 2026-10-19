@@ -49,7 +49,7 @@ import {
   GUIDE_LOGIC_RULES_PATH,
   GUIDE_PATH,
 } from '../../../shared/util/guide-anchors';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import { TrainingsOverviewFacade } from '../../data-access/trainings-overview.facade';
 import {
   AXIS_OVERVIEW_COPY,
@@ -230,7 +230,7 @@ export class Entrainements {
     simulation: TrainingsLastSimulationDto,
   ): LastSimulationView {
     return {
-      scoreLabel: formatFrenchDecimal(simulation.globalScore),
+      scoreLabel: formatFrenchNumber(simulation.globalScore),
       stamp: buildSimulationStamp(
         simulation.globalScore,
         simulation.sectorThreshold,

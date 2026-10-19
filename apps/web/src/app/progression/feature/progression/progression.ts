@@ -43,7 +43,7 @@ import {
   formatNumericDate,
   formatNumericDayMonth,
 } from '../../../shared/util/format-day-month-year';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import { countDaysSince } from '../../../shared/util/format-session-date';
 import {
   buildSimulationResultRoute,
@@ -177,7 +177,7 @@ export class Progression {
     const last = evolution[evolution.length - 1];
     return last
       ? {
-          scoreLabel: formatFrenchDecimal(last.globalScore),
+          scoreLabel: formatFrenchNumber(last.globalScore),
           dayLabel: formatRelativeDay(last.date),
         }
       : null;
@@ -187,7 +187,7 @@ export class Progression {
     const stats = this.progression()?.stats;
     return stats?.bestGlobalScore != null
       ? {
-          scoreLabel: formatFrenchDecimal(stats.bestGlobalScore),
+          scoreLabel: formatFrenchNumber(stats.bestGlobalScore),
           dateLabel: stats.bestGlobalScoreAt
             ? formatNumericDayMonth(stats.bestGlobalScoreAt)
             : null,
@@ -209,10 +209,10 @@ export class Progression {
     }
     const delta = roundToTenth(last.globalScore - stats.firstGlobalScore);
     return {
-      deltaLabel: `${delta >= 0 ? '+' : '−'}${formatFrenchDecimal(Math.abs(delta))}`,
+      deltaLabel: `${delta >= 0 ? '+' : '−'}${formatFrenchNumber(Math.abs(delta))}`,
       positive: delta >= 0,
-      fromLabel: formatFrenchDecimal(stats.firstGlobalScore),
-      toLabel: formatFrenchDecimal(last.globalScore),
+      fromLabel: formatFrenchNumber(stats.firstGlobalScore),
+      toLabel: formatFrenchNumber(last.globalScore),
     };
   });
 

@@ -18,6 +18,13 @@ describe('formatSignedGap', () => {
     );
   });
 
+  it('drops the decimal of a whole gap', () => {
+    expect(formatSignedGap({ globalScore: 90, sectorThreshold: 70 })).toEqual({
+      label: '+20',
+      above: true,
+    });
+  });
+
   it('signs a score under the threshold as negative', () => {
     expect(formatSignedGap({ globalScore: 53.8, sectorThreshold: 70 })).toEqual(
       {

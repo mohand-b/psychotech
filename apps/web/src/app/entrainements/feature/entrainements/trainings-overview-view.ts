@@ -1,6 +1,6 @@
 import { AxisType, TrainingsLastSimulationDto } from '@psychotech/shared';
 import { formatNumericDayMonth } from '../../../shared/util/format-day-month-year';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import {
   DAY_MS,
   formatTimeOfDay,
@@ -51,7 +51,7 @@ export function formatSignedGap(
   const gap = simulation.globalScore - simulation.sectorThreshold;
   const above = gap >= 0;
   return {
-    label: `${above ? '+' : '-'}${formatFrenchDecimal(Math.abs(gap))}`,
+    label: `${above ? '+' : '-'}${formatFrenchNumber(Math.abs(gap))}`,
     above,
   };
 }

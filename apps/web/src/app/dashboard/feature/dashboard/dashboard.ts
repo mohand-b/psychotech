@@ -53,7 +53,7 @@ import { StampBadge } from '../../../shared/ui/stamp-badge/stamp-badge';
 import { BadgeFeedBanner } from '../badge-feed-banner/badge-feed-banner';
 import { Clock } from '../../../shared/util/clock';
 import { ThresholdBar } from '../../../shared/ui/threshold-bar/threshold-bar';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import { formatSessionDate } from '../../../shared/util/format-session-date';
 import {
   buildSimulationResultRoute,
@@ -293,10 +293,10 @@ export class Dashboard {
     const delta =
       Math.round((simulation.globalScore - simulation.sectorThreshold) * 10) /
       10;
-    const deltaValue = formatFrenchDecimal(Math.abs(delta));
+    const deltaValue = formatFrenchNumber(Math.abs(delta));
     return {
       sessionId: simulation.sessionId,
-      scoreLabel: formatFrenchDecimal(simulation.globalScore),
+      scoreLabel: formatFrenchNumber(simulation.globalScore),
       stamp: buildSimulationStamp(
         simulation.globalScore,
         simulation.sectorThreshold,

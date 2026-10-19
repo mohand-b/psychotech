@@ -10,7 +10,7 @@ import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
 import { SIMULATION_VERDICT_PRESENTATION } from '../../../shared/ui/simulation-verdict-presentation';
 import { SECTOR_PRESENTATION } from '../../../shared/ui/sector-presentation';
 import { resolveVerdictAppearance } from '../../../shared/ui/verdict-appearance';
-import { formatFrenchDecimal } from '../../../shared/util/format-number';
+import { formatFrenchNumber } from '../../../shared/util/format-number';
 import {
   DAY_MS,
   capitalizeFirstLetter,
@@ -91,7 +91,7 @@ export function formatSessionScore(item: SessionHistoryItemDto): string | null {
     return null;
   }
   if (item.mode === SessionMode.FULL) {
-    return formatFrenchDecimal(item.score);
+    return formatFrenchNumber(item.score);
   }
   return `${Math.round(item.score)}`;
 }
