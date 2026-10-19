@@ -45,6 +45,7 @@ const AXIS_PRIORITY_LABELS: Record<RailwayPlayableAxis, string> = {
 };
 
 const COMFORTABLE_MARGIN = 10;
+const PLURAL_POINTS_FROM = 2;
 const PRIORITY_LABEL_FALLBACK = 'Entraîner cet axe en priorité';
 
 const FAMILY_TRANSVERSAL_LABELS: Record<AxisFindingFamily, string> = {
@@ -63,7 +64,14 @@ function mono(value: string): AppreciationSegment {
 }
 
 function frenchDecimal(value: number): string {
-  return roundToTenth(value).toFixed(1).replace('.', ',');
+  const rounded = roundToTenth(value);
+  return Number.isInteger(rounded)
+    ? `${rounded}`
+    : rounded.toFixed(1).replace('.', ',');
+}
+
+function pointsUnit(value: number): string {
+  return roundToTenth(value) >= PLURAL_POINTS_FROM ? 'points' : 'point';
 }
 
 function labelOf(axis: AxisType): string {
@@ -84,8 +92,7 @@ export function buildSimulationAppreciation(
   findingsByAxis: AxisFindingsEntry[] = [],
 ): SimulationAppreciationDto {
   const eliminatoryAxes = axes.filter(
-    (entry) =>
-      entry.isCritical && entry.score < context.eliminatoryThreshold,
+    (entry) => entry.isCritical && entry.score < context.eliminatoryThreshold,
   );
   const detail = buildDetail(context, axes, selection, eliminatoryAxes);
   const transversal = buildTransversal(findingsByAxis);
@@ -99,9 +106,7 @@ export function buildSimulationAppreciation(
   };
 }
 
-function buildTransversal(
-  findingsByAxis: AxisFindingsEntry[],
-): string | null {
+function buildTransversal(findingsByAxis: AxisFindingsEntry[]): string | null {
   const [family] = crossAxisFindingFamilies(findingsByAxis);
   if (!family) {
     return null;
@@ -148,9 +153,7 @@ function buildLead(
     segments.push(
       text(' contre '),
       mono(`${context.eliminatoryThreshold}`),
-      text(
-        ` requis) ${plural ? 'rendent' : 'rend'} l’avis défavorable.`,
-      ),
+      text(` requis) ${plural ? 'rendent' : 'rend'} l’avis défavorable.`),
     );
     return segments;
   }
@@ -162,13 +165,13 @@ function buildLead(
     return [
       text(`Votre score global dépasse le seuil ${context.sectorLabel} de `),
       mono(frenchDecimal(gap)),
-      text(` points : avis favorable, ${margin}.`),
+      text(` ${pointsUnit(gap)} : avis favorable, ${margin}.`),
     ];
   }
   return [
     text(`Votre score global est sous le seuil ${context.sectorLabel} de `),
     mono(frenchDecimal(Math.abs(gap))),
-    text(' points : avis défavorable sur cette session.'),
+    text(` ${pointsUnit(Math.abs(gap))} : avis défavorable sur cette session.`),
   ];
 }
 
@@ -182,9 +185,7 @@ function buildDetail(
   const strengths = selection.strengths;
   const eliminated = context.isEliminated && eliminatoryAxes.length > 0;
   if (strengths.length > 0) {
-    segments.push(
-      text(eliminated ? 'Vos fondations sont là : la ' : 'La '),
-    );
+    segments.push(text(eliminated ? 'Vos fondations sont là : la ' : 'La '));
     strengths.forEach((strength, index) => {
       if (index > 0) {
         segments.push(text(' et la '));

@@ -148,6 +148,26 @@ describe('buildSimulationAppreciation', () => {
     });
   });
 
+  it('drops the decimal of a whole gap and keeps a single point singular', () => {
+    const wholeGap = buildSimulationAppreciation(
+      context({ globalScore: 90 }),
+      STANDARD_AXES,
+      STANDARD_SELECTION,
+    );
+    const smallGap = buildSimulationAppreciation(
+      context({ globalScore: 68.5 }),
+      STANDARD_AXES,
+      STANDARD_SELECTION,
+    );
+
+    expect(plainText(wholeGap.lead)).toBe(
+      'Votre score global dépasse le seuil Ferroviaire de 20 points : avis favorable, avec une marge confortable.',
+    );
+    expect(plainText(smallGap.lead)).toBe(
+      'Votre score global est sous le seuil Ferroviaire de 1,5 point : avis défavorable sur cette session.',
+    );
+  });
+
   it('renders the below-threshold template', () => {
     const appreciation = buildSimulationAppreciation(
       context({ globalScore: 63.6 }),
@@ -186,7 +206,10 @@ describe('buildSimulationAppreciation', () => {
       {
         axis: AxisType.REACTIVITY,
         findings: [
-          finding('REACTIVITY_POST_ERROR_SLOWDOWN', RecommendationPriority.HIGH),
+          finding(
+            'REACTIVITY_POST_ERROR_SLOWDOWN',
+            RecommendationPriority.HIGH,
+          ),
         ],
       },
       {
