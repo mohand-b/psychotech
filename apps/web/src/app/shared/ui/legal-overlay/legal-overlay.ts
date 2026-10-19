@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   computed,
   effect,
@@ -45,6 +46,7 @@ export class LegalOverlay {
   });
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.releasePageScroll());
     effect(() => {
       const open = this.legalDocument() !== null;
       this.documentRef.body.style.overflow = open ? 'hidden' : '';
@@ -53,6 +55,10 @@ export class LegalOverlay {
       }
       queueMicrotask(() => this.focusPanelAndScrollToAnchor());
     });
+  }
+
+  private releasePageScroll(): void {
+    this.documentRef.body.style.overflow = '';
   }
 
   protected closeLegalDocumentIfOpen(): void {
