@@ -72,6 +72,18 @@ describe('Public example bilan', () => {
     expect(acknowledgeAll).not.toHaveBeenCalled();
   });
 
+  it('never links the guide, reserved to signed-in candidates, even under a low Logic score', async () => {
+    const { fixture } = await setup();
+    const cardNames = Array.from<HTMLElement>(
+      fixture.nativeElement.querySelectorAll('.bilan__next-name'),
+    ).map((name) => name.textContent?.trim());
+
+    expect(cardNames).toContain('Logique');
+    expect(
+      fixture.nativeElement.querySelector('.bilan__next-card .guide-link'),
+    ).toBeNull();
+  });
+
   it('offers signing up instead of the session actions', async () => {
     const { fixture, navigate } = await setup();
     const text: string = fixture.nativeElement.textContent ?? '';

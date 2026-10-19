@@ -427,6 +427,48 @@ describe('SimulationSummary', () => {
     expect(rows[0].querySelector('.bilan__axis-dot')).toBeNull();
   });
 
+  it('links the Logic rules in the Logic card only when the Logic score is low', async () => {
+    const base = buildSummary();
+    const logicCard = {
+      axis: AxisType.LOGIC,
+      findings: [
+        {
+          id: 'LOGIC_IMPULSIVITY',
+          severity: RecommendationPriority.MEDIUM,
+          finding: 'Vous répondez trop vite',
+          recommendation: 'Prenez le temps de vérifier la règle',
+        },
+      ],
+    };
+    const summaryWithLogicScore = (score: number): SimulationSummaryDto => ({
+      ...base,
+      axes: base.axes.map((entry) =>
+        entry.axis === AxisType.LOGIC ? { ...entry, score } : entry,
+      ),
+      selection: {
+        ...base.selection,
+        recommendations: [...base.selection.recommendations, logicCard],
+      },
+    });
+
+    const low = await setup(summaryWithLogicScore(62));
+    const links = low.fixture.nativeElement.querySelectorAll(
+      '.bilan__next-card .guide-link',
+    );
+    expect(links).toHaveLength(1);
+    expect((links[0] as HTMLAnchorElement).getAttribute('href')).toBe(
+      '/guide/logique',
+    );
+
+    TestBed.resetTestingModule();
+    const passing = await setup(summaryWithLogicScore(75));
+    expect(
+      passing.fixture.nativeElement.querySelector(
+        '.bilan__next-card .guide-link',
+      ),
+    ).toBeNull();
+  });
+
   it('features the first card and renders every cta as an axis-tinted text button', async () => {
     const { fixture } = await setup(buildSummary());
     const cards = fixture.nativeElement.querySelectorAll('.bilan__next-card');

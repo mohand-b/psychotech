@@ -41,6 +41,10 @@ import {
   TimeChart,
   TimeChartEntry,
 } from '../../../shared/ui/time-chart/time-chart';
+import {
+  resolveLogicFocusGuideAnchor,
+  resolveLowScoreGuideLink,
+} from '../../../shared/util/guide-anchors';
 import { buildTargetedCorrectionRoute } from '../../../shared/util/session-links';
 
 @Component({
@@ -106,6 +110,17 @@ export class LogicResult {
   protected readonly families = computed<LogicFamilyResultDto[]>(
     () => this.page.result()?.families ?? [],
   );
+
+  protected readonly guideLink = computed(() => {
+    const result = this.page.result();
+    return result
+      ? resolveLowScoreGuideLink(
+          result.axis,
+          result.score,
+          resolveLogicFocusGuideAnchor(result.logicFamily, this.families()),
+        )
+      : null;
+  });
 
   protected readonly familyBoundaries = computed<number[]>(() =>
     findLogicFamilyBoundaries(this.items() ?? []),

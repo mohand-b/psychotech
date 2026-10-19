@@ -303,6 +303,42 @@ describe('LogicResult (contenu v2)', () => {
   });
 });
 
+describe('LogicResult - lien vers le guide', () => {
+  function guideLink(
+    fixture: ComponentFixture<LogicResult>,
+  ): HTMLAnchorElement | null {
+    return fixture.nativeElement.querySelector(
+      'ui-result-recommendation .guide-link',
+    );
+  }
+
+  it('points a low-scored filtered session to the rules of its family', async () => {
+    const fixture = await setup(buildResult());
+
+    expect(guideLink(fixture)?.getAttribute('href')).toBe(
+      '/guide/logique#dominos',
+    );
+  });
+
+  it('points a low-scored full session to its weakest family', async () => {
+    const fixture = await setup(
+      buildResult({ logicFamily: null, families: FULL_SESSION_FAMILIES }),
+    );
+
+    expect(guideLink(fixture)?.getAttribute('href')).toBe(
+      '/guide/logique#matrices',
+    );
+  });
+
+  it('gives no guide link from the admissibility score', async () => {
+    const fixture = await setup(
+      buildResult({ score: 70, band: ScoreBand.ACCEPTABLE }),
+    );
+
+    expect(guideLink(fixture)).toBeNull();
+  });
+});
+
 describe('LogicResult - badges débloqués', () => {
   const newBadges = [
     {

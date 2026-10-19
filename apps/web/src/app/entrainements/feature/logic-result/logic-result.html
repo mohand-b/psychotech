@@ -33,10 +33,11 @@
         }
       </ui-result-panel>
     }
-    @if (recommendations().length > 0) {
+    @if (recommendations().length > 0 || guideLink()) {
       <ui-result-recommendation
         [axis]="page.axis"
         [findings]="recommendations()"
+        [guideLink]="guideLink()"
       />
     }
 

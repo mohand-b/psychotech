@@ -7,28 +7,35 @@ import {
 import { AxisFinding, AxisType } from '@psychotech/shared';
 import { Lightbulb } from 'lucide-angular';
 import { AXIS_PRESENTATION } from '../../../shared/ui/axis-presentation';
+import { GuideLink } from '../../../shared/ui/guide-link/guide-link';
 import { Icon } from '../../../shared/ui/icon/icon';
+import { GuideLinkTarget } from '../../../shared/util/guide-anchors';
 
 @Component({
   selector: 'ui-result-recommendation',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon],
+  imports: [GuideLink, Icon],
   template: `
     <aside class="reco">
       <span class="t-label">Recommandations</span>
-      <ul class="reco__list">
-        @for (finding of findings(); track finding.id) {
-          <li class="reco__item">
-            <span class="reco__marker" [style.color]="presentation().textVar">
-              <ui-icon [img]="markerIcon" [size]="14" />
-            </span>
-            <p class="reco__text">
-              {{ finding.finding }}.
-              <span class="reco__action">{{ finding.recommendation }}</span>
-            </p>
-          </li>
-        }
-      </ul>
+      @if (findings().length > 0) {
+        <ul class="reco__list">
+          @for (finding of findings(); track finding.id) {
+            <li class="reco__item">
+              <span class="reco__marker" [style.color]="presentation().textVar">
+                <ui-icon [img]="markerIcon" [size]="14" />
+              </span>
+              <p class="reco__text">
+                {{ finding.finding }}.
+                <span class="reco__action">{{ finding.recommendation }}</span>
+              </p>
+            </li>
+          }
+        </ul>
+      }
+      @if (guideLink(); as link) {
+        <ui-guide-link [link]="link" [axis]="axis()" />
+      }
     </aside>
   `,
   styles: `
@@ -87,6 +94,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 export class ResultRecommendation {
   readonly axis = input.required<AxisType>();
   readonly findings = input.required<AxisFinding[]>();
+  readonly guideLink = input<GuideLinkTarget | null>(null);
 
   protected readonly markerIcon = Lightbulb;
 

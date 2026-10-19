@@ -335,6 +335,9 @@
                     </li>
                   }
                 </ul>
+                @if (guideLinks()[recommendation.axis]; as link) {
+                  <ui-guide-link [link]="link" [axis]="recommendation.axis" />
+                }
                 <ui-button
                   class="bilan__next-cta"
                   appearance="ghost"

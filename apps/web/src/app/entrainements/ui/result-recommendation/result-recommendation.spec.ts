@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import {
   AxisFinding,
   AxisType,
@@ -75,6 +76,29 @@ describe('ResultRecommendation', () => {
     ].map((node) => (node as HTMLElement).textContent ?? '');
     expect(texts[0]).toContain('Constat majeur');
     expect(texts[1]).toContain('Constat mineur');
+  });
+
+  it('shows the guide link alone when a low score brings no finding', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ResultRecommendation],
+      providers: [provideRouter([])],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(ResultRecommendation);
+    fixture.componentRef.setInput('axis', AxisType.LOGIC);
+    fixture.componentRef.setInput('findings', []);
+    fixture.componentRef.setInput('guideLink', {
+      label: 'Revoir les règles de la Logique',
+      path: '/guide/logique',
+      fragment: 'matrices',
+    });
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector(
+      '.guide-link',
+    ) as HTMLAnchorElement;
+    expect(fixture.nativeElement.querySelector('.reco__list')).toBeNull();
+    expect(link.getAttribute('href')).toBe('/guide/logique#matrices');
+    expect(link.textContent?.trim()).toBe('Revoir les règles de la Logique');
   });
 
   it('tints the markers with the axis color token', async () => {

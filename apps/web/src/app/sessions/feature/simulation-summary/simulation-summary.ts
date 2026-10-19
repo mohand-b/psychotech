@@ -64,6 +64,11 @@ import {
   buildSimulationSessionRoute,
   buildTargetedAxisRoute,
 } from '../../../shared/util/session-links';
+import { GuideLink } from '../../../shared/ui/guide-link/guide-link';
+import {
+  GuideLinkTarget,
+  resolveLowScoreGuideLink,
+} from '../../../shared/util/guide-anchors';
 
 const RADAR_PROGRESS_RESTART_DROP = 0.5;
 
@@ -83,6 +88,7 @@ const INERT_CELEBRATION: ResultCelebration = {
     AxisRadar,
     BadgeAnnounce,
     Button,
+    GuideLink,
     Icon,
     SimulationAxisDetail,
     StampBadge,
@@ -233,6 +239,21 @@ export class SimulationSummary {
     return summary
       ? summary.axes.map(({ axis, score }) => ({ axis, score }))
       : [];
+  });
+
+  protected readonly guideLinks = computed<
+    Partial<Record<AxisType, GuideLinkTarget>>
+  >(() => {
+    const summary = this.summary();
+    if (!summary || this.isExample) {
+      return {};
+    }
+    return Object.fromEntries(
+      summary.axes.flatMap(({ axis, score }) => {
+        const link = resolveLowScoreGuideLink(axis, score);
+        return link ? [[axis, link] as const] : [];
+      }),
+    );
   });
 
   private readonly rawRadarProgress = computed(() => {
