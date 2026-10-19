@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { BadgesModule } from '../badges/badges.module';
+import { BillingModule } from '../billing/billing.module';
 import { MailModule } from '../mail/mail.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -25,7 +26,13 @@ import { RefreshSessionService } from './refresh-session.service';
 import { TokenService } from './token.service';
 
 @Module({
-  imports: [JwtModule.register({}), UsersModule, MailModule, BadgesModule],
+  imports: [
+    JwtModule.register({}),
+    UsersModule,
+    MailModule,
+    BadgesModule,
+    BillingModule,
+  ],
   controllers: [AuthController, GoogleOAuthController],
   providers: [
     AuthService,

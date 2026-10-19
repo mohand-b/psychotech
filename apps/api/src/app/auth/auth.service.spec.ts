@@ -8,6 +8,7 @@ import { User } from '@prisma/client';
 import { BadgeEvent, LEGAL_TERMS_VERSION, Sector } from '@psychotech/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadgesService } from '../badges/badges.service';
+import { BillingService } from '../billing/billing.service';
 import { UsersRepository } from '../users/users.repository';
 import { AuthRepository, GoogleSignInOutcome } from './auth.repository';
 import { AuthService } from './auth.service';
@@ -67,6 +68,8 @@ const emailVerification = { sendInitialVerification: vi.fn() };
 
 const badgesService = { evaluateWithin: vi.fn() };
 
+const billingService = { deleteStripeCustomer: vi.fn() };
+
 const mailer = { send: vi.fn() };
 
 const configService = {
@@ -84,6 +87,7 @@ const service = new AuthService(
   usersRepository as unknown as UsersRepository,
   emailVerification as unknown as EmailVerificationService,
   badgesService as unknown as BadgesService,
+  billingService as unknown as BillingService,
   mailer,
   configService,
 );
@@ -301,6 +305,25 @@ describe('AuthService.deleteAccount', () => {
 
     expect(passwordHasher.verify).not.toHaveBeenCalled();
     expect(repository.deleteUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('deletes the Stripe customer of an account that opened a checkout', async () => {
+    repository.findById.mockResolvedValue(
+      buildUser({ passwordHash: null, stripeCustomerId: 'cus_1' }),
+    );
+
+    await service.deleteAccount('user-1', undefined);
+
+    expect(repository.deleteUser).toHaveBeenCalledWith('user-1');
+    expect(billingService.deleteStripeCustomer).toHaveBeenCalledWith('cus_1');
+  });
+
+  it('leaves Stripe alone for an account without Stripe customer', async () => {
+    repository.findById.mockResolvedValue(buildUser({ passwordHash: null }));
+
+    await service.deleteAccount('user-1', undefined);
+
+    expect(billingService.deleteStripeCustomer).not.toHaveBeenCalled();
   });
 
   it('rejects an unknown account', async () => {

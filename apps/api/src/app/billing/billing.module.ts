@@ -17,5 +17,6 @@ import { stripeClientProvider } from './stripe.client';
     GooglePlayClient,
     GooglePlayBillingService,
   ],
+  exports: [BillingService],
 })
 export class BillingModule {}

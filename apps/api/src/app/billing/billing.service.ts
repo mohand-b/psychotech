@@ -186,6 +186,23 @@ export class BillingService {
     }
   }
 
+  async deleteStripeCustomer(customerId: string): Promise<void> {
+    if (!this.stripe) {
+      this.logger.warn(
+        `Stripe customer ${customerId} kept: billing is not configured`,
+      );
+      return;
+    }
+    try {
+      await this.stripe.customers.del(customerId);
+    } catch (error) {
+      this.logger.error(
+        `Could not delete Stripe customer ${customerId}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
+  }
+
   private async resolveCustomerId(
     stripe: Stripe,
     userId: string,

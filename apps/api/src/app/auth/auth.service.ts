@@ -21,6 +21,7 @@ import {
   UserProfileDto,
 } from '@psychotech/shared';
 import { BadgesService } from '../badges/badges.service';
+import { BillingService } from '../billing/billing.service';
 import { MailConfig } from '../config/mail.config';
 import { toUserProfileDto } from '../users/users.mappers';
 import { UsersRepository } from '../users/users.repository';
@@ -67,6 +68,7 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly emailVerification: EmailVerificationService,
     private readonly badgesService: BadgesService,
+    private readonly billingService: BillingService,
     @Inject(MAILER) private readonly mailer: MailerPort,
     configService: ConfigService,
   ) {
@@ -260,7 +262,10 @@ export class AuthService {
       }
     }
     await this.repository.deleteUser(userId);
-    this.logger.log(`Account deleted for user ${userId} (${user.email})`);
+    if (user.stripeCustomerId) {
+      await this.billingService.deleteStripeCustomer(user.stripeCustomerId);
+    }
+    this.logger.log(`Account deleted for user ${userId}`);
   }
 
   async logout(refreshToken: string | undefined): Promise<void> {

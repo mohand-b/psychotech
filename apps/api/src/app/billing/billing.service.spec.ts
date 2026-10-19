@@ -34,8 +34,11 @@ const energyService = { hasCreditForRef: vi.fn() };
 
 let incomingEvent: Stripe.Event;
 
+const stripeCustomers = { del: vi.fn() };
+
 const stripe = {
   webhooks: { constructEvent: vi.fn(() => incomingEvent) },
+  customers: stripeCustomers,
 } as unknown as Stripe;
 
 const configService = {
@@ -115,5 +118,23 @@ describe('BillingService.handleWebhook checkout.session.completed', () => {
 
     expect(repository.creditPackPurchaseOnce).not.toHaveBeenCalled();
     expect(repository.registerEvent).toHaveBeenCalledWith('evt_1');
+  });
+});
+
+describe('BillingService.deleteStripeCustomer', () => {
+  it('deletes the customer with its saved payment methods', async () => {
+    stripeCustomers.del.mockResolvedValue({ id: 'cus_1', deleted: true });
+
+    await service.deleteStripeCustomer('cus_1');
+
+    expect(stripeCustomers.del).toHaveBeenCalledWith('cus_1');
+  });
+
+  it('never fails the account deletion when Stripe refuses', async () => {
+    stripeCustomers.del.mockRejectedValue(new Error('No such customer'));
+
+    await expect(
+      service.deleteStripeCustomer('cus_1'),
+    ).resolves.toBeUndefined();
   });
 });
