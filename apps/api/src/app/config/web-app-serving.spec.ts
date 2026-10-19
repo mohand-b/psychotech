@@ -44,6 +44,17 @@ describe('applyWebAppServing', () => {
     rmSync(webDistPath, { recursive: true, force: true });
   });
 
+  it('redirects the retired account deletion page to its section of the terms of use', async () => {
+    for (const path of ['/suppression-du-compte', '/suppression-du-compte/']) {
+      const response = await fetch(`${baseUrl}${path}`, { redirect: 'manual' });
+
+      expect(response.status).toBe(301);
+      expect(response.headers.get('location')).toBe(
+        '/cgu#suppression-du-compte',
+      );
+    }
+  });
+
   it('serves the digital asset links of the Android app as JSON', async () => {
     const response = await fetch(`${baseUrl}/.well-known/assetlinks.json`);
 
