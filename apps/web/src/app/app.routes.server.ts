@@ -7,7 +7,6 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'confidentialite', renderMode: RenderMode.Prerender },
   { path: 'cgv', renderMode: RenderMode.Prerender },
   { path: 'cgu', renderMode: RenderMode.Prerender },
-  { path: 'suppression-du-compte', renderMode: RenderMode.Prerender },
   { path: 'exemple-de-bilan', renderMode: RenderMode.Prerender },
   { path: 'contact', renderMode: RenderMode.Prerender },
   { path: 'nouveautes', renderMode: RenderMode.Prerender },

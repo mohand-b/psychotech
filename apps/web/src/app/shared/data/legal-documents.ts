@@ -1,6 +1,7 @@
 import {
   DELETE_ACCOUNT_CONFIRMATION,
   LEGAL_ACCOUNTING_RETENTION,
+  LEGAL_ACCOUNT_DELETION_ANCHOR,
   LEGAL_APP_STORE_NAME,
   LEGAL_COMPANY,
   LEGAL_CONNECTION_LOG_RETENTION,
@@ -15,6 +16,7 @@ import {
   LEGAL_REGISTRATION,
   LEGAL_SUPPORT_MESSAGE_RETENTION,
   LEGAL_TERMS_CHANGE_NOTICE_DAYS,
+  LEGAL_TERMS_OF_USE_PATH,
   LEGAL_VAT_MENTION,
   LEGAL_WITHDRAWAL_DAYS,
   SESSION_ENERGY_COST,
@@ -27,13 +29,13 @@ export type LegalDocumentId =
   | 'mentions-legales'
   | 'confidentialite'
   | 'cgv'
-  | 'cgu'
-  | 'suppression-du-compte';
+  | 'cgu';
 
 export interface LegalRun {
   text: string;
   todo?: boolean;
   href?: string;
+  fragment?: string;
 }
 
 export type LegalBlock =
@@ -66,6 +68,24 @@ function createTodoRun(text: string): LegalRun {
 }
 
 const SITE_HOME_LINK: LegalRun = { text: SITE_NAME, href: '/' };
+
+const RETAINED_DATA_ROWS: readonly (readonly [string, string])[] = [
+  [
+    `Justificatifs de paiement des achats, enregistrés chez ${LEGAL_PAYMENT_PROVIDER.name} ou ${LEGAL_APP_STORE_NAME}`,
+    LEGAL_ACCOUNTING_RETENTION,
+  ],
+  [
+    'Messages envoyés au support, avec l’adresse e-mail utilisée',
+    LEGAL_SUPPORT_MESSAGE_RETENTION,
+  ],
+  ['Journaux techniques du service', LEGAL_CONNECTION_LOG_RETENTION],
+];
+
+const ACCOUNT_DELETION_LINK: LegalRun = {
+  text: 'Suppression du compte',
+  href: LEGAL_TERMS_OF_USE_PATH,
+  fragment: LEGAL_ACCOUNT_DELETION_ANCHOR,
+};
 
 function createValueRunOrTodo(text: string, fallback: string): LegalRun {
   return text ? { text } : createTodoRun(fallback);
@@ -296,7 +316,7 @@ const CONFIDENTIALITE: LegalDocument = {
             {
               label: 'Techniques',
               value: {
-                text: 'Journaux de connexion, adresse IP, type d’appareil et de navigateur, à des fins de sécurité.',
+                text: 'Journaux techniques du service : adresse IP, type d’appareil et de navigateur, à des fins de sécurité.',
               },
             },
           ],
@@ -399,9 +419,7 @@ const CONFIDENTIALITE: LegalDocument = {
               'Jusqu’à la suppression du compte',
             ],
             ['Compte inactif', LEGAL_INACTIVE_ACCOUNT_RETENTION],
-            ['Pièces comptables et factures', LEGAL_ACCOUNTING_RETENTION],
-            ['Messages envoyés au support', LEGAL_SUPPORT_MESSAGE_RETENTION],
-            ['Journaux de connexion', LEGAL_CONNECTION_LOG_RETENTION],
+            ...RETAINED_DATA_ROWS,
           ],
         },
       ],
@@ -422,10 +440,12 @@ const CONFIDENTIALITE: LegalDocument = {
           kind: 'text',
           runs: [
             {
-              text: 'Vous pouvez supprimer votre compte et vos données à tout moment depuis votre profil, comme l’explique la page ',
+              text: 'Vous pouvez supprimer votre compte et vos données à tout moment depuis votre profil, comme l’explique la section ',
             },
-            { text: 'Suppression du compte', href: '/suppression-du-compte' },
-            { text: ', ou en faire la demande en écrivant à ' },
+            ACCOUNT_DELETION_LINK,
+            {
+              text: ' des conditions d’utilisation, ou en faire la demande en écrivant à ',
+            },
             {
               text: LEGAL_CONTACT.privacy,
               href: `mailto:${LEGAL_CONTACT.privacy}`,
@@ -683,11 +703,11 @@ const CGV: LegalDocument = {
 
 const CGU: LegalDocument = {
   id: 'cgu',
-  path: '/cgu',
+  path: LEGAL_TERMS_OF_USE_PATH,
   tabLabel: 'Conditions d’utilisation',
   title: 'Conditions d’utilisation',
   metaDescription:
-    'Ce que vous acceptez à l’inscription : accès au compte, usage loyal, propriété des contenus et valeur des évaluations.',
+    'Ce que vous acceptez à l’inscription : accès au compte, usage loyal, propriété des contenus, valeur des évaluations et suppression du compte.',
   sections: [
     {
       anchor: 'cgu',
@@ -815,21 +835,60 @@ const CGU: LegalDocument = {
             },
           ],
         },
+      ],
+    },
+    {
+      anchor: LEGAL_ACCOUNT_DELETION_ANCHOR,
+      title: 'Suppression du compte',
+      blocks: [
         {
           kind: 'text',
           runs: [
             {
-              text: 'Vous pouvez supprimer votre compte à tout moment depuis votre profil, ou en faire la demande en écrivant à ',
+              text: `Vous pouvez supprimer à tout moment votre compte ${SITE_NAME}, sur le site comme dans l’application : connectez-vous, ouvrez votre profil, puis choisissez « Supprimer » dans l’encadré « Supprimer mon compte » de la rubrique Informations.`,
             },
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: `Saisissez le mot ${DELETE_ACCOUNT_CONFIRMATION}, ainsi que votre mot de passe si votre compte en possède un, puis validez avec « Supprimer définitivement ». La suppression est immédiate et définitive.`,
+            },
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            { text: 'Sans accès à votre compte, écrivez à ' },
             {
               text: LEGAL_CONTACT.privacy,
               href: `mailto:${LEGAL_CONTACT.privacy}`,
             },
             {
-              text: `. Une demande écrite est traitée dans un délai maximum d’${LEGAL_DATA_REQUEST_MAX_DELAY}. La suppression efface votre historique d’entraînement et vos crédits restants, comme le détaille la page `,
+              text: ` depuis l’adresse e-mail de votre compte, en demandant sa suppression. Votre demande est traitée dans un délai maximum d’${LEGAL_DATA_REQUEST_MAX_DELAY}.`,
             },
-            { text: 'Suppression du compte', href: '/suppression-du-compte' },
-            { text: '.' },
+          ],
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: 'La suppression efface votre compte et les données qui lui sont rattachées : prénom, nom, adresse e-mail, mot de passe, sessions, réponses, scores et bilans, badges, crédits restants et historique de vos achats. Seules les données suivantes sont conservées :',
+            },
+          ],
+        },
+        {
+          kind: 'grid',
+          head: ['Donnée conservée', 'Durée'],
+          rows: RETAINED_DATA_ROWS,
+        },
+        {
+          kind: 'text',
+          runs: [
+            {
+              text: 'Ces données sont conservées pour respecter des obligations légales, répondre à d’éventuelles réclamations et assurer la sécurité du service. Elles ne servent à aucune autre fin.',
+            },
           ],
         },
       ],
@@ -851,108 +910,11 @@ const CGU: LegalDocument = {
   ],
 };
 
-const SUPPRESSION_DU_COMPTE: LegalDocument = {
-  id: 'suppression-du-compte',
-  path: '/suppression-du-compte',
-  tabLabel: 'Suppression du compte',
-  title: 'Suppression du compte',
-  metaDescription: `Comment supprimer votre compte ${SITE_NAME} et vos données, depuis votre profil ou par simple demande.`,
-  sections: [
-    {
-      anchor: 'depuis-votre-profil',
-      title: 'Depuis votre profil',
-      blocks: [
-        {
-          kind: 'text',
-          runs: [
-            { text: 'Vous pouvez supprimer à tout moment votre compte ' },
-            SITE_HOME_LINK,
-            {
-              text: ', sur le site comme dans l’application : connectez-vous, ouvrez votre profil, puis choisissez « Supprimer » dans l’encadré « Supprimer mon compte », en bas de la rubrique Informations.',
-            },
-          ],
-        },
-        {
-          kind: 'text',
-          runs: [
-            {
-              text: `Confirmez en saisissant le mot ${DELETE_ACCOUNT_CONFIRMATION}, ainsi que votre mot de passe si votre compte en possède un. La suppression est immédiate et définitive.`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      anchor: 'sans-acces-au-compte',
-      title: 'Sans accès à votre compte',
-      blocks: [
-        {
-          kind: 'text',
-          runs: [
-            { text: 'Écrivez à ' },
-            {
-              text: LEGAL_CONTACT.privacy,
-              href: `mailto:${LEGAL_CONTACT.privacy}`,
-            },
-            {
-              text: ` depuis l’adresse e-mail de votre compte, en demandant sa suppression. Votre demande est traitée dans un délai maximum d’${LEGAL_DATA_REQUEST_MAX_DELAY}.`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      anchor: 'donnees-supprimees',
-      title: 'Données supprimées',
-      blocks: [
-        {
-          kind: 'text',
-          runs: [
-            {
-              text: 'La suppression efface votre compte et tout ce qui lui est rattaché : prénom, nom, adresse e-mail, mot de passe, secteur de préparation, sessions, réponses, scores et bilans, badges, crédits restants et historique de vos achats.',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      anchor: 'donnees-conservees',
-      title: 'Données conservées',
-      blocks: [
-        {
-          kind: 'grid',
-          head: ['Donnée', 'Durée'],
-          rows: [
-            [
-              'Pièces comptables et factures de vos achats',
-              LEGAL_ACCOUNTING_RETENTION,
-            ],
-            [
-              'Messages envoyés au support, détachés du compte',
-              LEGAL_SUPPORT_MESSAGE_RETENTION,
-            ],
-            ['Journaux de connexion', LEGAL_CONNECTION_LOG_RETENTION],
-          ],
-        },
-        {
-          kind: 'text',
-          runs: [
-            {
-              text: 'Ces données sont conservées pour respecter des obligations légales et assurer la sécurité du service. Elles ne servent à aucune autre fin.',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-};
-
 export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
   MENTIONS_LEGALES,
   CONFIDENTIALITE,
   CGV,
   CGU,
-  SUPPRESSION_DU_COMPTE,
 ];
 
 export function getLegalDocument(id: LegalDocumentId): LegalDocument {

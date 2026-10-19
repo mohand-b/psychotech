@@ -19,9 +19,12 @@
                       run.text
                     }}</a>
                   } @else {
-                    <a class="legal-doc__link" [routerLink]="run.href">{{
-                      run.text
-                    }}</a>
+                    <a
+                      class="legal-doc__link"
+                      [routerLink]="run.href"
+                      [fragment]="run.fragment"
+                      >{{ run.text }}</a
+                    >
                   }
                 } @else if (run.todo) {
                   <span class="legal-doc__todo">{{ run.text }}</span>
