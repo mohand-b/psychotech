@@ -16,7 +16,6 @@ const LEGAL_ROUTES = [
   '/confidentialite',
   '/cgv',
   '/cgu',
-  '/suppression-du-compte',
 ];
 
 const HOME_LINK_PATTERN = new RegExp(
