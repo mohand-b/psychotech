@@ -242,7 +242,7 @@
   .story__frame {
     --landing-panel-height: clamp(
       var(--story-frame-min-height),
-      100dvh - var(--landing-header-height) - var(--safe-top) -
+      100lvh - var(--landing-header-height) - var(--safe-top) -
         var(--story-stage-chrome) - var(--story-steps-band),
       var(--story-frame-max-height)
     );
