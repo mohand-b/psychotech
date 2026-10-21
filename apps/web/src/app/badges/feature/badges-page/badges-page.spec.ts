@@ -343,7 +343,7 @@ describe('BadgesPage', () => {
     );
     const closest = fixture.nativeElement.querySelector('.badges__closest');
     expect(closest.textContent).toContain('Mémoire · palier Bronze');
-    expect(closest.textContent).not.toContain('Tête bien pleine');
+    expect(closest.textContent).not.toContain('Archiviste');
     expect(closest.textContent).toContain(
       'Votre meilleur score 65 · plus que 5 points',
     );
