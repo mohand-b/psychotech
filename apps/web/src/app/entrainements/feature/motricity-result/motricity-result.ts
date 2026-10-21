@@ -54,8 +54,11 @@ export class MotricityResult {
   });
 
   protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const result = this.page.result();
     const metrics = this.metrics();
-    return metrics ? getAxisRecommendations(analyzeMotricity(metrics)) : [];
+    return result && metrics
+      ? getAxisRecommendations(analyzeMotricity(metrics), result.score)
+      : [];
   });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {

@@ -65,10 +65,11 @@ export class MemoryResult {
   });
 
   protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const result = this.page.result();
     const sequences = this.sequences();
     const scored = this.scored();
-    return sequences && scored
-      ? getAxisRecommendations(analyzeMemory(sequences, scored))
+    return result && sequences && scored
+      ? getAxisRecommendations(analyzeMemory(sequences, scored), result.score)
       : [];
   });
 

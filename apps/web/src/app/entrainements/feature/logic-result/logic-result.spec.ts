@@ -339,6 +339,26 @@ describe('LogicResult - lien vers le guide', () => {
   });
 });
 
+describe('LogicResult - recommandations', () => {
+  it('recommends something while the score can still improve', async () => {
+    const fixture = await setup(buildResult());
+
+    expect(
+      fixture.nativeElement.querySelector('ui-result-recommendation'),
+    ).not.toBeNull();
+  });
+
+  it('recommends nothing after a perfect score', async () => {
+    const fixture = await setup(
+      buildResult({ score: 100, band: ScoreBand.EXCELLENT }),
+    );
+
+    expect(
+      fixture.nativeElement.querySelector('ui-result-recommendation'),
+    ).toBeNull();
+  });
+});
+
 describe('LogicResult - badges débloqués', () => {
   const newBadges = [
     {

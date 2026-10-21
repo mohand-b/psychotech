@@ -54,8 +54,11 @@ export class ReactivityResult {
   });
 
   protected readonly recommendations = computed<AxisFinding[]>(() => {
+    const result = this.page.result();
     const scored = this.scored();
-    return scored ? getAxisRecommendations(analyzeReactivity(scored)) : [];
+    return result && scored
+      ? getAxisRecommendations(analyzeReactivity(scored), result.score)
+      : [];
   });
 
   protected readonly metricRows = computed<ResultMetricRow[]>(() => {

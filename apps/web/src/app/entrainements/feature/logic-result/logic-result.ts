@@ -92,6 +92,7 @@ export class LogicResult {
             items,
             result.logicFamily,
           ),
+          result.score,
         )
       : [];
   });

@@ -58,18 +58,21 @@ describe('ResultRecommendation', () => {
   });
 
   it('keeps the severity order produced by getAxisRecommendations', async () => {
-    const findings = getAxisRecommendations([
-      buildFinding({
-        id: 'low',
-        severity: RecommendationPriority.LOW,
-        finding: 'Constat mineur',
-      }),
-      buildFinding({
-        id: 'high',
-        severity: RecommendationPriority.HIGH,
-        finding: 'Constat majeur',
-      }),
-    ]);
+    const findings = getAxisRecommendations(
+      [
+        buildFinding({
+          id: 'low',
+          severity: RecommendationPriority.LOW,
+          finding: 'Constat mineur',
+        }),
+        buildFinding({
+          id: 'high',
+          severity: RecommendationPriority.HIGH,
+          finding: 'Constat majeur',
+        }),
+      ],
+      64,
+    );
     const fixture = await setup(AxisType.MEMORY, findings);
     const texts = [
       ...fixture.nativeElement.querySelectorAll('.reco__text'),
