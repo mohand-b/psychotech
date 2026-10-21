@@ -138,7 +138,10 @@ function selectRecommendations(
     .map((entry) => ({
       entry,
       kind: weaknessThresholdKind(entry, thresholds),
-      findings: findingsMap.get(entry.axis) ?? [],
+      findings: getAxisRecommendations(
+        findingsMap.get(entry.axis) ?? [],
+        entry.score,
+      ),
     }))
     .filter(({ kind, findings }) => findings.length > 0 || kind !== null)
     .sort(
@@ -152,7 +155,7 @@ function selectRecommendations(
       axis: entry.axis,
       findings:
         findings.length > 0
-          ? getAxisRecommendations(findings)
+          ? findings
           : kind === null
             ? []
             : [thresholdShortfallFinding(entry, kind, thresholds)],

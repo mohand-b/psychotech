@@ -1,3 +1,4 @@
+import { AXIS_SCORE_MAX } from '../domain/verdict-band';
 import { AxisType, RecommendationPriority } from '../enums';
 
 export interface AxisFinding {
@@ -35,8 +36,11 @@ export function sortFindingsBySeverity(
 
 export function getAxisRecommendations(
   findings: AxisFinding[],
+  score: number,
 ): AxisFinding[] {
-  return sortFindingsBySeverity(findings).slice(0, AXIS_RECOMMENDATIONS_LIMIT);
+  return score >= AXIS_SCORE_MAX
+    ? []
+    : sortFindingsBySeverity(findings).slice(0, AXIS_RECOMMENDATIONS_LIMIT);
 }
 
 export type AxisFindingFamily =

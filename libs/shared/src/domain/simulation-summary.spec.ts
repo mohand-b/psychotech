@@ -179,6 +179,24 @@ describe('buildSimulationSummary', () => {
     expect(summary.recommendations[0].findings[0].id).toBe('b');
   });
 
+  it('gives no next step to an axis with a perfect score, whatever its findings', () => {
+    const summary = buildSimulationSummary(
+      [
+        outcome(AxisType.REACTIVITY, 100, ScoreBand.EXCELLENT, true),
+        outcome(AxisType.MOTOR_SKILLS, 85, ScoreBand.EXCELLENT),
+      ],
+      THRESHOLDS,
+      [
+        { axis: AxisType.REACTIVITY, findings: [finding('reactivity')] },
+        { axis: AxisType.MOTOR_SKILLS, findings: [finding('motor')] },
+      ],
+    );
+
+    expect(summary.recommendations.map(({ axis }) => axis)).toEqual([
+      AxisType.MOTOR_SKILLS,
+    ]);
+  });
+
   it('recommends finding-less axes under a threshold with a generic shortfall finding', () => {
     const summary = buildSimulationSummary(
       [

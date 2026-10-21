@@ -43,19 +43,31 @@ describe('sortFindingsBySeverity', () => {
 
 describe('getAxisRecommendations', () => {
   it('keeps the three most severe findings', () => {
-    const top = getAxisRecommendations([
-      finding('a', RecommendationPriority.LOW),
-      finding('b', RecommendationPriority.HIGH),
-      finding('c', RecommendationPriority.MEDIUM),
-      finding('d', RecommendationPriority.MEDIUM),
-      finding('e', RecommendationPriority.HIGH),
-    ]);
+    const top = getAxisRecommendations(
+      [
+        finding('a', RecommendationPriority.LOW),
+        finding('b', RecommendationPriority.HIGH),
+        finding('c', RecommendationPriority.MEDIUM),
+        finding('d', RecommendationPriority.MEDIUM),
+        finding('e', RecommendationPriority.HIGH),
+      ],
+      72,
+    );
     expect(top).toHaveLength(AXIS_RECOMMENDATIONS_LIMIT);
     expect(top.map(({ severity }) => severity)).toEqual([
       RecommendationPriority.HIGH,
       RecommendationPriority.HIGH,
       RecommendationPriority.MEDIUM,
     ]);
+  });
+
+  it('recommends nothing once the score is perfect, leaving nothing to improve', () => {
+    expect(
+      getAxisRecommendations([finding('a', RecommendationPriority.HIGH)], 100),
+    ).toEqual([]);
+    expect(
+      getAxisRecommendations([finding('a', RecommendationPriority.HIGH)], 99),
+    ).toHaveLength(1);
   });
 });
 
