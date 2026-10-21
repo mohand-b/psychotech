@@ -149,7 +149,7 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MEMORY_EXCELLENCE,
       BadgeId.MEMORY_PERFECTION,
     ],
-    ['Tête bien pleine', "Mémoire d'éléphant", 'Disque dur'],
+    ['Archiviste', "Mémoire d'éléphant", 'Disque dur'],
     'Toutes les séquences restituées sans erreur',
   ),
   ...axisBadges(
@@ -159,8 +159,8 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.DISCRIMINATION_EXCELLENCE,
       BadgeId.DISCRIMINATION_PERFECTION,
     ],
-    ['Fin limier', 'Œil de lynx', 'Radar'],
-    'Zéro fausse alerte, zéro cible manquée',
+    ['Vigie', 'Œil de lynx', 'Radar'],
+    'Zéro fausse alerte, zéro signal manqué',
   ),
   ...axisBadges(
     AxisType.REACTIVITY,
@@ -179,7 +179,7 @@ const AXIS_BADGES: BadgeDefinition[] = [
       BadgeId.MOTOR_EXCELLENCE,
       BadgeId.MOTOR_PERFECTION,
     ],
-    ['Main sûre', 'Chirurgien', 'Orfèvre'],
+    ['Pilote', 'Chirurgien', 'Orfèvre'],
     'Aucun contact avec les bords',
     exitFreeCondition(AxisType.MOTOR_SKILLS, 'Aucune sortie de couloir'),
   ),
