@@ -12,7 +12,11 @@ import {
   GIFT_CODE_INVALID_ERROR_CODE,
   GiftCodeRedemptionDto,
 } from '@psychotech/shared';
-import { buildEnergyState, canAfford } from './energy.logic';
+import {
+  buildEnergyState,
+  canAfford,
+  isGiftCodeExhausted,
+} from './energy.logic';
 import { toDbReason } from './energy.mappers';
 import { EnergyRepository } from './energy.repository';
 
@@ -92,8 +96,10 @@ export class EnergyService {
     const now = new Date();
     const exhausted =
       giftCode !== null &&
-      giftCode.maxRedemptions !== null &&
-      giftCode._count.redemptions >= giftCode.maxRedemptions;
+      isGiftCodeExhausted({
+        maxRedemptions: giftCode.maxRedemptions,
+        redemptionCount: giftCode._count.redemptions,
+      });
     const expired =
       giftCode !== null &&
       giftCode.expiresAt !== null &&

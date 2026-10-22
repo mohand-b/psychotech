@@ -48,6 +48,88 @@ describe('EnergyRepository.spend', () => {
   });
 });
 
+interface GiftRedemptionRow {
+  codeId: string;
+  userId: string;
+}
+
+function buildGiftCodeDatabase(maxRedemptions: number | null) {
+  const redemptions: GiftRedemptionRow[] = [];
+  let rowLockReleased: Promise<void> = Promise.resolve();
+  const prisma = {
+    $transaction: vi.fn(
+      async (callback: (client: object) => Promise<unknown>) => {
+        let releaseRowLock = (): void => undefined;
+        const tx = {
+          $queryRaw: vi.fn(async (query: TemplateStringsArray) => {
+            if (query.join('').includes('FOR UPDATE')) {
+              const previousHolderReleased = rowLockReleased;
+              rowLockReleased = new Promise((resolve) => {
+                releaseRowLock = resolve;
+              });
+              await previousHolderReleased;
+            }
+            return [{ maxRedemptions }];
+          }),
+          giftRedemption: {
+            count: vi.fn(async () => redemptions.length),
+            create: vi.fn(async ({ data }: { data: GiftRedemptionRow }) => {
+              redemptions.push(data);
+              return data;
+            }),
+          },
+          energyWallet: {
+            upsert: vi.fn(
+              async ({
+                create,
+              }: {
+                create: { userId: string; balance: number };
+              }) => create,
+            ),
+          },
+          energyLedger: { create: vi.fn().mockResolvedValue({}) },
+        };
+        try {
+          return await callback(tx);
+        } finally {
+          releaseRowLock();
+        }
+      },
+    ),
+  };
+  return { prisma, redemptions };
+}
+
+describe('EnergyRepository.redeemGiftCode', () => {
+  it('credits only one of two accounts redeeming a single-use code at the same moment', async () => {
+    const { prisma, redemptions } = buildGiftCodeDatabase(1);
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+
+    const [first, second] = await Promise.all([
+      repository.redeemGiftCode('user-1', 'gift-1', 300),
+      repository.redeemGiftCode('user-2', 'gift-1', 300),
+    ]);
+
+    expect(first).toEqual({ userId: 'user-1', balance: 300 });
+    expect(second).toBeNull();
+    expect(redemptions).toEqual([{ codeId: 'gift-1', userId: 'user-1' }]);
+  });
+
+  it('credits every account redeeming at the same moment a code without redemption limit', async () => {
+    const { prisma, redemptions } = buildGiftCodeDatabase(null);
+    const repository = new EnergyRepository(prisma as unknown as PrismaService);
+
+    const [first, second] = await Promise.all([
+      repository.redeemGiftCode('user-1', 'gift-1', 5),
+      repository.redeemGiftCode('user-2', 'gift-1', 5),
+    ]);
+
+    expect(first).toEqual({ userId: 'user-1', balance: 5 });
+    expect(second).toEqual({ userId: 'user-2', balance: 5 });
+    expect(redemptions).toHaveLength(2);
+  });
+});
+
 describe('EnergyRepository.hasLedgerRef', () => {
   it('reports whether a ledger entry carries the reference', async () => {
     const prisma = {

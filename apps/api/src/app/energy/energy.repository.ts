@@ -6,12 +6,15 @@ import {
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { GiftCodeUsage, isGiftCodeExhausted } from './energy.logic';
 
 type PrismaClientLike = Prisma.TransactionClient;
 
 export type GiftCodeWithCount = GiftCode & {
   _count: { redemptions: number };
 };
+
+type LockedGiftCodeRow = Pick<GiftCode, 'maxRedemptions'>;
 
 @Injectable()
 export class EnergyRepository {
@@ -76,6 +79,10 @@ export class EnergyRepository {
   ): Promise<EnergyWallet | null> {
     try {
       return await this.prisma.$transaction(async (tx) => {
+        const usage = await this.lockGiftCodeUsage(tx, giftCodeId);
+        if (!usage || isGiftCodeExhausted(usage)) {
+          return null;
+        }
         await tx.giftRedemption.create({
           data: { codeId: giftCodeId, userId },
         });
@@ -112,6 +119,22 @@ export class EnergyRepository {
       select: { id: true },
     });
     return entry !== null;
+  }
+
+  private async lockGiftCodeUsage(
+    client: PrismaClientLike,
+    giftCodeId: string,
+  ): Promise<GiftCodeUsage | null> {
+    const [lockedCode] = await client.$queryRaw<LockedGiftCodeRow[]>`
+      SELECT "maxRedemptions" FROM "GiftCode" WHERE "id" = ${giftCodeId} FOR UPDATE
+    `;
+    if (!lockedCode) {
+      return null;
+    }
+    const redemptionCount = await client.giftRedemption.count({
+      where: { codeId: giftCodeId },
+    });
+    return { maxRedemptions: lockedCode.maxRedemptions, redemptionCount };
   }
 
   private async queryWallet(

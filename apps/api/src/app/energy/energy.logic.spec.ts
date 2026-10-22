@@ -1,6 +1,11 @@
 import { SessionMode } from '@psychotech/shared';
 import { describe, expect, it } from 'vitest';
-import { buildEnergyState, canAfford, energyCost } from './energy.logic';
+import {
+  buildEnergyState,
+  canAfford,
+  energyCost,
+  isGiftCodeExhausted,
+} from './energy.logic';
 
 describe('energyCost', () => {
   it('costs 5 for a full session, 1 for a targeted axis and 0 for a tutorial', () => {
@@ -20,6 +25,23 @@ describe('canAfford', () => {
 
   it('always affords zero-cost tutorials', () => {
     expect(canAfford({ balance: 0, cost: 0 })).toBe(true);
+  });
+});
+
+describe('isGiftCodeExhausted', () => {
+  it('exhausts a limited code once its redemptions reach the limit', () => {
+    expect(isGiftCodeExhausted({ maxRedemptions: 1, redemptionCount: 0 })).toBe(
+      false,
+    );
+    expect(isGiftCodeExhausted({ maxRedemptions: 1, redemptionCount: 1 })).toBe(
+      true,
+    );
+  });
+
+  it('never exhausts a code without redemption limit', () => {
+    expect(
+      isGiftCodeExhausted({ maxRedemptions: null, redemptionCount: 10_000 }),
+    ).toBe(false);
   });
 });
 
